@@ -40,6 +40,7 @@ class AGC100:
         # below
         self.ser = serial.Serial(port = port, timeout = timeout)
 
+    # checks the controller's response for errors
     def checkAcknowledgement(self, response):
         if (response == NAK + CR + LF):
             message = 'Serial communication returned negative acknowledge (NAK). ' \
@@ -50,6 +51,7 @@ class AGC100:
                 ''.format(repr(response))
             raise IOError(message)
 
+    # returns the pressure currently read by the controller
     def getPressure(self):
         assert self.ser.isOpen()
 
@@ -70,6 +72,7 @@ class AGC100:
         self.ser.write(CR + LF)
         return pressure
 
+    # returns the model of the gauge connected to the controller
     def getGaugeModel(self):
         assert self.ser.isOpen()
 
@@ -84,6 +87,7 @@ class AGC100:
 
         return model
 
+    # returns the units of the pressure measurement
     def getUnits(self):
         assert self.ser.isOpen()
 
@@ -98,6 +102,7 @@ class AGC100:
 
         return unit
 
+    # closes the connection with the controller
     def closeConnection(self):
         self.ser.close()
 
