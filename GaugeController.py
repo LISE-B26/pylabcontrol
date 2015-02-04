@@ -63,7 +63,7 @@ class AGC100:
         errMsgAndPressure = self.ser.readline().rstrip(LF).rstrip(CR)
 
         errMsg = errMsgAndPressure[0]
-        pressure = errMsgAndPressure[3:]
+        pressure = float(errMsgAndPressure[3:])
 
         if errMsg != '0':
             message = 'Pressure query resulted in an error: ' + MEASUREMENT_STATUS[errMsg]
@@ -111,6 +111,6 @@ if __name__ == '__main__':
 
     controller = AGC100()
     print 'The gauge model number is ' + controller.getGaugeModel()
-    print 'The current pressure is ' + controller.getPressure() + ' ' + controller.getUnits()
+    print 'The current pressure is ' + str(controller.getPressure()) + ' ' + controller.getUnits()
 
     controller.closeConnection()
