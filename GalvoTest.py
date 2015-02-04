@@ -82,7 +82,8 @@ class DaqSetPt(threading.Thread):
         nidaq.DAQmxClearTask(self.taskHandle)
 
     # error checking routine for nidaq commands. Input should be return value
-    # from nidaq function
+    # from nidaq function. Successful execution of command (usual case) sends 0
+    # to this function, which passes through code. Nonzero value is error case
     # err: nidaq error code
     def CHK(self, err):
         if err < 0:
