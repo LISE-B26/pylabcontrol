@@ -2,19 +2,15 @@
 # Last Update: 2/3/15
 
 import serial
-import re
-
-
-
 
 class MDT693A:
 
-    def __init__(self, port = 7, timeout = .1):
+    def __init__(self, port = 7, baudrate=115200, timeout = .1):
         # The serial connection should be setup with the following parameters:
-        # 1 start bit, 8 data bits, No parity bit, 1 stop bit, no hardware
+        # 8 data bits, No parity bit, 1 stop bit, no hardware
         # handshake. These are all default for Serial and therefore not input
         # below
-        self.ser = serial.Serial(port = port, baudrate=115200, timeout = timeout)
+        self.ser = serial.Serial(port = port, baudrate=baudrate, timeout = timeout)
 
     # get the voltage on the x-axis port of the piezo controller
     def getXVoltage(self):
@@ -64,6 +60,38 @@ class MDT693A:
         self.ser.write('%s%f\r'%('ZV', voltage))
         self.ser.readline()
 
+    # gets the manual offset on the x axis. This is an additional voltage added to the x axis via the physical front
+    # panel knob
+    def getXManualOffset(self):
+        assert self.ser.isOpen()
+
+        curr_voltage = self.getXVoltage()
+        self.setXVoltage(0);
+        manualOffset = self.getXVoltage()
+        self.setXVoltage(curr_voltage - manualOffset)
+        return manualOffset
+
+    # gets the manual offset on the y axis. This is an additional voltage added to the y axis via the physical front
+    # panel knob
+    def getYManualOffset(self):
+        assert self.ser.isOpen()
+
+        curr_voltage = self.getYVoltage()
+        self.setYVoltage(0);
+        manualOffset = self.getYVoltage()
+        self.setYVoltage(curr_voltage - manualOffset)
+        return manualOffset
+
+    # gets the manual offset on the z axis. This is an additional voltage added to the z axis via the physical front
+    # panel knob
+    def getZManualOffset(self):
+        assert self.ser.isOpen()
+
+        curr_voltage = self.getZVoltage()
+        self.setZVoltage(0);
+        manualOffset = self.getZVoltage()
+        self.setZVoltage(curr_voltage - manualOffset)
+        return manualOffset
 
     # closes the connection with the controller
     def closeConnection(self):
@@ -98,5 +126,9 @@ if __name__ == '__main__':
         print 'Successfully set voltages back to original values'
     else:
         print 'Was not able to set voltages back to original values'
+
+    print 'The x manual offset is ' + str(controller.getXManualOffset())
+    print 'The y manual offset is ' + str(controller.getYManualOffset())
+    print 'The y manual offset is ' + str(controller.getZManualOffset())
 
     controller.closeConnection()
