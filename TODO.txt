@@ -1,0 +1,28 @@
+Hardware:
+GPIB
+SRS signal generator (microwaves)
+    set freq, phase, amp
+    iq modulation on/off
+    frequency sweep (start, end, sweep as function of external voltage)
+    starting conditions
+Pulseblaster
+Montana cryostat (wait for email)
+USB devices (rotation stage, linear driver)
+Zicontrol
+
+
+Attocube
+picoharp
+
+
+
+
+Software:
+pandas
+saving data
+gui
+
+
+
+python logging
+exception control
