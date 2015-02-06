@@ -1,7 +1,7 @@
 # B26 Lab Code
 # Last Update: 2/3/15
 
-#To implement: SweepingOut, ReadSweep, FFT, configure channel (offset, amplitude, frequency)
+#To implement: Sweeping, configure channel (offset, amplitude, frequency)
 
 import time
 import re
@@ -26,6 +26,7 @@ class ZIHF2:
             self.out_mixer_c = 6
         else:
             self.out_mixer_c = 0
+        self.plotting = 0
 
         # Configure the settings relevant to this experiment
         self.exp_setting = [
@@ -78,9 +79,11 @@ class ZIHF2:
             time.sleep(0.2)
             progress = sweeper.progress()
             print "Individual sweep %.2f%% complete.   \r" % (100*progress),
-            ## Here we could read intermediate data via
-            # data = sweeper.read(True)...
-            ## and process it
+            data = sweeper.read(True)
+            print(data.viewkeys())
+            self.samples = data[path]
+            #print(self.samples[0])
+            self.plot()
             # if device in data:
             # ...
             if (time.time() - start) > timeout:
@@ -95,7 +98,9 @@ class ZIHF2:
         # is returned. It's still necessary still need to issue read() at the end to
         # fetch the rest.
         return_flat_dict = True
-        data = sweeper.read(return_flat_dict)
+        data = sweeper.read(True)
+        print(data.viewkeys())
+        self.samples = data[path]
         sweeper.unsubscribe(path)
 
         # Stop the sweeper thread and clear the memory
@@ -110,22 +115,33 @@ class ZIHF2:
         print "sample contains %d sweeps" % len(self.samples)
 
     def plot(self):
-        plt.figure()
-        plt.interactive(True)
-        plt.hold(True)
-        for i in range(0, len(self.samples)):
-            # please note: the "[i][0]" indexing is known issue to be fixed in
-            # an upcoming release (there shouldn't be an additional [0])
-            frequency = self.samples[i][0]['frequency']
-            R = numpy.sqrt(self.samples[i][0]['x']**2 + self.samples[i][0]['y']**2)
-            plt.loglog(frequency, R)
-        plt.grid(True)
-        plt.title('Results of %d sweeps' % len(self.samples))
-        plt.xlabel('Frequency (Hz)')
-        plt.ylabel('Amplitude (V_RMS)')
-        plt.autoscale()
-        plt.draw()
-        plt.show()
+        if(self.plotting == 0):
+            plt.ion()
+            for i in range(0, len(self.samples)):
+                # please note: the "[i][0]" indexing is known issue to be fixed in
+                # an upcoming release (there shouldn't be an additional [0])
+                frequency = self.samples[i][0]['frequency']
+                frequency = frequency[~numpy.isnan(frequency)]
+                R = numpy.sqrt(self.samples[i][0]['x']**2 + self.samples[i][0]['y']**2)
+                R = R[~numpy.isnan(R)]
+                plt.loglog(frequency, R)
+            plt.grid(True)
+            plt.title('Results of %d sweeps' % len(self.samples))
+            plt.xlabel('Frequency (Hz)')
+            plt.ylabel('Amplitude (V_RMS)')
+            plt.autoscale()
+            plt.show(block = False)
+            self.plotting = 1
+        else:
+            for i in range(0, len(self.samples)):
+                # please note: the "[i][0]" indexing is known issue to be fixed in
+                # an upcoming release (there shouldn't be an additional [0])
+                frequency = self.samples[i][0]['frequency']
+                frequency = frequency[~numpy.isnan(frequency)]
+                R = numpy.sqrt(self.samples[i][0]['x']**2 + self.samples[i][0]['y']**2)
+                R = R[~numpy.isnan(R)]
+                plt.loglog(frequency, R)
+                plt.draw()
 
 if __name__ == '__main__':
     zi = ZIHF2(.1)
