@@ -1,4 +1,6 @@
 # B26 Lab Code
+# REquirements: Assumes that Thorlabs Piezo Controller MDT693A is connected via serial port,
+# by default on port 2 adn baudrate 115200
 # Last Update: 2/3/15
 
 import serial
@@ -8,7 +10,8 @@ class MDT693A:
 
     SYSTEM_OFFSET = 0.6 # volts
 
-    def __init__(self, outputAxis, port = 7, baudrate=115200, timeout = .1):
+
+    def __init__(self, outputAxis, port = 3, baudrate=115200, timeout = .1):
         # The serial connection should be setup with the following parameters:
         # 8 data bits, No parity bit, 1 stop bit, no hardware
         # handshake. These are all default for Serial and therefore not input
@@ -91,7 +94,7 @@ class MDT693A:
 
 
 if __name__ == '__main__':
-
+    """
     xController = MDT693A('X')
     yController = MDT693A('Y')
     zController = MDT693A('Z')
@@ -133,3 +136,8 @@ if __name__ == '__main__':
 
 
     yController.setVoltage(10)
+
+    """
+
+    yController = MDT693A('Z')
+    yController.setVoltage(50)
