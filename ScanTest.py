@@ -13,6 +13,7 @@ import APDTest as APDIn
 # import standard libraries
 import numpy
 import matplotlib.pyplot
+import time
 
 
 # This class controls the galvo and APD to run an NV scan, and displays the
@@ -40,13 +41,17 @@ class ScanNV():
         # scan one x line per loop
         for yNum in xrange(0, len(self.yArray)):
             # initialize APD thread
+            print(yNum)
             readthread = APDIn.ReadAPD("Dev1/ctr0", 1 / self.dt,
                                        len(self.xArray) + 1)
-            self.initPt = numpy.transpose(numpy.column_stack((self.xArray[yNum],
+            self.initPt = numpy.transpose(numpy.column_stack((self.xArray[0],
                                           self.yArray[yNum])))
             self.initPt = (numpy.repeat(self.initPt, 2, axis=1))
             # move galvo to first point in line
-            DaqOut.DaqSetPt(self.initPt, 1 / self.dt, "Dev1/ao0:1")
+            pointthread = DaqOut.DaqOutputWave(self.initPt, 1 / self.dt, "Dev1/ao0:1")
+            pointthread.run()
+            pointthread.waitToFinish()
+            pointthread.stop()
             writethread = DaqOut.DaqOutputWave(self.xArray, 1 / self.dt,
                                                "Dev1/ao0")
             # start counter and scanning sequence
