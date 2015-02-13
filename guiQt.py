@@ -101,17 +101,19 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         self.main_widget = QtGui.QWidget(self)
 
-        l = QtGui.QVBoxLayout(self.main_widget)
-        sc = MyStaticMplCanvas(self.main_widget, width=5, height=4, dpi=100)
-        dc = MyDynamicMplCanvas(self.main_widget, width=5, height=4, dpi=100)
-        l.addWidget(sc)
-        l.addWidget(dc)
+        vbox = QtGui.QVBoxLayout(self.main_widget)
+        self.sc = MyStaticMplCanvas(self.main_widget, width=5, height=4, dpi=100)
+        self.dc = MyDynamicMplCanvas(self.main_widget, width=5, height=4, dpi=100)
+        vbox.addWidget(self.sc)
+        vbox.addWidget(self.dc)
         self.button = QtGui.QPushButton('Push Me',self.main_widget)
         self.text = QtGui.QLineEdit(self.main_widget)
         self.text2 = QtGui.QLineEdit(self.main_widget)
-        l.addWidget(self.button)
-        l.addWidget(self.text)
-        l.addWidget(self.text2)
+        grid = QtGui.QGridLayout()
+        grid.addWidget(self.button, 2,1)
+        grid.addWidget(self.text, 1,1)
+        grid.addWidget(self.text2, 1,2)
+        vbox.addLayout(grid)
 
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
@@ -133,6 +135,9 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def closeEvent(self, ce):
         self.fileQuit()
+
+    def getFigure(self):
+        return self.sc.fig
 
     def about(self):
         QtGui.QMessageBox.about(self, "About",

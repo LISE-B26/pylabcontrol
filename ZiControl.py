@@ -9,6 +9,7 @@ import re
 import zhinst.utils as utils
 import matplotlib.pyplot as plt
 import numpy
+import pandas as pd
 
 # This class initializes an input, output, and auxillary channel on the ZIHF2, and currently has functionality to run
 # a sweep, and plot and save the results.
@@ -133,6 +134,13 @@ class ZIHF2:
             self.samples = data[path]
         print "sample contains %d sweeps" % len(self.samples)
 
+    def writeData(self, filepath):
+        frequency = self.samples[0][0]['frequency']
+        response = numpy.sqrt(self.samples[0][0]['x']**2 + self.samples[0][0]['y']**2)
+        dataMatrix = numpy.column_stack((frequency,response))
+        df = pd.DataFrame(dataMatrix, columns = ['Frequency', 'Response'])
+        df.to_csv(filepath, index = False, header=True)
+
     # plots data contained in self.samples
     def plot(self):
         if(self.plotting == 0):
@@ -163,8 +171,39 @@ class ZIHF2:
                 plt.loglog(frequency, R)
                 plt.draw()
 
+
+    # plots data contained in self.samples
+    def plotGui(self, figure):
+        if(self.plotting == 0):
+            plt.ion()
+            for i in range(0, len(self.samples)):
+                # please note: the "[i][0]" indexing is known issue to be fixed in
+                # an upcoming release (there shouldn't be an additional [0])
+                frequency = self.samples[i][0]['frequency']
+                frequency = frequency[~numpy.isnan(frequency)]
+                R = numpy.sqrt(self.samples[i][0]['x']**2 + self.samples[i][0]['y']**2)
+                R = R[~numpy.isnan(R)]
+                plt.loglog(frequency, R)
+            plt.grid(True)
+            plt.title('Results of %d sweeps' % len(self.samples))
+            plt.xlabel('Frequency (Hz)')
+            plt.ylabel('Amplitude (V_RMS)')
+            plt.autoscale()
+            plt.show(block = False)
+            self.plotting = 1
+        else:
+            for i in range(0, len(self.samples)):
+                # please note: the "[i][0]" indexing is known issue to be fixed in
+                # an upcoming release (there shouldn't be an additional [0])
+                frequency = self.samples[i][0]['frequency']
+                frequency = frequency[~numpy.isnan(frequency)]
+                R = numpy.sqrt(self.samples[i][0]['x']**2 + self.samples[i][0]['y']**2)
+                R = R[~numpy.isnan(R)]
+                plt.loglog(frequency, R)
+                plt.draw()
+
 # test code
-#if __name__ == '__main__':
-#    zi = ZIHF2(1, .5)
-#    zi.sweep(1e6, 50e6, 100, 10, xScale = 0)
-#    zi.plot()
+if __name__ == '__main__':
+    zi = ZIHF2(1, .5)
+    zi.sweep(1e6, 50e6, 100, 10, xScale = 0)
+    zi.writeData('C:\Users\Experiment\Desktop\ziwritetest.txt')
