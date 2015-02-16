@@ -141,7 +141,7 @@ class ZIHF2:
         df = pd.DataFrame(dataMatrix, columns = ['Frequency', 'Response'])
         df.to_csv(filepath, index = False, header=True)
 
-    # plots data contained in self.samples
+    # plots data contained in self.samples to pyplot window
     def plot(self):
         if(self.plotting == 0):
             plt.ion()
@@ -172,10 +172,9 @@ class ZIHF2:
                 plt.draw()
 
 
-    # plots data contained in self.samples
-    def plotGui(self, figure):
+    # plots data contained in self.samples to GUI
+    def plotGui(self, canvas):
         if(self.plotting == 0):
-            plt.ion()
             for i in range(0, len(self.samples)):
                 # please note: the "[i][0]" indexing is known issue to be fixed in
                 # an upcoming release (there shouldn't be an additional [0])
@@ -183,13 +182,13 @@ class ZIHF2:
                 frequency = frequency[~numpy.isnan(frequency)]
                 R = numpy.sqrt(self.samples[i][0]['x']**2 + self.samples[i][0]['y']**2)
                 R = R[~numpy.isnan(R)]
-                plt.loglog(frequency, R)
-            plt.grid(True)
-            plt.title('Results of %d sweeps' % len(self.samples))
-            plt.xlabel('Frequency (Hz)')
-            plt.ylabel('Amplitude (V_RMS)')
-            plt.autoscale()
-            plt.show(block = False)
+                canvas.axes.loglog(frequency, R)
+            canvas.axes.grid(True)
+            canvas.axes.title('Results of %d sweeps' % len(self.samples))
+            canvas.axes.xlabel('Frequency (Hz)')
+            canvas.axes.ylabel('Amplitude (V_RMS)')
+            canvas.axes.autoscale()
+            canvas.axes.draw()
             self.plotting = 1
         else:
             for i in range(0, len(self.samples)):
@@ -199,8 +198,8 @@ class ZIHF2:
                 frequency = frequency[~numpy.isnan(frequency)]
                 R = numpy.sqrt(self.samples[i][0]['x']**2 + self.samples[i][0]['y']**2)
                 R = R[~numpy.isnan(R)]
-                plt.loglog(frequency, R)
-                plt.draw()
+                canvas.axes.loglog(frequency, R)
+                canvas.axes.draw()
 
 # test code
 if __name__ == '__main__':

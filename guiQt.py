@@ -17,6 +17,7 @@ import numpy
 import numpy.random
 import test
 from matplotlib.backends import qt_compat
+from matplotlib.widgets import RectangleSelector
 use_pyside = qt_compat.QT_API == qt_compat.QT_API_PYSIDE
 if use_pyside:
     from PySide import QtGui, QtCore
@@ -35,7 +36,7 @@ class MyMplCanvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
+        self.axes = fig.add_subplot(111, autoscale_on=False)
         # We want the axes cleared every time plot() is called
         self.axes.hold(False)
 
@@ -66,9 +67,9 @@ class MyDynamicMplCanvas(MyMplCanvas):
     """A canvas that updates itself every second with a new plot."""
     def __init__(self, *args, **kwargs):
         MyMplCanvas.__init__(self, *args, **kwargs)
-        timer = QtCore.QTimer(self)
-        timer.timeout.connect(self.update_figure)
-        timer.start(1000)
+        #timer = QtCore.QTimer(self)
+        #timer.timeout.connect(self.update_figure)
+        #timer.start(1000)
 
     def compute_initial_figure(self):
         self.axes.imshow([[1,2,3],[4,5,6],[7,8,9]], interpolation = "nearest")
@@ -79,7 +80,6 @@ class MyDynamicMplCanvas(MyMplCanvas):
         m = numpy.reshape(l,(3,3))
         self.axes.imshow(m,interpolation = "nearest")
         self.draw()
-
 
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -101,27 +101,89 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.main_widget = QtGui.QWidget(self)
 
         vbox = QtGui.QVBoxLayout(self.main_widget)
+        hbox = QtGui.QHBoxLayout()
         self.sc = MyStaticMplCanvas(self.main_widget, width=5, height=4, dpi=100)
         self.dc = MyDynamicMplCanvas(self.main_widget, width=5, height=4, dpi=100)
-        vbox.addWidget(self.sc)
-        vbox.addWidget(self.dc)
+        hbox.addWidget(self.sc)
+        hbox.addWidget(self.dc)
+        vbox.addLayout(hbox)
+
+        self.xVoltageMin = QtGui.QLineEdit(self.main_widget)
+        self.yVoltageMin = QtGui.QLineEdit(self.main_widget)
+        self.xVoltageMax = QtGui.QLineEdit(self.main_widget)
+        self.yVoltageMax = QtGui.QLineEdit(self.main_widget)
+        self.xVoltage = QtGui.QLineEdit(self.main_widget)
+        self.yVoltage = QtGui.QLineEdit(self.main_widget)
+        self.xVoltageMinL = QtGui.QLabel(self.main_widget)
+        self.xVoltageMinL.setText("xVoltsMin:")
+        self.yVoltageMinL = QtGui.QLabel(self.main_widget)
+        self.yVoltageMinL.setText("yVoltsMin:")
+        self.xVoltageMaxL = QtGui.QLabel(self.main_widget)
+        self.xVoltageMaxL.setText("xVoltsMax:")
+        self.yVoltageMaxL = QtGui.QLabel(self.main_widget)
+        self.yVoltageMaxL.setText("yVoltsMax:")
+        self.xVoltageL = QtGui.QLabel(self.main_widget)
+        self.xVoltageL.setText("xVolts:")
+        self.yVoltageL = QtGui.QLabel(self.main_widget)
+        self.yVoltageL.setText("yVolts:")
+
+        grid = QtGui.QGridLayout()
+        grid.addWidget(self.xVoltageMin, 2,1)
+        grid.addWidget(self.yVoltageMin, 2,2)
+        grid.addWidget(self.xVoltageMinL,1,1)
+        grid.addWidget(self.yVoltageMinL,1,2)
+        grid.addWidget(self.xVoltageMax, 2,3)
+        grid.addWidget(self.yVoltageMax, 2,4)
+        grid.addWidget(self.xVoltageMaxL,1,3)
+        grid.addWidget(self.yVoltageMaxL,1,4)
+        grid.addWidget(self.xVoltage, 2,5)
+        grid.addWidget(self.yVoltage, 2,6)
+        grid.addWidget(self.xVoltageL,1,5)
+        grid.addWidget(self.yVoltageL,1,6)
+        vbox.addLayout(grid)
+
+        ZILayout = QtGui.QGridLayout()
+        self.freqLow = QtGui.QLineEdit(self.main_widget)
+        self.freqLowL = QtGui.QLabel(self.main_widget)
+        self.freqLowL.setText("Low Frequency")
+        self.freqHigh = QtGui.QLineEdit(self.main_widget)
+        self.freqHighL = QtGui.QLabel(self.main_widget)
+        self.freqHighL.setText("High Frequency")
         self.buttonZI = QtGui.QPushButton('ZI',self.main_widget)
         self.buttonZI.clicked.connect(self.ZIBtnClicked)
+        self.buttonZILog = QtGui.QPushButton('Log', self.main_widget)
+        self.buttonZILog.setCheckable(True)
+        ZILayout.addWidget(self.freqLow,2,1)
+        ZILayout.addWidget(self.freqLowL,1,1)
+        ZILayout.addWidget(self.freqHigh,2,2)
+        ZILayout.addWidget(self.freqHighL,1,2)
+        ZILayout.addWidget(self.buttonZI,1,3)
+        ZILayout.addWidget(self.buttonZILog,2,3)
+        vbox.addLayout(ZILayout)
 
-        self.text = QtGui.QLineEdit(self.main_widget)
-        self.text2 = QtGui.QLineEdit(self.main_widget)
-        grid = QtGui.QGridLayout()
-        grid.addWidget(self.buttonZI, 2,1)
-        grid.addWidget(self.text, 1,1)
-        grid.addWidget(self.text2, 1,2)
-        vbox.addLayout(grid)
+
 
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
 
-        timer = QtCore.QTimer(self)
-        timer.timeout.connect(self.textUpdate)
-        timer.start(500)
+        self.dc.mpl_connect('button_press_event', self.mouseNVImage)
+
+        self.RS = RectangleSelector(self.dc.axes, self.zoom, button = 3, drawtype='box')
+
+        #timer = QtCore.QTimer(self)
+        #timer.timeout.connect(self.textUpdate)
+        #timer.start(500)
+
+
+    def zoom(self,eclick,erelease):
+        self.xVoltageMin.setText(str(eclick.xdata))
+        self.yVoltageMin.setText(str(eclick.ydata))
+        self.xVoltageMax.setText(str(erelease.xdata))
+        self.yVoltageMax.setText(str(erelease.ydata))
+        self.dc.axes.set_xlim(left= min(eclick.xdata,erelease.xdata), right = max(eclick.xdata, erelease.xdata))
+        self.dc.axes.set_ylim(top= min(eclick.ydata, erelease.ydata),bottom= max(eclick.ydata, erelease.ydata))
+        self.dc.draw()
+
 
     def ZIBtnClicked(self):
         #DeviceTriggers.ZIGui(self.sc.axes)
@@ -130,9 +192,14 @@ class ApplicationWindow(QtGui.QMainWindow):
     def textUpdate(self):
         a = numpy.random.ranf()
         b = numpy.random.ranf()
-        self.text.setText(str(a))
-        self.text2.setText(str(b))
+        self.xVoltage.setText(str(a))
+        self.yVoltage.setText(str(b))
 
+    def mouseNVImage(self,event):
+        if(not(event.xdata == None)):
+            if(event.button == 1):
+                self.xVoltage.setText(str(event.xdata))
+                self.yVoltage.setText(str(event.ydata))
 
     def fileQuit(self):
         self.close()
