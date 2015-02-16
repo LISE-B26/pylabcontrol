@@ -15,6 +15,7 @@ import os
 import random
 import numpy
 import numpy.random
+import test
 from matplotlib.backends import qt_compat
 use_pyside = qt_compat.QT_API == qt_compat.QT_API_PYSIDE
 if use_pyside:
@@ -76,8 +77,6 @@ class MyDynamicMplCanvas(MyMplCanvas):
         # Build a list of 4 random integers between 0 and 10 (both inclusive)
         l = [random.randint(0, 10) for i in range(9)]
         m = numpy.reshape(l,(3,3))
-
-
         self.axes.imshow(m,interpolation = "nearest")
         self.draw()
 
@@ -106,11 +105,13 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.dc = MyDynamicMplCanvas(self.main_widget, width=5, height=4, dpi=100)
         vbox.addWidget(self.sc)
         vbox.addWidget(self.dc)
-        self.button = QtGui.QPushButton('Push Me',self.main_widget)
+        self.buttonZI = QtGui.QPushButton('ZI',self.main_widget)
+        self.buttonZI.clicked.connect(self.ZIBtnClicked)
+
         self.text = QtGui.QLineEdit(self.main_widget)
         self.text2 = QtGui.QLineEdit(self.main_widget)
         grid = QtGui.QGridLayout()
-        grid.addWidget(self.button, 2,1)
+        grid.addWidget(self.buttonZI, 2,1)
         grid.addWidget(self.text, 1,1)
         grid.addWidget(self.text2, 1,2)
         vbox.addLayout(grid)
@@ -118,11 +119,13 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
 
-        self.statusBar().showMessage("All hail matplotlib!", 2000)
-
         timer = QtCore.QTimer(self)
         timer.timeout.connect(self.textUpdate)
         timer.start(500)
+
+    def ZIBtnClicked(self):
+        #DeviceTriggers.ZIGui(self.sc.axes)
+        test.plotTest(self.sc)
 
     def textUpdate(self):
         a = numpy.random.ranf()
@@ -130,14 +133,12 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.text.setText(str(a))
         self.text2.setText(str(b))
 
+
     def fileQuit(self):
         self.close()
 
     def closeEvent(self, ce):
         self.fileQuit()
-
-    def getFigure(self):
-        return self.sc.fig
 
     def about(self):
         QtGui.QMessageBox.about(self, "About",
@@ -150,6 +151,11 @@ canvases.
 It may be used and modified with no restriction; raw copies as well as
 modified versions may be distributed without limitation."""
 )
+
+#class DeviceTriggers():
+#    def ZIGui(self, axes):
+#        test.plotTest(axes)
+
 
 
 qApp = QtGui.QApplication(sys.argv)
