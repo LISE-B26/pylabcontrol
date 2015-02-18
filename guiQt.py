@@ -15,7 +15,7 @@ import os
 import random
 import numpy
 import numpy.random
-import test
+import ZiControl
 from matplotlib.backends import qt_compat
 from matplotlib.widgets import RectangleSelector
 use_pyside = qt_compat.QT_API == qt_compat.QT_API_PYSIDE
@@ -143,22 +143,42 @@ class ApplicationWindow(QtGui.QMainWindow):
         vbox.addLayout(grid)
 
         ZILayout = QtGui.QGridLayout()
+        self.amp = QtGui.QLineEdit(self.main_widget)
+        self.ampL = QtGui.QLabel(self.main_widget)
+        self.ampL.setText("Amplitude")
+        self.offset = QtGui.QLineEdit(self.main_widget)
+        self.offsetL = QtGui.QLabel(self.main_widget)
+        self.offsetL.setText("Offset")
         self.freqLow = QtGui.QLineEdit(self.main_widget)
         self.freqLowL = QtGui.QLabel(self.main_widget)
         self.freqLowL.setText("Low Frequency")
         self.freqHigh = QtGui.QLineEdit(self.main_widget)
         self.freqHighL = QtGui.QLabel(self.main_widget)
         self.freqHighL.setText("High Frequency")
+        self.sampleNum = QtGui.QLineEdit(self.main_widget)
+        self.sampleNumL = QtGui.QLabel(self.main_widget)
+        self.sampleNumL.setText("Sample Number")
+        self.samplePerPt = QtGui.QLineEdit(self.main_widget)
+        self.samplePerPtL = QtGui.QLabel(self.main_widget)
+        self.samplePerPtL.setText("Samples Per Point")
         self.buttonZI = QtGui.QPushButton('ZI',self.main_widget)
         self.buttonZI.clicked.connect(self.ZIBtnClicked)
         self.buttonZILog = QtGui.QPushButton('Log', self.main_widget)
         self.buttonZILog.setCheckable(True)
-        ZILayout.addWidget(self.freqLow,2,1)
-        ZILayout.addWidget(self.freqLowL,1,1)
-        ZILayout.addWidget(self.freqHigh,2,2)
-        ZILayout.addWidget(self.freqHighL,1,2)
-        ZILayout.addWidget(self.buttonZI,1,3)
-        ZILayout.addWidget(self.buttonZILog,2,3)
+        ZILayout.addWidget(self.amp,2,1)
+        ZILayout.addWidget(self.ampL,1,1)
+        ZILayout.addWidget(self.offset,2,2)
+        ZILayout.addWidget(self.offsetL,1,2)
+        ZILayout.addWidget(self.freqLow,2,3)
+        ZILayout.addWidget(self.freqLowL,1,3)
+        ZILayout.addWidget(self.freqHigh,2,4)
+        ZILayout.addWidget(self.freqHighL,1,4)
+        ZILayout.addWidget(self.sampleNum,2,5)
+        ZILayout.addWidget(self.sampleNumL,1,5)
+        ZILayout.addWidget(self.samplePerPt,2,6)
+        ZILayout.addWidget(self.samplePerPtL,1,6)
+        ZILayout.addWidget(self.buttonZI,1,7)
+        ZILayout.addWidget(self.buttonZILog,2,7)
         vbox.addLayout(ZILayout)
 
 
@@ -186,8 +206,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 
 
     def ZIBtnClicked(self):
-        #DeviceTriggers.ZIGui(self.sc.axes)
-        test.plotTest(self.sc)
+        DeviceTriggers.ZIGui(self.sc, float(self.amp.text()),float(self.offset.text()), float(self.freqLow.text()),float(self.freqHigh.text()),float(self.sampleNum.text()),float(self.samplePerPt.text()),float(self.buttonZILog.isChecked()))
 
     def textUpdate(self):
         a = numpy.random.ranf()
@@ -219,9 +238,14 @@ It may be used and modified with no restriction; raw copies as well as
 modified versions may be distributed without limitation."""
 )
 
-#class DeviceTriggers():
-#    def ZIGui(self, axes):
-#        test.plotTest(axes)
+class DeviceTriggers():
+    @staticmethod
+    #def ZIGui(canvas):
+    def ZIGui(canvas, amp, offset, freqLow, freqHigh, sampleNum, samplePerPt, xScale):
+        zi = ZiControl.ZIHF2(amp, offset, canvas = canvas)
+        zi.sweep(freqLow, freqHigh, sampleNum, samplePerPt, xScale)
+        #zi.sweep( 1e6, 50e6, 100, 10, xScale = 0)
+
 
 
 

@@ -8,8 +8,11 @@ import time
 import re
 import zhinst.utils as utils
 import matplotlib.pyplot as plt
+import matplotlib.lines
 import numpy
 import pandas as pd
+import sys
+from PyQt4 import QtGui, QtCore
 
 # This class initializes an input, output, and auxillary channel on the ZIHF2, and currently has functionality to run
 # a sweep, and plot and save the results.
@@ -23,7 +26,7 @@ class ZIHF2:
     # auxChannel: specifies auxillary channel to use, default channel 1 as listed on device (value 0)
     # add: turns add mode on output channel on (1) or off (0), default 1
     # range: sets output range (V), default 10
-    def __init__(self, amplitude, offset, ACCoupling = 0, inChannel = 0, outChannel = 0, auxChannel = 0, add = 1, range = 10):
+    def __init__(self, amplitude, offset, ACCoupling = 0, inChannel = 0, outChannel = 0, auxChannel = 0, add = 1, range = 10, canvas = None):
         # find and connect to device
         self.daq = utils.autoConnect(8005,1)
         self.device = utils.autoDetect(self.daq)
@@ -39,6 +42,9 @@ class ZIHF2:
         else:
             self.out_mixer_c = 0
         self.plotting = 0
+        self.canvas = canvas
+        self.line = None
+
 
         # Configure the settings relevant to this experiment
         self.exp_setting = [
@@ -70,6 +76,9 @@ class ZIHF2:
     # direction: choose sequential (0), binary (1), or bidirectional (2) scan modes, default sequential
     # loopcount: number of times to repeat sweep, default 1
     def sweep(self, freqStart, freqEnd, sampleNum, samplesPerPt, xScale = 0, direction = 0, loopcount = 1, timeout=10000):
+        self.freqStart = freqStart
+        self.freqEnd = freqEnd
+        self.xScale = xScale
         sweeper = self.daq.sweep(timeout)
         sweeper.set('sweep/device', self.device)
         sweeper.set('sweep/start', freqStart)
@@ -103,7 +112,10 @@ class ZIHF2:
             #read and plot data as it is collected
             data = sweeper.read(True)
             self.samples = data[path]
-            self.plot()
+            if(not(self.canvas == None)):
+                self.plotGui()
+            else:
+                self.plot()
             if (time.time() - start) > timeout:
                 # If for some reason the sweep is blocking, force the end of the
                 # measurement
@@ -172,37 +184,40 @@ class ZIHF2:
                 plt.draw()
 
 
+
     # plots data contained in self.samples to GUI
-    def plotGui(self, canvas):
+    def plotGui(self):
         if(self.plotting == 0):
-            for i in range(0, len(self.samples)):
                 # please note: the "[i][0]" indexing is known issue to be fixed in
                 # an upcoming release (there shouldn't be an additional [0])
-                frequency = self.samples[i][0]['frequency']
-                frequency = frequency[~numpy.isnan(frequency)]
-                R = numpy.sqrt(self.samples[i][0]['x']**2 + self.samples[i][0]['y']**2)
-                R = R[~numpy.isnan(R)]
-                canvas.axes.loglog(frequency, R)
-            canvas.axes.grid(True)
-            canvas.axes.title('Results of %d sweeps' % len(self.samples))
-            canvas.axes.xlabel('Frequency (Hz)')
-            canvas.axes.ylabel('Amplitude (V_RMS)')
-            canvas.axes.autoscale()
-            canvas.axes.draw()
+            frequency = self.samples[0][0]['frequency']
+            frequency = frequency[~numpy.isnan(frequency)]
+            R = numpy.sqrt(self.samples[0][0]['x']**2 + self.samples[0][0]['y']**2)
+            R = R[~numpy.isnan(R)]
+            self.line, = self.canvas.axes.plot(frequency, R)
+            self.line, = self.canvas.axes.loglog(frequency,R)
+            self.canvas.axes.grid(True)
+            self.canvas.axes.set_title('Results of %d sweeps' % len(self.samples))
+            self.canvas.axes.set_xlabel('Frequency (Hz)')
+            self.canvas.axes.set_ylabel('Amplitude (V_RMS)')
+            self.canvas.axes.set_xlim(left = self.freqStart*.9, right = self.freqEnd*1.1)
+            self.canvas.axes.set_ylim(bottom = 0, top = max(R)*2)
+            self.canvas.draw()
             self.plotting = 1
         else:
-            for i in range(0, len(self.samples)):
                 # please note: the "[i][0]" indexing is known issue to be fixed in
                 # an upcoming release (there shouldn't be an additional [0])
-                frequency = self.samples[i][0]['frequency']
-                frequency = frequency[~numpy.isnan(frequency)]
-                R = numpy.sqrt(self.samples[i][0]['x']**2 + self.samples[i][0]['y']**2)
-                R = R[~numpy.isnan(R)]
-                canvas.axes.loglog(frequency, R)
-                canvas.axes.draw()
+            frequency = self.samples[0][0]['frequency']
+            frequency = frequency[~numpy.isnan(frequency)]
+            R = numpy.sqrt(self.samples[0][0]['x']**2 + self.samples[0][0]['y']**2)
+            R = R[~numpy.isnan(R)]
+            self.line.set_xdata(frequency)
+            self.line.set_ydata(R)
+            self.canvas.draw()
+            QtGui.QApplication.processEvents()
 
 # test code
-if __name__ == '__main__':
-    zi = ZIHF2(1, .5)
-    zi.sweep(1e6, 50e6, 100, 10, xScale = 0)
-    zi.writeData('C:\Users\Experiment\Desktop\ziwritetest.txt')
+#if __name__ == '__main__':
+    #zi = ZIHF2(1, .5)
+    #zi.sweep(1e6, 50e6, 100, 10, xScale = 0)
+    #zi.writeData('C:\Users\Experiment\Desktop\ziwritetest.txt')
