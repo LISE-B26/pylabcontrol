@@ -16,15 +16,11 @@ import random
 import numpy
 import numpy.random
 import ZiControl
+import ScanTest as GalvoScan
+import GalvoTest as DaqOut
 from matplotlib.backends import qt_compat
 from matplotlib.widgets import RectangleSelector
-use_pyside = qt_compat.QT_API == qt_compat.QT_API_PYSIDE
-if use_pyside:
-    from PySide import QtGui, QtCore
-else:
-    from PyQt4 import QtGui, QtCore
-
-from numpy import arange, sin, pi
+from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -35,15 +31,15 @@ progversion = "0.1"
 class MyMplCanvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
     def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111, autoscale_on=False)
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = self.fig.add_subplot(111, autoscale_on=False)
         # We want the axes cleared every time plot() is called
         self.axes.hold(False)
 
         self.compute_initial_figure()
 
         #
-        FigureCanvas.__init__(self, fig)
+        FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
 
         FigureCanvas.setSizePolicy(self,
@@ -67,9 +63,6 @@ class MyDynamicMplCanvas(MyMplCanvas):
     """A canvas that updates itself every second with a new plot."""
     def __init__(self, *args, **kwargs):
         MyMplCanvas.__init__(self, *args, **kwargs)
-        #timer = QtCore.QTimer(self)
-        #timer.timeout.connect(self.update_figure)
-        #timer.start(1000)
 
     def compute_initial_figure(self):
         self.axes.imshow([[1,2,3],[4,5,6],[7,8,9]], interpolation = "nearest")
@@ -102,8 +95,8 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         vbox = QtGui.QVBoxLayout(self.main_widget)
         hbox = QtGui.QHBoxLayout()
-        self.sc = MyStaticMplCanvas(self.main_widget, width=5, height=4, dpi=100)
-        self.dc = MyDynamicMplCanvas(self.main_widget, width=5, height=4, dpi=100)
+        self.sc = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
+        self.dc = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
         hbox.addWidget(self.sc)
         hbox.addWidget(self.dc)
         vbox.addLayout(hbox)
@@ -112,6 +105,9 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.yVoltageMin = QtGui.QLineEdit(self.main_widget)
         self.xVoltageMax = QtGui.QLineEdit(self.main_widget)
         self.yVoltageMax = QtGui.QLineEdit(self.main_widget)
+        self.xPts = QtGui.QLineEdit(self.main_widget)
+        self.yPts = QtGui.QLineEdit(self.main_widget)
+        self.timePerPt = QtGui.QLineEdit(self.main_widget)
         self.xVoltage = QtGui.QLineEdit(self.main_widget)
         self.yVoltage = QtGui.QLineEdit(self.main_widget)
         self.xVoltageMinL = QtGui.QLabel(self.main_widget)
@@ -126,6 +122,17 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.xVoltageL.setText("xVolts:")
         self.yVoltageL = QtGui.QLabel(self.main_widget)
         self.yVoltageL.setText("yVolts:")
+        self.xPtsL = QtGui.QLabel(self.main_widget)
+        self.xPtsL.setText("Number of x Points:")
+        self.yPtsL = QtGui.QLabel(self.main_widget)
+        self.yPtsL.setText("Number of Y Points:")
+        self.timePerPtL = QtGui.QLabel(self.main_widget)
+        self.timePerPtL.setText("Timer Per Point:")
+        self.buttonScan = QtGui.QPushButton('Scan', self.main_widget)
+        self.buttonScan.clicked.connect(self.scanBtnClicked)
+        self.buttonVSet = QtGui.QPushButton('Set Voltage', self.main_widget)
+        self.buttonVSet.clicked.connect(self.vSetBtnClicked)
+
 
         grid = QtGui.QGridLayout()
         grid.addWidget(self.xVoltageMin, 2,1)
@@ -136,10 +143,18 @@ class ApplicationWindow(QtGui.QMainWindow):
         grid.addWidget(self.yVoltageMax, 2,4)
         grid.addWidget(self.xVoltageMaxL,1,3)
         grid.addWidget(self.yVoltageMaxL,1,4)
-        grid.addWidget(self.xVoltage, 2,5)
-        grid.addWidget(self.yVoltage, 2,6)
-        grid.addWidget(self.xVoltageL,1,5)
-        grid.addWidget(self.yVoltageL,1,6)
+        grid.addWidget(self.xPts,2,5)
+        grid.addWidget(self.xPtsL,1,5)
+        grid.addWidget(self.yPts, 2,6)
+        grid.addWidget(self.yPtsL, 1,6)
+        grid.addWidget(self.timePerPt,2,7)
+        grid.addWidget(self.timePerPtL,1,7)
+        grid.addWidget(self.xVoltage, 2,8)
+        grid.addWidget(self.yVoltage, 2,9)
+        grid.addWidget(self.xVoltageL,1,8)
+        grid.addWidget(self.yVoltageL,1,9)
+        grid.addWidget(self.buttonScan,1,10)
+        grid.addWidget(self.buttonVSet,2,10)
         vbox.addLayout(grid)
 
         ZILayout = QtGui.QGridLayout()
@@ -188,7 +203,8 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         self.dc.mpl_connect('button_press_event', self.mouseNVImage)
 
-        self.RS = RectangleSelector(self.dc.axes, self.zoom, button = 3, drawtype='box')
+        rectprops = dict(facecolor = 'black', edgecolor = 'black', alpha = 1.0, fill = True)
+        self.RS = RectangleSelector(self.dc.axes, self.zoom, button = 3, drawtype='box', rectprops = rectprops)
 
         #timer = QtCore.QTimer(self)
         #timer.timeout.connect(self.textUpdate)
@@ -207,6 +223,12 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def ZIBtnClicked(self):
         DeviceTriggers.ZIGui(self.sc, float(self.amp.text()),float(self.offset.text()), float(self.freqLow.text()),float(self.freqHigh.text()),float(self.sampleNum.text()),float(self.samplePerPt.text()),float(self.buttonZILog.isChecked()))
+
+    def scanBtnClicked(self):
+        DeviceTriggers.scanGui(self.dc,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()))
+
+    def vSetBtnClicked(self):
+        DeviceTriggers.setDaqPt(float(self.xVoltage.text()),float(self.yVoltage.text()))
 
     def textUpdate(self):
         a = numpy.random.ranf()
@@ -243,9 +265,21 @@ class DeviceTriggers():
     #def ZIGui(canvas):
     def ZIGui(canvas, amp, offset, freqLow, freqHigh, sampleNum, samplePerPt, xScale):
         zi = ZiControl.ZIHF2(amp, offset, canvas = canvas)
-        zi.sweep(freqLow, freqHigh, sampleNum, samplePerPt, xScale)
-        #zi.sweep( 1e6, 50e6, 100, 10, xScale = 0)
+        zi.sweep(freqLow, freqHigh, sampleNum, samplePerPt, xScale=0)
 
+    @staticmethod
+    def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt):
+        scanner = GalvoScan.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
+        scanner.scan()
+
+    @staticmethod
+    def setDaqPt(xVolt,yVolt):
+        pt = numpy.transpose(numpy.column_stack((xVolt,yVolt)))
+        pt = (numpy.repeat(pt, 2, axis=1))
+        pointthread = DaqOut.DaqOutputWave(pt, 1.0 / 1000, "Dev1/ao0:1")
+        pointthread.run()
+        pointthread.waitToFinish()
+        pointthread.stop()
 
 
 

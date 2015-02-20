@@ -1,6 +1,7 @@
 from __future__ import division
 import ctypes,time,string,numpy, os
-DLL_NAME=os.path.join(os.path.dirname(__file__),"uart_library.dll")
+import platform
+DLL_NAME=os.path.join('C:\\Windows\\System32',"uart_library.dll")
 BAUD_RATE=115200
 READ_BUFFER_SIZE=256
 NUM_POSITION=6
@@ -132,4 +133,7 @@ class LibraryError(Exception): pass
 if __name__ == '__main__':
 
     print 'hi'
-    hi = FilterWheel()
+    print platform.architecture()
+    nidaq = ctypes.WinDLL("C:\\Windows\\System32\\nicaiu.dll")
+    #lib = ctypes.WinDLL('C:\\Program Files (x86)\\Thorlabs\\FW102C\\Driver\\amd64\\ftbusui.dll')
+    lib = ctypes.WinDLL('C:\\Users\\Experiment\\Downloads\\Cryostation Release 3.46 or later\\CryostationComm.dll')

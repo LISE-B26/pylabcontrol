@@ -14,6 +14,7 @@ import APDTest as APDIn
 import numpy
 import matplotlib.pyplot
 import time
+from PyQt4 import QtGui
 
 
 # This class controls the galvo and APD to run an NV scan, and displays the
@@ -27,21 +28,26 @@ class ScanNV():
     # yVmax: maximum y voltage for scan
     # yPts: number of y points to scan
     # timePerPt: time to stay at each scan point
-    def __init__(self, xVmin, xVmax, xPts, yVmin, yVmax, yPts, timePerPt):
+    def __init__(self, xVmin, xVmax, xPts, yVmin, yVmax, yPts, timePerPt, canvas = None):
         # evenly spaced arrays of x and y voltages
+        self.xVmin = xVmin
+        self.xVmax = xVmax
+        self.yVmin = yVmin
+        self.yVmax = yVmax
         self.xArray = numpy.linspace(xVmin, xVmax, xPts)
         self.yArray = numpy.linspace(yVmin, yVmax, yPts)
         self.imageData = numpy.zeros((xPts, yPts))
         self.dt = timePerPt
         # stores one line of x data at a time
         self.xLineData = numpy.zeros(len(self.xArray) + 1)
+        self.plotting = 0
+        self.canvas = canvas
 
     # runs scan
     def scan(self):
         # scan one x line per loop
         for yNum in xrange(0, len(self.yArray)):
             # initialize APD thread
-            print(yNum)
             readthread = APDIn.ReadAPD("Dev1/ctr0", 1 / self.dt,
                                        len(self.xArray) + 1)
             self.initPt = numpy.transpose(numpy.column_stack((self.xArray[0],
@@ -64,6 +70,8 @@ class ScanNV():
             # clean up APD tasks
             readthread.stopCtr()
             readthread.stopClk()
+            if(not(self.canvas == None)):
+                self.dispImageGui()
 
     # displays image to screen
     def dispImage(self):
@@ -74,8 +82,25 @@ class ScanNV():
         matplotlib.pyplot.colorbar()
         matplotlib.pyplot.show()
 
+    def dispImageGui(self):
+        if(self.plotting == 0):
+            print(len(self.canvas.fig.axes))
+            if(len(self.canvas.fig.axes) > 1 and isinstance(self.canvas.fig.axes[1],matplotlib.colorbar.Colorbar)):
+                self.casnvas.fig.delaxes(self.canvas.fig.axes[1])
+            implot = self.canvas.axes.imshow(self.imageData, cmap = 'pink',
+                                              interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
+            cbar = self.canvas.fig.colorbar(implot, ax=self.canvas.axes)
+            cbar.set_cmap('pink')
+            self.canvas.draw()
+            QtGui.QApplication.processEvents()
+            self.plotting = 1
+        else:
+            self.canvas.axes.imshow(self.imageData, cmap = 'pink',
+                                              interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
+            self.canvas.draw()
+            QtGui.QApplication.processEvents()
 # Test code to run scan and display image
 
-newScan = ScanNV(-.4, .4, 120, -.4, .4, 120, .001)
-newScan.scan()
-newScan.dispImage()
+#newScan = ScanNV(-.4, .4, 120, -.4, .4, 120, .001)
+#newScan.scan()
+#newScan.dispImage()

@@ -44,6 +44,7 @@ class ZIHF2:
         self.plotting = 0
         self.canvas = canvas
         self.line = None
+        self.yLim = None
 
 
         # Configure the settings relevant to this experiment
@@ -195,13 +196,13 @@ class ZIHF2:
             R = numpy.sqrt(self.samples[0][0]['x']**2 + self.samples[0][0]['y']**2)
             R = R[~numpy.isnan(R)]
             self.line, = self.canvas.axes.plot(frequency, R)
-            self.line, = self.canvas.axes.loglog(frequency,R)
             self.canvas.axes.grid(True)
             self.canvas.axes.set_title('Results of %d sweeps' % len(self.samples))
             self.canvas.axes.set_xlabel('Frequency (Hz)')
             self.canvas.axes.set_ylabel('Amplitude (V_RMS)')
             self.canvas.axes.set_xlim(left = self.freqStart*.9, right = self.freqEnd*1.1)
-            self.canvas.axes.set_ylim(bottom = 0, top = max(R)*2)
+            self.yLim = max(R)*2
+            self.canvas.axes.set_ylim(bottom = 0, top = self.yLim)
             self.canvas.draw()
             self.plotting = 1
         else:
@@ -213,6 +214,9 @@ class ZIHF2:
             R = R[~numpy.isnan(R)]
             self.line.set_xdata(frequency)
             self.line.set_ydata(R)
+            if(self.yLim < max(R)):
+                self.yLim = max(R)*2
+                self.canvas.axes.set_ylim(bottom = 0, top = self.yLim)
             self.canvas.draw()
             QtGui.QApplication.processEvents()
 
