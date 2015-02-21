@@ -16,6 +16,7 @@ import random
 import numpy
 import numpy.random
 import ZiControl
+import time
 import ScanTest as GalvoScan
 import GalvoTest as DaqOut
 from matplotlib.backends import qt_compat
@@ -206,6 +207,9 @@ class ApplicationWindow(QtGui.QMainWindow):
         rectprops = dict(facecolor = 'black', edgecolor = 'black', alpha = 1.0, fill = True)
         self.RS = RectangleSelector(self.dc.axes, self.zoom, button = 3, drawtype='box', rectprops = rectprops)
 
+        #Makes room for status bar at bottom so it doesn't resize the widgets when it is used later
+        self.statusBar().showMessage("Temp",1)
+
         #timer = QtCore.QTimer(self)
         #timer.timeout.connect(self.textUpdate)
         #timer.start(500)
@@ -222,13 +226,18 @@ class ApplicationWindow(QtGui.QMainWindow):
 
 
     def ZIBtnClicked(self):
+        self.statusBar().showMessage("Taking Frequency Scan",0)
         DeviceTriggers.ZIGui(self.sc, float(self.amp.text()),float(self.offset.text()), float(self.freqLow.text()),float(self.freqHigh.text()),float(self.sampleNum.text()),float(self.samplePerPt.text()),float(self.buttonZILog.isChecked()))
+        self.statusBar().clearMessage()
 
     def scanBtnClicked(self):
+        self.statusBar().showMessage("Taking Image",0)
         DeviceTriggers.scanGui(self.dc,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()))
+        self.statusBar().clearMessage()
 
     def vSetBtnClicked(self):
         DeviceTriggers.setDaqPt(float(self.xVoltage.text()),float(self.yVoltage.text()))
+        self.statusBar().showMessage("Galvo Position Updated",2000)
 
     def textUpdate(self):
         a = numpy.random.ranf()
@@ -276,10 +285,13 @@ class DeviceTriggers():
     def setDaqPt(xVolt,yVolt):
         pt = numpy.transpose(numpy.column_stack((xVolt,yVolt)))
         pt = (numpy.repeat(pt, 2, axis=1))
-        pointthread = DaqOut.DaqOutputWave(pt, 1.0 / 1000, "Dev1/ao0:1")
+        # prefacing string with b should do nothing in python 2, but otherwise this doesn't work
+        pointthread = DaqOut.DaqOutputWave(pt, 1000.0, b"Dev1/ao0:1")
         pointthread.run()
         pointthread.waitToFinish()
         pointthread.stop()
+        QtGui.QApplication.processEvents()
+
 
 
 

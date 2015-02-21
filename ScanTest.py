@@ -42,6 +42,7 @@ class ScanNV():
         self.xLineData = numpy.zeros(len(self.xArray) + 1)
         self.plotting = 0
         self.canvas = canvas
+        self.cbar = None
 
     # runs scan
     def scan(self):
@@ -84,19 +85,20 @@ class ScanNV():
 
     def dispImageGui(self):
         if(self.plotting == 0):
-            print(len(self.canvas.fig.axes))
-            if(len(self.canvas.fig.axes) > 1 and isinstance(self.canvas.fig.axes[1],matplotlib.colorbar.Colorbar)):
-                self.casnvas.fig.delaxes(self.canvas.fig.axes[1])
             implot = self.canvas.axes.imshow(self.imageData, cmap = 'pink',
                                               interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
-            cbar = self.canvas.fig.colorbar(implot, ax=self.canvas.axes)
-            cbar.set_cmap('pink')
+            if(len(self.canvas.fig.axes) > 1):
+                self.cbar = self.canvas.fig.colorbar(implot,cax = self.canvas.fig.axes[1])
+            else:
+                self.cbar = self.canvas.fig.colorbar(implot)
+            self.cbar.set_cmap('pink')
             self.canvas.draw()
             QtGui.QApplication.processEvents()
             self.plotting = 1
         else:
-            self.canvas.axes.imshow(self.imageData, cmap = 'pink',
+            implot = self.canvas.axes.imshow(self.imageData, cmap = 'pink',
                                               interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
+            self.cbar.update_bruteforce(implot)
             self.canvas.draw()
             QtGui.QApplication.processEvents()
 # Test code to run scan and display image

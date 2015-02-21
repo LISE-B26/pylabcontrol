@@ -9,9 +9,15 @@ SEP_STRING="\r"
 PROMPT_STRING=">"
 import sys
 
+int32 = ctypes.c_long
+int64 = ctypes.c_longlong
+uInt32 = ctypes.c_ulong
+uInt64 = ctypes.c_ulonglong
+float64 = ctypes.c_double
+
 class FilterWheel(object):
     """Class to control the Thor Labs FW102C filter wheel position"""
-    def __init__(self, portNumber=8):
+    def __init__(self, portNumber=int64(6)):
         self.connection=USBConnection(portNumber)
         self.setSpeedMode(1)
         self.setSensorMode(0)
@@ -62,7 +68,7 @@ class USBConnection(object):
         """ Open the USB connection """
         self.readBufferSize=READ_BUFFER_SIZE
         try:
-            self.lib=ctypes.CDLL(DLL_NAME)
+            self.lib=ctypes.WinDLL(DLL_NAME)
         except Exception as e:
             raise LibraryError,"Could not load the library " + DLL_NAME + ". \n" + str(e.args)
         # If the port number was not specified then look for available ports
@@ -71,9 +77,10 @@ class USBConnection(object):
             readBuffer=ctypes.create_string_buffer(self.readBufferSize)
             s=self.lib.fnUART_LIBRARY_list(readBuffer,self.readBufferSize)
             ports=readBuffer.value.strip().split(",")
-            portNumber=int(ports[0])
+            portNumber=int64(ports[0])
         # Open the usb device specified by portNumber
-        s=self.lib.fnUART_LIBRARY_open(portNumber,BAUD_RATE)
+        test = ctypes.create_string_buffer(256)
+        s=self.lib.fnUART_LIBRARY_open(ctypes.byref(portNumber),int64(BAUD_RATE))
         if s<0:
             raise CommError, "Connection to port=" + str(portNumber) + " could not be initialized and returned " + str(s)
     def __del__(self):
@@ -132,8 +139,5 @@ class LibraryError(Exception): pass
 
 if __name__ == '__main__':
 
-    print 'hi'
-    print platform.architecture()
-    nidaq = ctypes.WinDLL("C:\\Windows\\System32\\nicaiu.dll")
-    #lib = ctypes.WinDLL('C:\\Program Files (x86)\\Thorlabs\\FW102C\\Driver\\amd64\\ftbusui.dll')
-    lib = ctypes.WinDLL('C:\\Users\\Experiment\\Downloads\\Cryostation Release 3.46 or later\\CryostationComm.dll')
+    FW = FilterWheel()
+    print(FW.getPosition())

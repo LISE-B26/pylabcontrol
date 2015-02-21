@@ -1,0 +1,5 @@
+import visa
+
+rm = visa.ResourceManager()
+srs = rm.open_resource(u'GPIB0::27::INSTR')
+print(srs.query('*IDN?'))
