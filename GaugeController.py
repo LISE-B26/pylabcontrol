@@ -33,7 +33,7 @@ NAK = chr(21)  # \x15
 
 class AGC100:
 
-    def __init__(self, port = 8, timeout = 1):
+    def __init__(self, port = 6, timeout = 1):
         # The serial connection should be setup with the following parameters:
         # 1 start bit, 8 data bits, No parity bit, 1 stop bit, no hardware
         # handshake. These are all default for Serial and therefore not input
@@ -65,9 +65,9 @@ class AGC100:
         errMsg = errMsgAndPressure[0]
         pressure = float(errMsgAndPressure[3:])
 
-        if errMsg != '0':
-            message = 'Pressure query resulted in an error: ' + MEASUREMENT_STATUS[errMsg]
-            raise IOError(message)
+        #if errMsg != '0':
+        #    message = 'Pressure query resulted in an error: ' + MEASUREMENT_STATUS[errMsg]
+        #    raise IOError(message)
 
         self.ser.write(CR + LF)
         return pressure

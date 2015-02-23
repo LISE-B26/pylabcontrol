@@ -5,6 +5,6 @@ cryo = ctypes.WinDLL('C:\\Users\\Experiment\\Downloads\\Cryostation Release 3.46
 cryo.IP_Address = "10.243.34.43"
 cryo.Port = 7773
 
-print(cryo.IP_Address)
+print(cryo.Connect())
 
 #cryo.Exit()

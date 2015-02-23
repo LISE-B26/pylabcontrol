@@ -181,6 +181,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.buttonZI.clicked.connect(self.ZIBtnClicked)
         self.buttonZILog = QtGui.QPushButton('Log', self.main_widget)
         self.buttonZILog.setCheckable(True)
+        self.buttonZISave = QtGui.QPushButton('Save Sweep', self.main_widget)
+        self.buttonZISave.clicked.connect(self.ZISaveClicked)
         ZILayout.addWidget(self.amp,2,1)
         ZILayout.addWidget(self.ampL,1,1)
         ZILayout.addWidget(self.offset,2,2)
@@ -195,8 +197,9 @@ class ApplicationWindow(QtGui.QMainWindow):
         ZILayout.addWidget(self.samplePerPtL,1,6)
         ZILayout.addWidget(self.buttonZI,1,7)
         ZILayout.addWidget(self.buttonZILog,2,7)
+        ZILayout.addWidget(self.buttonZISave,1,8)
         vbox.addLayout(ZILayout)
-
+        self.ZIData = None
 
 
         self.main_widget.setFocus()
@@ -210,11 +213,6 @@ class ApplicationWindow(QtGui.QMainWindow):
         #Makes room for status bar at bottom so it doesn't resize the widgets when it is used later
         self.statusBar().showMessage("Temp",1)
 
-        #timer = QtCore.QTimer(self)
-        #timer.timeout.connect(self.textUpdate)
-        #timer.start(500)
-
-
     def zoom(self,eclick,erelease):
         self.xVoltageMin.setText(str(eclick.xdata))
         self.yVoltageMin.setText(str(eclick.ydata))
@@ -227,8 +225,15 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def ZIBtnClicked(self):
         self.statusBar().showMessage("Taking Frequency Scan",0)
-        DeviceTriggers.ZIGui(self.sc, float(self.amp.text()),float(self.offset.text()), float(self.freqLow.text()),float(self.freqHigh.text()),float(self.sampleNum.text()),float(self.samplePerPt.text()),float(self.buttonZILog.isChecked()))
+        self.ZIData = DeviceTriggers.ZIGui(self.sc, float(self.amp.text()),float(self.offset.text()), float(self.freqLow.text()),float(self.freqHigh.text()),float(self.sampleNum.text()),float(self.samplePerPt.text()),float(self.buttonZILog.isChecked()))
         self.statusBar().clearMessage()
+
+    def ZISaveClicked(self):
+        if(self.ZIData == None):
+            QtGui.QMessageBox.about(self.main_widget, "Sweep Save Error", "There is no sweep data to save. Run a sweep first.")
+        else:
+            self.writeArray(self.ZIData, self.buttonZISave.text())
+            self.statusBar().showMessage("Sweep Data Saved",2000)
 
     def scanBtnClicked(self):
         self.statusBar().showMessage("Taking Image",0)
@@ -250,6 +255,9 @@ class ApplicationWindow(QtGui.QMainWindow):
             if(event.button == 1):
                 self.xVoltage.setText(str(event.xdata))
                 self.yVoltage.setText(str(event.ydata))
+
+    #def writeArray(self, array, filepath):
+
 
     def fileQuit(self):
         self.close()
@@ -274,7 +282,8 @@ class DeviceTriggers():
     #def ZIGui(canvas):
     def ZIGui(canvas, amp, offset, freqLow, freqHigh, sampleNum, samplePerPt, xScale):
         zi = ZiControl.ZIHF2(amp, offset, canvas = canvas)
-        zi.sweep(freqLow, freqHigh, sampleNum, samplePerPt, xScale=0)
+        data = zi.sweep(freqLow, freqHigh, sampleNum, samplePerPt, xScale=0)
+        return data
 
     @staticmethod
     def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt):
@@ -291,6 +300,7 @@ class DeviceTriggers():
         pointthread.waitToFinish()
         pointthread.stop()
         QtGui.QApplication.processEvents()
+
 
 
 

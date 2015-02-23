@@ -45,6 +45,7 @@ class ZIHF2:
         self.canvas = canvas
         self.line = None
         self.yLim = None
+        self.dataFinal = None
 
 
         # Configure the settings relevant to this experiment
@@ -147,11 +148,13 @@ class ZIHF2:
             self.samples = data[path]
         print "sample contains %d sweeps" % len(self.samples)
 
-    def writeData(self, filepath):
         frequency = self.samples[0][0]['frequency']
         response = numpy.sqrt(self.samples[0][0]['x']**2 + self.samples[0][0]['y']**2)
-        dataMatrix = numpy.column_stack((frequency,response))
-        df = pd.DataFrame(dataMatrix, columns = ['Frequency', 'Response'])
+        self.dataFinal = numpy.column_stack((frequency,response))
+        return self.dataFinal
+
+    def writeData(self, filepath):
+        df = pd.DataFrame(self.dataFinal, columns = ['Frequency', 'Response'])
         df.to_csv(filepath, index = False, header=True)
 
     # plots data contained in self.samples to pyplot window
