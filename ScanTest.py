@@ -73,6 +73,7 @@ class ScanNV():
             readthread.stopClk()
             if(not(self.canvas == None)):
                 self.dispImageGui()
+        return self.imageData
 
     # displays image to screen
     def dispImage(self):

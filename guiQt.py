@@ -17,6 +17,7 @@ import numpy
 import numpy.random
 import ZiControl
 import time
+import pandas as pd
 import ScanTest as GalvoScan
 import GalvoTest as DaqOut
 from matplotlib.backends import qt_compat
@@ -129,10 +130,17 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.yPtsL.setText("Number of Y Points:")
         self.timePerPtL = QtGui.QLabel(self.main_widget)
         self.timePerPtL.setText("Timer Per Point:")
+        self.saveLocImage = QtGui.QLineEdit(self.main_widget)
+        self.saveLocImageL = QtGui.QLabel(self.main_widget)
+        self.saveLocImageL.setText("Image Save Location")
         self.buttonScan = QtGui.QPushButton('Scan', self.main_widget)
         self.buttonScan.clicked.connect(self.scanBtnClicked)
         self.buttonVSet = QtGui.QPushButton('Set Voltage', self.main_widget)
         self.buttonVSet.clicked.connect(self.vSetBtnClicked)
+        self.buttonImageHome = QtGui.QPushButton('Reset Window', self.main_widget)
+        self.buttonImageHome.clicked.connect(self.imageHomeClicked)
+        self.buttonSaveImage = QtGui.QPushButton('Save Image', self.main_widget)
+        self.buttonSaveImage.clicked.connect(self.saveImageClicked)
 
 
         grid = QtGui.QGridLayout()
@@ -154,9 +162,14 @@ class ApplicationWindow(QtGui.QMainWindow):
         grid.addWidget(self.yVoltage, 2,9)
         grid.addWidget(self.xVoltageL,1,8)
         grid.addWidget(self.yVoltageL,1,9)
-        grid.addWidget(self.buttonScan,1,10)
-        grid.addWidget(self.buttonVSet,2,10)
+        grid.addWidget(self.saveLocImage,2,10)
+        grid.addWidget(self.saveLocImageL,1,10)
+        grid.addWidget(self.buttonScan,1,11)
+        grid.addWidget(self.buttonVSet,2,11)
+        grid.addWidget(self.buttonSaveImage,1,12)
+        grid.addWidget(self.buttonImageHome,2,12)
         vbox.addLayout(grid)
+        self.imageData = None
 
         ZILayout = QtGui.QGridLayout()
         self.amp = QtGui.QLineEdit(self.main_widget)
@@ -177,6 +190,9 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.samplePerPt = QtGui.QLineEdit(self.main_widget)
         self.samplePerPtL = QtGui.QLabel(self.main_widget)
         self.samplePerPtL.setText("Samples Per Point")
+        self.saveLocZI = QtGui.QLineEdit(self.main_widget)
+        self.saveLocZIL = QtGui.QLabel(self.main_widget)
+        self.saveLocZIL.setText("Sweep Save Location")
         self.buttonZI = QtGui.QPushButton('ZI',self.main_widget)
         self.buttonZI.clicked.connect(self.ZIBtnClicked)
         self.buttonZILog = QtGui.QPushButton('Log', self.main_widget)
@@ -195,9 +211,11 @@ class ApplicationWindow(QtGui.QMainWindow):
         ZILayout.addWidget(self.sampleNumL,1,5)
         ZILayout.addWidget(self.samplePerPt,2,6)
         ZILayout.addWidget(self.samplePerPtL,1,6)
-        ZILayout.addWidget(self.buttonZI,1,7)
-        ZILayout.addWidget(self.buttonZILog,2,7)
-        ZILayout.addWidget(self.buttonZISave,1,8)
+        ZILayout.addWidget(self.saveLocZI,2,7)
+        ZILayout.addWidget(self.saveLocZIL,1,7)
+        ZILayout.addWidget(self.buttonZI,1,8)
+        ZILayout.addWidget(self.buttonZILog,2,8)
+        ZILayout.addWidget(self.buttonZISave,1,9)
         vbox.addLayout(ZILayout)
         self.ZIData = None
 
@@ -232,17 +250,33 @@ class ApplicationWindow(QtGui.QMainWindow):
         if(self.ZIData == None):
             QtGui.QMessageBox.about(self.main_widget, "Sweep Save Error", "There is no sweep data to save. Run a sweep first.")
         else:
-            self.writeArray(self.ZIData, self.buttonZISave.text())
+            self.writeArray(self.ZIData, self.saveLocZI.text(), ['Frequency', 'Response'])
             self.statusBar().showMessage("Sweep Data Saved",2000)
+
+    def saveImageClicked(self):
+        if(self.imageData == None):
+            QtGui.QMessageBox.about(self.main_widget, "Image Save Error", "There is no image data to save. Run a scan first.")
+        else:
+            self.writeArray(self.imageData, self.saveLocImage.text())
+            self.statusBar().showMessage("Image Data Saved",2000)
 
     def scanBtnClicked(self):
         self.statusBar().showMessage("Taking Image",0)
-        DeviceTriggers.scanGui(self.dc,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()))
+        self.imageData = DeviceTriggers.scanGui(self.dc,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()))
+        self.xMinHome = float(self.xVoltageMin.text())
+        self.xMaxHome = float(self.xVoltageMax.text())
+        self.yMinHome = float(self.yVoltageMin.text())
+        self.yMaxHome = float(self.yVoltageMax.text())
         self.statusBar().clearMessage()
 
     def vSetBtnClicked(self):
         DeviceTriggers.setDaqPt(float(self.xVoltage.text()),float(self.yVoltage.text()))
         self.statusBar().showMessage("Galvo Position Updated",2000)
+
+    def imageHomeClicked(self):
+        self.dc.axes.set_xlim(left = self.xMinHome, right = self.xMaxHome)
+        self.dc.axes.set_ylim(bottom = self.yMaxHome, top = self.yMinHome)
+        self.dc.draw()
 
     def textUpdate(self):
         a = numpy.random.ranf()
@@ -256,8 +290,13 @@ class ApplicationWindow(QtGui.QMainWindow):
                 self.xVoltage.setText(str(event.xdata))
                 self.yVoltage.setText(str(event.ydata))
 
-    #def writeArray(self, array, filepath):
-
+    def writeArray(self, array, filepath, columns = None):
+        df = pd.DataFrame(array, columns = columns)
+        if(columns == None):
+            header = False
+        else:
+            header = True
+        df.to_csv(filepath, index = False, header=header)
 
     def fileQuit(self):
         self.close()
@@ -288,7 +327,8 @@ class DeviceTriggers():
     @staticmethod
     def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt):
         scanner = GalvoScan.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
-        scanner.scan()
+        imageData = scanner.scan()
+        return imageData
 
     @staticmethod
     def setDaqPt(xVolt,yVolt):
@@ -300,9 +340,6 @@ class DeviceTriggers():
         pointthread.waitToFinish()
         pointthread.stop()
         QtGui.QApplication.processEvents()
-
-
-
 
 
 qApp = QtGui.QApplication(sys.argv)

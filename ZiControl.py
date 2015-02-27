@@ -77,7 +77,7 @@ class ZIHF2:
     # xScale: choose linear (0) or logarithmic (1) frequency scale, default linear
     # direction: choose sequential (0), binary (1), or bidirectional (2) scan modes, default sequential
     # loopcount: number of times to repeat sweep, default 1
-    def sweep(self, freqStart, freqEnd, sampleNum, samplesPerPt, xScale = 0, direction = 0, loopcount = 1, timeout=10000):
+    def sweep(self, freqStart, freqEnd, sampleNum, samplesPerPt, xScale = 0, direction = 0, loopcount = 1, timeout=100000000):
         self.freqStart = freqStart
         self.freqEnd = freqEnd
         self.xScale = xScale
@@ -107,12 +107,16 @@ class ZIHF2:
         start = time.time()
         timeout = 60  # [s]
         print "Will perform %d sweeps...." % loopcount
+        #should probably check data[path] is empty instead, just continue if it is
         while not sweeper.finished():
-            time.sleep(.2)
+            time.sleep(.5)
             progress = sweeper.progress()
             print "Individual sweep %.2f%% complete.   \r" % (100*progress),
             #read and plot data as it is collected
             data = sweeper.read(True)
+            # ensures that first point has completed before attempting to read data
+            if path not in data:
+                continue
             self.samples = data[path]
             if(not(self.canvas == None)):
                 self.plotGui()
@@ -123,6 +127,7 @@ class ZIHF2:
                 # measurement
                 print "\nSweep still not finished, forcing finish..."
                 sweeper.finish()
+            QtGui.QApplication.processEvents()
         print ""
 
         # Read the sweep data. This command can also be executed whilst sweeping
@@ -203,7 +208,7 @@ class ZIHF2:
             self.canvas.axes.set_title('Results of %d sweeps' % len(self.samples))
             self.canvas.axes.set_xlabel('Frequency (Hz)')
             self.canvas.axes.set_ylabel('Amplitude (V_RMS)')
-            self.canvas.axes.set_xlim(left = self.freqStart*.9, right = self.freqEnd*1.1)
+            self.canvas.axes.set_xlim(left = self.freqStart, right = self.freqEnd)
             self.yLim = max(R)*2
             self.canvas.axes.set_ylim(bottom = 0, top = self.yLim)
             self.canvas.draw()
