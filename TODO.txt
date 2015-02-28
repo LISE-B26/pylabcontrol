@@ -30,4 +30,26 @@ exception control
 
 
 
-2/26
+
+Next things to do:
+focusing routine
+ESR
+clean up pass on graphics code
+
+ESR:
+frequency range
+amplitude
+time per point
+try to fit lorentzian to esr to find peak-lower priority
+want to turn down laser power (switch to 5)
+
+
+focusing routine:
+voltage range 1-99
+fit results to gaussian
+take image 1/5-1/10 smaller than standard
+have input be voltage, range, #pts
+use current galvo voltage as center, make sure window around this point doesn't exceed max voltage (.5) on galvo
+
+
+add green dot on top of current voltage

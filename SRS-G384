@@ -37,4 +37,3 @@ class SRSg384():
 
     def setIQExt(self):
         self.srs.write('PFNC 5')
-
