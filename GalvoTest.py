@@ -101,7 +101,8 @@ class DaqOutputWave(threading.Thread):
     # error checking routine for nidaq commands. Input should be return value
     # from nidaq function
     # err: nidaq error code
-    def CHK(self, err):
+    @staticmethod
+    def CHK(err):
         if err < 0:
             buf_size = 100
             buf = ctypes.create_string_buffer('\000' * buf_size)
@@ -113,8 +114,23 @@ class DaqOutputWave(threading.Thread):
             nidaq.DAQmxGetErrorString(err,ctypes.byref(buf),buf_size)
             raise RuntimeError('nidaq generated warning %d: %s'%(err,repr(buf.value)))
 
+    # Gets voltages currently output on all four channels, and returns them as a tuple.
+    @classmethod
+    def getOutputVoltages(cls):
+        device = ('Dev1/_ao0_vs_aognd, Dev1/_ao1_vs_aognd, Dev1/_ao2_vs_aognd, Dev1/_ao3_vs_aognd')
+        data = (float64 * 4)()
+        taskHandle = TaskHandle(0)
+        cls.CHK(nidaq.DAQmxCreateTask("",
+                    ctypes.byref(taskHandle)))
+        cls.CHK(nidaq.DAQmxCreateAIVoltageChan(taskHandle, device, "", DAQmx_Val_Cfg_Default, float64(-10), float64(10), DAQmx_Val_Volts, None))
+        cls.CHK(nidaq.DAQmxReadAnalogF64(taskHandle, int32(1), float64(10), DAQmx_Val_GroupByChannel, ctypes.byref(data), uInt32(4), None, None))
+        cls.CHK(nidaq.DAQmxClearTask(taskHandle))
+        return data[0:4]
+
+
+
 # Test code to do simple output
-print(sys.path)
+#print(sys.path)
 
 #t = numpy.arange( 0, 1, .5 )
 #x = numpy.sin( t )
