@@ -139,5 +139,5 @@ if __name__ == '__main__':
 
     """
 
-    yController = MDT693A('Z')
-    yController.setVoltage(48.5)
+    #yController = MDT693A('Z')
+    #yController.setVoltage(48.5)

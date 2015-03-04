@@ -52,4 +52,10 @@ have input be voltage, range, #pts
 use current galvo voltage as center, make sure window around this point doesn't exceed max voltage (.5) on galvo
 
 
+Test Resonators routine:
+use four points to define rectangle to scan on
+do a freq sweep on each point
+fit result to gaussian
+
+
 add green dot on top of current voltage

@@ -22,6 +22,7 @@ import ScanTest as GalvoScan
 import GalvoTest as DaqOut
 from matplotlib.backends import qt_compat
 from matplotlib.widgets import RectangleSelector
+import matplotlib.patches as patches
 from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -228,6 +229,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         rectprops = dict(facecolor = 'black', edgecolor = 'black', alpha = 1.0, fill = True)
         self.RS = RectangleSelector(self.dc.axes, self.zoom, button = 3, drawtype='box', rectprops = rectprops)
 
+        self.circ = None
+
         #Makes room for status bar at bottom so it doesn't resize the widgets when it is used later
         self.statusBar().showMessage("Temp",1)
 
@@ -268,6 +271,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.yMinHome = float(self.yVoltageMin.text())
         self.yMaxHome = float(self.yVoltageMax.text())
         self.statusBar().clearMessage()
+        self.circ = None
 
     def vSetBtnClicked(self):
         DeviceTriggers.setDaqPt(float(self.xVoltage.text()),float(self.yVoltage.text()))
@@ -289,6 +293,14 @@ class ApplicationWindow(QtGui.QMainWindow):
             if(event.button == 1):
                 self.xVoltage.setText(str(event.xdata))
                 self.yVoltage.setText(str(event.ydata))
+                if(not self.circ==None):
+                    self.circ.remove()
+                self.circ = patches.Circle((self.xVoltage.text(), self.yVoltage.text()), .01, fc = 'g')
+                self.dc.axes.add_patch(self.circ)
+                self.dc.draw()
+                QtGui.QApplication.processEvents()
+
+
 
     def writeArray(self, array, filepath, columns = None):
         df = pd.DataFrame(array, columns = columns)
