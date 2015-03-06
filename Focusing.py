@@ -4,6 +4,7 @@ import scipy.optimize
 import ScanTest as GalvoScan
 import GalvoTest as DaqOut
 import PiezoController
+import matplotlib
 import matplotlib.pyplot as plt
 import time
 
@@ -41,7 +42,8 @@ class Focus:
         piezo = PiezoController.MDT693A('Z')
         if canvas == None:
             axes = plt.axes()
-            line = axes.plot()
+            line = matplotlib.lines.Line2D([],[]c, axes = axes)
+            print(line)
             plt.show(block = False)
         else:
             axes = canvas.axes

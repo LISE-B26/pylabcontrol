@@ -8,19 +8,40 @@ import socket
 #cryo.Port = 7773
 
 class Cryostation:
-    def __init__(self):
-        rm = visa.ResourceManager()
-        #self.cryostation = rm.open_resource(u'TCPIP0::10.243.34.43::7773::SOCKET')
-        #self.cryostation.write_binary_values('0000000000000011010001110101000001010100')
-        #self.cryostation.write_termination = ''
-        #print self.cryostation.query('03GPT')
-        #print self.cryostation.read()
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('10.243.34.43', 7773))
 
-        s.sendall('03GPT')
-        data = s.recv(1024)
-        s.close()
-        print('hi')
-        print('received data:', data)
-a = Cryostation()
+    # The default number of seconds before a connection times out
+    DEFAULT_TIMEOUT = 5
+
+    def __init__(self, ipAddress, port):
+        socket.setdefaulttimeout(self.DEFAULT_TIMEOUT)
+        self.ipAddress = ipAddress
+        self.port = port
+
+        test_connection(ipAddress, port)
+
+    def test_connection(self, ipAddress, port):
+        soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            soc.connect((ipAddress, int(port)))
+        except Exception, e:
+            print ('Could not connect to cryostation. Make sure external control is on, and the IP address (set to %s)'
+                   ' and port (set to %s) are correct. Exception: %s' % (ipAddress, str(port), type(e).__name__))
+
+        soc.close()
+
+    def extract_data(self, cryo_response):
+        size = int(cryo_response[0:2])
+        return float(cryo_response[2:2+size])
+
+    def get_platform_temp(self):
+        soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        soc.connect((self.ipAddress, int(self.port)))
+
+        soc.sendall('03GPT')
+        cryo_response = soc.recv(1024)
+        soc.close()
+        return extract_data(cryo_response)
+
+if __name__ == '__main__':
+    a = Cryostation('10.243.34.43', 7773)
+    print a.getPlatformTemp()

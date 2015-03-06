@@ -24,7 +24,7 @@ class MDT693A:
             message = 'Piezo Controller Axis not correctly defined; must be either \'X\', \'Y\', or \'Z\''
             raise ValueError(message)
 
-        self.axis = outputAxis
+        self.axis = outputAxis.upper()
 
         self.ser = serial.Serial(port = port, baudrate=baudrate, timeout = timeout)
         self.ser.close()
