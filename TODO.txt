@@ -59,3 +59,16 @@ fit result to gaussian
 
 
 add green dot on top of current voltage
+
+
+
+Before starting other setup:
+catalog diamonds
+look at lens: oil immersion? (look into cleaning objective-Igor)
+way to mount everything: 3axis stage + piezo
+-look at how contact probes work
+
+
+find: 3 axis stage, sapphire piezos
+
+7x7mm chip, how much space between objective and sample, how big metal is allowed

@@ -3,6 +3,9 @@
 # by default on port 2 adn baudrate 115200
 # Last Update: 2/3/15
 
+# TROUBLESHOOTING:
+# if no commands are accepted, first try unplugging and replugging connection
+
 import serial
 import time
 
@@ -35,7 +38,9 @@ class MDT693A:
             self.ser.open()
 
         self.ser.write(self.axis + 'R?\r')
-        xVoltage = self.ser.readline()[6:-2].strip()
+        xVoltage = self.ser.readline()
+
+        xVoltage = xVoltage[6:-2].strip()
 
         self.ser.close()
 
@@ -139,5 +144,7 @@ if __name__ == '__main__':
 
     """
 
-    #yController = MDT693A('Z')
-    #yController.setVoltage(48.5)
+    zController = MDT693A('Z')
+    zController.setVoltage(50)
+
+

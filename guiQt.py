@@ -293,14 +293,15 @@ class ApplicationWindow(QtGui.QMainWindow):
             if(event.button == 1):
                 self.xVoltage.setText(str(event.xdata))
                 self.yVoltage.setText(str(event.ydata))
-                if(not self.circ==None):
-                    self.circ.remove()
-                self.circ = patches.Circle((self.xVoltage.text(), self.yVoltage.text()), .01, fc = 'g')
-                self.dc.axes.add_patch(self.circ)
-                self.dc.draw()
+                self.drawDot()
                 QtGui.QApplication.processEvents()
 
-
+    def drawDot(self):
+        if(not self.circ==None):
+            self.circ.remove()
+        self.circ = patches.Circle((self.xVoltage.text(), self.yVoltage.text()), .01, fc = 'g')
+        self.dc.axes.add_patch(self.circ)
+        self.dc.draw()
 
     def writeArray(self, array, filepath, columns = None):
         df = pd.DataFrame(array, columns = columns)

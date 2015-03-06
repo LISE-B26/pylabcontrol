@@ -3,7 +3,7 @@ import numpy, ctypes
 CLOCK_FREQUENCY = 400E6
 PULSE_PROGRAM = 0
 
-pulseBlaster = ctypes.WinDLL('C:\SpinCore\SpinAPI\dll\spinapi64.dll')
+`
 
 a = pulseBlaster.pb_init()
 print a
