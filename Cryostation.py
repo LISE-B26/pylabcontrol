@@ -15,11 +15,12 @@ class Cryostation:
     def __init__(self, ipAddress, port):
         socket.setdefaulttimeout(self.DEFAULT_TIMEOUT)
         self.ipAddress = ipAddress
-        self.port = port
+        self.port = int(port)
 
-        test_connection(ipAddress, port)
+        self.test_connection(ipAddress, port)
 
-    def test_connection(self, ipAddress, port):
+    @staticmethod
+    def test_connection(ipAddress, port):
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             soc.connect((ipAddress, int(port)))
@@ -29,19 +30,23 @@ class Cryostation:
 
         soc.close()
 
-    def extract_data(self, cryo_response):
+    @staticmethod
+    def extract_data(cryo_response):
         size = int(cryo_response[0:2])
         return float(cryo_response[2:2+size])
 
-    def get_platform_temp(self):
+    def query_cryostat(self, command):
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         soc.connect((self.ipAddress, int(self.port)))
-
-        soc.sendall('03GPT')
+        soc.sendall(command)
         cryo_response = soc.recv(1024)
         soc.close()
-        return extract_data(cryo_response)
+        return cryo_response
+
+    def get_platform_temp(self):
+        cryo_response = self.query_cryostat('03GPT')
+        return self.extract_data(cryo_response)
 
 if __name__ == '__main__':
     a = Cryostation('10.243.34.43', 7773)
-    print a.getPlatformTemp()
+    print a.get_platform_temp()
