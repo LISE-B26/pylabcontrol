@@ -15,22 +15,19 @@ import os
 import random
 import numpy
 import numpy.random
-import ZiControl
 import time
 import pandas as pd
-import ScanTest as GalvoScan
-import GalvoTest as DaqOut
+import Focusing
 from matplotlib.backends import qt_compat
 from matplotlib.widgets import RectangleSelector
 import matplotlib.patches as patches
 from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+import GuiDeviceTriggers as DeviceTriggers
 
-progname = os.path.basename(sys.argv[0])
-progversion = "0.1"
-
-
+# Extends the matplotlib backend FigureCanvas. A canvas for matplotlib figures with a constructed axis that is
+# auto-expanding
 class MyMplCanvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
     def __init__(self, parent=None, width=5, height=4, dpi=100):
@@ -52,30 +49,6 @@ class MyMplCanvas(FigureCanvas):
 
     def compute_initial_figure(self):
         pass
-
-
-class MyStaticMplCanvas(MyMplCanvas):
-    """Simple canvas with a sine plot."""
-    def compute_initial_figure(self):
-        t = arange(0.0, 3.0, 0.01)
-        s = sin(2*pi*t)
-        self.axes.plot(t, s)
-
-
-class MyDynamicMplCanvas(MyMplCanvas):
-    """A canvas that updates itself every second with a new plot."""
-    def __init__(self, *args, **kwargs):
-        MyMplCanvas.__init__(self, *args, **kwargs)
-
-    def compute_initial_figure(self):
-        self.axes.imshow([[1,2,3],[4,5,6],[7,8,9]], interpolation = "nearest")
-
-    def update_figure(self):
-        # Build a list of 4 random integers between 0 and 10 (both inclusive)
-        l = [random.randint(0, 10) for i in range(9)]
-        m = numpy.reshape(l,(3,3))
-        self.axes.imshow(m,interpolation = "nearest")
-        self.draw()
 
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -220,6 +193,10 @@ class ApplicationWindow(QtGui.QMainWindow):
         vbox.addLayout(ZILayout)
         self.ZIData = None
 
+        self.testButton = QtGui.QPushButton('Run Test Code',self.main_widget)
+        self.testButton.clicked.connect(self.testButtonClicked)
+        vbox.addWidget(self.testButton)
+
 
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
@@ -311,6 +288,10 @@ class ApplicationWindow(QtGui.QMainWindow):
             header = True
         df.to_csv(filepath, index = False, header=header)
 
+    def testButtonClicked(self):
+        print("Test Code")
+        Focusing.Focus.scan(48.5, 52.5, 3, waitTime = 0, canvas = self.sc)
+
     def fileQuit(self):
         self.close()
 
@@ -319,42 +300,8 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def about(self):
         QtGui.QMessageBox.about(self, "About",
-"""embedding_in_qt4.py example
-Copyright 2005 Florent Rougon, 2006 Darren Dale
-
-This program is a simple example of a Qt4 application embedding matplotlib
-canvases.
-
-It may be used and modified with no restriction; raw copies as well as
-modified versions may be distributed without limitation."""
+"""Temp"""
 )
-
-class DeviceTriggers():
-    @staticmethod
-    #def ZIGui(canvas):
-    def ZIGui(canvas, amp, offset, freqLow, freqHigh, sampleNum, samplePerPt, xScale):
-        zi = ZiControl.ZIHF2(amp, offset, canvas = canvas)
-        data = zi.sweep(freqLow, freqHigh, sampleNum, samplePerPt, xScale=0)
-        return data
-
-    @staticmethod
-    def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt):
-        scanner = GalvoScan.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
-        imageData = scanner.scan()
-        return imageData
-
-    @staticmethod
-    def setDaqPt(xVolt,yVolt):
-        pt = numpy.transpose(numpy.column_stack((xVolt,yVolt)))
-        pt = (numpy.repeat(pt, 2, axis=1))
-        # prefacing string with b should do nothing in python 2, but otherwise this doesn't work
-        pointthread = DaqOut.DaqOutputWave(pt, 1000.0, b"Dev1/ao0:1")
-        pointthread.run()
-        pointthread.waitToFinish()
-        pointthread.stop()
-        QtGui.QApplication.processEvents()
-
-
 qApp = QtGui.QApplication(sys.argv)
 
 aw = ApplicationWindow()

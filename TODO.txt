@@ -72,3 +72,9 @@ way to mount everything: 3axis stage + piezo
 find: 3 axis stage, sapphire piezos
 
 7x7mm chip, how much space between objective and sample, how big metal is allowed
+
+
+level sample
+piezo
+tweak return path
+variable delay to scan

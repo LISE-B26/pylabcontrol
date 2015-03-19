@@ -14,7 +14,7 @@ class MDT693A:
     SYSTEM_OFFSET = 0.6 # volts
 
 
-    def __init__(self, outputAxis, port = 3, baudrate=115200, timeout = .1):
+    def __init__(self, outputAxis, port = 3, baudrate = 115200, timeout = .1):
         # The serial connection should be setup with the following parameters:
         # 8 data bits, No parity bit, 1 stop bit, no hardware
         # handshake. These are all default for Serial and therefore not input
@@ -143,8 +143,12 @@ if __name__ == '__main__':
     yController.setVoltage(10)
 
     """
-
-    zController = MDT693A('Z')
-    zController.setVoltage(50)
+    zController = MDT693A('X')
+    zController.setVoltage(15)
+    #while True:
+    #print zController.getVoltage()
+    #    time.sleep(5)
+    #    zController.setVoltage(95)
+    #    time.sleep(5)
 
 
