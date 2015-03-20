@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
     """
     zController = MDT693A('X')
-    zController.setVoltage(15)
+    zController.setVoltage(50)
     #while True:
     #print zController.getVoltage()
     #    time.sleep(5)

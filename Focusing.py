@@ -68,7 +68,7 @@ class Focus:
         dat2 = [0,1]
         datline,fitline = axes.plot(dat,dat2,dat,dat2)
         axes.set_xlim([minV-1,maxV+1])
-        axes.set_autoscaley_on(True)
+        #axes.set_ylim([0,10])
         cls.updatePlot(canvas)
         for voltage in voltRange:
             piezo.setVoltage(voltage)
@@ -78,7 +78,7 @@ class Focus:
             xdata.append(voltage)
             ydata.append(scipy.ndimage.measurements.standard_deviation(image))
             print(scipy.ndimage.measurements.standard_deviation(image))
-            cls.plotData(datline, xdata, ydata, canvas)
+            cls.plotData(datline, xdata, ydata, canvas, axes)
         cls.setDaqPt(xInit, yInit)
         (a,mean,sigma,c),_ = cls.fit(voltRange, ydata)
         cls.plotFit(fitline,a,mean,sigma,c,minV,maxV, canvas)
@@ -125,9 +125,11 @@ class Focus:
     # y: y data
     # canvas: passed through to updatePlot to allow selection of the proper method to plot the data
     @classmethod
-    def plotData(cls, line, x, y, canvas):
+    def plotData(cls, line, x, y, canvas, axes):
         line.set_xdata(x)
         line.set_ydata(y)
+        axes.relim()
+        axes.autoscale_view(scalex=False, scaley=True)
         cls.updatePlot(canvas)
 
     # plots the gaussian fit
@@ -167,4 +169,4 @@ class Focus:
 
 
 
-a = Focus.scan(30, 70, 40, 'X', waitTime = .2)
+a = Focus.scan(25, 75, 40, 'X', waitTime = .2)
