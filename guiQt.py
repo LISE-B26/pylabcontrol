@@ -24,7 +24,7 @@ import matplotlib.patches as patches
 from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import GuiDeviceTriggers as DeviceTriggers
+from GuiDeviceTriggers import DeviceTriggers
 
 # Extends the matplotlib backend FigureCanvas. A canvas for matplotlib figures with a constructed axis that is
 # auto-expanding
@@ -115,6 +115,11 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.buttonImageHome.clicked.connect(self.imageHomeClicked)
         self.buttonSaveImage = QtGui.QPushButton('Save Image', self.main_widget)
         self.buttonSaveImage.clicked.connect(self.saveImageClicked)
+        self.cbarMax = QtGui.QLineEdit(self.main_widget)
+        self.cbarMaxL = QtGui.QLabel(self.main_widget)
+        self.cbarMaxL.setText("Colorbar Threshold")
+        self.buttonCbarThresh = QtGui.QPushButton('Update Colorbar', self.main_widget)
+        self.buttonCbarThresh.clicked.connect(self.cbarThreshClicked)
 
 
         grid = QtGui.QGridLayout()
@@ -142,6 +147,9 @@ class ApplicationWindow(QtGui.QMainWindow):
         grid.addWidget(self.buttonVSet,2,11)
         grid.addWidget(self.buttonSaveImage,1,12)
         grid.addWidget(self.buttonImageHome,2,12)
+        grid.addWidget(self.cbarMax,2,13)
+        grid.addWidget(self.cbarMaxL,1,13)
+        grid.addWidget(self.buttonCbarThresh,2,14)
         vbox.addLayout(grid)
         self.imageData = None
 
@@ -288,9 +296,13 @@ class ApplicationWindow(QtGui.QMainWindow):
             header = True
         df.to_csv(filepath, index = False, header=header)
 
+    def cbarThreshClicked(self):
+        DeviceTriggers.updateColorbar(self.imageData, self.dc, [self.xMinHome, self.xMaxHome, self.yMinHome, self.yMaxHome], float(self.cbarMax.text()))
+
     def testButtonClicked(self):
         print("Test Code")
         Focusing.Focus.scan(48.5, 52.5, 3, waitTime = 0, canvas = self.sc)
+
 
     def fileQuit(self):
         self.close()
@@ -305,6 +317,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 qApp = QtGui.QApplication(sys.argv)
 
 aw = ApplicationWindow()
+progname = 'Experiment Gui'
 aw.setWindowTitle("%s" % progname)
 aw.show()
 sys.exit(qApp.exec_())

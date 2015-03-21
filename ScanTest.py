@@ -102,6 +102,20 @@ class ScanNV():
             self.cbar.update_bruteforce(implot)
             self.canvas.draw()
             QtGui.QApplication.processEvents()
+
+    @staticmethod
+    def updateColorbar(imageData, canvas, extent, cmax):
+        implot = canvas.axes.imshow(imageData, cmap = 'pink',
+                                          interpolation="nearest", extent = extent)
+        implot.set_clim(0,cmax)
+        if(len(canvas.fig.axes) > 1):
+            cbar = canvas.fig.colorbar(implot,cax = canvas.fig.axes[1])
+        else:
+            cbar = canvas.fig.colorbar(implot)
+        cbar.set_cmap('pink')
+        canvas.draw()
+        QtGui.QApplication.processEvents()
+
 # Test code to run scan and display image
 
 #newScan = ScanNV(-.4, .4, 120, -.4, .4, 120, .001)

@@ -4,7 +4,7 @@ import ScanTest as GalvoScan
 import GalvoTest as DaqOut
 from PyQt4 import QtGui
 
-class DeviceTriggers():
+class DeviceTriggers:
     @staticmethod
     #def ZIGui(canvas):
     def ZIGui(canvas, amp, offset, freqLow, freqHigh, sampleNum, samplePerPt, xScale):
@@ -19,6 +19,10 @@ class DeviceTriggers():
         return imageData
 
     @staticmethod
+    def updateColorbar(imageData, canvas, extent, cmax):
+        GalvoScan.ScanNV.updateColorbar(imageData, canvas, extent, cmax)
+
+    @staticmethod
     def setDaqPt(xVolt,yVolt):
         pt = numpy.transpose(numpy.column_stack((xVolt,yVolt)))
         pt = (numpy.repeat(pt, 2, axis=1))
@@ -27,5 +31,5 @@ class DeviceTriggers():
         pointthread.run()
         pointthread.waitToFinish()
         pointthread.stop()
-        QtGui.QApplication.processEvents()
+        QtGui.QApplication.processEvent
 

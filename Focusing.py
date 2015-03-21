@@ -84,7 +84,7 @@ class Focus:
         cls.plotFit(fitline,a,mean,sigma,c,minV,maxV, canvas)
         # checks if computed mean is outside of scan range and, if so, sets piezo to center of scan range to prevent a
         # poor fit from trying to move the piezo by a large amount and breaking the stripline
-        if(mean > numpy.min(voltRange) and mean < numpy.max(voltRange)):
+        if(mean > numpy.min(voltRange) and mean < numpy.max(voltRange) and a > 0):
             piezo.setVoltage(mean)
             print(mean)
         else:
@@ -169,4 +169,4 @@ class Focus:
 
 
 
-a = Focus.scan(25, 75, 40, 'X', waitTime = .2)
+#a = Focus.scan(25, 75, 40, 'X', waitTime = .2)
