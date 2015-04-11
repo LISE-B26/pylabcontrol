@@ -26,7 +26,7 @@ class ZIHF2:
     # auxChannel: specifies auxillary channel to use, default channel 1 as listed on device (value 0)
     # add: turns add mode on output channel on (1) or off (0), default 1
     # range: sets output range (V), default 10
-    def __init__(self, amplitude, offset, ACCoupling = 0, inChannel = 0, outChannel = 0, auxChannel = 0, add = 1, range = 10, canvas = None):
+    def __init__(self, amplitude, offset, freq, ACCoupling = 0, inChannel = 0, outChannel = 0, auxChannel = 0, add = 1, range = 10, canvas = None):
         # find and connect to device
         self.daq = utils.autoConnect(8005,1)
         self.device = utils.autoDetect(self.daq)
@@ -61,13 +61,15 @@ class ZIHF2:
             ['/%s/sigouts/%d/range'         % (self.device, self.out_c), 10],
             ['/%s/sigouts/%d/enables/%d'    % (self.device, self.out_c, self.out_mixer_c), 1],
             ['/%s/sigouts/%d/amplitudes/%d' % (self.device, self.out_c, self.out_mixer_c), float(amplitude)/range],
-            ['/%s/AUXOUTS/%d/OFFSET'% (self.device, auxChannel), offset]]
+            ['/%s/AUXOUTS/%d/OFFSET'% (self.device, auxChannel), offset],
+            ['/%s/oscs/%d/freq'% (self.device, auxChannel), freq]]
 
         self.exp_setting.append(['/%s/demods/%d/oscselect' % (self.device, self.demod_c), self.osc_c])
         self.exp_setting.append(['/%s/demods/%d/adcselect' % (self.device, self.demod_c), self.in_c])
         self.exp_setting.append(['/%s/sigins/%d/diff' % (self.device, self.in_c), 0])
         self.exp_setting.append(['/%s/sigouts/%d/add' % (self.device, self.out_c), add])
         self.daq.set(self.exp_setting)
+        print(self.exp_setting)
 
     # performs a frequency sweep and stores result in self.samples
     # freqStart: initial frequency for sweep (Hz)
@@ -140,6 +142,7 @@ class ZIHF2:
 
         # Stop the sweeper thread and clear the memory
         sweeper.clear()
+        self.plotting = 0
 
         # weird bug in code from sample that causes empty data dict when real time reading is implemented, code
         # disabled and this code reads any final samples if data is not empty
@@ -166,6 +169,7 @@ class ZIHF2:
     def plot(self):
         if(self.plotting == 0):
             plt.ion()
+            plt.clf()
             for i in range(0, len(self.samples)):
                 # please note: the "[i][0]" indexing is known issue to be fixed in
                 # an upcoming release (there shouldn't be an additional [0])
@@ -173,7 +177,7 @@ class ZIHF2:
                 frequency = frequency[~numpy.isnan(frequency)]
                 R = numpy.sqrt(self.samples[i][0]['x']**2 + self.samples[i][0]['y']**2)
                 R = R[~numpy.isnan(R)]
-                plt.loglog(frequency, R)
+                plt.plot(frequency, R)
             plt.grid(True)
             plt.title('Results of %d sweeps' % len(self.samples))
             plt.xlabel('Frequency (Hz)')
@@ -189,7 +193,7 @@ class ZIHF2:
                 frequency = frequency[~numpy.isnan(frequency)]
                 R = numpy.sqrt(self.samples[i][0]['x']**2 + self.samples[i][0]['y']**2)
                 R = R[~numpy.isnan(R)]
-                plt.loglog(frequency, R)
+                plt.plot(frequency, R)
                 plt.draw()
 
 
@@ -227,6 +231,31 @@ class ZIHF2:
                 self.canvas.axes.set_ylim(bottom = 0, top = self.yLim)
             self.canvas.draw()
             QtGui.QApplication.processEvents()
+
+    def switchOn(self):
+        try:
+            index = self.exp_setting.index(['/%s/sigouts/%d/on' % (self.device, self.out_c), 0])
+        except ValueError:
+            return
+        self.exp_setting[index]=['/%s/sigouts/%d/on' % (self.device, self.out_c), 1]
+        self.daq.set(self.exp_setting)
+
+    def switchOff(self):
+        try:
+            index = self.exp_setting.index(['/%s/sigouts/%d/on' % (self.device, self.out_c), 1])
+        except ValueError:
+            return
+        self.exp_setting[index]=['/%s/sigouts/%d/on' % (self.device, self.out_c), 0]
+        self.daq.set(self.exp_setting)
+
+    def poll(self):
+        path = '/%s/demods/%d/sample' % (self.device, self.demod_c)
+        self.daq.subscribe(path)
+        flat_dictionary_key = True
+        data = self.daq.poll(1,500,1,flat_dictionary_key)
+        R = numpy.sqrt(numpy.square(data[path]['x'])+numpy.square(data[path]['y']))
+        return(numpy.mean(R))
+
 
 # test code
 #if __name__ == '__main__':

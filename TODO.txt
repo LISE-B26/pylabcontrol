@@ -78,7 +78,3 @@ level sample
 piezo
 tweak return path
 variable delay to scan
-
-
-
-Implement max threshold in scanning

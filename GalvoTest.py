@@ -83,6 +83,7 @@ class DaqOutputWave(threading.Thread):
                               None))
         threading.Thread.__init__(self)
 
+
     # begin outputting waveforms
     def run(self):
         self.CHK(nidaq.DAQmxStartTask(self.taskHandle))
