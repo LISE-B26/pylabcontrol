@@ -1,8 +1,10 @@
 import numpy
 import ZiControl
-import ScanTest as GalvoScan
-import GalvoTest as DaqOut
+import ScanDelay as GalvoScan  # for APD counting input
+#import ScanPhotodiode as GalvoScan  # for  photodiode voltage input
+import GalvoTest as DaqOut 
 from PyQt4 import QtGui
+import time
 
 class DeviceTriggers:
     @staticmethod
@@ -16,6 +18,7 @@ class DeviceTriggers:
     def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt):
         scanner = GalvoScan.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
         imageData = scanner.scan()
+        DeviceTriggers.setDaqPt(0,0)
         return imageData
 
     @staticmethod
@@ -24,12 +27,12 @@ class DeviceTriggers:
 
     @staticmethod
     def setDaqPt(xVolt,yVolt):
-        pt = numpy.transpose(numpy.column_stack((xVolt,yVolt)))
-        pt = (numpy.repeat(pt, 2, axis=1))
-        # prefacing string with b should do nothing in python 2, but otherwise this doesn't work
-        pointthread = DaqOut.DaqOutputWave(pt, 1000.0, b"Dev1/ao0:1")
+        initPt = numpy.transpose(numpy.column_stack((xVolt, yVolt)))
+        initPt = (numpy.repeat(initPt, 2, axis=1))
+        # move galvo to first point in line
+        pointthread = DaqOut.DaqOutputWave(initPt, 1 / .001, "Dev1/ao0:1")
         pointthread.run()
         pointthread.waitToFinish()
         pointthread.stop()
-        QtGui.QApplication.processEvent
+        QtGui.QApplication.processEvents()
 

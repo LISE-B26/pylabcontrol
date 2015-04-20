@@ -169,4 +169,4 @@ class Focus:
 
 
 
-#a = Focus.scan(25, 75, 40, 'X', waitTime = .2)
+#a = Focus.scan(30, 60, 30, 'X', waitTime = 0)

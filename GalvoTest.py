@@ -128,6 +128,17 @@ class DaqOutputWave(threading.Thread):
         cls.CHK(nidaq.DAQmxClearTask(taskHandle))
         return data[0:4]
 
+#When initialized, sets Galvo to the point xVolt,yVolt
+class SetGalvoPoint:
+    def __init__(self,xVolt,yVolt):
+        pt = numpy.transpose(numpy.column_stack((xVolt,yVolt)))
+        pt = (numpy.repeat(pt, 2, axis=1))
+        # prefacing string with b should do nothing in python 2, but otherwise this doesn't work
+        pointthread = DaqOutputWave(pt, 1000.0, b"Dev1/ao0:1")
+        pointthread.run()
+        pointthread.waitToFinish()
+        pointthread.stop()
+
 
 
 # Test code to do simple output

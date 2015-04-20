@@ -15,6 +15,8 @@ import numpy
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import ScanTest as GalvoScan
+
 
 class SweepScan():
     def __init__(self, xypairs):
@@ -22,7 +24,7 @@ class SweepScan():
         self.dt = .001
 
     # runs scan
-    def sweepscan(self, amplitude, offset, freqStart, freqEnd, sampleNum, samplesPerPt):
+    def sweepscan(self, amplitude, offset, freqStart, freqEnd, sampleNum, samplesPerPt, name):
         self.sweeper = ZI.ZIHF2(amplitude, offset, 500000, ACCoupling=1)
         pointnum = 1
         for point in self.xypairs:
@@ -34,7 +36,7 @@ class SweepScan():
             pointthread.waitToFinish()
             pointthread.stop()
             self.sweepData = self.sweeper.sweep(freqStart, freqEnd, sampleNum, samplesPerPt)
-            self.filepath = 'C:\Users\Experiment\Desktop\Sweeptest\sweep' + str(pointnum) + '.txt'
+            self.filepath = 'C:\Users\Experiment\Desktop\Sweeptest\sweep' + name + str(pointnum) + '.txt'
             self.writeArray(self.sweepData, self.filepath, ['Frequency', 'Response'])
             pointnum += 1
 
@@ -84,16 +86,132 @@ class defXYpairs():
             i+=1
         return xypairs
 
-xypairs = defXYpairs.getPairs(.2058, .2295, 9, -.07713, -.003625, 25, -23.7)
-#print(xypairs)
-#x = [xypairs[0][0],xypairs[8][0],xypairs[216][0],xypairs[224][0]]
-#y = [xypairs[0][1],xypairs[8][1],xypairs[216][1], xypairs[224][1]]
-#plt.scatter(x,y)
-#plt.show()
+class plotScannedResonator():
+    def __init__(self, xminpair,xmaxpair,xpts,yminpair,ymaxpair,ypts,theta,results = False):
+        xypairs = defXYpairs.getPairs(xminpair, xmaxpair, xpts, yminpair, ymaxpair, ypts, theta)
+        self.x = []
+        self.y = []
+        self.R = []
+        self.results = results
+        for pointnum in range(1,self.xpts*self.ypts+1):
+            self.x = numpy.append(self.x,xypairs[pointnum-1][0])
+            self.y = numpy.append(self.y,xypairs[pointnum-1][1])
+            if(self.results == True):
+                filepath = 'C:\Users\Experiment\Desktop\Sweeptest\sweep4_' + str(pointnum) + '.txt'
+                data = pd.read_csv(filepath)
+                self.R = numpy.append(self.R,numpy.max(data['Response'].values))
+
+    def plotResSweep(self, xmin, xmax, ymin, ymax):
+        if(self.results == False):
+            raise Exception("In pre-sweep mode, use results=True when initializing to run in processing mode")
+            return
+        scanner = GalvoScan.ScanNV(xmin,xmax,120,ymin,ymax,120,.001)
+        imageData = scanner.scan()
+        plt.scatter(self.x,self.y,c=self.R, s=15, edgecolors = 'none', cmap = mpl.cm.cool, norm=mpl.colors.LogNorm())
+        plt.colorbar()
+        plt.imshow(imageData, cmap = 'pink',interpolation="nearest", extent = [xmin,xmax,ymax,ymin])
+        plt.show()
+
+    def plotPreSweep(self, xmin, xmax, ymin, ymax):
+        scanner = GalvoScan.ScanNV(xmin,xmax,120,ymin,ymax,120,.001)
+        imageData = scanner.scan()
+        plt.scatter(self.x,self.y,s=10)
+        plt.imshow(imageData, cmap = 'pink',interpolation="nearest", extent = [xmin,xmax,ymax,ymin])
+        plt.show()
+
+    def linPlotx(self, lineNum):
+        if(self.results == False):
+            raise Exception("In pre-sweep mode, use results=True when initializing to run in processing mode")
+            return
+        x = []
+        R = []
+        for i in range(0,self.xpts):
+            x = numpy.append(x,i+1)
+            R = numpy.append(R,self.R[i+(lineNum-1)*self.xpts])
+        plt.plot(x,R)
+        plt.show()
+
+    def linPloty(self, lineNum):
+        if(self.results == False):
+            raise Exception("In pre-sweep mode, use results=True when initializing to run in processing mode")
+            return
+        y = []
+        R = []
+        for i in range(0,self.ypts):
+            y = numpy.append(y,i+1)
+            R = numpy.append(R,self.R[i*self.xpts+(lineNum-1)])
+        plt.plot(y,R)
+        plt.show()
+
+    @staticmethod
+    def plotImage():
+        xmin = -.4
+        xmax = .4
+        ymin = -.4
+        ymax = .4
+        filepath = 'C:\Users\Experiment\Desktop\Sweeptest\\photodiode1.txt'
+        imageData = pd.read_csv(filepath)
+        plt.imshow(imageData,cmap='pink')
+        plt.show()
+
+#Pre-sweep sequence
+#point specification
+xminpair = 0
+xmaxpair = .1
+xpts = 9
+yminpair = 0
+ymaxpair = .1
+ypts = 21
+theta = -23.7
+
+#image specification
+xImMin = -.4
+xImMax = .4
+yImMin = -.4
+yImMax = .4
+
+#Pre-sweep plotting
+temp = plotScannedResonator(xminpair,xmaxpair,xpts,yminpair,ymaxpair,ypts,theta)
+temp.plotPreSweep(xImMin, xImMax, yImMin, yImMax)
+
+
+#Run Sequence: uses points specified above
+#Sweep specifications
+amplitude = .2
+offset = 2
+freqMin = 2000000
+freqMax = 2100000
+numSamples
+averagingPerPt = 16
+
+
+xypairs = defXYpairs.getPairs(xminpair, xmaxpair, xpts, yminpair, ymaxpair, ypts, theta)
+scanner = SweepScan(xypairs)
+scanner.sweepscan(amplitude, offset, freqMin, freqMax, 50, 16)
+
+
+
+
+
+
+#amps = [2,.8,.2,.08,.02]
+#offset = [4,4,2,2,2]
+#name = ['1_','2_','3_','4_','5_']
+
+#xypairs = defXYpairs.getPairs(.2, .228, 15, -.084, .01, 51, -23.7)
 #scanner = SweepScan(xypairs)
 #scanner.sweepscan(.2, 2, 551000, 553000, 50, 16)
 #daq = ZI.ZIHF2(.2, 2, 2000000, ACCoupling=1)
 #daq.poll()
-scanner = SweepScan(xypairs)
-scanner.resonancescan(.2,2,551900)
+
+#for a,off,n in zip(amps,offset,name):
+#    scanner = SweepScan(xypairs)
+#    scanner.sweepscan(a, off, 551250, 552250, 150, 16, n)
+
+#temp = plotScannedResonator()
+#temp.getData()
+#temp.plotResSweep()
+#temp.linPlotx(4)
+#temp.linPloty(9)
+#plotScannedResonator.plotImage()
 

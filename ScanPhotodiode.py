@@ -1,5 +1,5 @@
 # B26 Lab Code
-# Last Update: 1/28/15
+# Last Update: 4/14/15
 
 # External Connections: Galvo x axis on DAQ channel 0
 #                       Galvo y axis on DAQ channel 1
@@ -9,7 +9,7 @@
 
 # import external files
 import GalvoTest as DaqOut
-import APDTest as APDIn
+import PhotodiodeInput as PDIn
 # import standard libraries
 import numpy
 import matplotlib.pyplot
@@ -28,16 +28,22 @@ class ScanNV():
     # yVmax: maximum y voltage for scan
     # yPts: number of y points to scan
     # timePerPt: time to stay at each scan point
-    def __init__(self, xVmin, xVmax, xPts, yVmin, yVmax, yPts, timePerPt, canvas = None):
+    # canvas: send matplotlib.backends canvas from PyQt4 gui if being used, otherwise plots with pyplot
+    # settleTime: galvo settling time, excluded from scan
+    def __init__(self, xVmin, xVmax, xPts, yVmin, yVmax, yPts, timePerPt, canvas = None,settleTime = .0002):
         # evenly spaced arrays of x and y voltages
+        assert((timePerPt/settleTime).is_integer())
         self.xVmin = xVmin
         self.xVmax = xVmax
         self.yVmin = yVmin
         self.yVmax = yVmax
+        self.settleTime = settleTime
+        self.clockAdjust = (timePerPt+settleTime)/settleTime
         self.xArray = numpy.linspace(xVmin, xVmax, xPts)
         self.yArray = numpy.linspace(yVmin, yVmax, yPts)
+        self.xArray = numpy.repeat(self.xArray, self.clockAdjust)
         self.imageData = numpy.zeros((xPts, yPts))
-        self.dt = timePerPt
+        self.dt = (timePerPt+settleTime)/self.clockAdjust
         # stores one line of x data at a time
         self.xLineData = numpy.zeros(len(self.xArray) + 1)
         self.plotting = 0
@@ -49,7 +55,7 @@ class ScanNV():
         # scan one x line per loop
         for yNum in xrange(0, len(self.yArray)):
             # initialize APD thread
-            readthread = APDIn.ReadAPD("Dev1/ctr0", 1 / self.dt,
+            readthread = PDIn.ReadPhotodiode("Dev1/AI1", 1 / self.dt,
                                        len(self.xArray) + 1)
             self.initPt = numpy.transpose(numpy.column_stack((self.xArray[0],
                                           self.yArray[yNum])))
@@ -62,19 +68,19 @@ class ScanNV():
             writethread = DaqOut.DaqOutputWave(self.xArray, 1 / self.dt,
                                                "Dev1/ao0")
             # start counter and scanning sequence
-            readthread.runCtr()
+            readthread.run()
             writethread.run()
             writethread.waitToFinish()
             writethread.stop()
             self.xLineData = readthread.read()
-            self.imageData[yNum] = numpy.diff(self.xLineData)
+            self.averagedData = numpy.zeros(len(self.yArray))
+            for i in range(0,len(self.yArray)):
+                self.averagedData[i] = numpy.mean(self.xLineData[(i*self.clockAdjust+1):(i*self.clockAdjust+self.clockAdjust-1)])
+            self.imageData[yNum] = self.averagedData
             # clean up APD tasks
-            readthread.stopCtr()
-            readthread.stopClk()
             if(not(self.canvas == None)):
                 self.dispImageGui()
-            #normalize to kCount/sec
-            self.imageData = self.imageData/(.001/self.dt)
+            print(yNum)
         return self.imageData
 
     # displays image to screen
@@ -109,7 +115,7 @@ class ScanNV():
     def updateColorbar(imageData, canvas, extent, cmax):
         implot = canvas.axes.imshow(imageData, cmap = 'pink',
                                           interpolation="nearest", extent = extent)
-        implot.set_clim(0,cmax)
+        implot.set_clim(-.01,cmax)
         if(len(canvas.fig.axes) > 1):
             cbar = canvas.fig.colorbar(implot,cax = canvas.fig.axes[1])
         else:

@@ -44,37 +44,11 @@ try to fit lorentzian to esr to find peak-lower priority
 want to turn down laser power (switch to 5)
 
 
-focusing routine:
-voltage range 1-99
-fit results to gaussian
-take image 1/5-1/10 smaller than standard
-have input be voltage, range, #pts
-use current galvo voltage as center, make sure window around this point doesn't exceed max voltage (.5) on galvo
-
-
-Test Resonators routine:
-use four points to define rectangle to scan on
-do a freq sweep on each point
-fit result to gaussian
-
-
-add green dot on top of current voltage
-
-
-
-Before starting other setup:
-catalog diamonds
-look at lens: oil immersion? (look into cleaning objective-Igor)
-way to mount everything: 3axis stage + piezo
--look at how contact probes work
-
-
-find: 3 axis stage, sapphire piezos
-
-7x7mm chip, how much space between objective and sample, how big metal is allowed
-
-
-level sample
-piezo
-tweak return path
-variable delay to scan
+normalize to kcount/s +
+add plot labels +
+add autosave, save jpeg, readme, needs to have a timestamp, have order by name == order by date
+scantest pyplot ion
+be able to save current script
+add stop button to scan
+reset window flips image
+add saving failed error message

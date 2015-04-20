@@ -115,6 +115,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.buttonImageHome.clicked.connect(self.imageHomeClicked)
         self.buttonSaveImage = QtGui.QPushButton('Save Image', self.main_widget)
         self.buttonSaveImage.clicked.connect(self.saveImageClicked)
+        self.buttonLargeScan = QtGui.QPushButton('Large Scan', self.main_widget)
+        self.buttonLargeScan.clicked.connect(self.largeScanButtonClicked)
         self.cbarMax = QtGui.QLineEdit(self.main_widget)
         self.cbarMaxL = QtGui.QLabel(self.main_widget)
         self.cbarMaxL.setText("Colorbar Threshold")
@@ -150,8 +152,19 @@ class ApplicationWindow(QtGui.QMainWindow):
         grid.addWidget(self.cbarMax,2,13)
         grid.addWidget(self.cbarMaxL,1,13)
         grid.addWidget(self.buttonCbarThresh,2,14)
+        grid.addWidget(self.buttonLargeScan,1,14)
         vbox.addLayout(grid)
         self.imageData = None
+
+        #set initial values for scan values
+        self.xVoltageMin.setText('-.4')
+        self.yVoltageMin.setText('-.4')
+        self.xVoltageMax.setText('.4')
+        self.yVoltageMax.setText('.4')
+        self.xPts.setText('120')
+        self.yPts.setText('120')
+        self.timePerPt.setText('.001')
+
 
         ZILayout = QtGui.QGridLayout()
         self.amp = QtGui.QLineEdit(self.main_widget)
@@ -220,10 +233,10 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.statusBar().showMessage("Temp",1)
 
     def zoom(self,eclick,erelease):
-        self.xVoltageMin.setText(str(eclick.xdata))
-        self.yVoltageMin.setText(str(eclick.ydata))
-        self.xVoltageMax.setText(str(erelease.xdata))
-        self.yVoltageMax.setText(str(erelease.ydata))
+        self.xVoltageMin.setText(str(min(eclick.xdata,erelease.xdata)))
+        self.yVoltageMin.setText(str(min(eclick.ydata,erelease.ydata)))
+        self.xVoltageMax.setText(str(max(eclick.xdata, erelease.xdata)))
+        self.yVoltageMax.setText(str(max(eclick.ydata, erelease.ydata)))
         self.dc.axes.set_xlim(left= min(eclick.xdata,erelease.xdata), right = max(eclick.xdata, erelease.xdata))
         self.dc.axes.set_ylim(top= min(eclick.ydata, erelease.ydata),bottom= max(eclick.ydata, erelease.ydata))
         self.dc.draw()
@@ -250,7 +263,8 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def scanBtnClicked(self):
         self.statusBar().showMessage("Taking Image",0)
-        self.imageData = DeviceTriggers.scanGui(self.dc,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()))
+        queue = Queue()
+        self.imageData = DeviceTriggers.scanGui(self.dc,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()), queue)
         self.xMinHome = float(self.xVoltageMin.text())
         self.xMaxHome = float(self.xVoltageMax.text())
         self.yMinHome = float(self.yVoltageMin.text())
@@ -302,6 +316,16 @@ class ApplicationWindow(QtGui.QMainWindow):
     def testButtonClicked(self):
         print("Test Code")
         Focusing.Focus.scan(48.5, 52.5, 3, waitTime = 0, canvas = self.sc)
+
+    def largeScanButtonClicked(self):
+        self.xVoltageMin.setText('-.4')
+        self.yVoltageMin.setText('-.4')
+        self.xVoltageMax.setText('.4')
+        self.yVoltageMax.setText('.4')
+        self.xPts.setText('120')
+        self.yPts.setText('120')
+        self.timePerPt.setText('.001')
+        self.statusBar().showMessage("Large Scan Values Set",2000)
 
 
     def fileQuit(self):
