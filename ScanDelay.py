@@ -30,7 +30,7 @@ class ScanNV():
     # timePerPt: time to stay at each scan point
     # canvas: send matplotlib.backends canvas from PyQt4 gui if being used, otherwise plots with pyplot
     # settleTime: galvo settling time, excluded from scan
-    def __init__(self, xVmin, xVmax, xPts, yVmin, yVmax, yPts, timePerPt, canvas = None,settleTime = .0002):
+    def __init__(self, xVmin, xVmax, xPts, yVmin, yVmax, yPts, timePerPt, canvas = None, settleTime = .0002):
         # evenly spaced arrays of x and y voltages
         assert((timePerPt/settleTime).is_integer())
         self.xVmin = xVmin
@@ -43,7 +43,7 @@ class ScanNV():
         self.xArray = numpy.linspace(xVmin, xVmax, xPts)
         self.yArray = numpy.linspace(yVmin, yVmax, yPts)
         self.xArray = numpy.repeat(self.xArray, self.clockAdjust)
-        self.imageData = numpy.zeros((xPts, yPts))
+        self.imageData = numpy.zeros((yPts,xPts))
         self.dt = (timePerPt+settleTime)/self.clockAdjust
         # stores one line of x data at a time
         self.xLineData = numpy.zeros(len(self.xArray) + 1)
@@ -55,6 +55,8 @@ class ScanNV():
     def scan(self,queue = None):
         # scan one x line per loop
         for yNum in xrange(0, len(self.yArray)):
+            if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
+                break
             # initialize APD thread
             readthread = APDIn.ReadAPD("Dev1/ctr0", 1 / self.dt,
                                        len(self.xArray) + 1)
@@ -75,17 +77,16 @@ class ScanNV():
             writethread.stop()
             self.xLineData = readthread.read()
             self.diffData = numpy.diff(self.xLineData)
-            self.summedData = numpy.zeros(len(self.yArray))
-            for i in range(0,len(self.yArray)):
+            self.summedData = numpy.zeros(len(self.xArray)/self.clockAdjust)
+            for i in range(0,int((len(self.xArray)/self.clockAdjust))):
                 self.summedData[i] = numpy.sum(self.diffData[(i*self.clockAdjust+1):(i*self.clockAdjust+self.clockAdjust-1)])
             #also normalizing to kcounts/sec
-            self.imageData[yNum] = self.summedData/(.001/self.timePerPt)
+            self.imageData[yNum] = self.summedData*(.001/self.timePerPt)
             # clean up APD tasks
             readthread.stopCtr()
             readthread.stopClk()
             if(not(self.canvas == None)):
                 self.dispImageGui()
-
         return self.imageData
 
     # displays image to screen
@@ -104,9 +105,9 @@ class ScanNV():
             self.canvas.axes.set_xlabel('Vx')
             self.canvas.axes.set_ylabel('Vy')
             if(len(self.canvas.fig.axes) > 1):
-                self.cbar = self.canvas.fig.colorbar(implot,cax = self.canvas.fig.axes[1])
+                self.cbar = self.canvas.fig.colorbar(implot,cax = self.canvas.fig.axes[1],label = 'kcounts/sec')
             else:
-                self.cbar = self.canvas.fig.colorbar(implot)
+                self.cbar = self.canvas.fig.colorbar(implot,label = 'kcounts/sec')
             self.cbar.set_cmap('pink')
             self.canvas.draw()
             QtGui.QApplication.processEvents()
@@ -126,9 +127,9 @@ class ScanNV():
                                           interpolation="nearest", extent = extent)
         implot.set_clim(0,cmax)
         if(len(canvas.fig.axes) > 1):
-            cbar = canvas.fig.colorbar(implot,cax = canvas.fig.axes[1])
+            cbar = canvas.fig.colorbar(implot,cax = canvas.fig.axes[1],label = 'kcounts/sec')
         else:
-            cbar = canvas.fig.colorbar(implot)
+            cbar = canvas.fig.colorbar(implot,label = 'kcounts/sec')
         cbar.set_cmap('pink')
         canvas.draw()
         QtGui.QApplication.processEvents()

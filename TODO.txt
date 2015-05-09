@@ -48,7 +48,14 @@ normalize to kcount/s +
 add plot labels +
 add autosave, save jpeg, readme, needs to have a timestamp, have order by name == order by date
 scantest pyplot ion
-be able to save current script
-add stop button to scan
-reset window flips image
+be able to save current script +
+add stop button to scan +
+reset window flips image +
 add saving failed error message
+Fix guidevicetriggers namespacing +
+resize click dot as window size changes +
+removed seaborn grid lines +
+
+Find center of NV
+Copy script
+label plots +

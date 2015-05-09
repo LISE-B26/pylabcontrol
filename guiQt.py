@@ -16,6 +16,7 @@ import random
 import numpy
 import numpy.random
 import time
+import Queue
 import pandas as pd
 import Focusing
 from matplotlib.backends import qt_compat
@@ -24,12 +25,12 @@ import matplotlib.patches as patches
 from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from GuiDeviceTriggers import DeviceTriggers
+import GuiDeviceTriggers as DeviceTriggers
 
 # Extends the matplotlib backend FigureCanvas. A canvas for matplotlib figures with a constructed axis that is
 # auto-expanding
 class MyMplCanvas(FigureCanvas):
-    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
+    """Ultimately, this is a QWidget (as well as a Fi   gureCanvasAgg, etc.)."""
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111, autoscale_on=False)
@@ -105,6 +106,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.timePerPtL = QtGui.QLabel(self.main_widget)
         self.timePerPtL.setText("Timer Per Point:")
         self.saveLocImage = QtGui.QLineEdit(self.main_widget)
+        self.saveLocImage.setText('Z:\\Lab\\Cantilever\\Measurements\\Images')
         self.saveLocImageL = QtGui.QLabel(self.main_widget)
         self.saveLocImageL.setText("Image Save Location")
         self.buttonScan = QtGui.QPushButton('Scan', self.main_widget)
@@ -122,6 +124,10 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.cbarMaxL.setText("Colorbar Threshold")
         self.buttonCbarThresh = QtGui.QPushButton('Update Colorbar', self.main_widget)
         self.buttonCbarThresh.clicked.connect(self.cbarThreshClicked)
+        self.buttonStop = QtGui.QPushButton('Stop Scan', self.main_widget)
+        self.buttonStop.clicked.connect(self.stopButtonClicked)
+        self.autosaveCheck = QtGui.QCheckBox('AutoSave',self.main_widget)
+        self.autosaveCheck.setChecked(True)
 
 
         grid = QtGui.QGridLayout()
@@ -153,6 +159,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         grid.addWidget(self.cbarMaxL,1,13)
         grid.addWidget(self.buttonCbarThresh,2,14)
         grid.addWidget(self.buttonLargeScan,1,14)
+        grid.addWidget(self.buttonStop,1,15)
+        grid.addWidget(self.autosaveCheck,2,15)
         vbox.addLayout(grid)
         self.imageData = None
 
@@ -229,6 +237,8 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         self.circ = None
 
+        self.queue = Queue.Queue()
+
         #Makes room for status bar at bottom so it doesn't resize the widgets when it is used later
         self.statusBar().showMessage("Temp",1)
 
@@ -239,6 +249,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.yVoltageMax.setText(str(max(eclick.ydata, erelease.ydata)))
         self.dc.axes.set_xlim(left= min(eclick.xdata,erelease.xdata), right = max(eclick.xdata, erelease.xdata))
         self.dc.axes.set_ylim(top= min(eclick.ydata, erelease.ydata),bottom= max(eclick.ydata, erelease.ydata))
+        if(not self.circ==None):
+            self.drawDot()
         self.dc.draw()
 
 
@@ -255,7 +267,7 @@ class ApplicationWindow(QtGui.QMainWindow):
             self.statusBar().showMessage("Sweep Data Saved",2000)
 
     def saveImageClicked(self):
-        if(self.imageData == None):
+        if(self.imageData is None):
             QtGui.QMessageBox.about(self.main_widget, "Image Save Error", "There is no image data to save. Run a scan first.")
         else:
             self.writeArray(self.imageData, self.saveLocImage.text())
@@ -263,14 +275,15 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def scanBtnClicked(self):
         self.statusBar().showMessage("Taking Image",0)
-        queue = Queue()
-        self.imageData = DeviceTriggers.scanGui(self.dc,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()), queue)
+        self.imageData = DeviceTriggers.scanGui(self.dc,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()), self.queue)
         self.xMinHome = float(self.xVoltageMin.text())
         self.xMaxHome = float(self.xVoltageMax.text())
         self.yMinHome = float(self.yVoltageMin.text())
         self.yMaxHome = float(self.yVoltageMax.text())
         self.statusBar().clearMessage()
         self.circ = None
+        if(self.autosaveCheck.isChecked() == True):
+            self.saveImageClicked()
 
     def vSetBtnClicked(self):
         DeviceTriggers.setDaqPt(float(self.xVoltage.text()),float(self.yVoltage.text()))
@@ -298,24 +311,36 @@ class ApplicationWindow(QtGui.QMainWindow):
     def drawDot(self):
         if(not self.circ==None):
             self.circ.remove()
-        self.circ = patches.Circle((self.xVoltage.text(), self.yVoltage.text()), .01, fc = 'g')
+        xrange = self.dc.axes.get_xlim()[1]-self.dc.axes.get_xlim()[0]
+        yrange = self.dc.axes.get_ylim()[1]-self.dc.axes.get_ylim()[0]
+        size= .01*min(xrange,yrange)
+        self.circ = patches.Circle((self.xVoltage.text(), self.yVoltage.text()), size, fc = 'g')
         self.dc.axes.add_patch(self.circ)
         self.dc.draw()
 
-    def writeArray(self, array, filepath, columns = None):
+    def writeArray(self, array, dirpath, columns = None):
         df = pd.DataFrame(array, columns = columns)
         if(columns == None):
             header = False
         else:
             header = True
-        df.to_csv(filepath, index = False, header=header)
+        day = time.strftime("%d")
+        month = time.strftime("%m")
+        year = time.strftime("%Y")
+        hour = time.strftime("%H")
+        minute = time.strftime("%M")
+        second = time.strftime("%S")
+        filename = '\\Image_' + year + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second
+        filepathCSV = dirpath + filename + '.csv'
+        filepathJPG = dirpath + filename + '.jpg'
+        df.to_csv(filepathCSV, index = False, header=header)
+        self.dc.fig.savefig(str(filepathJPG), format = 'jpg')
 
     def cbarThreshClicked(self):
         DeviceTriggers.updateColorbar(self.imageData, self.dc, [self.xMinHome, self.xMaxHome, self.yMinHome, self.yMaxHome], float(self.cbarMax.text()))
 
     def testButtonClicked(self):
-        print("Test Code")
-        Focusing.Focus.scan(48.5, 52.5, 3, waitTime = 0, canvas = self.sc)
+        self.dc.fig.savefig('C:\\Users\\Experiment\\Desktop\\Image.jpg', format = 'jpg')
 
     def largeScanButtonClicked(self):
         self.xVoltageMin.setText('-.4')
@@ -326,6 +351,9 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.yPts.setText('120')
         self.timePerPt.setText('.001')
         self.statusBar().showMessage("Large Scan Values Set",2000)
+
+    def stopButtonClicked(self):
+        self.queue.put('STOP')
 
 
     def fileQuit(self):

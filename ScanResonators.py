@@ -181,7 +181,6 @@ amplitude = .2
 offset = 2
 freqMin = 2000000
 freqMax = 2100000
-numSamples
 averagingPerPt = 16
 
 

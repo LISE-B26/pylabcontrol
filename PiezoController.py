@@ -143,8 +143,8 @@ if __name__ == '__main__':
     yController.setVoltage(10)
 
     """
-    xController = MDT693A('X')
-    xController.setVoltage(35)
+    xController = MDT693A('Z')
+    xController.setVoltage(58.6)
     #while True:
     #print zController.getVoltage()
     #    time.sleep(5)

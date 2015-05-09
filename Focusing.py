@@ -13,7 +13,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 import time
 from PyQt4 import QtGui
-import seaborn
 
 normalRange = 1.0
 scanRange = normalRange/10
@@ -169,4 +168,4 @@ class Focus:
 
 
 
-#a = Focus.scan(30, 60, 30, 'X', waitTime = 0)
+#a = Focus.scan(20, 80, 300, 'Z', waitTime = .5)
