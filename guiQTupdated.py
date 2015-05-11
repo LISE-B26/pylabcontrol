@@ -70,14 +70,26 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         self.main_widget = QtGui.QWidget(self)
 
-        vbox = QtGui.QVBoxLayout(self.main_widget)
-        hbox = QtGui.QHBoxLayout()
-        self.sc = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
-        self.dc = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
-        hbox.addWidget(self.sc)
-        hbox.addWidget(self.dc)
-        vbox.addLayout(hbox)
+        self.vbox = QtGui.QVBoxLayout(self.main_widget)
+        self.plotBox = QtGui.QHBoxLayout()
+        self.vbox.addLayout(self.plotBox)
 
+        self.testButton = QtGui.QPushButton('Run Test Code',self.main_widget)
+        self.testButton.clicked.connect(self.testButtonClicked)
+        self.vbox.addWidget(self.testButton)
+
+
+        self.main_widget.setFocus()
+        self.setCentralWidget(self.main_widget)
+
+        self.initUI()
+
+
+        #Makes room for status bar at bottom so it doesn't resize the widgets when it is used later
+        self.statusBar().showMessage("Temp",1)
+
+    def addScan(self, vbox, plotBox):
+        self.imPlot = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
         self.xVoltageMin = QtGui.QLineEdit(self.main_widget)
         self.yVoltageMin = QtGui.QLineEdit(self.main_widget)
         self.xVoltageMax = QtGui.QLineEdit(self.main_widget)
@@ -107,6 +119,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.timePerPtL.setText("Timer Per Point:")
         self.saveLocImage = QtGui.QLineEdit(self.main_widget)
         self.saveLocImage.setText('Z:\\Lab\\Cantilever\\Measurements\\Images')
+        self.saveLocImage = QtGui.QLineEdit(self.main_widget)
         self.saveLocImageL = QtGui.QLabel(self.main_widget)
         self.saveLocImageL.setText("Image Save Location")
         self.buttonScan = QtGui.QPushButton('Scan', self.main_widget)
@@ -129,41 +142,6 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.autosaveCheck = QtGui.QCheckBox('AutoSave',self.main_widget)
         self.autosaveCheck.setChecked(True)
 
-
-        grid = QtGui.QGridLayout()
-        grid.addWidget(self.xVoltageMin, 2,1)
-        grid.addWidget(self.yVoltageMin, 2,2)
-        grid.addWidget(self.xVoltageMinL,1,1)
-        grid.addWidget(self.yVoltageMinL,1,2)
-        grid.addWidget(self.xVoltageMax, 2,3)
-        grid.addWidget(self.yVoltageMax, 2,4)
-        grid.addWidget(self.xVoltageMaxL,1,3)
-        grid.addWidget(self.yVoltageMaxL,1,4)
-        grid.addWidget(self.xPts,2,5)
-        grid.addWidget(self.xPtsL,1,5)
-        grid.addWidget(self.yPts, 2,6)
-        grid.addWidget(self.yPtsL, 1,6)
-        grid.addWidget(self.timePerPt,2,7)
-        grid.addWidget(self.timePerPtL,1,7)
-        grid.addWidget(self.xVoltage, 2,8)
-        grid.addWidget(self.yVoltage, 2,9)
-        grid.addWidget(self.xVoltageL,1,8)
-        grid.addWidget(self.yVoltageL,1,9)
-        grid.addWidget(self.saveLocImage,2,10)
-        grid.addWidget(self.saveLocImageL,1,10)
-        grid.addWidget(self.buttonScan,1,11)
-        grid.addWidget(self.buttonVSet,2,11)
-        grid.addWidget(self.buttonSaveImage,1,12)
-        grid.addWidget(self.buttonImageHome,2,12)
-        grid.addWidget(self.cbarMax,2,13)
-        grid.addWidget(self.cbarMaxL,1,13)
-        grid.addWidget(self.buttonCbarThresh,2,14)
-        grid.addWidget(self.buttonLargeScan,1,14)
-        grid.addWidget(self.buttonStop,1,15)
-        grid.addWidget(self.autosaveCheck,2,15)
-        vbox.addLayout(grid)
-        self.imageData = None
-
         #set initial values for scan values
         self.xVoltageMin.setText('-.4')
         self.yVoltageMin.setText('-.4')
@@ -173,8 +151,55 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.yPts.setText('120')
         self.timePerPt.setText('.001')
 
+        plotBox.addWidget(self.imPlot)
+        self.scanLayout = QtGui.QGridLayout()
+        self.scanLayout.addWidget(self.xVoltageMin, 2,1)
+        self.scanLayout.addWidget(self.yVoltageMin, 2,2)
+        self.scanLayout.addWidget(self.xVoltageMinL,1,1)
+        self.scanLayout.addWidget(self.yVoltageMinL,1,2)
+        self.scanLayout.addWidget(self.xVoltageMax, 2,3)
+        self.scanLayout.addWidget(self.yVoltageMax, 2,4)
+        self.scanLayout.addWidget(self.xVoltageMaxL,1,3)
+        self.scanLayout.addWidget(self.yVoltageMaxL,1,4)
+        self.scanLayout.addWidget(self.xPts,2,5)
+        self.scanLayout.addWidget(self.xPtsL,1,5)
+        self.scanLayout.addWidget(self.yPts, 2,6)
+        self.scanLayout.addWidget(self.yPtsL, 1,6)
+        self.scanLayout.addWidget(self.timePerPt,2,7)
+        self.scanLayout.addWidget(self.timePerPtL,1,7)
+        self.scanLayout.addWidget(self.xVoltage, 2,8)
+        self.scanLayout.addWidget(self.yVoltage, 2,9)
+        self.scanLayout.addWidget(self.xVoltageL,1,8)
+        self.scanLayout.addWidget(self.yVoltageL,1,9)
+        self.scanLayout.addWidget(self.saveLocImage,2,10)
+        self.scanLayout.addWidget(self.saveLocImageL,1,10)
+        self.scanLayout.addWidget(self.buttonScan,1,11)
+        self.scanLayout.addWidget(self.buttonVSet,2,11)
+        self.scanLayout.addWidget(self.buttonSaveImage,1,12)
+        self.scanLayout.addWidget(self.buttonImageHome,2,12)
+        self.scanLayout.addWidget(self.cbarMax,2,13)
+        self.scanLayout.addWidget(self.cbarMaxL,1,13)
+        self.scanLayout.addWidget(self.buttonCbarThresh,2,14)
+        self.scanLayout.addWidget(self.buttonLargeScan,1,14)
+        self.scanLayout.addWidget(self.buttonStop,1,15)
+        self.scanLayout.addWidget(self.autosaveCheck,2,15)
+        vbox.addLayout(self.scanLayout)
+        self.imageData = None
 
-        ZILayout = QtGui.QGridLayout()
+        self.imPlot.mpl_connect('button_press_event', self.mouseNVImage)
+        rectprops = dict(facecolor = 'black', edgecolor = 'black', alpha = 1.0, fill = True)
+        self.RS = RectangleSelector(self.imPlot.axes, self.zoom, button = 3, drawtype='box', rectprops = rectprops)
+
+        self.circ = None
+
+        self.queue = Queue.Queue()
+
+        QtGui.QApplication.processEvents()
+
+    def addZI(self, vbox, plotBox):
+        self.ziPlot = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
+        plotBox.addWidget(self.ziPlot)
+        self.ZILayout = QtGui.QGridLayout()
         self.amp = QtGui.QLineEdit(self.main_widget)
         self.ampL = QtGui.QLabel(self.main_widget)
         self.ampL.setText("Amplitude")
@@ -202,61 +227,41 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.buttonZILog.setCheckable(True)
         self.buttonZISave = QtGui.QPushButton('Save Sweep', self.main_widget)
         self.buttonZISave.clicked.connect(self.ZISaveClicked)
-        ZILayout.addWidget(self.amp,2,1)
-        ZILayout.addWidget(self.ampL,1,1)
-        ZILayout.addWidget(self.offset,2,2)
-        ZILayout.addWidget(self.offsetL,1,2)
-        ZILayout.addWidget(self.freqLow,2,3)
-        ZILayout.addWidget(self.freqLowL,1,3)
-        ZILayout.addWidget(self.freqHigh,2,4)
-        ZILayout.addWidget(self.freqHighL,1,4)
-        ZILayout.addWidget(self.sampleNum,2,5)
-        ZILayout.addWidget(self.sampleNumL,1,5)
-        ZILayout.addWidget(self.samplePerPt,2,6)
-        ZILayout.addWidget(self.samplePerPtL,1,6)
-        ZILayout.addWidget(self.saveLocZI,2,7)
-        ZILayout.addWidget(self.saveLocZIL,1,7)
-        ZILayout.addWidget(self.buttonZI,1,8)
-        ZILayout.addWidget(self.buttonZILog,2,8)
-        ZILayout.addWidget(self.buttonZISave,1,9)
-        vbox.addLayout(ZILayout)
+        self.ZILayout.addWidget(self.amp,2,1)
+        self.ZILayout.addWidget(self.ampL,1,1)
+        self.ZILayout.addWidget(self.offset,2,2)
+        self.ZILayout.addWidget(self.offsetL,1,2)
+        self.ZILayout.addWidget(self.freqLow,2,3)
+        self.ZILayout.addWidget(self.freqLowL,1,3)
+        self.ZILayout.addWidget(self.freqHigh,2,4)
+        self.ZILayout.addWidget(self.freqHighL,1,4)
+        self.ZILayout.addWidget(self.sampleNum,2,5)
+        self.ZILayout.addWidget(self.sampleNumL,1,5)
+        self.ZILayout.addWidget(self.samplePerPt,2,6)
+        self.ZILayout.addWidget(self.samplePerPtL,1,6)
+        self.ZILayout.addWidget(self.saveLocZI,2,7)
+        self.ZILayout.addWidget(self.saveLocZIL,1,7)
+        self.ZILayout.addWidget(self.buttonZI,1,8)
+        self.ZILayout.addWidget(self.buttonZILog,2,8)
+        self.ZILayout.addWidget(self.buttonZISave,1,9)
+        self.vbox.addLayout(self.ZILayout)
         self.ZIData = None
-
-        self.testButton = QtGui.QPushButton('Run Test Code',self.main_widget)
-        self.testButton.clicked.connect(self.testButtonClicked)
-        vbox.addWidget(self.testButton)
-
-
-        self.main_widget.setFocus()
-        self.setCentralWidget(self.main_widget)
-
-        self.dc.mpl_connect('button_press_event', self.mouseNVImage)
-
-        rectprops = dict(facecolor = 'black', edgecolor = 'black', alpha = 1.0, fill = True)
-        self.RS = RectangleSelector(self.dc.axes, self.zoom, button = 3, drawtype='box', rectprops = rectprops)
-
-        self.circ = None
-
-        self.queue = Queue.Queue()
-
-        #Makes room for status bar at bottom so it doesn't resize the widgets when it is used later
-        self.statusBar().showMessage("Temp",1)
 
     def zoom(self,eclick,erelease):
         self.xVoltageMin.setText(str(min(eclick.xdata,erelease.xdata)))
         self.yVoltageMin.setText(str(min(eclick.ydata,erelease.ydata)))
         self.xVoltageMax.setText(str(max(eclick.xdata, erelease.xdata)))
         self.yVoltageMax.setText(str(max(eclick.ydata, erelease.ydata)))
-        self.dc.axes.set_xlim(left= min(eclick.xdata,erelease.xdata), right = max(eclick.xdata, erelease.xdata))
-        self.dc.axes.set_ylim(top= min(eclick.ydata, erelease.ydata),bottom= max(eclick.ydata, erelease.ydata))
+        self.imPlot.axes.set_xlim(left= min(eclick.xdata,erelease.xdata), right = max(eclick.xdata, erelease.xdata))
+        self.imPlot.axes.set_ylim(top= min(eclick.ydata, erelease.ydata),bottom= max(eclick.ydata, erelease.ydata))
         if(not self.circ==None):
             self.drawDot()
-        self.dc.draw()
+        self.imPlot.draw()
 
 
     def ZIBtnClicked(self):
         self.statusBar().showMessage("Taking Frequency Scan",0)
-        self.ZIData = DeviceTriggers.ZIGui(self.sc, float(self.amp.text()),float(self.offset.text()), float(self.freqLow.text()),float(self.freqHigh.text()),float(self.sampleNum.text()),float(self.samplePerPt.text()),float(self.buttonZILog.isChecked()))
+        self.ZIData = DeviceTriggers.ZIGui(self.ziPlot, float(self.amp.text()),float(self.offset.text()), float(self.freqLow.text()),float(self.freqHigh.text()),float(self.sampleNum.text()),float(self.samplePerPt.text()),float(self.buttonZILog.isChecked()))
         self.statusBar().clearMessage()
 
     def ZISaveClicked(self):
@@ -275,7 +280,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def scanBtnClicked(self):
         self.statusBar().showMessage("Taking Image",0)
-        self.imageData = DeviceTriggers.scanGui(self.dc,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()), self.queue)
+        self.imageData = DeviceTriggers.scanGui(self.imPlot,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()), self.queue)
         self.xMinHome = float(self.xVoltageMin.text())
         self.xMaxHome = float(self.xVoltageMax.text())
         self.yMinHome = float(self.yVoltageMin.text())
@@ -290,9 +295,9 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.statusBar().showMessage("Galvo Position Updated",2000)
 
     def imageHomeClicked(self):
-        self.dc.axes.set_xlim(left = self.xMinHome, right = self.xMaxHome)
-        self.dc.axes.set_ylim(bottom = self.yMaxHome, top = self.yMinHome)
-        self.dc.draw()
+        self.imPlot.axes.set_xlim(left = self.xMinHome, right = self.xMaxHome)
+        self.imPlot.axes.set_ylim(bottom = self.yMaxHome, top = self.yMinHome)
+        self.imPlot.draw()
 
     def textUpdate(self):
         a = numpy.random.ranf()
@@ -311,12 +316,12 @@ class ApplicationWindow(QtGui.QMainWindow):
     def drawDot(self):
         if(not self.circ==None):
             self.circ.remove()
-        xrange = self.dc.axes.get_xlim()[1]-self.dc.axes.get_xlim()[0]
-        yrange = self.dc.axes.get_ylim()[1]-self.dc.axes.get_ylim()[0]
+        xrange = self.imPlot.axes.get_xlim()[1]-self.imPlot.axes.get_xlim()[0]
+        yrange = self.imPlot.axes.get_ylim()[1]-self.imPlot.axes.get_ylim()[0]
         size= .01*min(xrange,yrange)
         self.circ = patches.Circle((self.xVoltage.text(), self.yVoltage.text()), size, fc = 'g')
-        self.dc.axes.add_patch(self.circ)
-        self.dc.draw()
+        self.imPlot.axes.add_patch(self.circ)
+        self.imPlot.draw()
 
     def writeArray(self, array, dirpath, columns = None):
         df = pd.DataFrame(array, columns = columns)
@@ -334,13 +339,15 @@ class ApplicationWindow(QtGui.QMainWindow):
         filepathCSV = dirpath + filename + '.csv'
         filepathJPG = dirpath + filename + '.jpg'
         df.to_csv(filepathCSV, index = False, header=header)
-        self.dc.fig.savefig(str(filepathJPG), format = 'jpg')
+        self.imPlot.fig.savefig(str(filepathJPG), format = 'jpg')
 
     def cbarThreshClicked(self):
-        DeviceTriggers.updateColorbar(self.imageData, self.dc, [self.xMinHome, self.xMaxHome, self.yMinHome, self.yMaxHome], float(self.cbarMax.text()))
+        DeviceTriggers.updateColorbar(self.imageData, self.imPlot, [self.xMinHome, self.xMaxHome, self.yMinHome, self.yMaxHome], float(self.cbarMax.text()))
 
     def testButtonClicked(self):
-        self.dc.fig.savefig('C:\\Users\\Experiment\\Desktop\\Image.jpg', format = 'jpg')
+        self.addScan(self.vbox, self.plotBox)
+        time.sleep(2)
+        self.removeScan(self.plotBox)
 
     def largeScanButtonClicked(self):
         self.xVoltageMin.setText('-.4')
@@ -355,6 +362,75 @@ class ApplicationWindow(QtGui.QMainWindow):
     def stopButtonClicked(self):
         self.queue.put('STOP')
 
+    def removeScan(self, plotBox):
+        self.clearLayout(self.scanLayout)
+        self.imPlot.deleteLater()
+        QtGui.QApplication.processEvents()
+
+    def removeZI(self, plotBox):
+        self.clearLayout(self.ZILayout)
+        self.ziPlot.deleteLater()
+        QtGui.QApplication.processEvents()
+
+    def clearLayout(self, layout):
+        if layout != None:
+            while layout.count():
+                child = layout.takeAt(0)
+                if child.widget() is not None:
+                    child.widget().deleteLater()
+                elif child.layout() is not None:
+                    self.clearLayout(child.layout())
+
+    def initUI(self):
+        self.toolbarImage = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\diamondIcon.jpg'), 'addImaging', self)
+        self.toolbarImage.setCheckable(True)
+        self.toolbarImage.setChecked(False)
+        self.toolbarImage.triggered.connect(self.toolbarImageChecked)
+        self.toolbarImage.setToolTip('Imaging Tools')
+        self.toolbar = self.addToolBar('addImaging')
+        self.toolbar.addAction(self.toolbarImage)
+        self.toolbarZI = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\ZIIcon.png'), 'addZI', self)
+        self.toolbarZI.setCheckable(True)
+        self.toolbarZI.setChecked(False)
+        self.toolbarZI.triggered.connect(self.toolbarZIChecked)
+        self.toolbarZI.setToolTip('ZI Tools')
+        self.toolbar.addAction(self.toolbarZI)
+        spacer = QtGui.QWidget()
+        spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self.toolbar.addWidget(spacer)
+        self.toolbarLock = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\LockIcon.png'), 'lockToolbar', self)
+        self.toolbarLock.setCheckable(True)
+        self.toolbarLock.setChecked(False)
+        self.toolbarLock.triggered.connect(self.toolbarLockChecked)
+        self.toolbarLock.setToolTip('Lock Toolbar')
+        self.toolbar.addAction(self.toolbarLock)
+        self.setGeometry(300, 300, 300, 200)
+        self.setWindowTitle('Toolbar')
+        self.show()
+
+    def toolbarImageChecked(self):
+        if(not self.toolbarLock.isChecked()):
+            if(self.toolbarImage.isChecked()):
+                self.addScan(self.vbox, self.plotBox)
+            else:
+                self.removeScan(self.plotBox)
+
+    def toolbarZIChecked(self):
+        if(not self.toolbarLock.isChecked()):
+            if(self.toolbarZI.isChecked()):
+                self.addZI(self.vbox, self.plotBox)
+            else:
+                self.removeZI(self.plotBox)
+
+    def toolbarLockChecked(self):
+        if(self.toolbarLock.isChecked()):
+            self.toolbarImage.setDisabled(True)
+            self.toolbarZI.setDisabled(True)
+            self.statusBar().showMessage("Toolbar Locked",2000)
+        else:
+            self.toolbarImage.setDisabled(False)
+            self.toolbarZI.setDisabled(False)
+            self.statusBar().showMessage("Toolbar Unlocked",2000)
 
     def fileQuit(self):
         self.close()
