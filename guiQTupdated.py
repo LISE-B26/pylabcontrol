@@ -18,7 +18,7 @@ import numpy.random
 import time
 import Queue
 import pandas as pd
-import Focusing
+import PlotAPDCounts
 from matplotlib.backends import qt_compat
 from matplotlib.widgets import RectangleSelector
 import matplotlib.patches as patches
@@ -56,6 +56,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle("application main window")
+        self.showMaximized()
 
         self.file_menu = QtGui.QMenu('&File', self)
         self.file_menu.addAction('&Quit', self.fileQuit,
@@ -88,6 +89,11 @@ class ApplicationWindow(QtGui.QMainWindow):
         #Makes room for status bar at bottom so it doesn't resize the widgets when it is used later
         self.statusBar().showMessage("Temp",1)
 
+        self.adjustSize()
+
+        def sizeHint(self):
+            return QtCore.QSize(5000, 5000)
+
     def addScan(self, vbox, plotBox):
         self.imPlot = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
         self.xVoltageMin = QtGui.QLineEdit(self.main_widget)
@@ -119,7 +125,6 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.timePerPtL.setText("Timer Per Point:")
         self.saveLocImage = QtGui.QLineEdit(self.main_widget)
         self.saveLocImage.setText('Z:\\Lab\\Cantilever\\Measurements\\Images')
-        self.saveLocImage = QtGui.QLineEdit(self.main_widget)
         self.saveLocImageL = QtGui.QLabel(self.main_widget)
         self.saveLocImageL.setText("Image Save Location")
         self.buttonScan = QtGui.QPushButton('Scan', self.main_widget)
@@ -247,6 +252,26 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.vbox.addLayout(self.ZILayout)
         self.ZIData = None
 
+    def addCounter(self, vbox, plotBox):
+        self.countPlot = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
+        self.buttonStartCounter = QtGui.QPushButton('Start Counter',self.main_widget)
+        self.buttonStartCounter.clicked.connect(self.StartCounterBtnClicked)
+        self.buttonStopCounter = QtGui.QPushButton('Stop Counter',self.main_widget)
+        self.buttonStopCounter.clicked.connect(self.StopCounterBtnClicked)
+        self.counterLayout = QtGui.QGridLayout()
+        self.counterLayout.addWidget(self.buttonStartCounter,1,1)
+        self.counterLayout.addWidget(self.buttonStopCounter,1,2)
+        self.vbox.addLayout(self.counterLayout)
+        self.plotBox.addWidget(self.countPlot)
+        self.counterQueue = Queue.Queue()
+
+    def StartCounterBtnClicked(self):
+        apdPlotter = PlotAPDCounts.PlotAPD(self.countPlot)
+        apdPlotter.startPlot(self.counterQueue)
+
+    def StopCounterBtnClicked(self):
+        self.counterQueue.put('STOP')
+
     def zoom(self,eclick,erelease):
         self.xVoltageMin.setText(str(min(eclick.xdata,erelease.xdata)))
         self.yVoltageMin.setText(str(min(eclick.ydata,erelease.ydata)))
@@ -372,6 +397,11 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ziPlot.deleteLater()
         QtGui.QApplication.processEvents()
 
+    def removeCounter(self, plotBox):
+        self.clearLayout(self.counterLayout)
+        self.counterPlot.deleteLater()
+        QtGui.QApplication.processEvents()
+
     def clearLayout(self, layout):
         if layout != None:
             while layout.count():
@@ -395,6 +425,12 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.toolbarZI.triggered.connect(self.toolbarZIChecked)
         self.toolbarZI.setToolTip('ZI Tools')
         self.toolbar.addAction(self.toolbarZI)
+        self.toolbarCounter = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\diamondIcon.jpg'), 'addCounter', self)
+        self.toolbarCounter.setCheckable(True)
+        self.toolbarCounter.setChecked(False)
+        self.toolbarCounter.triggered.connect(self.toolbarCounterChecked)
+        self.toolbarCounter.setToolTip('Counter Tool')
+        self.toolbar.addAction(self.toolbarCounter)
         spacer = QtGui.QWidget()
         spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self.toolbar.addWidget(spacer)
@@ -422,14 +458,23 @@ class ApplicationWindow(QtGui.QMainWindow):
             else:
                 self.removeZI(self.plotBox)
 
+    def toolbarCounterChecked(self):
+        if(not self.toolbarLock.isChecked()):
+            if(self.toolbarCounter.isChecked()):
+                self.addCounter(self.vbox, self.plotBox)
+            else:
+                self.removeCounter(self.plotBox)
+
     def toolbarLockChecked(self):
         if(self.toolbarLock.isChecked()):
             self.toolbarImage.setDisabled(True)
             self.toolbarZI.setDisabled(True)
+            self.toolbarCounter.setDisabled(True)
             self.statusBar().showMessage("Toolbar Locked",2000)
         else:
             self.toolbarImage.setDisabled(False)
             self.toolbarZI.setDisabled(False)
+            self.toolbarCounter.setDisabled(False)
             self.statusBar().showMessage("Toolbar Unlocked",2000)
 
     def fileQuit(self):

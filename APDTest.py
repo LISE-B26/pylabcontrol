@@ -73,6 +73,11 @@ class ReadAPD(threading.Thread):
                  None))
         return self.data
 
+    # wait until reading has finished
+    def waitToFinish(self):
+        self.CHK(nidaq.DAQmxWaitUntilTaskDone(self.taskHandleCtr,
+                 self.timeout))
+
     # stop and clean up clock
     def stopClk(self):
         self.running = False
