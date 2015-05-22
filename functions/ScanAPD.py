@@ -8,8 +8,8 @@
 
 
 # import external files
-import hardware_modules.GalvoTest as DaqOut
-from hardware_modules import APDTest as APDIn
+import hardware_modules.GalvoMirrors as DaqOut
+from hardware_modules import APD as APDIn
 # import standard libraries
 import numpy
 import matplotlib.pyplot

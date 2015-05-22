@@ -7,7 +7,7 @@ import numpy
 import scipy.ndimage
 import scipy.optimize
 # import ScanTest as GalvoScan
-from hardware_modules import GalvoTest as DaqOut, PiezoController
+from hardware_modules import GalvoMirrors as DaqOut, PiezoController
 from functions import ScanPhotodiode as GalvoScan
 
 import matplotlib.pyplot as plt

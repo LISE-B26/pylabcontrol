@@ -2,7 +2,7 @@ import numpy
 
 # import ScanDelay as GalvoScan  # for APD counting input
 from functions import ScanPhotodiode as GalvoScan
-from hardware_modules import GalvoTest as DaqOut, ZiControl
+from hardware_modules import GalvoMirrors as DaqOut, ZiControl
 from PyQt4 import QtGui
 
 

@@ -8,7 +8,7 @@
 
 
 # import external files
-from hardware_modules import GalvoTest as DaqOut
+from hardware_modules import GalvoMirrors as DaqOut
 import hardware_modules.ZiControl as ZI
 # import standard libraries
 import numpy

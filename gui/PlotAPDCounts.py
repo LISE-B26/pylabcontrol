@@ -3,7 +3,7 @@ import time
 import numpy
 from PyQt4 import QtGui
 
-from hardware_modules import APDTest as APDIn
+from hardware_modules import APD as APDIn
 
 
 sampleRate = 1000
