@@ -8,14 +8,14 @@
 
 
 # import external files
-import GalvoTest as DaqOut
-import ZiControl as ZI
+from hardware_modules import GalvoTest as DaqOut
+import hardware_modules.ZiControl as ZI
 # import standard libraries
 import numpy
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import ScanTest as GalvoScan
+from functions import ScanTest as GalvoScan
 
 
 class SweepScan():

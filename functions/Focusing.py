@@ -7,11 +7,9 @@ import numpy
 import scipy.ndimage
 import scipy.optimize
 # import ScanTest as GalvoScan
-import GalvoTest as DaqOut
-import ScanPhotodiode as GalvoScan  # for  photodiode voltage input
+from hardware_modules import GalvoTest as DaqOut, PiezoController
+from functions import ScanPhotodiode as GalvoScan
 
-import PiezoController
-import matplotlib
 import matplotlib.pyplot as plt
 import time
 from PyQt4 import QtGui
@@ -167,9 +165,3 @@ class Focus:
         else:
             canvas.draw()
             QtGui.QApplication.processEvents()
-
-
-
-# a = Focus.scan(70, 90, 50, 'Z', waitTime = .1)
-
-a = Focus.scan(10, 90, 41, 'X', waitTime = .1)

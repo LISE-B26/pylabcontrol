@@ -1,10 +1,10 @@
 import numpy
-import ZiControl
+
 # import ScanDelay as GalvoScan  # for APD counting input
-import ScanPhotodiode as GalvoScan  # for  photodiode voltage input
-import GalvoTest as DaqOut
+from functions import ScanPhotodiode as GalvoScan
+from hardware_modules import GalvoTest as DaqOut, ZiControl
 from PyQt4 import QtGui
-import time
+
 
 def ZIGui(canvas, amp, offset, freqLow, freqHigh, sampleNum, samplePerPt, xScale):
     zi = ZiControl.ZIHF2(amp, offset, canvas = canvas)

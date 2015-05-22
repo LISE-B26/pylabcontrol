@@ -1,7 +1,10 @@
-import APDTest as APDIn
+import time
+
 import numpy
 from PyQt4 import QtGui
-import time
+
+from hardware_modules import APDTest as APDIn
+
 
 sampleRate = 1000
 timePerPt = .25

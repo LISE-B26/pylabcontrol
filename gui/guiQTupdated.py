@@ -11,21 +11,21 @@
 
 from __future__ import unicode_literals
 import sys
-import os
-import random
-import numpy
-import numpy.random
 import time
 import Queue
+
+import numpy
+import numpy.random
 import pandas as pd
-import PlotAPDCounts
-from matplotlib.backends import qt_compat
 from matplotlib.widgets import RectangleSelector
 import matplotlib.patches as patches
 from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import GuiDeviceTriggers as DeviceTriggers
+
+from gui import GuiDeviceTriggers as DeviceTriggers, PlotAPDCounts
+
+
 
 # Extends the matplotlib backend FigureCanvas. A canvas for matplotlib figures with a constructed axis that is
 # auto-expanding

@@ -1,0 +1,5 @@
+# functions info:
+this folder collects functions for simple tasks to be used in higher level scripts, such as
+ - acquire image
+ - saving data
+ - take a scan
