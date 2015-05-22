@@ -91,8 +91,7 @@ class ScanNV():
     # displays image to screen
     def dispImage(self):
         # remove interpolation to prevent blurring of image
-        implot = matplotlib.pyplot.imshow(self.imageData,
-                                          interpolation="nearest")
+        implot = matplotlib.pyplot.imshow(self.imageData, interpolation="nearest")
         implot.set_cmap('pink')
         matplotlib.pyplot.colorbar()
         matplotlib.pyplot.show()

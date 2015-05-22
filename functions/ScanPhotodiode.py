@@ -50,7 +50,7 @@ class ScanNV():
         self.cbar = None
 
     # runs scan
-    def scan(self,queue):
+    def scan(self,queue=None):
         # scan one x line per loop
         for yNum in xrange(0, len(self.yArray)):
             # initialize APD thread
