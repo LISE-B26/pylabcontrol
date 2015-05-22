@@ -56,7 +56,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle("application main window")
-        self.showMaximized()
+        self.setMinimumSize(1000,800)
 
         self.file_menu = QtGui.QMenu('&File', self)
         self.file_menu.addAction('&Quit', self.fileQuit,
@@ -127,6 +127,10 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.saveLocImage.setText('Z:\\Lab\\Cantilever\\Measurements\\Images')
         self.saveLocImageL = QtGui.QLabel(self.main_widget)
         self.saveLocImageL.setText("Image Save Location")
+        self.saveTagImage = QtGui.QLineEdit(self.main_widget)
+        self.saveTagImage.setText('Image')
+        self.saveTagImageL = QtGui.QLabel(self.main_widget)
+        self.saveTagImageL.setText("Image Save Tag")
         self.buttonScan = QtGui.QPushButton('Scan', self.main_widget)
         self.buttonScan.clicked.connect(self.scanBtnClicked)
         self.buttonVSet = QtGui.QPushButton('Set Voltage', self.main_widget)
@@ -176,8 +180,10 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.scanLayout.addWidget(self.yVoltage, 2,9)
         self.scanLayout.addWidget(self.xVoltageL,1,8)
         self.scanLayout.addWidget(self.yVoltageL,1,9)
-        self.scanLayout.addWidget(self.saveLocImage,2,10)
-        self.scanLayout.addWidget(self.saveLocImageL,1,10)
+        self.scanLayout.addWidget(self.saveLocImage,3,2)
+        self.scanLayout.addWidget(self.saveLocImageL,3,1)
+        self.scanLayout.addWidget(self.saveTagImage,3,6)
+        self.scanLayout.addWidget(self.saveTagImageL,3,5)
         self.scanLayout.addWidget(self.buttonScan,1,11)
         self.scanLayout.addWidget(self.buttonVSet,2,11)
         self.scanLayout.addWidget(self.buttonSaveImage,1,12)
@@ -252,8 +258,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.vbox.addLayout(self.ZILayout)
         self.ZIData = None
 
-    def addCounter(self, vbox, plotBox):
-        self.countPlot = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
+    def addCounter(self):
+        self.counterPlot = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
         self.buttonStartCounter = QtGui.QPushButton('Start Counter',self.main_widget)
         self.buttonStartCounter.clicked.connect(self.StartCounterBtnClicked)
         self.buttonStopCounter = QtGui.QPushButton('Stop Counter',self.main_widget)
@@ -262,11 +268,11 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.counterLayout.addWidget(self.buttonStartCounter,1,1)
         self.counterLayout.addWidget(self.buttonStopCounter,1,2)
         self.vbox.addLayout(self.counterLayout)
-        self.plotBox.addWidget(self.countPlot)
+        self.plotBox.addWidget(self.counterPlot)
         self.counterQueue = Queue.Queue()
 
     def StartCounterBtnClicked(self):
-        apdPlotter = PlotAPDCounts.PlotAPD(self.countPlot)
+        apdPlotter = PlotAPDCounts.PlotAPD(self.counterPlot)
         apdPlotter.startPlot(self.counterQueue)
 
     def StopCounterBtnClicked(self):
@@ -300,7 +306,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         if(self.imageData is None):
             QtGui.QMessageBox.about(self.main_widget, "Image Save Error", "There is no image data to save. Run a scan first.")
         else:
-            self.writeArray(self.imageData, self.saveLocImage.text())
+            self.writeArray(self.imageData, self.saveLocImage.text(), self.saveTagImage.text())
             self.statusBar().showMessage("Image Data Saved",2000)
 
     def scanBtnClicked(self):
@@ -348,7 +354,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.imPlot.axes.add_patch(self.circ)
         self.imPlot.draw()
 
-    def writeArray(self, array, dirpath, columns = None):
+    def writeArray(self, array, dirpath, tag, columns = None):
         df = pd.DataFrame(array, columns = columns)
         if(columns == None):
             header = False
@@ -360,7 +366,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         hour = time.strftime("%H")
         minute = time.strftime("%M")
         second = time.strftime("%S")
-        filename = '\\Image_' + year + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second
+        filename = '\\' + year + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second  +'-' + str(tag)
         filepathCSV = dirpath + filename + '.csv'
         filepathJPG = dirpath + filename + '.jpg'
         df.to_csv(filepathCSV, index = False, header=header)
@@ -387,6 +393,22 @@ class ApplicationWindow(QtGui.QMainWindow):
     def stopButtonClicked(self):
         self.queue.put('STOP')
 
+    def addPB(self):
+        self.buttonStartPB = QtGui.QPushButton('PB Start',self.main_widget)
+        self.buttonStartPB.clicked.connect(self.StartPBBtnClicked)
+        self.buttonStopPB = QtGui.QPushButton('PB Stop',self.main_widget)
+        self.buttonStopPB.clicked.connect(self.StopPBBtnClicked)
+        self.PBLayout = QtGui.QGridLayout()
+        self.PBLayout.addWidget(self.buttonStartPB,1,1)
+        self.PBLayout.addWidget(self.buttonStopPB,1,2)
+        self.vbox.addLayout(self.PBLayout)
+
+    def StartPBBtnClicked(self):
+        pass
+
+    def StopPBBtnClicked(self):
+        pass
+
     def removeScan(self, plotBox):
         self.clearLayout(self.scanLayout)
         self.imPlot.deleteLater()
@@ -397,9 +419,13 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ziPlot.deleteLater()
         QtGui.QApplication.processEvents()
 
-    def removeCounter(self, plotBox):
+    def removeCounter(self):
         self.clearLayout(self.counterLayout)
         self.counterPlot.deleteLater()
+        QtGui.QApplication.processEvents()
+
+    def removePB(self):
+        self.clearLayout(self.PBLayout)
         QtGui.QApplication.processEvents()
 
     def clearLayout(self, layout):
@@ -412,29 +438,35 @@ class ApplicationWindow(QtGui.QMainWindow):
                     self.clearLayout(child.layout())
 
     def initUI(self):
-        self.toolbarImage = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\diamondIcon.jpg'), 'addImaging', self)
+        self.toolbarImage = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\diamondIcon.jpg'), 'addImaging', self)
         self.toolbarImage.setCheckable(True)
         self.toolbarImage.setChecked(False)
         self.toolbarImage.triggered.connect(self.toolbarImageChecked)
         self.toolbarImage.setToolTip('Imaging Tools')
         self.toolbar = self.addToolBar('addImaging')
         self.toolbar.addAction(self.toolbarImage)
-        self.toolbarZI = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\ZIIcon.png'), 'addZI', self)
+        self.toolbarZI = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\ZIIcon.png'), 'addZI', self)
         self.toolbarZI.setCheckable(True)
         self.toolbarZI.setChecked(False)
         self.toolbarZI.triggered.connect(self.toolbarZIChecked)
         self.toolbarZI.setToolTip('ZI Tools')
         self.toolbar.addAction(self.toolbarZI)
-        self.toolbarCounter = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\diamondIcon.jpg'), 'addCounter', self)
+        self.toolbarCounter = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\CountIcon.jpg'), 'addCounter', self)
         self.toolbarCounter.setCheckable(True)
         self.toolbarCounter.setChecked(False)
         self.toolbarCounter.triggered.connect(self.toolbarCounterChecked)
         self.toolbarCounter.setToolTip('Counter Tool')
         self.toolbar.addAction(self.toolbarCounter)
+        self.toolbarPB = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\LaserIcon.jpg'), 'addPB', self)
+        self.toolbarPB.setCheckable(True)
+        self.toolbarPB.setChecked(False)
+        self.toolbarPB.triggered.connect(self.toolbarPBChecked)
+        self.toolbarPB.setToolTip('PulseBlaster Tool')
+        self.toolbar.addAction(self.toolbarPB)
         spacer = QtGui.QWidget()
         spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self.toolbar.addWidget(spacer)
-        self.toolbarLock = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\LockIcon.png'), 'lockToolbar', self)
+        self.toolbarLock = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\LockIcon.png'), 'lockToolbar', self)
         self.toolbarLock.setCheckable(True)
         self.toolbarLock.setChecked(False)
         self.toolbarLock.triggered.connect(self.toolbarLockChecked)
@@ -461,20 +493,29 @@ class ApplicationWindow(QtGui.QMainWindow):
     def toolbarCounterChecked(self):
         if(not self.toolbarLock.isChecked()):
             if(self.toolbarCounter.isChecked()):
-                self.addCounter(self.vbox, self.plotBox)
+                self.addCounter()
             else:
-                self.removeCounter(self.plotBox)
+                self.removeCounter()
+
+    def toolbarPBChecked(self):
+        if(not self.toolbarLock.isChecked()):
+            if(self.toolbarPB.isChecked()):
+                self.addPB()
+            else:
+                self.removePB()
 
     def toolbarLockChecked(self):
         if(self.toolbarLock.isChecked()):
             self.toolbarImage.setDisabled(True)
             self.toolbarZI.setDisabled(True)
             self.toolbarCounter.setDisabled(True)
+            self.toolbarPB.setDisabled(True)
             self.statusBar().showMessage("Toolbar Locked",2000)
         else:
             self.toolbarImage.setDisabled(False)
             self.toolbarZI.setDisabled(False)
             self.toolbarCounter.setDisabled(False)
+            self.toolbarPB.setDisabled(False)
             self.statusBar().showMessage("Toolbar Unlocked",2000)
 
     def fileQuit(self):

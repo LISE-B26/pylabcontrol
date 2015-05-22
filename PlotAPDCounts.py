@@ -16,6 +16,10 @@ class PlotAPD():
         self.canvas = canvas
 
     def startPlot(self,queue):
+        self.readthread = APDIn.ReadAPD("Dev1/ctr0", sampleRate,
+                                           numSamples)
+        self.readthread.runCtr()
+        time.sleep(.05) #not really understood why this works, but definitely fails without it
         while True:
             if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
                 break
@@ -24,36 +28,28 @@ class PlotAPD():
             dataPt = self.readAPD()
             self.ydata = numpy.append(self.ydata,dataPt)
             self.dispImageGui()
+        self.readthread.stopCtr()
+        self.readthread.stopClk()
 
     def readAPD(self):
-        print('start')
-        readthread = APDIn.ReadAPD("Dev1/ctr0", sampleRate,
-                                           numSamples)
-        readthread.runCtr()
-        time.sleep(.26)
-        #readthread.waitToFinish()
-        data = readthread.read()
-        readthread.stopCtr()
-        readthread.stopClk()
-        print('stop')
+        data = self.readthread.read()
         diffData = numpy.diff(data)
         normData = numpy.mean(diffData)*(sampleRate/1000)
         return normData
-
-
 
     def dispImageGui(self):
         if(self.plotting == 0):
             self.line, = self.canvas.axes.plot(self.xdata,self.ydata)
             self.canvas.axes.set_title('Counts')
-            self.canvas.axes.set_xlabel('Frequency (Hz)')
-            self.canvas.axes.set_ylabel('Amplitude (V_RMS)')
-            self.canvas.axes.set_xlim(left = 0, right = 10)
+            self.canvas.axes.set_xlabel('Time (s)')
+            self.canvas.axes.set_ylabel('Counts (kcounts/s')
             self.canvas.draw()
             QtGui.QApplication.processEvents()
             self.plotting = 1
         else:
             self.line.set_xdata(self.xdata)
             self.line.set_ydata(self.ydata)
+            self.canvas.axes.relim()
+            self.canvas.axes.autoscale_view(True,True,True)
             self.canvas.draw()
             QtGui.QApplication.processEvents()

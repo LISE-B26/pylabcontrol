@@ -1,8 +1,8 @@
 import numpy
 import ZiControl
-import ScanDelay as GalvoScan  # for APD counting input
-#import ScanPhotodiode as GalvoScan  # for  photodiode voltage input
-import GalvoTest as DaqOut 
+# import ScanDelay as GalvoScan  # for APD counting input
+import ScanPhotodiode as GalvoScan  # for  photodiode voltage input
+import GalvoTest as DaqOut
 from PyQt4 import QtGui
 import time
 

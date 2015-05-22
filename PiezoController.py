@@ -97,6 +97,73 @@ class MDT693A:
     def closeConnection(self):
         self.ser.close()
 
+class MDT693B:
+    def __init__(self, outputAxis, port = 10, baudrate = 115200, timeout = .1):
+        # The serial connection should be setup with the following parameters:
+        # 8 data bits, No parity bit, 1 stop bit, no hardware
+        # handshake. These are all default for Serial and therefore not input
+        # below
+
+        if (outputAxis is not 'X' and outputAxis is not 'Y' and outputAxis is not 'Z'):
+            message = 'Piezo Controller Axis not correctly defined; must be either \'X\', \'Y\', or \'Z\''
+            raise ValueError(message)
+
+        self.axis = outputAxis.lower()
+
+        self.ser = serial.Serial(port = port, baudrate=baudrate, timeout = timeout)
+        self.ser.write('echo=0\r') #disables repetition of input commands in output
+        self.ser.readlines()
+        self.ser.close()
+
+    # get the voltage on the port 'axis' of the piezo controller
+    def getVoltage(self):
+
+        if not self.ser.isOpen():
+            self.ser.open()
+
+        self.ser.write(self.axis + 'voltage?\r')
+        xVoltage = self.ser.readline()
+
+        xVoltage = xVoltage[2:-2].strip()
+
+        self.ser.close()
+
+        return float(xVoltage)
+
+    # set the voltage on the port 'axis' of the piezo controller
+    def setVoltage(self, voltage):
+
+        if (not isinstance(voltage,(int, long, float, complex))):
+            message = 'Setting voltage failed. Entered voltage must be a number'
+            raise ValueError(message)
+
+        if not self.ser.isOpen():
+            self.ser.open()
+
+        self.ser.write(self.axis + 'voltage=' + str(voltage) + '\r')
+        successCheck = self.ser.readlines()
+        if(successCheck[0] == '*'):
+            print('Voltage set')
+        elif(successCheck[0] == '!'):
+            self.ser.write('vlimit?\r')
+            vlimit = self.ser.readline()
+            vlimit = vlimit[2:-3].strip()
+            if(voltage > int(vlimit)):
+                message = 'Setting voltage failed. Maximum voltage exceeded. Check limit switch on back of device.'
+                raise ValueError(message)
+            elif(voltage < 0):
+                message = 'Setting voltage failed. Negative voltage is invalid'
+                raise ValueError(message)
+            else:
+                message = 'Setting voltage failed. Confirm that device is properly connected and a valid voltage was entered'
+                raise ValueError(message)
+
+        self.ser.close()
+
+    # closes the connection with the controller
+    def closeConnection(self):
+        self.ser.close()
+
 
 if __name__ == '__main__':
     """
@@ -143,8 +210,9 @@ if __name__ == '__main__':
     yController.setVoltage(10)
 
     """
-    xController = MDT693A('Z')
-    xController.setVoltage(58.6)
+    xController = MDT693A('X')
+    xController.setVoltage(40)
+    #xController.setVoltage(58.6)
     #while True:
     #print zController.getVoltage()
     #    time.sleep(5)

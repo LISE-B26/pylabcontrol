@@ -59,3 +59,14 @@ removed seaborn grid lines +
 Find center of NV
 Copy script
 label plots +
+
+Add file save tags
+
+toggle between APD and photodiode
+
+change sclaing in focusing.py to work also with photodiode autofocus
+
+scaling bug in GUI for large aspect ratio with photo diode
+
+
+break scanNV into two submodules: scan and display on canvas

@@ -68,15 +68,10 @@ class ReadAPD(threading.Thread):
         self.data = (float64 * self.sampleNum)()
         self.samplesPerChanRead = int32()
         self.CHK(nidaq.DAQmxReadCounterF64(self.taskHandleCtr,
-                 int32(self.sampleNum), self.timeout, ctypes.byref(self.data),
+                 int32(self.sampleNum), float64(-1), ctypes.byref(self.data),
                  uInt32(self.sampleNum), ctypes.byref(self.samplesPerChanRead),
                  None))
         return self.data
-
-    # wait until reading has finished
-    def waitToFinish(self):
-        self.CHK(nidaq.DAQmxWaitUntilTaskDone(self.taskHandleCtr,
-                 self.timeout))
 
     # stop and clean up clock
     def stopClk(self):

@@ -6,8 +6,10 @@
 import numpy
 import scipy.ndimage
 import scipy.optimize
-import ScanTest as GalvoScan
+# import ScanTest as GalvoScan
 import GalvoTest as DaqOut
+import ScanPhotodiode as GalvoScan  # for  photodiode voltage input
+
 import PiezoController
 import matplotlib
 import matplotlib.pyplot as plt
@@ -73,7 +75,7 @@ class Focus:
             piezo.setVoltage(voltage)
             time.sleep(waitTime)
             scanner = GalvoScan.ScanNV(xMin, xMax, xPts, yMin, yMax, yPts, timePerPt)
-            image = scanner.scan()
+            image = scanner.scan(queue = None)
             xdata.append(voltage)
             ydata.append(scipy.ndimage.measurements.standard_deviation(image))
             print(scipy.ndimage.measurements.standard_deviation(image))
@@ -168,4 +170,6 @@ class Focus:
 
 
 
-#a = Focus.scan(20, 80, 300, 'Z', waitTime = .5)
+# a = Focus.scan(70, 90, 50, 'Z', waitTime = .1)
+
+a = Focus.scan(10, 90, 41, 'X', waitTime = .1)
