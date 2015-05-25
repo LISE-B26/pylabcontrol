@@ -9,7 +9,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from functions.save_array_to_disk import *
-# set variables
+
+# set variables =============================================
+# ===========================================================
 
 axis = 'X'
 xVmin,xVmax,xPts,yVmin,yVmax,yPts = -0.4, 0.4, 120.,  -0.4, 0.4, 120.
@@ -17,20 +19,23 @@ timePerPt = 0.001
 
 dirpath = 'Z:/Lab/Cantilever/Measurements/150521_FindSiNi_Beams/ScanZ_and _take_image/'
 
-tag = 'Si3Ni4'
+tag = 'Si3Ni4_withGlassSlide'
 
-voltages = np.arange(10,70,10)
+voltages = np.arange(10,90,10)
 
-#run script
+#run script =================================================
+# ===========================================================
 
 for counter, voltage in enumerate(voltages):
+    # set focus
+    xController = pc.MDT693A('X')
+    xController.setVoltage(voltage)
+
     # acquire data
     scanner = GalvoScan.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = None)
     imageData = scanner.scan()
 
-    # change focus
-    xController = pc.MDT693A('X')
-    xController.setVoltage(voltage)
+
 
     # plot image
     fig = plt.figure()

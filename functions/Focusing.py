@@ -64,7 +64,7 @@ class Focus:
             axes = canvas.axes
         # plots junk data to initialize lines used later
         dat=[-1,0]
-        dat2 = [0,1]
+        dat2 = [0,0]
         datline,fitline = axes.plot(dat,dat2,dat,dat2)
         axes.set_xlim([minV-1,maxV+1])
         #axes.set_ylim([0,10])
@@ -106,7 +106,7 @@ class Focus:
             return scipy.optimize.curve_fit(cls.gaussian, x, y, p0=[1, mean, sigma, c])
         except RuntimeError:
             print('Gaussian fit failed. Setting piezo to mean of input range')
-            return (-1,-1,-1),'Ignore'
+            return (-1,-1,-1,-1),'Ignore'
 
     # defines a gaussian for use in the fitting routine
     @staticmethod

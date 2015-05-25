@@ -1,7 +1,8 @@
 import numpy
 
 # import ScanDelay as GalvoScan  # for APD counting input
-from functions import ScanPhotodiode as GalvoScan
+from functions import ScanAPD
+from functions import ScanPhotodiode
 from hardware_modules import GalvoMirrors as DaqOut, ZiControl
 from PyQt4 import QtGui
 
@@ -11,14 +12,17 @@ def ZIGui(canvas, amp, offset, freqLow, freqHigh, sampleNum, samplePerPt, xScale
     data = zi.sweep(freqLow, freqHigh, sampleNum, samplePerPt, xScale=0)
     return data
 
-def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt, queue):
-    scanner = GalvoScan.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
+def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt, queue, APD = True):
+    if(APD):
+        scanner = ScanAPD.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
+    else:
+        scanner = ScanPhotodiode.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
     imageData = scanner.scan(queue = queue)
     setDaqPt(0,0)
     return imageData
 
 def updateColorbar(imageData, canvas, extent, cmax):
-    GalvoScan.ScanNV.updateColorbar(imageData, canvas, extent, cmax)
+    ScanAPD.ScanNV.updateColorbar(imageData, canvas, extent, cmax)
 
 def setDaqPt(xVolt,yVolt):
     initPt = numpy.transpose(numpy.column_stack((xVolt, yVolt)))

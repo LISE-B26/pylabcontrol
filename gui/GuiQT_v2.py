@@ -150,6 +150,10 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.buttonStop.clicked.connect(self.stopButtonClicked)
         self.autosaveCheck = QtGui.QCheckBox('AutoSave',self.main_widget)
         self.autosaveCheck.setChecked(True)
+        self.buttonAPD = QtGui.QPushButton('Use APD',self.main_widget)
+        self.buttonAPD.setCheckable(True)
+        self.buttonAPD.setChecked(True)
+        self.buttonAPD.clicked.connect(self.buttonAPDClicked)
 
         #set initial values for scan values
         self.xVoltageMin.setText('-.4')
@@ -194,6 +198,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.scanLayout.addWidget(self.buttonLargeScan,1,14)
         self.scanLayout.addWidget(self.buttonStop,1,15)
         self.scanLayout.addWidget(self.autosaveCheck,2,15)
+        self.scanLayout.addWidget(self.buttonAPD,1,16)
         vbox.addLayout(self.scanLayout)
         self.imageData = None
 
@@ -278,6 +283,13 @@ class ApplicationWindow(QtGui.QMainWindow):
     def StopCounterBtnClicked(self):
         self.counterQueue.put('STOP')
 
+    def buttonAPDClicked(self):
+        if self.buttonAPD.isChecked():
+            self.buttonAPD.setText('Use APD')
+        else:
+            self.buttonAPD.setText('Use Photodiode')
+
+
     def zoom(self,eclick,erelease):
         self.xVoltageMin.setText(str(min(eclick.xdata,erelease.xdata)))
         self.yVoltageMin.setText(str(min(eclick.ydata,erelease.ydata)))
@@ -311,7 +323,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def scanBtnClicked(self):
         self.statusBar().showMessage("Taking Image",0)
-        self.imageData = DeviceTriggers.scanGui(self.imPlot,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()), self.queue)
+        self.imageData = DeviceTriggers.scanGui(self.imPlot,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()), self.queue, self.buttonAPD.isChecked())
         self.xMinHome = float(self.xVoltageMin.text())
         self.xMaxHome = float(self.xVoltageMax.text())
         self.yMinHome = float(self.yVoltageMin.text())

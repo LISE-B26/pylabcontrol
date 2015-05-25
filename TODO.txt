@@ -46,7 +46,7 @@ want to turn down laser power (switch to 5)
 
 normalize to kcount/s +
 add plot labels +
-add autosave, save jpeg, readme, needs to have a timestamp, have order by name == order by date
+add autosave, save jpeg, readme, needs to have a timestamp, have order by name == order by date +
 scantest pyplot ion
 be able to save current script +
 add stop button to scan +
@@ -57,16 +57,13 @@ resize click dot as window size changes +
 removed seaborn grid lines +
 
 Find center of NV
-Copy script
+Copy script +
 label plots +
 
-Add file save tags
+Add file save tags +
 
-toggle between APD and photodiode
+toggle between APD and photodiode +
 
-change sclaing in focusing.py to work also with photodiode autofocus
+change scaling in focusing.py to work also with photodiode autofocus +
 
-scaling bug in GUI for large aspect ratio with photo diode
-
-
-break scanNV into two submodules: scan and display on canvas
+scaling bug in GUI for large aspect ratio with photo diode +

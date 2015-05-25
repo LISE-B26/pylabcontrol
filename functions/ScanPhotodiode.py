@@ -41,7 +41,7 @@ class ScanNV():
         self.xArray = numpy.linspace(xVmin, xVmax, xPts)
         self.yArray = numpy.linspace(yVmin, yVmax, yPts)
         self.xArray = numpy.repeat(self.xArray, self.clockAdjust)
-        self.imageData = numpy.zeros((xPts, yPts))
+        self.imageData = numpy.zeros((yPts, xPts))
         self.dt = (timePerPt+settleTime)/self.clockAdjust
         # stores one line of x data at a time
         self.xLineData = numpy.zeros(len(self.xArray) + 1)
@@ -53,6 +53,8 @@ class ScanNV():
     def scan(self,queue=None):
         # scan one x line per loop
         for yNum in xrange(0, len(self.yArray)):
+            if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
+                break
             # initialize APD thread
             readthread = PDIn.ReadPhotodiode("Dev1/AI1", 1 / self.dt,
                                        len(self.xArray) + 1)
@@ -72,14 +74,12 @@ class ScanNV():
             writethread.waitToFinish()
             writethread.stop()
             self.xLineData = readthread.read()
-            self.averagedData = numpy.zeros(len(self.yArray))
-            for i in range(0,len(self.yArray)):
+            self.averagedData = numpy.zeros(len(self.xArray)/self.clockAdjust)
+            for i in range(0,int((len(self.xArray)/self.clockAdjust))):
                 self.averagedData[i] = numpy.mean(self.xLineData[(i*self.clockAdjust+1):(i*self.clockAdjust+self.clockAdjust-1)])
             self.imageData[yNum] = self.averagedData
-            # clean up APD tasks
             if(not(self.canvas == None)):
                 self.dispImageGui()
-            print(yNum)
         return self.imageData
 
     # displays image to screen
