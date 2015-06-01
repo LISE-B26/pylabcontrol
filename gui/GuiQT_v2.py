@@ -335,6 +335,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def vSetBtnClicked(self):
         DeviceTriggers.setDaqPt(float(self.xVoltage.text()),float(self.yVoltage.text()))
+        self.drawDot()
         self.statusBar().showMessage("Galvo Position Updated",2000)
 
     def imageHomeClicked(self):

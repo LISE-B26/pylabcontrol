@@ -2,7 +2,7 @@ import numpy
 
 # import ScanDelay as GalvoScan  # for APD counting input
 from functions import ScanAPD
-from functions import ScanPhotodiode
+from functions import ScanPhotodiode_DAQ
 from hardware_modules import GalvoMirrors as DaqOut, ZiControl
 from PyQt4 import QtGui
 
@@ -16,7 +16,7 @@ def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt, queue, APD
     if(APD):
         scanner = ScanAPD.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
     else:
-        scanner = ScanPhotodiode.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
+        scanner = ScanPhotodiode_DAQ.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
     imageData = scanner.scan(queue = queue)
     setDaqPt(0,0)
     return imageData

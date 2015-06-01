@@ -18,6 +18,7 @@ from PyQt4 import QtGui
 
 # This class controls the galvo and APD to run an NV scan, and displays the
 # image. The scan is performed line by line in the x direction.
+# data is acquired through the DAQ
 class ScanNV():
     # initializes values
     # xVmin: minimum x voltage for scan

@@ -1,8 +1,7 @@
 __author__ = 'Experiment'
 
 
-# no finished at all
-import functions.ScanPhotodiode as GalvoScan
+import functions.ScanPhotodiode_DAQ as GalvoScan
 import hardware_modules.PiezoController as pc
 import matplotlib.pyplot as plt
 
@@ -17,11 +16,11 @@ axis = 'X'
 xVmin,xVmax,xPts,yVmin,yVmax,yPts = -0.4, 0.4, 120.,  -0.4, 0.4, 120.
 timePerPt = 0.001
 
-dirpath = 'Z:/Lab/Cantilever/Measurements/150521_FindSiNi_Beams/ScanZ_and _take_image/'
+dirpath = 'Z:/Lab/Cantilever/Measurements/150526_Silicon_nitride_with_1um_pads/Box_c4_r3_SCanFocus/'
 
-tag = 'Si3Ni4_withGlassSlide'
+tag = 'Si3Ni4_withPads'
 
-voltages = np.arange(10,90,10)
+voltages = np.arange(50,90,10)
 
 #run script =================================================
 # ===========================================================
