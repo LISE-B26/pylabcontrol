@@ -70,7 +70,7 @@ flag, and the actual resizing of the figure is triggered by an Idle event."""
 class TestFrame(wx.Frame):
 
     def __init__(self, parent):
-        frame = wx.Frame.__init__( self, None, title = 'Experiment', size=(200,200) )
+        frame = wx.Frame.__init__( self, None, title = 'Experiment', size=(200,200), pos=(0,0) )
         self.CreateStatusBar()
         filemenu = wx.Menu()
 

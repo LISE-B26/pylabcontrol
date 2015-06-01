@@ -1,5 +1,3 @@
-import visa
-import time
 import socket
 
 
@@ -10,7 +8,7 @@ import socket
 class Cryostation:
 
     # The default number of seconds before a connection times out
-    DEFAULT_TIMEOUT = 5
+    DEFAULT_TIMEOUT = None
 
     def __init__(self, ip_address, port):
         socket.setdefaulttimeout(self.DEFAULT_TIMEOUT)
@@ -109,4 +107,4 @@ class Cryostation:
 
 if __name__ == '__main__':
     a = Cryostation('10.243.34.43', 7773)
-    print a.set_temp_setpoint(5)
+    print a.set_temp_setpoint(6)

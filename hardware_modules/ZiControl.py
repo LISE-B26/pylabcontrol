@@ -232,6 +232,7 @@ class ZIHF2:
             self.canvas.draw()
             QtGui.QApplication.processEvents()
 
+    # This function switches output 1 on
     def switchOn(self):
         try:
             index = self.exp_setting.index(['/%s/sigouts/%d/on' % (self.device, self.out_c), 0])
@@ -240,6 +241,7 @@ class ZIHF2:
         self.exp_setting[index]=['/%s/sigouts/%d/on' % (self.device, self.out_c), 1]
         self.daq.set(self.exp_setting)
 
+    # This function switches output 1 off
     def switchOff(self):
         try:
             index = self.exp_setting.index(['/%s/sigouts/%d/on' % (self.device, self.out_c), 1])
@@ -248,11 +250,12 @@ class ZIHF2:
         self.exp_setting[index]=['/%s/sigouts/%d/on' % (self.device, self.out_c), 0]
         self.daq.set(self.exp_setting)
 
-    def poll(self):
+    # Poll the value of input 1 for polltime seconds and return the magnitude of the average data. Timeout is in milisecond.
+    def poll(self, pollTime, timeout = 500):
         path = '/%s/demods/%d/sample' % (self.device, self.demod_c)
         self.daq.subscribe(path)
         flat_dictionary_key = True
-        data = self.daq.poll(1,500,1,flat_dictionary_key)
+        data = self.daq.poll(pollTime,timeout,1,flat_dictionary_key)
         R = numpy.sqrt(numpy.square(data[path]['x'])+numpy.square(data[path]['y']))
         return(numpy.mean(R))
 
