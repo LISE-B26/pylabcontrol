@@ -1,6 +1,10 @@
 # B26 Lab Code
 # Last Update: 4/14/15
 
+### WORK IN PROGRESS
+# Extremely slow and low resolution, need to find a way to lock ZI to DAQ clock to enable synchronization
+
+
 # External Connections: Galvo x axis on DAQ channel 0
 #                       Galvo y axis on DAQ channel 1
 #                       APD input to counter 0 (PFI8)
@@ -9,7 +13,7 @@
 
 # import external files
 from hardware_modules import GalvoMirrors as DaqOut
-import hardware_modules.PhotodiodeInput as PDIn
+import hardware_modules.ZiControl as PDIn
 # import standard libraries
 import numpy
 import matplotlib.pyplot
@@ -39,47 +43,33 @@ class ScanNV():
         self.yVmin = yVmin
         self.yVmax = yVmax
         self.settleTime = settleTime
-        self.clockAdjust = (timePerPt+settleTime)/settleTime
         self.xArray = numpy.linspace(xVmin, xVmax, xPts)
         self.yArray = numpy.linspace(yVmin, yVmax, yPts)
-        self.xArray = numpy.repeat(self.xArray, self.clockAdjust)
         self.imageData = numpy.zeros((yPts, xPts))
-        self.dt = (timePerPt+settleTime)/self.clockAdjust
-        # stores one line of x data at a time
-        self.xLineData = numpy.zeros(len(self.xArray) + 1)
+        self.dt = timePerPt
         self.plotting = 0
         self.canvas = canvas
         self.cbar = None
 
     # runs scan
     def scan(self,queue=None):
+        zi = PDIn.ZIHF2(0, 0, 1000)
         # scan one x line per loop
         for yNum in xrange(0, len(self.yArray)):
             if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
                 break
-            # initialize APD thread
-            readthread = PDIn.ReadPhotodiode("Dev1/AI1", 1 / self.dt,
-                                       len(self.xArray) + 1)
-            self.initPt = numpy.transpose(numpy.column_stack((self.xArray[0],
-                                          self.yArray[yNum])))
-            self.initPt = (numpy.repeat(self.initPt, 2, axis=1))
-            # move galvo to first point in line
-            pointthread = DaqOut.DaqOutputWave(self.initPt, 1 / self.dt, "Dev1/ao0:1")
-            pointthread.run()
-            pointthread.waitToFinish()
-            pointthread.stop()
-            writethread = DaqOut.DaqOutputWave(self.xArray, 1 / self.dt,
-                                               "Dev1/ao0")
+            for xNum in xrange(0, len(self.xArray)):
+                self.newPt = numpy.transpose(numpy.column_stack((self.xArray[xNum],
+                                            self.yArray[yNum])))
+                self.newPt = (numpy.repeat(self.newPt, 2, axis=1))
+                # move galvo to next point in line
+                pointthread = DaqOut.DaqOutputWave(self.newPt, 1 / self.dt, "Dev1/ao0:1")
+                pointthread.run()
+                pointthread.waitToFinish()
+                pointthread.stop()
             # start counter and scanning sequence
-            readthread.run()
-            writethread.run()
-            writethread.waitToFinish()
-            writethread.stop()
-            self.xLineData = readthread.read()
-            self.averagedData = numpy.zeros(len(self.xArray)/self.clockAdjust)
-            for i in range(0,int((len(self.xArray)/self.clockAdjust))):
-                self.averagedData[i] = numpy.mean(self.xLineData[(i*self.clockAdjust+1):(i*self.clockAdjust+self.clockAdjust-1)])
-            self.imageData[yNum] = self.averagedData
+                self.pointData = zi.poll(self.dt)
+                self.imageData[yNum][xNum] = self.pointData
             if(not(self.canvas == None)):
                 self.dispImageGui()
         return self.imageData
