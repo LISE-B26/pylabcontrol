@@ -20,7 +20,8 @@ class ZIHF2:
     # initializes values
     # amplitude: output channel amplitude (Vpk)
     # offset: auxillary channel output (V), only functions as offset if aux0 connected to inChannel add port
-    # ACCoupling: turns ac coupling on (1) or off (0), default off
+    # freq: ?
+    # ACCoupling: turns ac coupling on (1) or off (0), default off (0)
     # inChannel: specifies input channel number, default channel 1 as listed on device (value 0)
     # outChannel: specifies output channel number, default channel 1 as listed on device (value 0)
     # auxChannel: specifies auxillary channel to use, default channel 1 as listed on device (value 0)
@@ -58,9 +59,9 @@ class ZIHF2:
             ['/%s/demods/%d/harmonic'       % (self.device, self.demod_c), 1],
             ['/%s/demods/%d/phaseshift'     % (self.device, self.demod_c), 0],
             ['/%s/sigouts/%d/on'            % (self.device, self.out_c), 1],
-            ['/%s/sigouts/%d/range'         % (self.device, self.out_c), 10],
+            ['/%s/sigouts/%d/range'         % (self.device, self.out_c), range],
             ['/%s/sigouts/%d/enables/%d'    % (self.device, self.out_c, self.out_mixer_c), 1],
-            ['/%s/sigouts/%d/amplitudes/%d' % (self.device, self.out_c, self.out_mixer_c), float(amplitude)/range],
+            ['/%s/sigouts/%d/amplitudes/%d' % (self.device, self.out_c, self.out_mixer_c), float(amplitude)],
             ['/%s/AUXOUTS/%d/OFFSET'% (self.device, auxChannel), offset],
             ['/%s/oscs/%d/freq'% (self.device, auxChannel), freq]]
 
@@ -83,7 +84,7 @@ class ZIHF2:
         self.freqStart = freqStart
         self.freqEnd = freqEnd
         self.xScale = xScale
-        sweeper = self.daq.sweep(timeout)
+        sweeper = self.daq.sweep(int(timeout))
         sweeper.set('sweep/device', self.device)
         sweeper.set('sweep/start', freqStart)
         sweeper.set('sweep/stop', freqEnd)
@@ -107,7 +108,7 @@ class ZIHF2:
         sweeper.execute()
 
         start = time.time()
-        timeout = 60  # [s]
+        # timeout = 60  # [s]
         print "Will perform %d sweeps...." % loopcount
         #should probably check data[path] is empty instead, just continue if it is
         while not sweeper.finished():
@@ -122,8 +123,8 @@ class ZIHF2:
             self.samples = data[path]
             if(not(self.canvas == None)):
                 self.plotGui()
-            else:
-                self.plot()
+            # else:
+                # self.plot()
             if (time.time() - start) > timeout:
                 # If for some reason the sweep is blocking, force the end of the
                 # measurement
@@ -134,7 +135,7 @@ class ZIHF2:
 
         # Read the sweep data. This command can also be executed whilst sweeping
         # (before finished() is True), in this case sweep data up to that time point
-        # is returned. It's still necessary still need to issue read() at the end to
+        # is returned. It's still necessary to issue read() at the end to
         # fetch the rest.
         return_flat_dict = True
         data = sweeper.read(return_flat_dict)
@@ -156,13 +157,17 @@ class ZIHF2:
             self.samples = data[path]
         print "sample contains %d sweeps" % len(self.samples)
 
-        frequency = self.samples[0][0]['frequency']
-        response = numpy.sqrt(self.samples[0][0]['x']**2 + self.samples[0][0]['y']**2)
-        self.dataFinal = numpy.column_stack((frequency,response))
+        # frequency = self.samples[0][0]['frequency']
+        # response = numpy.sqrt(self.samples[0][0]['x']**2 + self.samples[0][0]['y']**2)
+        # self.dataFinal = numpy.column_stack((frequency,response))
+
+        self.dataFinal = numpy.column_stack((self.samples[0][0]['frequency'],self.samples[0][0]['x'], self.samples[0][0]['y']))
+
         return self.dataFinal
 
     def writeData(self, filepath):
-        df = pd.DataFrame(self.dataFinal, columns = ['Frequency', 'Response'])
+        # df = pd.DataFrame(self.dataFinal, columns = ['Frequency', 'Response'])
+        df = pd.DataFrame(self.dataFinal, columns = ['Frequency', 'X', 'Y'])
         df.to_csv(filepath, index = False, header=True)
 
     # plots data contained in self.samples to pyplot window
