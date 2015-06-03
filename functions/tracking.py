@@ -64,3 +64,13 @@ def find_beam_position(img_old, img_new, rio):
     rio_new['yo'] += 1.* shift_y  / rio['yPts'] * (rio['dy'])
 
     return rio_new
+
+
+def get_frequency_interval(freqStart, interval_sampleNum, freq_df, n_block):
+    '''
+    calculates the frequency interval in block n
+
+    '''
+    interval_freqStart =  freqStart + n_block * interval_sampleNum * freq_df
+    interval_freqEnd  =  freqStart + ((n_block+1) * interval_sampleNum-1) * freq_df
+    return interval_freqStart, interval_freqEnd
