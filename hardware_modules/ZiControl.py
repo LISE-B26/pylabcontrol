@@ -50,6 +50,7 @@ class ZIHF2:
 
 
         # Configure the settings relevant to this experiment
+        # note that the output amplitude has to be scaled with the range to give the right result
         self.exp_setting = [
             ['/%s/sigins/%d/imp50'          % (self.device, self.in_c), 1],
             ['/%s/sigins/%d/ac'             % (self.device, self.in_c), ACCoupling],
@@ -61,7 +62,7 @@ class ZIHF2:
             ['/%s/sigouts/%d/on'            % (self.device, self.out_c), 1],
             ['/%s/sigouts/%d/range'         % (self.device, self.out_c), range],
             ['/%s/sigouts/%d/enables/%d'    % (self.device, self.out_c, self.out_mixer_c), 1],
-            ['/%s/sigouts/%d/amplitudes/%d' % (self.device, self.out_c, self.out_mixer_c), float(amplitude)],
+            ['/%s/sigouts/%d/amplitudes/%d' % (self.device, self.out_c, self.out_mixer_c), float(amplitude)/range],
             ['/%s/AUXOUTS/%d/OFFSET'% (self.device, auxChannel), offset],
             ['/%s/oscs/%d/freq'% (self.device, auxChannel), freq]]
 
