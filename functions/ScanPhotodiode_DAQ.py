@@ -37,6 +37,11 @@ class ScanNV():
         self.xVmax = xVmax
         self.yVmin = yVmin
         self.yVmax = yVmax
+
+        self.y_pts = yPts
+        self.x_pts = xPts
+        self.time_per_pt = timePerPt
+
         self.settleTime = settleTime
         self.clockAdjust = (timePerPt+settleTime)/settleTime
         self.xArray = numpy.linspace(xVmin, xVmax, xPts)
@@ -124,8 +129,14 @@ class ScanNV():
         canvas.draw()
         QtGui.QApplication.processEvents()
 
+    # return estimate for how long a scan takes
+    def scan_time(self):
+        EMPIRICAL_SCAN_RATE = 1.1313 # per point
+        print self.x_pts
+        return EMPIRICAL_SCAN_RATE * self.x_pts * self.y_pts * self.time_per_pt
 # Test code to run scan and display image
 
-#newScan = ScanNV(-.4, .4, 120, -.4, .4, 120, .001)
+newScan = ScanNV(-.4, .4, 401, -.4, .4, 401, .002)
+print newScan.scan_time()
 #newScan.scan()
 #newScan.dispImage()
