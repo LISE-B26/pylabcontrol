@@ -2,19 +2,20 @@ __author__ = 'Experiment'
 
 from scipy import signal
 import numpy as np
+import scipy.optimize as opt
 
-def plot_region(plt, rio, color = 'r'):
+def plot_region(plt, roi, color = 'r'):
     '''
         draw a box that marks the region of interest
     :param plt: plot in which to draw box
-    :param rio:  region of interest
+    :param roi:  region of interest
     :param color: color of box
     :return:
     '''
-    plt.plot([rio['xo']-rio['dx']/2, rio['xo']-rio['dx']/2], [rio['yo']-rio['dy']/2, rio['yo']+rio['dy']/2], color)
-    plt.plot([rio['xo']+rio['dx']/2, rio['xo']+rio['dx']/2], [rio['yo']-rio['dy']/2, rio['yo']+rio['dy']/2], color)
-    plt.plot([rio['xo']-rio['dx']/2, rio['xo']+rio['dx']/2], [rio['yo']-rio['dy']/2, rio['yo']-rio['dy']/2], color)
-    plt.plot([rio['xo']-rio['dx']/2, rio['xo']+rio['dx']/2], [rio['yo']+rio['dy']/2, rio['yo']+rio['dy']/2], color)
+    plt.plot([roi['xo']-roi['dx']/2, roi['xo']-roi['dx']/2], [roi['yo']-roi['dy']/2, roi['yo']+roi['dy']/2], color)
+    plt.plot([roi['xo']+roi['dx']/2, roi['xo']+roi['dx']/2], [roi['yo']-roi['dy']/2, roi['yo']+roi['dy']/2], color)
+    plt.plot([roi['xo']-roi['dx']/2, roi['xo']+roi['dx']/2], [roi['yo']-roi['dy']/2, roi['yo']-roi['dy']/2], color)
+    plt.plot([roi['xo']-roi['dx']/2, roi['xo']+roi['dx']/2], [roi['yo']+roi['dy']/2, roi['yo']+roi['dy']/2], color)
 
 
 
@@ -32,38 +33,57 @@ def plot_region(plt, rio, color = 'r'):
 #     def __repr__(self):
 #         return 'x: {:0.2f}, y: {:0.2f}, dx: {:0.2f}, dy: {:0.2f}'.format(self.x, self.y, self.dx, self.dy)
 
-def rio_to_galvoparameter(rio):
+def roi_to_galvoparameter(roi):
     '''
     takes a dictionary with the region of interest and returns the parameter for galvo scan
     '''
-    xVmin, xVmax = rio['xo'] - rio['dx']/2., rio['xo'] + rio['dx']/2.
-    yVmin, yVmax = rio['yo'] - rio['dy']/2., rio['yo'] + rio['dy']/2.
-    return xVmin, xVmax, rio['xPts'], yVmin, yVmax, rio['yPts']
+    xVmin, xVmax = roi['xo'] - roi['dx']/2., roi['xo'] + roi['dx']/2.
+    yVmin, yVmax = roi['yo'] - roi['dy']/2., roi['yo'] + roi['dy']/2.
+    return xVmin, xVmax, roi['xPts'], yVmin, yVmax, roi['yPts']
 
 
 
-def find_beam_position(img_old, img_new, rio):
+def find_beam_position(img_old, img_new, roi):
     '''
-        takes two images of equal size and returns the new rio (changes the center position)
-        if the two images are identical the rio should be unchanged
+        takes two images of equal size and returns the new roi (changes the center position)
+        if the two images are identical the roi should be unchanged
     '''
 
-
-    cor = signal.correlate2d (img_old, img_old, mode='same')
-    initial_max_y, initial_max_x = np.unravel_index(np.argmax(cor),cor.shape)
-
-    cor = signal.correlate2d (img_new, img_new, mode='same')
+    cor = signal.correlate2d (img_new, img_old, mode='same')
     max_y, max_x = np.unravel_index(np.argmax(cor),cor.shape)
 
-    shift_x = initial_max_x - max_x
-    shift_y = initial_max_y - max_y
+    def twoD_Gaussian((x, y), amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
+        xo = float(xo)
+        yo = float(yo)
+        a = (np.cos(theta)**2)/(2*sigma_x**2) + (np.sin(theta)**2)/(2*sigma_y**2)
+        b = -(np.sin(2*theta))/(4*sigma_x**2) + (np.sin(2*theta))/(4*sigma_y**2)
+        c = (np.sin(theta)**2)/(2*sigma_x**2) + (np.cos(theta)**2)/(2*sigma_y**2)
+        g = offset + amplitude*np.exp( - (a*((x-xo)**2) + 2*b*(x-xo)*(y-yo)
+                                + c*((y-yo)**2)))
+        return g.ravel()
 
-    rio_new = rio.copy()
+    x = np.linspace(roi['xo'] - roi['dx'], roi['xo'] + roi['dx'], roi['xPts'])
+    y = np.linspace(roi['yo'] - roi['dy'], roi['yo'] + roi['dy'], roi['yPts'])
+    x, y = np.meshgrid(x, y)
 
-    rio_new['xo'] += 1.* shift_x  / rio['xPts'] * (rio['dx'])
-    rio_new['yo'] += 1.* shift_y  / rio['yPts'] * (rio['dy'])
+    initial_guess = (np.max(cor), x[0,max_x], y[max_y,0], roi['dx']/2, roi['dy']/2,0,0)
 
-    return rio_new
+    popt, pcov = opt.curve_fit(twoD_Gaussian, (x, y), cor.flatten(), p0=initial_guess)
+
+    roi_new = roi.copy()
+
+    x_shift = popt[1] - roi['xo']
+    y_shift = popt[2] - roi['yo']
+
+    roi_new.update({
+        'xo': roi['xo']- x_shift/2.,
+        'yo': roi['yo']- y_shift/2.
+    })
+
+    # roi_new['xo'] += 1.* shift_x  / roi['xPts'] * (roi['dx'])
+    # roi_new['yo'] += 1.* shift_y  / roi['yPts'] * (roi['dy'])
+
+    return roi_new
 
 
 def get_frequency_interval(freqStart, interval_sampleNum, freq_df, n_block):

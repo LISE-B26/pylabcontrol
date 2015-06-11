@@ -132,7 +132,6 @@ class ScanNV():
     # return estimate for how long a scan takes
     def scan_time(self):
         EMPIRICAL_SCAN_RATE = 1.1313 # per point
-        print self.x_pts
         return EMPIRICAL_SCAN_RATE * self.x_pts * self.y_pts * self.time_per_pt
 # Test code to run scan and display image
 
