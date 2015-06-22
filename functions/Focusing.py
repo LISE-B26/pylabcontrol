@@ -6,9 +6,9 @@
 import numpy
 import scipy.ndimage
 import scipy.optimize
-# import ScanTest as GalvoScan
 from hardware_modules import GalvoMirrors as DaqOut, PiezoController
-from functions import ScanPhotodiode_DAQ as GalvoScan
+from functions import ScanPhotodiode_DAQ as GalvoScanPD
+from functions import ScanAPD as GalvoScanAPD
 
 import matplotlib.pyplot as plt
 import time
@@ -34,7 +34,7 @@ class Focus:
     #   won't have time to settle between points and the results will be poor
     # canvas: Pass in a backends canvas to plot to the gui, otherwise plots using pyplot
     @classmethod
-    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None):
+    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True):
         assert(minV >= 1 and maxV <= 99)
         voltRange = numpy.linspace(minV, maxV, numPts)
         xdata = []
@@ -72,7 +72,10 @@ class Focus:
         for voltage in voltRange:
             piezo.setVoltage(voltage)
             time.sleep(waitTime)
-            scanner = GalvoScan.ScanNV(xMin, xMax, xPts, yMin, yMax, yPts, timePerPt)
+            if(APD):
+                scanner = GalvoScanAPD.ScanNV(xMin, xMax, xPts, yMin, yMax, yPts, timePerPt)
+            else:
+                scanner = GalvoScanPD.ScanNV(xMin, xMax, xPts, yMin, yMax, yPts, timePerPt)
             image = scanner.scan(queue = None)
             xdata.append(voltage)
             ydata.append(scipy.ndimage.measurements.standard_deviation(image))
