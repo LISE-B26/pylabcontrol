@@ -36,7 +36,7 @@ class ReadAPD(threading.Thread):
     # sampleNum: number of samples to acquire in buffer
     # RETURN: a 1D array with sampleNum ctypes.c_double values taken at the
     #         desired frequency
-    def __init__(self, device, frequency, sampleNum):
+    def __init__(self, device, frequency, sampleNum, overrideBufferSize = -1):
         self.running = True
         self.sampleNum = sampleNum
         self.device = device
@@ -55,6 +55,8 @@ class ReadAPD(threading.Thread):
         self.CHK(nidaq.DAQmxCfgSampClkTiming(self.taskHandleCtr, '/Dev1/PFI13',
                                           float64(frequency), DAQmx_Val_Rising,
                                        DAQmx_Val_ContSamps, uInt64(sampleNum)))
+        if (overrideBufferSize > 0):
+            self.CHK(nidaq.DAQmxCfgInputBuffer(self.taskHandleCtr, overrideBufferSize))
         threading.Thread.__init__(self)
 
     # start reading sampleNum values from counter into buffer
