@@ -276,12 +276,55 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.plotBox.addWidget(self.counterPlot)
         self.counterQueue = Queue.Queue()
 
+    # Not Yet Implemented
+    '''
+    def addESR(self):
+        self.esrPlot = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
+        self.rfPower = QtGui.QLineEdit(self.main_widget)
+        self.rfPowerL = QtGui.QLabel(self.main_widget)
+        self.rfPowerL.setText("Rf Power (dBm):")
+        self.freqMin = QtGui.QLineEdit(self.main_widget)
+        self.freqMinL = QtGui.QLabel(self.main_widget)
+        self.freqMinL.setText("Minimum Frequency (Hz)")
+        self.freqMax = QtGui.QLineEdit(self.main_widget)
+        self.freqMaxL = QtGui.QLabel(self.main_widget)
+        self.freqMaxL.setText("Maximum Frequency (Hz)")
+        self.numPtsESR = QtGui.QLineEdit(self.main_widget)
+        self.numPtsESRL = QtGui.QLabel(self.main_widget)
+        self.numPtsESRL.setText("Num Points")
+        self.buttonStartESR = QtGui.QPushButton('Start ESR',self.main_widget)
+        self.buttonStartESR.clicked.connect(self.StartESRBtnClicked)
+        self.buttonStopESR = QtGui.QPushButton('Stop ESR',self.main_widget)
+        self.buttonStopESR.clicked.connect(self.StopESRBtnClicked)
+        self.esrLayout = QtGui.QGridLayout()
+        self.esrLayout.addWidget(self.rfPower,1,1)
+        self.esrLayout.addWidget(self.rfPowerL,1,2)
+        self.esrLayout.addWidget(self.freqMin,2,1)
+        self.esrLayout.addWidget(self.freqMinL,2,2)
+        self.esrLayout.addWidget(self.freqMax,3,1)
+        self.esrLayout.addWidget(self.freqMaxL,3,2)
+        self.esrLayout.addWidget(self.numPtsESR,4,1)
+        self.esrLayout.addWidget(self.numPtsESRL,4,2)
+        self.esrLayout.addWidget(self.buttonStartESR,5,1)
+        self.esrLayout.addWidget(self.buttonStopCounter,5,2)
+        self.vbox.addLayout(self.esrLayout)
+        self.plotBox.addWidget(self.esrPlot)
+        self.esrQueue = Queue.Queue()
+        '''
+
     def StartCounterBtnClicked(self):
         apdPlotter = PlotAPDCounts.PlotAPD(self.counterPlot)
         apdPlotter.startPlot(self.counterQueue)
 
     def StopCounterBtnClicked(self):
         self.counterQueue.put('STOP')
+
+    def StartESRBtnClicked(self):
+        DeviceTriggers.runESR(float(self.rfPower.text),float(self.freqMin.text),float(self.freqMax.text),float(self.numPtsESR.text))
+
+    def StopESRBtnClicked(self):
+        self.esrQueue.put('STOP')
+
 
     def buttonAPDClicked(self):
         if self.buttonAPD.isChecked():
@@ -441,6 +484,11 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.clearLayout(self.PBLayout)
         QtGui.QApplication.processEvents()
 
+    def removeCounter(self):
+        self.clearLayout(self.ESRLayout)
+        self.ESRPlot.deleteLater()
+        QtGui.QApplication.processEvents()
+
     def clearLayout(self, layout):
         if layout != None:
             while layout.count():
@@ -476,6 +524,12 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.toolbarPB.triggered.connect(self.toolbarPBChecked)
         self.toolbarPB.setToolTip('PulseBlaster Tool')
         self.toolbar.addAction(self.toolbarPB)
+        self.toolbarESR = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\LaserIcon.jpg'), 'addPB', self)
+        self.toolbarESR.setCheckable(True)
+        self.toolbarESR.setChecked(False)
+        self.toolbarESR.triggered.connect(self.toolbarESRChecked)
+        self.toolbarESR.setToolTip('ESR Tool')
+        #self.toolbar.addAction(self.toolbarESR)
         spacer = QtGui.QWidget()
         spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self.toolbar.addWidget(spacer)
@@ -516,6 +570,13 @@ class ApplicationWindow(QtGui.QMainWindow):
                 self.addPB()
             else:
                 self.removePB()
+
+    def toolbarESRChecked(self):
+        if(not self.toolbarLock.isChecked()):
+            if(self.toolbarESR.isChecked()):
+                self.addESR()
+            else:
+                self.removeESR()
 
     def toolbarLockChecked(self):
         if(self.toolbarLock.isChecked()):

@@ -4,6 +4,7 @@ import numpy
 from functions import ScanAPD
 from functions import ScanPhotodiode_DAQ as ScanPhotodiode
 from hardware_modules import GalvoMirrors as DaqOut, ZiControl
+#from scripts.ESR import run_esr
 from PyQt4 import QtGui
 
 
@@ -34,3 +35,7 @@ def setDaqPt(xVolt,yVolt):
     pointthread.stop()
     QtGui.QApplication.processEvents()
 
+def runESR(rf_power, minFreq, maxFreq, numPts):
+    #freq_values = numpy.linspace(minFreq, maxFreq, numPts)
+    #run_esr(rf_power, freq_values)
+    print("Functionality Not Yet Implemented")
