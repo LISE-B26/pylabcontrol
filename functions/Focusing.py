@@ -15,7 +15,7 @@ import time
 from PyQt4 import QtGui
 
 normalRange = 1.0
-scanRange = normalRange/10
+scanRange = normalRange/20
 xRangeMax = .5
 yRangeMax = .5
 xPts = 20
@@ -67,6 +67,9 @@ class Focus:
         dat2 = [0,0]
         datline,fitline = axes.plot(dat,dat2,dat,dat2)
         axes.set_xlim([minV-1,maxV+1])
+        plt.xlabel(piezoChannel + ' Piezo Voltage [V]')
+        plt.ylabel('Image Standard Deviation [V]')
+        plt.title('Auto-focusing')
         #axes.set_ylim([0,10])
         cls.updatePlot(canvas)
         for voltage in voltRange:
