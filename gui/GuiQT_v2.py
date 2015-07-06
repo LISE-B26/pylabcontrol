@@ -23,7 +23,10 @@ from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+import json
+
 from gui import GuiDeviceTriggers as DeviceTriggers, PlotAPDCounts
+
 
 
 
@@ -154,15 +157,20 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.buttonAPD.setCheckable(True)
         self.buttonAPD.setChecked(True)
         self.buttonAPD.clicked.connect(self.buttonAPDClicked)
+        self.buttonRedrawLaser = QtGui.QPushButton('Redraw laser spot',self.main_widget)
+        self.buttonRedrawLaser.clicked.connect(self.drawDot)
+        self.buttonLoadRoI = QtGui.QPushButton('Load RoI',self.main_widget)
+        self.buttonLoadRoI.clicked.connect(lambda: self.loadRoI())
 
         #set initial values for scan values
-        self.xVoltageMin.setText('-.4')
-        self.yVoltageMin.setText('-.4')
-        self.xVoltageMax.setText('.4')
-        self.yVoltageMax.setText('.4')
-        self.xPts.setText('120')
-        self.yPts.setText('120')
-        self.timePerPt.setText('.001')
+        # self.xVoltageMin.setText('-.4')
+        # self.yVoltageMin.setText('-.4')
+        # self.xVoltageMax.setText('.4')
+        # self.yVoltageMax.setText('.4')
+        # self.xPts.setText('120')
+        # self.yPts.setText('120')
+        # self.timePerPt.setText('.001')
+        self.loadRoI('Z://Lab//Cantilever//Measurements//default_RoI.roi')
 
         plotBox.addWidget(self.imPlot)
         self.scanLayout = QtGui.QGridLayout()
@@ -199,6 +207,10 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.scanLayout.addWidget(self.buttonStop,1,15)
         self.scanLayout.addWidget(self.autosaveCheck,2,15)
         self.scanLayout.addWidget(self.buttonAPD,1,16)
+
+        self.scanLayout.addWidget(self.buttonRedrawLaser,3,8)
+        self.scanLayout.addWidget(self.buttonLoadRoI,3,3)
+
         vbox.addLayout(self.scanLayout)
         self.imageData = None
 
@@ -395,8 +407,8 @@ class ApplicationWindow(QtGui.QMainWindow):
     def mouseNVImage(self,event):
         if(not(event.xdata == None)):
             if(event.button == 1):
-                self.xVoltage.setText(str(event.xdata))
-                self.yVoltage.setText(str(event.ydata))
+                self.xVoltage.setText('{:0.5f}'.format(event.xdata))
+                self.yVoltage.setText('{:0.5f}'.format(event.ydata))
                 self.drawDot()
                 QtGui.QApplication.processEvents()
 
@@ -409,6 +421,34 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.circ = patches.Circle((self.xVoltage.text(), self.yVoltage.text()), size, fc = 'g')
         self.imPlot.axes.add_patch(self.circ)
         self.imPlot.draw()
+
+
+    def loadRoI(self, roi_filename = None):
+
+        if roi_filename is None:
+            roi_filename = QtGui.QFileDialog.getOpenFileName(self, 'Open file', 'Z://Lab//Cantilever//Measurements//')
+        print(roi_filename)
+        with open(roi_filename, 'r') as infile:
+            roi = json.load(infile)
+
+        self.setRoI(roi)
+
+        self.statusBar().showMessage('loaded {:s}'.format(roi_filename),0)
+
+    def setRoI(self, roi):
+
+        xmin, xmax = roi['xo'] -  roi['dx']/2.,  roi['xo'] +  roi['dx']/2.
+        ymin, ymax = roi['yo'] -  roi['dy']/2.,  roi['yo'] +  roi['dy']/2.
+
+        self.xVoltageMin.setText('{:0.3f}'.format(xmin))
+        self.yVoltageMin.setText('{:0.3f}'.format(ymin))
+        self.xVoltageMax.setText('{:0.3f}'.format(xmax))
+        self.yVoltageMax.setText('{:0.3f}'.format(ymax))
+        self.xPts.setText('{:d}'.format(roi['xPts']))
+        self.yPts.setText('{:d}'.format(roi['xPts']))
+        self.timePerPt.setText('.001')
+
+
 
     def writeArray(self, array, dirpath, tag, columns = None):
         df = pd.DataFrame(array, columns = columns)
@@ -437,14 +477,16 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.removeScan(self.plotBox)
 
     def largeScanButtonClicked(self):
-        self.xVoltageMin.setText('-.4')
-        self.yVoltageMin.setText('-.4')
-        self.xVoltageMax.setText('.4')
-        self.yVoltageMax.setText('.4')
-        self.xPts.setText('120')
-        self.yPts.setText('120')
-        self.timePerPt.setText('.001')
-        self.statusBar().showMessage("Large Scan Values Set",2000)
+
+        self.loadRoI('Z://Lab//Cantilever//Measurements//default_RoI.roi')
+        # self.xVoltageMin.setText('-.4')
+        # self.yVoltageMin.setText('-.4')
+        # self.xVoltageMax.setText('.4')
+        # self.yVoltageMax.setText('.4')
+        # self.xPts.setText('120')
+        # self.yPts.setText('120')
+        # self.timePerPt.setText('.001')
+        # self.statusBar().showMessage("Large Scan Values Set",2000)
 
     def stopButtonClicked(self):
         self.queue.put('STOP')
