@@ -63,11 +63,15 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
         mwgen.outputOn()
         for sec_num in xrange(0, num_freq_sections):
             # initialize APD thread
+
+            # calculate the minimum ad and max frequency of current section
             sec_min = min(freq_values) + RANGE_STEP*sec_num
             sec_max = sec_min + RANGE_STEP
+
+            # make freq. array for current section
             freq_section_array = freq_array[np.where(np.logical_and(freq_array >= sec_min,
                                                                     freq_array < sec_max))]
-            #What is this loop actually doing?
+            # if section is empty skip
             if len(freq_section_array) == 0:
                 continue
             center_freq = (sec_max + sec_min)/2.0
@@ -88,7 +92,8 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
             raw_data = readthread.read()
 
             #raw_data = sweep_mw_and_count_APD(freq_voltage_array, dt)
-            diff_data = np.diff(raw_data) #Why diff?
+            # counter counts continiously so we take the difference to get the counts per time interval
+            diff_data = np.diff(raw_data)
             summed_data = np.zeros(len(freq_voltage_array)/clock_adjust)
             for i in range(0,int((len(freq_voltage_array)/clock_adjust))):
                 summed_data[i] = np.sum(diff_data[(i*clock_adjust+1):(i*clock_adjust+clock_adjust-1)])
@@ -105,6 +110,7 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
 
         esr_avg = np.mean(esr_data[0:(scan_num + 1)], axis=0)
         fit_params,_ = fit_esr(freq_values, esr_avg)
+
         if(plotting == True):
             if not fit_params[0] == -1: # check if fit failed
                 fit_data = lorentzian(freq_values, fit_params[0], fit_params[1], fit_params[2], fit_params[3])
@@ -236,7 +242,7 @@ def save_esr(esr_data, dirpath, tag = "", saveImage = True):
 #sample usage to scan 200 frequency points between 2.82 and 2.92 GHz
 
 RF_Power = -12
-avg = 30
+avg = 100
 test_freqs = np.linspace(2820000000, 2920000000, 200)
 esr_data, fit_params = run_esr(RF_Power, test_freqs, num_avg=avg, int_time=.002)
 dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150629_Diamond_ramp_on_cpw_with_mags\\ESR_measurements'

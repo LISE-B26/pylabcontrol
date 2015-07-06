@@ -10,17 +10,26 @@ from hardware_modules import GalvoMirrors as DaqOut, PiezoController
 from functions import ScanPhotodiode_DAQ as GalvoScanPD
 from functions import ScanAPD as GalvoScanAPD
 
+from functions.regions import *
+
 import matplotlib.pyplot as plt
 import time
 from PyQt4 import QtGui
 
-normalRange = 1.0
+# normalRange = 1.0
 scanRange = normalRange/20
 xRangeMax = .5
 yRangeMax = .5
 xPts = 20
 yPts = 20
 timePerPt = .001
+
+scan_range_roi =
+{
+
+}
+
+
 
 # This class runs the standard focusing routine, and sets the piezo height to either the center of the fitted gaussian
 # or, if the fit fails, to the center of the scanning range
@@ -34,26 +43,53 @@ class Focus:
     #   won't have time to settle between points and the results will be poor
     # canvas: Pass in a backends canvas to plot to the gui, otherwise plots using pyplot
     @classmethod
-    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True):
+    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True, scan_range_roi = None):
         assert(minV >= 1 and maxV <= 99)
+
+        if scan_range_roi == None:
+            scan_range_roi = {
+                "dx": 0.1,
+                "dy": 0.1,
+                "xPts": 20,
+                "xo": 0.0,
+                "yPts": 20,
+                "yo": 0.0
+            }
+
+        assert_is_roi
+
+        roi_crop(scan_range_roi)
+
         voltRange = numpy.linspace(minV, maxV, numPts)
         xdata = []
         ydata = []
         (xInit, yInit, _, _) = DaqOut.DaqOutputWave.getOutputVoltages()
-        # tries to define a square scanRange/2 to each side of the point. If this would include points out of bounds,
-        # that dimension of the square runs from rangeMax-scanRange to rangeMax
-        if(numpy.absolute(xInit) > xRangeMax - scanRange/2):
-            xMin = numpy.min(numpy.sign(xInit)*xRangeMax, numpy.sign(xInit)*(xRangeMax-scanRange))
-            xMax = numpy.max(numpy.sign(xInit)*xRangeMax, numpy.sign(xInit)*(xRangeMax-scanRange))
-        else:
-            xMin = xInit-scanRange/2
-            xMax = xInit+scanRange/2
-        if(numpy.absolute(yInit) > yRangeMax - scanRange/2):
-            yMin = numpy.min(numpy.sign(yInit)*yRangeMax, numpy.sign(yInit)*(yRangeMax-scanRange))
-            yMax = numpy.max(numpy.sign(yInit)*yRangeMax, numpy.sign(yInit)*(yRangeMax-scanRange))
-        else:
-            yMin = yInit-scanRange/2
-            yMax = yInit+scanRange/2
+
+        #
+        # # tries to define a square scanRange/2 to each side of the point. If this would include points out of bounds,
+        # # that dimension of the square runs from rangeMax-scanRange to rangeMax
+        # if(numpy.absolute(xInit) > xRangeMax - scanRange/2):
+        #     xMin = numpy.min(numpy.sign(xInit)*xRangeMax, numpy.sign(xInit)*(xRangeMax-scanRange))
+        #     xMax = numpy.max(numpy.sign(xInit)*xRangeMax, numpy.sign(xInit)*(xRangeMax-scanRange))
+        # else:
+        #     xMin = xInit-scanRange/2
+        #     xMax = xInit+scanRange/2
+        # if(numpy.absolute(yInit) > yRangeMax - scanRange/2):
+        #     yMin = numpy.min(numpy.sign(yInit)*yRangeMax, numpy.sign(yInit)*(yRangeMax-scanRange))
+        #     yMax = numpy.max(numpy.sign(yInit)*yRangeMax, numpy.sign(yInit)*(yRangeMax-scanRange))
+        # else:
+        #     yMin = yInit-scanRange/2
+        #     yMax = yInit+scanRange/2
+
+
+
+        xMin, xMax, yMin, yMax = roi_to_min_max(scan_range_roi):
+
+        # xMin, xMax = scan_range_roi['xo'] - scan_range_roi['dx']/2., scan_range_roi['xo'] + scan_range_roi['dx']/2.
+        # yMin, yMax = scan_range_roi['yo'] - scan_range_roi['dy']/2., scan_range_roi['yo'] + scan_range_roi['dy']/2.
+
+
+
         piezo = PiezoController.MDT693A(piezoChannel)
         # initializes pyplot figure if using pyplot plotting
         if canvas is None:
