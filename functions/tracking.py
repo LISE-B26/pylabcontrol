@@ -3,6 +3,8 @@ __author__ = 'Experiment'
 from scipy import signal
 import numpy as np
 import scipy.optimize as opt
+import matplotlib.pyplot as plt
+import sys
 
 def plot_region(plt, roi, color = 'r'):
     '''
@@ -48,9 +50,10 @@ def find_beam_position(img_old, img_new, roi):
         takes two images of equal size and returns the new roi (changes the center position)
         if the two images are identical the roi should be unchanged
     '''
-
+    
     cor = signal.correlate2d (img_new, img_old, mode='same')
     max_y, max_x = np.unravel_index(np.argmax(cor),cor.shape)
+
 
     def twoD_Gaussian((x, y), amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
         xo = float(xo)
@@ -61,13 +64,13 @@ def find_beam_position(img_old, img_new, roi):
         g = offset + amplitude*np.exp( - (a*((x-xo)**2) + 2*b*(x-xo)*(y-yo)
                                 + c*((y-yo)**2)))
         return g.ravel()
-
+    
     x = np.linspace(roi['xo'] - roi['dx'], roi['xo'] + roi['dx'], roi['xPts'])
     y = np.linspace(roi['yo'] - roi['dy'], roi['yo'] + roi['dy'], roi['yPts'])
     x, y = np.meshgrid(x, y)
 
     initial_guess = (np.max(cor), x[0,max_x], y[max_y,0], roi['dx']/2, roi['dy']/2,0,0)
-
+    
     popt, pcov = opt.curve_fit(twoD_Gaussian, (x, y), cor.flatten(), p0=initial_guess)
 
     roi_new = roi.copy()
