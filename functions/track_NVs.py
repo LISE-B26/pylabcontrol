@@ -87,6 +87,22 @@ def shift_points(points, (x_shift, y_shift)):
     points[:,1] += y_shift
     return points
 
+def pixel_to_voltage(points, image, roi):
+    # convert shift from pixels to volts
+    points[:,0] = (points[:,0] - len(image[0])/2) * roi['dx'] / roi['xPts'] + roi['x0']
+    points[:,1] = (points[:,1] - len(image)/2) * roi['dy'] / roi['yPts'] + roi['y0']
+    return points
+
+def locate_shifted_NVs(image, coordinates, (x_shift, y_shift), new_roi):
+    x_shift_v = x_shift * new_roi['dx'] / new_roi['xPts']
+    y_shift_v = y_shift * new_roi['dy'] / new_roi['yPts']
+
+    coordinates[:,0] += x_shift_v
+    coordinates[:,1] += y_shift_v
+
+    new_NVs = locate_NVs(image, new_roi['dx'])
+
+
 #image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-43-58-NVBaselineTests.csv")
 #image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-27_16-53-09-NVBaseline.csv")
 #image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-51-59-NVBaselineTests.csv")
