@@ -456,15 +456,21 @@ class ApplicationWindow(QtGui.QMainWindow):
             header = False
         else:
             header = True
-        day = time.strftime("%d")
-        month = time.strftime("%m")
-        year = time.strftime("%Y")
-        hour = time.strftime("%H")
-        minute = time.strftime("%M")
-        second = time.strftime("%S")
-        filename = '\\' + year + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second  +'-' + str(tag)
-        filepathCSV = dirpath + filename + '.csv'
-        filepathJPG = dirpath + filename + '.jpg'
+        # day = time.strftime("%d")
+        # month = time.strftime("%m")
+        # year = time.strftime("%Y")
+        # hour = time.strftime("%H")
+        # minute = time.strftime("%M")
+        # second = time.strftime("%S")
+        # filename = '\\' + year + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second  +'-' + str(tag)
+        #
+        # start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+
+        start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+        filepathCSV = dirpath + "\\" + start_time + '_' + tag + '.csv'
+        filepathJPG = dirpath + "\\" + start_time + '_' + tag + '.jpg'
+        # filepathCSV = dirpath + filename + '.csv'
+        # filepathJPG = dirpath + filename + '.jpg'
         df.to_csv(filepathCSV, index = False, header=header)
         self.imPlot.fig.savefig(str(filepathJPG), format = 'jpg')
 
