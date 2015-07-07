@@ -24,6 +24,8 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 import json
+import functions.Focusing as focusing
+from functions.regions import *
 
 from gui import GuiDeviceTriggers as DeviceTriggers, PlotAPDCounts
 
@@ -159,18 +161,28 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.buttonAPD.clicked.connect(self.buttonAPDClicked)
         self.buttonRedrawLaser = QtGui.QPushButton('Redraw laser spot',self.main_widget)
         self.buttonRedrawLaser.clicked.connect(self.drawDot)
-        self.buttonLoadRoI = QtGui.QPushButton('Load RoI',self.main_widget)
-        self.buttonLoadRoI.clicked.connect(lambda: self.loadRoI())
+        self.buttonLoadScanRange = QtGui.QPushButton('Load scan range',self.main_widget)
+        self.buttonLoadScanRange.clicked.connect(lambda: self.loadRoI())
+        self.buttonSetRoI = QtGui.QPushButton('set roi',self.main_widget)
+        self.buttonSetRoI.clicked.connect(self.zoom_RoI)
+        self.buttonAutofocusRoI = QtGui.QPushButton('auto focus (roi)',self.main_widget)
+        self.buttonAutofocusRoI.clicked.connect(self.autofcus_RoI)
+
+        self.zPosL = QtGui.QLabel(self.main_widget)
+        self.zPosL.setText("focus (V)")
+        self.zPos = QtGui.QLineEdit(self.main_widget)
+        self.zRangeL = QtGui.QLabel(self.main_widget)
+        self.zRangeL.setText('range auto focus (V)')
+        self.zRange = QtGui.QLineEdit(self.main_widget)
+        self.zPtsL = QtGui.QLabel(self.main_widget)
+        self.zPtsL.setText('pts auto focus')
+        self.zPts = QtGui.QLineEdit(self.main_widget)
 
         #set initial values for scan values
-        # self.xVoltageMin.setText('-.4')
-        # self.yVoltageMin.setText('-.4')
-        # self.xVoltageMax.setText('.4')
-        # self.yVoltageMax.setText('.4')
-        # self.xPts.setText('120')
-        # self.yPts.setText('120')
-        # self.timePerPt.setText('.001')
-        self.loadRoI('Z://Lab//Cantilever//Measurements//default_RoI.roi')
+        # self.loadRoI('Z://Lab//Cantilever//Measurements//default_settings.config')
+        self.loadSettings('Z://Lab//Cantilever//Measurements//default_settings.config')
+
+
 
         plotBox.addWidget(self.imPlot)
         self.scanLayout = QtGui.QGridLayout()
@@ -208,17 +220,28 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.scanLayout.addWidget(self.autosaveCheck,2,15)
         self.scanLayout.addWidget(self.buttonAPD,1,16)
 
+
+
         self.scanLayout.addWidget(self.buttonRedrawLaser,3,8)
-        self.scanLayout.addWidget(self.buttonLoadRoI,3,3)
+        self.scanLayout.addWidget(self.buttonLoadScanRange,3,3)
+        self.scanLayout.addWidget(self.buttonSetRoI,3,4)
+        self.scanLayout.addWidget(self.buttonAutofocusRoI,3,16)
+        self.scanLayout.addWidget(self.zPosL,3,13)
+        self.scanLayout.addWidget(self.zPos,4,13)
+        self.scanLayout.addWidget(self.zRangeL,3,14)
+        self.scanLayout.addWidget(self.zRange,4,14)
+        self.scanLayout.addWidget(self.zPtsL,3,15)
+        self.scanLayout.addWidget(self.zPts,4,15)
 
         vbox.addLayout(self.scanLayout)
         self.imageData = None
 
         self.imPlot.mpl_connect('button_press_event', self.mouseNVImage)
         rectprops = dict(facecolor = 'black', edgecolor = 'black', alpha = 1.0, fill = True)
-        self.RS = RectangleSelector(self.imPlot.axes, self.zoom, button = 3, drawtype='box', rectprops = rectprops)
+        self.RS = RectangleSelector(self.imPlot.axes, self.draw_RoI, button = 3, drawtype='box', rectprops = rectprops)
 
-        self.circ = None
+        self.circ = None # marker for laser
+        self.rect = None # marker for RoI
 
         self.queue = Queue.Queue()
 
@@ -345,17 +368,60 @@ class ApplicationWindow(QtGui.QMainWindow):
             self.buttonAPD.setText('Use Photodiode')
 
 
-    def zoom(self,eclick,erelease):
-        self.xVoltageMin.setText(str(min(eclick.xdata,erelease.xdata)))
-        self.yVoltageMin.setText(str(min(eclick.ydata,erelease.ydata)))
-        self.xVoltageMax.setText(str(max(eclick.xdata, erelease.xdata)))
-        self.yVoltageMax.setText(str(max(eclick.ydata, erelease.ydata)))
-        self.imPlot.axes.set_xlim(left= min(eclick.xdata,erelease.xdata), right = max(eclick.xdata, erelease.xdata))
-        self.imPlot.axes.set_ylim(top= min(eclick.ydata, erelease.ydata),bottom= max(eclick.ydata, erelease.ydata))
+
+    def autofcus_RoI(self):
+
+        zo = float(self.zPos.text())
+        dz = float(self.zRange.text())
+        zPts = float(self.zPts.text())
+
+        zMin, zMax = zo - dz/2., zo + dz/2.
+        print self.RoI
+        a = focusing.Focus.scan(zMin, zMax, zPts, 'Z', waitTime = .1, APD=True, scan_range_roi = self.RoI)
+
+    def draw_RoI(self,eclick,erelease):
+
+
+        self.RoI = min_max_to_roi(
+            min(eclick.xdata,erelease.xdata),
+            max(eclick.xdata, erelease.xdata),
+            min(eclick.ydata,erelease.ydata),
+            max(eclick.ydata, erelease.ydata)
+        )
+
+        self.RoI.update({"xPts": int(self.xPts.text())})
+        self.RoI.update({"yPts": int(self.yPts.text())})
+        print self.RoI
+        self.show_RoI()
+        # self.xVoltageMin.setText(str(min(eclick.xdata,erelease.xdata)))
+        # self.yVoltageMin.setText(str(min(eclick.ydata,erelease.ydata)))
+        # self.xVoltageMax.setText(str(max(eclick.xdata, erelease.xdata)))
+        # self.yVoltageMax.setText(str(max(eclick.ydata, erelease.ydata)))
+        #
+        # self.imPlot.axes.set_xlim(left= min(eclick.xdata,erelease.xdata), right = max(eclick.xdata, erelease.xdata))
+        # self.imPlot.axes.set_ylim(top= min(eclick.ydata, erelease.ydata),bottom= max(eclick.ydata, erelease.ydata))
+        # if(not self.circ==None):
+        #     self.drawDot()
+        # self.imPlot.draw()
+
+    def show_RoI(self):
+        if(not self.rect==None):
+            self.rect.remove()
+
+        self.rect = patches.Rectangle((self.RoI['xo']-self.RoI['dx']/2., self.RoI['yo']-self.RoI['dy']/2.),
+                                      width = self.RoI['dx'], height = self.RoI['dy'] , fc = 'none' , ec = 'r')
+        self.imPlot.axes.add_patch(self.rect)
+        self.imPlot.draw()
+
+    def zoom_RoI(self):
+        self.setRoI(self.RoI)
+
+        xmin, xmax, ymin, ymax = roi_to_min_max(self.RoI)
+        self.imPlot.axes.set_xlim(left= xmin, right =xmax)
+        self.imPlot.axes.set_ylim(top=ymin,bottom= ymax)
         if(not self.circ==None):
             self.drawDot()
         self.imPlot.draw()
-
 
     def ZIBtnClicked(self):
         self.statusBar().showMessage("Taking Frequency Scan",0)
@@ -385,6 +451,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.yMaxHome = float(self.yVoltageMax.text())
         self.statusBar().clearMessage()
         self.circ = None
+        self.rect = None
         if(self.autosaveCheck.isChecked() == True):
             self.saveImageClicked()
 
@@ -422,12 +489,26 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.imPlot.axes.add_patch(self.circ)
         self.imPlot.draw()
 
+    def loadSettings(self, filename = None):
+
+        if filename is None:
+            filename = QtGui.QFileDialog.getOpenFileName(self, 'Open file', 'Z://Lab//Cantilever//Measurements//')
+        with open(filename, 'r') as infile:
+            settings = json.load(infile)
+
+        self.setRoI(settings)
+        self.zPts.setText('{:d}'.format(settings['zPts']))
+        self.zPos.setText('{:0.5f}'.format(settings['zPos']))
+        self.zRange.setText('{:0.5f}'.format(settings['dz']))
+
+
+        self.statusBar().showMessage('loaded {:s}'.format(filename),0)
+
 
     def loadRoI(self, roi_filename = None):
 
         if roi_filename is None:
             roi_filename = QtGui.QFileDialog.getOpenFileName(self, 'Open file', 'Z://Lab//Cantilever//Measurements//')
-        print(roi_filename)
         with open(roi_filename, 'r') as infile:
             roi = json.load(infile)
 
@@ -436,9 +517,11 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.statusBar().showMessage('loaded {:s}'.format(roi_filename),0)
 
     def setRoI(self, roi):
+        print roi
+        xmin, xmax, ymin, ymax = roi_to_min_max(roi)
 
-        xmin, xmax = roi['xo'] -  roi['dx']/2.,  roi['xo'] +  roi['dx']/2.
-        ymin, ymax = roi['yo'] -  roi['dy']/2.,  roi['yo'] +  roi['dy']/2.
+        # xmin, xmax = roi['xo'] -  roi['dx']/2.,  roi['xo'] +  roi['dx']/2.
+        # ymin, ymax = roi['yo'] -  roi['dy']/2.,  roi['yo'] +  roi['dy']/2.
 
         self.xVoltageMin.setText('{:0.3f}'.format(xmin))
         self.yVoltageMin.setText('{:0.3f}'.format(ymin))
@@ -484,7 +567,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def largeScanButtonClicked(self):
 
-        self.loadRoI('Z://Lab//Cantilever//Measurements//default_RoI.roi')
+        self.loadRoI('Z://Lab//Cantilever//Measurements//default_settings.config')
         # self.xVoltageMin.setText('-.4')
         # self.yVoltageMin.setText('-.4')
         # self.xVoltageMax.setText('.4')

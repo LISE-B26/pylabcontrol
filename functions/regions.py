@@ -10,6 +10,20 @@ def roi_to_min_max(roi):
     return xMin, xMax, yMin, yMax
 
 
+def min_max_to_roi(xMin, xMax, yMin, yMax):
+    '''
+        returns  RoI from min and max values
+    '''
+
+    roi = {
+        "dx": xMax - xMin,
+        "dy": yMax - yMin,
+        "xo": (xMax + xMin)/2,
+        "yo": (yMax + yMin)/2
+    }
+
+    return roi
+
 
 def assert_is_roi(roi):
     '''
@@ -44,15 +58,17 @@ def roi_crop(roi):
 ####################################################################################
 # testing stuff
 ####################################################################################
-# roi = {
-#     "dx": 0.1,
-#     "dy": 0.1,
-#     "xPts": 20,
-#     "xo": -0.45,
-#     "yPts": 20,
-#     "yo": 0.0
-# }
+roi = {
+    "dx": 0.1,
+    "dy": 0.1,
+    "xPts": 20,
+    "xo": -0.45,
+    "yPts": 20,
+    "yo": 0.0
+}
 #
 # print roi
 # roi_crop(roi)
 # print roi
+
+print roi_to_min_max(roi)

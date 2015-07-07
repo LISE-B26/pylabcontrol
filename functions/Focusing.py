@@ -17,17 +17,12 @@ import time
 from PyQt4 import QtGui
 
 # normalRange = 1.0
-scanRange = normalRange/20
-xRangeMax = .5
-yRangeMax = .5
-xPts = 20
-yPts = 20
+# scanRange = normalRange/20
+# xRangeMax = .5
+# yRangeMax = .5
+# xPts = 20
+# yPts = 20
 timePerPt = .001
-
-scan_range_roi =
-{
-
-}
 
 
 
@@ -83,7 +78,10 @@ class Focus:
 
 
 
-        xMin, xMax, yMin, yMax = roi_to_min_max(scan_range_roi):
+        xMin, xMax, yMin, yMax = roi_to_min_max(scan_range_roi)
+
+        xPts = scan_range_roi['xPts']
+        yPts = scan_range_roi['yPts']
 
         # xMin, xMax = scan_range_roi['xo'] - scan_range_roi['dx']/2., scan_range_roi['xo'] + scan_range_roi['dx']/2.
         # yMin, yMax = scan_range_roi['yo'] - scan_range_roi['dy']/2., scan_range_roi['yo'] + scan_range_roi['dy']/2.
@@ -94,7 +92,8 @@ class Focus:
         # initializes pyplot figure if using pyplot plotting
         if canvas is None:
             fig = plt.figure()
-            axes = fig.add_subplot(111)
+            axes = fig.add_subplot(1,2,1)
+            axes_img = fig.add_subplot(1,2,2)
             plt.ion()
         else:
             axes = canvas.axes
@@ -120,6 +119,14 @@ class Focus:
             ydata.append(scipy.ndimage.measurements.standard_deviation(image))
             print(scipy.ndimage.measurements.standard_deviation(image))
             cls.plotData(datline, xdata, ydata, canvas, axes)
+
+            cls.plotImg(image, canvas, axes_img)
+
+
+
+
+
+
         cls.setDaqPt(xInit, yInit)
         (a,mean,sigma,c),_ = cls.fit(voltRange, ydata)
         cls.plotFit(fitline,a,mean,sigma,c,minV,maxV, canvas)
@@ -171,6 +178,13 @@ class Focus:
         line.set_ydata(y)
         axes.relim()
         axes.autoscale_view(scalex=False, scaley=True)
+        cls.updatePlot(canvas)
+
+    @classmethod
+    def plotImg(cls, imadata, canvas, axes):
+
+        axes.imshow(imadata)
+        # axes.autoscale_view(scalex=False, scaley=True)
         cls.updatePlot(canvas)
 
     # plots the gaussian fit
