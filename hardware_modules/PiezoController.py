@@ -20,11 +20,11 @@ class MDT693A:
         # handshake. These are all default for Serial and therefore not input
         # below
 
-        if (outputAxis is not 'X' and outputAxis is not 'Y' and outputAxis is not 'Z'):
+        self.axis = str(outputAxis).upper()
+        if (self.axis != 'X' and self.axis != 'Y' and self.axis != 'Z'):
             message = 'Piezo Controller Axis not correctly defined; must be either \'X\', \'Y\', or \'Z\''
             raise ValueError(message)
 
-        self.axis = outputAxis.upper()
 
         self.ser = serial.Serial(port = port, baudrate=baudrate, timeout = timeout)
         self.ser.close()

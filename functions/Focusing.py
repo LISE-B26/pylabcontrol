@@ -87,7 +87,8 @@ class Focus:
         # yMin, yMax = scan_range_roi['yo'] - scan_range_roi['dy']/2., scan_range_roi['yo'] + scan_range_roi['dy']/2.
 
 
-
+        print piezoChannel
+        print piezoChannel == 'Z'
         piezo = PiezoController.MDT693A(piezoChannel)
         # initializes pyplot figure if using pyplot plotting
         if canvas is None:
