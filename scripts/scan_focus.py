@@ -18,4 +18,4 @@ scan_range_roi = {
     "yo": 0.0
 }
 
-a = f.Focus.scan(45, 51, 10, 'Z', waitTime = .1, APD=True, scan_range_roi = scan_range_roi)
+a = f.Focus.scan(20, 90, 10, 'Z', waitTime = .1, APD=True, scan_range_roi = scan_range_roi)
