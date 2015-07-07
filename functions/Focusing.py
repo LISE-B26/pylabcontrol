@@ -87,14 +87,13 @@ class Focus:
         # yMin, yMax = scan_range_roi['yo'] - scan_range_roi['dy']/2., scan_range_roi['yo'] + scan_range_roi['dy']/2.
 
 
-        print piezoChannel
-        print piezoChannel == 'Z'
         piezo = PiezoController.MDT693A(piezoChannel)
         # initializes pyplot figure if using pyplot plotting
         if canvas is None:
             fig = plt.figure()
-            axes = fig.add_subplot(1,2,1)
-            axes_img = fig.add_subplot(1,2,2)
+            axes = fig.add_subplot(1,3,1)
+            axes_img = fig.add_subplot(1,3,2)
+            axes_img_best = fig.add_subplot(1,3,3)
             plt.ion()
         else:
             axes = canvas.axes
@@ -123,6 +122,10 @@ class Focus:
 
             cls.plotImg(image, canvas, axes_img)
 
+            if ydata[-1] == max(ydata): image_best = image
+
+            cls.plotImg(image_best, canvas, axes_img_best)
+
 
 
 
@@ -140,6 +143,7 @@ class Focus:
             piezo.setVoltage(numpy.mean(voltRange))
         if canvas is None:
             plt.show()
+        return mean
 
     # Fits the data to a gaussian given by the cls.gaussian method, and returns the fit parameters. If the fit fails,
     # returns (-1,-1,-1) as the parameters

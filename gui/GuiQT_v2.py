@@ -131,21 +131,20 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.saveLocImage = QtGui.QLineEdit(self.main_widget)
         self.saveLocImage.setText('Z:\\Lab\\Cantilever\\Measurements\\Images')
         self.saveLocImageL = QtGui.QLabel(self.main_widget)
-        self.saveLocImageL.setText("Image Save Location")
+        self.saveLocImageL.setText("Image Location")
         self.saveTagImage = QtGui.QLineEdit(self.main_widget)
         self.saveTagImage.setText('Image')
         self.saveTagImageL = QtGui.QLabel(self.main_widget)
-        self.saveTagImageL.setText("Image Save Tag")
+        self.saveTagImageL.setText("Tag")
         self.buttonScan = QtGui.QPushButton('Scan', self.main_widget)
         self.buttonScan.clicked.connect(self.scanBtnClicked)
         self.buttonVSet = QtGui.QPushButton('Set Voltage', self.main_widget)
         self.buttonVSet.clicked.connect(self.vSetBtnClicked)
-        self.buttonImageHome = QtGui.QPushButton('Reset Window', self.main_widget)
-        self.buttonImageHome.clicked.connect(self.imageHomeClicked)
+
         self.buttonSaveImage = QtGui.QPushButton('Save Image', self.main_widget)
         self.buttonSaveImage.clicked.connect(self.saveImageClicked)
-        self.buttonLargeScan = QtGui.QPushButton('Large Scan', self.main_widget)
-        self.buttonLargeScan.clicked.connect(self.largeScanButtonClicked)
+        self.buttonLoadDefaulScanRange = QtGui.QPushButton('Large Scan', self.main_widget)
+        self.buttonLoadDefaulScanRange.clicked.connect(self.largeScanButtonClicked)
         self.cbarMax = QtGui.QLineEdit(self.main_widget)
         self.cbarMaxL = QtGui.QLabel(self.main_widget)
         self.cbarMaxL.setText("Colorbar Threshold")
@@ -160,12 +159,14 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.buttonAPD.setChecked(True)
         self.buttonAPD.clicked.connect(self.buttonAPDClicked)
         self.buttonRedrawLaser = QtGui.QPushButton('Redraw laser spot',self.main_widget)
-        self.buttonRedrawLaser.clicked.connect(self.drawDot)
+        self.buttonRedrawLaser.clicked.connect(self.drawDot_RoI)
         self.buttonLoadScanRange = QtGui.QPushButton('Load scan range',self.main_widget)
         self.buttonLoadScanRange.clicked.connect(lambda: self.loadRoI())
-        self.buttonSetRoI = QtGui.QPushButton('set roi',self.main_widget)
-        self.buttonSetRoI.clicked.connect(self.zoom_RoI)
-        self.buttonAutofocusRoI = QtGui.QPushButton('auto focus (roi)',self.main_widget)
+        self.buttonZoomInRoI = QtGui.QPushButton('zoom in (RoI)',self.main_widget)
+        self.buttonZoomInRoI.clicked.connect(self.zoom_RoI)
+        self.buttonZoomOutRoI = QtGui.QPushButton('zoom out', self.main_widget)
+        self.buttonZoomOutRoI.clicked.connect(self.imageHomeClicked)
+        self.buttonAutofocusRoI = QtGui.QPushButton('auto focus (RoI)',self.main_widget)
         self.buttonAutofocusRoI.clicked.connect(self.autofcus_RoI)
 
         self.zPosL = QtGui.QLabel(self.main_widget)
@@ -186,6 +187,9 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         plotBox.addWidget(self.imPlot)
         self.scanLayout = QtGui.QGridLayout()
+
+
+        # Scan area
         self.scanLayout.addWidget(self.xVoltageMin, 2,1)
         self.scanLayout.addWidget(self.yVoltageMin, 2,2)
         self.scanLayout.addWidget(self.xVoltageMinL,1,1)
@@ -200,45 +204,65 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.scanLayout.addWidget(self.yPtsL, 1,6)
         self.scanLayout.addWidget(self.timePerPt,2,7)
         self.scanLayout.addWidget(self.timePerPtL,1,7)
-        self.scanLayout.addWidget(self.xVoltage, 2,8)
-        self.scanLayout.addWidget(self.yVoltage, 2,9)
-        self.scanLayout.addWidget(self.xVoltageL,1,8)
-        self.scanLayout.addWidget(self.yVoltageL,1,9)
-        self.scanLayout.addWidget(self.saveLocImage,3,2)
-        self.scanLayout.addWidget(self.saveLocImageL,3,1)
-        self.scanLayout.addWidget(self.saveTagImage,3,6)
-        self.scanLayout.addWidget(self.saveTagImageL,3,5)
-        self.scanLayout.addWidget(self.buttonScan,1,11)
-        self.scanLayout.addWidget(self.buttonVSet,2,11)
-        self.scanLayout.addWidget(self.buttonSaveImage,1,12)
-        self.scanLayout.addWidget(self.buttonImageHome,2,12)
-        self.scanLayout.addWidget(self.cbarMax,2,13)
-        self.scanLayout.addWidget(self.cbarMaxL,1,13)
-        self.scanLayout.addWidget(self.buttonCbarThresh,2,14)
-        self.scanLayout.addWidget(self.buttonLargeScan,1,14)
-        self.scanLayout.addWidget(self.buttonStop,1,15)
-        self.scanLayout.addWidget(self.autosaveCheck,2,15)
+        self.scanLayout.addWidget(self.buttonLoadScanRange,1,8)
+        self.scanLayout.addWidget(self.buttonLoadDefaulScanRange,2,8)
+        # execute commands
+        self.scanLayout.addWidget(self.buttonScan,1,14)
+        self.scanLayout.addWidget(self.buttonStop,2,14)
+
+
+        # laser position
+        self.scanLayout.addWidget(self.xVoltageL,1,9)
+        self.scanLayout.addWidget(self.xVoltage, 2,9)
+        self.scanLayout.addWidget(self.yVoltageL,1,10)
+        self.scanLayout.addWidget(self.yVoltage, 2,10)
+        self.scanLayout.addWidget(self.buttonRedrawLaser,3,9)
+        self.scanLayout.addWidget(self.buttonVSet,3,10)
+
+
+        # save image
+        self.scanLayout.addWidget(self.saveLocImageL,4,1)
+        self.scanLayout.addWidget(self.saveLocImage,4,2)
+
+        self.scanLayout.addWidget(self.saveTagImageL,4,3)
+        self.scanLayout.addWidget(self.saveTagImage,4,4)
+
+        self.scanLayout.addWidget(self.buttonSaveImage,4,5)
+        self.scanLayout.addWidget(self.autosaveCheck,4,6)
+
+
+
+        # set RoI and zoom
+        self.scanLayout.addWidget(self.buttonZoomOutRoI,1,11)
+        self.scanLayout.addWidget(self.buttonZoomInRoI,2,11)
+
+        # colar bar
+        self.scanLayout.addWidget(self.cbarMaxL,3,1)
+        self.scanLayout.addWidget(self.cbarMax,3,2)
+        self.scanLayout.addWidget(self.buttonCbarThresh,3,3)
+
+
+
+        # settings
         self.scanLayout.addWidget(self.buttonAPD,1,16)
 
 
 
-        self.scanLayout.addWidget(self.buttonRedrawLaser,3,8)
-        self.scanLayout.addWidget(self.buttonLoadScanRange,3,3)
-        self.scanLayout.addWidget(self.buttonSetRoI,3,4)
-        self.scanLayout.addWidget(self.buttonAutofocusRoI,3,16)
+        # autofocus settings
         self.scanLayout.addWidget(self.zPosL,3,13)
         self.scanLayout.addWidget(self.zPos,4,13)
         self.scanLayout.addWidget(self.zRangeL,3,14)
         self.scanLayout.addWidget(self.zRange,4,14)
         self.scanLayout.addWidget(self.zPtsL,3,15)
         self.scanLayout.addWidget(self.zPts,4,15)
+        self.scanLayout.addWidget(self.buttonAutofocusRoI,3,16)
 
         vbox.addLayout(self.scanLayout)
         self.imageData = None
 
         self.imPlot.mpl_connect('button_press_event', self.mouseNVImage)
         rectprops = dict(facecolor = 'black', edgecolor = 'black', alpha = 1.0, fill = True)
-        self.RS = RectangleSelector(self.imPlot.axes, self.draw_RoI, button = 3, drawtype='box', rectprops = rectprops)
+        self.RS = RectangleSelector(self.imPlot.axes, self.select_RoI, button = 3, drawtype='box', rectprops = rectprops)
 
         self.circ = None # marker for laser
         self.rect = None # marker for RoI
@@ -377,9 +401,11 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         zMin, zMax = zo - dz/2., zo + dz/2.
         print self.RoI
-        a = focusing.Focus.scan(zMin, zMax, zPts, 'Z', waitTime = .1, APD=True, scan_range_roi = self.RoI)
+        voltage_focus = focusing.Focus.scan(zMin, zMax, zPts, 'Z', waitTime = .1, APD=True, scan_range_roi = self.RoI)
 
-    def draw_RoI(self,eclick,erelease):
+        self.zPos.setText('{:0.4f}'.format(voltage_focus))
+
+    def select_RoI(self,eclick,erelease):
 
 
         self.RoI = min_max_to_roi(
@@ -391,8 +417,8 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         self.RoI.update({"xPts": int(self.xPts.text())})
         self.RoI.update({"yPts": int(self.yPts.text())})
-        print self.RoI
-        self.show_RoI()
+
+        self.draw_RoI()
         # self.xVoltageMin.setText(str(min(eclick.xdata,erelease.xdata)))
         # self.yVoltageMin.setText(str(min(eclick.ydata,erelease.ydata)))
         # self.xVoltageMax.setText(str(max(eclick.xdata, erelease.xdata)))
@@ -403,15 +429,6 @@ class ApplicationWindow(QtGui.QMainWindow):
         # if(not self.circ==None):
         #     self.drawDot()
         # self.imPlot.draw()
-
-    def show_RoI(self):
-        if(not self.rect==None):
-            self.rect.remove()
-
-        self.rect = patches.Rectangle((self.RoI['xo']-self.RoI['dx']/2., self.RoI['yo']-self.RoI['dy']/2.),
-                                      width = self.RoI['dx'], height = self.RoI['dy'] , fc = 'none' , ec = 'r')
-        self.imPlot.axes.add_patch(self.rect)
-        self.imPlot.draw()
 
     def zoom_RoI(self):
         self.setRoI(self.RoI)
@@ -485,9 +502,32 @@ class ApplicationWindow(QtGui.QMainWindow):
         xrange = self.imPlot.axes.get_xlim()[1]-self.imPlot.axes.get_xlim()[0]
         yrange = self.imPlot.axes.get_ylim()[1]-self.imPlot.axes.get_ylim()[0]
         size= .01*min(xrange,yrange)
-        self.circ = patches.Circle((self.xVoltage.text(), self.yVoltage.text()), size, fc = 'g')
-        self.imPlot.axes.add_patch(self.circ)
-        self.imPlot.draw()
+
+        # if a point had been selected draw it
+        # if (xVoltage.text() != '' and yVoltage.text() != ''):
+        try:
+            self.circ = patches.Circle((self.xVoltage.text(), self.yVoltage.text()), size, fc = 'g')
+            self.imPlot.axes.add_patch(self.circ)
+            self.imPlot.draw()
+        except:
+            pass
+
+    def draw_RoI(self):
+        if(not self.rect==None):
+            self.rect.remove()
+
+        # if RoI exists, draw it
+        try:
+            self.rect = patches.Rectangle((self.RoI['xo']-self.RoI['dx']/2., self.RoI['yo']-self.RoI['dy']/2.),
+                                          width = self.RoI['dx'], height = self.RoI['dy'] , fc = 'none' , ec = 'r')
+            self.imPlot.axes.add_patch(self.rect)
+            self.imPlot.draw()
+        except:
+            pass
+
+    def drawDot_RoI(self):
+        self.drawDot()
+        self.draw_RoI()
 
     def loadSettings(self, filename = None):
 
