@@ -29,7 +29,7 @@ def locate_NVs(image, voltage_range):
 
     #finds local maxima in smoothed images, corresponding to center of NVs
     coordinates = skimage.feature.peak_local_max(image_gaussian, MIN_SEPARATION*scaling, exclude_border=False)
-    return coordinates
+    return np.array(coordinates,dtype=float)
 
 
 def corr_NVs(baseline_image, new_image):
@@ -87,10 +87,25 @@ def shift_points(points, (x_shift, y_shift)):
     points[:,1] += y_shift
     return points
 
+def shift_points_v(points, roi, (x_shift, y_shift)):
+    """
+    Shifts a point or array of points by the input shift values, with the point input and output in volts
+    :param points: input point or array of points in volts
+    :param shift: tuple of x and y shift of images in pixels
+    :return: shifted point(s) in volts
+    """
+    x_shift_v = x_shift * roi['dx'] / roi['xPts']
+    y_shift_v = y_shift * roi['dy'] / roi['yPts']
+
+    points[:,0] += x_shift_v
+    points[:,1] += y_shift_v
+    return points
+
+
 def pixel_to_voltage(points, image, roi):
     # convert shift from pixels to volts
-    points[:,0] = (points[:,0] - len(image[0])/2) * roi['dx'] / roi['xPts'] + roi['x0']
-    points[:,1] = (points[:,1] - len(image)/2) * roi['dy'] / roi['yPts'] + roi['y0']
+    points[:,0] = (points[:,0] - len(image[0])/2) * roi['dx'] / roi['xPts'] + roi['xo']
+    points[:,1] = (points[:,1] - len(image)/2) * roi['dy'] / roi['yPts'] + roi['yo']
     return points
 
 def locate_shifted_NVs(image, coordinates, (x_shift, y_shift), new_roi):
@@ -109,6 +124,7 @@ def locate_shifted_NVs(image, coordinates, (x_shift, y_shift), new_roi):
 #image2 = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_19-11-24-NVBaselineTests.csv")
 #image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_17-33-14-NVBaselineTests.csv")
 #image2 = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_17-41-10-NVBaselineTests.csv")
+
 
 #image_np = image.as_matrix()
 #image2_np = image2.as_matrix()

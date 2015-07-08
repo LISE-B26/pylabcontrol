@@ -9,10 +9,19 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import json
+from os import listdir
+from os.path import isfile, join
+
+"""
+Tests track_NVs.py by getting a baseline image, then cycling through waiting, checking shift, refocusing, rechecking
+shift, then saving final image to later manually check how it has shifted relative to the initial image and see
+how well the correlations work
+"""
+
 
 PATH = 'Z:\\Lab\\Cantilever\\Measurements\\150707_NV_Tracking_Test'
-TAG = 'TEST_1'
-WAIT_TIME = 600
+TAG = 'TEST_OVERNIGHT'
+WAIT_TIME = 1800
 FOCUS_DEVIATION = 5
 
 def writeArray(img, roi, dirpath, tag, columns = None):
@@ -25,12 +34,13 @@ def writeArray(img, roi, dirpath, tag, columns = None):
     filepathCSV = dirpath + "\\" + start_time + '_' + tag + '.csv'
     filepathPNG = dirpath + "\\" + start_time + '_' + tag + '.png'
     df.to_csv(filepathCSV, index = False, header=header)
-    plt.implot(img)
+    plt.imshow(img)
     plt.savefig(str(filepathPNG), format = 'png')
 
     filepathROI = dirpath + "\\" + start_time + '_' + tag + '.roi'
     with open(filepathROI, 'w') as outfile:
         json.dump(roi, outfile, indent = 4)
+
 
 def setDaqPt(xVolt,yVolt):
     initPt = np.transpose(np.column_stack((xVolt, yVolt)))
@@ -42,55 +52,85 @@ def setDaqPt(xVolt,yVolt):
     pointthread.stop()
 
 
+def run_test():
+    roi = {
+        "dx": 0.10,
+        "dy": 0.10,
+        "xPts": 120,
+        "xo": 0.0,
+        "yPts": 120,
+        "yo": 0.0,
+        "focus": 36.5
+    }
 
-roi = {
-    "dx": 0.05,
-    "dy": 0.05,
-    "xPts": 120,
-    "xo": 0.0,
-    "yPts": 120,
-    "yo": 0.0
-}
+    focus_roi = {
+        "dx": 0.02,
+        "dy": 0.02,
+        "xPts": 20,
+        "xo": 0.0,
+        "yPts": 20,
+        "yo": 0.0
+    }
 
-focus_roi = {
-    "dx": 0.02,
-    "dy": 0.02,
-    "xPts": 20,
-    "xo": 0.0,
-    "yPts": 20,
-    "yo": 0.0
-}
-
-scanner = ScanAPD.ScanNV(roi['x0']-roi['dx']/2,roi['x0']+roi['dx']/2,roi['xPts'],roi['y0']-roi['dy']/2,roi['y0']+roi['dy']/2,roi['yPts'],.001)
-baseline_img = scanner.scan()
-setDaqPt(0,0)
-writeArray(baseline_img,roi, PATH, TAG)
-
-while True:
-    time.sleep(WAIT_TIME)
-
-    scanner = ScanAPD.ScanNV(roi['x0']-roi['dx']/2,roi['x0']+roi['dx']/2,roi['xPts'],roi['y0']-roi['dy']/2,roi['y0']+roi['dy']/2,roi['yPts'],.001)
-    new_img = scanner.scan()
+    scanner = ScanAPD.ScanNV(roi['xo']-roi['dx']/2,roi['xo']+roi['dx']/2,roi['xPts'],roi['yo']-roi['dy']/2,roi['yo']+roi['dy']/2,roi['yPts'],.001)
+    baseline_img = scanner.scan()
     setDaqPt(0,0)
+    writeArray(baseline_img,roi, PATH, TAG)
 
-    shift = track.corr_NVs(baseline_img,new_img)
-    roi = track.update_roi(roi, shift)
-    focus_roi = track.update_roi(focus_roi, shift)
+    while True:
+        print("waiting")
+        time.sleep(WAIT_TIME)
 
-    zController = PC.MDT693A('Z')
-    current_focus = zController.getVoltage()
-    f.Focus.scan(current_focus - FOCUS_DEVIATION, current_focus + FOCUS_DEVIATION, 40, 'Z', focus_roi)
+        print("scanning")
+        scanner = ScanAPD.ScanNV(roi['xo']-roi['dx']/2,roi['xo']+roi['dx']/2,roi['xPts'],roi['yo']-roi['dy']/2,roi['yo']+roi['dy']/2,roi['yPts'],.001)
+        new_img = scanner.scan()
+        setDaqPt(0,0)
 
-    scanner = ScanAPD.ScanNV(roi['x0']-roi['dx']/2,roi['x0']+roi['dx']/2,roi['xPts'],roi['y0']-roi['dy']/2,roi['y0']+roi['dy']/2,roi['yPts'],.001)
-    new_img2 = scanner.scan()
-    setDaqPt(0,0)
+        print("correlating")
+        shift = track.corr_NVs(baseline_img,new_img)
+        roi = track.update_roi(roi, shift)
+        focus_roi = track.update_roi(focus_roi, shift)
 
-    shift2 = track.corr_NVs(baseline_img, new_img2)
-    roi = track.update_roi(roi, shift2)
-    focus_roi = track.update_roi(focus_roi, shift2)
+        print("focusing")
+        zController = PC.MDT693A('Z')
+        current_focus = zController.getVoltage()
+        roi['focus'] = f.Focus.scan(current_focus - FOCUS_DEVIATION, current_focus + FOCUS_DEVIATION, 10, 'Z', scan_range_roi=focus_roi, plotting=False)
 
-    scanner = ScanAPD.ScanNV(roi['x0']-roi['dx']/2,roi['x0']+roi['dx']/2,roi['xPts'],roi['y0']-roi['dy']/2,roi['y0']+roi['dy']/2,roi['yPts'],.001)
-    shifted_img = scanner.scan()
-    setDaqPt(0,0)
+        print("scanning2")
+        scanner = ScanAPD.ScanNV(roi['xo']-roi['dx']/2,roi['xo']+roi['dx']/2,roi['xPts'],roi['yo']-roi['dy']/2,roi['yo']+roi['dy']/2,roi['yPts'],.001)
+        new_img2 = scanner.scan()
+        setDaqPt(0,0)
 
-    writeArray(shifted_img, roi, PATH, TAG)
+        ("correlating2")
+        shift2 = track.corr_NVs(baseline_img, new_img2)
+        roi = track.update_roi(roi, shift2)
+        focus_roi = track.update_roi(focus_roi, shift2)
+
+        ("scanning3")
+        scanner = ScanAPD.ScanNV(roi['xo']-roi['dx']/2,roi['xo']+roi['dx']/2,roi['xPts'],roi['yo']-roi['dy']/2,roi['yo']+roi['dy']/2,roi['yPts'],.001)
+        shifted_img = scanner.scan()
+        setDaqPt(0,0)
+
+        writeArray(shifted_img, roi, PATH, TAG)
+
+def process_results():
+    xarray = []
+    yarray = []
+    files = [f.split('.dat')[0] for f in listdir(PATH) if isfile(join(PATH, f)) and f.endswith('TEST_OVERNIGHT.roi')]
+    for f in files:
+        filename = PATH + '\\' + f
+        with open(filename, 'r') as infile:
+            roi = json.load(infile)
+        xarray.append(roi['xo'])
+        yarray.append(roi['yo'])
+    time = np.linspace(0,26*22,27)
+    plt.plot(time, xarray,'k', label = 'x drift')
+    plt.plot(time, yarray,'r', label = 'y drift')
+    plt.ylim([-.03,.001])
+    plt.title('Drift over Time')
+    plt.xlabel('time (s)')
+    plt.ylabel('drift (V)')
+    plt.legend(loc = 'right')
+    plt.show()
+
+process_results()

@@ -114,14 +114,14 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
         if(plotting == True):
             if not fit_params[0] == -1: # check if fit failed
                 fit_data = lorentzian(freq_values, fit_params[0], fit_params[1], fit_params[2], fit_params[3])
-                converge_data = np.append(converge_data,np.std(esr_data-fit_data))
+                converge_data = np.append(converge_data,np.std(esr_avg-fit_data))
             else:
                 fit_data = None
                 converge_data = np.append(converge_data,0)
-            plot_esr(freq_values, esr_avg, fit_data = fit_data, converge_data = converge_data)
+            fig = plot_esr(freq_values, esr_avg, fit_data = fit_data, converge_data = converge_data)
     #mwgen.outputOff()
     plt.show()
-    return esr_avg, fit_params
+    return esr_avg, fit_params, fig
 '''
 def sweep_mw_and_count_APD(freq_voltage_array, dt):
     readthread = APDIn.ReadAPD("Dev1/ctr0", 1 / dt,
@@ -183,7 +183,7 @@ def plot_esr(freq_values, esr_data, fit_data = None, converge_data = None):
     plt.clf()
     if not (fit_data == None or converge_data == None): # plot esr, fit, and convergence data
         scan_array = np.linspace(1,len(converge_data),len(converge_data))
-        plt.figure(1)
+        fig = plt.figure(1)
         plt.subplot(211)
         plt.plot(freq_values, esr_data, freq_values, fit_data)
         plt.title('ESR')
@@ -225,17 +225,23 @@ def plot_esr(freq_values, esr_data, fit_data = None, converge_data = None):
         plt.pause(.1) #required to force figure update, otherwise window hangs before displaying plot
     else: # if called from outside esr_run, runs static plot
         plt.show()
+    if not (fit_data == None):
+        return fig
+    else:
+        return None
 
 # defines a lorentzian with some amplitude, width, center, and offset to use with opt.curve_fit
 def lorentzian(x, amplitude, width, center, offset):
     return (-(amplitude*(.5*width)**2)/((x-center)**2+(.5*width)**2))+offset
 
 # saves the esr_data to a timestamped file in the dirpath with a tag
-def save_esr(esr_data, dirpath, tag = "", saveImage = True):
+def save_esr(esr_data, fig, dirpath, tag = "", saveImage = True):
     df = pd.DataFrame(esr_data)
     start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
     filepathCSV = dirpath + "\\" + start_time + '_' + tag + '.csv'
     df.to_csv(filepathCSV)
+    filepathPNG = dirpath + "\\" + start_time + '_' + tag + '.png'
+    fig.savefig(filepathPNG, format='png')
 
 #EXAMPLE ESR CODE
 
@@ -244,8 +250,8 @@ def save_esr(esr_data, dirpath, tag = "", saveImage = True):
 RF_Power = -12
 avg = 100
 test_freqs = np.linspace(2820000000, 2920000000, 200)
-esr_data, fit_params = run_esr(RF_Power, test_freqs, num_avg=avg, int_time=.002)
-dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150629_Diamond_ramp_on_cpw_with_mags\\ESR_measurements'
+esr_data, fit_params, fig = run_esr(RF_Power, test_freqs, num_avg=avg, int_time=.002)
+dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150707_Diamond_Ramp_Over_Mags'
 tag = 'NV1_RFPower_{:03d}mdB_NumAvrg_{:03d}'.format(RF_Power, avg)
 
-save_esr(esr_data, dirpath, tag)
+save_esr(esr_data, fig, dirpath, tag)

@@ -37,8 +37,9 @@ class Focus:
     # waitTime: wait time (in seconds) between each point. If this is set too low for an oil-immersion lens, the oil
     #   won't have time to settle between points and the results will be poor
     # canvas: Pass in a backends canvas to plot to the gui, otherwise plots using pyplot
+    # return: returns voltage to set it to
     @classmethod
-    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True, scan_range_roi = None):
+    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True, scan_range_roi = None, plotting = True):
         assert(minV >= 1 and maxV <= 99)
 
         if scan_range_roi == None:
@@ -89,24 +90,25 @@ class Focus:
 
         piezo = PiezoController.MDT693A(piezoChannel)
         # initializes pyplot figure if using pyplot plotting
-        if canvas is None:
+        if canvas is None and plotting:
             fig = plt.figure()
             axes = fig.add_subplot(1,3,1)
             axes_img = fig.add_subplot(1,3,2)
             axes_img_best = fig.add_subplot(1,3,3)
             plt.ion()
-        else:
+        elif plotting:
             axes = canvas.axes
         # plots junk data to initialize lines used later
-        dat=[-1,0]
-        dat2 = [0,0]
-        datline,fitline = axes.plot(dat,dat2,dat,dat2)
-        axes.set_xlim([minV-1,maxV+1])
-        plt.xlabel(piezoChannel + ' Piezo Voltage [V]')
-        plt.ylabel('Image Standard Deviation [V]')
-        plt.title('Auto-focusing')
-        #axes.set_ylim([0,10])
-        cls.updatePlot(canvas)
+        if plotting:
+            dat=[-1,0]
+            dat2 = [0,0]
+            datline,fitline = axes.plot(dat,dat2,dat,dat2)
+            axes.set_xlim([minV-1,maxV+1])
+            plt.xlabel(piezoChannel + ' Piezo Voltage [V]')
+            plt.ylabel('Image Standard Deviation [V]')
+            plt.title('Auto-focusing')
+            #axes.set_ylim([0,10])
+            cls.updatePlot(canvas)
         for voltage in voltRange:
             piezo.setVoltage(voltage)
             time.sleep(waitTime)
@@ -118,13 +120,14 @@ class Focus:
             xdata.append(voltage)
             ydata.append(scipy.ndimage.measurements.standard_deviation(image))
             print(scipy.ndimage.measurements.standard_deviation(image))
-            cls.plotData(datline, xdata, ydata, canvas, axes)
+            if plotting:
+                cls.plotData(datline, xdata, ydata, canvas, axes)
 
-            cls.plotImg(image, canvas, axes_img)
+                cls.plotImg(image, canvas, axes_img)
 
-            if ydata[-1] == max(ydata): image_best = image
+                if ydata[-1] == max(ydata): image_best = image
 
-            cls.plotImg(image_best, canvas, axes_img_best)
+                cls.plotImg(image_best, canvas, axes_img_best)
 
 
 
@@ -133,7 +136,8 @@ class Focus:
 
         cls.setDaqPt(xInit, yInit)
         (a,mean,sigma,c),_ = cls.fit(voltRange, ydata)
-        cls.plotFit(fitline,a,mean,sigma,c,minV,maxV, canvas)
+        if plotting:
+            cls.plotFit(fitline,a,mean,sigma,c,minV,maxV, canvas)
         # checks if computed mean is outside of scan range and, if so, sets piezo to center of scan range to prevent a
         # poor fit from trying to move the piezo by a large amount and breaking the stripline
         if(mean > numpy.min(voltRange) and mean < numpy.max(voltRange) and a > 0):
@@ -141,7 +145,7 @@ class Focus:
             print(mean)
         else:
             piezo.setVoltage(numpy.mean(voltRange))
-        if canvas is None:
+        if canvas is None and plotting:
             plt.show()
         return mean
 

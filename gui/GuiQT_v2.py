@@ -22,10 +22,12 @@ import matplotlib.patches as patches
 from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+import scipy.spatial
 
 import json
 import functions.Focusing as focusing
 from functions.regions import *
+from functions import track_NVs as track
 
 from gui import GuiDeviceTriggers as DeviceTriggers, PlotAPDCounts
 
@@ -178,6 +180,20 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.zPtsL = QtGui.QLabel(self.main_widget)
         self.zPtsL.setText('pts auto focus')
         self.zPts = QtGui.QLineEdit(self.main_widget)
+        self.xyRange = QtGui.QLineEdit(self.main_widget)
+        self.xyRangeL = QtGui.QLabel(self.main_widget)
+        self.xyRangeL.setText('pts focus range')
+
+        self.buttonESRSequence = QtGui.QPushButton("Choose NVs", self.main_widget)
+        self.buttonESRFinished = QtGui.QPushButton("FinishedChoosing", self.main_widget)
+        self.esrSaveLocL = QtGui.QLabel(self.main_widget)
+        self.esrSaveLocL.setText("ESR Save Location")
+        self.esrSaveLoc = QtGui.QLineEdit(self.main_widget)
+        self.esrSaveLoc.setText('Z:\\Lab\\Cantilever\\Measurements')
+        self.esrReadLocL = QtGui.QLabel(self.main_widget)
+        self.esrReadLocL.setText("ESR Read Location")
+        self.esrReadLoc = QtGui.QLineEdit(self.main_widget)
+        self.buttonESRRun = QtGui.QPushButton("Run ESR", self.main_widget)
 
         #set initial values for scan values
         # self.loadRoI('Z://Lab//Cantilever//Measurements//default_settings.config')
@@ -249,6 +265,8 @@ class ApplicationWindow(QtGui.QMainWindow):
 
 
         # autofocus settings
+        self.scanLayout.addWidget(self.xyRangeL,3,12)
+        self.scanLayout.addWidget(self.xyRange,4,12)
         self.scanLayout.addWidget(self.zPosL,3,13)
         self.scanLayout.addWidget(self.zPos,4,13)
         self.scanLayout.addWidget(self.zRangeL,3,14)
@@ -257,10 +275,25 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.scanLayout.addWidget(self.zPts,4,15)
         self.scanLayout.addWidget(self.buttonAutofocusRoI,3,16)
 
-        vbox.addLayout(self.scanLayout)
-        self.imageData = None
+        self.scanLayout.addWidget(self.buttonESRSequence,5,1)
+        self.scanLayout.addWidget(self.buttonESRFinished,5,2)
+        self.scanLayout.addWidget(self.esrSaveLocL,5,3)
+        self.scanLayout.addWidget(self.esrSaveLoc,5,4)
+        self.scanLayout.addWidget(self.buttonESRRun,5,5)
+        self.scanLayout.addWidget(self.esrReadLocL,5,6)
+        self.scanLayout.addWidget(self.esrReadLoc,5,7)
+        self.buttonESRSequence.clicked.connect(self.start_esr_sequence)
+        self.buttonESRFinished.clicked.connect(self.finished_choosing)
+        self.buttonESRRun.clicked.connect(self.run_esr)
+        self.esr_running = False
 
-        self.imPlot.mpl_connect('button_press_event', self.mouseNVImage)
+        vbox.addLayout(self.scanLayout)
+        #self.imageData = None
+        self.imageData = numpy.array(pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-27_18-41-56-NVBaselineTests.csv"))
+        self.imPlot.axes.imshow(self.imageData, extent = [-.05,.05,-.05,.05])
+        self.imPlot.draw()
+
+        self.mouseNVImageConnect = self.imPlot.mpl_connect('button_press_event', self.mouseNVImage)
         rectprops = dict(facecolor = 'black', edgecolor = 'black', alpha = 1.0, fill = True)
         self.RS = RectangleSelector(self.imPlot.axes, self.select_RoI, button = 3, drawtype='box', rectprops = rectprops)
 
@@ -398,10 +431,14 @@ class ApplicationWindow(QtGui.QMainWindow):
         zo = float(self.zPos.text())
         dz = float(self.zRange.text())
         zPts = float(self.zPts.text())
+        xyPts = float(self.xyRange.text())
 
         zMin, zMax = zo - dz/2., zo + dz/2.
-        print self.RoI
-        voltage_focus = focusing.Focus.scan(zMin, zMax, zPts, 'Z', waitTime = .1, APD=True, scan_range_roi = self.RoI)
+        roi_focus = self.RoI.copy()
+        roi_focus['xPts'] = xyPts
+        roi_focus['yPts'] = xyPts
+        print roi_focus
+        voltage_focus = focusing.Focus.scan(zMin, zMax, zPts, 'Z', waitTime = .1, APD=True, scan_range_roi = roi_focus)
 
         self.zPos.setText('{:0.4f}'.format(voltage_focus))
 
@@ -537,6 +574,7 @@ class ApplicationWindow(QtGui.QMainWindow):
             settings = json.load(infile)
 
         self.setRoI(settings)
+        self.xyRange.setText('{:d}'.format(settings['xyRange']))
         self.zPts.setText('{:d}'.format(settings['zPts']))
         self.zPos.setText('{:0.5f}'.format(settings['zPos']))
         self.zRange.setText('{:0.5f}'.format(settings['dz']))
@@ -556,6 +594,11 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         self.statusBar().showMessage('loaded {:s}'.format(roi_filename),0)
 
+    def saveRoI(self, roi, roi_filename):
+
+        with open(roi_filename, 'w') as outfile:
+            roi = json.dump(roi, outfile)
+
     def setRoI(self, roi):
         print roi
         xmin, xmax, ymin, ymax = roi_to_min_max(roi)
@@ -570,8 +613,96 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.xPts.setText('{:d}'.format(roi['xPts']))
         self.yPts.setText('{:d}'.format(roi['xPts']))
         self.timePerPt.setText('.001')
+        self.RoI = roi
+
+    def start_esr_sequence(self):
+        print(self.esr_running)
+        if self.esr_running == True:
+            self.imPlot.mpl_disconnect(self.chooseNVsConnect)
+        self.esr_running = True
+        self.esr_select_patches = []
+        coordinates = track.locate_NVs(self.imageData, self.RoI['dx'])
+        coordinates[:,[0,1]] = coordinates[:,[1,0]]
+        coordinates_v = track.pixel_to_voltage(coordinates, self.imageData,self.RoI)
+        for pt in coordinates_v:
+            circ = patches.Circle((pt[0], pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'r')
+            self.imPlot.axes.add_patch(circ)
+        self.imPlot.draw()
+        self.imPlot.mpl_disconnect(self.mouseNVImageConnect)
+        self.chooseNVsConnect = self.imPlot.mpl_connect('button_press_event', lambda x: self.chooseNVs(x, coordinates_v))
+        self.esr_NVs = list()
+        self.choosingNVs = True
+        while self.choosingNVs:
+            QtGui.QApplication.processEvents()
+            time.sleep(.05)
+        self.imPlot.mpl_disconnect(self.chooseNVsConnect)
+        self.mouseNVImageConnect = self.imPlot.mpl_connect('button_press_event', self.mouseNVImage)
+        QtGui.QApplication.processEvents()
+        nv_num = 1
+        for nv_pt in self.esr_NVs:
+            self.imPlot.axes.text(nv_pt[0], nv_pt[1], ' ' + str(nv_num), color = 'k')
+            nv_num += 1
+        df = pd.DataFrame(self.esr_NVs)
+        dfimg = pd.DataFrame(self.imageData)
+        dirpath = self.esrSaveLoc.text()
+        start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+        filepathCSV = dirpath + "\\" + start_time + '.csv'
+        filepathImg = dirpath + "\\" + start_time + 'baselineimg.csv'
+        filepathJPG = dirpath + "\\" + start_time + '.jpg'
+        filepathRoI = dirpath + "\\" + start_time + '.roi'
+        df.to_csv(filepathCSV, index = False, header=False)
+        dfimg.to_csv(filepathImg, index = False, header=False)
+        self.imPlot.fig.savefig(str(filepathJPG), format = 'jpg')
+        self.saveRoI(self.RoI, filepathRoI)
+        self.esr_running = False
+
+    def chooseNVs(self, event, coordinates):
+        if(not(event.xdata == None)):
+            if(event.button == 1):
+                pt = numpy.array([event.xdata,event.ydata])
+                tree = scipy.spatial.KDTree(coordinates)
+                _,i = tree.query(pt)
+                nv_pt = coordinates[i].tolist()
+                if (nv_pt in self.esr_NVs):
+                    self.esr_NVs.remove(nv_pt)
+                    for circ in self.esr_select_patches:
+                        if (nv_pt == numpy.array(circ.center)).all():
+                            self.esr_select_patches.remove(circ)
+                            circ.remove()
+                            break
+                else:
+                    self.esr_NVs.append(nv_pt)
+                    circ = patches.Circle((nv_pt[0], nv_pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'b')
+                    self.imPlot.axes.add_patch(circ)
+                    self.esr_select_patches.append(circ)
+                self.imPlot.draw()
 
 
+    def finished_choosing(self):
+        self.choosingNVs = False
+        print(self.esr_NVs)
+
+    def run_esr(self):
+        nv_locs = numpy.array(pd.read_csv(str(self.esrReadLoc.text()) + '.csv'))
+        img_baseline = numpy.array(pd.read_csv(str(self.esrReadLoc.text()) + 'baselineimg.csv'))
+        self.loadRoI(str(self.esrReadLoc.text()) + '.roi')
+        esr_num = 0
+        RF_Power = -12
+        avg = 100
+        while esr_num < len(nv_locs):
+            xmin, xmax, ymin, ymax = roi_to_min_max(self.RoI)
+            img_new = DeviceTriggers.scanGui(self.imPlot, xmin, xmax, self.RoI['xPts'], ymin, ymax, self.RoI['xPts'], .001)
+            shift = track.corr_NVs(img_baseline, img_new)
+            self.RoI = track.update_roi(self.RoI, shift)
+            nv_locs = track.shift_points_v(nv_locs, self.RoI, shift)
+            pt = nv_locs[esr_num]
+            test_freqs = numpy.linspace(2820000000, 2920000000, 200)
+            #esr_data, fit_params, fig = track.run_esr(RF_Power, test_freqs, pt, num_avg=avg, int_time=.002)
+            dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150708_Diamond_Ramp_Over_Mags'
+            tag = 'NV{:00d}_RFPower_{:03d}mdB_NumAvrg_{:03d}'.format(esr_num, RF_Power, avg)
+            print(pt)
+            #track.save_esr(esr_data, fig, dirpath, tag)
+            esr_num += 1
 
     def writeArray(self, array, dirpath, tag, columns = None):
         df = pd.DataFrame(array, columns = columns)

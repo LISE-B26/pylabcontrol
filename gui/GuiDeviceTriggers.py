@@ -13,7 +13,7 @@ def ZIGui(canvas, amp, offset, freqLow, freqHigh, sampleNum, samplePerPt, xScale
     data = zi.sweep(freqLow, freqHigh, sampleNum, samplePerPt, xScale=0)
     return data
 
-def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt, queue, APD = True):
+def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt, queue = None, APD = True):
     if(APD):
         scanner = ScanAPD.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
     else:
