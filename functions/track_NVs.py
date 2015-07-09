@@ -7,13 +7,15 @@ import skimage.feature
 from skimage import data, img_as_float
 import pandas as pd
 from matplotlib.patches import Rectangle
+import scipy.spatial
 
 #Baseline Values chosen for Nikon 100x, NA=.9 objective, may need to be adjusted for other objectives
 MIN_SEPARATION = 5
 GAUSSIAN_SIGMA = 1
 REF_VOLTAGE_RANGE = .15
+REF_PIXEL_NUM = 120
 
-def locate_NVs(image, voltage_range):
+def locate_NVs(image, voltage_range, numPts):
     """
     # Locates NVs in an image by smoothing with a gaussian filter and finding intensity maxima. Returns coordinates of
     # NVs in pixels
@@ -22,13 +24,13 @@ def locate_NVs(image, voltage_range):
     :return: coordinates of NVs in pixels
     """
     # scales Gaussian filter size based on current pixel to voltage scaling
-    scaling = REF_VOLTAGE_RANGE/voltage_range
+    scaling = (REF_VOLTAGE_RANGE/voltage_range)*(numPts/REF_PIXEL_NUM)
 
     # convolves image with a gaussian filter to smooth peaks and prevent many local maxima
     image_gaussian = ndimage.gaussian_filter(image, GAUSSIAN_SIGMA*scaling, mode='reflect')
 
     #finds local maxima in smoothed images, corresponding to center of NVs
-    coordinates = skimage.feature.peak_local_max(image_gaussian, MIN_SEPARATION*scaling, exclude_border=False)
+    coordinates = skimage.feature.peak_local_max(image_gaussian, MIN_SEPARATION*scaling, exclude_border=False, threshold_rel=0, threshold_abs=30)
     return np.array(coordinates,dtype=float)
 
 
@@ -40,17 +42,17 @@ def corr_NVs(baseline_image, new_image):
     :return: shift from baseline image to new image in pixels
     """
     # subtracts mean to sharpen each image and sharpen correlation
-    baseline_image -= baseline_image.mean()
-    new_image -= new_image.mean()
+    baseline_image_sub = baseline_image - baseline_image.mean()
+    new_image_sub = new_image - new_image.mean()
 
     #takes center part of baseline image
-    x_len = len(baseline_image[0])
-    y_len = len(baseline_image)
-    old_image = baseline_image[(x_len/4):(x_len*3/4),(y_len/4):(y_len*3/4)]
+    x_len = len(baseline_image_sub[0])
+    y_len = len(baseline_image_sub)
+    old_image = baseline_image_sub[(x_len/4):(x_len*3/4),(y_len/4):(y_len*3/4)]
 
     # correlate with new image. mode='valid' ignores all correlation points where an image is out of bounds. if baseline
     # and new image are NxN, returns a (N/2)x(N/2) correlation
-    corr = signal.correlate2d (new_image, old_image, boundary='fill', mode='valid')
+    corr = signal.correlate2d (new_image_sub, old_image, boundary='fill', mode='valid')
     y, x = np.unravel_index(np.argmax(corr), corr.shape) # find the match
 
     # finds shift by subtracting center of initial coordinates, x_shift = x + (x_len/4) - (x_len/2)
@@ -108,26 +110,35 @@ def pixel_to_voltage(points, image, roi):
     points[:,1] = (points[:,1] - len(image)/2) * roi['dy'] / roi['yPts'] + roi['yo']
     return points
 
-def locate_shifted_NVs(image, coordinates, (x_shift, y_shift), new_roi):
-    x_shift_v = x_shift * new_roi['dx'] / new_roi['xPts']
-    y_shift_v = y_shift * new_roi['dy'] / new_roi['yPts']
-
-    coordinates[:,0] += x_shift_v
-    coordinates[:,1] += y_shift_v
-
-    new_NVs = locate_NVs(image, new_roi['dx'])
-
+def locate_shifted_NVs(image, shifted_coordinates, new_roi):
+    #print(shifted_coordinates)
+    #new_NVs = locate_NVs(image, new_roi['dx'], new_roi['xPts'])
+    new_NVs = locate_NVs(image, .05, 120)
+    #print(new_NVs)
+    tree = scipy.spatial.KDTree(new_NVs)
+    corr_array = list()
+    for pt in shifted_coordinates:
+        dist,i = tree.query(pt, distance_upper_bound = 10)
+        print(dist)
+        if i == len(new_NVs): # occurs when KDTree cannot find a nearest neighbor within distance_upper_bound
+            corr_array.append([0,0])
+        else:
+            corr_array.append(new_NVs[i])
+    print(corr_array)
+    return corr_array
 
 #image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-43-58-NVBaselineTests.csv")
 #image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-27_16-53-09-NVBaseline.csv")
-#image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-51-59-NVBaselineTests.csv")
-#image2 = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_19-11-24-NVBaselineTests.csv")
+image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-51-59-NVBaselineTests.csv")
+image2 = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_19-11-24-NVBaselineTests.csv")
 #image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_17-33-14-NVBaselineTests.csv")
 #image2 = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_17-41-10-NVBaselineTests.csv")
+#image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\20150709_Diamond_Ramp_Over_Mags_heat_Magnets_old\\2015-07-09_11-05-59_Marker_18_2.csv")
 
 
-#image_np = image.as_matrix()
-#image2_np = image2.as_matrix()
+image_np = image.values
+image_np.astype(float)
+image2_np = image2.as_matrix()
 
 #image_np -= image_np.mean()
 #image2_np -= image2_np.mean()
@@ -136,10 +147,37 @@ def locate_shifted_NVs(image, coordinates, (x_shift, y_shift), new_roi):
 #print(x_shift)
 #print(y_shift)
 
+#roi = {
+#    'dx': .05,
+#    'xPts': 120
+#}
+
+#fig, ax = plt.subplots(1, 3, figsize=(8, 3))
+#ax1, ax2, ax3 = ax.ravel()
+#ax1.imshow(image_np, cmap=plt.cm.gray)
+#coor = locate_NVs(image_np, .05, 120)
+#ax1.autoscale(False)
+#ax1.plot(coor[:, 1], coor[:, 0], 'r.')
+#ax2.imshow(image2_np,cmap = plt.cm.gray)
+#coor2 = locate_NVs(image2_np, .05, 120)
+#ax2.autoscale(False)
+#ax2.plot(coor2[:, 1], coor2[:, 0], 'r.')
+#(x_shift,y_shift) = corr_NVs(image_np, image2_np)
+#coor = shift_points(coor, (y_shift,x_shift))
+#ax3.imshow(image2_np, cmap=plt.cm.gray)
+#ax3.autoscale(False)
+#ax3.plot(coor[:, 1], coor[:, 0], 'r.')
+#ax3.plot(coor2[:, 1], coor2[:, 0], 'b.')
+#print(coor)
+#print(coor2)
+#print(locate_shifted_NVs(image2_np, coor, roi))
+
+
+
 #fig, ax = plt.subplots(1, 4, figsize=(8, 4))
 #ax1, ax2, ax3, ax4 = ax.ravel()
-#ax1.imshow(orig, cmap=plt.cm.gray)
-#coor = locate_NVs(orig, .05)
+#ax1.imshow(image_np, cmap=plt.cm.gray)
+#coor = locate_NVs(image_np, .05, 120)
 #ax1.autoscale(False)
 #ax1.plot(coor[:, 1], coor[:, 0], 'r.')
 #ax2.imshow(corr, cmap=plt.cm.gray)
@@ -154,4 +192,4 @@ def locate_shifted_NVs(image, coordinates, (x_shift, y_shift), new_roi):
 #shifted_coor = shift_points(coor, (x_shift, y_shift))
 #print(shifted_coor)
 
-#plt.show()
+plt.show()

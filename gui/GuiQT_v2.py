@@ -697,6 +697,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         if self.esr_running == True:
             self.imPlot.mpl_disconnect(self.chooseNVsConnect)
         self.esr_running = True
+        self.statusBar().showMessage("Choose NVs for ESR", 0)
         self.esr_select_patches = []
         coordinates = track.locate_NVs(self.imageData, self.RoI['dx'])
         coordinates[:,[0,1]] = coordinates[:,[1,0]]
@@ -723,14 +724,17 @@ class ApplicationWindow(QtGui.QMainWindow):
         dfimg = pd.DataFrame(self.imageData)
         dirpath = self.esrSaveLoc.text()
         start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
-        filepathCSV = dirpath + "\\" + start_time + '.csv'
-        filepathImg = dirpath + "\\" + start_time + 'baselineimg.csv'
-        filepathJPG = dirpath + "\\" + start_time + '.jpg'
-        filepathRoI = dirpath + "\\" + start_time + '.roi'
+        filepath = dirpath + "\\" + start_time
+        filepathCSV = filepath + '.csv'
+        filepathImg = filepath + 'baselineimg.csv'
+        filepathJPG = filepath + '.jpg'
+        filepathRoI = filepath + '.roi'
         df.to_csv(filepathCSV, index = False, header=False)
         dfimg.to_csv(filepathImg, index = False, header=False)
         self.imPlot.fig.savefig(str(filepathJPG), format = 'jpg')
         self.saveRoI(self.RoI, filepathRoI)
+        self.esrReadLoc.setText(filepath)
+        self.statusBar().clearMessage()
         self.esr_running = False
 
     def chooseNVs(self, event, coordinates):
@@ -772,6 +776,24 @@ class ApplicationWindow(QtGui.QMainWindow):
             shift = track.corr_NVs(img_baseline, img_new)
             self.RoI = track.update_roi(self.RoI, shift)
             nv_locs = track.shift_points_v(nv_locs, self.RoI, shift)
+
+            zo = float(self.zPos.text())
+            dz = float(self.zRange.text())
+            zPts = float(self.zPts.text())
+            xyPts = float(self.xyRange.text())
+            zMin, zMax = zo - dz/2., zo + dz/2.
+            roi_focus = self.RoI.copy()
+            roi_focus['dx'] = .005
+            roi_focus['dy'] = .005
+            roi_focus['xo'] = nv_locs[esr_num][0]
+            roi_focus['yo'] = nv_locs[esr_num][1]
+            roi_focus['xPts'] = xyPts
+            roi_focus['yPts'] = xyPts
+            print roi_focus
+            voltage_focus = focusing.Focus.scan(zMin, zMax, zPts, 'Z', waitTime = .1, APD=True, scan_range_roi = roi_focus)
+            self.zPos.setText('{:0.4f}'.format(voltage_focus))
+
+            nv_locs = track.locate_shifted_NVs(img_new, nv_locs, self.RoI)
             pt = nv_locs[esr_num]
             test_freqs = numpy.linspace(2820000000, 2920000000, 200)
             #esr_data, fit_params, fig = track.run_esr(RF_Power, test_freqs, pt, num_avg=avg, int_time=.002)

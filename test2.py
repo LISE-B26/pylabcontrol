@@ -1,7 +1,9 @@
 import numpy as np
 
-a = np.array([[1,2],[3,4]])
-a[:,0] += 1
-a[:,1] += 2
+a = np.array([2,2])
+
+b = np.array([1,1])
+
+np.append(a,b)
 
 print(a)
