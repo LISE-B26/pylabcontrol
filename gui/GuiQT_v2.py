@@ -263,7 +263,6 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.scanLayout.addWidget(self.buttonCbarThresh,3,3)
 
 
-
         # settings
         self.scanLayout.addWidget(self.buttonAPD,1,16)
 
@@ -305,15 +304,21 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         # add button to execute script
         self.button_exec_script = QtGui.QPushButton('run script', self.main_widget)
-        self.button_exec_script.clicked.connect(self.vSetBtnClicked)
+        self.button_exec_script.clicked.connect(self.exec_scriptBtnClicked)
         self.scanLayout.addWidget(self.button_exec_script,6,16)
 
-        self.scriptLoc = QtGui.QLineEdit(self.main_widget)
-        self.scriptLoc.setText('Z:\\Lab\\Cantilever\\Measurements')
-        self.scanLayout.addWidget(self.scriptLoc,6,15)
-        self.esrSaveLocL = QtGui.QLabel(self.main_widget)
-        self.scriptLocL.setText("Script:")
-        self.scanLayout.addWidget(self.scriptLocL,6,14)
+        # add button to execute script
+        self.button_save_set = QtGui.QPushButton('save set', self.main_widget)
+        self.button_save_set.clicked.connect(lambda: self.save_settings())
+        self.scanLayout.addWidget(self.button_save_set,6,15)
+
+
+        # self.scriptLoc = QtGui.QLineEdit(self.main_widget)
+        # self.scriptLoc.setText('Z:\\Lab\\Cantilever\\Measurements')
+        # self.scanLayout.addWidget(self.scriptLoc,6,15)
+        # self.esrSaveLocL = QtGui.QLabel(self.main_widget)
+        # self.scriptLocL.setText("Script:")
+        # self.scanLayout.addWidget(self.scriptLocL,6,14)
 
         self.circ = None # marker for laser
         self.rect = None # marker for RoI
@@ -421,6 +426,37 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.plotBox.addWidget(self.esrPlot)
         self.esrQueue = Queue.Queue()
         '''
+
+
+
+    def exec_scriptBtnClicked(self):
+        '''
+            run script to repeatedly take images and set laser pointer to predefined location
+        '''
+        nr_meas = 20
+        i = 0
+        while i < nr_meas:
+            self.scanBtnClicked()
+            self.vSetBtnClicked()
+            self.saveImageClicked()
+
+
+            waittime = 60 # 1 min
+            while waittime > 0:
+                waittime -= 1
+                time.sleep(1)
+                self.statusBar().showMessage('scan {:d}/{:d}: time until next scan: {:d}s'.format(i, nr_meas, waittime),1000)
+                QtGui.QApplication.processEvents()
+
+            i += 1
+
+        dirpath = self.saveLocImage.text()
+        tag = self.saveTagImage.text()
+        start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+        filepath_set = dirpath + "\\" + start_time + '_' + tag + '.set'
+
+        self.save_settings(filepath_set)
+
 
     def StartCounterBtnClicked(self):
         apdPlotter = PlotAPDCounts.PlotAPD(self.counterPlot)
@@ -600,6 +636,29 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         self.statusBar().showMessage('loaded {:s}'.format(filename),0)
 
+    def save_settings(self, set_filename = 'Z://Lab//Cantilever//Measurements//default.set'):
+        '''
+         saves the setting
+        '''
+
+        set = {
+            "xVoltageMin": str(self.xVoltageMin.text()),
+            "xVoltageMax": str(self.xVoltageMax.text()),
+            "yVoltageMin": str(self.yVoltageMin.text()),
+            "yVoltageMax": str(self.yVoltageMax.text()),
+            "xPts": str(self.xPts.text()),
+            "yPts": str(self.yPts.text()),
+            "timePerPt": str(self.timePerPt.text()),
+            "xVoltage": str(self.xVoltage.text()),
+            "yVoltage": str(self.yVoltage.text()),
+            "saveLocImage": str(self.saveLocImage.text()),
+            "saveTagImage": str(self.saveTagImage.text()),
+            "cbarMax": str(self.cbarMax.text())
+        }
+
+        print set
+        with open(set_filename, 'w') as outfile:
+            tmp = json.dump(set, outfile, indent=4)
 
     def loadRoI(self, roi_filename = None):
 
