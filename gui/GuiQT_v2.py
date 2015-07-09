@@ -102,7 +102,11 @@ class ApplicationWindow(QtGui.QMainWindow):
             return QtCore.QSize(5000, 5000)
 
     def addScan(self, vbox, plotBox):
+
+
         self.imPlot = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
+
+
         self.xVoltageMin = QtGui.QLineEdit(self.main_widget)
         self.yVoltageMin = QtGui.QLineEdit(self.main_widget)
         self.xVoltageMax = QtGui.QLineEdit(self.main_widget)
@@ -130,6 +134,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.yPtsL.setText("Number of Y Points:")
         self.timePerPtL = QtGui.QLabel(self.main_widget)
         self.timePerPtL.setText("Timer Per Point:")
+
         self.saveLocImage = QtGui.QLineEdit(self.main_widget)
         self.saveLocImage.setText('Z:\\Lab\\Cantilever\\Measurements\\Images')
         self.saveLocImageL = QtGui.QLabel(self.main_widget)
@@ -296,6 +301,19 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.mouseNVImageConnect = self.imPlot.mpl_connect('button_press_event', self.mouseNVImage)
         rectprops = dict(facecolor = 'black', edgecolor = 'black', alpha = 1.0, fill = True)
         self.RS = RectangleSelector(self.imPlot.axes, self.select_RoI, button = 3, drawtype='box', rectprops = rectprops)
+
+
+        # add button to execute script
+        self.button_exec_script = QtGui.QPushButton('run script', self.main_widget)
+        self.button_exec_script.clicked.connect(self.vSetBtnClicked)
+        self.scanLayout.addWidget(self.button_exec_script,6,16)
+
+        self.scriptLoc = QtGui.QLineEdit(self.main_widget)
+        self.scriptLoc.setText('Z:\\Lab\\Cantilever\\Measurements')
+        self.scanLayout.addWidget(self.scriptLoc,6,15)
+        self.esrSaveLocL = QtGui.QLabel(self.main_widget)
+        self.scriptLocL.setText("Script:")
+        self.scanLayout.addWidget(self.scriptLocL,6,14)
 
         self.circ = None # marker for laser
         self.rect = None # marker for RoI
