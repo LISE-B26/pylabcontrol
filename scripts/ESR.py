@@ -27,7 +27,7 @@ MAX_MOD_VOLTAGE = +1 # full frequency range
 
 # Runs ESR, plotting it in pyplot and returning the data and lorentzian fit parameters
 def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_time = .001,
-            settle_time = .0002, plotting = True, canvas = None):
+            settle_time = .0002, plotting = True, queue = None, canvas = None):
     '''
     rf_power: Power (in dBm) of signal generator before amplification. Must not exceed 0 dBm. If none, uses current RF power.
     freq_values: array of frequency values (in Hz) to use for ESR. Usually generate outside of function using np.linspace.
@@ -230,6 +230,47 @@ def plot_esr(freq_values, esr_data, fit_data = None, converge_data = None):
     else:
         return None
 
+def plot_esr_gui(canvas, freq_values, esr_data, fit_data = None, converge_data = None):
+    esrplt = canvas.figure.clf()
+    if not (fit_data == None or converge_data == None): # plot esr, fit, and convergence data
+        scan_array = np.linspace(1,len(converge_data),len(converge_data))
+        fig = canvas.figure()
+        subfig1 = fig.axes
+        subfig1.plot(freq_values, esr_data, freq_values, fit_data)
+        subfig1.set_title('ESR')
+        subfig1.set_xlabel('Frequency (Hz)')
+        subfig1.set_ylabel('Kcounts/s')
+        subfig2 = fig.add_subplot(212)
+        subfig2.plot(scan_array, converge_data)
+        subfig2.set_title('Convergence Plot')
+        subfig2.set_xlabel('Scan Number')
+        subfig2.set_ylabel('Deviation from Fit')
+        #subfig1.SubplotParams()
+    elif not (converge_data == None): # plot esr and convergence, prevents entire plot disappearing when one fit fails
+        scan_array = np.linspace(1,len(converge_data),len(converge_data))
+        fig = canvas.figure()
+        subfig1 = fig.axes
+        subfig1.plot(freq_values, esr_data)
+        subfig1.set_title('ESR')
+        subfig1.set_xlabel('Frequency (Hz)')
+        subfig1.set_ylabel('Kcounts/s')
+        subfig2 = fig.add_subplot(212)
+        subfig2.plot(scan_array, converge_data)
+        subfig2.set_title('Convergence Plot')
+        subfig2.set_xlabel('Scan Number')
+        subfig2.set_ylabel('Deviation from Fit')
+        #subfig1.SubplotParams()
+    elif not (fit_data == None): # plot esr and fit data
+        canvas.plot(freq_values, esr_data, freq_values, fit_data)
+        canvas.set_title('ESR')
+        canvas.set_xlabel('Frequency (Hz)')
+        canvas.set_ylabel('Kcounts/s')
+    else: #plot just esr data
+        plt.plot(freq_values, esr_data)
+        plt.title('ESR')
+        plt.xlabel('Frequency (Hz)')
+        plt.ylabel('Kcounts/s')
+
 # defines a lorentzian with some amplitude, width, center, and offset to use with opt.curve_fit
 def lorentzian(x, amplitude, width, center, offset):
     return (-(amplitude*(.5*width)**2)/((x-center)**2+(.5*width)**2))+offset
@@ -243,15 +284,23 @@ def save_esr(esr_data, fig, dirpath, tag = "", saveImage = True):
     filepathPNG = dirpath + "\\" + start_time + '_' + tag + '.png'
     fig.savefig(filepathPNG, format='png')
 
+#def mw_soft_start(final_power, time, steps, roi):
+
+
+
+#def dBm_to_mW(power_dBm):
+#    return 10**(power_dBm)
+
+
 #EXAMPLE ESR CODE
 
 #sample usage to scan 200 frequency points between 2.82 and 2.92 GHz
 
-RF_Power = -12
-avg = 100
-test_freqs = np.linspace(2820000000, 2920000000, 200)
-esr_data, fit_params, fig = run_esr(RF_Power, test_freqs, num_avg=avg, int_time=.002)
-dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150707_Diamond_Ramp_Over_Mags'
-tag = 'NV1_RFPower_{:03d}mdB_NumAvrg_{:03d}'.format(RF_Power, avg)
+#RF_Power = -12
+#avg = 100
+#test_freqs = np.linspace(2820000000, 2920000000, 200)
+#esr_data, fit_params, fig = run_esr(RF_Power, test_freqs, num_avg=avg, int_time=.002)
+#dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150707_Diamond_Ramp_Over_Mags'
+#tag = 'NV1_RFPower_{:03d}mdB_NumAvrg_{:03d}'.format(RF_Power, avg)
 
-save_esr(esr_data, fig, dirpath, tag)
+#save_esr(esr_data, fig, dirpath, tag)

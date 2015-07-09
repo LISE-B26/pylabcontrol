@@ -63,7 +63,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle("application main window")
-        self.setMinimumSize(1000,800)
+        self.setMinimumSize(1500,800)
 
         self.file_menu = QtGui.QMenu('&File', self)
         self.file_menu.addAction('&Quit', self.fileQuit,
@@ -392,7 +392,6 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.counterQueue = Queue.Queue()
 
     # Not Yet Implemented
-    '''
     def addESR(self):
         self.esrPlot = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
         self.rfPower = QtGui.QLineEdit(self.main_widget)
@@ -411,6 +410,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.buttonStartESR.clicked.connect(self.StartESRBtnClicked)
         self.buttonStopESR = QtGui.QPushButton('Stop ESR',self.main_widget)
         self.buttonStopESR.clicked.connect(self.StopESRBtnClicked)
+
         self.esrLayout = QtGui.QGridLayout()
         self.esrLayout.addWidget(self.rfPower,1,1)
         self.esrLayout.addWidget(self.rfPowerL,1,2)
@@ -425,7 +425,6 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.vbox.addLayout(self.esrLayout)
         self.plotBox.addWidget(self.esrPlot)
         self.esrQueue = Queue.Queue()
-        '''
 
 
 
@@ -466,7 +465,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.counterQueue.put('STOP')
 
     def StartESRBtnClicked(self):
-        DeviceTriggers.runESR(float(self.rfPower.text),float(self.freqMin.text),float(self.freqMax.text),float(self.numPtsESR.text))
+        DeviceTriggers.runESR(float(self.rfPower.text),float(self.freqMin.text),float(self.freqMax.text),float(self.numPtsESR.text), self.esrQueue)
 
     def StopESRBtnClicked(self):
         self.esrQueue.put('STOP')
