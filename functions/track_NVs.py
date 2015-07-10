@@ -14,6 +14,7 @@ MIN_SEPARATION = 5
 GAUSSIAN_SIGMA = 1
 REF_VOLTAGE_RANGE = .15
 REF_PIXEL_NUM = 120
+MIN_NV_CNTS = 15
 
 def locate_NVs(image, voltage_range, numPts):
     """
@@ -30,7 +31,7 @@ def locate_NVs(image, voltage_range, numPts):
     image_gaussian = ndimage.gaussian_filter(image, GAUSSIAN_SIGMA*scaling, mode='reflect')
 
     #finds local maxima in smoothed images, corresponding to center of NVs
-    coordinates = skimage.feature.peak_local_max(image_gaussian, MIN_SEPARATION*scaling, exclude_border=False, threshold_rel=0, threshold_abs=30)
+    coordinates = skimage.feature.peak_local_max(image_gaussian, MIN_SEPARATION*scaling, exclude_border=False, threshold_rel=0, threshold_abs=MIN_NV_CNTS)
     return np.array(coordinates,dtype=float)
 
 
@@ -99,46 +100,55 @@ def shift_points_v(points, roi, (x_shift, y_shift)):
     x_shift_v = x_shift * roi['dx'] / roi['xPts']
     y_shift_v = y_shift * roi['dy'] / roi['yPts']
 
-    points[:,0] += x_shift_v
-    points[:,1] += y_shift_v
+    if points.size == 2:
+        points[0] += x_shift_v
+        points[1] += y_shift_v
+    else:
+        points[:,0] += x_shift_v
+        points[:,1] += y_shift_v
     return points
 
+"""
 
+"""
 def pixel_to_voltage(points, image, roi):
     # convert shift from pixels to volts
-    points[:,0] = (points[:,0] - len(image[0])/2) * roi['dx'] / roi['xPts'] + roi['xo']
-    points[:,1] = (points[:,1] - len(image)/2) * roi['dy'] / roi['yPts'] + roi['yo']
+    if points.size == 2:
+        points[0] = (points[0] - len(image[0])/2) * roi['dx'] / roi['xPts'] + roi['xo']
+        points[1] = (points[1] - len(image)/2) * roi['dy'] / roi['yPts'] + roi['yo']
+    else:
+        points[:,0] = (points[:,0] - len(image[0])/2) * roi['dx'] / roi['xPts'] + roi['xo']
+        points[:,1] = (points[:,1] - len(image)/2) * roi['dy'] / roi['yPts'] + roi['yo']
     return points
 
 def locate_shifted_NVs(image, shifted_coordinates, new_roi):
-    #print(shifted_coordinates)
-    #new_NVs = locate_NVs(image, new_roi['dx'], new_roi['xPts'])
-    new_NVs = locate_NVs(image, .05, 120)
-    #print(new_NVs)
+    new_NVs = locate_NVs(image, new_roi['dx'], new_roi['xPts'])
+    #new_NVs[:,0],new_NVs[:,1] = new_NVs[:,1], new_NVs[:,0]
+    new_NVs = pixel_to_voltage(new_NVs, image, new_roi)
     tree = scipy.spatial.KDTree(new_NVs)
     corr_array = list()
     for pt in shifted_coordinates:
         dist,i = tree.query(pt, distance_upper_bound = 10)
-        print(dist)
         if i == len(new_NVs): # occurs when KDTree cannot find a nearest neighbor within distance_upper_bound
             corr_array.append([0,0])
         else:
             corr_array.append(new_NVs[i])
+    corr_array = np.asarray(corr_array)
     print(corr_array)
     return corr_array
 
 #image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-43-58-NVBaselineTests.csv")
 #image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-27_16-53-09-NVBaseline.csv")
-image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-51-59-NVBaselineTests.csv")
-image2 = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_19-11-24-NVBaselineTests.csv")
+#image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-51-59-NVBaselineTests.csv")
+#image2 = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_19-11-24-NVBaselineTests.csv")
 #image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_17-33-14-NVBaselineTests.csv")
 #image2 = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_17-41-10-NVBaselineTests.csv")
 #image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\20150709_Diamond_Ramp_Over_Mags_heat_Magnets_old\\2015-07-09_11-05-59_Marker_18_2.csv")
 
 
-image_np = image.values
-image_np.astype(float)
-image2_np = image2.as_matrix()
+#image_np = image.values
+#image_np.astype(float)
+#image2_np = image2.as_matrix()
 
 #image_np -= image_np.mean()
 #image2_np -= image2_np.mean()
@@ -192,4 +202,4 @@ image2_np = image2.as_matrix()
 #shifted_coor = shift_points(coor, (x_shift, y_shift))
 #print(shifted_coor)
 
-plt.show()
+#plt.show()

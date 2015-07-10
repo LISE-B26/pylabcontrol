@@ -28,6 +28,7 @@ import json
 import functions.Focusing as focusing
 from functions.regions import *
 from functions import track_NVs as track
+from hardware_modules import PiezoController as PC
 
 from gui import GuiDeviceTriggers as DeviceTriggers, PlotAPDCounts
 
@@ -242,14 +243,14 @@ class ApplicationWindow(QtGui.QMainWindow):
 
 
         # save image
-        self.scanLayout.addWidget(self.saveLocImageL,4,1)
-        self.scanLayout.addWidget(self.saveLocImage,4,2)
+        self.scanLayout.addWidget(self.saveLocImageL,6,1)
+        self.scanLayout.addWidget(self.saveLocImage,6,2,1,4)
 
-        self.scanLayout.addWidget(self.saveTagImageL,4,3)
-        self.scanLayout.addWidget(self.saveTagImage,4,4)
+        self.scanLayout.addWidget(self.saveTagImageL,6,6)
+        self.scanLayout.addWidget(self.saveTagImage,6,7)
 
-        self.scanLayout.addWidget(self.buttonSaveImage,4,5)
-        self.scanLayout.addWidget(self.autosaveCheck,4,6)
+        self.scanLayout.addWidget(self.buttonSaveImage,6,8)
+        self.scanLayout.addWidget(self.autosaveCheck,6,9)
 
 
 
@@ -432,6 +433,16 @@ class ApplicationWindow(QtGui.QMainWindow):
         '''
             run script to repeatedly take images and set laser pointer to predefined location
         '''
+
+
+        dirpath = self.saveLocImage.text()
+        tag = self.saveTagImage.text()
+        start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+        filepath_set = dirpath + "\\" + start_time + '_' + tag + '.set'
+
+        self.save_settings(filepath_set)
+
+
         nr_meas = 20
         i = 0
         while i < nr_meas:
@@ -449,12 +460,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 
             i += 1
 
-        dirpath = self.saveLocImage.text()
-        tag = self.saveTagImage.text()
-        start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
-        filepath_set = dirpath + "\\" + start_time + '_' + tag + '.set'
 
-        self.save_settings(filepath_set)
 
 
     def StartCounterBtnClicked(self):
@@ -627,9 +633,10 @@ class ApplicationWindow(QtGui.QMainWindow):
             settings = json.load(infile)
 
         self.setRoI(settings)
+        current_zPos = PC.MDT693A('Z').getVoltage()
         self.xyRange.setText('{:d}'.format(settings['xyRange']))
         self.zPts.setText('{:d}'.format(settings['zPts']))
-        self.zPos.setText('{:0.5f}'.format(settings['zPos']))
+        self.zPos.setText('{:0.5f}'.format(current_zPos))
         self.zRange.setText('{:0.5f}'.format(settings['dz']))
 
 
@@ -668,6 +675,8 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         self.setRoI(roi)
 
+        self.RoI = roi
+
         self.statusBar().showMessage('loaded {:s}'.format(roi_filename),0)
 
     def saveRoI(self, roi, roi_filename):
@@ -692,15 +701,15 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.RoI = roi
 
     def start_esr_sequence(self):
-        print(self.esr_running)
         if self.esr_running == True:
             self.imPlot.mpl_disconnect(self.chooseNVsConnect)
         self.esr_running = True
         self.statusBar().showMessage("Choose NVs for ESR", 0)
         self.esr_select_patches = []
-        coordinates = track.locate_NVs(self.imageData, self.RoI['dx'])
+        coordinates = track.locate_NVs(self.imageData, self.RoI['dx'], self.RoI['xPts'])
         coordinates[:,[0,1]] = coordinates[:,[1,0]]
         coordinates_v = track.pixel_to_voltage(coordinates, self.imageData,self.RoI)
+        print(coordinates_v)
         for pt in coordinates_v:
             circ = patches.Circle((pt[0], pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'r')
             self.imPlot.axes.add_patch(circ)
@@ -770,12 +779,9 @@ class ApplicationWindow(QtGui.QMainWindow):
         RF_Power = -12
         avg = 100
         while esr_num < len(nv_locs):
-            xmin, xmax, ymin, ymax = roi_to_min_max(self.RoI)
-            img_new = DeviceTriggers.scanGui(self.imPlot, xmin, xmax, self.RoI['xPts'], ymin, ymax, self.RoI['xPts'], .001)
-            shift = track.corr_NVs(img_baseline, img_new)
-            self.RoI = track.update_roi(self.RoI, shift)
-            nv_locs = track.shift_points_v(nv_locs, self.RoI, shift)
+            print(esr_num)
 
+            self.statusBar().showMessage("Focusing", 0)
             zo = float(self.zPos.text())
             dz = float(self.zRange.text())
             zPts = float(self.zPts.text())
@@ -788,19 +794,53 @@ class ApplicationWindow(QtGui.QMainWindow):
             roi_focus['yo'] = nv_locs[esr_num][1]
             roi_focus['xPts'] = xyPts
             roi_focus['yPts'] = xyPts
-            print roi_focus
+            #print roi_focus
             voltage_focus = focusing.Focus.scan(zMin, zMax, zPts, 'Z', waitTime = .1, APD=True, scan_range_roi = roi_focus)
             self.zPos.setText('{:0.4f}'.format(voltage_focus))
+            self.statusBar().clearMessage()
 
-            nv_locs = track.locate_shifted_NVs(img_new, nv_locs, self.RoI)
+            self.statusBar().showMessage("Scanning and Correcting for Shift", 0)
+            xmin, xmax, ymin, ymax = roi_to_min_max(self.RoI)
+            img_new = DeviceTriggers.scanGui(self.imPlot, xmin, xmax, self.RoI['xPts'], ymin, ymax, self.RoI['xPts'], .001)
+            shift = track.corr_NVs(img_baseline, img_new)
+            self.RoI = track.update_roi(self.RoI, shift)
+            nv_locs = track.shift_points_v(nv_locs, self.RoI, shift)
+            self.statusBar().clearMessage()
+
+            #print(self.RoI)
+            #huh = track.locate_NVs(img_new, self.RoI['dx'], self.RoI['xPts'])
+            #print(huh)
+            #huh = track.pixel_to_voltage(huh, img_new, self.RoI)
+            #print(huh)
+            #for pt in huh:
+            #    circ = patches.Circle((pt[0], pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'b')
+            #    self.imPlot.axes.add_patch(circ)
+            #self.imPlot.draw()
+            #break
+
+            #nv_locs = track.locate_shifted_NVs(img_new, nv_locs, self.RoI)
+            #for pt in nv_locs:
+            #    circ = patches.Circle((pt[0], pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'r')
+            #    self.imPlot.axes.add_patch(circ)
+            #self.imPlot.draw()
             pt = nv_locs[esr_num]
+            print(pt)
+            circ = patches.Circle((pt[0], pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'r')
+            self.imPlot.axes.add_patch(circ)
+            self.imPlot.draw()
+            time.sleep(10)
+            if(pt[0] == 0 and pt[1] == 0): # failed to find matching NV in shifted frame
+                esr_num += 1
+                continue
+            self.statusBar().showMessage("Running ESR", 0)
             test_freqs = numpy.linspace(2820000000, 2920000000, 200)
             #esr_data, fit_params, fig = track.run_esr(RF_Power, test_freqs, pt, num_avg=avg, int_time=.002)
             dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150708_Diamond_Ramp_Over_Mags'
             tag = 'NV{:00d}_RFPower_{:03d}mdB_NumAvrg_{:03d}'.format(esr_num, RF_Power, avg)
-            print(pt)
             #track.save_esr(esr_data, fig, dirpath, tag)
             esr_num += 1
+            self.statusBar().clearMessage()
+
 
     def writeArray(self, array, dirpath, tag, columns = None):
         df = pd.DataFrame(array, columns = columns)
