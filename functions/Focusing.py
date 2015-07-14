@@ -39,7 +39,7 @@ class Focus:
     # canvas: Pass in a backends canvas to plot to the gui, otherwise plots using pyplot
     # return: returns voltage to set it to
     @classmethod
-    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True, scan_range_roi = None, plotting = True):
+    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True, scan_range_roi = None, plotting = True, blocking=True):
         assert(minV >= 1 and maxV <= 99)
 
         if scan_range_roi == None:
@@ -145,8 +145,10 @@ class Focus:
             print(mean)
         else:
             piezo.setVoltage(numpy.mean(voltRange))
-        if canvas is None and plotting:
+        if canvas is None and plotting and blocking:
             plt.show()
+        elif canvas is None and plotting:
+            plt.close()
         return mean
 
     # Fits the data to a gaussian given by the cls.gaussian method, and returns the fit parameters. If the fit fails,

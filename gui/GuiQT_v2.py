@@ -23,12 +23,14 @@ from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import scipy.spatial
+import matplotlib.pyplot as plt
 
 import json
 import functions.Focusing as focusing
 from functions.regions import *
 from functions import track_NVs as track
 from hardware_modules import PiezoController as PC
+from scripts import ESR
 
 from gui import GuiDeviceTriggers as DeviceTriggers, PlotAPDCounts
 
@@ -200,6 +202,11 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.esrReadLocL.setText("ESR Read Location")
         self.esrReadLoc = QtGui.QLineEdit(self.main_widget)
         self.buttonESRRun = QtGui.QPushButton("Run ESR", self.main_widget)
+        self.errSquare = QtGui.QFrame(self.main_widget)
+        self.errSquare.setGeometry(150, 20, 100, 100)
+        self.errSquare.setStyleSheet("QWidget { background-color: %s }" % 'Green')
+        self.errSquareMsg = QtGui.QLineEdit(self.main_widget)
+
 
         #set initial values for scan values
         # self.loadRoI('Z://Lab//Cantilever//Measurements//default_settings.config')
@@ -326,6 +333,22 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         self.queue = Queue.Queue()
 
+        self.timer = QtCore.QTimer()
+        self.timer.start(5000)
+        self.timer.timeout.connect(self.checkValidImage)
+
+        self.scanLayout.addWidget(self.errSquare, 6,1)
+        self.scanLayout.addWidget(self.errSquareMsg, 6,2,1,4)
+
+        self.laserPos = None
+        self.imageRoI = {
+            "dx": .8,
+            "dy": .8,
+            "xPts": 120,
+            "xo": 0,
+            "yPts": 120,
+            "yo": 0
+        }
         QtGui.QApplication.processEvents()
 
     def addZI(self, vbox, plotBox):
@@ -426,6 +449,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.vbox.addLayout(self.esrLayout)
         self.plotBox.addWidget(self.esrPlot)
         self.esrQueue = Queue.Queue()
+
 
 
 
@@ -557,7 +581,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def scanBtnClicked(self):
         self.statusBar().showMessage("Taking Image",0)
-        self.imageData = DeviceTriggers.scanGui(self.imPlot,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()), self.queue, self.buttonAPD.isChecked())
+        self.imageData, self.imageRoI = DeviceTriggers.scanGui(self.imPlot,float(self.xVoltageMin.text()),float(self.xVoltageMax.text()),float(self.xPts.text()),float(self.yVoltageMin.text()),float(self.yVoltageMax.text()),float(self.yPts.text()),float(self.timePerPt.text()), self.queue, self.buttonAPD.isChecked())
         self.xMinHome = float(self.xVoltageMin.text())
         self.xMaxHome = float(self.xVoltageMax.text())
         self.yMinHome = float(self.yVoltageMin.text())
@@ -571,6 +595,7 @@ class ApplicationWindow(QtGui.QMainWindow):
     def vSetBtnClicked(self):
         DeviceTriggers.setDaqPt(float(self.xVoltage.text()),float(self.yVoltage.text()))
         self.drawDot()
+        self.laserPos = (self.xVoltage.text(), self.yVoltage.text())
         self.statusBar().showMessage("Galvo Position Updated",2000)
 
     def imageHomeClicked(self):
@@ -691,14 +716,21 @@ class ApplicationWindow(QtGui.QMainWindow):
         # xmin, xmax = roi['xo'] -  roi['dx']/2.,  roi['xo'] +  roi['dx']/2.
         # ymin, ymax = roi['yo'] -  roi['dy']/2.,  roi['yo'] +  roi['dy']/2.
 
-        self.xVoltageMin.setText('{:0.3f}'.format(xmin))
-        self.yVoltageMin.setText('{:0.3f}'.format(ymin))
-        self.xVoltageMax.setText('{:0.3f}'.format(xmax))
-        self.yVoltageMax.setText('{:0.3f}'.format(ymax))
-        self.xPts.setText('{:d}'.format(roi['xPts']))
-        self.yPts.setText('{:d}'.format(roi['xPts']))
+        self.xVoltageMin.setText('{:0.5f}'.format(xmin))
+        self.yVoltageMin.setText('{:0.5f}'.format(ymin))
+        self.xVoltageMax.setText('{:0.5f}'.format(xmax))
+        self.yVoltageMax.setText('{:0.5f}'.format(ymax))
+        self.xPts.setText('{:d}'.format(int(roi['xPts'])))
+        self.yPts.setText('{:d}'.format(int(roi['xPts'])))
         self.timePerPt.setText('.001')
-        self.RoI = roi
+        self.RoI = {
+            "dx": float(self.xVoltageMax.text())-float(self.xVoltageMin.text()),
+            "dy": float(self.yVoltageMax.text())-float(self.yVoltageMin.text()),
+            "xPts": float(self.xPts.text()),
+            "xo": (float(self.xVoltageMax.text())+float(self.xVoltageMin.text()))/2,
+            "yPts": float(self.yPts.text()),
+            "yo": (float(self.yVoltageMax.text())+float(self.yVoltageMin.text()))/2
+        }
 
     def start_esr_sequence(self):
         if self.esr_running == True:
@@ -709,7 +741,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         coordinates = track.locate_NVs(self.imageData, self.RoI['dx'], self.RoI['xPts'])
         coordinates[:,[0,1]] = coordinates[:,[1,0]]
         coordinates_v = track.pixel_to_voltage(coordinates, self.imageData,self.RoI)
-        print(coordinates_v)
+        print("dx:" + str(self.RoI['dx']))
+        print("dy:" + str(self.RoI['dy']))
         for pt in coordinates_v:
             circ = patches.Circle((pt[0], pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'r')
             self.imPlot.axes.add_patch(circ)
@@ -772,7 +805,9 @@ class ApplicationWindow(QtGui.QMainWindow):
         print(self.esr_NVs)
 
     def run_esr(self):
-        nv_locs = numpy.array(pd.read_csv(str(self.esrReadLoc.text()) + '.csv'))
+        nv_locs = numpy.array(pd.read_csv(str(self.esrReadLoc.text()) + '.csv', header = None))
+        print(nv_locs)
+        print(len(nv_locs))
         img_baseline = numpy.array(pd.read_csv(str(self.esrReadLoc.text()) + 'baselineimg.csv'))
         self.loadRoI(str(self.esrReadLoc.text()) + '.roi')
         esr_num = 0
@@ -790,25 +825,37 @@ class ApplicationWindow(QtGui.QMainWindow):
             roi_focus = self.RoI.copy()
             roi_focus['dx'] = .005
             roi_focus['dy'] = .005
-            roi_focus['xo'] = nv_locs[esr_num][0]
-            roi_focus['yo'] = nv_locs[esr_num][1]
+            roi_focus['xo'] = nv_locs[0][0]
+            roi_focus['yo'] = nv_locs[0][1]
             roi_focus['xPts'] = xyPts
             roi_focus['yPts'] = xyPts
-            #print roi_focus
+            print roi_focus
             voltage_focus = focusing.Focus.scan(zMin, zMax, zPts, 'Z', waitTime = .1, APD=True, scan_range_roi = roi_focus)
             self.zPos.setText('{:0.4f}'.format(voltage_focus))
             self.statusBar().clearMessage()
+            plt.close()
+
 
             self.statusBar().showMessage("Scanning and Correcting for Shift", 0)
             xmin, xmax, ymin, ymax = roi_to_min_max(self.RoI)
-            img_new = DeviceTriggers.scanGui(self.imPlot, xmin, xmax, self.RoI['xPts'], ymin, ymax, self.RoI['xPts'], .001)
+            img_new, self.imageRoI = DeviceTriggers.scanGui(self.imPlot, xmin, xmax, self.RoI['xPts'], ymin, ymax, self.RoI['xPts'], .001)
             shift = track.corr_NVs(img_baseline, img_new)
+            print(shift)
             self.RoI = track.update_roi(self.RoI, shift)
             nv_locs = track.shift_points_v(nv_locs, self.RoI, shift)
+            xmin, xmax, ymin, ymax = roi_to_min_max(self.RoI)
+            self.imPlot.axes.set_xlim(left= xmin, right =xmax)
+            self.imPlot.axes.set_ylim(top=ymin,bottom= ymax)
+            img_new, self.imageRoI = DeviceTriggers.scanGui(self.imPlot, xmin, xmax, self.RoI['xPts'], ymin, ymax, self.RoI['xPts'], .001)
             self.statusBar().clearMessage()
+            for pt in nv_locs:
+                circ = patches.Circle((pt[0], pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'b')
+                self.imPlot.axes.add_patch(circ)
 
             #print(self.RoI)
             #huh = track.locate_NVs(img_new, self.RoI['dx'], self.RoI['xPts'])
+            #print(huh)
+            #huh[:,[0,1]]= huh[:,[1,0]]
             #print(huh)
             #huh = track.pixel_to_voltage(huh, img_new, self.RoI)
             #print(huh)
@@ -818,28 +865,29 @@ class ApplicationWindow(QtGui.QMainWindow):
             #self.imPlot.draw()
             #break
 
-            #nv_locs = track.locate_shifted_NVs(img_new, nv_locs, self.RoI)
-            #for pt in nv_locs:
-            #    circ = patches.Circle((pt[0], pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'r')
-            #    self.imPlot.axes.add_patch(circ)
-            #self.imPlot.draw()
-            pt = nv_locs[esr_num]
-            print(pt)
-            circ = patches.Circle((pt[0], pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'r')
-            self.imPlot.axes.add_patch(circ)
+            nv_locs = track.locate_shifted_NVs(img_new, nv_locs, self.RoI)
+            for pt in nv_locs:
+                circ = patches.Circle((pt[0], pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'r')
+                self.imPlot.axes.add_patch(circ)
             self.imPlot.draw()
-            time.sleep(10)
+            pt = nv_locs[esr_num]
+            #circ = patches.Circle((pt[0], pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'r')
+            #self.imPlot.axes.add_patch(circ)
+            #self.imPlot.draw()
             if(pt[0] == 0 and pt[1] == 0): # failed to find matching NV in shifted frame
                 esr_num += 1
                 continue
             self.statusBar().showMessage("Running ESR", 0)
             test_freqs = numpy.linspace(2820000000, 2920000000, 200)
-            #esr_data, fit_params, fig = track.run_esr(RF_Power, test_freqs, pt, num_avg=avg, int_time=.002)
-            dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150708_Diamond_Ramp_Over_Mags'
+            esr_data, fit_params, fig = ESR.run_esr(RF_Power, test_freqs, pt, num_avg=avg, int_time=.002)
+            dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150712_GuiTest'
             tag = 'NV{:00d}_RFPower_{:03d}mdB_NumAvrg_{:03d}'.format(esr_num, RF_Power, avg)
-            #track.save_esr(esr_data, fig, dirpath, tag)
+            ESR.save_esr(esr_data, fig, dirpath, tag)
             esr_num += 1
             self.statusBar().clearMessage()
+
+        self.circ = None
+        self.rect = None
 
 
     def writeArray(self, array, dirpath, tag, columns = None):
@@ -848,15 +896,7 @@ class ApplicationWindow(QtGui.QMainWindow):
             header = False
         else:
             header = True
-        # day = time.strftime("%d")
-        # month = time.strftime("%m")
-        # year = time.strftime("%Y")
-        # hour = time.strftime("%H")
-        # minute = time.strftime("%M")
-        # second = time.strftime("%S")
-        # filename = '\\' + year + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second  +'-' + str(tag)
-        #
-        # start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+
 
         start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
         filepathCSV = dirpath + "\\" + start_time + '_' + tag + '.csv'
@@ -1037,6 +1077,29 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def closeEvent(self, ce):
         self.fileQuit()
+
+    def checkValidImage(self):
+        boxRoI = {
+            "dx": float(self.xVoltageMax.text())-float(self.xVoltageMin.text()),
+            "dy": float(self.yVoltageMax.text())-float(self.yVoltageMin.text()),
+            "xPts": float(self.xPts.text()),
+            "xo": (float(self.xVoltageMax.text())+float(self.xVoltageMin.text()))/2,
+            "yPts": float(self.yPts.text()),
+            "yo": (float(self.yVoltageMax.text())+float(self.yVoltageMin.text()))/2
+        }
+        if not (not (self.imageRoI == None) and self.imageRoI['dx'] == self.RoI['dx'] and self.imageRoI['dy'] == self.RoI['dy'] and self.imageRoI['xo'] == self.RoI['xo']  and self.imageRoI['yo'] == self.RoI['yo'] and self.imageRoI['xPts'] == self.RoI['xPts'] and self.imageRoI['yPts'] == self.RoI['yPts']):
+            self.errSquare.setStyleSheet("QFrame { background-color: %s }" % 'Red')
+            self.errSquareMsg.setText('Image RoI mismatched from internal RoI')
+        elif not (self.imageRoI == boxRoI):
+            self.errSquare.setStyleSheet("QFrame { background-color: %s }" % 'Red')
+            self.errSquareMsg.setText('Image RoI mismatched from text RoI')
+        elif not(self.laserPos == (self.xVoltage.text(), self.yVoltage.text())):
+            self.errSquare.setStyleSheet("QFrame { background-color: %s }" % 'Red')
+            self.errSquareMsg.setText('Laser Position mismatched from image')
+        else:
+            self.errSquare.setStyleSheet("QFrame { background-color: %s }" % 'Green')
+            self.errSquareMsg.setText('')
+
 
     def about(self):
         QtGui.QMessageBox.about(self, "About",

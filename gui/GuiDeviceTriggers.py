@@ -20,7 +20,15 @@ def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt, queue = No
         scanner = ScanPhotodiode.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
     imageData = scanner.scan(queue = queue)
     setDaqPt(0,0)
-    return imageData
+    imageRoI = {
+    "dx": xVmax-xVmin,
+    "dy": yVmax-yVmin,
+    "xPts": xPts,
+    "xo": (xVmax+xVmin)/2,
+    "yPts": yPts,
+    "yo": (yVmax+yVmin)/2
+}
+    return imageData, imageRoI
 
 def updateColorbar(imageData, canvas, extent, cmax):
     ScanAPD.ScanNV.updateColorbar(imageData, canvas, extent, cmax)

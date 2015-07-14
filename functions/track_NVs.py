@@ -26,6 +26,7 @@ def locate_NVs(image, voltage_range, numPts):
     """
     # scales Gaussian filter size based on current pixel to voltage scaling
     scaling = (REF_VOLTAGE_RANGE/voltage_range)*(numPts/REF_PIXEL_NUM)
+    print('scaling:' + str(scaling))
 
     # convolves image with a gaussian filter to smooth peaks and prevent many local maxima
     image_gaussian = ndimage.gaussian_filter(image, GAUSSIAN_SIGMA*scaling, mode='reflect')
@@ -101,8 +102,8 @@ def shift_points_v(points, roi, (x_shift, y_shift)):
     y_shift_v = y_shift * roi['dy'] / roi['yPts']
 
     if points.size == 2:
-        points[0] += x_shift_v
-        points[1] += y_shift_v
+        points[0][0] += x_shift_v
+        points[0][1] += y_shift_v
     else:
         points[:,0] += x_shift_v
         points[:,1] += y_shift_v
@@ -123,7 +124,7 @@ def pixel_to_voltage(points, image, roi):
 
 def locate_shifted_NVs(image, shifted_coordinates, new_roi):
     new_NVs = locate_NVs(image, new_roi['dx'], new_roi['xPts'])
-    #new_NVs[:,0],new_NVs[:,1] = new_NVs[:,1], new_NVs[:,0]
+    new_NVs[:,[0,1]] = new_NVs[:,[1,0]]
     new_NVs = pixel_to_voltage(new_NVs, image, new_roi)
     tree = scipy.spatial.KDTree(new_NVs)
     corr_array = list()
@@ -134,7 +135,6 @@ def locate_shifted_NVs(image, shifted_coordinates, new_roi):
         else:
             corr_array.append(new_NVs[i])
     corr_array = np.asarray(corr_array)
-    print(corr_array)
     return corr_array
 
 #image = pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-43-58-NVBaselineTests.csv")

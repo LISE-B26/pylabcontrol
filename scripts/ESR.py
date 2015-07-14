@@ -120,7 +120,8 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
                 converge_data = np.append(converge_data,0)
             fig = plot_esr(freq_values, esr_avg, fit_data = fit_data, converge_data = converge_data)
     #mwgen.outputOff()
-    plt.show()
+    print('finished')
+    #plt.show()
     return esr_avg, fit_params, fig
 '''
 def sweep_mw_and_count_APD(freq_voltage_array, dt):
@@ -297,10 +298,10 @@ def save_esr(esr_data, fig, dirpath, tag = "", saveImage = True):
 #sample usage to scan 200 frequency points between 2.82 and 2.92 GHz
 
 #RF_Power = -12
-#avg = 100
+#avg = 10
 #test_freqs = np.linspace(2820000000, 2920000000, 200)
 #esr_data, fit_params, fig = run_esr(RF_Power, test_freqs, num_avg=avg, int_time=.002)
-#dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150707_Diamond_Ramp_Over_Mags'
+#dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150710_Diamond_Ramp_Over_Mags_ESR_near_Magnets\\ESR'
 #tag = 'NV1_RFPower_{:03d}mdB_NumAvrg_{:03d}'.format(RF_Power, avg)
-
+#print('saving ESR spectrum {:s} '.format(tag))
 #save_esr(esr_data, fig, dirpath, tag)
