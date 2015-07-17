@@ -26,33 +26,34 @@ def get_points_on_a_grid(pos_left_bottom, pos_right_top, xpts, ypts):
 # #####################################################################################################
 # script begins
 #######################################################################################################
-DIR_PATH = 'Z:/Lab/Cantilever/Measurements/20150713_Diamond_Ramp_Over_Mags/ESR_Map/'
+DIR_PATH = 'Z:/Lab/Cantilever/Measurements/20150715_Diamond_Ramp_Over_Mags_ESR/ESR_Map/'
 TAG = 'Co'
 
 ROI = {
-        "xo": 0.23, 'yo': -0.22,
+        "xo": -0.09, 'yo': -0.16,
         "dx": 0.05, 'dy': 0.05,
-        'xPts': 101, 'yPts': 101
+        'xPts': 41, 'yPts': 41
     }
 
 
 ROI_Focus = {
-        "xo": 0.26, 'yo': -0.22,
-        "dx": 0.015, 'dy': 0.015,
-        'xPts': 20, 'yPts': 20
+        "xo": -0.18019, 'yo': 0.11543,
+        "dx": 0.05, 'dy': 0.05,
+        'xPts': 21, 'yPts': 21
     }
 
+p1, p2 = [-0.16933,0.14445], [-0.12658,0.18210]
 
-ESR_grid_points = get_points_on_a_grid([0.21, -0.24], [0.25, -0.20], 10, 10)
+ESR_grid_points = get_points_on_a_grid(p1, p2, 10, 10)
 
 RF_Power = -12
-avg = 200
+avg = 100
 test_freqs = np.linspace(2820000000, 2920000000, 200)
 
 
-zo = float(46)
+zo = float(40.7)
 dz = float(5)
-zPts = float(10)
+zPts = float(15)
 zMin, zMax = zo - dz/2., zo + dz/2.
 
 
@@ -86,7 +87,10 @@ for xy in ESR_grid_points:
 
 
     # refocus
-    voltage_focus = Focusing.Focus.scan(zMin, zMax, zPts, 'Z', waitTime = .1, APD=True, scan_range_roi = ROI_Focus, blocking = False)
+    voltage_focus, voltRange, ydata = Focusing.Focus.scan(zMin, zMax, zPts, 'Z', waitTime = .1, APD=True, scan_range_roi = ROI_Focus, blocking = False, return_data = False)
+    np.savetxt('{:s}.focus'.format(full_filename),np.array([voltRange, ydata]), delimiter = ',')
+
+
     plt.close()
 
 

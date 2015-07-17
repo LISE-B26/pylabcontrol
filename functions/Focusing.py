@@ -39,7 +39,7 @@ class Focus:
     # canvas: Pass in a backends canvas to plot to the gui, otherwise plots using pyplot
     # return: returns voltage to set it to
     @classmethod
-    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True, scan_range_roi = None, plotting = True, blocking=True):
+    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True, scan_range_roi = None, plotting = True, blocking=True, return_data = False):
         assert(minV >= 1 and maxV <= 99)
 
         if scan_range_roi == None:
@@ -119,7 +119,6 @@ class Focus:
             image = scanner.scan(queue = None)
             xdata.append(voltage)
             ydata.append(scipy.ndimage.measurements.standard_deviation(image))
-            print(scipy.ndimage.measurements.standard_deviation(image))
             if plotting:
                 cls.plotData(datline, xdata, ydata, canvas, axes)
 
@@ -149,7 +148,11 @@ class Focus:
             plt.show()
         elif canvas is None and plotting:
             plt.close()
-        return mean
+
+        if return_data:
+            return mean, voltRange, ydata
+        elif return_data == False:
+            return mean
 
     # Fits the data to a gaussian given by the cls.gaussian method, and returns the fit parameters. If the fit fails,
     # returns (-1,-1,-1) as the parameters
@@ -160,9 +163,16 @@ class Focus:
         try:
             n = len(x)
             # compute mean and standard deviation initial guesses
-            mean = numpy.sum(x*y)/numpy.sum(y)
+            # mean = numpy.sum(x*y)/numpy.sum(y)
+            mean = x[numpy.argmax(y)]
+
             sigma = numpy.sqrt(abs(sum((x-mean)**2*y)/sum(y)))
+
+
             c = min(y)
+
+            print('initial guess for mean and std: {:0.3f} +- {:0.3f}'.format(mean, sigma))
+
             return scipy.optimize.curve_fit(cls.gaussian, x, y, p0=[1, mean, sigma, c])
         except RuntimeError:
             print('Gaussian fit failed. Setting piezo to mean of input range')

@@ -17,11 +17,11 @@ import Queue
 import numpy
 import numpy.random
 import pandas as pd
-from matplotlib.widgets import RectangleSelector
+
+
 import matplotlib.patches as patches
 from PyQt4 import QtGui, QtCore
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
+
 import scipy.spatial
 import matplotlib.pyplot as plt
 
@@ -35,31 +35,8 @@ from scripts import ESR
 from gui import GuiDeviceTriggers as DeviceTriggers, PlotAPDCounts
 
 
+import gui_layout
 
-
-# Extends the matplotlib backend FigureCanvas. A canvas for matplotlib figures with a constructed axis that is
-# auto-expanding
-class MyMplCanvas(FigureCanvas):
-    """Ultimately, this is a QWidget (as well as a Fi   gureCanvasAgg, etc.)."""
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        self.fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = self.fig.add_subplot(111, autoscale_on=False)
-        # We want the axes cleared every time plot() is called
-        self.axes.hold(False)
-
-        self.compute_initial_figure()
-
-        #
-        FigureCanvas.__init__(self, self.fig)
-        self.setParent(parent)
-
-        FigureCanvas.setSizePolicy(self,
-                                   QtGui.QSizePolicy.Expanding,
-                                   QtGui.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-
-    def compute_initial_figure(self):
-        pass
 
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -103,303 +80,307 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         def sizeHint(self):
             return QtCore.QSize(5000, 5000)
-
-    def addScan(self, vbox, plotBox):
-
-
-        self.imPlot = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
-
-
-        self.xVoltageMin = QtGui.QLineEdit(self.main_widget)
-        self.yVoltageMin = QtGui.QLineEdit(self.main_widget)
-        self.xVoltageMax = QtGui.QLineEdit(self.main_widget)
-        self.yVoltageMax = QtGui.QLineEdit(self.main_widget)
-        self.xPts = QtGui.QLineEdit(self.main_widget)
-        self.yPts = QtGui.QLineEdit(self.main_widget)
-        self.timePerPt = QtGui.QLineEdit(self.main_widget)
-        self.xVoltage = QtGui.QLineEdit(self.main_widget)
-        self.yVoltage = QtGui.QLineEdit(self.main_widget)
-        self.xVoltageMinL = QtGui.QLabel(self.main_widget)
-        self.xVoltageMinL.setText("xVoltsMin:")
-        self.yVoltageMinL = QtGui.QLabel(self.main_widget)
-        self.yVoltageMinL.setText("yVoltsMin:")
-        self.xVoltageMaxL = QtGui.QLabel(self.main_widget)
-        self.xVoltageMaxL.setText("xVoltsMax:")
-        self.yVoltageMaxL = QtGui.QLabel(self.main_widget)
-        self.yVoltageMaxL.setText("yVoltsMax:")
-        self.xVoltageL = QtGui.QLabel(self.main_widget)
-        self.xVoltageL.setText("xVolts:")
-        self.yVoltageL = QtGui.QLabel(self.main_widget)
-        self.yVoltageL.setText("yVolts:")
-        self.xPtsL = QtGui.QLabel(self.main_widget)
-        self.xPtsL.setText("Number of x Points:")
-        self.yPtsL = QtGui.QLabel(self.main_widget)
-        self.yPtsL.setText("Number of Y Points:")
-        self.timePerPtL = QtGui.QLabel(self.main_widget)
-        self.timePerPtL.setText("Timer Per Point:")
-
-        self.saveLocImage = QtGui.QLineEdit(self.main_widget)
-        self.saveLocImage.setText('Z:\\Lab\\Cantilever\\Measurements\\Images')
-        self.saveLocImageL = QtGui.QLabel(self.main_widget)
-        self.saveLocImageL.setText("Image Location")
-        self.saveTagImage = QtGui.QLineEdit(self.main_widget)
-        self.saveTagImage.setText('Image')
-        self.saveTagImageL = QtGui.QLabel(self.main_widget)
-        self.saveTagImageL.setText("Tag")
-        self.buttonScan = QtGui.QPushButton('Scan', self.main_widget)
-        self.buttonScan.clicked.connect(self.scanBtnClicked)
-        self.buttonVSet = QtGui.QPushButton('Set Voltage', self.main_widget)
-        self.buttonVSet.clicked.connect(self.vSetBtnClicked)
-
-        self.buttonSaveImage = QtGui.QPushButton('Save Image', self.main_widget)
-        self.buttonSaveImage.clicked.connect(self.saveImageClicked)
-        self.buttonLoadDefaulScanRange = QtGui.QPushButton('Large Scan', self.main_widget)
-        self.buttonLoadDefaulScanRange.clicked.connect(self.largeScanButtonClicked)
-        self.cbarMax = QtGui.QLineEdit(self.main_widget)
-        self.cbarMaxL = QtGui.QLabel(self.main_widget)
-        self.cbarMaxL.setText("Colorbar Threshold")
-        self.buttonCbarThresh = QtGui.QPushButton('Update Colorbar', self.main_widget)
-        self.buttonCbarThresh.clicked.connect(self.cbarThreshClicked)
-        self.buttonStop = QtGui.QPushButton('Stop Scan', self.main_widget)
-        self.buttonStop.clicked.connect(self.stopButtonClicked)
-        self.autosaveCheck = QtGui.QCheckBox('AutoSave',self.main_widget)
-        self.autosaveCheck.setChecked(True)
-        self.buttonAPD = QtGui.QPushButton('Use APD',self.main_widget)
-        self.buttonAPD.setCheckable(True)
-        self.buttonAPD.setChecked(True)
-        self.buttonAPD.clicked.connect(self.buttonAPDClicked)
-        self.buttonRedrawLaser = QtGui.QPushButton('Redraw laser spot',self.main_widget)
-        self.buttonRedrawLaser.clicked.connect(self.drawDot_RoI)
-        self.buttonLoadScanRange = QtGui.QPushButton('Load scan range',self.main_widget)
-        self.buttonLoadScanRange.clicked.connect(lambda: self.loadRoI())
-        self.buttonZoomInRoI = QtGui.QPushButton('zoom in (RoI)',self.main_widget)
-        self.buttonZoomInRoI.clicked.connect(self.zoom_RoI)
-        self.buttonZoomOutRoI = QtGui.QPushButton('zoom out', self.main_widget)
-        self.buttonZoomOutRoI.clicked.connect(self.imageHomeClicked)
-        self.buttonAutofocusRoI = QtGui.QPushButton('auto focus (RoI)',self.main_widget)
-        self.buttonAutofocusRoI.clicked.connect(self.autofcus_RoI)
-
-        self.zPosL = QtGui.QLabel(self.main_widget)
-        self.zPosL.setText("focus (V)")
-        self.zPos = QtGui.QLineEdit(self.main_widget)
-        self.zRangeL = QtGui.QLabel(self.main_widget)
-        self.zRangeL.setText('range auto focus (V)')
-        self.zRange = QtGui.QLineEdit(self.main_widget)
-        self.zPtsL = QtGui.QLabel(self.main_widget)
-        self.zPtsL.setText('pts auto focus (z)')
-        self.zPts = QtGui.QLineEdit(self.main_widget)
-        self.xyRange = QtGui.QLineEdit(self.main_widget)
-        self.xyRangeL = QtGui.QLabel(self.main_widget)
-        self.xyRangeL.setText('pts focus range (xy)')
-
-        self.buttonESRSequence = QtGui.QPushButton("Choose NVs", self.main_widget)
-        self.buttonESRFinished = QtGui.QPushButton("FinishedChoosing", self.main_widget)
-        self.esrSaveLocL = QtGui.QLabel(self.main_widget)
-        self.esrSaveLocL.setText("ESR Save Location")
-        self.esrSaveLoc = QtGui.QLineEdit(self.main_widget)
-        self.esrSaveLoc.setText('Z:\\Lab\\Cantilever\\Measurements')
-        self.esrReadLocL = QtGui.QLabel(self.main_widget)
-        self.esrReadLocL.setText("ESR Read Location")
-        self.esrReadLoc = QtGui.QLineEdit(self.main_widget)
-        self.buttonESRRun = QtGui.QPushButton("Run ESR", self.main_widget)
-        self.errSquare = QtGui.QFrame(self.main_widget)
-        self.errSquare.setGeometry(150, 20, 100, 100)
-        self.errSquare.setStyleSheet("QWidget { background-color: %s }" % 'Green')
-        self.errSquareMsg = QtGui.QLineEdit(self.main_widget)
-
-
-        #set initial values for scan values
-        # self.loadRoI('Z://Lab//Cantilever//Measurements//default_settings.config')
-        self.loadSettings('Z://Lab//Cantilever//Measurements//default_settings.config')
-
-
-
-        plotBox.addWidget(self.imPlot)
-        self.scanLayout = QtGui.QGridLayout()
-
-
-        # Scan area
-        self.scanLayout.addWidget(self.xVoltageMin, 2,1)
-        self.scanLayout.addWidget(self.yVoltageMin, 2,2)
-        self.scanLayout.addWidget(self.xVoltageMinL,1,1)
-        self.scanLayout.addWidget(self.yVoltageMinL,1,2)
-        self.scanLayout.addWidget(self.xVoltageMax, 2,3)
-        self.scanLayout.addWidget(self.yVoltageMax, 2,4)
-        self.scanLayout.addWidget(self.xVoltageMaxL,1,3)
-        self.scanLayout.addWidget(self.yVoltageMaxL,1,4)
-        self.scanLayout.addWidget(self.xPts,2,5)
-        self.scanLayout.addWidget(self.xPtsL,1,5)
-        self.scanLayout.addWidget(self.yPts, 2,6)
-        self.scanLayout.addWidget(self.yPtsL, 1,6)
-        self.scanLayout.addWidget(self.timePerPt,2,7)
-        self.scanLayout.addWidget(self.timePerPtL,1,7)
-        self.scanLayout.addWidget(self.buttonLoadScanRange,6,14)
-        self.scanLayout.addWidget(self.buttonLoadDefaulScanRange,2,8)
-        # execute commands
-        self.scanLayout.addWidget(self.buttonScan,1,14)
-        self.scanLayout.addWidget(self.buttonStop,2,14)
-
-
-        # laser position
-        self.scanLayout.addWidget(self.xVoltageL,1,9)
-        self.scanLayout.addWidget(self.xVoltage, 2,9)
-        self.scanLayout.addWidget(self.yVoltageL,1,10)
-        self.scanLayout.addWidget(self.yVoltage, 2,10)
-        self.scanLayout.addWidget(self.buttonRedrawLaser,3,9)
-        self.scanLayout.addWidget(self.buttonVSet,3,10)
-
-
-        # save image
-        self.scanLayout.addWidget(self.saveLocImageL,6,1)
-        self.scanLayout.addWidget(self.saveLocImage,6,2,1,4)
-
-        self.scanLayout.addWidget(self.saveTagImageL,6,6)
-        self.scanLayout.addWidget(self.saveTagImage,6,7)
-
-        self.scanLayout.addWidget(self.buttonSaveImage,6,8)
-        self.scanLayout.addWidget(self.autosaveCheck,6,9)
-
-
-
-        # set RoI and zoom
-        self.scanLayout.addWidget(self.buttonZoomOutRoI,1,11)
-        self.scanLayout.addWidget(self.buttonZoomInRoI,2,11)
-
-        # colar bar
-        self.scanLayout.addWidget(self.cbarMaxL,3,1)
-        self.scanLayout.addWidget(self.cbarMax,3,2)
-        self.scanLayout.addWidget(self.buttonCbarThresh,3,3)
-
-
-        # settings
-        self.scanLayout.addWidget(self.buttonAPD,1,16)
-
-
-
-        # autofocus settings
-        self.scanLayout.addWidget(self.xyRangeL,3,12)
-        self.scanLayout.addWidget(self.xyRange,4,12)
-        self.scanLayout.addWidget(self.zPosL,3,13)
-        self.scanLayout.addWidget(self.zPos,4,13)
-        self.scanLayout.addWidget(self.zRangeL,3,14)
-        self.scanLayout.addWidget(self.zRange,4,14)
-        self.scanLayout.addWidget(self.zPtsL,3,15)
-        self.scanLayout.addWidget(self.zPts,4,15)
-        self.scanLayout.addWidget(self.buttonAutofocusRoI,3,16)
-
-        self.scanLayout.addWidget(self.buttonESRSequence,5,1)
-        self.scanLayout.addWidget(self.buttonESRFinished,5,2)
-        self.scanLayout.addWidget(self.esrSaveLocL,5,3)
-        self.scanLayout.addWidget(self.esrSaveLoc,5,4)
-        self.scanLayout.addWidget(self.buttonESRRun,5,5)
-        self.scanLayout.addWidget(self.esrReadLocL,5,6)
-        self.scanLayout.addWidget(self.esrReadLoc,5,7)
-        self.buttonESRSequence.clicked.connect(self.start_esr_sequence)
-        self.buttonESRFinished.clicked.connect(self.finished_choosing)
-        self.buttonESRRun.clicked.connect(self.run_esr)
-        self.esr_running = False
-
-        vbox.addLayout(self.scanLayout)
-        #self.imageData = None
-        self.imageData = numpy.array(pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-27_18-41-56-NVBaselineTests.csv"))
-        self.imPlot.axes.imshow(self.imageData, extent = [-.05,.05,-.05,.05])
-        self.imPlot.draw()
-
-        self.mouseNVImageConnect = self.imPlot.mpl_connect('button_press_event', self.mouseNVImage)
-        rectprops = dict(facecolor = 'black', edgecolor = 'black', alpha = 1.0, fill = True)
-        self.RS = RectangleSelector(self.imPlot.axes, self.select_RoI, button = 3, drawtype='box', rectprops = rectprops)
-
-
-        # add button to execute script
-        self.button_exec_script = QtGui.QPushButton('run script', self.main_widget)
-        self.button_exec_script.clicked.connect(self.exec_scriptBtnClicked)
-        self.scanLayout.addWidget(self.button_exec_script,6,16)
-
-        # add button to execute script
-        self.button_save_set = QtGui.QPushButton('save set', self.main_widget)
-        self.button_save_set.clicked.connect(lambda: self.save_settings())
-        self.scanLayout.addWidget(self.button_save_set,6,15)
-
-        """
-        ####### start testing (Jan)
-
-        # colar bar
-        row_start = 8
-        column_start =  1
-        self.label_scan_1a.setText("pt 1a (scan)")
-        self.scanLayout.addWidget(self.label_scan_1a,row_start,column_start)
-        self.label_scan_1b.setText("pt 1b (scan)")
-        self.scanLayout.addWidget(self.label_scan_1b,row_start+1,column_start)
-        self.button_scan_2a = QtGui.QPushButton('pt 2a', self.main_widget)
-        self.scanLayout.addWidget(self.button_scan_2a,row_start+2,column_start)
-        self.button_scan_2b = QtGui.QPushButton('pt 2b', self.main_widget)
-        self.scanLayout.addWidget(self.button_scan_2b,row_start+3,column_start)
-
-        self.label_x.setText("x")
-        self.scanLayout.addWidget(self.label_x,row_start,column_start+1)
-        self.txt_pt_1a.setText("pt 1a (scan)")
-        self.scanLayout.addWidget(self.label_scan_1a,row_start,column_start+1)
-        self.label_scan_1b.setText("pt 1b (scan)")
-        self.scanLayout.addWidget(self.label_scan_1b,row_start+1,column_start+1)
-        self.button_scan_2a.setText("pt 2a")
-        self.scanLayout.addWidget(self.button_scan_2a,row_start+2,column_start+1)
-        self.button_scan_2b.setText("pt 2b")
-        self.scanLayout.addWidget(self.button_scan_2a,row_start+3,column_start+1)
-
-
-
-        self.txt_pt_1a = QtGui.QLineEdit(self.main_widget)
-        self.scanLayout.addWidget(self.txt_pt_1a,row_start,column_start+1)
-
-
-        self.scanLayout.addWidget(self.cbarMax,3,2)
-        self.scanLayout.addWidget(self.buttonCbarThresh,3,3)
-
-
-
-        self.cmb_select_2pt_disp = QtGui.QComboBox(self.main_widget)
-        self.cmb_select_2pt_disp.addItems(['RoI', 'Grid', 'Line', 'Laser (pt A)', 'None'])
-        self.cmb_select_2pt_disp.activated.connect(self.visualize_2pt_disp)
-        self.scanLayout.addWidget(self.cmb_select_2pt_disp,8,13)
-
-
-        ####### end testing (Jan)
-        """
-
-
-        # self.scriptLoc = QtGui.QLineEdit(self.main_widget)
-        # self.scriptLoc.setText('Z:\\Lab\\Cantilever\\Measurements')
-        # self.scanLayout.addWidget(self.scriptLoc,6,15)
-        # self.esrSaveLocL = QtGui.QLabel(self.main_widget)
-        # self.scriptLocL.setText("Script:")
-        # self.scanLayout.addWidget(self.scriptLocL,6,14)
-
-        self.circ = None # marker for laser
-        self.rect = None # marker for RoI
-
-        self.queue = Queue.Queue()
-
-        self.timer = QtCore.QTimer()
-        self.timer.start(5000)
-
-
-
-        self.timer.timeout.connect(self.checkValidImage)
-
-        self.scanLayout.addWidget(self.errSquare, 7,1)
-        self.scanLayout.addWidget(self.errSquareMsg, 7,2,1,4)
-
-        self.laserPos = None
-        self.imageRoI = {
-            "dx": .8,
-            "dy": .8,
-            "xPts": 120,
-            "xo": 0,
-            "yPts": 120,
-            "yo": 0
-        }
-        QtGui.QApplication.processEvents()
-
+    #
+    # def addScan(self, vbox, plotBox):
+    #
+    #
+    #     self.imPlot = MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)
+    #
+    #     """
+    #     self.xVoltageMin = QtGui.QLineEdit(self.main_widget)
+    #     self.yVoltageMin = QtGui.QLineEdit(self.main_widget)
+    #     self.xVoltageMax = QtGui.QLineEdit(self.main_widget)
+    #     self.yVoltageMax = QtGui.QLineEdit(self.main_widget)
+    #     self.xPts = QtGui.QLineEdit(self.main_widget)
+    #     self.yPts = QtGui.QLineEdit(self.main_widget)
+    #     self.timePerPt = QtGui.QLineEdit(self.main_widget)
+    #     self.xVoltage = QtGui.QLineEdit(self.main_widget)
+    #     self.yVoltage = QtGui.QLineEdit(self.main_widget)
+    #     self.xVoltageMinL = QtGui.QLabel(self.main_widget)
+    #     self.xVoltageMinL.setText("xVoltsMin:")
+    #     self.yVoltageMinL = QtGui.QLabel(self.main_widget)
+    #     self.yVoltageMinL.setText("yVoltsMin:")
+    #     self.xVoltageMaxL = QtGui.QLabel(self.main_widget)
+    #     self.xVoltageMaxL.setText("xVoltsMax:")
+    #     self.yVoltageMaxL = QtGui.QLabel(self.main_widget)
+    #     self.yVoltageMaxL.setText("yVoltsMax:")
+    #     self.xVoltageL = QtGui.QLabel(self.main_widget)
+    #     self.xVoltageL.setText("xVolts:")
+    #     self.yVoltageL = QtGui.QLabel(self.main_widget)
+    #     self.yVoltageL.setText("yVolts:")
+    #     self.xPtsL = QtGui.QLabel(self.main_widget)
+    #     self.xPtsL.setText("Number of x Points:")
+    #     self.yPtsL = QtGui.QLabel(self.main_widget)
+    #     self.yPtsL.setText("Number of Y Points:")
+    #     self.timePerPtL = QtGui.QLabel(self.main_widget)
+    #     self.timePerPtL.setText("Timer Per Point:")
+    #
+    #     self.saveLocImage = QtGui.QLineEdit(self.main_widget)
+    #     self.saveLocImage.setText('Z:\\Lab\\Cantilever\\Measurements\\Images')
+    #     self.saveLocImageL = QtGui.QLabel(self.main_widget)
+    #     self.saveLocImageL.setText("Image Location")
+    #     self.saveTagImage = QtGui.QLineEdit(self.main_widget)
+    #     self.saveTagImage.setText('Image')
+    #     self.saveTagImageL = QtGui.QLabel(self.main_widget)
+    #     self.saveTagImageL.setText("Tag")
+    #     self.buttonScan = QtGui.QPushButton('Scan', self.main_widget)
+    #     self.buttonScan.clicked.connect(self.scanBtnClicked)
+    #     self.buttonVSet = QtGui.QPushButton('Set Voltage', self.main_widget)
+    #     self.buttonVSet.clicked.connect(self.vSetBtnClicked)
+    #
+    #     self.buttonSaveImage = QtGui.QPushButton('Save Image', self.main_widget)
+    #     self.buttonSaveImage.clicked.connect(self.saveImageClicked)
+    #     self.buttonLoadDefaulScanRange = QtGui.QPushButton('Large Scan', self.main_widget)
+    #     self.buttonLoadDefaulScanRange.clicked.connect(self.largeScanButtonClicked)
+    #     self.cbarMax = QtGui.QLineEdit(self.main_widget)
+    #     self.cbarMaxL = QtGui.QLabel(self.main_widget)
+    #     self.cbarMaxL.setText("Colorbar Threshold")
+    #     self.buttonCbarThresh = QtGui.QPushButton('Update Colorbar', self.main_widget)
+    #     self.buttonCbarThresh.clicked.connect(self.cbarThreshClicked)
+    #     self.buttonStop = QtGui.QPushButton('Stop Scan', self.main_widget)
+    #     self.buttonStop.clicked.connect(self.stopButtonClicked)
+    #     self.autosaveCheck = QtGui.QCheckBox('AutoSave',self.main_widget)
+    #     self.autosaveCheck.setChecked(True)
+    #     self.buttonAPD = QtGui.QPushButton('Use APD',self.main_widget)
+    #     self.buttonAPD.setCheckable(True)
+    #     self.buttonAPD.setChecked(True)
+    #     self.buttonAPD.clicked.connect(self.buttonAPDClicked)
+    #     self.buttonRedrawLaser = QtGui.QPushButton('Redraw laser spot',self.main_widget)
+    #     self.buttonRedrawLaser.clicked.connect(self.drawDot_RoI)
+    #     self.buttonLoadScanRange = QtGui.QPushButton('Load scan range',self.main_widget)
+    #     self.buttonLoadScanRange.clicked.connect(lambda: self.loadRoI())
+    #     self.buttonZoomInRoI = QtGui.QPushButton('zoom in (RoI)',self.main_widget)
+    #     self.buttonZoomInRoI.clicked.connect(self.zoom_RoI)
+    #     self.buttonZoomOutRoI = QtGui.QPushButton('zoom out', self.main_widget)
+    #     self.buttonZoomOutRoI.clicked.connect(self.imageHomeClicked)
+    #     self.buttonAutofocusRoI = QtGui.QPushButton('auto focus (RoI)',self.main_widget)
+    #     self.buttonAutofocusRoI.clicked.connect(self.autofcus_RoI)
+    #
+    #     self.zPosL = QtGui.QLabel(self.main_widget)
+    #     self.zPosL.setText("focus (V)")
+    #     self.zPos = QtGui.QLineEdit(self.main_widget)
+    #     self.zRangeL = QtGui.QLabel(self.main_widget)
+    #     self.zRangeL.setText('range auto focus (V)')
+    #     self.zRange = QtGui.QLineEdit(self.main_widget)
+    #     self.zPtsL = QtGui.QLabel(self.main_widget)
+    #     self.zPtsL.setText('pts auto focus (z)')
+    #     self.zPts = QtGui.QLineEdit(self.main_widget)
+    #     self.xyRange = QtGui.QLineEdit(self.main_widget)
+    #     self.xyRangeL = QtGui.QLabel(self.main_widget)
+    #     self.xyRangeL.setText('pts focus range (xy)')
+    #
+    #     self.buttonESRSequence = QtGui.QPushButton("Choose NVs", self.main_widget)
+    #     self.buttonESRFinished = QtGui.QPushButton("FinishedChoosing", self.main_widget)
+    #     self.esrSaveLocL = QtGui.QLabel(self.main_widget)
+    #     self.esrSaveLocL.setText("ESR Save Location")
+    #     self.esrSaveLoc = FileBox(self.main_widget)
+    #     self.esrSaveLoc.setText('Z:\\Lab\\Cantilever\\Measurements')
+    #     self.esrReadLocL = QtGui.QLabel(self.main_widget)
+    #     self.esrReadLocL.setText("ESR Read Location")
+    #     self.esrReadLoc = QtGui.QLineEdit(self.main_widget)
+    #     self.buttonESRRun = QtGui.QPushButton("Run ESR", self.main_widget)
+    #     self.errSquare = QtGui.QFrame(self.main_widget)
+    #     self.errSquare.setGeometry(150, 20, 100, 100)
+    #     self.errSquare.setStyleSheet("QWidget { background-color: %s }" % 'Green')
+    #     self.errSquareMsg = QtGui.QLineEdit(self.main_widget)
+    #
+    #
+    #     #set initial values for scan values
+    #     # self.loadRoI('Z://Lab//Cantilever//Measurements//default_settings.config')
+    #     self.loadSettings('Z://Lab//Cantilever//Measurements//default_settings.config')
+    #
+    #
+    #
+    #     plotBox.addWidget(self.imPlot)
+    #     self.scanLayout = QtGui.QGridLayout()
+    #
+    #
+    #     # Scan area
+    #     self.scanLayout.addWidget(self.xVoltageMin, 2,1)
+    #     self.scanLayout.addWidget(self.yVoltageMin, 2,2)
+    #     self.scanLayout.addWidget(self.xVoltageMinL,1,1)
+    #     self.scanLayout.addWidget(self.yVoltageMinL,1,2)
+    #     self.scanLayout.addWidget(self.xVoltageMax, 2,3)
+    #     self.scanLayout.addWidget(self.yVoltageMax, 2,4)
+    #     self.scanLayout.addWidget(self.xVoltageMaxL,1,3)
+    #     self.scanLayout.addWidget(self.yVoltageMaxL,1,4)
+    #     self.scanLayout.addWidget(self.xPts,2,5)
+    #     self.scanLayout.addWidget(self.xPtsL,1,5)
+    #     self.scanLayout.addWidget(self.yPts, 2,6)
+    #     self.scanLayout.addWidget(self.yPtsL, 1,6)
+    #     self.scanLayout.addWidget(self.timePerPt,2,7)
+    #     self.scanLayout.addWidget(self.timePerPtL,1,7)
+    #     self.scanLayout.addWidget(self.buttonLoadScanRange,6,14)
+    #     self.scanLayout.addWidget(self.buttonLoadDefaulScanRange,2,8)
+    #     # execute commands
+    #     self.scanLayout.addWidget(self.buttonScan,1,14)
+    #     self.scanLayout.addWidget(self.buttonStop,2,14)
+    #
+    #
+    #     # laser position
+    #     self.scanLayout.addWidget(self.xVoltageL,1,9)
+    #     self.scanLayout.addWidget(self.xVoltage, 2,9)
+    #     self.scanLayout.addWidget(self.yVoltageL,1,10)
+    #     self.scanLayout.addWidget(self.yVoltage, 2,10)
+    #     self.scanLayout.addWidget(self.buttonRedrawLaser,3,9)
+    #     self.scanLayout.addWidget(self.buttonVSet,3,10)
+    #
+    #
+    #     # save image
+    #     self.scanLayout.addWidget(self.saveLocImageL,6,1)
+    #     self.scanLayout.addWidget(self.saveLocImage,6,2,1,4)
+    #
+    #     self.scanLayout.addWidget(self.saveTagImageL,6,6)
+    #     self.scanLayout.addWidget(self.saveTagImage,6,7)
+    #
+    #     self.scanLayout.addWidget(self.buttonSaveImage,6,8)
+    #     self.scanLayout.addWidget(self.autosaveCheck,6,9)
+    #
+    #
+    #
+    #     # set RoI and zoom
+    #     self.scanLayout.addWidget(self.buttonZoomOutRoI,1,11)
+    #     self.scanLayout.addWidget(self.buttonZoomInRoI,2,11)
+    #
+    #     # colar bar
+    #     self.scanLayout.addWidget(self.cbarMaxL,3,1)
+    #     self.scanLayout.addWidget(self.cbarMax,3,2)
+    #     self.scanLayout.addWidget(self.buttonCbarThresh,3,3)
+    #
+    #
+    #     # settings
+    #     self.scanLayout.addWidget(self.buttonAPD,1,16)
+    #
+    #
+    #
+    #     # autofocus settings
+    #     self.scanLayout.addWidget(self.xyRangeL,3,12)
+    #     self.scanLayout.addWidget(self.xyRange,4,12)
+    #     self.scanLayout.addWidget(self.zPosL,3,13)
+    #     self.scanLayout.addWidget(self.zPos,4,13)
+    #     self.scanLayout.addWidget(self.zRangeL,3,14)
+    #     self.scanLayout.addWidget(self.zRange,4,14)
+    #     self.scanLayout.addWidget(self.zPtsL,3,15)
+    #     self.scanLayout.addWidget(self.zPts,4,15)
+    #     self.scanLayout.addWidget(self.buttonAutofocusRoI,3,16)
+    #
+    #     self.scanLayout.addWidget(self.buttonESRSequence,5,1)
+    #     self.scanLayout.addWidget(self.buttonESRFinished,5,2)
+    #     self.scanLayout.addWidget(self.esrSaveLocL,5,3)
+    #     self.scanLayout.addWidget(self.esrSaveLoc,5,4)
+    #     self.scanLayout.addWidget(self.buttonESRRun,5,5)
+    #     self.scanLayout.addWidget(self.esrReadLocL,5,6)
+    #     self.scanLayout.addWidget(self.esrReadLoc,5,7)
+    #     self.buttonESRSequence.clicked.connect(self.start_esr_sequence)
+    #     self.buttonESRFinished.clicked.connect(self.finished_choosing)
+    #     self.buttonESRRun.clicked.connect(self.run_esr)
+    #     self.esr_running = False
+    #
+    #     vbox.addLayout(self.scanLayout)
+    #     #self.imageData = None
+    #     self.imageData = numpy.array(pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-27_18-41-56-NVBaselineTests.csv"))
+    #     self.imPlot.axes.imshow(self.imageData, extent = [-.05,.05,-.05,.05])
+    #     self.imPlot.draw()
+    #
+    #     self.mouseNVImageConnect = self.imPlot.mpl_connect('button_press_event', self.mouseNVImage)
+    #     rectprops = dict(facecolor = 'black', edgecolor = 'black', alpha = 1.0, fill = True)
+    #     self.RS = RectangleSelector(self.imPlot.axes, self.select_RoI, button = 3, drawtype='box', rectprops = rectprops)
+    #
+    #
+    #     # add button to execute script
+    #     self.button_exec_script = QtGui.QPushButton('run script', self.main_widget)
+    #     self.button_exec_script.clicked.connect(self.exec_scriptBtnClicked)
+    #     self.scanLayout.addWidget(self.button_exec_script,6,16)
+    #
+    #     # add button to execute script
+    #     self.button_save_set = QtGui.QPushButton('save set', self.main_widget)
+    #     self.button_save_set.clicked.connect(lambda: self.save_settings())
+    #     self.scanLayout.addWidget(self.button_save_set,6,15)
+    #     """
+    #
+    #     ####### start testing (Jan)
+    #
+    #     self.scanCoorGrid = QtGui.QGridLayout()
+    #     vbox.addLayout(self.scanCoorGrid)
+    #
+    #
+    #
+    #     # colar bar
+    #     row_start = 8
+    #     column_start =  1
+    #     self.label_scan_1a = QtGui.QLabel("pt 1a (scan)", self.main_widget)
+    #     self.scanCoorGrid.addWidget(self.label_scan_1a,row_start,column_start)
+    #     self.label_scan_1b = QtGui.QLabel("pt 1b (scan)", self.main_widget)
+    #     self.scanCoorGrid.addWidget(self.label_scan_1b,row_start+1,column_start)
+    #     self.button_scan_2a = QtGui.QPushButton('pt 2a', self.main_widget)
+    #     self.scanCoorGrid.addWidget(self.button_scan_2a,row_start+2,column_start)
+    #     self.button_scan_2b = QtGui.QPushButton('pt 2b', self.main_widget)
+    #     self.scanCoorGrid.addWidget(self.button_scan_2b,row_start+3,column_start)
+    #
+    #     self.label_x = QtGui.QLabel("x", self.main_widget)
+    #     self.scanCoorGrid.addWidget(self.label_x,row_start-1,column_start+1)
+    #     self.txt_pt_1a.setText("pt 1a (scan)")
+    #     self.scanCoorGrid.addWidget(self.label_scan_1a,row_start,column_start+1)
+    #     self.label_scan_1b.setText("pt 1b (scan)")
+    #     self.scanCoorGrid.addWidget(self.label_scan_1b,row_start+1,column_start+1)
+    #     self.button_scan_2a.setText("pt 2a")
+    #     self.scanCoorGrid.addWidget(self.button_scan_2a,row_start+2,column_start+1)
+    #     self.button_scan_2b.setText("pt 2b")
+    #     self.scanCoorGrid.addWidget(self.button_scan_2a,row_start+3,column_start+1)
+    #
+    #
+    #
+    #     self.txt_pt_1a = QtGui.QLineEdit(self.main_widget)
+    #     self.scanCoorGrid.addWidget(self.txt_pt_1a,row_start,column_start+1)
+    #
+    #
+    #     self.scanCoorGrid.addWidget(self.cbarMax,3,2)
+    #     self.scanCoorGrid.addWidget(self.buttonCbarThresh,3,3)
+    #
+    #
+    #
+    #     self.cmb_select_2pt_disp = QtGui.QComboBox(self.main_widget)
+    #     self.cmb_select_2pt_disp.addItems(['RoI', 'Grid', 'Line', 'Laser (pt A)', 'None'])
+    #     self.cmb_select_2pt_disp.activated.connect(self.visualize_2pt_disp)
+    #     self.scanCoorGrid.addWidget(self.cmb_select_2pt_disp,8,13)
+    #
+    #     ####### end testing (Jan)
+    #
+    #
+    #
+    #     # self.scriptLoc = QtGui.QLineEdit(self.main_widget)
+    #     # self.scriptLoc.setText('Z:\\Lab\\Cantilever\\Measurements')
+    #     # self.scanLayout.addWidget(self.scriptLoc,6,15)
+    #     # self.esrSaveLocL = QtGui.QLabel(self.main_widget)
+    #     # self.scriptLocL.setText("Script:")
+    #     # self.scanLayout.addWidget(self.scriptLocL,6,14)
+    #     """
+    #     self.circ = None # marker for laser
+    #     self.rect = None # marker for RoI
+    #
+    #     self.queue = Queue.Queue()
+    #
+    #     self.timer = QtCore.QTimer()
+    #     self.timer.start(5000)
+    #
+    #
+    #
+    #     self.timer.timeout.connect(self.checkValidImage)
+    #
+    #     self.scanLayout.addWidget(self.errSquare, 7,1)
+    #     self.scanLayout.addWidget(self.errSquareMsg, 7,2,1,4)
+    #
+    #     self.laserPos = None
+    #     self.imageRoI = {
+    #         "dx": .8,
+    #         "dy": .8,
+    #         "xPts": 120,
+    #         "xo": 0,
+    #         "yPts": 120,
+    #         "yo": 0
+    #     }
+    #     QtGui.QApplication.processEvents()
+    #     # """
 
 
     def addZI(self, vbox, plotBox):
@@ -1010,7 +991,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         pass
 
     def removeScan(self, plotBox):
-        self.clearLayout(self.scanLayout)
+        self.clearLayout(self.scanCoorGrid)
         self.imPlot.deleteLater()
         QtGui.QApplication.processEvents()
 
@@ -1090,7 +1071,7 @@ class ApplicationWindow(QtGui.QMainWindow):
     def toolbarImageChecked(self):
         if(not self.toolbarLock.isChecked()):
             if(self.toolbarImage.isChecked()):
-                self.addScan(self.vbox, self.plotBox)
+                gui_layout.addScan(self, self.vbox, self.plotBox)
             else:
                 self.removeScan(self.plotBox)
 
