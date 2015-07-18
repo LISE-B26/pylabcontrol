@@ -307,7 +307,7 @@ def save_esr(esr_data, fig, dirpath, tag = "", saveImage = True):
 #tag = 'NV1_RFPower_{:03d}mdB_NumAvrg_{:03d}'.format(RF_Power, avg)
 #print('saving ESR spectrum {:s} '.format(tag))
 #save_esr(esr_data, fig, dirpath, tag)
-
-mwgen = init_mwgen(-40)
-
-mwgen.modOff()
+#
+# mwgen = init_mwgen(-40)
+#
+# mwgen.modOff()

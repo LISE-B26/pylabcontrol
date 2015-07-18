@@ -5,7 +5,7 @@ import gui_custom_widgets as gui_cw
 from PyQt4 import QtGui
 import numpy as np
 import pandas as pd
-# import json as json
+import json as json
 import Queue
 
 import functions.ReadWriteCommands as rw
@@ -15,6 +15,8 @@ from matplotlib.collections import PatchCollection
 import functions.Meshing as Meshing
 import scripts.ESR_many_NVs as ESR
 import scripts.auto_focus as AF
+
+
 
 def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
@@ -107,7 +109,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.label_execute = QtGui.QLabel('execute', ApplicationWindow.main_widget)
         ApplicationWindow.grid_execute.addWidget(ApplicationWindow.label_execute,row_start,column_start)
         ApplicationWindow.cmb_execute = QtGui.QComboBox(ApplicationWindow.main_widget)
-        ApplicationWindow.cmb_execute.addItems(['ESR (grid)', 'AutoFocus'])
+        ApplicationWindow.cmb_execute.addItems(['ESR (grid)', 'ESR (point)', 'AutoFocus', 'reset scan range'])
         ApplicationWindow.cmb_execute.activated.connect(lambda: change_script(ApplicationWindow))
         ApplicationWindow.grid_execute.addWidget(ApplicationWindow.cmb_execute,row_start+1,column_start)
 
@@ -160,21 +162,69 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             ApplicationWindow.statusBar().showMessage('running {:s} with {:s}'.format(script_name, script_path),1000)
             ApplicationWindow.path_script.setText(script_path)
 
+            print ApplicationWindow.path_script.text()
+
             if script_name == 'ESR (grid)':
                 _, pt_a, pt_b, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
                 points = Meshing.get_points_on_a_grid(pt_a, pt_b, xpts, ypts)
+
                 esr_param = ESR.ESR_load_param(ApplicationWindow.path_script.text())
                 print 'ESR (grid)'
-                ESR.ESR_map(points, esr_param)
+                if not esr_param == {}:
+                    ESR.ESR_map(points, esr_param)
+
+            elif script_name == 'ESR (point)':
+                _, pt_a, _, _, _, _ = get_pts_and_size(ApplicationWindow)
+                esr_param = ESR.ESR_load_param(ApplicationWindow.path_script.text())
+                print 'ESR (point)'
+                if not esr_param == {}:
+                    ESR.ESR_map([pt_a], esr_param)
 
             elif script_name == 'AutoFocus':
-                print 'need to implement AutoFocus'
+                print 'AutoFocus'
                 _, pt_a, pt_b, _, _, _ = get_pts_and_size(ApplicationWindow)
                 roi_focus = Meshing.two_pts_to_roi(pt_a, pt_b)
                 af_parameter = AF.AF_load_param(ApplicationWindow.path_script.text())
-                voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus)
 
-                ApplicationWindow.statusBar().showMessage('new focus {:0.3f}'.format(voltage_focus),2000)
+                if not af_parameter == {}:
+                    voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus)
+                    ApplicationWindow.statusBar().showMessage('new focus {:0.3f}'.format(voltage_focus),2000)
+
+            elif script_name == 'reset scan range':
+
+                def is_scan_range_param(myjson):
+                    try:
+                        json_object = json.loads(myjson)
+                    except ValueError, e:
+                        return False
+
+                    assert 'pt_1a_x' in json_object.keys()
+                    assert 'pt_1a_y' in json_object.keys()
+                    assert 'pt_1b_x' in json_object.keys()
+                    assert 'pt_1b_y' in json_object.keys()
+                    assert 'pt_1_x' in json_object.keys()
+                    assert 'pt_1_y' in json_object.keys()
+                    return True
+
+                param_txt = str(ApplicationWindow.path_script.text())
+                if is_scan_range_param(param_txt):
+                    param = json.loads(param_txt)
+                else:
+                    param = {
+                        "pt_1a_x": "-0.4",
+                        "pt_1a_y": "-0.4",
+                        "pt_1b_x": "0.4",
+                        "pt_1b_y": "0.4",
+                        "pt_1_x": "120",
+                        "pt_1_y": "120"
+                    }
+
+                ApplicationWindow.txt_pt_1a_x.setText(param['pt_1a_x'])
+                ApplicationWindow.txt_pt_1b_x.setText(param['pt_1b_x'])
+                ApplicationWindow.txt_pt_1a_y.setText(param['pt_1a_y'])
+                ApplicationWindow.txt_pt_1b_y.setText(param['pt_1b_y'])
+                ApplicationWindow.txt_pt_1_x_pts.setText(param['pt_1_x'])
+                ApplicationWindow.txt_pt_1_y_pts.setText(param['pt_1_y'])
 
     ##################################################################################
     # ADD GLOBAL ####################################################################

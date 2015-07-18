@@ -636,3 +636,12 @@ aw.setWindowTitle("%s" % progname)
 aw.show()
 sys.exit(qApp.exec_())
 #qApp.exec_()
+
+{
+    "pt_1a_x": "0.0496",
+    "pt_1b_x": "0.0496",
+    "pt_1a_y": "-0.0658",
+    "pt_1b_y": "0.0630",
+    "pt_1_x": "20",
+    "pt_1_y": "20"
+}

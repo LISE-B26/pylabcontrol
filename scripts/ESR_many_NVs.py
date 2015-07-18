@@ -6,7 +6,8 @@ from hardware_modules import GalvoMirrors as DaqOut
 import numpy as np
 import matplotlib.pyplot as plt
 import functions.ReadWriteCommands as ReadWriteCommands
-
+import json
+import os.path
 
 def setDaqPt(xVolt,yVolt):
     initPt = np.transpose(np.column_stack((xVolt, yVolt)))
@@ -46,12 +47,39 @@ def ESR_NVs(coor):
 
 
 
-def ESR_load_param(filename):
+def is_ESR_param(myjson):
+    try:
+        json_object = json.loads(myjson)
+    except ValueError, e:
+        return False
+
+    assert 'RF_Power' in json_object.keys()
+    assert 'ESR_avg' in json_object.keys()
+    assert 'RF_Min' in json_object.keys()
+    assert 'RF_Max' in json_object.keys()
+    assert 'RF_N_Points' in json_object.keys()
+    assert 'ESR_path' in json_object.keys()
+    assert 'ESR_tag' in json_object.keys()
+    assert 'ESR_integration_time' in json_object.keys()
+
+
+    return True
+
+
+def ESR_load_param(filename_or_json):
     '''
     loads esr parameter from json file
-    need to add assert functions here!!
     '''
-    esr_param = ReadWriteCommands.load_json(filename)
+
+    esr_param = {}
+    # check if input is path to json file or dictionary itself
+    if os.path.isfile(filename_or_json):
+        esr_param = ReadWriteCommands.load_json(filename_or_json)
+    elif is_ESR_param(filename_or_json):
+        esr_param = json.loads(filename_or_json)
+
+    else:
+        raise ValueError('ESR: no valid parameter filename or dictionary')
 
     return esr_param
 
