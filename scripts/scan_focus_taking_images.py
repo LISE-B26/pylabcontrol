@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-from functions.save_array_to_disk import *
+from functions.ReadWriteCommands import *
 
 # set variables =============================================
 # ===========================================================

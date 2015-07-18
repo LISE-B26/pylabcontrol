@@ -182,9 +182,9 @@ def fit_esr(freq_values, esr_data, fit_start_params = None):
 # dynamically plots the ESR curve and, if chosen, the fit to the curve and the convergence plot using pyplot
 def plot_esr(freq_values, esr_data, fit_data = None, converge_data = None):
     plt.clf()
+    fig = plt.figure(1)
     if not (fit_data == None or converge_data == None): # plot esr, fit, and convergence data
         scan_array = np.linspace(1,len(converge_data),len(converge_data))
-        fig = plt.figure(1)
         plt.subplot(211)
         plt.plot(freq_values, esr_data, freq_values, fit_data)
         plt.title('ESR')
@@ -198,7 +198,6 @@ def plot_esr(freq_values, esr_data, fit_data = None, converge_data = None):
         plt.tight_layout()
     elif not (converge_data == None): # plot esr and convergence, prevents entire plot disappearing when one fit fails
         scan_array = np.linspace(1,len(converge_data),len(converge_data))
-        plt.figure(1)
         plt.subplot(211)
         plt.plot(freq_values, esr_data)
         plt.title('ESR')
@@ -283,7 +282,10 @@ def save_esr(esr_data, fig, dirpath, tag = "", saveImage = True):
     filepathCSV = dirpath + "\\" + start_time + '_' + tag + '.csv'
     df.to_csv(filepathCSV)
     filepathPNG = dirpath + "\\" + start_time + '_' + tag + '.png'
-    fig.savefig(filepathPNG, format='png')
+    print filepathPNG
+
+    if (fig == None) == False:
+        fig.savefig(filepathPNG, format='png')
 
 #def mw_soft_start(final_power, time, steps, roi):
 
@@ -305,3 +307,7 @@ def save_esr(esr_data, fig, dirpath, tag = "", saveImage = True):
 #tag = 'NV1_RFPower_{:03d}mdB_NumAvrg_{:03d}'.format(RF_Power, avg)
 #print('saving ESR spectrum {:s} '.format(tag))
 #save_esr(esr_data, fig, dirpath, tag)
+
+mwgen = init_mwgen(-40)
+
+mwgen.modOff()

@@ -5,6 +5,8 @@ from hardware_modules import GalvoMirrors as DaqOut
 
 import numpy as np
 import matplotlib.pyplot as plt
+import functions.ReadWriteCommands as ReadWriteCommands
+
 
 def setDaqPt(xVolt,yVolt):
     initPt = np.transpose(np.column_stack((xVolt, yVolt)))
@@ -41,18 +43,58 @@ def ESR_NVs(coor):
         ESR.save_esr(esr_data, dirpath, tag)
         pt_num += 1
 
-roi = {
-    "dx": 0.10,
-    "dy": 0.10,
-    "xPts": 120,
-    "xo": 0.0,
-    "yPts": 120,
-    "yo": 0.0,
-}
-#find_NVs(roi)
 
-img = np.zeros((120,120))
-coor = np.array([[ 14,  65], [ 60,  60]], dtype = float)
-coor_v = track.pixel_to_voltage(coor, img, roi)
-print(coor_v)
-ESR_NVs(coor_v)
+
+
+def ESR_load_param(filename):
+    '''
+    loads esr parameter from json file
+    need to add assert functions here!!
+    '''
+    esr_param = ReadWriteCommands.load_json(filename)
+
+    return esr_param
+
+def ESR_map(points, esr_param):
+    '''
+        gets the ESR at points defined by points
+    '''
+    print esr_param
+    RF_Power = float(esr_param['RF_Power'])
+    avg = int(esr_param['ESR_avg'])
+    freqs = np.linspace(int(esr_param['RF_Min']), int(esr_param['RF_Max']), int(esr_param['RF_N_Points']))
+
+    dirpath = esr_param['ESR_path']
+    tag = esr_param['ESR_tag']
+    int_time = esr_param['ESR_integration_time']
+
+    pt_num = 1
+    print dirpath
+    for pt in points:
+
+        print '{:s}_NV_pt_{:00d}'.format(tag, pt_num)
+        esr_data, fit_params, fig = ESR.run_esr(RF_Power, freqs, (pt[0],pt[1]), num_avg=avg, int_time=int_time)
+        print pt_num
+        print fig
+        ESR.save_esr(esr_data, fig, dirpath, '{:s}_NV_pt_{:00d}'.format(tag, pt_num))
+
+
+        pt_num += 1
+    fig.clf()
+
+
+# roi = {
+#     "dx": 0.10,
+#     "dy": 0.10,
+#     "xPts": 120,
+#     "xo": 0.0,
+#     "yPts": 120,
+#     "yo": 0.0,
+# }
+# #find_NVs(roi)
+#
+# img = np.zeros((120,120))
+# coor = np.array([[ 14,  65], [ 60,  60]], dtype = float)
+# coor_v = track.pixel_to_voltage(coor, img, roi)
+# print(coor_v)
+# ESR_NVs(coor_v)
