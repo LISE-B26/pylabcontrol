@@ -30,7 +30,15 @@ class MyMplCanvas(FigureCanvas):
     def compute_initial_figure(self):
         pass
 
-class FileBox(QtGui.QLineEdit):
+class FileBoxOpen(QtGui.QLineEdit):
     def focusInEvent(self, QFocusEvent):
         fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '/home')
+        self.setText(fname)
+
+class FileBoxSave(QtGui.QLineEdit):
+    def __init__(self, default_path):
+        QtGui.QLineEdit.__init__(self)
+        self.default_path = default_path
+    def focusInEvent(self, QFocusEvent):
+        fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file', self.default_path)
         self.setText(fname)

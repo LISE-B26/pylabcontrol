@@ -430,9 +430,6 @@ class ApplicationWindow(QtGui.QMainWindow):
     #     df.to_csv(filepathCSV, index = False, header=header)
     #     self.imPlot.fig.savefig(str(filepathJPG), format = 'jpg')
 
-    def cbarThreshClicked(self):
-        DeviceTriggers.updateColorbar(self.imageData, self.imPlot, [self.xMinHome, self.xMaxHome, self.yMinHome, self.yMaxHome], float(self.cbarMax.text()))
-
     def testButtonClicked(self):
         self.addScan(self.vbox, self.plotBox)
         time.sleep(2)
@@ -504,7 +501,7 @@ class ApplicationWindow(QtGui.QMainWindow):
     def initUI(self):
         self.toolbarImage = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\diamondIcon.jpg'), 'addImaging', self)
         self.toolbarImage.setCheckable(True)
-        self.toolbarImage.setChecked(False)
+        self.toolbarImage.setChecked(True)
         self.toolbarImage.triggered.connect(self.toolbarImageChecked)
         self.toolbarImage.setToolTip('Imaging Tools')
         self.toolbar = self.addToolBar('addImaging')
@@ -544,6 +541,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.toolbar.addAction(self.toolbarLock)
         self.setGeometry(300, 300, 300, 200)
         self.setWindowTitle('Toolbar')
+        self.toolbarImageChecked()
         self.show()
 
     def toolbarImageChecked(self):

@@ -13,6 +13,14 @@ def get_points_along_line(pos1, pos2, xpts):
 
 
 def get_points_on_a_grid(pos_left_bottom, pos_right_top, xpts, ypts):
+    '''
+
+    :param pos_left_bottom:
+    :param pos_right_top:
+    :param xpts:
+    :param ypts:
+    :return: list of points on a grid (dimension: xpts * ypts,  2)
+    '''
     dx = 1.*(pos_right_top[0] - pos_left_bottom[0]) / (xpts - 1)
     dy = 1.*(pos_right_top[1] - pos_left_bottom[1]) / (ypts - 1)
 
@@ -37,16 +45,20 @@ def two_pts_to_center_size(pt1, pt2):
     center = [x0, y0]
     return center, width, height
 
-def two_pts_to_roi(pt1, pt2):
+def two_pts_to_roi(pt1, pt2, xPts = None, yPts = None):
     center, width, height = two_pts_to_center_size(pt1, pt2)
 
     roi = {
         "xo": center[0],
         "yo": center[1],
         "dx": width,
-        "dy": height
+        "dy": height,
+        "xPts": xPts,
+        "yPts": yPts
     }
     return roi
+
+
 
 def shift_line_perp(pos1, pos2, shift):
     '''
@@ -63,8 +75,8 @@ def shift_line_perp(pos1, pos2, shift):
 
     return p1 + shift * nperp, p2 + shift * nperp
 
-pt1, pt2 = [1,2],[2,3]
-
-center, width, height = two_pts_to_center_size(pt1, pt2)
-
-print center, width, height
+# pt1, pt2 = [1,2],[2,3]
+#
+# center, width, height = two_pts_to_center_size(pt1, pt2)
+#
+# print center, width, height

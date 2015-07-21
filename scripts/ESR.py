@@ -310,4 +310,4 @@ def save_esr(esr_data, fig, dirpath, tag = "", saveImage = True):
 #
 # mwgen = init_mwgen(-40)
 #
-# mwgen.modOff()
+# mwgen.outputOff()
