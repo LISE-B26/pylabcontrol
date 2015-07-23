@@ -142,37 +142,48 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                             ApplicationWindow.esr_select_patches.append(circ)
                         ApplicationWindow.imPlot.draw()
 
+            def find_pts(voltage_range, numPts):
+                if ApplicationWindow.is_choosing_points == True:
+                    ApplicationWindow.imPlot.mpl_disconnect(ApplicationWindow.select_point)
+                ApplicationWindow.plot_nvs = True
+                ApplicationWindow.is_choosing_points = True
+                ApplicationWindow.statusBar().showMessage("Choose NVs for ESR", 0)
+                coordinates = track.locate_NVs(ApplicationWindow.imageData, voltage_range, numPts)
+                coordinates[:,[0,1]] = coordinates[:,[1,0]]
+                _, pt1, pt2, xPts, yPts, _ = get_pts_and_size(ApplicationWindow,'1')
+                nv_roi = Meshing.two_pts_to_roi(pt1, pt2, xPts, yPts)
+                coordinates_in_volt = track.pixel_to_voltage(coordinates, ApplicationWindow.imageData, nv_roi)
+                ApplicationWindow.nv_points = coordinates_in_volt
+                display_shapes()
+                ApplicationWindow.esr_select_patches = []
+
+            def choose_subset():
+                point_selected = ApplicationWindow.imPlot.mpl_connect('button_press_event', lambda x: select_point(x, ApplicationWindow.nv_points))
+                ApplicationWindow.selected_points = list()
+                ApplicationWindow.is_choosing_points = True
+                while ApplicationWindow.is_choosing_points:
+                    QtGui.QApplication.processEvents()
+                    time.sleep(.05)
+                ApplicationWindow.imPlot.mpl_disconnect(select_point)
+                QtGui.QApplication.processEvents()
+                dirpath = ApplicationWindow.txt_save_image_location.text()
+                start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+                filepath = dirpath + "\\" + start_time
+                filepathJPG = filepath + '.jpg'
+                ApplicationWindow.imPlot.fig.savefig(str(filepathJPG), format = 'jpg')
+                ApplicationWindow.plot_nvs = False
+                for circ in ApplicationWindow.esr_select_patches:
+                    circ.remove()
+                print('here')
+                reset_shapes()
 
             voltage_range = abs(float(ApplicationWindow.txt_pt_1a_x.text()) - float(ApplicationWindow.txt_pt_1b_x.text()))
             numPts = float(ApplicationWindow.txt_pt_1_x_pts.text())
 
-            if ApplicationWindow.is_choosing_points == True:
-                ApplicationWindow.imPlot.mpl_disconnect(ApplicationWindow.select_point)
-            ApplicationWindow.plot_nvs = True
-            ApplicationWindow.is_choosing_points = True
-            ApplicationWindow.statusBar().showMessage("Choose NVs for ESR", 0)
-            # ApplicationWindow.esr_select_patches = []
-            coordinates = track.locate_NVs(ApplicationWindow.imageData, voltage_range, numPts)
-            coordinates[:,[0,1]] = coordinates[:,[1,0]]
-            _, pt1, pt2, xPts, yPts, _ = get_pts_and_size(ApplicationWindow,'1')
-            nv_roi = Meshing.two_pts_to_roi(pt1, pt2, xPts, yPts)
-            coordinates_in_volt = track.pixel_to_voltage(coordinates, ApplicationWindow.imageData, nv_roi)
-            ApplicationWindow.nv_points = coordinates_in_volt
-            display_shapes()
-            ApplicationWindow.esr_select_patches = []
-
-            point_selected = ApplicationWindow.imPlot.mpl_connect('button_press_event', lambda x: select_point(x, coordinates_in_volt))
-            ApplicationWindow.selected_points = list()
-            ApplicationWindow.choosingNVs = True
-            while ApplicationWindow.choosingNVs:
-                QtGui.QApplication.processEvents()
-                time.sleep(.05)
-            ApplicationWindow.imPlot.mpl_disconnect(point_selected)
-            QtGui.QApplication.processEvents()
-            ApplicationWindow.plot_nvs = False
+            find_pts(voltage_range, numPts)
+            choose_subset()
 
 
-            reset_shapes()
 
         else:
             ApplicationWindow.is_choosing_points = False
@@ -244,7 +255,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.label_execute = QtGui.QLabel('execute', ApplicationWindow.main_widget)
         grid.addWidget(ApplicationWindow.label_execute,row_start,column_start)
         ApplicationWindow.cmb_execute = QtGui.QComboBox(ApplicationWindow.main_widget)
-        ApplicationWindow.cmb_execute.addItems(['ESR (grid)', 'ESR (point)', 'AutoFocus', 'reset scan range'])
+        ApplicationWindow.cmb_execute.addItems(['ESR (chosen NVs)', 'ESR (grid)', 'ESR (point)', 'AutoFocus', 'reset scan range'])
         ApplicationWindow.cmb_execute.activated.connect(lambda: change_script(ApplicationWindow))
         grid.addWidget(ApplicationWindow.cmb_execute,row_start+1,column_start)
 
@@ -258,6 +269,8 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.button_execute_script = QtGui.QPushButton('run script', ApplicationWindow.main_widget)
         ApplicationWindow.button_execute_script.clicked.connect(lambda: execute_script(ApplicationWindow))
         grid.addWidget(ApplicationWindow.button_execute_script,row_start+1,column_start+2)
+
+        ApplicationWindow.selected_points = list()
 
         ApplicationWindow.parameters_paths_scripts = {
 			"ESR": "ESR path_script",
@@ -299,14 +312,24 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
             print ApplicationWindow.path_script.text()
 
+            if script_name == 'ESR (chosen NVs)':
+                esr_param = ESR.ESR_load_param(ApplicationWindow.path_script.text())
+                print 'ESR (chosen NVs)'
+                if not ApplicationWindow.selected_points:
+                    QtGui.QMessageBox.information(ApplicationWindow.main_widget, "No NVs Error","You must choose NVs before running this ESR script")
+                else:
+                    ESR.ESR_map(ApplicationWindow.selected_points, esr_param)
+
             if script_name == 'ESR (grid)':
-                _, pt_a, pt_b, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
-                points = Meshing.get_points_on_a_grid(pt_a, pt_b, xpts, ypts)
+                _, pt_a2, pt_b2, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
+                points = Meshing.get_points_on_a_grid(pt_a2, pt_b2, xpts, ypts)
+                _, pt_a1, pt_b1, _, _, _ = get_pts_and_size(ApplicationWindow, '1')
+                roi_focus = Meshing.two_pts_to_roi(pt_a1, pt_b1)
 
                 esr_param = ESR.ESR_load_param(ApplicationWindow.path_script.text())
                 print 'ESR (grid)'
                 if not esr_param == {}:
-                    ESR.ESR_map(points, esr_param)
+                    ESR.ESR_map_focus(points, roi_focus, esr_param)
 
             elif script_name == 'ESR (point)':
                 _, pt_a, _, _, _, _ = get_pts_and_size(ApplicationWindow)
@@ -633,7 +656,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         grid.addWidget(ApplicationWindow.button_scan,row_start +7,column_start)
 
         # save image
-        def write_image(self, array, dirpath, tag, columns = None):
+        def write_image(array, dirpath, tag, columns = None):
             df = pd.DataFrame(array, columns = columns)
             if(columns == None):
                 header = False
@@ -645,7 +668,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             # filepathCSV = dirpath + filename + '.csv'
             # filepathJPG = dirpath + filename + '.jpg'
             df.to_csv(filepathCSV, index = False, header=header)
-            self.imPlot.fig.savefig(str(filepathJPG), format = 'jpg')
+            ApplicationWindow.imPlot.fig.savefig(str(filepathJPG), format = 'jpg')
             ApplicationWindow.statusBar().showMessage("Image Data Saved",2000)
 
         ApplicationWindow.txt_save_image_location = gui_cw.FileBoxSave('Z://Lab//Cantilever//Measurements//')
@@ -766,8 +789,6 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
     ApplicationWindow.grid_controls = QtGui.QGridLayout()
     vbox_main.addLayout(ApplicationWindow.grid_controls)
-
-
 
     ##### settings #################################################################################################
 

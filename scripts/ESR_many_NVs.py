@@ -2,12 +2,17 @@ from scripts import ESR
 from functions import track_NVs as track
 from functions import ScanAPD
 from hardware_modules import GalvoMirrors as DaqOut
+from hardware_modules import PiezoController as PC
+from functions import Focusing as F
 
 import numpy as np
 import matplotlib.pyplot as plt
 import functions.ReadWriteCommands as ReadWriteCommands
+from functions import regions
 import json
 import os.path
+import time
+import pandas as pd
 
 def setDaqPt(xVolt,yVolt):
     initPt = np.transpose(np.column_stack((xVolt, yVolt)))
@@ -79,7 +84,8 @@ def ESR_load_param(filename_or_json):
         esr_param = json.loads(filename_or_json)
 
     else:
-        raise ValueError('ESR: no valid parameter filename or dictionary')
+        raise ValueError('AF: no valid parameter filename or dictionary')
+        print 'no valid parameter filename or dictionary'
 
     return esr_param
 
@@ -107,6 +113,68 @@ def ESR_map(points, esr_param):
         ESR.save_esr(esr_data, fig, dirpath, '{:s}_NV_pt_{:00d}'.format(tag, pt_num))
 
 
+        pt_num += 1
+    fig.clf()
+
+def ESR_map_focus(points, roi, esr_param):
+    '''
+        gets the ESR at points defined by points
+    '''
+    print esr_param
+    RF_Power = float(esr_param['RF_Power'])
+    avg = int(esr_param['ESR_avg'])
+    freqs = np.linspace(int(esr_param['RF_Min']), int(esr_param['RF_Max']), int(esr_param['RF_N_Points']))
+
+    dirpath = esr_param['ESR_path']
+    tag = esr_param['ESR_tag']
+    int_time = esr_param['ESR_integration_time']
+    runs_between_focusing = esr_param['runs_between_focusing']
+
+    current_focus = PC.MDT693A('Z').getVoltage()
+
+    start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+
+    'save points'
+    df = pd.DataFrame(points)
+    df.to_csv(dirpath + "\\" + start_time + '_' + tag + '_points.csv', index = False, header=False)
+    'save roi'
+    ReadWriteCommands.save_json(roi, filename =  dirpath + "\\" + start_time + '_' + tag + '_roi.json')
+    'save esr_param'
+    ReadWriteCommands.save_json(esr_param, filename =  dirpath + "\\" + start_time + '_' + tag + '_esr_param.json')
+
+    pt_num = 1
+    print dirpath
+    for pt in points:
+
+        print '{:s}_NV_pt_{:00d}'.format(tag, pt_num)
+        esr_data, fit_params, fig = ESR.run_esr(RF_Power, freqs, (pt[0],pt[1]), num_avg=avg, int_time=int_time)
+        print pt_num
+        print fig
+        ESR.save_esr(esr_data, fig, dirpath, '{:s}_NV_pt_{:00d}'.format(tag, pt_num))
+        if ((pt_num % runs_between_focusing) == 0):
+
+
+            roi['xPts'] = 40
+            roi['yPts'] = 40
+
+            current_focus, voltRange, ydata = F.Focus.scan(current_focus - 3, current_focus + 3, 18, 'Z', waitTime = 1, scan_range_roi = roi, blocking = False, return_data = True)
+            filepathCSV = dirpath + "\\" + start_time + '_' + tag + '_af.csv'
+            df = pd.DataFrame([voltRange, ydata])
+            df.to_csv(filepathCSV, index = False, header=False)
+
+            xMin, xMax, yMin, yMax = regions.roi_to_min_max(roi)
+            scanner = ScanAPD.ScanNV(xMin, xMax, 120, yMin, yMax, 120, .001)
+            image_data = scanner.scan(queue = None)
+            plt.close()
+            implot = plt.imshow(image_data, interpolation="nearest", extent = [xMin, xMax, yMin, yMax])
+            implot.set_cmap('pink')
+            plt.colorbar()
+
+            filepathPNG = dirpath + "\\" + start_time + '_' + tag + '.png'
+            plt.savefig(filepathPNG, format='png')
+            df = pd.DataFrame(image_data)
+            filepathCSV = dirpath + "\\" + start_time + '_' + tag + '.csv'
+            df.to_csv(filepathCSV, index = False, header=False)
         pt_num += 1
     fig.clf()
 

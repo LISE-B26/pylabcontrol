@@ -58,7 +58,11 @@ def two_pts_to_roi(pt1, pt2, xPts = None, yPts = None):
     }
     return roi
 
+def roi_to_two_pts(roi):
+    pt1 = [roi['xo'] -  roi['dx']/2., roi['yo'] -  roi['dy']/2.]
+    pt2 = [roi['yo'] +  roi['dx']/2., roi['yo'] +  roi['dy']/2.]
 
+    return pt1, pt2
 
 def shift_line_perp(pos1, pos2, shift):
     '''

@@ -112,6 +112,9 @@ class Focus:
         for voltage in voltRange:
             piezo.setVoltage(voltage)
             time.sleep(waitTime)
+            print(xMin)
+            print(xMax)
+            print(xPts)
             if(APD):
                 scanner = GalvoScanAPD.ScanNV(xMin, xMax, xPts, yMin, yMax, yPts, timePerPt)
             else:
