@@ -249,6 +249,12 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
     ##################################################################################
     # ADD EXECUTE ####################################################################
     ##################################################################################
+
+
+
+
+
+
     def add_execute(grid, row_start = 1, column_start =  1):
 
         ApplicationWindow.label_execute = QtGui.QLabel('execute', ApplicationWindow.main_widget)
@@ -767,6 +773,17 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.button_select_NVs.clicked.connect(lambda: choosing_points(ApplicationWindow))
         grid.addWidget(ApplicationWindow.button_select_NVs,row_start,column_start)
 
+
+
+    def add_test(grid):
+        txt_boxes = {'text1': None, 'text2':None}
+        for i, x in enumerate(txt_boxes):
+            txt_boxes.update({x:QtGui.QLineEdit(ApplicationWindow.main_widget)})
+            grid.addWidget(txt_boxes[x], 5+i, 5)
+
+        # for name in txt_names:
+        #     ApplicationWindow.txt_boxes.update{''} = QtGui.QLineEdit(ApplicationWindow.main_widget)
+        #     grid.addWidget(ApplicationWindow.txt_test, 5, 5)
     ##################################################################################
     ##### GRID IMAGE #################################################################
     ##################################################################################
@@ -823,7 +840,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
     ApplicationWindow.group_execute.setLayout(ApplicationWindow.grid_execute)
 
     add_execute(ApplicationWindow.grid_execute)
-
+    # add_test(ApplicationWindow.grid_execute)
 
     ##### global #################################################################################################
     ApplicationWindow.group_global = QtGui.QGroupBox("global")
