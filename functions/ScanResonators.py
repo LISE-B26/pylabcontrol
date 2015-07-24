@@ -170,7 +170,7 @@ xImMax = .4
 yImMin = -.4
 yImMax = .4
 
-#Pre-sweep plotting
+#Pre-sweep helper_functions
 temp = plotScannedResonator(xminpair,xmaxpair,xpts,yminpair,ymaxpair,ypts,theta)
 temp.plotPreSweep(xImMin, xImMax, yImMin, yImMax)
 

@@ -1,25 +1,24 @@
 __author__ = 'Experiment'
 
-from matplotlib.widgets import RectangleSelector
-import gui_custom_widgets as gui_cw
-from PyQt4 import QtGui, QtCore
-import numpy as np
-import pandas as pd
 import json as json
 import Queue
 import time
-import scipy.spatial
 
-import functions.ReadWriteCommands as rw
-from gui import GuiDeviceTriggers as DeviceTriggers
+from PyQt4 import QtGui
+import numpy as np
+import pandas as pd
+import scipy.spatial
 import matplotlib.patches as patches
-from matplotlib.collections import PatchCollection
-import functions.Meshing as Meshing
+
+import gui_custom_widgets as gui_cw
+
+import helper_functions.reading_writing as rw
+from gui import GuiDeviceTriggers as DeviceTriggers
+import helper_functions.meshing as Meshing
 import scripts.ESR_many_NVs as ESR
 import scripts.auto_focus as AF
 from functions import track_NVs as track
 from scripts import set_focus as f
-from hardware_modules import PiezoController as PC
 
 
 def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
@@ -313,18 +312,19 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             print ApplicationWindow.path_script.text()
 
             if script_name == 'ESR (chosen NVs)':
+                _, pt_a2, pt_b2, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
                 esr_param = ESR.ESR_load_param(ApplicationWindow.path_script.text())
+                roi_focus = Meshing.two_pts_to_roi(pt_a2, pt_b2)
                 print 'ESR (chosen NVs)'
                 if not ApplicationWindow.selected_points:
                     QtGui.QMessageBox.information(ApplicationWindow.main_widget, "No NVs Error","You must choose NVs before running this ESR script")
                 else:
-                    ESR.ESR_map(ApplicationWindow.selected_points, esr_param)
+                    ESR.ESR_map_focus(ApplicationWindow.selected_points, roi_focus, esr_param)
 
             if script_name == 'ESR (grid)':
                 _, pt_a2, pt_b2, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
                 points = Meshing.get_points_on_a_grid(pt_a2, pt_b2, xpts, ypts)
-                _, pt_a1, pt_b1, _, _, _ = get_pts_and_size(ApplicationWindow, '1')
-                roi_focus = Meshing.two_pts_to_roi(pt_a1, pt_b1)
+                roi_focus = Meshing.two_pts_to_roi(pt_a2, pt_b2)
 
                 esr_param = ESR.ESR_load_param(ApplicationWindow.path_script.text())
                 print 'ESR (grid)'
@@ -332,11 +332,12 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                     ESR.ESR_map_focus(points, roi_focus, esr_param)
 
             elif script_name == 'ESR (point)':
-                _, pt_a, _, _, _, _ = get_pts_and_size(ApplicationWindow)
+                _, pt_a2, pt_b2, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
                 esr_param = ESR.ESR_load_param(ApplicationWindow.path_script.text())
+                roi_focus = Meshing.two_pts_to_roi(pt_a2, pt_b2)
                 print 'ESR (point)'
                 if not esr_param == {}:
-                    ESR.ESR_map([pt_a], esr_param)
+                    ESR.ESR_map([pt_a2], roi_focus, esr_param)
 
             elif script_name == 'AutoFocus':
                 print 'AutoFocus'
@@ -347,7 +348,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                 if not af_parameter == {}:
                     voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus)
                     ApplicationWindow.statusBar().showMessage('new focus {:0.3f}'.format(voltage_focus),2000)
-                    ApplicationWindow.txt_focus_voltage.setText(voltage_focus)
+                    ApplicationWindow.txt_focus_voltage.setText('{:0.2f}'.format(voltage_focus))
 
             elif script_name == 'reset scan range':
 

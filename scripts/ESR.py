@@ -25,7 +25,7 @@ RANGE_STEP = RANGE_DEV * 2 #maximum range for a given center frequency
 MIN_MOD_VOLTAGE = -1 # minimum and maximum voltages put into signal generator to scan across
 MAX_MOD_VOLTAGE = +1 # full frequency range
 
-# Runs ESR, plotting it in pyplot and returning the data and lorentzian fit parameters
+# Runs ESR, helper_functions it in pyplot and returning the data and lorentzian fit parameters
 def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_time = .001,
             settle_time = .0002, plotting = True, queue = None, canvas = None):
     '''

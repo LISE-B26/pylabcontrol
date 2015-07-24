@@ -1,6 +1,27 @@
 import pandas as pd
 import time
 import json as json
+'''
+    functions related reading and writing data
+'''
+
+
+def save_esr_data(esr_data, filename):
+    '''
+    not implemented yet, saves esr
+    :param esr_data:
+    :param filename:
+    :return:
+    '''
+
+def load_esr_data(filename):
+    '''
+    not implemented yet, loads esr
+    :param esr_data:
+    :param filename:
+    :return: esr_data
+    '''
+
 
 def save_image_and_data(fig, array, dirpath, tag, columns = None):
     df = pd.DataFrame(array, columns = columns)
@@ -19,8 +40,6 @@ def save_image_and_data(fig, array, dirpath, tag, columns = None):
     filepathJPG = dirpath + filename + '.jpg'
     df.to_csv(filepathCSV, index = False, header=header)
     fig.savefig(str(filepathJPG), format = 'jpg')
-
-
 
 def load_json(filename = None):
 

@@ -1,13 +1,12 @@
 __author__ = 'Experiment'
 
+import matplotlib.pyplot as plt
+import numpy as np
 
 import functions.ScanPhotodiode_DAQ as GalvoScan
 import hardware_modules.PiezoController as pc
-import matplotlib.pyplot as plt
+from helper_functions.reading_writing import *
 
-import numpy as np
-
-from functions.ReadWriteCommands import *
 
 # set variables =============================================
 # ===========================================================
