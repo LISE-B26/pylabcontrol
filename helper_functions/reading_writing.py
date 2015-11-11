@@ -1,6 +1,8 @@
 import pandas as pd
 import time
 import json as json
+import matplotlib.pyplot as plt
+from PyQt4 import QtGui
 '''
     functions related reading and writing data
 '''
@@ -22,6 +24,22 @@ def load_esr_data(filename):
     :return: esr_data
     '''
 
+def save_data(array, dirpath, tag, columns = None):
+    df = pd.DataFrame(array, columns = columns)
+    if(columns == None):
+        header = False
+    else:
+        header = True
+    day = time.strftime("%d")
+    month = time.strftime("%m")
+    year = time.strftime("%Y")
+    hour = time.strftime("%H")
+    minute = time.strftime("%M")
+    second = time.strftime("%S")
+    filename = '\\' + year + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second  +'-' + str(tag)
+    filepathCSV = dirpath + filename + '.csv'
+    df.to_csv(filepathCSV, index = False, header=header)
+
 
 def save_image_and_data(fig, array, dirpath, tag, columns = None):
     df = pd.DataFrame(array, columns = columns)
@@ -40,6 +58,24 @@ def save_image_and_data(fig, array, dirpath, tag, columns = None):
     filepathJPG = dirpath + filename + '.jpg'
     df.to_csv(filepathCSV, index = False, header=header)
     fig.savefig(str(filepathJPG), format = 'jpg')
+
+def save_image_and_data_plt(array, dirpath, tag, columns = None):
+    df = pd.DataFrame(array, columns = columns)
+    if(columns == None):
+        header = False
+    else:
+        header = True
+    day = time.strftime("%d")
+    month = time.strftime("%m")
+    year = time.strftime("%Y")
+    hour = time.strftime("%H")
+    minute = time.strftime("%M")
+    second = time.strftime("%S")
+    filename = '\\' + year + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second  +'-' + str(tag)
+    filepathCSV = dirpath + filename + '.csv'
+    filepathJPG = dirpath + filename + '.jpg'
+    df.to_csv(filepathCSV, index = False, header=header)
+    plt.savefig(str(filepathJPG), format = 'jpg')
 
 def load_json(filename = None):
 

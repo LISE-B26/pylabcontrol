@@ -20,7 +20,7 @@ class ZIHF2:
     # initializes values
     # amplitude: output channel amplitude (Vpk)
     # offset: auxillary channel output (V), only functions as offset if aux0 connected to inChannel add port
-    # freq: ?
+    # freq: output channel frequence (Hz)
     # ACCoupling: turns ac coupling on (1) or off (0), default off (0)
     # inChannel: specifies input channel number, default channel 1 as listed on device (value 0)
     # outChannel: specifies output channel number, default channel 1 as listed on device (value 0)
@@ -164,16 +164,24 @@ class ZIHF2:
 
         self.dataFinal = numpy.column_stack((self.samples[0][0]['frequency'],self.samples[0][0]['x'], self.samples[0][0]['y']))
 
-        return self.dataFinal
+        return self.dataFinal, self.fig
 
-    def writeData(self, filepath):
-        # df = pd.DataFrame(self.dataFinal, columns = ['Frequency', 'Response'])
-        df = pd.DataFrame(self.dataFinal, columns = ['Frequency', 'X', 'Y'])
-        df.to_csv(filepath, index = False, header=True)
+# saves the esr_data to a timestamped file in the dirpath with a tag
+    def save_ZI(self, ZI_data, fig, dirpath, tag = "", saveImage = True):
+        df = pd.DataFrame(ZI_data)
+        start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+        filepathCSV = dirpath + "\\" + start_time + '_' + tag + '.csv'
+        df.to_csv(filepathCSV)
+        filepathPNG = dirpath + "\\" + start_time + '_' + tag + '.png'
+        print filepathPNG
+
+        if (fig == None) == False:
+            fig.savefig(filepathPNG, format='png')
 
     # plots data contained in self.samples to pyplot window
     def plot(self):
         if(self.plotting == 0):
+            self.fig = plt.figure(1)
             plt.ion()
             plt.clf()
             for i in range(0, len(self.samples)):
@@ -207,6 +215,7 @@ class ZIHF2:
     # plots data contained in self.samples to GUI
     def plotGui(self):
         if(self.plotting == 0):
+            self.fig = self.canvas.figure
                 # please note: the "[i][0]" indexing is known issue to be fixed in
                 # an upcoming release (there shouldn't be an additional [0])
             frequency = self.samples[0][0]['frequency']
@@ -264,6 +273,7 @@ class ZIHF2:
         data = self.daq.poll(pollTime,timeout,1,flat_dictionary_key)
         R = numpy.sqrt(numpy.square(data[path]['x'])+numpy.square(data[path]['y']))
         return(numpy.mean(R))
+
 
 
 # test code

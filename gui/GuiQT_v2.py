@@ -13,6 +13,7 @@ from __future__ import unicode_literals
 import sys
 import time
 import Queue
+import json
 
 import numpy
 import numpy.random
@@ -25,14 +26,13 @@ from matplotlib.figure import Figure
 import scipy.spatial
 import matplotlib.pyplot as plt
 
-import json
 import functions.Focusing as focusing
 from functions.regions import *
 from functions import track_NVs as track
 from hardware_modules import PiezoController as PC
 from scripts import ESR
-
 from gui import GuiDeviceTriggers as DeviceTriggers, PlotAPDCounts
+
 
 
 

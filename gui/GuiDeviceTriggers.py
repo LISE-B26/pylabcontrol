@@ -3,7 +3,8 @@ import numpy
 # import ScanDelay as GalvoScan  # for APD counting input
 from functions import ScanAPD
 from functions import ScanPhotodiode_DAQ as ScanPhotodiode
-from hardware_modules import GalvoMirrors as DaqOut, ZiControl
+from hardware_modules import GalvoMirrors as DaqOut
+from hardware_modules import ZiControl
 #from scripts.ESR import run_esr
 from PyQt4 import QtGui
 
@@ -13,9 +14,9 @@ def ZIGui(canvas, amp, offset, freqLow, freqHigh, sampleNum, samplePerPt, xScale
     data = zi.sweep(freqLow, freqHigh, sampleNum, samplePerPt, xScale=0)
     return data
 
-def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt, queue = None, APD = True):
+def scanGui(canvas, xVmin, xVmax, xPts, yVmin, yVmax,yPts, timePerPt, queue = None, APD = True, dist_volt_conv = None):
     if(APD):
-        scanner = ScanAPD.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
+        scanner = ScanAPD.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas, dist_volt_conversion = dist_volt_conv)
     else:
         scanner = ScanPhotodiode.ScanNV(xVmin,xVmax,xPts,yVmin,yVmax,yPts,timePerPt, canvas = canvas)
     imageData = scanner.scan(queue = queue)

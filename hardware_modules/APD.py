@@ -26,12 +26,17 @@ DAQmx_Val_CountUp = 10128
 DAQmx_Val_ContSamps =10123; #continuous samples
 DAQmx_Val_Hz = 10373; #Hz
 DAQmx_Val_Low =10214; #Low
+# the channels
+COUNTER_OUT_PFI = '/Dev1/PFI13' # Can be any PFI labeled as counter out that isn't being used (this should NOT be the
+                                # same counter as the apd is on). COUNTER_OUT should then be this counter number.
+COUNTER_OUT = 'Dev1/ctr1' # ctr channel correspomding to
 
 
 # This class creates a thread to perform buffered reading from an APD
 class ReadAPD(threading.Thread):
     # initializes values, counter, and clock, and starts clock
-    # device: string with name of APD channel (usually Dev1/ctr0 or Dev1/ctr1)
+    # device: string with name of APD channel (usually Dev1/ctr0 or Dev1/ctr1). The apd should be attached to the source
+    #   port for this counter channel
     # frequency: frequency at which to take data
     # sampleNum: number of samples to acquire in buffer
     # RETURN: a 1D array with sampleNum ctypes.c_double values taken at the
@@ -52,7 +57,7 @@ class ReadAPD(threading.Thread):
                       self.device, "", DAQmx_Val_Rising, 0, DAQmx_Val_CountUp))
         # PFI13 is standard output channel for ctr1 channel used for clock and
         # is internally looped back to ctr1 input to be read
-        self.CHK(nidaq.DAQmxCfgSampClkTiming(self.taskHandleCtr, '/Dev1/PFI13',
+        self.CHK(nidaq.DAQmxCfgSampClkTiming(self.taskHandleCtr, COUNTER_OUT_PFI,
                                           float64(frequency), DAQmx_Val_Rising,
                                        DAQmx_Val_ContSamps, uInt64(sampleNum)))
         if (overrideBufferSize > 0):
@@ -90,7 +95,7 @@ class ReadAPD(threading.Thread):
     def DigPulseTrainCont(self, Freq, DutyCycle, Samps):
         self.CHK(nidaq.DAQmxCreateTask("", ctypes.byref(self.taskHandleClk)))
         self.CHK(nidaq.DAQmxCreateCOPulseChanFreq(self.taskHandleClk,
-                 'Dev1/ctr1', '', DAQmx_Val_Hz, DAQmx_Val_Low, float64(0.0),
+                 COUNTER_OUT, '', DAQmx_Val_Hz, DAQmx_Val_Low, float64(0.0),
                  float64(Freq), float64(DutyCycle)))
         self.CHK(nidaq.DAQmxCfgImplicitTiming(self.taskHandleClk,
                  DAQmx_Val_ContSamps, uInt64(Samps)))

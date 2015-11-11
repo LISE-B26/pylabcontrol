@@ -118,7 +118,11 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
             else:
                 fit_data = None
                 converge_data = np.append(converge_data,0)
-            fig = plot_esr(freq_values, esr_avg, fit_data = fit_data, converge_data = converge_data)
+            if canvas == None:
+                fig = plot_esr(freq_values, esr_avg, fit_data = fit_data, converge_data = converge_data)
+            else:
+                fig = plot_esr_gui(canvas, freq_values, esr_avg, fit_data = fit_data, converge_data = converge_data)
+
     #mwgen.outputOff()
     print('finished')
     #plt.show()
@@ -234,8 +238,11 @@ def plot_esr_gui(canvas, freq_values, esr_data, fit_data = None, converge_data =
     esrplt = canvas.figure.clf()
     if not (fit_data == None or converge_data == None): # plot esr, fit, and convergence data
         scan_array = np.linspace(1,len(converge_data),len(converge_data))
-        fig = canvas.figure()
-        subfig1 = fig.axes
+        fig = canvas.figure
+        print('here')
+        print(fig)
+        #subfig1 = fig.axes
+        subfig1 = fig.add_subplot(211)
         subfig1.plot(freq_values, esr_data, freq_values, fit_data)
         subfig1.set_title('ESR')
         subfig1.set_xlabel('Frequency (Hz)')
@@ -248,8 +255,11 @@ def plot_esr_gui(canvas, freq_values, esr_data, fit_data = None, converge_data =
         #subfig1.SubplotParams()
     elif not (converge_data == None): # plot esr and convergence, prevents entire plot disappearing when one fit fails
         scan_array = np.linspace(1,len(converge_data),len(converge_data))
-        fig = canvas.figure()
-        subfig1 = fig.axes
+        fig = canvas.figure
+        print('here')
+        print(fig)
+        #subfig1 = fig.axes
+        subfig1 = fig.add_subplot(211)
         subfig1.plot(freq_values, esr_data)
         subfig1.set_title('ESR')
         subfig1.set_xlabel('Frequency (Hz)')

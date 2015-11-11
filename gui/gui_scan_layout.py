@@ -9,9 +9,9 @@ import numpy as np
 import pandas as pd
 import scipy.spatial
 import matplotlib.patches as patches
+import Image
 
 import gui_custom_widgets as gui_cw
-
 import helper_functions.reading_writing as rw
 from gui import GuiDeviceTriggers as DeviceTriggers
 import helper_functions.meshing as Meshing
@@ -19,6 +19,9 @@ import scripts.ESR_many_NVs as ESR
 import scripts.auto_focus as AF
 from functions import track_NVs as track
 from scripts import set_focus as f
+from hardware_modules import PiezoController as PC
+from scripts import ZiControl_many_pts as ZIControl
+from gui import PlotAPDCounts as Cnts
 
 
 def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
@@ -65,7 +68,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             nv_num += 1
 
     def get_dot_patch_pt2(ApplicationWindow):
-        size, pt_a, _,_,_,_ = get_pts_and_size(ApplicationWindow)
+        size, pt_a, _, _,_,_,_ = get_pts_and_size(ApplicationWindow)
         ApplicationWindow.patches.append(patches.Circle((pt_a[0], pt_a[1]), 2*size, fc = 'y'))
 
     def get_dot_patches_nv_points(ApplicationWindow):
@@ -74,7 +77,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         :return:
         '''
 
-        size,_,_,_,_,_ = get_pts_and_size(ApplicationWindow)
+        size,_,_,_,_,_,_ = get_pts_and_size(ApplicationWindow)
         if not ApplicationWindow.nv_points == []:
             for patch in [patches.Circle((pt[0], pt[1]), size, fc = 'r') for pt in ApplicationWindow.nv_points]:
                 ApplicationWindow.patches.append(patch)
@@ -85,30 +88,35 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         :return:
         '''
 
-        size,_,_,_,_,_ = get_pts_and_size(ApplicationWindow)
+        size,_,_,_,_,_,_ = get_pts_and_size(ApplicationWindow)
         if not ApplicationWindow.selected_points == []:
             for patch in [patches.Circle((pt[0], pt[1]), size, fc = 'b') for pt in ApplicationWindow.selected_points]:
                 ApplicationWindow.patches.append(patch)
 
 
     def get_dot_patch_laser(ApplicationWindow):
-        size, _, _,_,_,pt_L = get_pts_and_size(ApplicationWindow)
+        size, _, _,_,_,_,pt_L = get_pts_and_size(ApplicationWindow)
         ApplicationWindow.patches.append(patches.Circle((pt_L[0], pt_L[1]), 3*size, fc = 'r'))
 
     def get_line_patches(ApplicationWindow):
-        size, pt_a, pt_b, xpts, _,_  = get_pts_and_size(ApplicationWindow)
+        size, pt_a, pt_b, _, xpts, _,_  = get_pts_and_size(ApplicationWindow)
         points = Meshing.get_points_along_line(pt_a, pt_b, xpts)
 
         for patch in [patches.Circle((pt[0], pt[1]), size, fc = 'g') for pt in points]:
             ApplicationWindow.patches.append(patch)
+
     def get_grid_patches(ApplicationWindow):
-        size, pt_a, pt_b, xpts, ypts,_  = get_pts_and_size(ApplicationWindow)
-        points = Meshing.get_points_on_a_grid(pt_a, pt_b, xpts, ypts)
+        size, pt_a, pt_b, pt_c, xpts, ypts,_  = get_pts_and_size(ApplicationWindow)
+        if ApplicationWindow.radio_angled_grid.isChecked():
+            points = Meshing.get_points_on_a_grid_angled(pt_a, pt_b, pt_c, xpts, ypts)
+        else:
+            points = Meshing.get_points_on_a_grid(pt_a, pt_b, xpts, ypts)
 
         for patch in [patches.Circle((pt[0], pt[1]), size, fc = 'w') for pt in points]:
             ApplicationWindow.patches.append(patch)
+
     def get_roi_patch(ApplicationWindow):
-        size, pt_a, pt_b ,_,_,_ = get_pts_and_size(ApplicationWindow)
+        size, pt_a, pt_b ,_,_,_,_ = get_pts_and_size(ApplicationWindow)
 
         center, w, h = Meshing.two_pts_to_center_size(pt_a, pt_b)
 
@@ -135,7 +143,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                                     break
                         else:
                             ApplicationWindow.selected_points.append(nv_pt)
-                            size, _,_,_,_, _ = get_pts_and_size(ApplicationWindow,'1')
+                            size, _,_,_,_,_, _ = get_pts_and_size(ApplicationWindow,'1')
                             circ = patches.Circle((nv_pt[0], nv_pt[1]), size, fc = 'b')
                             ApplicationWindow.imPlot.axes.add_patch(circ)
                             ApplicationWindow.esr_select_patches.append(circ)
@@ -149,7 +157,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                 ApplicationWindow.statusBar().showMessage("Choose NVs for ESR", 0)
                 coordinates = track.locate_NVs(ApplicationWindow.imageData, voltage_range, numPts)
                 coordinates[:,[0,1]] = coordinates[:,[1,0]]
-                _, pt1, pt2, xPts, yPts, _ = get_pts_and_size(ApplicationWindow,'1')
+                _, pt1, pt2, _, xPts, yPts, _ = get_pts_and_size(ApplicationWindow,'1')
                 nv_roi = Meshing.two_pts_to_roi(pt1, pt2, xPts, yPts)
                 coordinates_in_volt = track.pixel_to_voltage(coordinates, ApplicationWindow.imageData, nv_roi)
                 ApplicationWindow.nv_points = coordinates_in_volt
@@ -173,7 +181,6 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                 ApplicationWindow.plot_nvs = False
                 for circ in ApplicationWindow.esr_select_patches:
                     circ.remove()
-                print('here')
                 reset_shapes()
 
             voltage_range = abs(float(ApplicationWindow.txt_pt_1a_x.text()) - float(ApplicationWindow.txt_pt_1b_x.text()))
@@ -246,6 +253,11 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
         ApplicationWindow.statusBar().showMessage("Galvo Position Updated",2000)
 
+    def copy_scan_params():
+        cb = QtGui.QApplication.clipboard()
+        cb.clear(mode=cb.Clipboard )
+        cb.setText("xVmin = " + ApplicationWindow.txt_pt_2a_x.text() + "\nyVmin = " + ApplicationWindow.txt_pt_2a_y.text() + "\nxVmax = " + ApplicationWindow.txt_pt_2b_x.text() + "\nyVmax = " + ApplicationWindow.txt_pt_2b_y.text() + "\nxPts = " + ApplicationWindow.txt_pt_1_x_pts.text() + "\nyPts = " + ApplicationWindow.txt_pt_1_y_pts.text() + "\ntimerPerPt = " + ApplicationWindow.txt_time_per_pt.text(), mode=cb.Clipboard)
+
     ##################################################################################
     # ADD EXECUTE ####################################################################
     ##################################################################################
@@ -260,7 +272,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.label_execute = QtGui.QLabel('execute', ApplicationWindow.main_widget)
         grid.addWidget(ApplicationWindow.label_execute,row_start,column_start)
         ApplicationWindow.cmb_execute = QtGui.QComboBox(ApplicationWindow.main_widget)
-        ApplicationWindow.cmb_execute.addItems(['ESR (chosen NVs)', 'ESR (grid)', 'ESR (point)', 'AutoFocus', 'reset scan range'])
+        ApplicationWindow.cmb_execute.addItems(['ESR (chosen NVs)', 'ESR (grid)', 'ESR (point)', 'AutoFocus', 'Get Distance', 'ZI Frequency Sweep (point)', 'ZI Frequency Sweep (grid)', 'reset scan range'])
         ApplicationWindow.cmb_execute.activated.connect(lambda: change_script(ApplicationWindow))
         grid.addWidget(ApplicationWindow.cmb_execute,row_start+1,column_start)
 
@@ -277,10 +289,6 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
         ApplicationWindow.selected_points = list()
 
-        ApplicationWindow.parameters_paths_scripts = {
-			"ESR": "ESR path_script",
-			"AutoFocus": "AF path_script"
-		}
 
         def change_script(ApplicationWindow):
             script_name = str(ApplicationWindow.cmb_execute.currentText())
@@ -318,43 +326,102 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             print ApplicationWindow.path_script.text()
 
             if script_name == 'ESR (chosen NVs)':
-                _, pt_a2, pt_b2, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
+                _, pt_a2, pt_b2, _, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
                 esr_param = ESR.ESR_load_param(ApplicationWindow.path_script.text())
                 roi_focus = Meshing.two_pts_to_roi(pt_a2, pt_b2)
                 print 'ESR (chosen NVs)'
                 if not ApplicationWindow.selected_points:
                     QtGui.QMessageBox.information(ApplicationWindow.main_widget, "No NVs Error","You must choose NVs before running this ESR script")
                 else:
-                    ESR.ESR_map_focus(ApplicationWindow.selected_points, roi_focus, esr_param)
+                    ESR.ESR_map_focus(ApplicationWindow.selected_points, roi_focus, esr_param, ApplicationWindow.esrPlot)
 
             if script_name == 'ESR (grid)':
-                _, pt_a2, pt_b2, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
-                points = Meshing.get_points_on_a_grid(pt_a2, pt_b2, xpts, ypts)
+                _, pt_a2, pt_b2, _, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
+                if ApplicationWindow.radio_angled_grid.isChecked():
+                    points = Meshing.get_points_on_a_grid_angled(pt_a2, pt_b2, xpts, ypts)
+                else:
+                    points = Meshing.get_points_on_a_grid(pt_a2, pt_b2, xpts, ypts)
                 roi_focus = Meshing.two_pts_to_roi(pt_a2, pt_b2)
 
                 esr_param = ESR.ESR_load_param(ApplicationWindow.path_script.text())
                 print 'ESR (grid)'
                 if not esr_param == {}:
-                    ESR.ESR_map_focus(points, roi_focus, esr_param)
+                    ESR.ESR_map_focus(points, roi_focus, esr_param, ApplicationWindow.esrPlot)
 
             elif script_name == 'ESR (point)':
-                _, pt_a2, pt_b2, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
+                _, pt_a2, pt_b2, _, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
                 esr_param = ESR.ESR_load_param(ApplicationWindow.path_script.text())
                 roi_focus = Meshing.two_pts_to_roi(pt_a2, pt_b2)
                 print 'ESR (point)'
                 if not esr_param == {}:
-                    ESR.ESR_map([pt_a2], roi_focus, esr_param)
+                    ESR.ESR_map([pt_a2], esr_param, ApplicationWindow.esrPlot)
 
             elif script_name == 'AutoFocus':
                 print 'AutoFocus'
-                _, pt_a, pt_b, _, _, _ = get_pts_and_size(ApplicationWindow)
+                _, pt_a, pt_b, _, _, _, _ = get_pts_and_size(ApplicationWindow)
                 roi_focus = Meshing.two_pts_to_roi(pt_a, pt_b)
                 af_parameter = AF.AF_load_param(ApplicationWindow.path_script.text())
 
                 if not af_parameter == {}:
-                    voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus)
+                    #voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus)
+                    voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus, ApplicationWindow.piezo, focPlot=ApplicationWindow.focPlot)
                     ApplicationWindow.statusBar().showMessage('new focus {:0.3f}'.format(voltage_focus),2000)
                     ApplicationWindow.txt_focus_voltage.setText('{:0.2f}'.format(voltage_focus))
+
+            elif script_name == 'Get Distance':
+                print('Get Distance')
+                _, pt_a, pt_b, _, _, _, _ = get_pts_and_size(ApplicationWindow)
+                dist_params = rw.load_json(str(ApplicationWindow.path_script.text()))
+                roi_focus = {
+                    "zo": dist_params['zo'],
+                    "dz": dist_params['dz'],
+                    "zPts": dist_params['zPts'],
+                    "xyPts": dist_params['xyPts']
+                }
+                roi_a = {
+                    "xo": pt_a[0],
+                    "yo": pt_a[1],
+                    "dx": dist_params['dx'],
+                    "dy": dist_params['dy'],
+                }
+                roi_b = {
+                    "xo": pt_b[0],
+                    "yo": pt_b[1],
+                    "dx": dist_params['dx'],
+                    "dy": dist_params['dy'],
+                }
+                dirpath = dist_params['dirpath']
+                tag_a = dist_params['tag_a']
+                tag_b = dist_params['tag_b']
+
+
+                if not dist_params == {}:
+                    init_focus = ApplicationWindow.txt_focus_voltage.text()
+                    _, voltage_data, y_data = AF.autofocus_RoI(dist_params, roi_a, ApplicationWindow.piezo, return_data=True)
+                    rw.save_data([voltage_data,y_data], dirpath, tag_a)
+                    _, voltage_data, y_data = AF.autofocus_RoI(dist_params, roi_b, ApplicationWindow.piezo, return_data=True)
+                    rw.save_data([voltage_data,y_data], dirpath, tag_b)
+
+                    PC.MDT693B().setVoltage(init_focus)
+
+            elif script_name == 'ZI Frequency Sweep (point)':
+                _, pt_a2, pt_b2, _, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
+                ZI_param = ZIControl.ZI_load_param(ApplicationWindow.path_script.text())
+                print 'ZI Frequency Sweep (point)'
+                if not ZI_param == {}:
+                    ZIControl.ZI_map([pt_a2], ZI_param,ApplicationWindow.esrPlot)
+
+
+
+            elif script_name == 'ZI Frequency Sweep (grid)':
+                _, pt_a2, pt_b2, _, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
+                points = Meshing.get_points_on_a_grid(pt_a2, pt_b2, xpts, ypts)
+                roi_focus = Meshing.two_pts_to_roi(pt_a2, pt_b2)
+
+                ZI_param = ZIControl.ZI_load_param(ApplicationWindow.path_script.text())
+                print 'ZI Frequency Sweep (grid)'
+                if not ZI_param == {}:
+                    ZIControl.ZI_map_focus(points, roi_focus, ZI_param, ApplicationWindow.esrPlot)
 
             elif script_name == 'reset scan range':
 
@@ -425,10 +492,19 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             elif setup == 'Cold Setup':
                 ApplicationWindow.piezo = 'X'
 
+        def set_img_FW(text):
+            print("not yet implemented")
+
+        ApplicationWindow.cmb_img = QtGui.QComboBox(ApplicationWindow.main_widget)
+        ApplicationWindow.cmb_img.addItems(['Fluorescence', 'Reflection'])
+        grid.addWidget(ApplicationWindow.cmb_img,1,17)
+        ApplicationWindow.cmb_img.activated[str].connect(set_img_FW)
+
+
         ApplicationWindow.cmb_setup = QtGui.QComboBox(ApplicationWindow.main_widget)
         ApplicationWindow.cmb_setup.addItems(['Warm Setup', 'Cold Setup'])
         ApplicationWindow.cmb_setup.activated[str].connect(choose_setup)
-        grid.addWidget(ApplicationWindow.cmb_setup,1,17)
+        grid.addWidget(ApplicationWindow.cmb_setup,1,18)
 
     ##################################################################################
     # ADD SETTINGS ####################################################################
@@ -450,6 +526,10 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                 elif pt_id == 'b':
                     ApplicationWindow.txt_pt_2b_x.setText(x)
                     ApplicationWindow.txt_pt_2b_y.setText(y)
+
+                elif pt_id == 'c':
+                    ApplicationWindow.txt_pt_2c_x.setText(x)
+                    ApplicationWindow.txt_pt_2c_y.setText(y)
 
 
 
@@ -473,10 +553,14 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.button_scan_2b.clicked.connect(lambda: get_image_point('b'))
         # ApplicationWindow.button_scan_2b.clicked.connect(lambda: ApplicationWindow.imPlot.mpl_connect('button_press_event', lambda x: get_image_point(x, 'b')))
         grid.addWidget(ApplicationWindow.button_scan_2b,row_start+4,column_start)
+        ApplicationWindow.button_scan_2c = QtGui.QPushButton('pt 2c', ApplicationWindow.main_widget)
+        ApplicationWindow.button_scan_2c.clicked.connect(lambda: get_image_point('c'))
+        # ApplicationWindow.button_scan_2b.clicked.connect(lambda: ApplicationWindow.imPlot.mpl_connect('button_press_event', lambda x: get_image_point(x, 'b')))
+        grid.addWidget(ApplicationWindow.button_scan_2c,row_start+5,column_start)
         ApplicationWindow.label_pts_2 = QtGui.QLabel("# pts 2", ApplicationWindow.main_widget)
-        grid.addWidget(ApplicationWindow.label_pts_2,row_start+5,column_start)
+        grid.addWidget(ApplicationWindow.label_pts_2,row_start+6,column_start)
         ApplicationWindow.label_laser = QtGui.QLabel("laser", ApplicationWindow.main_widget)
-        grid.addWidget(ApplicationWindow.label_laser,row_start+6,column_start)
+        grid.addWidget(ApplicationWindow.label_laser,row_start+7,column_start)
 
         ApplicationWindow.label_x = QtGui.QLabel("x", ApplicationWindow.main_widget)
         grid.addWidget(ApplicationWindow.label_x,row_start-1,column_start+1)
@@ -490,10 +574,12 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         grid.addWidget(ApplicationWindow.txt_pt_2a_x,row_start+3,column_start+1)
         ApplicationWindow.txt_pt_2b_x = QtGui.QLineEdit(ApplicationWindow.main_widget)
         grid.addWidget(ApplicationWindow.txt_pt_2b_x,row_start+4,column_start+1)
+        ApplicationWindow.txt_pt_2c_x = QtGui.QLineEdit(ApplicationWindow.main_widget)
+        grid.addWidget(ApplicationWindow.txt_pt_2c_x,row_start+5,column_start+1)
         ApplicationWindow.txt_pt_2_x_pts = QtGui.QLineEdit(ApplicationWindow.main_widget)
-        grid.addWidget(ApplicationWindow.txt_pt_2_x_pts,row_start+5,column_start+1)
+        grid.addWidget(ApplicationWindow.txt_pt_2_x_pts,row_start+6,column_start+1)
         ApplicationWindow.txt_pt_laser_x = QtGui.QLineEdit(ApplicationWindow.main_widget)
-        grid.addWidget(ApplicationWindow.txt_pt_laser_x,row_start+6,column_start+1)
+        grid.addWidget(ApplicationWindow.txt_pt_laser_x,row_start+7,column_start+1)
 
         ApplicationWindow.label_y = QtGui.QLabel("y", ApplicationWindow.main_widget)
         grid.addWidget(ApplicationWindow.label_y,row_start-1,column_start+2)
@@ -507,10 +593,12 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         grid.addWidget(ApplicationWindow.txt_pt_2a_y,row_start+3,column_start+2)
         ApplicationWindow.txt_pt_2b_y = QtGui.QLineEdit(ApplicationWindow.main_widget)
         grid.addWidget(ApplicationWindow.txt_pt_2b_y,row_start+4,column_start+2)
+        ApplicationWindow.txt_pt_2c_y = QtGui.QLineEdit(ApplicationWindow.main_widget)
+        grid.addWidget(ApplicationWindow.txt_pt_2c_y,row_start+5,column_start+2)
         ApplicationWindow.txt_pt_2_y_pts = QtGui.QLineEdit(ApplicationWindow.main_widget)
-        grid.addWidget(ApplicationWindow.txt_pt_2_y_pts,row_start+5,column_start+2)
+        grid.addWidget(ApplicationWindow.txt_pt_2_y_pts,row_start+6,column_start+2)
         ApplicationWindow.txt_pt_laser_y = QtGui.QLineEdit(ApplicationWindow.main_widget)
-        grid.addWidget(ApplicationWindow.txt_pt_laser_y,row_start+6,column_start+2)
+        grid.addWidget(ApplicationWindow.txt_pt_laser_y,row_start+7,column_start+2)
 
         ApplicationWindow.button_set_laser = QtGui.QPushButton('set laser', ApplicationWindow.main_widget)
         ApplicationWindow.button_set_laser.clicked.connect(lambda : set_laser(None))
@@ -530,6 +618,13 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.button_set_voltage.clicked.connect(lambda: f.set_focus(ApplicationWindow.piezo, float(ApplicationWindow.txt_focus_voltage.text())))
         grid.addWidget(ApplicationWindow.button_set_voltage,row_start+6,column_start+3)
 
+        ApplicationWindow.radio_angled_grid = QtGui.QCheckBox("Angled Grid")
+        ApplicationWindow.radio_angled_grid.clicked.connect(reset_shapes)
+        grid.addWidget(ApplicationWindow.radio_angled_grid, row_start+2, column_start+3)
+
+        ApplicationWindow.button_copy_scan_params = QtGui.QPushButton("Copy Scan Parameters")
+        ApplicationWindow.button_copy_scan_params.clicked.connect(copy_scan_params)
+        grid.addWidget(ApplicationWindow.button_copy_scan_params, row_start-1, column_start+3)
 # ApplicationWindow.RS = RectangleSelector(ApplicationWindow.imPlot.axes, ApplicationWindow.select_RoI, button = 3, drawtype='box', rectprops = rectprops)
 
 
@@ -568,7 +663,11 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             timePerPt = float(ApplicationWindow.txt_time_per_pt.text())
 
             bool_use_apd = str(ApplicationWindow.cmb_APD.currentText()) == 'Use APD'
-            ApplicationWindow.imageData, ApplicationWindow.imageRoI = DeviceTriggers.scanGui(ApplicationWindow.imPlot,xMin,xMax,pts_x,yMin,yMax,pts_y,timePerPt, ApplicationWindow.scan_queue, bool_use_apd)
+            if ApplicationWindow.radio_distconv.isChecked():
+                dist_volt_conv = ApplicationWindow.txt_distconv.text()
+            else:
+                dist_volt_conv = None
+            ApplicationWindow.imageData, ApplicationWindow.imageRoI = DeviceTriggers.scanGui(ApplicationWindow.imPlot,xMin,xMax,pts_x,yMin,yMax,pts_y,timePerPt, ApplicationWindow.scan_queue, bool_use_apd, dist_volt_conv)
 
             set_laser([0, 0])
 
@@ -615,10 +714,10 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         grid.addWidget(ApplicationWindow.radio_roi,row_start, column_start)
         ApplicationWindow.radio_NVs = QtGui.QCheckBox("selected NVs")
         ApplicationWindow.radio_NVs.clicked.connect(reset_shapes)
-        grid.addWidget(ApplicationWindow.radio_NVs,row_start+1, column_start)
+        grid.addWidget(ApplicationWindow.radio_NVs,row_start, column_start+1)
         ApplicationWindow.radio_NV_labels = QtGui.QCheckBox("NV labels")
         ApplicationWindow.radio_NV_labels.clicked.connect(reset_shapes)
-        grid.addWidget(ApplicationWindow.radio_NV_labels,row_start+1, column_start+1)
+        grid.addWidget(ApplicationWindow.radio_NV_labels,row_start+1, column_start)
         ApplicationWindow.radio_grid = QtGui.QCheckBox("Grid")
         ApplicationWindow.radio_grid.clicked.connect(reset_shapes)
         grid.addWidget(ApplicationWindow.radio_grid,row_start +2, column_start)
@@ -631,6 +730,10 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.radio_laser = QtGui.QCheckBox("Laser")
         ApplicationWindow.radio_laser.clicked.connect(reset_shapes)
         grid.addWidget(ApplicationWindow.radio_laser,row_start +5, column_start)
+        ApplicationWindow.radio_distconv= QtGui.QCheckBox("Convert to Distance")
+        grid.addWidget(ApplicationWindow.radio_distconv,row_start +4, column_start+1)
+        ApplicationWindow.txt_distconv = QtGui.QLineEdit()
+        grid.addWidget(ApplicationWindow.txt_distconv,row_start +5, column_start+1)
 
         # set RoI and zoom
         ApplicationWindow.button_zoom_in_RoI = QtGui.QPushButton('zoom in (RoI)',ApplicationWindow.main_widget)
@@ -792,10 +895,14 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
     ApplicationWindow.imPlot = gui_cw.MyMplCanvas(ApplicationWindow.main_widget, width=5, height=4, dpi=100)
     plotBox.addWidget(ApplicationWindow.imPlot)
+    ApplicationWindow.focPlot = gui_cw.MyMplCanvas(ApplicationWindow.main_widget, width=5, height=4, dpi=100)
+    plotBox.addWidget(ApplicationWindow.focPlot)
+    ApplicationWindow.esrPlot = gui_cw.MyMplCanvas(ApplicationWindow.main_widget, width=5, height=4, dpi=100)
+    plotBox.addWidget(ApplicationWindow.esrPlot)
 
     #ApplicationWindow.imageData = None
-    ApplicationWindow.imageData = np.array(pd.read_csv("Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-27_18-41-56-NVBaselineTests.csv"))
-    ApplicationWindow.imPlot.axes.imshow(ApplicationWindow.imageData, extent = [-.05,.05,-.05,.05])
+    ApplicationWindow.imageData = np.array(Image.open('C:\\Users\\Experiment\\Desktop\\GuiIcons\\beaker.jpg'))
+    ApplicationWindow.imPlot.axes.imshow(ApplicationWindow.imageData)
     ApplicationWindow.imPlot.draw()
 
     # ApplicationWindow.mouseNVImageConnect = ApplicationWindow.imPlot.mpl_connect('button_press_event', ApplicationWindow.mouseNVImage)
@@ -865,10 +972,12 @@ def load_settings(ApplicationWindow, filename = None):
         ApplicationWindow.txt_pt_1b_x.setText(dict['pt_1b_x'])
         ApplicationWindow.txt_pt_2a_x.setText(dict['pt_2a_x'])
         ApplicationWindow.txt_pt_2b_x.setText(dict['pt_2b_x'])
+        ApplicationWindow.txt_pt_2c_x.setText(dict['pt_2c_x'])
         ApplicationWindow.txt_pt_1a_y.setText(dict['pt_1a_y'])
         ApplicationWindow.txt_pt_1b_y.setText(dict['pt_1b_y'])
         ApplicationWindow.txt_pt_2a_y.setText(dict['pt_2a_y'])
         ApplicationWindow.txt_pt_2b_y.setText(dict['pt_2b_y'])
+        ApplicationWindow.txt_pt_2c_y.setText(dict['pt_2c_y'])
         ApplicationWindow.txt_pt_1_x_pts.setText(dict['pt_1_x'])
         ApplicationWindow.txt_pt_1_y_pts.setText(dict['pt_1_y'])
         ApplicationWindow.txt_pt_2_x_pts.setText(dict['pt_2_x'])
@@ -1003,11 +1112,13 @@ def get_pts_and_size(ApplicationWindow, ptID = '2'):
     if ptID == '1':
         pt_a = [float(ApplicationWindow.txt_pt_1a_x.text()), float(ApplicationWindow.txt_pt_1a_y.text())]
         pt_b = [float(ApplicationWindow.txt_pt_1b_x.text()), float(ApplicationWindow.txt_pt_1b_y.text())]
+        pt_c = [0,0]
         xpts = float(ApplicationWindow.txt_pt_1_x_pts.text())
         ypts = float(ApplicationWindow.txt_pt_1_y_pts.text())
     elif ptID == '2':
         pt_a = [float(ApplicationWindow.txt_pt_2a_x.text()), float(ApplicationWindow.txt_pt_2a_y.text())]
         pt_b = [float(ApplicationWindow.txt_pt_2b_x.text()), float(ApplicationWindow.txt_pt_2b_y.text())]
+        pt_c = [float(ApplicationWindow.txt_pt_2c_x.text()), float(ApplicationWindow.txt_pt_2c_y.text())]
         xpts = float(ApplicationWindow.txt_pt_2_x_pts.text())
         ypts = float(ApplicationWindow.txt_pt_2_y_pts.text())
     pt_L = [float(ApplicationWindow.txt_pt_laser_x.text()), float(ApplicationWindow.txt_pt_laser_y.text())]
@@ -1015,7 +1126,7 @@ def get_pts_and_size(ApplicationWindow, ptID = '2'):
     yrange = ApplicationWindow.imPlot.axes.get_ylim()[1]-ApplicationWindow.imPlot.axes.get_ylim()[0]
     size= .01*min(xrange,yrange)
 
-    return size, pt_a, pt_b, xpts, ypts, pt_L
+    return size, pt_a, pt_b, pt_c, xpts, ypts, pt_L
 
 def get_min_max(ApplicationWindow):
     pta_x = float(ApplicationWindow.txt_pt_1a_x.text())

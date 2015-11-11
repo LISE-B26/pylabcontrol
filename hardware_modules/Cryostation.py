@@ -1,4 +1,5 @@
 import socket
+import time
 
 
 #cryo = ctypes.WinDLL('C:\\Users\\Experiment\\Downloads\\Cryostation Release 3.46 or later\\CryostationComm.dll')
@@ -50,6 +51,7 @@ class Cryostation:
 
     def get_platform_temp(self):
         cryostat_response = self.query_cryostat('03GPT')
+        time.sleep(.1)
         return float(self.extract_data(cryostat_response))
 
     def get_stage_one_heater_power(self):
@@ -58,18 +60,21 @@ class Cryostation:
 
     def get_stage_one_temp(self):
         cryostat_response = self.query_cryostat('04GS1T')
+        time.sleep(.1)
         return float(self.extract_data(cryostat_response))
 
     def get_stage_two_temp(self):
         cryostat_response = self.query_cryostat('04GS2T')
+        time.sleep(.1)
         return float(self.extract_data(cryostat_response))
 
     def get_sample_stability(self):
         cryostat_response = self.query_cryostat('03GSS')
         return float(self.extract_data(cryostat_response))
 
-    def get_sample_temperature(self):
+    def get_sample_temp(self):
         cryostat_response = self.query_cryostat('03GST')
+        time.sleep(.1)
         data = float(self.extract_data(cryostat_response))
         if data == -1.0:
             print 'Warning: Cryostat sample temperature not available. The sample thermometer may be disconnected'
@@ -106,5 +111,5 @@ class Cryostation:
         return self.extract_data(cryostat_response)
 
 if __name__ == '__main__':
-    a = Cryostation('10.243.34.43', 7773)
-    print a.set_temp_setpoint(6)
+    a = Cryostation('10.243.34.189', 7773)
+    print a.get_platform_temp()

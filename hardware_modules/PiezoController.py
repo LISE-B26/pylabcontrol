@@ -4,7 +4,7 @@
 # Last Update: 2/3/15
 
 # TROUBLESHOOTING:
-# if no commands are accepted, first try unplugging and replugging connection
+# if no commands are accepted, first try unplugging and replugging connection and/or power cycling
 
 import serial
 import time
@@ -98,7 +98,7 @@ class MDT693A:
         self.ser.close()
 
 class MDT693B:
-    def __init__(self, outputAxis, port = 10, baudrate = 115200, timeout = .1):
+    def __init__(self, outputAxis, port = 16, baudrate = 115200, timeout = .1):
         # The serial connection should be setup with the following parameters:
         # 8 data bits, No parity bit, 1 stop bit, no hardware
         # handshake. These are all default for Serial and therefore not input
@@ -142,6 +142,8 @@ class MDT693B:
 
         self.ser.write(self.axis + 'voltage=' + str(voltage) + '\r')
         successCheck = self.ser.readlines()
+        # print(successCheck)
+        # * and ! are values returned by controller on success or failure respectively
         if(successCheck[0] == '*'):
             print('Voltage set')
         elif(successCheck[0] == '!'):
@@ -210,6 +212,11 @@ if __name__ == '__main__':
     yController.setVoltage(10)
 
     """
+
+    #a = MDT693B('Y')
+    #a.setVoltage(0)
+
+
 
     #xController.setVoltage(58.6)
     #while True:

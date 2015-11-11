@@ -10,9 +10,12 @@
 # may be distributed without limitation.
 
 from __future__ import unicode_literals
+
+import sys
+sys.path.append('.')
+
 import sys
 import time
-import Queue
 
 import numpy
 import numpy.random
@@ -23,20 +26,13 @@ import matplotlib.patches as patches
 
 from PyQt4 import QtGui, QtCore
 
-import scipy.spatial
-import matplotlib.pyplot as plt
-
-import json
 import functions.Focusing as focusing
-from functions.regions import *
 from functions import track_NVs as track
-from hardware_modules import PiezoController as PC
-from scripts import ESR
 
 from gui import GuiDeviceTriggers as DeviceTriggers
 
 
-import gui_scan_layout, gui_counter_layout, gui_esr_layout, gui_zi_layout
+import gui_scan_layout
 
 
 class ApplicationWindow(QtGui.QMainWindow):
@@ -63,15 +59,10 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.plotBox = QtGui.QHBoxLayout()
         self.vbox.addLayout(self.plotBox)
 
-        self.testButton = QtGui.QPushButton('Run Test Code',self.main_widget)
-        self.testButton.clicked.connect(self.testButtonClicked)
-        self.vbox.addWidget(self.testButton)
-
-
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
 
-        self.initUI()
+        gui_scan_layout.add_scan_layout(self, self.vbox, self.plotBox)
 
 
         #Makes room for status bar at bottom so it doesn't resize the widgets when it is used later
@@ -449,149 +440,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 
 
 
-    def addPB(self):
-        self.buttonStartPB = QtGui.QPushButton('PB Start',self.main_widget)
-        self.buttonStartPB.clicked.connect(self.StartPBBtnClicked)
-        self.buttonStopPB = QtGui.QPushButton('PB Stop',self.main_widget)
-        self.buttonStopPB.clicked.connect(self.StopPBBtnClicked)
-        self.PBLayout = QtGui.QGridLayout()
-        self.PBLayout.addWidget(self.buttonStartPB,1,1)
-        self.PBLayout.addWidget(self.buttonStopPB,1,2)
-        self.vbox.addLayout(self.PBLayout)
 
-    def StartPBBtnClicked(self):
-        pass
-
-    def StopPBBtnClicked(self):
-        pass
-
-    def removeScan(self, plotBox):
-        self.clearLayout(self.scanCoorGrid)
-        self.imPlot.deleteLater()
-        QtGui.QApplication.processEvents()
-
-    def removeZI(self, plotBox):
-        self.clearLayout(self.ZILayout)
-        self.ziPlot.deleteLater()
-        QtGui.QApplication.processEvents()
-
-    def removeCounter(self):
-        self.clearLayout(self.counterLayout)
-        self.counterPlot.deleteLater()
-        QtGui.QApplication.processEvents()
-
-    def removePB(self):
-        self.clearLayout(self.PBLayout)
-        QtGui.QApplication.processEvents()
-
-    def removeCounter(self):
-        self.clearLayout(self.ESRLayout)
-        self.ESRPlot.deleteLater()
-        QtGui.QApplication.processEvents()
-
-    def clearLayout(self, layout):
-        if layout != None:
-            while layout.count():
-                child = layout.takeAt(0)
-                if child.widget() is not None:
-                    child.widget().deleteLater()
-                elif child.layout() is not None:
-                    self.clearLayout(child.layout())
-
-    def initUI(self):
-        self.toolbarImage = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\diamondIcon.jpg'), 'addImaging', self)
-        self.toolbarImage.setCheckable(True)
-        self.toolbarImage.setChecked(True)
-        self.toolbarImage.triggered.connect(self.toolbarImageChecked)
-        self.toolbarImage.setToolTip('Imaging Tools')
-        self.toolbar = self.addToolBar('addImaging')
-        self.toolbar.addAction(self.toolbarImage)
-        self.toolbarZI = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\ZIIcon.png'), 'addZI', self)
-        self.toolbarZI.setCheckable(True)
-        self.toolbarZI.setChecked(False)
-        self.toolbarZI.triggered.connect(self.toolbarZIChecked)
-        self.toolbarZI.setToolTip('ZI Tools')
-        self.toolbar.addAction(self.toolbarZI)
-        self.toolbarCounter = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\CountIcon.jpg'), 'addCounter', self)
-        self.toolbarCounter.setCheckable(True)
-        self.toolbarCounter.setChecked(False)
-        self.toolbarCounter.triggered.connect(self.toolbarCounterChecked)
-        self.toolbarCounter.setToolTip('Counter Tool')
-        self.toolbar.addAction(self.toolbarCounter)
-        self.toolbarPB = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\LaserIcon.jpg'), 'addPB', self)
-        self.toolbarPB.setCheckable(True)
-        self.toolbarPB.setChecked(False)
-        self.toolbarPB.triggered.connect(self.toolbarPBChecked)
-        self.toolbarPB.setToolTip('PulseBlaster Tool')
-        self.toolbar.addAction(self.toolbarPB)
-        self.toolbarESR = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\LaserIcon.jpg'), 'addPB', self)
-        self.toolbarESR.setCheckable(True)
-        self.toolbarESR.setChecked(False)
-        self.toolbarESR.triggered.connect(self.toolbarESRChecked)
-        self.toolbarESR.setToolTip('ESR Tool')
-        #self.toolbar.addAction(self.toolbarESR)
-        spacer = QtGui.QWidget()
-        spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        self.toolbar.addWidget(spacer)
-        self.toolbarLock = QtGui.QAction(QtGui.QIcon('C:\\Users\\Experiment\\Desktop\\GuiIcons\\LockIcon.png'), 'lockToolbar', self)
-        self.toolbarLock.setCheckable(True)
-        self.toolbarLock.setChecked(False)
-        self.toolbarLock.triggered.connect(self.toolbarLockChecked)
-        self.toolbarLock.setToolTip('Lock Toolbar')
-        self.toolbar.addAction(self.toolbarLock)
-        self.setGeometry(300, 300, 300, 200)
-        self.setWindowTitle('Toolbar')
-        self.toolbarImageChecked()
-        self.show()
-
-    def toolbarImageChecked(self):
-        if(not self.toolbarLock.isChecked()):
-            if(self.toolbarImage.isChecked()):
-                gui_scan_layout.add_scan_layout(self, self.vbox, self.plotBox)
-            else:
-                self.removeScan(self.plotBox)
-
-    def toolbarZIChecked(self):
-        if(not self.toolbarLock.isChecked()):
-            if(self.toolbarZI.isChecked()):
-                self.addZI(self.vbox, self.plotBox)
-            else:
-                self.removeZI(self.plotBox)
-
-    def toolbarCounterChecked(self):
-        if(not self.toolbarLock.isChecked()):
-            if(self.toolbarCounter.isChecked()):
-                self.addCounter()
-            else:
-                self.removeCounter()
-
-    def toolbarPBChecked(self):
-        if(not self.toolbarLock.isChecked()):
-            if(self.toolbarPB.isChecked()):
-                self.addPB()
-            else:
-                self.removePB()
-
-    def toolbarESRChecked(self):
-        if(not self.toolbarLock.isChecked()):
-            if(self.toolbarESR.isChecked()):
-                self.addESR()
-            else:
-                self.removeESR()
-
-    def toolbarLockChecked(self):
-        if(self.toolbarLock.isChecked()):
-            self.toolbarImage.setDisabled(True)
-            self.toolbarZI.setDisabled(True)
-            self.toolbarCounter.setDisabled(True)
-            self.toolbarPB.setDisabled(True)
-            self.statusBar().showMessage("Toolbar Locked",2000)
-        else:
-            self.toolbarImage.setDisabled(False)
-            self.toolbarZI.setDisabled(False)
-            self.toolbarCounter.setDisabled(False)
-            self.toolbarPB.setDisabled(False)
-            self.statusBar().showMessage("Toolbar Unlocked",2000)
 
     def fileQuit(self):
         self.close()

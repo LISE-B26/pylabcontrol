@@ -9,6 +9,7 @@ import scipy.optimize
 from hardware_modules import GalvoMirrors as DaqOut, PiezoController
 from functions import ScanPhotodiode_DAQ as GalvoScanPD
 from functions import ScanAPD as GalvoScanAPD
+import matplotlib.gridspec as gridspec
 
 from functions.regions import *
 
@@ -88,7 +89,7 @@ class Focus:
         # yMin, yMax = scan_range_roi['yo'] - scan_range_roi['dy']/2., scan_range_roi['yo'] + scan_range_roi['dy']/2.
 
 
-        piezo = PiezoController.MDT693A(piezoChannel)
+        piezo = PiezoController.MDT693B(piezoChannel)
         # initializes pyplot figure if using pyplot plotting
         if canvas is None and plotting:
             fig = plt.figure()
@@ -97,7 +98,18 @@ class Focus:
             axes_img_best = fig.add_subplot(1,3,3)
             plt.ion()
         elif plotting:
-            axes = canvas.axes
+            fig = canvas.fig
+            fig.clf()
+            gs = gridspec.GridSpec(2,2)
+            axes_img = fig.add_subplot(gs[0,0])
+            axes_img_best = fig.add_subplot(gs[0,1])
+            axes = fig.add_subplot(gs[1,:])
+            axes.set_xlabel('Piezo Voltage (V)')
+            axes.set_ylabel('Standard Deviation')
+            axes_img.set_xlabel('Vx')
+            axes_img.set_ylabel('Vy')
+            axes_img_best.set_xlabel('Vx')
+            axes_img_best.set_ylabel('Vy')
         # plots junk data to initialize lines used later
         if plotting:
             dat=[-1,0]

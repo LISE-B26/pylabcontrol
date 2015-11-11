@@ -15,9 +15,9 @@ def is_autofocus_param(myjson):
     assert 'dz' in json_object.keys()
     assert 'zPts' in json_object.keys()
     assert 'xyPts' in json_object.keys()
+    # assert 'axis' in json_object.keys()
 
     return True
-
 
 def is_ESR_param(myjson):
     try:

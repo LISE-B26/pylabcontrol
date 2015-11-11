@@ -30,7 +30,8 @@ class ScanNV():
     # timePerPt: time to stay at each scan point
     # canvas: send matplotlib.backends canvas from PyQt4 gui if being used, otherwise plots with pyplot
     # settleTime: galvo settling time, excluded from scan
-    def __init__(self, xVmin, xVmax, xPts, yVmin, yVmax, yPts, timePerPt, canvas = None,settleTime = .0002):
+    # dist_volt_conversion: conversion factor of number of microns per galvo volt
+    def __init__(self, xVmin, xVmax, xPts, yVmin, yVmax, yPts, timePerPt, canvas = None,settleTime = .0002, dist_volt_conversion = None):
         # evenly spaced arrays of x and y voltages
         assert((timePerPt/settleTime).is_integer())
         self.xVmin = xVmin
@@ -99,8 +100,16 @@ class ScanNV():
 
     def dispImageGui(self):
         if(self.plotting == 0):
-            implot = self.canvas.axes.imshow(self.imageData, cmap = 'pink',
-                                              interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
+            if self.dvconv is None:
+                implot = self.canvas.axes.imshow(self.imageData, cmap = 'pink',
+                                                  interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
+                self.canvas.axes.set_xlabel('Vx')
+                self.canvas.axes.set_ylabel('Vy')
+            else:
+                implot = self.canvas.axes.imshow(self.imageData, cmap = 'pink',
+                  interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
+                self.canvas.axes.set_xlabel('Distance (um)')
+                self.canvas.axes.set_ylabel('Distance (um)')
             if(len(self.canvas.fig.axes) > 1):
                 self.cbar = self.canvas.fig.colorbar(implot,cax = self.canvas.fig.axes[1])
             else:
@@ -110,8 +119,16 @@ class ScanNV():
             QtGui.QApplication.processEvents()
             self.plotting = 1
         else:
-            implot = self.canvas.axes.imshow(self.imageData, cmap = 'pink',
-                                              interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
+            if self.dvconv is None:
+                implot = self.canvas.axes.imshow(self.imageData, cmap = 'pink',
+                                                  interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
+                self.canvas.axes.set_xlabel('Vx')
+                self.canvas.axes.set_ylabel('Vy')
+            else:
+                implot = self.canvas.axes.imshow(self.imageData, cmap = 'pink',
+                  interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
+                self.canvas.axes.set_xlabel('Distance (um)')
+                self.canvas.axes.set_ylabel('Distance (um)')
             self.cbar.update_bruteforce(implot)
             self.canvas.draw()
             QtGui.QApplication.processEvents()

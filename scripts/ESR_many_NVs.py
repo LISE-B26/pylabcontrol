@@ -3,10 +3,12 @@ import os.path
 import time
 
 import numpy as np
+
 import matplotlib.pyplot as plt
 import pandas as pd
 
 from scripts import ESR
+
 from functions import track_NVs as track
 from functions import ScanAPD
 from hardware_modules import GalvoMirrors as DaqOut
@@ -15,6 +17,7 @@ from functions import Focusing as F
 import helper_functions.reading_writing as ReadWriteCommands
 from functions import regions
 import helper_functions.test_types as test_types
+
 
 def setDaqPt(xVolt,yVolt):
     initPt = np.transpose(np.column_stack((xVolt, yVolt)))
@@ -75,7 +78,7 @@ def ESR_load_param(filename_or_json):
 
     return esr_param
 
-def ESR_map(points, esr_param):
+def ESR_map(points, esr_param, canvas):
     '''
         gets the ESR at points defined by points
     '''
@@ -90,10 +93,11 @@ def ESR_map(points, esr_param):
 
     pt_num = 1
     print dirpath
+    print(points)
     for pt in points:
 
         print '{:s}_NV_pt_{:00d}'.format(tag, pt_num)
-        esr_data, fit_params, fig = ESR.run_esr(RF_Power, freqs, (pt[0],pt[1]), num_avg=avg, int_time=int_time)
+        esr_data, fit_params, fig = ESR.run_esr(RF_Power, freqs, (pt[0],pt[1]), num_avg=avg, int_time=int_time, canvas = canvas)
         print pt_num
         print fig
         ESR.save_esr(esr_data, fig, dirpath, '{:s}_NV_pt_{:00d}'.format(tag, pt_num))
@@ -102,7 +106,7 @@ def ESR_map(points, esr_param):
         pt_num += 1
     fig.clf()
 
-def ESR_map_focus(points, roi, esr_param):
+def ESR_map_focus(points, roi, esr_param, canvas):
     '''
         gets the ESR at points defined by points
     '''
@@ -116,7 +120,7 @@ def ESR_map_focus(points, roi, esr_param):
     int_time = esr_param['ESR_integration_time']
     runs_between_focusing = esr_param['runs_between_focusing']
 
-    current_focus = PC.MDT693A('Z').getVoltage()
+    current_focus = PC.MDT693B('Z').getVoltage()
 
     start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
 
@@ -133,7 +137,7 @@ def ESR_map_focus(points, roi, esr_param):
     for pt in points:
 
         print '{:s}_NV_pt_{:00d}'.format(tag, pt_num)
-        esr_data, fit_params, fig = ESR.run_esr(RF_Power, freqs, (pt[0],pt[1]), num_avg=avg, int_time=int_time)
+        esr_data, fit_params, fig = ESR.run_esr(RF_Power, freqs, (pt[0],pt[1]), num_avg=avg, int_time=int_time, canvas = canvas)
         print pt_num
         print fig
         ESR.save_esr(esr_data, fig, dirpath, '{:s}_NV_pt_{:00d}'.format(tag, pt_num))

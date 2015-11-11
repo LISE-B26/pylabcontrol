@@ -61,7 +61,37 @@ def corr_NVs(baseline_image, new_image):
     x_shift = x - (x_len/4)
     y_shift = y - (y_len/4)
 
-    return (x_shift, y_shift) #, corr, old_image --- test outputs
+    #return (x_shift, y_shift) #, corr, old_image --- test outputs
+    return (x_shift, y_shift, corr, old_image) # --- test outputs
+
+
+def corr_NVs_no_subset(baseline_image, new_image):
+    """
+    # Tracks drift by correlating new and old images, and returns shift in pixels
+    :param baseline_image: original image
+    :param new_image: new (drifted) image. Should be same size as baseline_image in pixels
+    :return: shift from baseline image to new image in pixels
+    """
+    # subtracts mean to sharpen each image and sharpen correlation
+    baseline_image_sub = baseline_image - baseline_image.mean()
+    new_image_sub = new_image - new_image.mean()
+
+    #takes center part of baseline image
+    x_len = len(baseline_image_sub[0])
+    y_len = len(baseline_image_sub)
+    old_image = baseline_image_sub[(x_len/4):(x_len*3/4),(y_len/4):(y_len*3/4)]
+
+    # correlate with new image. mode='valid' ignores all correlation points where an image is out of bounds. if baseline
+    # and new image are NxN, returns a (N/2)x(N/2) correlation
+    corr = signal.correlate2d(new_image_sub, baseline_image_sub)
+    y, x = np.unravel_index(np.argmax(corr), corr.shape)
+
+    # finds shift by subtracting center of initial coordinates, x_shift = x + (x_len/4) - (x_len/2)
+    x_shift = x - (x_len)
+    y_shift = y - (y_len)
+
+    #return (x_shift, y_shift) #, corr, old_image --- test outputs
+    return (x_shift, y_shift, corr, old_image) # --- test outputs
 
 
 def update_roi(roi, (x_shift, y_shift)):

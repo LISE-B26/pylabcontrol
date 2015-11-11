@@ -39,6 +39,12 @@ class FileBoxSave(QtGui.QLineEdit):
     def __init__(self, default_path):
         QtGui.QLineEdit.__init__(self)
         self.default_path = default_path
+        self.file_dialog_open = False
     def focusInEvent(self, QFocusEvent):
-        name = QtGui.QFileDialog.getExistingDirectory(self, 'Select a folder:', self.default_path, QtGui.QFileDialog.ShowDirsOnly)
-        self.setText(name)
+        if not self.file_dialog_open:
+            self.file_dialog_open = True
+            name = QtGui.QFileDialog.getExistingDirectory(self, 'Select a folder:', self.default_path, QtGui.QFileDialog.ShowDirsOnly)
+            self.setText(name)
+            self.window().setFocus()
+            self.file_dialog_open = False
+
