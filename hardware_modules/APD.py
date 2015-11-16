@@ -6,7 +6,6 @@
 # import standard libraries
 import ctypes
 import threading
-import time
 # load any DLLs
 nidaq = ctypes.windll.nicaiu # load the DLL
 ##############################

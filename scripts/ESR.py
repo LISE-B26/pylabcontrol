@@ -78,7 +78,7 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
             freq_voltage_array = ((freq_section_array-sec_min)/RANGE_STEP)*2 - 1 #normalize voltages to +-1 range
 
             mwgen.setFreq(center_freq)
-
+            print('test')
             readthread = APDIn.ReadAPD("Dev1/ctr0", 1 / dt,
                                        len(freq_voltage_array) + 1, 100000)
             writethread = DaqOut.DaqOutputWave(freq_voltage_array, 1 / dt,
@@ -309,8 +309,8 @@ def save_esr(esr_data, fig, dirpath, tag = "", saveImage = True):
 
 #sample usage to scan 200 frequency points between 2.82 and 2.92 GHz
 
-#RF_Power = -12
-#avg = 10
+#RF_Power = -60
+#avg = 100
 #test_freqs = np.linspace(2820000000, 2920000000, 200)
 #esr_data, fit_params, fig = run_esr(RF_Power, test_freqs, num_avg=avg, int_time=.002)
 #dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150710_Diamond_Ramp_Over_Mags_ESR_near_Magnets\\ESR'
@@ -318,6 +318,6 @@ def save_esr(esr_data, fig, dirpath, tag = "", saveImage = True):
 #print('saving ESR spectrum {:s} '.format(tag))
 #save_esr(esr_data, fig, dirpath, tag)
 #
-# mwgen = init_mwgen(-40)
+#mwgen = init_mwgen(-60)
 #
-# mwgen.outputOff()
+#mwgen.outputOff()

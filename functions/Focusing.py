@@ -40,7 +40,7 @@ class Focus:
     # canvas: Pass in a backends canvas to plot to the gui, otherwise plots using pyplot
     # return: returns voltage to set it to
     @classmethod
-    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True, scan_range_roi = None, plotting = True, blocking=True, return_data = False):
+    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True, scan_range_roi = None, plotting = True, blocking=True, return_data = False, queue = None):
         assert(minV >= 1 and maxV <= 99)
 
         if scan_range_roi == None:
@@ -106,10 +106,13 @@ class Focus:
             axes = fig.add_subplot(gs[1,:])
             axes.set_xlabel('Piezo Voltage (V)')
             axes.set_ylabel('Standard Deviation')
+            axes.set_title('Autofocusing')
             axes_img.set_xlabel('Vx')
             axes_img.set_ylabel('Vy')
+            axes_img.set_title('Current Image')
             axes_img_best.set_xlabel('Vx')
             axes_img_best.set_ylabel('Vy')
+            axes_img_best.set_title('Best Focused Image')
         # plots junk data to initialize lines used later
         if plotting:
             dat=[-1,0]
@@ -122,6 +125,8 @@ class Focus:
             #axes.set_ylim([0,10])
             cls.updatePlot(canvas)
         for voltage in voltRange:
+            if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
+                return voltage, voltRange, ydata
             piezo.setVoltage(voltage)
             time.sleep(waitTime)
             print(xMin)
@@ -142,11 +147,6 @@ class Focus:
                 if ydata[-1] == max(ydata): image_best = image
 
                 cls.plotImg(image_best, canvas, axes_img_best)
-
-
-
-
-
 
         cls.setDaqPt(xInit, yInit)
         (a,mean,sigma,c),_ = cls.fit(voltRange, ydata)

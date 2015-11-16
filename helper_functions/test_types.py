@@ -19,6 +19,17 @@ def is_autofocus_param(myjson):
 
     return True
 
+def is_counter_param(myjson):
+    try:
+        json_object = json.loads(myjson)
+    except ValueError, e:
+        return False
+
+    assert 'sample_rate' in json_object.keys()
+    assert 'time_per_pt' in json_object.keys()
+
+    return True
+
 def is_ESR_param(myjson):
     try:
         json_object = json.loads(myjson)

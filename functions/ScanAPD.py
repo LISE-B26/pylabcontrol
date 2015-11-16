@@ -108,11 +108,13 @@ class ScanNV():
                                                   interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
                 self.canvas.axes.set_xlabel('Vx')
                 self.canvas.axes.set_ylabel('Vy')
+                self.canvas.axes.set_title('Confocal Image')
             else:
                 implot = self.canvas.axes.imshow(self.imageData, cmap = 'pink',
                   interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
                 self.canvas.axes.set_xlabel('Distance (um)')
                 self.canvas.axes.set_ylabel('Distance (um)')
+                self.canvas.axes.set_title('Confocal Image')
             if(len(self.canvas.fig.axes) > 1):
                 self.cbar = self.canvas.fig.colorbar(implot,cax = self.canvas.fig.axes[1],label = 'kcounts/sec')
             else:
@@ -127,11 +129,13 @@ class ScanNV():
                                                   interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
                 self.canvas.axes.set_xlabel('Vx')
                 self.canvas.axes.set_ylabel('Vy')
+                self.canvas.axes.set_title('Confocal Image')
             else:
                 implot = self.canvas.axes.imshow(self.imageData, cmap = 'pink',
                   interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
                 self.canvas.axes.set_xlabel('Distance (um)')
                 self.canvas.axes.set_ylabel('Distance (um)')
+                self.canvas.axes.set_title('Confocal Image')
             self.cbar.update_bruteforce(implot)
             self.canvas.draw()
             QtGui.QApplication.processEvents()

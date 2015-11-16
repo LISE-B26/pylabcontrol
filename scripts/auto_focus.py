@@ -27,7 +27,7 @@ def AF_load_param(filename_or_json):
     return af_param
 
 
-def autofocus_RoI(af_parameter, roi_focus, axis, focPlot = None, return_data = False):
+def autofocus_RoI(af_parameter, roi_focus, axis, focPlot = None, return_data = False, queue = None):
 
     zo = float(af_parameter['zo'])
     dz = float(af_parameter['dz'])
@@ -40,7 +40,7 @@ def autofocus_RoI(af_parameter, roi_focus, axis, focPlot = None, return_data = F
     roi_focus['xPts'] = xyPts
     roi_focus['yPts'] = xyPts
     print roi_focus
-    voltage_focus, voltage_range, y_data = focusing.Focus.scan(zMin, zMax, zPts, axis, waitTime = .1, APD=True, scan_range_roi = roi_focus, canvas = focPlot, return_data=True)
+    voltage_focus, voltage_range, y_data = focusing.Focus.scan(zMin, zMax, zPts, axis, waitTime = .1, APD=True, scan_range_roi = roi_focus, canvas = focPlot, return_data=True, queue = queue)
 
     if return_data:
         return voltage_focus, voltage_range, y_data

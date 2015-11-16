@@ -1,7 +1,10 @@
 import visa
+from tendo import singleton
+import time
 
 class SG384():
     def __init__(self):
+        s = singleton.SingleInstance()
         rm = visa.ResourceManager()
         self.srs = rm.open_resource(u'GPIB0::27::INSTR')
 

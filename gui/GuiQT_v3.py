@@ -74,6 +74,7 @@ class ApplicationWindow(QtGui.QMainWindow):
             return QtCore.QSize(5000, 5000)
 
 
+
 # THIS SHOULD BE MOVED TO THE RESPECTIVE GUI_xx_LAYOUT.PY FILES ####################################################
 
     # def visualize_2pt_disp(self):
@@ -445,8 +446,8 @@ class ApplicationWindow(QtGui.QMainWindow):
     def fileQuit(self):
         self.close()
 
-    def closeEvent(self, ce):
-        self.fileQuit()
+    def closeEvent(self, event):
+        gui_scan_layout.save_settings(self, 'Z://Lab//Cantilever//Measurements//default.set')
 
     def checkValidImage(self):
         boxRoI = {
@@ -475,8 +476,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         QtGui.QMessageBox.about(self, "About",
 """Temp"""
 )
-qApp = QtGui.QApplication(sys.argv)
 
+qApp = QtGui.QApplication(sys.argv)
 aw = ApplicationWindow()
 progname = 'Experiment Gui'
 aw.setWindowTitle("%s" % progname)

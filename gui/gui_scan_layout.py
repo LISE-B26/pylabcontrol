@@ -10,6 +10,7 @@ import pandas as pd
 import scipy.spatial
 import matplotlib.patches as patches
 import Image
+import atexit
 
 import gui_custom_widgets as gui_cw
 import helper_functions.reading_writing as rw
@@ -21,8 +22,7 @@ from functions import track_NVs as track
 from scripts import set_focus as f
 from hardware_modules import PiezoController as PC
 from scripts import ZiControl_many_pts as ZIControl
-from gui import PlotAPDCounts as Cnts
-
+from gui import PlotAPDCounts2 as Cnts
 
 def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
@@ -272,7 +272,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.label_execute = QtGui.QLabel('execute', ApplicationWindow.main_widget)
         grid.addWidget(ApplicationWindow.label_execute,row_start,column_start)
         ApplicationWindow.cmb_execute = QtGui.QComboBox(ApplicationWindow.main_widget)
-        ApplicationWindow.cmb_execute.addItems(['ESR (chosen NVs)', 'ESR (grid)', 'ESR (point)', 'AutoFocus', 'Get Distance', 'ZI Frequency Sweep (point)', 'ZI Frequency Sweep (grid)', 'reset scan range'])
+        ApplicationWindow.cmb_execute.addItems(['ESR (chosen NVs)', 'ESR (grid)', 'ESR (point)', 'AutoFocus', 'Counter', 'Get Distance', 'ZI Frequency Sweep (point)', 'ZI Frequency Sweep (grid)', 'reset scan range'])
         ApplicationWindow.cmb_execute.activated.connect(lambda: change_script(ApplicationWindow))
         grid.addWidget(ApplicationWindow.cmb_execute,row_start+1,column_start)
 
@@ -286,6 +286,10 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.button_execute_script = QtGui.QPushButton('run script', ApplicationWindow.main_widget)
         ApplicationWindow.button_execute_script.clicked.connect(lambda: execute_script(ApplicationWindow))
         grid.addWidget(ApplicationWindow.button_execute_script,row_start+1,column_start+2)
+
+        ApplicationWindow.button_stop_script = QtGui.QPushButton('stop script', ApplicationWindow.main_widget)
+        ApplicationWindow.button_stop_script.clicked.connect(lambda: stop_script(ApplicationWindow))
+        grid.addWidget(ApplicationWindow.button_stop_script,row_start+1,column_start+3)
 
         ApplicationWindow.selected_points = list()
 
@@ -322,6 +326,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             script_path = ApplicationWindow.parameters_paths_scripts[script_name]
             ApplicationWindow.statusBar().showMessage('running {:s} with {:s}'.format(script_name, script_path),1000)
             ApplicationWindow.path_script.setText(script_path)
+            ApplicationWindow.script_queue = Queue.Queue()
 
             print ApplicationWindow.path_script.text()
 
@@ -364,9 +369,16 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
                 if not af_parameter == {}:
                     #voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus)
-                    voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus, ApplicationWindow.piezo, focPlot=ApplicationWindow.focPlot)
+                    voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus, ApplicationWindow.piezo, focPlot=ApplicationWindow.focPlot, queue=ApplicationWindow.script_queue)
                     ApplicationWindow.statusBar().showMessage('new focus {:0.3f}'.format(voltage_focus),2000)
                     ApplicationWindow.txt_focus_voltage.setText('{:0.2f}'.format(voltage_focus))
+
+            elif script_name == 'Counter':
+                cnts_parameter = Cnts.counter_load_param(ApplicationWindow.path_script.text())
+                #counter = Cnts.PlotAPD(sampleRate=float(cnts_parameter['sample_rate']), timePerPt=float(cnts_parameter['time_per_pt']), canvas = ApplicationWindow.esrPlot)
+                counter = Cnts.PlotAPD(sampleRate=float(cnts_parameter['sample_rate']), timePerPt=float(cnts_parameter['time_per_pt']), canvas = None)
+                counter.startPlot(queue = ApplicationWindow.script_queue)
+
 
             elif script_name == 'Get Distance':
                 print('Get Distance')
@@ -459,6 +471,9 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                 ApplicationWindow.txt_pt_1_x_pts.setText(param['pt_1_x'])
                 ApplicationWindow.txt_pt_1_y_pts.setText(param['pt_1_y'])
 
+        def stop_script(ApplicationWindow):
+            ApplicationWindow.script_queue.put('STOP')
+
 
     ##################################################################################
     # ADD GLOBAL ####################################################################
@@ -505,6 +520,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.cmb_setup.addItems(['Warm Setup', 'Cold Setup'])
         ApplicationWindow.cmb_setup.activated[str].connect(choose_setup)
         grid.addWidget(ApplicationWindow.cmb_setup,1,18)
+
 
     ##################################################################################
     # ADD SETTINGS ####################################################################
@@ -793,6 +809,8 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
 
         ApplicationWindow.scan_queue = Queue.Queue()
+        ApplicationWindow.script_queue = Queue.Queue()
+
 
     def add_choosing_points(grid, row_start = 1, column_start =  1):
 
@@ -1047,10 +1065,12 @@ def save_settings(ApplicationWindow, set_filename = None):
             "pt_1b_x": str(ApplicationWindow.txt_pt_1b_x.text()),
             "pt_2a_x": str(ApplicationWindow.txt_pt_2a_x.text()),
             "pt_2b_x": str(ApplicationWindow.txt_pt_2b_x.text()),
+            "pt_2c_x": str(ApplicationWindow.txt_pt_2c_x.text()),
             "pt_1a_y": str(ApplicationWindow.txt_pt_1a_y.text()),
             "pt_1b_y": str(ApplicationWindow.txt_pt_1b_y.text()),
             "pt_2a_y": str(ApplicationWindow.txt_pt_2a_y.text()),
             "pt_2b_y": str(ApplicationWindow.txt_pt_2b_y.text()),
+            "pt_2c_y": str(ApplicationWindow.txt_pt_2c_y.text()),
             "pt_1_x": str(ApplicationWindow.txt_pt_1_x_pts.text()),
             "pt_1_y": str(ApplicationWindow.txt_pt_1_y_pts.text()),
             "pt_2_x": str(ApplicationWindow.txt_pt_2_x_pts.text()),
@@ -1081,7 +1101,8 @@ def save_settings(ApplicationWindow, set_filename = None):
     def values_to_dict_global(ApplicationWindow):
 
         dict = {
-            "selected_detector": str(ApplicationWindow.cmb_APD.currentText())
+            "selected_detector": str(ApplicationWindow.cmb_APD.currentText()),
+            "selected_setup": str(ApplicationWindow.cmb_setup.currentText())
         }
         return dict
 
@@ -1107,6 +1128,7 @@ def save_settings(ApplicationWindow, set_filename = None):
         #     tmp = json.dump(dict_all, outfile, indent=4)
 
         ApplicationWindow.statusBar().showMessage('saved {:s}'.format(set_filename),0)
+
 
 def get_pts_and_size(ApplicationWindow, ptID = '2'):
     if ptID == '1':
