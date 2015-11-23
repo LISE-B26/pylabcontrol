@@ -27,7 +27,7 @@ DAQmx_Val_FiniteSamps = 10178
 DAQmx_Val_ContSamps = 10123
 DAQmx_Val_GroupByChannel = 0
 
-class ReadPhotodiode(threading.Thread):
+class ReadAI(threading.Thread):
     # initializes values, counter, and clock, and starts clock
     # device: string with name of Photodiode channel (usually Dev1/AI1)
     # frequency: frequency at which to take data

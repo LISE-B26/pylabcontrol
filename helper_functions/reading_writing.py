@@ -59,6 +59,18 @@ def save_image_and_data(fig, array, dirpath, tag, columns = None):
     df.to_csv(filepathCSV, index = False, header=header)
     fig.savefig(str(filepathJPG), format = 'jpg')
 
+def save_image(fig, dirpath, tag):
+    day = time.strftime("%d")
+    month = time.strftime("%m")
+    year = time.strftime("%Y")
+    hour = time.strftime("%H")
+    minute = time.strftime("%M")
+    second = time.strftime("%S")
+    filename = '\\' + year + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second  +'-' + str(tag)
+    filepathJPG = dirpath + filename + '.jpg'
+    fig.savefig(str(filepathJPG), format = 'jpg')
+
+
 def save_image_and_data_plt(array, dirpath, tag, columns = None):
     df = pd.DataFrame(array, columns = columns)
     if(columns == None):

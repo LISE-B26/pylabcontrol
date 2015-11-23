@@ -235,12 +235,10 @@ def plot_esr(freq_values, esr_data, fit_data = None, converge_data = None):
         return None
 
 def plot_esr_gui(canvas, freq_values, esr_data, fit_data = None, converge_data = None):
-    esrplt = canvas.figure.clf()
+    #esrplt = canvas.figure.clf()
     if not (fit_data == None or converge_data == None): # plot esr, fit, and convergence data
         scan_array = np.linspace(1,len(converge_data),len(converge_data))
         fig = canvas.figure
-        print('here')
-        print(fig)
         #subfig1 = fig.axes
         subfig1 = fig.add_subplot(211)
         subfig1.plot(freq_values, esr_data, freq_values, fit_data)

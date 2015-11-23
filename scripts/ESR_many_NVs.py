@@ -99,12 +99,11 @@ def ESR_map(points, esr_param, canvas):
         print '{:s}_NV_pt_{:00d}'.format(tag, pt_num)
         esr_data, fit_params, fig = ESR.run_esr(RF_Power, freqs, (pt[0],pt[1]), num_avg=avg, int_time=int_time, canvas = canvas)
         print pt_num
-        print fig
         ESR.save_esr(esr_data, fig, dirpath, '{:s}_NV_pt_{:00d}'.format(tag, pt_num))
 
 
         pt_num += 1
-    fig.clf()
+    #fig.clf()
 
 def ESR_map_focus(points, roi, esr_param, canvas):
     '''

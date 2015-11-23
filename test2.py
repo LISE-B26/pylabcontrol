@@ -1,3 +1,3 @@
-import test
+a = [[1,2,3],[4,5,6]]
 
-test.a()
+print a[0][0:3]

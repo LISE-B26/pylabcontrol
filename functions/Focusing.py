@@ -23,7 +23,6 @@ from PyQt4 import QtGui
 # yRangeMax = .5
 # xPts = 20
 # yPts = 20
-timePerPt = .001
 
 
 
@@ -40,7 +39,7 @@ class Focus:
     # canvas: Pass in a backends canvas to plot to the gui, otherwise plots using pyplot
     # return: returns voltage to set it to
     @classmethod
-    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True, scan_range_roi = None, plotting = True, blocking=True, return_data = False, queue = None):
+    def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True, scan_range_roi = None, plotting = True, blocking=True, return_data = False, queue = None, std = True, timePerPt = .001):
         assert(minV >= 1 and maxV <= 99)
 
         if scan_range_roi == None:
@@ -75,6 +74,7 @@ class Focus:
         #     yMin = numpy.min(numpy.sign(yInit)*yRangeMax, numpy.sign(yInit)*(yRangeMax-scanRange))
         #     yMax = numpy.max(numpy.sign(yInit)*yRangeMax, numpy.sign(yInit)*(yRangeMax-scanRange))
         # else:
+        #     yMin = yInit-scanRange/2
         #     yMin = yInit-scanRange/2
         #     yMax = yInit+scanRange/2
 
@@ -113,6 +113,7 @@ class Focus:
             axes_img_best.set_xlabel('Vx')
             axes_img_best.set_ylabel('Vy')
             axes_img_best.set_title('Best Focused Image')
+            gs.tight_layout(fig)
         # plots junk data to initialize lines used later
         if plotting:
             dat=[-1,0]
@@ -138,7 +139,10 @@ class Focus:
                 scanner = GalvoScanPD.ScanNV(xMin, xMax, xPts, yMin, yMax, yPts, timePerPt)
             image = scanner.scan(queue = None)
             xdata.append(voltage)
-            ydata.append(scipy.ndimage.measurements.standard_deviation(image))
+            if std == True:
+                ydata.append(scipy.ndimage.measurements.standard_deviation(image))
+            else:
+                ydata.append(scipy.ndimage.measurements.mean(image))
             if plotting:
                 cls.plotData(datline, xdata, ydata, canvas, axes)
 

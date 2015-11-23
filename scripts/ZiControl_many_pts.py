@@ -43,7 +43,7 @@ def ZI_map(points, ZI_param, canvas):
         zi.save_ZI(ZI_data, fig, dirpath, tag = '{:s}_pt_{:00d}'.format(tag, pt_num))
 
         pt_num += 1
-    fig.clf()
+    #fig.clf()
 
 def ZI_map_focus(points, roi, ZI_param, canvas):
     '''

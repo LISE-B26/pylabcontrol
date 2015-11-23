@@ -272,7 +272,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.label_execute = QtGui.QLabel('execute', ApplicationWindow.main_widget)
         grid.addWidget(ApplicationWindow.label_execute,row_start,column_start)
         ApplicationWindow.cmb_execute = QtGui.QComboBox(ApplicationWindow.main_widget)
-        ApplicationWindow.cmb_execute.addItems(['ESR (chosen NVs)', 'ESR (grid)', 'ESR (point)', 'AutoFocus', 'Counter', 'Get Distance', 'ZI Frequency Sweep (point)', 'ZI Frequency Sweep (grid)', 'reset scan range'])
+        ApplicationWindow.cmb_execute.addItems(['ESR (chosen NVs)', 'ESR (grid)', 'ESR (point)', 'AutoFocus', 'AutoFocus (mean)', 'AutoFocus (mean, grid)', 'Counter', 'Get Distance', 'ZI Frequency Sweep (point)', 'ZI Frequency Sweep (grid)', 'reset scan range'])
         ApplicationWindow.cmb_execute.activated.connect(lambda: change_script(ApplicationWindow))
         grid.addWidget(ApplicationWindow.cmb_execute,row_start+1,column_start)
 
@@ -373,6 +373,37 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                     ApplicationWindow.statusBar().showMessage('new focus {:0.3f}'.format(voltage_focus),2000)
                     ApplicationWindow.txt_focus_voltage.setText('{:0.2f}'.format(voltage_focus))
 
+            elif script_name == 'AutoFocus (mean)':
+                print 'AutoFocus (mean)'
+                _, pt_a, pt_b, _, _, _, _ = get_pts_and_size(ApplicationWindow)
+                roi_focus = Meshing.two_pts_to_roi(pt_a, pt_b)
+                af_parameter = AF.AF_load_param(ApplicationWindow.path_script.text())
+
+                if not af_parameter == {}:
+                    #voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus)
+                    voltage_focus = AF.autofocus_RoI_mean(af_parameter, roi_focus, ApplicationWindow.piezo, focPlot=ApplicationWindow.focPlot, queue=ApplicationWindow.script_queue)
+                    ApplicationWindow.statusBar().showMessage('new focus {:0.3f}'.format(voltage_focus),2000)
+                    ApplicationWindow.txt_focus_voltage.setText('{:0.2f}'.format(voltage_focus))
+
+            elif script_name == 'AutoFocus (mean, grid)':
+                _, pt_a2, pt_b2, _, xpts, ypts, _ = get_pts_and_size(ApplicationWindow)
+                if ApplicationWindow.radio_angled_grid.isChecked():
+                    points = Meshing.get_points_on_a_grid_angled(pt_a2, pt_b2, xpts, ypts)
+                else:
+                    points = Meshing.get_points_on_a_grid(pt_a2, pt_b2, xpts, ypts)
+                roi_focus = Meshing.two_pts_to_roi(pt_a2, pt_b2)
+
+                af_parameter = AF.AF_load_param_grid(ApplicationWindow.path_script.text())
+                print 'AutoFocus (mean, grid)'
+                if not af_parameter == {}:
+                    dirpath = af_parameter['AF_path']
+                    tag = af_parameter['AF_tag']
+                    tag = af_parameter['AF_tag']
+                    rw.save_data(points, dirpath, tag + 'ptarray')
+                    save_settings_exp(ApplicationWindow, dirpath, tag)
+                    AF.autofocus_ROI_mean_map(points, af_parameter, roi_focus, ApplicationWindow.piezo, focPlot=ApplicationWindow.focPlot, queue=ApplicationWindow.script_queue, imPlot=ApplicationWindow.imPlot)
+
+
             elif script_name == 'Counter':
                 cnts_parameter = Cnts.counter_load_param(ApplicationWindow.path_script.text())
                 #counter = Cnts.PlotAPD(sampleRate=float(cnts_parameter['sample_rate']), timePerPt=float(cnts_parameter['time_per_pt']), canvas = ApplicationWindow.esrPlot)
@@ -422,6 +453,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                 print 'ZI Frequency Sweep (point)'
                 if not ZI_param == {}:
                     ZIControl.ZI_map([pt_a2], ZI_param,ApplicationWindow.esrPlot)
+                print(ApplicationWindow.esrPlot)
 
 
 
@@ -1012,9 +1044,8 @@ def load_settings(ApplicationWindow, filename = None):
 
     def dict_to_values_execute(ApplicationWindow, dict):
 
-        # print ApplicationWindow.parameters_paths_scripts
         ApplicationWindow.parameters_paths_scripts = dict['parameters_paths_script']
-        # print '1', ApplicationWindow.parameters_paths_scripts
+        print ApplicationWindow.parameters_paths_scripts
         ApplicationWindow.cmb_execute.setCurrentIndex(ApplicationWindow.cmb_execute.findText(dict['selected_script']))
         ApplicationWindow.path_script.setText(dict['parameters_paths_script'][dict['selected_script']])
 
@@ -1128,6 +1159,17 @@ def save_settings(ApplicationWindow, set_filename = None):
         #     tmp = json.dump(dict_all, outfile, indent=4)
 
         ApplicationWindow.statusBar().showMessage('saved {:s}'.format(set_filename),0)
+
+def save_settings_exp(ApplicationWindow, dirpath, tag):
+    day = time.strftime("%d")
+    month = time.strftime("%m")
+    year = time.strftime("%Y")
+    hour = time.strftime("%H")
+    minute = time.strftime("%M")
+    second = time.strftime("%S")
+    filename = '\\' + year + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second  +'-' + str(tag)
+    filepath = dirpath + filename + '.set'
+    save_settings(ApplicationWindow, set_filename=filepath)
 
 
 def get_pts_and_size(ApplicationWindow, ptID = '2'):

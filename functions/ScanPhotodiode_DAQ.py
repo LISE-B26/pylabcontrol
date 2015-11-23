@@ -9,7 +9,7 @@
 
 # import external files
 from hardware_modules import GalvoMirrors as DaqOut
-import hardware_modules.PhotodiodeInput as PDIn
+import hardware_modules.ReadDaqAI as PDIn
 # import standard libraries
 import numpy
 import matplotlib.pyplot
@@ -63,7 +63,7 @@ class ScanNV():
             if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
                 break
             # initialize APD thread
-            readthread = PDIn.ReadPhotodiode("Dev1/AI1", 1 / self.dt,
+            readthread = PDIn.ReadAI("Dev1/AI1", 1 / self.dt,
                                        len(self.xArray) + 1)
             self.initPt = numpy.transpose(numpy.column_stack((self.xArray[0],
                                           self.yArray[yNum])))
