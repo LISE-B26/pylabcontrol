@@ -1,0 +1,1 @@
+# in this folder we have all the sripts used to carry out a measurement, e.g. read data from the DAQ and write to file

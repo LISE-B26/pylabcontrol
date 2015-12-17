@@ -27,6 +27,8 @@ DAQmx_Val_FiniteSamps = 10178
 DAQmx_Val_ContSamps = 10123
 DAQmx_Val_GroupByChannel = 0
 
+# todo: generic DAQ output code could probably be outsourced since it is also useful in a different context, such as the interferometer
+
 #Outputs arbitrary waveform to any number of channels from a DAQ
 class DaqOutputWave(threading.Thread):
     # initializes values and sets up output channel

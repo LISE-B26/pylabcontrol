@@ -5,7 +5,7 @@ from ctypes import c_long, c_buffer, c_float, windll, pointer
 
 DEVICE_TYPE = 29 # internal identifier for the TST_001 controller
 SERIAL_NUMBER_TST001 = 80828901
-
+# todo: write some info about what this module is for (TST001 doesn't make this very clear)
 
 class TST001:
     def __init__(self, serial_number, device_type):
