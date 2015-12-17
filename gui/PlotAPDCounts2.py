@@ -8,9 +8,17 @@ import helper_functions.test_types as test_types
 
 from hardware_modules import APD as APDIn
 
-
+# This function continuously plots the output of the APD. Note that it restarts the APD every point for ease of coding,
+# so there is some reset time between points that isn't recorded. From brief testing, the default settings
+# sampleRate = 1000, timePerPt = .25 yield a duty cycle of ~70%
 class PlotAPD():
     def __init__(self, canvas = None, sampleRate = 1000, timePerPt = .25):
+        '''
+
+        :param canvas: canvas to plot on. Supply one if calling from GUI, if not a pyplot plot is created
+        :param sampleRate: Samples/sec to read from apd
+        :param timePerPt: time to average over these samples per plotted pt
+        '''
         self.xdata = []
         self.timeCtr = 0
         self.ydata = []
@@ -21,6 +29,11 @@ class PlotAPD():
         self.numSamples = int(sampleRate*timePerPt)+1
 
     def startPlot(self,queue = None):
+        '''
+        Once object created, call this function to start plotting
+        :param queue: To stop plotting elegantly, pass in queue. Putting 'STOP' in queue breaks loop (other code can
+            execute in parallel because below code creates own thread)
+        '''
         while True:
             if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
                 break
@@ -40,12 +53,19 @@ class PlotAPD():
             self.readthread.stopClk()
 
     def readAPD(self):
+        '''
+        Reads from readthread defined above and averages over all samples taken in timeperpt
+        :return: average value at timestep (scalar) to be plotted
+        '''
         data = self.readthread.read()
         diffData = numpy.diff(data)
         normData = numpy.mean(diffData)*(self.sampleRate/1000)
         return normData
 
     def dispImage(self):
+        '''
+        Plots data using pyplot
+        '''
         if(self.plotting == 0):
             self.fig = plt.figure(1)
             plt.ion()
@@ -64,6 +84,9 @@ class PlotAPD():
             plt.pause(.1)
 
     def dispImageGui(self):
+        '''
+        Plots data to canvas, to be used with GUI
+        '''
         if(self.plotting == 0):
             self.line, = self.canvas.axes.plot(self.xdata,self.ydata, '-b')
             self.canvas.axes.set_title('Counts')
@@ -83,7 +106,7 @@ class PlotAPD():
 
 def counter_load_param(filename_or_json):
     '''
-    loads counter parameter from json file
+    loads counter parameter from json file into gui
     '''
     filename_or_json = str(filename_or_json)
 

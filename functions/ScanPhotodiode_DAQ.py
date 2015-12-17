@@ -150,10 +150,3 @@ class ScanNV():
     def scan_time(self):
         EMPIRICAL_SCAN_RATE = 1.1313 # per point
         return EMPIRICAL_SCAN_RATE * self.x_pts * self.y_pts * self.time_per_pt
-
-# Test code to run scan and display image
-# todo: test code should go into a dedicated test unit module!
-newScan = ScanNV(-.4, .4, 401, -.4, .4, 401, .002)
-print newScan.scan_time()
-#newScan.scan()
-#newScan.dispImage()

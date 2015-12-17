@@ -24,10 +24,15 @@ from hardware_modules import PiezoController as PC
 from scripts import ZiControl_many_pts as ZIControl
 from gui import PlotAPDCounts2 as Cnts
 
+# This function should be called from the PYQT main loop. It implements all of the widgets in the gui
 def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
     def display_shapes():
+        '''
+        Displays patches for roi, laser, grid, etc on image
+        '''
         # ApplicationWindow.imPlot.axes.imshow(ApplicationWindow.imageData, extent = [-.05,.05,-.05,.05])
+        # checks which patches are toggled on
         if ApplicationWindow.radio_roi.isChecked()==True:
             get_roi_patch(ApplicationWindow)
         if ApplicationWindow.radio_grid.isChecked()==True:
@@ -55,6 +60,9 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
 
     def reset_shapes():
+        '''
+        Removes current patches and regenerates them, to be called when anything changing what patches are needed
+        '''
 
         remove_patches(ApplicationWindow)
         display_shapes()
@@ -62,19 +70,26 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
 
     def display_point_labels(ApplicationWindow):
+        '''
+        Goes through list of chosen NVs and display number, corresponding to order ini which they will be processed
+        :param ApplicationWindow:
+        '''
         nv_num = 1
         for nv_pt in ApplicationWindow.selected_points:
             ApplicationWindow.imPlot.axes.text(nv_pt[0], nv_pt[1], ' ' + str(nv_num), color = 'k')
             nv_num += 1
 
     def get_dot_patch_pt2(ApplicationWindow):
+        '''
+        place yellow dot at pt_a and appends to patchlist
+        :param ApplicationWindow:
+        '''
         size, pt_a, _, _,_,_,_ = get_pts_and_size(ApplicationWindow)
         ApplicationWindow.patches.append(patches.Circle((pt_a[0], pt_a[1]), 2*size, fc = 'y'))
 
     def get_dot_patches_nv_points(ApplicationWindow):
         '''
         adds the previously selected points as patches to the image
-        :return:
         '''
 
         size,_,_,_,_,_,_ = get_pts_and_size(ApplicationWindow)
@@ -85,7 +100,6 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
     def get_dot_patches_selected_points(ApplicationWindow):
         '''
         adds the previously selected points as patches to the image
-        :return:
         '''
 
         size,_,_,_,_,_,_ = get_pts_and_size(ApplicationWindow)
@@ -95,10 +109,18 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
 
     def get_dot_patch_laser(ApplicationWindow):
+        '''
+        place yellow dot at pt_L, the location of the laser, and appends to patchlist
+        :param ApplicationWindow:
+        '''
         size, _, _,_,_,_,pt_L = get_pts_and_size(ApplicationWindow)
         ApplicationWindow.patches.append(patches.Circle((pt_L[0], pt_L[1]), 3*size, fc = 'r'))
 
     def get_line_patches(ApplicationWindow):
+        '''
+        generates xpts number of points between pt_a and pt_b
+        :param ApplicationWindow:
+        '''
         size, pt_a, pt_b, _, xpts, _,_  = get_pts_and_size(ApplicationWindow)
         points = Meshing.get_points_along_line(pt_a, pt_b, xpts)
 
@@ -106,7 +128,13 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             ApplicationWindow.patches.append(patch)
 
     def get_grid_patches(ApplicationWindow):
+        '''
+        generates an xpts x ypts grid of white circles, using pt_a and pt_b as the corners for a straight grid, or
+                pt_a and pt_b to define a line and pt_c to define a distance from that line for an angled grid
+        :param ApplicationWindow:
+        '''
         size, pt_a, pt_b, pt_c, xpts, ypts,_  = get_pts_and_size(ApplicationWindow)
+        # checks if grid should be straight vertical/horizontal or angled
         if ApplicationWindow.radio_angled_grid.isChecked():
             points = Meshing.get_points_on_a_grid_angled(pt_a, pt_b, pt_c, xpts, ypts)
         else:
