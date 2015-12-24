@@ -27,6 +27,10 @@ from gui import PlotAPDCounts2 as Cnts
 # This function should be called from the PYQT main loop. It implements all of the widgets in the gui
 def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
+
+    ##################################################################################
+    # ADD Scan########################################################################
+    ##################################################################################
     def display_shapes():
         '''
         Displays patches for roi, laser, grid, etc on image
@@ -129,7 +133,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
     def get_grid_patches(ApplicationWindow):
         '''
-        generates an xpts x ypts grid of white circles, using pt_a and pt_b as the corners for a straight grid, or
+        generates an xpts x ypts grid of white circles, using pt_a and pt_b as the corners for a straight grid,  or
                 pt_a and pt_b to define a line and pt_c to define a distance from that line for an angled grid
         :param ApplicationWindow:
         '''
@@ -144,6 +148,10 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             ApplicationWindow.patches.append(patch)
 
     def get_roi_patch(ApplicationWindow):
+        '''
+        Generates a red rectangular box around the region of interest
+        :param ApplicationWindow:
+        '''
         size, pt_a, pt_b ,_,_,_,_ = get_pts_and_size(ApplicationWindow)
 
         center, w, h = Meshing.two_pts_to_center_size(pt_a, pt_b)
@@ -153,15 +161,27 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
         
     def choosing_points(ApplicationWindow):
-
+        '''
+        Enters an interactive mode in which clicking on points on the plot selects the nearest NV, in order to run ESR on
+        many NVs
+        :param ApplicationWindow:
+        '''
         if(ApplicationWindow.button_select_NVs.isChecked()):
             def select_point(event, coordinates):
+                '''
+                Selects circular feature (NV) nearest to click, adding it to an array and plotting a red dot if not
+                previously selected, or removing it and replotting a blue dot if currently selected
+                :param event: event object with location of click on plot
+                :param coordinates: current list of nv coordinates, which is added to here
+                '''
+                # Check for click out of plot range
                 if(not(event.xdata == None)):
                     if(event.button == 1):
                         pt = np.array([event.xdata,event.ydata])
                         tree = scipy.spatial.KDTree(coordinates)
                         _,i = tree.query(pt)
                         nv_pt = coordinates[i].tolist()
+                        # removes NV if previously selected
                         if (nv_pt in ApplicationWindow.selected_points):
                             ApplicationWindow.selected_points.remove(nv_pt)
                             for circ in ApplicationWindow.esr_select_patches:
@@ -169,6 +189,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                                     ApplicationWindow.esr_select_patches.remove(circ)
                                     circ.remove()
                                     break
+                        # adds NV if not previously selected
                         else:
                             ApplicationWindow.selected_points.append(nv_pt)
                             size, _,_,_,_,_, _ = get_pts_and_size(ApplicationWindow,'1')
@@ -178,11 +199,17 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                         ApplicationWindow.imPlot.draw()
 
             def find_pts(voltage_range, numPts):
+                '''
+                Finds all possible circular features (NVs) in image that can be selected
+                :param voltage_range: x range in V of plot
+                :param numPts: number of xpts in plot
+                '''
                 if ApplicationWindow.is_choosing_points == True:
                     ApplicationWindow.imPlot.mpl_disconnect(ApplicationWindow.select_point)
                 ApplicationWindow.plot_nvs = True
                 ApplicationWindow.is_choosing_points = True
                 ApplicationWindow.statusBar().showMessage("Choose NVs for ESR", 0)
+                # voltage range and numPts used for scaling to find correct feature size for circles
                 coordinates = track.locate_NVs(ApplicationWindow.imageData, voltage_range, numPts)
                 coordinates[:,[0,1]] = coordinates[:,[1,0]]
                 _, pt1, pt2, _, xPts, yPts, _ = get_pts_and_size(ApplicationWindow,'1')
@@ -193,6 +220,10 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                 ApplicationWindow.esr_select_patches = []
 
             def choose_subset():
+                '''
+                Activates 'click to select NVs' mode, then when completed saves current image with patches at selected
+                NVs and removes nv patches from display image
+                '''
                 point_selected = ApplicationWindow.imPlot.mpl_connect('button_press_event', lambda x: select_point(x, ApplicationWindow.nv_points))
                 ApplicationWindow.selected_points = list()
                 ApplicationWindow.is_choosing_points = True
@@ -250,6 +281,10 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         
         
     def remove_patches(ApplicationWindow):
+        '''
+        Removes all patches from the main plot in ApplicationWindow
+        :param ApplicationWindow:
+        '''
         if(not ApplicationWindow.patches==[]):
             print ApplicationWindow.patches
             for patch in ApplicationWindow.patches:
@@ -265,7 +300,10 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
 
     def set_laser(ptL = None):
-
+        '''
+        Sets laser to input parameter point or, if none given, to point 2a
+        :param ptL: Point (x,y) to set laser to
+        '''
         if ptL == None:
             xL = ApplicationWindow.txt_pt_2a_x.text()
             yL = ApplicationWindow.txt_pt_2a_y.text()
@@ -282,6 +320,9 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.statusBar().showMessage("Galvo Position Updated",2000)
 
     def copy_scan_params():
+        '''
+        Copy scan parameters to clipboard to easily paste them into readme file
+        '''
         cb = QtGui.QApplication.clipboard()
         cb.clear(mode=cb.Clipboard )
         cb.setText("xVmin = " + ApplicationWindow.txt_pt_2a_x.text() + "\nyVmin = " + ApplicationWindow.txt_pt_2a_y.text() + "\nxVmax = " + ApplicationWindow.txt_pt_2b_x.text() + "\nyVmax = " + ApplicationWindow.txt_pt_2b_y.text() + "\nxPts = " + ApplicationWindow.txt_pt_1_x_pts.text() + "\nyPts = " + ApplicationWindow.txt_pt_1_y_pts.text() + "\ntimerPerPt = " + ApplicationWindow.txt_time_per_pt.text(), mode=cb.Clipboard)
@@ -296,10 +337,16 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
 
     def add_execute(grid, row_start = 1, column_start =  1):
-
+        '''
+        Adds widgets to grid relating to executiing scripts
+        :param grid: Overall ui grid containing regions of UI elements
+        :param row_start: index of first row element
+        :param column_start: index of first column element
+        '''
         ApplicationWindow.label_execute = QtGui.QLabel('execute', ApplicationWindow.main_widget)
         grid.addWidget(ApplicationWindow.label_execute,row_start,column_start)
         ApplicationWindow.cmb_execute = QtGui.QComboBox(ApplicationWindow.main_widget)
+        # Add new scripts to be executed here
         ApplicationWindow.cmb_execute.addItems(['ESR (chosen NVs)', 'ESR (grid)', 'ESR (point)', 'AutoFocus', 'AutoFocus (mean)', 'AutoFocus (mean, grid)', 'Counter', 'Get Distance', 'ZI Frequency Sweep (point)', 'ZI Frequency Sweep (grid)', 'reset scan range'])
         ApplicationWindow.cmb_execute.activated.connect(lambda: change_script(ApplicationWindow))
         grid.addWidget(ApplicationWindow.cmb_execute,row_start+1,column_start)
@@ -323,13 +370,20 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
 
         def change_script(ApplicationWindow):
+            '''
+            Changes script to be executed based on current text in box
+            :param ApplicationWindow:
+            '''
             script_name = str(ApplicationWindow.cmb_execute.currentText())
             script_path = ApplicationWindow.parameters_paths_scripts[script_name]
             # ApplicationWindow.statusBar().showMessage(ApplicationWindow.cmb_execute.currentText(),1000)
             ApplicationWindow.path_script.setText(script_path)
 
         def change_script_path(ApplicationWindow):
-
+            '''
+            Changes path to script to be executed
+            :param ApplicationWindow:
+            '''
             script_name = str(ApplicationWindow.cmb_execute.currentText())
             script_path = str(ApplicationWindow.path_script.text())
 
@@ -350,6 +404,11 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         #         ApplicationWindow.path_script.setText(ApplicationWindow.parameters_paths_scripts[])
 
         def execute_script(ApplicationWindow):
+            '''
+            
+            :param ApplicationWindow:
+            :return:
+            '''
             script_name = str(ApplicationWindow.cmb_execute.currentText())
             script_path = ApplicationWindow.parameters_paths_scripts[script_name]
             ApplicationWindow.statusBar().showMessage('running {:s} with {:s}'.format(script_name, script_path),1000)
