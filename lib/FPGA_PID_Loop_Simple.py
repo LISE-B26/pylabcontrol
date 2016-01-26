@@ -3,14 +3,13 @@ Created on Wed Oct 22 17:46:08 2014
 
 @author: Erik Hebestreit, Jan Gieseler
 
-
-Wrapper for c-compiled FPGA_read_inputs.vi
+Wrapper for c-compiled FPGA_PID_Loop_Simple.vi
 
 """
 
 from ctypes import c_uint32, c_int32
 
-import lib.FPGAlib as FPGAlib
+import lib.FPGA_PID_lib_Wrapper as FPGAlib
 
 
 class NI7845R(object):
@@ -117,32 +116,48 @@ class NI7845R(object):
 #
 #             self.data_queue.put(data)
 
-
-
-class AnalogInput(object):
-    _channel_number = None
-    _fpga = None
-
-    def __init__(self, channel, fpga):
-        self._channel_number = channel
+class NI_FPGA_PID(object):
+    def __init__(self, fpga):
         self._fpga = fpga
 
-    def read(self):
-        return getattr(FPGAlib, 'read_AI%0d' % self._channel_number)(self._fpga.session, self._fpga.status)
-
-
-class AnalogOutput(object):
-    _channel_number = None
-    _fpga = None
-
-    def __init__(self, channel, fpga):
-        self._channel_number = channel
-        self._fpga = fpga
-
-    def write(self, value):
-        return getattr(FPGAlib, 'set_AO%0d' % self._channel_number) \
+    def set_piezo(self, value):
+        return getattr(FPGAlib, 'set_PiezoOut') \
             (value, self._fpga.session,
              self._fpga.status)
+
+    def get_piezo(self):
+        return getattr(FPGAlib, 'read_PiezoOut')(self._fpga.session, self._fpga.status)
+
+
+    def get_detector(self, is_raw_value = True):
+        if is_raw_value == True:
+            return getattr(FPGAlib, 'read_AI1')(self._fpga.session, self._fpga.status)
+        else:
+            return getattr(FPGAlib, 'read_AI1_Filtered')(self._fpga.session, self._fpga.status)
+
+#
+# class AnalogInput(object):
+#     _channel_number = None
+#     _fpga = None
+#
+#     def __init__(self, channel, fpga):
+#         self._channel_number = channel
+#         self._fpga = fpga
+#
+#     def read(self):
+#         return getattr(FPGAlib, 'read_AI%0d' % self._channel_number)(self._fpga.session, self._fpga.status)
+#
+#
+# class PiezoOut(object):
+#    _fpga = None
+#
+#     def __init__(self, channel, fpga):
+#         self._fpga = fpga
+#
+#     def write(self, value):
+#         return getattr(FPGAlib, 'set_PiezoOut') \
+#             (value, self._fpga.session,
+#              self._fpga.status)
 
 
 # class DigitalInput(object):

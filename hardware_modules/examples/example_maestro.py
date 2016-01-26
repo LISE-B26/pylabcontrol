@@ -3,29 +3,47 @@ import time
 
 # define com port to communicate with servo (check in device manager for pololu  controler command port)
 servo = maestro.Controller('COM8')
+
+# define what to test
+
+test_case = 'filterwheel' # beamblock, motor, controller, filterwheel
+
+
 # set channel
-channel = 5
+channel = 1
+
+# ================== test beam block =======================
+if test_case == 'filterwheel':
+    filter = maestro.FilterWheel(servo, channel, {'ND1.0': 4*600, 'LP':4*1550, 'ND2.0':4*2500})
+    # filter.goto('ND2.0')
+    filter.goto('LP')
+    # block1.block()
+    # close communication channel
+    servo.close()
 
 # ================== test controler =======================
 # # set ranges, acceleration etc.
-# servo.setRange(channel, 2000, 12000)
-# servo.setAccel(channel, 0)
-# servo.setSpeed(channel, 0)
-# servo.setTarget(channel, 6100)
+if test_case == 'controller':
+    servo.setRange(channel, 2000, 12000)
+    servo.setAccel(channel, 0)
+    servo.setSpeed(channel, 0)
+    servo.setTarget(channel, 6100)
 
 # ================== test motor =======================
-motor = maestro.Motor(servo, channel)
-motor.rotate(1000)
+if test_case == 'motor':
+    motor = maestro.Motor(servo, channel)
+    motor.rotate(1000)
 
-time.sleep(1)
-motor.rotate(0)
+    time.sleep(2)
+    # motor.rotate(0)
+
+    motor.stop()
 # ================== test beam block =======================
-# block1 = maestro.BeamBlock(servo, 4)
-# block1.open()
-# block1.block()
-# servo.setTarget(channel, 5000)
-# read position
-print(servo.getPosition(channel))
-print([0] * 24)
-# close communication channel
-servo.close()
+if test_case == 'beamblock':
+    block1 = maestro.BeamBlock(servo, channel)
+    block1.open()
+    # block1.block()
+    # close communication channel
+    servo.close()
+
+
