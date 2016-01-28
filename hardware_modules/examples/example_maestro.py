@@ -10,13 +10,14 @@ test_case = 'filterwheel' # beamblock, motor, controller, filterwheel
 
 
 # set channel
-channel = 1
+channel = 4
 
-# ================== test beam block =======================
+# ================== test filter wheel =======================
+channel = 1
 if test_case == 'filterwheel':
     filter = maestro.FilterWheel(servo, channel, {'ND1.0': 4*600, 'LP':4*1550, 'ND2.0':4*2500})
     # filter.goto('ND2.0')
-    filter.goto('LP')
+    filter.goto('ND1.0')
     # block1.block()
     # close communication channel
     servo.close()
@@ -41,8 +42,8 @@ if test_case == 'motor':
 # ================== test beam block =======================
 if test_case == 'beamblock':
     block1 = maestro.BeamBlock(servo, channel)
-    block1.open()
-    # block1.block()
+    # block1.open()
+    block1.block()
     # close communication channel
     servo.close()
 

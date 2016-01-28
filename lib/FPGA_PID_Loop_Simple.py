@@ -1,15 +1,15 @@
 """
 Created on Wed Oct 22 17:46:08 2014
 
-@author: Erik Hebestreit, Jan Gieseler
+@author: Jan Gieseler
 
-Wrapper for c-compiled FPGA_PID_Loop_Simple.vi
+higher level Python objects, for an example how to use them see run_NI_FPGA_PID.py
 
 """
 
 from ctypes import c_uint32, c_int32
 
-import lib.FPGA_PID_lib_Wrapper as FPGAlib
+import lib.FPGA_PID_Loop_Simple_lib_Wrapper as FPGAlib
 
 
 class NI7845R(object):
@@ -116,71 +116,64 @@ class NI7845R(object):
 #
 #             self.data_queue.put(data)
 
-class NI_FPGA_PID(object):
-    def __init__(self, fpga):
+class NI_FPGA_PI(object):
+    def __init__(self, fpga, PI_gains = {}):
+        '''
+
+        :param fpga: NI7845R object
+        :param PI_gains: dictionary  with values for PI gains {'integral': XX, 'proportional': XX}
+        :return:
+        '''
         self._fpga = fpga
+        self._PI_gains = PI_gains
 
     def set_piezo(self, value):
-        return getattr(FPGAlib, 'set_PiezoOut') \
-            (value, self._fpga.session,
-             self._fpga.status)
+        '''
+        sets the voltage that is sent to the amplifier, and from there to the piezo
+        :param value:
+        :return:
+        '''
+
+        PIDactive = self.get_PI_status()
+
+        if PIDactive == True:
+            print('PID is active, manual piezo control not active!')
+            return False
+        else:
+            return getattr(FPGAlib, 'set_PiezoOut')(value, self._fpga.session, self._fpga.status)
 
     def get_piezo(self):
+        '''
+        :return: returns the value that is sent to the amplifier
+        '''
         return getattr(FPGAlib, 'read_PiezoOut')(self._fpga.session, self._fpga.status)
 
+    def set_PI_status(self, status):
+        '''
+        tuen PID on or off
+        :param status:
+        :return:
+        '''
+        return getattr(FPGAlib, 'set_PIDActive') (status, self._fpga.session, self._fpga.status)
+
+    def get_PI_status(self):
+        '''
+        get status of PID (on or off)
+        :return:
+        '''
+        return getattr(FPGAlib, 'read_PIDActive')(self._fpga.session, self._fpga.status)
 
     def get_detector(self, is_raw_value = True):
+        '''
+        read detector value
+        :param is_raw_value: True: raw value as read from the input, False: filtered value (discrete filter if Lowpass off or lowpass filter if lowpass on)
+        :return:
+        '''
         if is_raw_value == True:
             return getattr(FPGAlib, 'read_AI1')(self._fpga.session, self._fpga.status)
         else:
             return getattr(FPGAlib, 'read_AI1_Filtered')(self._fpga.session, self._fpga.status)
 
-#
-# class AnalogInput(object):
-#     _channel_number = None
-#     _fpga = None
-#
-#     def __init__(self, channel, fpga):
-#         self._channel_number = channel
-#         self._fpga = fpga
-#
-#     def read(self):
-#         return getattr(FPGAlib, 'read_AI%0d' % self._channel_number)(self._fpga.session, self._fpga.status)
-#
-#
-# class PiezoOut(object):
-#    _fpga = None
-#
-#     def __init__(self, channel, fpga):
-#         self._fpga = fpga
-#
-#     def write(self, value):
-#         return getattr(FPGAlib, 'set_PiezoOut') \
-#             (value, self._fpga.session,
-#              self._fpga.status)
+    def set_PI_gains(self, gains):
 
-
-# class DigitalInput(object):
-#     _channel_number = None
-#     _fpga = None
-#
-#     def __init__(self, channel, fpga):
-#         self._channel_number = channel
-#         self._fpga = fpga
-#
-#     def read(self):
-#         return getattr(fpga_binder, 'read_DIO%0d' % self._channel_number) \
-#             (self._fpga.session, self._fpga.status)
-
-
-# class DigitalOutput(object):
-#     _channel_number = None
-#     _fpga = None
-#
-#     def __init__(self, channel, fpga):
-#         self._channel_number = channel
-#         self._fpga = fpga
-#
-#     def write(self, state):
-#         return getattr(fpga_binder, 'set_DIO%0d' % self._channel_number) \
-#             (state, self._fpga.session, self._fpga.status)
+        return getattr(FPGAlib, 'set_PIDActive') (status, self._fpga.session, self._fpga.status)
