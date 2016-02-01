@@ -15,123 +15,71 @@ FPGA_PID_Loop_Simple.py which defines the higher level Python objects that are t
 
 from ctypes import *
 
+# =========================================================================
+# ======= LOAD DLL ========================================================
+# =========================================================================
 _libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/lib/FPGA_PID_lib.dll')
 
 # =========================================================================
-# ======= DEFINE TYPES ====================================================
+# ======= DEFINE SETTER FUNCTIONS =========================================
 # =========================================================================
-_libfpga.start_fpga.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.start_fpga.restype = None
-_libfpga.stop_fpga.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.stop_fpga.restype = None
+# name of dictionary entry is the name of the function
+# value of the dictionary entry is the data type that is passed to the function
 
+setter_functions = {
+    "set_PiezoOut": c_int16,
+    "set_Setpoint": c_int16,
+    "set_ScaledCoefficient_1": c_int32,
+    "set_ScaledCoefficient_2": c_int32,
+    "set_ScaledCoefficient_3": c_int32,
+    "set_ElementsToWrite": c_int32,
+    "set_SamplePeriodsPID": c_uint32,
+    "set_SamplePeriodsAcq": c_uint32,
+    "set_PI_gain_prop": c_uint32,
+    "set_PI_gain_int": c_uint32,
+    "set_LowPassActive": c_bool,
+    "set_PIDActive": c_bool,
+    "set_AcquireData": c_bool,
+    "set_Stop": c_bool
+}
 
-# read logical indicators
-_libfpga.read_LoopRateLimitPID.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.read_LoopRateLimitPID.restype = c_bool
-_libfpga.read_LoopRateLimitAcq.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.read_LoopRateLimitAcq.restype = c_bool
-_libfpga.read_TimeOutAcq.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.read_TimeOutAcq.restype = c_bool
-_libfpga.read_PIDActive.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.read_PIDActive.restype = c_bool
-_libfpga.read_FPGARunning.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.read_FPGARunning.restype = c_bool
-_libfpga.read_DMATimeOut.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.read_DMATimeOut.restype = c_bool
-
-# set logical values
-_libfpga.set_PIDActive.argtypes = [c_bool, POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.set_PIDActive.restype = None
-_libfpga.set_AcquireData.argtypes = [c_bool, POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.set_AcquireData.restype = None
-_libfpga.set_Stop.argtypes = [c_bool, POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.set_Stop.restype = None
-
-# read inputs
-_libfpga.read_AI1.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.read_AI1.restype = c_int16
-
-_libfpga.read_AI1_Filtered.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.read_AI1_Filtered.restype = c_int16
-
-_libfpga.read_AI2.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.read_AI2.restype = c_int16
-
-_libfpga.read_DeviceTemperature.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.read_DeviceTemperature.restype = c_int16
-
-_libfpga.read_PiezoOut.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.read_PiezoOut.restype = c_int16
-
-# set Analog outputs
-# _libfpga.set_PiezoOut.argtypes = [c_int16, POINTER(c_uint32), POINTER(c_int32)]
-# _libfpga.set_PiezoOut.restype = None
-
-fun_name = "set_PiezoOut"
-
+for fun_name in setter_functions:
+    setattr( _libfpga, "{:s}.argtypes".format(fun_name), [setter_functions[fun_name], POINTER(c_uint32), POINTER(c_int32)])
+    setattr( _libfpga, "{:s}.restype".format(fun_name), None)
+    exec("""def {:s}(value, session, status):
+        return _libfpga.{:s}(value, byref(session), byref(status))""".format(fun_name, fun_name))
 
 # =========================================================================
-# ======= DEFINE FUNCTIONS ================================================
+# ======= DEFINE GETTER FUNCTIONS =========================================
 # =========================================================================
-setattr( _libfpga, "{:s}.argtypes".format(fun_name), [c_int16, POINTER(c_uint32), POINTER(c_int32)])
-setattr( _libfpga, "{:s}.restype".format(fun_name), None)
-exec("""def {:s}(value, session, status):
-    return _libfpga.{:s}(value, byref(session), byref(status))""".format(fun_name, fun_name))
-#
-# def set_PiezoOut(value, session, status):
-#     return _libfpga.set_PiezoOut(value, byref(session), byref(status))
+# name of dictionary entry is the name of the function
+# value of the dictionary entry is the data type that is returned from the function
+getter_functions = {
+    "start_fpga": None,
+    "stop_fpga": None,
+    "read_AI1": c_int16,
+    "read_AI1_Filtered": c_int16,
+    "read_AI2": c_int16,
+    "read_DeviceTemperature": c_int16,
+    "read_PiezoOut": c_int16,
+    "read_ElementsWritten": c_int32,
+    "read_SamplePeriodsPID": c_uint32,
+    "read_SamplePeriodsAcq": c_uint32,
+    "read_LoopTicksPID": c_uint32,
+    "read_LoopTicksAcq": c_uint32,
+    "read_LoopRateLimitPID": c_bool,
+    "read_LoopRateLimitAcq": c_bool,
+    "read_TimeOutAcq": c_bool,
+    "read_LowPassActive": c_bool,
+    "read_PIDActive": c_bool,
+    "read_FPGARunning": c_bool,
+    "read_DMATimeOut": c_bool,
+    "read_AcquireData": c_bool
+}
 
-# =========================================================================
-# ======= DEFINE FUNCTIONS ================================================
-# =========================================================================
-
-def start_fpga(session, status):
-    return _libfpga.start_fpga(byref(session), byref(status))
-def stop_fpga(session, status):
-    return _libfpga.stop_fpga(byref(session), byref(status))
-
-# read times
-def read_LoopRateLimitPID(session, status):
-    return _libfpga.read_LoopRateLimitPID(byref(session), byref(status))
-
-# read logical indicators
-def read_LoopRateLimitPID(session, status):
-    return _libfpga.read_LoopRateLimitPID(byref(session), byref(status))
-def read_LoopRateLimitAcq(session, status):
-    return _libfpga.read_LoopRateLimitAcq(byref(session), byref(status))
-def read_TimeOutAcq(session, status):
-    return _libfpga.read_TimeOutAcq(byref(session), byref(status))
-def read_PIDActive(session, status):
-    return _libfpga.read_PIDActive(byref(session), byref(status))
-def read_FPGARunning(session, status):
-    return _libfpga.read_FPGARunning(byref(session), byref(status))
-def read_DMATimeOut(session, status):
-    return _libfpga.read_DMATimeOut(byref(session), byref(status))
-
-# set logical indicators
-def set_PIDActive(value, session, status):
-    return _libfpga.set_PIDActive(value, byref(session), byref(status))
-
-def set_AcquireData(value, session, status):
-    return _libfpga.set_AcquireData(value, byref(session), byref(status))
-
-def set_Stop(value, session, status):
-    return _libfpga.set_Stop(value, byref(session), byref(status))
-
-# read Analog inputs
-def read_AI1(session, status):
-    return _libfpga.read_AI1(byref(session), byref(status))
-
-def read_AI1_Filtered(session, status):
-    return _libfpga.read_AI1_Filtered(byref(session), byref(status))
-
-def read_AI2(session, status):
-    return _libfpga.read_AI2(byref(session), byref(status))
-
-def read_DeviceTemperature(session, status):
-    return _libfpga.read_DeviceTemperature(byref(session), byref(status))
-
-def read_PiezoOut(session, status):
-    return _libfpga.read_PiezoOut(byref(session), byref(status))
+for fun_name in getter_functions:
+    setattr( _libfpga, "{:s}.argtypes".format(fun_name), [POINTER(c_uint32), POINTER(c_int32)])
+    setattr( _libfpga, "{:s}.restype".format(fun_name), getter_functions[fun_name])
+    exec("""def {:s}(session, status):
+        return _libfpga.{:s}(byref(session), byref(status))""".format(fun_name, fun_name))
 

@@ -222,3 +222,29 @@ class Motor:
         self.rotate(0)
         self.servo.goHome()
 
+class LinearActuator:
+    def __init__(self,servo, channel):
+        self.channel = channel
+        self.servo = servo
+        self.neutral_position = 6000
+        self.servo.setRange(channel, self.neutral_position-2000, self.neutral_position+2000)
+
+    @property
+    def position(self):
+        '''
+        set or get position of motor
+        '''
+        self._position = self.servo.getPosition(self.channel)
+        return self._position
+
+    @position.setter
+    def position(self, x):
+
+        self._position = x
+        # 6000 is neutral position, note that the values used here differ by a factor 4 from the values used in the maestro control center
+        self.servo.setTarget(self.channel, self._position+self.neutral_position)
+
+    def stop(self):
+        self.position = 0
+        self.servo.goHome()
+

@@ -6,7 +6,7 @@ servo = maestro.Controller('COM8')
 
 # define what to test
 
-test_case = 'filterwheel' # beamblock, motor, controller, filterwheel
+test_case = 'beamblock' # beamblock, motor, controller, filterwheel
 
 
 # set channel
@@ -41,6 +41,7 @@ if test_case == 'motor':
     motor.stop()
 # ================== test beam block =======================
 if test_case == 'beamblock':
+    channel = 4
     block1 = maestro.BeamBlock(servo, channel)
     # block1.open()
     block1.block()

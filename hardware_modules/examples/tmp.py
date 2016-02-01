@@ -1,6 +1,20 @@
-fun_name = "test"
+parameter = {"par2":3,"par1": 1, "dict": {'proportional': 1241412, 'integral':0},}
+def fun(xx, par1, par2, dict):
+    print('xx: ', xx)
+    print('paramter1: ', par1)
+    print('paramter2: ', par2)
+    print('dict: ', dict['proportional'])
 
-exec("""def {:s}(value):
-    return value+2""".format(fun_name))
 
-print(test(4))
+fun('ada', **parameter)
+
+#
+#
+# data = {'school':'DAV', 'standard': '7', 'name': 'abc', 'city': 'delhi'}
+# my_function(*data)
+#
+# my_function(*data):
+#     schoolname  = school
+#     cityname = city
+#     standard = standard
+#     studentname = name

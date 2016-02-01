@@ -8,7 +8,7 @@ import time
 import lib.NI_read_FPGA_AI as NI
 import hardware_modules.maestro as maestro
 import numpy as np
-
+import hardware_modules.PI_Controler as PI
 import matplotlib.pyplot as plt
 
 
@@ -16,8 +16,14 @@ import matplotlib.pyplot as plt
 #  === settings =============================
 # ===========================================
 
-tol = 500
-
+parameter_feedback = {
+    'set_point' : 0,
+    'P' : 1.0,
+    'I' : 0.0,
+    'timestep' : 0.1,
+    'integrator' : 0,
+    'output_range' : {'min': -1000, 'max': 1000}
+}
 
 
 # -------------------------------------------
@@ -26,8 +32,12 @@ tol = 500
 # maestro connected to COM8,  (check in device manager for pololu  controler command port)
 servo = maestro.Controller('COM8')
 # motor connected to channel of maestro controler
-motor = maestro.Motor(servo, 5)
+motor = maestro.LinearActuator(servo, 5)
 
+# -------------------------------------------
+#  === create PI controler ==================
+# -------------------------------------------
+feedback = PI.PI(**parameter_feedback)
 
 # -------------------------------------------
 #  === create handle inputs and outputs of FPGA
@@ -81,35 +91,28 @@ plt.ion() # enable interactivity
 fig=plt.figure() # make a figure
 xList=list()
 yList=list()
+plt.hold(True)
+motor.position = 0
 
-while stop == False:
-    i = i +1
-    val = AI.read()
+# todo: change loop such that it stops once it's close enough to the setpoint or some error occured (like detector saturates)
+for i in range(20):
+    detector_value = AI.read()
+    motor_position = feedback.update(detector_value)
+    # motor.position = motor_position
+    motor.position = i*10
+    print(i, int(detector_value), int(motor_position))
 
     xList.append(i)
-    yList.append(val)
-
-    if np.abs(val)>tol:
-        if val > 0:
-            motor.rotate(-500)
-        else:
-            motor.rotate(500)
-    else:
-        motor.rotate(0)
-
-
-    print(i, val)
-
+    yList.append(detector_value)
 
     # plot
 
     makeFig()
     plt.draw()
-    plt.pause(0.01)
+    # todo: find a better timer  function similar to labview "wait until next ms multiple"
+    # to take into account the execution time of the resto of the code in the loop
+    plt.pause(parameter_feedback['timestep'])
 
-
-    if i> 50:
-        stop = True
 
 motor.stop()
 
@@ -119,3 +122,5 @@ motor.stop()
 # ===========================================
 fpga.stop()
 servo.close()
+
+raw_input("Please type enter to exit and close plot...")
