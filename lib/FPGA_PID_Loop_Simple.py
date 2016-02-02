@@ -169,7 +169,7 @@ class NI_FPGA_PI(object):
 
 class NI_FPGA_READ_FIFO(object):
 
-    def __init__(self, fpga, data_length, sample_period_acq, block_size = 2 ** 16, data_queue=None):
+    def __init__(self, fpga, data_length, sample_period_acq, block_size = 2 ** 16, timeout_buffer = 100, data_queue=None):
         '''
 
         :param fpga: NI7845R object
@@ -181,6 +181,7 @@ class NI_FPGA_READ_FIFO(object):
         '''
         self._fpga = fpga
         self.block_size = block_size
+        self.timeout_buffer = timeout_buffer
         self.data_length = data_length
         self.sample_period_acq = sample_period_acq
         self._status = {}
@@ -199,6 +200,17 @@ class NI_FPGA_READ_FIFO(object):
     # ===================================================================================
     # ========= PROPETIES ===============================================================
     # ===================================================================================
+    @property
+    def timeout_buffer(self):
+        '''
+        set or read number of elements that will be acquired in acquisition
+        '''
+        return self._timeout_buffer
+    @timeout_buffer.setter
+    def timeout_buffer(self, value):
+        self._timeout_buffer = value
+        return getattr(FPGAlib, 'set_TimeoutBuffer') (self._timeout_buffer, self._fpga.session, self._fpga.status)
+
     @property
     def data_length(self):
         '''
@@ -241,6 +253,7 @@ class NI_FPGA_READ_FIFO(object):
         self._status['AcquireData'] = bool(getattr(FPGAlib, "read_AcquireData") (self._fpga.session, self._fpga.status))
         self._status['LoopTicksAcq'] = getattr(FPGAlib, 'read_LoopTicksAcq')(self._fpga.session, self._fpga.status)
         self._status['ElementsWritten'] = getattr(FPGAlib, 'read_ElementsWritten') (self._fpga.session, self._fpga.status)
+        self._status['AcqTime'] = getattr(FPGAlib, 'read_AcqTime') (self._fpga.session, self._fpga.status)
 
         return self._status
 
@@ -261,9 +274,11 @@ class NI_FPGA_READ_FIFO(object):
         if not self._acquisition_running:
             self._acquisition_running = True
             self.start_fifo()
-            getattr(FPGAlib, "set_AcquireData") (True, self._fpga.session, self._fpga.status)
+
             self.thread = threading.Thread(target=self.run)
             self.thread.start()
+
+            getattr(FPGAlib, "set_AcquireData") (True, self._fpga.session, self._fpga.status)
 
 
     def stop_acquisition(self):

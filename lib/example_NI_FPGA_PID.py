@@ -1,7 +1,17 @@
-# test script for LavView FPGA
+"""
+Created on Jan 29 2016
+
+@author: Jan Gieseler
+
+# example code for how to use PI loop on FPGA, loop terminates after a few loop iteractions
+"""
+
+
 import time
 import lib.FPGA_PID_Loop_Simple as NI
 import matplotlib.pyplot as plt
+
+
 
 # ============= DEFINE PARAMETERS ==================================
 # ==================================================================
