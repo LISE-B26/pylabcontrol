@@ -83,3 +83,83 @@ for fun_name in getter_functions:
     exec("""def {:s}(session, status):
         return _libfpga.{:s}(byref(session), byref(status))""".format(fun_name, fun_name))
 
+
+# =========================================================================
+# ======= DEFINE FIFO FUNCTIONS =========================================
+# =========================================================================
+_libfpga.configure_FIFO_AI.argtypes = [c_uint32, POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.configure_FIFO_AI.restype = c_uint32
+def configure_FIFO_AI(requestedDepth, session, status):
+    return _libfpga.configure_FIFO_AI(requestedDepth, byref(session), byref(status))
+
+
+# _libfpga.set_FifoTimeout.argtypes = [c_int32, POINTER(c_uint32),
+#                                      POINTER(c_int32)]
+# _libfpga.set_FifoTimeout.restype = None
+
+
+# start FIFO
+_libfpga.start_FIFO_AI.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.start_FIFO_AI.restype = None
+def start_FIFO_AI(session, status):
+    return _libfpga.start_FIFO_AI(byref(session), byref(status))
+
+# stop FIFO
+_libfpga.stop_FIFO_AI.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.stop_FIFO_AI.restype = None
+def stop_FIFO_AI(session, status):
+    return _libfpga.stop_FIFO_AI(byref(session), byref(status))
+
+
+# read FIFO
+_libfpga.read_FIFO_AI.argtypes = [POINTER(c_uint32), c_int32,
+                                  POINTER(c_uint32), POINTER(c_int32),
+                                  POINTER(c_int32)]
+_libfpga.read_FIFO_AI.restype = None
+def read_FIFO_AI(size, session, status):
+    AI1 = (c_int16*size)()
+    AI2 = (c_int16*size)()
+    elements_remaining = c_int32()
+
+    _libfpga.read_FIFO_AI_unpack(AI1, AI2, size, byref(session), byref(status), byref(elements_remaining))
+    return [AI1, AI2, elements_remaining.value]
+
+
+
+# _libfpga.read_FIFO_AI_unpack.argtypes = [POINTER(c_int16), POINTER(c_int16),
+#                                          c_int32, POINTER(c_uint32),
+#                                          POINTER(c_int32), POINTER(c_int32)]
+# _libfpga.read_FIFO_AI_unpack.restype = None
+
+#
+def read_FIFO_conv(size, session, status, ticks=56):
+    """Reads a block of elements from the FPGA FIFO and determines the time
+    array corresponding to them.
+    """
+    set_LoopTicks(ticks, session, status)
+
+    [ai1, ai2, elements_remaining] = read_FIFO_AI(size, session, status)
+
+    if elements_remaining == size:
+        print("Warning: FIFO full and elements might get lost.")
+
+    # ai0 = int_to_voltage(array(list(ai0)))
+    # ai1 = int_to_voltage(array(list(ai1)))
+    # ai2 = int_to_voltage(array(list(ai2)))
+
+    # times = cumsum(array(list(ticks))) * 25e-9
+
+    return ai0, ai1, ai2, times
+
+def int_to_voltage(integer):
+    return (10*integer)/32767.
+
+def voltage_to_int(voltage):
+    # TODO: make it work for arrays and lists
+    return int((voltage * 32767)/10)
+
+def time_to_buffersize(time, ticks=56):
+    return int(time / (ticks*0.000000025))
+
+def buffersize_to_time(size, ticks=56):
+    return size * (ticks*0.000000025)

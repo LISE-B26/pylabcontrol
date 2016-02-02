@@ -2,7 +2,7 @@ import hardware_modules.maestro as maestro
 import time
 
 # define com port to communicate with servo (check in device manager for pololu  controler command port)
-servo = maestro.Controller('COM8')
+servo = maestro.Controller('COM5')
 
 # define what to test
 
@@ -43,8 +43,8 @@ if test_case == 'motor':
 if test_case == 'beamblock':
     channel = 4
     block1 = maestro.BeamBlock(servo, channel)
-    # block1.open()
-    block1.block()
+    block1.open()
+    # block1.block()
     # close communication channel
     servo.close()
 

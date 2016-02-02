@@ -10,17 +10,26 @@ higher level Python objects, for an example how to use them see run_NI_FPGA_PID.
 from ctypes import c_uint32, c_int32
 import helper_functions.sgl2int as sgl2int
 import lib.FPGA_PID_Loop_Simple_lib_Wrapper as FPGAlib
+import numpy as numpy
 
+import threading
+import time
+import Queue as queue
 
 class NI7845R(object):
     session = c_uint32()
     status = c_int32()
 
     def __init__(self):
+        """
+        object to establish communication with the NI FPGA
+        """
         pass
 
     def start(self):
         FPGAlib.start_fpga(self.session, self.status)
+        if self.status.value != 0:
+            print('ERROR IN STARTING FPGA  (ERROR CODE: ', self.status.value, ')')
         return self.status
 
     def stop(self):
@@ -29,95 +38,9 @@ class NI7845R(object):
     @property
     def device_temperature(self):
         FPGAlib.read_DeviceTemperature(self.session, self.status)
-#
-#
-# class FIFOAnalogInput(object):
-#     _fpga = None
-#     _block_size = None
-#     _acquisition_running = False
-#
-#     thread = None
-#
-#     def __init__(self, fpga, data_queue=None):
-#         self._fpga = fpga
-#         self.block_size = 2 ** 16
-#
-#         self.time_reference = numpy.datetime64(int(time.time() * 1e6), 'us')
-#
-#         if data_queue is None:
-#             self.data_queue = queue.Queue()
-#         else:
-#             self.data_queue = data_queue
-#
-#     @property
-#     def block_size(self):
-#         return self._block_size
-#
-#     @block_size.setter
-#     def block_size(self, value):
-#         self._block_size = value
-#
-#         self.configure_fifo(value * 2)
-#
-#     @property
-#     def block_time(self):
-#         return self.block_size * (fpga_binder.read_LoopTicks() *
-#                                   numpy.timedelta64(25, 'ns'))
-#
-#     @property
-#     def acquisition_running(self):
-#         return self._acquisition_running
-#
-#     def start_fifo(self):
-#         fpga_binder.start_FIFO_AI(self._fpga.session, self._fpga.status)
-#
-#         # start point of acquisition
-#         self.time_reference = numpy.datetime64(int(time.time() * 1e6), 'us')
-#
-#     def stop_fifo(self):
-#         fpga_binder.stop_FIFO_AI(self._fpga.session, self._fpga.status)
-#
-#     def configure_fifo(self, fifo_size):
-#         return fpga_binder.configure_FIFO_AI(fifo_size, self._fpga.session,
-#                                              self._fpga.status)
-#
-#     def start_acquisition(self):
-#         if not self._acquisition_running:
-#             self._acquisition_running = True
-#             self.thread = threading.Thread(target=self.run)
-#
-#             self.start_fifo()
-#             self.thread.start()
-#
-#     def stop_acquisition(self):
-#         if self._acquisition_running:
-#             self._acquisition_running = False
-#             self.thread.join()
-#             self.stop_fifo()
-#
-#     def read_fifo_block(self):
-#         ai0, ai1, ai2, times = fpga_binder.read_FIFO_conv(
-#             self.block_size, self._fpga.session, self._fpga.status)
-#
-#         times = numpy.array(times * 1e9, dtype='timedelta64[ns]')
-#
-#         total_block_time = times[-1]
-#         times = times + self.time_reference
-#         self.time_reference = self.time_reference + total_block_time
-#
-#         return ai0, ai1, ai2, times
-#
-#     def run(self):
-#         # the first block is weird sometimes, drop it
-#         self.read_fifo_block()
-#
-#         while self._acquisition_running:
-#             data = self.read_fifo_block()
-#
-#             self.data_queue.put(data)
 
 class NI_FPGA_PI(object):
-    def __init__(self, fpga, sample_period_PI = 4e5, sample_period_acq = 800, gains = {'proportional': 0, 'integral':0}, setpoint = 0, piezo = 0):
+    def __init__(self, fpga, sample_period_PI = 4e5, gains = {'proportional': 0, 'integral':0}, setpoint = 0, piezo = 0):
         '''
 
         :param fpga: NI7845R object
@@ -126,7 +49,7 @@ class NI_FPGA_PI(object):
         '''
         self._fpga = fpga
         self.sample_period_PI = sample_period_PI
-        self.sample_period_acq = sample_period_acq
+        # todo: change statuses into a single dictionary
         self.status_PI = False # PI off at startup
         self.status_LP = False # Lowpass filter off
         self.status_acq = False # acquire data off
@@ -134,7 +57,6 @@ class NI_FPGA_PI(object):
         self.gains = gains
         self.setpoint = setpoint
         self.piezo = piezo
-
 
     # ====== DEFINE FUNCTIONS ========================================
 
@@ -193,37 +115,6 @@ class NI_FPGA_PI(object):
         return getattr(FPGAlib, 'set_LowPassActive') (self._status_LP, self._fpga.session, self._fpga.status)
 
     @property
-    def data_length(self):
-        '''
-        set or read number of elements that will be acquired in acquisition
-        '''
-        return self._data_length
-    @data_length.setter
-    def data_length(self, data_length):
-        self._data_length = data_length
-        return getattr(FPGAlib, 'set_ElementsToWrite') (self._data_length, self._fpga.session, self._fpga.status)
-
-    @property
-    def data_written(self):
-        '''
-        set or read number of elements that were written to buffer during acquisition
-        '''
-        self._data_written = getattr(FPGAlib, 'read_ElementsToWrite') (self._data_written, self._fpga.session, self._fpga.status)
-        return self._data_written
-
-    @property
-    def status_acq(self):
-        '''
-        activate or read status of data acquisition (if active or not)
-        '''
-        self._status_acq = getattr(FPGAlib, 'read_AcquireData')(self._fpga.session, self._fpga.status)
-        return self._status_PI
-    @status_acq.setter
-    def status_acq(self, status):
-        self._status_acq = status
-        return getattr(FPGAlib, 'set_AcquireData') (self._status_acq, self._fpga.session, self._fpga.status)
-
-    @property
     def detector(self):
         '''
         read detector value
@@ -276,6 +167,50 @@ class NI_FPGA_PI(object):
         self._loop_time_PI = getattr(FPGAlib, 'read_LoopTicksPID')(self._fpga.session, self._fpga.status)
         return self._loop_time_PI
 
+class NI_FPGA_READ_FIFO(object):
+
+    def __init__(self, fpga, data_length, sample_period_acq, block_size = 2 ** 16, data_queue=None):
+        '''
+
+        :param fpga: NI7845R object
+        :param data_length: length of data to be read
+        :param sample_period_acq: time period in between samples
+        :param block_size: block size of chunks that are read from FPGA
+        :param data_queue: queue to which send the reading task
+        :return:
+        '''
+        self._fpga = fpga
+        self.block_size = block_size
+        self.data_length = data_length
+        self.sample_period_acq = sample_period_acq
+        self._status = {}
+        self._acquisition_running = False
+
+        getattr(FPGAlib, 'set_ElementsToWrite') (self._data_length, self._fpga.session, self._fpga.status)
+
+        self.thread = None
+
+        if data_queue is None:
+            self.data_queue = queue.Queue()
+        else:
+            self.data_queue = data_queue
+
+
+    # ===================================================================================
+    # ========= PROPETIES ===============================================================
+    # ===================================================================================
+    @property
+    def data_length(self):
+        '''
+        set or read number of elements that will be acquired in acquisition
+        '''
+        return self._data_length
+    @data_length.setter
+    def data_length(self, data_length):
+        self._data_length = data_length
+        return getattr(FPGAlib, 'set_ElementsToWrite') (self._data_length, self._fpga.session, self._fpga.status)
+
+
     @property
     def sample_period_acq(self):
         '''
@@ -289,23 +224,72 @@ class NI_FPGA_PI(object):
         getattr(FPGAlib, "set_SamplePeriodsAcq") (self._sample_period_acq, self._fpga.session, self._fpga.status)
 
     @property
-    def loop_rate_limit_acq(self):
-        '''
-        read status if acquistion-loop runs slower than expected
-        '''
-        self._loop_rate_limit_acq = getattr(FPGAlib, 'read_LoopRateLimitAcq')(self._fpga.session, self._fpga.status)
-        return self._loop_rate_limit_acq
+    def block_size(self):
+        return self._block_size
+    @block_size.setter
+    def block_size(self, value):
+        self._block_size = value
+        self.configure_fifo(value * 2)
 
     @property
-    def loop_time_acq(self):
+    def status(self):
+        self._status['LoopRateLimitAcq'] = bool(getattr(FPGAlib, "read_LoopRateLimitAcq") (self._fpga.session, self._fpga.status))
+        self._status['TimeOutAcq'] = bool(getattr(FPGAlib, "read_TimeOutAcq") (self._fpga.session, self._fpga.status))
+        self._status['PIDActive'] = bool(getattr(FPGAlib, "read_PIDActive") (self._fpga.session, self._fpga.status))
+        self._status['FPGARunning'] = bool(getattr(FPGAlib, "read_FPGARunning") (self._fpga.session, self._fpga.status))
+        self._status['DMATimeOut'] = bool(getattr(FPGAlib, "read_DMATimeOut") (self._fpga.session, self._fpga.status))
+        self._status['AcquireData'] = bool(getattr(FPGAlib, "read_AcquireData") (self._fpga.session, self._fpga.status))
+        self._status['LoopTicksAcq'] = getattr(FPGAlib, 'read_LoopTicksAcq')(self._fpga.session, self._fpga.status)
+        self._status['ElementsWritten'] = getattr(FPGAlib, 'read_ElementsWritten') (self._fpga.session, self._fpga.status)
+
+        return self._status
+
+    # ===================================================================================
+    # ========= FUNCTIONS ===============================================================
+    # ===================================================================================
+
+    def start_fifo(self):
+        FPGAlib.start_FIFO_AI(self._fpga.session, self._fpga.status)
+
+    def stop_fifo(self):
+        FPGAlib.stop_FIFO_AI(self._fpga.session, self._fpga.status)
+
+    def configure_fifo(self, fifo_size):
+        return FPGAlib.configure_FIFO_AI(fifo_size, self._fpga.session, self._fpga.status)
+
+    def start_acquisition(self):
+        if not self._acquisition_running:
+            self._acquisition_running = True
+            self.start_fifo()
+            getattr(FPGAlib, "set_AcquireData") (True, self._fpga.session, self._fpga.status)
+            self.thread = threading.Thread(target=self.run)
+            self.thread.start()
+
+
+    def stop_acquisition(self):
+        if self._acquisition_running:
+            self._acquisition_running = False
+            getattr(FPGAlib, "set_AcquireData") (False, self._fpga.session, self._fpga.status)
+            self.thread.join(5) # timeout after 5 seconds
+            self._status['FIFOReadTimeOut'] = self.thread.is_alive()
+            self.stop_fifo()
+
+    def read_fifo_block(self):
         '''
-        read duration of PI loop in ticks (clock cycle 40MHz)
+        read a block of data from the FIFO
+        :return: data from channels AI1 and AI2 and the elements remaining in the FIFO
         '''
-        self._loop_time_acq = getattr(FPGAlib, 'read_LoopTicksAcq')(self._fpga.session, self._fpga.status)
-        return self._loop_time_acq
+        ai1, ai2, elements_remaining = FPGAlib.read_FIFO_AI(self.block_size, self._fpga.session, self._fpga.status)
+        return ai1, ai2, elements_remaining
 
+    def run(self):
+        '''
+        queue to read data from fifo
+        :return:
+        '''
+        # the first block is weird sometimes, drop it
+        # self.read_fifo_block()
+        while self._acquisition_running:
+            data = self.read_fifo_block()
 
-
-
-# def scaled_coefficients(cutoff_frequency, sample_rate):
-#
+            self.data_queue.put(data)

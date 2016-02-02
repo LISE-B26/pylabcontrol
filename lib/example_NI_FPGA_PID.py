@@ -78,4 +78,4 @@ PI.status_PI = False
 fpga.stop()
 
 print(fpga.session, fpga.status)
-raw_input("Please type enter to exit and close plot...")
+input("Please type enter to exit and close plot...")
