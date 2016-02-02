@@ -4,6 +4,8 @@
 # External Connections: usb connection to ANC350 controller. Confirm connection using DAISY software
 
 import ctypes
+import time
+import sys
 
 int32 = ctypes.c_long
 uInt32 = ctypes.c_ulong
@@ -27,7 +29,8 @@ axis_x = int32(1)
 axis_y = int32(2)
 axis_z = int32(0)
 
-attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')
+attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')
+#attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/Software_ANC350v2/DLL/Win64/lib/hvpositionerv2.dll')
 
 # c struct used as return type for some functions
 class PositionerInfo(ctypes.Structure):
@@ -41,15 +44,21 @@ class ANC350:
         '''
         self.pi = PositionerInfo()
         dev_count = attocube.PositionerCheck(ctypes.byref(self.pi))
-        if not dev_count == 1:
-            if dev_count == 0:
-                print('No attocube controller connected. Connect a device.')
-                raise Exception
-            elif dev_count > 1:
-                print('Multiple attocube controllers detected. This program will not continue.')
-                raise Exception
+        #if not dev_count == 1:
+        #    if dev_count == 0:
+        #        print('No attocube controller connected. Connect a device.')
+        #        raise Exception
+        #    elif dev_count > 1:
+        #        print('Multiple attocube controllers detected. This program will not continue.')
+        #        raise Exception
         device_handle = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        self.check_error(attocube.PositionerClose(device_handle))
+
+    def load(self, axis, filepath):
+        device_handle = int32()
+        self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        self.check_error(attocube.PositionerSetOutput(device_handle, axis, filepath))
         self.check_error(attocube.PositionerClose(device_handle))
 
     def get_status(self, axis):
@@ -87,9 +96,25 @@ class ANC350:
         :return: position of axis times 1000
         '''
         device_handle = int32()
-        position = float64()
+        position = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        # wait command needed since polling rate of attocube is 20 Hz. Empirically determined that .2 is lowest value
+        # that always works. No idea why no other function also needs this wait command
+        time.sleep(.2)
         self.check_error(attocube.PositionerGetPosition(device_handle, axis, ctypes.byref(position)))
+        self.check_error(attocube.PositionerClose(device_handle))
+        return position.value
+
+    def get_ref(self, axis):
+        '''
+        :param axis: axis_x, axis_y, or axis_z
+        :return: position of axis times 1000
+        '''
+        device_handle = int32()
+        position = int32()
+        valid = int32()
+        self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        self.check_error(attocube.PositionerGetReference(device_handle, axis, ctypes.byref(position), ctypes.byref(valid)))
         self.check_error(attocube.PositionerClose(device_handle))
         return position.value
 
@@ -99,7 +124,7 @@ class ANC350:
         :return: Capacitance in uF
         '''
         device_handle = int32()
-        capacitance = float64()
+        capacitance = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
         self.check_error(attocube.PositionerCapMeasure(device_handle, axis, ctypes.byref(capacitance)))
         self.check_error(attocube.PositionerClose(device_handle))
@@ -115,27 +140,26 @@ class ANC350:
         self.check_error(attocube.PositionerResetPosition(device_handle, axis))
         self.check_error(attocube.PositionerClose(device_handle))
 
-    # Check that float is correct format for input
     def move_absolute(self, axis, position):
         '''
-
+        BROKEN!!!!! Fluctuates around target position and never stops
         :param axis: axis_x, axis_y, or axis_z
         :param position: position of axis to move to times 1000
         '''
         device_handle = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(attocube.PositionerMoveAbsolute(device_handle, axis, float64(position)))
+        self.check_error(attocube.PositionerMoveAbsolute(device_handle, axis, int32(position)))
         self.check_error(attocube.PositionerClose(device_handle))
 
     def move_relative(self, axis, distance):
         '''
-
-        :param axis: axis: axis_x, axis_y, or axis_z
+        BROKEN!!!!! Fluctuates around target position and never stops
+        :param axis: axis_x, axis_y, or axis_z
         :param distance: amount to move axis times 1000
         '''
         device_handle = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(attocube.PositionerMoveRelative(device_handle, axis, float64(distance)))
+        self.check_error(attocube.PositionerMoveRelative(device_handle, axis, int32(distance)))
         self.check_error(attocube.PositionerClose(device_handle))
 
     def stop_move_to_pos(self, axis):
@@ -152,25 +176,39 @@ class ANC350:
         '''
 
         :param axis: axis: axis_x, axis_y, or axis_z
-        :param amplitude: amplitude in mv
+        :param amplitude: amplitude in V
         '''
         device_handle = int32()
+        amplitude *= 1000
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(attocube.PositionerAmplitude(device_handle, axis, float64(amplitude)))
+        self.check_error(attocube.PositionerAmplitude(device_handle, axis, int32(int(amplitude))))
         self.check_error(attocube.PositionerClose(device_handle))
 
     def get_amplitude(self, axis):
         '''
 
         :param axis: axis_x, axis_y, or axis_z
-        :return: amplitude in mv
+        :return: amplitude in V
         '''
         device_handle = int32()
-        amplitude = float64()
+        amplitude = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
         self.check_error(attocube.PositionerGetAmplitude(device_handle, axis, ctypes.byref(amplitude)))
         self.check_error(attocube.PositionerClose(device_handle))
-        return amplitude.value
+        return (amplitude.value / 1000.0)
+
+    def get_speed(self, axis):
+        '''
+
+        :param axis: axis_x, axis_y, or axis_z
+        :return: speed in V/s
+        '''
+        device_handle = int32()
+        speed = int32()
+        self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        self.check_error(attocube.PositionerGetSpeed(device_handle, axis, ctypes.byref(speed)))
+        self.check_error(attocube.PositionerClose(device_handle))
+        return (speed.value / 1000.0)
 
     def step_piezo(self, axis, direction):
         '''
@@ -203,12 +241,12 @@ class ANC350:
     def set_frequency(self, axis, freq):
         device_handle = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(attocube.PositionerFrequency(device_handle, axis, float64(freq)))
+        self.check_error(attocube.PositionerFrequency(device_handle, axis, int32(freq)))
         self.check_error(attocube.PositionerClose(device_handle))
 
     def get_frequency(self, axis):
         device_handle = int32()
-        freq = float64()
+        freq = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
         self.check_error(attocube.PositionerGetFrequency(device_handle, axis, ctypes.byref(freq)))
         self.check_error(attocube.PositionerClose(device_handle))
@@ -254,5 +292,11 @@ class ANC350:
             print( "Error: unknown\n" )
             raise Exception
 
-#a = ANC350()
-#print(a.get_position(axis_x))
+a = ANC350()
+#a.load(axis_z, ctypes.c_char_p('C:/Users/Experiment/Downloads/Software_ANC350v2/ANC350_GUI/general_APS_files/ANPz101res.aps'))
+#print(a.cap_measure(axis_z))
+print(a.get_position(axis_x))
+#a.cont_move_piezo(axis_z,1)
+#time.sleep(1)
+#a.stop_piezo(axis_z)
+#a.move_relative(axis_y,5000)

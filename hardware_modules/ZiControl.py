@@ -216,7 +216,6 @@ class ZIHF2:
     def plotGui(self):
         if(self.plotting == 0):
             self.fig = self.canvas.figure
-            print(self.fig)
                 # please note: the "[i][0]" indexing is known issue to be fixed in
                 # an upcoming release (there shouldn't be an additional [0])
             frequency = self.samples[0][0]['frequency']

@@ -17,7 +17,7 @@ float64 = ctypes.c_double
 
 class FilterWheel(object):
     """Class to control the Thor Labs FW102C filter wheel position"""
-    def __init__(self, portNumber=int64(6)):
+    def __init__(self, portNumber=int64(0)):
         self.connection=USBConnection(portNumber)
         self.setSpeedMode(1)
         self.setSensorMode(0)

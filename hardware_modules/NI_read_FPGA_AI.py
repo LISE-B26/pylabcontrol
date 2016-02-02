@@ -15,7 +15,7 @@
 
 import ctypes
 
-_dll = ctypes.WinDLL("Z:\\Lab\\Cantilever\\tmp_jan\\mydll.dll")
+_dll = ctypes.WinDLL("C:/Users/Experiment/Desktop/mydll.dll")
 
 _dll.add2.argtypes = [POINTER(c_uint16)]
 _dll.add2.restype = c_int16

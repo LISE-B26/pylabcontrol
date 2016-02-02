@@ -3,6 +3,7 @@ __author__ = 'Experiment'
 import json as json
 import Queue
 import time
+import subprocess
 
 from PyQt4 import QtGui
 import numpy as np
@@ -23,6 +24,7 @@ from scripts import set_focus as f
 from hardware_modules import PiezoController as PC
 from scripts import ZiControl_many_pts as ZIControl
 from gui import PlotAPDCounts2 as Cnts
+from hardware_modules import Attocube as AC
 
 # This function should be called from the PYQT main loop. It implements all of the widgets in the gui
 def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
@@ -762,6 +764,143 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         grid.addWidget(ApplicationWindow.button_copy_scan_params, row_start-1, column_start+3)
 # ApplicationWindow.RS = RectangleSelector(ApplicationWindow.imPlot.axes, ApplicationWindow.select_RoI, button = 3, drawtype='box', rectprops = rectprops)
 
+        ApplicationWindow.button_launch_attopanel = QtGui.QPushButton('Attopanel', ApplicationWindow.main_widget)
+        ApplicationWindow.button_launch_attopanel.clicked.connect(lambda : launch_attopanel())
+
+        grid.addWidget(ApplicationWindow.button_launch_attopanel,row_start+7,column_start+3)
+
+        ApplicationWindow.daisy_handle = None
+
+        def launch_attopanel():
+            # poll returns None if still running or 0 if stopped. this prevents multiple daisy applications from opening
+            if (ApplicationWindow.daisy_handle == None or ApplicationWindow.daisy_handle.poll() == 0):
+                ApplicationWindow.daisy_handle = subprocess.Popen('C:/Users/Experiment/Downloads/Software_ANC350v2/ANC350_GUI/daisy.exe')
+
+        # def launch_attopanel():
+        #     ApplicationWindow.attopanel = AttoPanel(ApplicationWindow)
+        #     ApplicationWindow.attopanel.show()
+        #
+        # class AttoPanel(QtGui.QDialog):
+        #     def __init__(self, parent):
+        #         QtGui.QDialog.__init__(self,parent)
+        #         self.setWindowTitle('Attocube Controller')
+        #         self.Grid = QtGui.QGridLayout(self)
+        #
+        #         self.button_up = QtGui.QPushButton('up')
+        #         self.button_up.clicked.connect(lambda: self.step_up())
+        #         self.Grid.addWidget(self.button_up, 1, 1)
+        #
+        #         self.button_down = QtGui.QPushButton('down')
+        #         self.button_down.clicked.connect(lambda: self.step_down())
+        #         self.Grid.addWidget(self.button_down, 3, 1)
+        #
+        #         self.button_left = QtGui.QPushButton('left')
+        #         self.button_left.clicked.connect(lambda: self.step_left())
+        #         self.Grid.addWidget(self.button_left, 2, 0)
+        #
+        #         self.button_right = QtGui.QPushButton('right')
+        #         self.button_right.clicked.connect(lambda: self.step_right())
+        #         self.Grid.addWidget(self.button_right, 2, 2)
+        #
+        #         self.button_raise = QtGui.QPushButton('raise')
+        #         self.button_raise.clicked.connect(lambda: self.step_raise())
+        #         self.Grid.addWidget(self.button_raise, 1, 4)
+        #
+        #         self.button_lower = QtGui.QPushButton('lower')
+        #         self.button_lower.clicked.connect(lambda: self.step_lower())
+        #         self.Grid.addWidget(self.button_lower, 3, 4)
+        #
+        #         self.label_num_steps = QtGui.QLabel('Number of Steps')
+        #         self.Grid.addWidget(self.label_num_steps, 0, 0)
+        #
+        #         def num_steps_assign(num_steps):
+        #             self.num_steps = int(num_steps)
+        #             print(self.num_steps)
+        #
+        #         self.txt_num_steps = QtGui.QLineEdit()
+        #         self.txt_num_steps.textChanged.connect(lambda x: num_steps_assign(x))
+        #         self.txt_num_steps.setText('1')
+        #         self.Grid.addWidget(self.txt_num_steps, 0, 1)
+        #
+        #         self.cmb_axis = QtGui.QComboBox()
+        #         self.cmb_axis.addItems(['Z axis', 'X axis', 'Y axis'])
+        #         self.Grid.addWidget(self.cmb_axis, 2, 5)
+        #
+        #         self.cmb_operation = QtGui.QComboBox()
+        #         self.cmb_operation.addItems(['Amplitude', 'Frequency', 'Capacitance'])
+        #         self.Grid.addWidget(self.cmb_operation, 0, 5)
+        #
+        #         self.txt_atto = QtGui.QLineEdit()
+        #         self.Grid.addWidget(self.txt_atto, 1, 5)
+        #
+        #         self.button_atto_get = QtGui.QPushButton('Get')
+        #         self.button_atto_get.clicked.connect(lambda: self.atto_operation_get())
+        #         self.Grid.addWidget(self.button_atto_get, 3, 5)
+        #
+        #         self.button_atto_set = QtGui.QPushButton('Set')
+        #         self.button_atto_set.clicked.connect(lambda: self.atto_operation_set())
+        #         self.Grid.addWidget(self.button_atto_set, 4, 5)
+        #
+        #
+        #
+        #         self.Grid.setColumnMinimumWidth(3, 75)
+        #
+        #         self.controller = AC.ANC350()
+        #
+        #     def step_up(self):
+        #         for i in range(self.num_steps):
+        #             self.controller.step_piezo(1,0)
+        #
+        #     def step_down(self):
+        #         for i in range(self.num_steps):
+        #             self.controller.step_piezo(1,1)
+        #
+        #     def step_left(self):
+        #         for i in range(self.num_steps):
+        #             self.controller.step_piezo(2,0)
+        #
+        #     def step_right(self):
+        #         for i in range(self.num_steps):
+        #             self.controller.step_piezo(2,1)
+        #
+        #     def step_raise(self):
+        #         for i in range(self.num_steps):
+        #             self.controller.step_piezo(0,0)
+        #
+        #     def step_lower(self):
+        #         for i in range(self.num_steps):
+        #             self.controller.step_piezo(0,1)
+        #
+        #     def atto_operation_get(self):
+        #         if self.cmb_axis.currentText() == 'Z axis':
+        #             axis = 0
+        #         elif self.cmb_axis.currentText() == 'X axis':
+        #             axis = 1
+        #         elif self.cmb_axis.currentText() == 'Y axis':
+        #             axis = 2
+        #
+        #         if self.cmb_operation.currentText() == 'Amplitude':
+        #             self.txt_atto.setText(str(self.controller.get_amplitude(axis)))
+        #         elif self.cmb_operation.currentText() == 'Frequency':
+        #             self.txt_atto.setText(str(self.controller.get_frequency(axis)))
+        #         elif self.cmb_operation.currentText() == 'Capacitance':
+        #             self.txt_atto.setText(str(self.controller.cap_measure(axis)))
+        #
+        #     def atto_operation_set(self):
+        #         if self.cmb_axis.currentText() == 'Z axis':
+        #             axis = 0
+        #         elif self.cmb_axis.currentText() == 'X axis':
+        #             axis = 1
+        #         elif self.cmb_axis.currentText() == 'Y axis':
+        #             axis = 2
+        #
+        #         if self.cmb_operation.currentText() == 'Amplitude':
+        #             self.controller.set_amplitude(axis, float(self.txt_atto.text()))
+        #         elif self.cmb_operation.currentText() == 'Frequency':
+        #             self.controller.get_frequency(axis, float(self.txt_atto.text()))
+        #         elif self.cmb_operation.currentText() == 'Capacitance':
+        #             self.txt_atto.setText('ERROR CANNOT SET CAPACITANCE')
+
 
     ##################################################################################
     # ADD DISPLAY ####################################################################
@@ -797,7 +936,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
             timePerPt = float(ApplicationWindow.txt_time_per_pt.text())
 
-            bool_use_apd = str(ApplicationWindow.cmb_APD.currentText()) == 'Use APD'
+            bool_use_apd = (str(ApplicationWindow.cmb_APD.currentText()) == 'Use APD')
             if ApplicationWindow.radio_distconv.isChecked():
                 dist_volt_conv = ApplicationWindow.txt_distconv.text()
             else:
@@ -814,7 +953,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             ApplicationWindow.scan_queue.put('STOP')
 
         def zoom_RoI_in():
-            _, pt_a, pt_b, _, _, _ = get_pts_and_size(ApplicationWindow)
+            _, pt_a, pt_b, _, _,_, _ = get_pts_and_size(ApplicationWindow)
             xmin  = min(pt_a[0],pt_b[0])
             xmax  = max(pt_a[0],pt_b[0])
             ymin  = min(pt_a[1],pt_b[1])

@@ -55,6 +55,10 @@ class ScanNV():
         self.plotting = 0
         self.canvas = canvas
         self.cbar = None
+        if dist_volt_conversion is None:
+            self.dvconv = None
+        else:
+            self.dvconv = float(dist_volt_conversion)
 
     # runs scan
     def scan(self,queue=None):
@@ -63,7 +67,7 @@ class ScanNV():
             if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
                 break
             # initialize APD thread
-            readthread = PDIn.ReadAI("Dev1/AI1", 1 / self.dt,
+            readthread = PDIn.ReadAI("Dev1/AI2", 1 / self.dt,
                                        len(self.xArray) + 1)
             self.initPt = numpy.transpose(numpy.column_stack((self.xArray[0],
                                           self.yArray[yNum])))

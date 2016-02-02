@@ -1,5 +1,8 @@
 import socket
 import time
+import pandas as pd
+import numpy as np
+from scipy.signal import argrelextrema
 
 
 #cryo = ctypes.WinDLL('C:\\Users\\Experiment\\Downloads\\Cryostation Release 3.46 or later\\CryostationComm.dll')
@@ -110,6 +113,28 @@ class Cryostation:
         cryostat_response = self.query_cryostat('03GCP')
         return self.extract_data(cryostat_response)
 
-if __name__ == '__main__':
-    a = Cryostation('10.243.34.189', 7773)
-    print a.get_platform_temp()
+class TemperatureData:
+    @staticmethod
+    def get_temp_data(date = None, initial_time = 0):
+        if date == None:
+            filepath = 'C:/Cryostation/Temperature Data/MI_DiagnosticsDataLog ' + time.strftime('%m_%d_%Y') + '.csv'
+            print(filepath)
+        else:
+            filepath = 'C:/Cryostation/Temperature Data/MI_DiagnosticsDataLog ' + date + '.csv'
+        mat = pd.read_csv(filepath).values
+        times = [x.split(':') for x in mat[:,1]]
+        times = [[float(x[0])*3600+float(x[1])*60+float(x[2])][0] for x in times]
+        if initial_time == 0:
+            times = [x - times[0] for x in times]
+        else:
+            times = [x + initial_time for x in times]
+        temps = mat[:,3:8]
+        data = np.column_stack((times,temps))
+        return data
+
+
+#if __name__ == '__main__':
+#    a = Cryostation('10.243.34.189', 7773)
+#    print a.get_platform_temp()
+
+#print(TemperatureData.get_temp_data(date = '01_13_2016', initial_time=0))

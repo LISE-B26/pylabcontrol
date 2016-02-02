@@ -213,8 +213,9 @@ if __name__ == '__main__':
 
     """
 
-    #a = MDT693B('Y')
-    #a.setVoltage(0)
+    #a = MDT693B('X')
+    #time.sleep(10)
+    #a.setVoltage(100)
 
 
 
