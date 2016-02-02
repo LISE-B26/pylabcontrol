@@ -16,3 +16,4 @@ def scan():
 
 print "Found ports:"
 for n,s in scan(): print "(%d) %s" % (n,s)
+print('done')
