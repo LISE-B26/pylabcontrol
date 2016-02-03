@@ -378,6 +378,16 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             # ApplicationWindow.statusBar().showMessage(ApplicationWindow.cmb_execute.currentText(),1000)
             ApplicationWindow.path_script.setText(script_path)
 
+        def change_script(ApplicationWindow):
+            '''
+            Changes script to be executed based on current text in box
+            :param ApplicationWindow:
+            '''
+            script_name = str(ApplicationWindow.cmb_execute.currentText())
+            script_path = ApplicationWindow.parameters_paths_scripts[script_name]
+            # ApplicationWindow.statusBar().showMessage(ApplicationWindow.cmb_execute.currentText(),1000)
+            ApplicationWindow.path_script.setText(script_path)
+
         def change_script_path(ApplicationWindow):
             '''
             Changes path to script to be executed
