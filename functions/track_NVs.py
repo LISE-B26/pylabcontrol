@@ -233,3 +233,53 @@ def locate_shifted_NVs(image, shifted_coordinates, new_roi):
 #print(shifted_coor)
 
 #plt.show()
+
+
+    '''
+    #More old test code, this part run from within gui
+    def start_esr_sequence(self):
+        if self.esr_running == True:
+            self.imPlot.mpl_disconnect(self.chooseNVsConnect)
+        self.esr_running = True
+        self.statusBar().showMessage("Choose NVs for ESR", 0)
+        self.esr_select_patches = []
+        coordinates = track.locate_NVs(self.imageData, self.RoI['dx'], self.RoI['xPts'])
+        coordinates[:,[0,1]] = coordinates[:,[1,0]]
+        coordinates_v = track.pixel_to_voltage(coordinates, self.imageData,self.RoI)
+        print("dx:" + str(self.RoI['dx']))
+        print("dy:" + str(self.RoI['dy']))
+        for pt in coordinates_v:
+            circ = patches.Circle((pt[0], pt[1]), .01*min(self.RoI['dx'],self.RoI['dy']), fc = 'r')
+            self.imPlot.axes.add_patch(circ)
+        self.imPlot.draw()
+        self.imPlot.mpl_disconnect(self.mouseNVImageConnect)
+        self.chooseNVsConnect = self.imPlot.mpl_connect('button_press_event', lambda x: self.chooseNVs(x, coordinates_v))
+        self.esr_NVs = list()
+        self.choosingNVs = True
+        while self.choosingNVs:
+            QtGui.QApplication.processEvents()
+            time.sleep(.05)
+        self.imPlot.mpl_disconnect(self.chooseNVsConnect)
+        self.mouseNVImageConnect = self.imPlot.mpl_connect('button_press_event', self.mouseNVImage)
+        QtGui.QApplication.processEvents()
+        nv_num = 1
+        for nv_pt in self.esr_NVs:
+            self.imPlot.axes.text(nv_pt[0], nv_pt[1], ' ' + str(nv_num), color = 'k')
+            nv_num += 1
+        df = pd.DataFrame(self.esr_NVs)
+        dfimg = pd.DataFrame(self.imageData)
+        dirpath = self.esrSaveLoc.text()
+        start_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+        filepath = dirpath + "\\" + start_time
+        filepathCSV = filepath + '.csv'
+        filepathImg = filepath + 'baselineimg.csv'
+        filepathJPG = filepath + '.jpg'
+        filepathRoI = filepath + '.roi'
+        df.to_csv(filepathCSV, index = False, header=False)
+        dfimg.to_csv(filepathImg, index = False, header=False)
+        self.imPlot.fig.savefig(str(filepathJPG), format = 'jpg')
+        self.saveRoI(self.RoI, filepathRoI)
+        self.esrReadLoc.setText(filepath)
+        self.statusBar().clearMessage()
+        self.esr_running = False
+    '''
