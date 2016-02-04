@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 # ==================================================================
 parameters_PI = {
     "sample_period_PI" :4e5,
-    "sample_period_acq" : 800,
     "gains" : {'proportional': 1.0, 'integral':0.1},
     "setpoint" : 0,
     "piezo" : 0
