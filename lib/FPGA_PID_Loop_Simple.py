@@ -109,7 +109,7 @@ class NI_FPGA_PI(object):
         '''
         self._status_LP = getattr(FPGAlib, 'read_LowPassActive')(self._fpga.session, self._fpga.status)
         return self._status_PI
-    @status_PI.setter
+    @status_LP.setter
     def status_LP(self, status):
         self._status_LP = status
         return getattr(FPGAlib, 'set_LowPassActive') (self._status_LP, self._fpga.session, self._fpga.status)

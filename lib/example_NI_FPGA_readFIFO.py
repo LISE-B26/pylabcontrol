@@ -17,53 +17,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-# ============= create gui =========================================
-# ==================================================================
-
-
-from PyQt4 import QtGui, QtCore
-import sys
-sys.path.append('.')
-class ApplicationWindow(QtGui.QMainWindow):
-    def __init__(self):
-        QtGui.QMainWindow.__init__(self)
-        self.setMinimumSize(150,150)
-        self.main_widget = QtGui.QWidget(self)
-
-        self.grid = QtGui.QGridLayout(self.main_widget)
-        self.grid.addLayout(self.grid)
-
-        #
-        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        # self.setWindowTitle("application main window")
-        # self.setMinimumSize(1500,800)
-
-        # self.group = QtGui.QGroupBox("group")
-
-
-
-        self.button_execute = QtGui.QPushButton('go', self.main_widget)
-        self.button_execute.clicked.connect(lambda: self.buttonClicked())
-        self.grid.addWidget(self.button_execute,0,1)
-        # self.button_execute.resize(280,40)
-        #
-        # self.button_execute.move(400,20)
-
-        self.label = QtGui.QLabel('script settings', self.main_widget)
-        self.grid.addWidget(self.label,1,2)
-        # self.button_execute.move(10,10)
-
-    def buttonClicked(self):
-        self.label.setText('asda')
-
-
-
-if __name__ == "__main__":
-    app = QtGui.QApplication(sys.argv)
-    myapp = ApplicationWindow()
-    myapp.show()
-    sys.exit(app.exec_())
-
 
 # ============= DEFINE PARAMETERS ==================================
 # ==================================================================

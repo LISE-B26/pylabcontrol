@@ -6,70 +6,162 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>414</width>
-    <height>296</height>
+    <width>692</width>
+    <height>746</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="buttonRecordData">
+   <widget class="QListView" name="listView">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>220</y>
-      <width>169</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Record Data</string>
-    </property>
-   </widget>
-   <widget class="QGraphicsView" name="graphData">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>10</y>
-      <width>256</width>
-      <height>192</height>
+      <x>0</x>
+      <y>110</y>
+      <width>251</width>
+      <height>71</height>
      </rect>
     </property>
    </widget>
-   <widget class="QCheckBox" name="checkPIActive">
+   <widget class="QWidget" name="plotWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>30</y>
+      <width>401</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <layout class="QVBoxLayout" name="mplvl"/>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>101</width>
-      <height>17</height>
+      <width>97</width>
+      <height>42</height>
      </rect>
     </property>
-    <property name="text">
-     <string>PI - loop active</string>
-    </property>
+    <layout class="QVBoxLayout" name="layout_checkboxes">
+     <item>
+      <widget class="QCheckBox" name="checkPIActive">
+       <property name="text">
+        <string>PI - loop active</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkIRon">
+       <property name="text">
+        <string>IR on</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
-   <widget class="QCheckBox" name="checkIRon">
+   <widget class="QSlider" name="sliderPosition">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>70</width>
-      <height>17</height>
+      <x>30</x>
+      <y>240</y>
+      <width>160</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>600</number>
+    </property>
+    <property name="sliderPosition">
+     <number>300</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_thread">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>260</y>
+      <width>75</width>
+      <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>IR on</string>
+     <string>PushButton</string>
     </property>
    </widget>
+   <widget class="QProgressBar" name="progressBar">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>320</y>
+      <width>118</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>24</number>
+    </property>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>260</y>
+      <width>239</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="btn_stop_record">
+       <property name="text">
+        <string>stop</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_clear_record">
+       <property name="text">
+        <string>clear</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_start_record">
+       <property name="text">
+        <string>Record Data</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <zorder>btn_start_record</zorder>
+   <zorder>listView</zorder>
+   <zorder>plotWidget</zorder>
+   <zorder>layoutWidget</zorder>
+   <zorder>sliderPosition</zorder>
+   <zorder>btn_clear_record</zorder>
+   <zorder>btn_stop_record</zorder>
+   <zorder>btn_thread</zorder>
+   <zorder>progressBar</zorder>
+   <zorder>btn_clear_record</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>414</width>
+     <width>692</width>
      <height>21</height>
     </rect>
    </property>

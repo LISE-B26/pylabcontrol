@@ -1,5 +1,5 @@
 # clr is python for .net
-import clr
+import clr # run pip install pythonnet
 import sys
 sys.path.insert(0,"C:\\Program Files\\Thorlabs\\Kinesis\\")
 
@@ -131,10 +131,10 @@ class TDC001:
         self.device.Disconnect()
 
 # Test Code
-
-# TDC001 serial number is 83832028 as given on physical device
-#serial_number = 83832028
-#a = TDC001(serial_number)
-#print(a.get_position())
-#a.move_servo(3.2)
-#print(a.get_position())
+if __name__ == '__main__':
+    # TDC001 serial number is 83832028 as given on physical device
+    serial_number = 83832028
+    a = TDC001(serial_number)
+    print(a.get_position())
+    a.move_servo(3.0)
+    print(a.get_position())

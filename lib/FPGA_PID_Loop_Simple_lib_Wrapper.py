@@ -10,8 +10,8 @@ FPGA_PID_Loop_Simple.py which defines the higher level Python objects that are t
 
 """
 
-# TODO: find a way to call lib from a folder which doesn't contrain the bitfile of the FPGA (now it has to be place in the same directory as the python file to work
-
+# TODO: set path for .lvbitx file in .c file dynamically (now it's hard coded to /lib/
+# TODO: reading of analog input gives only positive values (as if cast into unsigned integer, try to figure out why that is
 
 from ctypes import *
 
