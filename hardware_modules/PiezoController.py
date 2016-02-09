@@ -103,7 +103,6 @@ class MDT693B:
         # 8 data bits, No parity bit, 1 stop bit, no hardware
         # handshake. These are all default for Serial and therefore not input
         # below
-        #
 
         if (outputAxis is not 'X' and outputAxis is not 'Y' and outputAxis is not 'Z'):
             message = 'Piezo Controller Axis not correctly defined; must be either \'X\', \'Y\', or \'Z\''
