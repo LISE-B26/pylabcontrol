@@ -74,12 +74,12 @@ class TDC001:
         try:
             if(velocity != 0):
                 self.set_velocity(velocity)
-            print("Moving Device to " + str(position))
+            # print("Moving Device to " + str(position))
             self.device.MoveTo(self.Py_Decimal(position), 60000)
         except Exception:
             print("Failed to move to position")
             raise
-        print ("Device Moved")
+        # print ("Device Moved")
 
     def get_position(self):
         '''
@@ -129,6 +129,17 @@ class TDC001:
         '''
         self.device.StopPolling()
         self.device.Disconnect()
+
+    def wait_time(self, motor_step):
+        # motor_step = 1 corresponds to 1/100 mm, nominally the motor runs at its max speed motor_speed = 2.5 mm/s
+        # However, since it has to accelerate, we assume that the aver. speed is only motor_speed = 0.5 mm/s
+        # thus the wait time to reach  the position is motor_step / (100  * motor_speed )
+        # in addition we add a buffer wait time of 0.2 s
+
+        # motor_step = abs(target_position - self.get_position()
+        motor_speed = 0.5
+
+        return motor_step / (100  * motor_speed )+0.2
 
 # Test Code
 if __name__ == '__main__':
