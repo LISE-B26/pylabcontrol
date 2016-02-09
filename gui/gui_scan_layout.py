@@ -1,30 +1,29 @@
 __author__ = 'Experiment'
 
-import json as json
 import Queue
-import time
+import json as json
 import subprocess
+import time
 
-from PyQt4 import QtGui
+import Image
+import matplotlib.patches as patches
 import numpy as np
 import pandas as pd
 import scipy.spatial
-import matplotlib.patches as patches
-import Image
-import atexit
+from PyQt4 import QtGui
 
-import gui_custom_widgets as gui_cw
-import helper_functions.reading_writing as rw
-from gui import GuiDeviceTriggers as DeviceTriggers
 import helper_functions.meshing as Meshing
+import helper_functions.reading_writing as rw
 import scripts.ESR_many_NVs as ESR
 import scripts.auto_focus as AF
+from Archive import gui_custom_widgets as gui_cw
 from functions import track_NVs as track
-from scripts import set_focus as f
+from gui import GuiDeviceTriggers as DeviceTriggers
+from gui import PlotAPDCounts2 as Cnts
 from hardware_modules import PiezoController as PC
 from scripts import ZiControl_many_pts as ZIControl
-from gui import PlotAPDCounts2 as Cnts
-from hardware_modules import Attocube as AC
+from scripts import set_focus as f
+
 
 # This function should be called from the PYQT main loop. It implements all of the widgets in the gui
 def add_scan_layout(ApplicationWindow, vbox_main, plotBox):

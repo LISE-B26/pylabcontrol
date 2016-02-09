@@ -15,18 +15,10 @@ from __future__ import unicode_literals
 import sys
 sys.path.append('.')
 
-import sys
-import time
-import numpy
-import numpy.random
-import pandas as pd
-import matplotlib.patches as patches
 from PyQt4 import QtGui, QtCore
 
-import functions.Focusing as focusing
-from functions import track_NVs as track
-from gui import GuiDeviceTriggers as DeviceTriggers
-import gui_scan_layout
+from gui import gui_scan_layout
+
 
 # Class corresponding to window in which all widgets (objects used to display things) are placed. Extends QtGui.QMainWindow
 class ApplicationWindow(QtGui.QMainWindow):

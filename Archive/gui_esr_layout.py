@@ -1,9 +1,7 @@
 __author__ = 'Experiment'
-from matplotlib.widgets import RectangleSelector
-import gui_custom_widgets as gui_cw
 from PyQt4 import QtGui
-import numpy as np
-import pandas as pd
+
+from Archive import gui_custom_widgets as gui_cw
 
 
 def add_esr_layout(self):

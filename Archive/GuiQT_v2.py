@@ -10,31 +10,30 @@
 # may be distributed without limitation.
 
 from __future__ import unicode_literals
-import sys
-import time
+
 import Queue
 import json
+import sys
+import time
 
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
 import numpy
 import numpy.random
 import pandas as pd
-from matplotlib.widgets import RectangleSelector
-import matplotlib.patches as patches
+import scipy.spatial
 from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import scipy.spatial
-import matplotlib.pyplot as plt
+from matplotlib.widgets import RectangleSelector
 
 import functions.Focusing as focusing
-from functions.regions import *
+from Archive import PlotAPDCounts
 from functions import track_NVs as track
+from functions.regions import *
+from gui import GuiDeviceTriggers as DeviceTriggers
 from hardware_modules import PiezoController as PC
 from scripts import ESR
-from gui import GuiDeviceTriggers as DeviceTriggers, PlotAPDCounts
-
-
-
 
 
 # Extends the matplotlib backend FigureCanvas. A canvas for matplotlib figures with a constructed axis that is
