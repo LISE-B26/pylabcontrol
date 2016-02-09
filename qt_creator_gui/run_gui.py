@@ -53,13 +53,6 @@ import hardware_modules.PI_Controler as PI_Controler
 # ==================================================================
 
 settings_dict = {
-    "serial_port_maestro" : "COM5",
-    "channel_beam_block_IR" : 4,
-    "channel_beam_block_Green" : 5,
-    "parameters_filterwheel" : {
-        "channel" : 1,
-        "position_list" : {'ND1.0': 4*600, 'LP':4*1550, 'ND2.0':4*2500}
-    },
     "record_length" : 100,
     "parameters_PI" : {
         "sample_period_PI" :4e5,
@@ -72,11 +65,20 @@ settings_dict = {
         "data_length" : 10000,
         "block_size" : 1000
     },
+    "detector_threshold" : 50,
+    "data_path" : "Z:/Lab/Cantilever/Measurements/20160209_InterferometerStabilization",
+    "hardware" : {
+        "serial_port_maestro" : "COM5",
+        "channel_beam_block_IR" : 4,
+        "channel_beam_block_Green" : 5,
+        "parameters_filterwheel" : {
+            "channel" : 1,
+            "position_list" : {'ND1.0': 4*600, 'LP':4*1550, 'ND2.0':4*2500}
+        },
     "kinesis_serial_number" : 83832028,
-    "detector_threshold" : 50
-
-
+    }
 }
+
 
 
 
@@ -124,6 +126,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.connect_controls()
         self.create_threads()
 
+        self.treeWidget.collapseAll()
+
     def create_figures(self):
         # fill the empty widgets with a figure
         fig_live = Figure()
@@ -147,7 +151,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # ============= threading ====================================
         self._thread_acq = AcquisitionThread(self)
-        self._thread_acq.updateProgress.connect(self.update_plot)
+        self._thread_acq.updateProgress.connect(self.update_plot_live)
 
         self._thread_acq_fifo = AcquisitionFIFOThread(self)
         self._thread_acq_fifo.updateProgress.connect(self.update_status)
@@ -158,13 +162,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def connect_hardware(self):
         # create connections to hardware
+        hardware_settings = self._settings['hardware']
+        self._servo = maestro.Controller(hardware_settings['serial_port_maestro'])
+        self.beam_block_IR = maestro.BeamBlock(self._servo, hardware_settings['channel_beam_block_IR'])
+        self.beam_block_Green = maestro.BeamBlock(self._servo, hardware_settings['channel_beam_block_Green'])
+        self.filterwheel = maestro.FilterWheel(self._servo, **hardware_settings['parameters_filterwheel'])
 
-        self._servo = maestro.Controller(self._settings['serial_port_maestro'])
-        self.beam_block_IR = maestro.BeamBlock(self._servo, self._settings['channel_beam_block_IR'])
-        self.beam_block_Green = maestro.BeamBlock(self._servo, self._settings['channel_beam_block_Green'])
-        self.filterwheel = maestro.FilterWheel(self._servo, **self._settings['parameters_filterwheel'])
-
-        self.servo_polarization = DCServo_Kinesis.TDC001(self._settings["kinesis_serial_number"])
+        self.servo_polarization = DCServo_Kinesis.TDC001(hardware_settings["kinesis_serial_number"])
 
 
         # =============================================================
@@ -207,9 +211,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.checkPIActive.stateChanged.connect(lambda: self.switch_PI_loop())
 
         # link combo box
-        self.cmb_filterwheel.addItems(self._settings['parameters_filterwheel']['position_list'].keys())
+        self.cmb_filterwheel.addItems(self._settings['hardware']['parameters_filterwheel']['position_list'].keys())
         self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
 
+
+        self.treeWidget.itemChanged.connect(lambda: self.update_parameters())
 
     def __del__(self):
         '''
@@ -231,36 +237,126 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.log("applied new gains {:0.3f}, {:0.3f}" .format(self._gains['proportional'], self._gains['integral']),1000)
 
+    def update_parameters(self):
+        '''
+        is called when a parameter in the tree is changed
+        this function updates the dictionary that holds all the parameter
+        :return:
+        '''
+
+        parameter = str(self.treeWidget.currentItem().text(0))
+        value = unicode(self.treeWidget.currentItem().text(1))
+        parents = []
+        if self.treeWidget.currentColumn() == 0:
+            self.log("Tried to edit parameter name. This is not allowed!!", 1000)
+        else:
+            parent = self.treeWidget.currentItem().parent()
+            while parent != None:
+                # print(str(parent.text(0)))
+                parents.insert(0,str(parent.text(0)))
+                parent = parent.parent()
+            try:
+                print(parents)
+                dictator = self._settings
+                for i in parents:
+                    print i
+                    dictator = dictator[i]
+                value_old = dictator[parameter]
+                dictator.update({parameter : value})
+
+                # self._settings.update({parameter : float(value)})
+                self.log("changed {:s} from {:s} to {:s}".format(parameter, str(value_old), str(value)))
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                raise
+            print(self._settings)
+            print(parents)
+
+    def assert_parameters(self, parameter, value):
+        '''
+        asserts if the parameter has a the right value type and range
+        :param parameter: name of parameter
+        :param value: value of parameter
+        :return: True or False
+        '''
+        # if parameter in {"channel_beam_block_IR", "channel_beam_block_Green", "channel", 'ND1.0', 'LP', 'ND2.0', "detector_threshold" }:
+#
+#
+# "channel_beam_block_IR", "channel_beam_block_Green", "channel"
+# range 0-5
+#
+# 'ND1.0',
+# 'LP'
+# 'ND2.0'
+# 64-3232
+#
+# "record_length"
+#
+# "sample_period_PI"
+# 'proportional'
+# 'integral'
+#
+# "sample_period_acq"
+# "data_length"
+#
+# "block_size"
+#
+# "setpoint", "piezo"
+#
+# "detector_threshold"
+
+
+
     def update_status(self, progress):
         self.progressBar.setValue(progress)
-
         if progress == 100:
+            self.update_plot_2()
 
-            data_length = self._settings["parameters_Acq"]["data_length"]
-            time_step = self._settings["parameters_Acq"]["sample_period_acq"] / 40e6
-            freq_step = 1/(time_step * data_length)
+    def update_plot_live(self, data_point):
+        if data_point > 2**15:
+            self._recorded_data.append(data_point-2**16)
+        else:
+            self._recorded_data.append(data_point)
+        if len(self._recorded_data) > self._settings["record_length"]:
+            self._recorded_data.popleft()
+        self.axes_live.clear()
+        self.axes_live.plot(list(self._recorded_data))
+        detector_threshold = self._settings["detector_threshold"]
+        self.axes_live.plot([0, self._settings["record_length"]], [detector_threshold, detector_threshold], 'k--')
+        self.axes_live.plot([0, self._settings["record_length"]], [-detector_threshold, -detector_threshold], 'k--')
+        # self.axes.set_ylim([-3000,3000])
+        self.canvas_live.draw()
 
-            print(data_length, time_step, freq_step)
+        self.lbl_detector_signal.setText("{:d}".format(self._recorded_data[-1]))
 
-            self.axes_timetrace.clear()
-            times = 1e3 * np.linspace(0,time_step,data_length)
-            self.axes_timetrace.plot(times, self.data_AI1.flatten())
-
-            self.canvas_timetrace.draw()
-            self.log("FIFO acq. completed",1000)
-
-            # calculate PSD and plot
+    def update_plot_2(self):
 
 
-            freqs = np.linspace(0,freq_step * data_length / 2,data_length/2)
+        data_length = self._settings["parameters_Acq"]["data_length"]
+        time_step = self._settings["parameters_Acq"]["sample_period_acq"] / 40e6
+        freq_step = 1/(time_step * data_length)
 
-            self.data_PSD = np.abs(np.fft.fft(self.data_AI1.flatten()))**2
-            self.data_PSD = self.data_PSD[range(data_length/2)]
+        print(data_length, time_step, freq_step)
 
-            self.axes_psd.clear()
-            self.axes_psd.loglog(freqs, self.data_PSD)
-            self.axes_psd.set_xlabel('frequency (Hz)')
-            self.canvas_psd.draw()
+        self.axes_timetrace.clear()
+        times = 1e3 * np.linspace(0,time_step,data_length)
+        self.axes_timetrace.plot(times, self.data_AI1.flatten())
+
+        self.canvas_timetrace.draw()
+        self.log("FIFO acq. completed",1000)
+
+        # calculate PSD and plot
+
+
+        freqs = np.linspace(0,freq_step * data_length / 2,data_length/2)
+
+        self.data_PSD = np.abs(np.fft.fft(self.data_AI1.flatten()))**2
+        self.data_PSD = self.data_PSD[range(data_length/2)]
+
+        self.axes_psd.clear()
+        self.axes_psd.loglog(freqs, self.data_PSD)
+        self.axes_psd.set_xlabel('frequency (Hz)')
+        self.canvas_psd.draw()
 
     def log(self, msg, wait_time = 1000):
         self.statusbar.showMessage(msg, wait_time)
@@ -278,22 +374,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.listView.show()
 
 
-    def update_plot(self, data_point):
-        if data_point > 2**15:
-            self._recorded_data.append(data_point-2**16)
-        else:
-            self._recorded_data.append(data_point)
-        if len(self._recorded_data) > self._settings["record_length"]:
-            self._recorded_data.popleft()
-        self.axes_live.clear()
-        self.axes_live.plot(list(self._recorded_data))
-        detector_threshold = self._settings["detector_threshold"]
-        self.axes_live.plot([0, self._settings["record_length"]], [detector_threshold, detector_threshold], 'k--')
-        self.axes_live.plot([0, self._settings["record_length"]], [-detector_threshold, -detector_threshold], 'k--')
-        # self.axes.set_ylim([-3000,3000])
-        self.canvas_live.draw()
 
-        self.lbl_detector_signal.setText("{:d}".format(self._recorded_data[-1]))
 
     # def update_position(self, value):
     #     print("position {:0.02f}".format(value))
@@ -405,73 +486,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     child.setText(0, unicode(val))
                 child.setExpanded(True)
-                # child.setFlags(QtCore.Qt.ItemIsEditable)
-                # child.setFlags(QtCore.Qt.ItemIsEnabled)
                 child.setFlags(child.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
 
 
             else:
-                # child = QtGui.QTreeWidgetItem()
                 item.setText(1, unicode(value))
-                # item.addChild(child)
-                print(value)
-                item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
 
-                # child = QtGui.QTreeWidgetItem()
-                # child.setText(0, unicode(value))
-                # item.addChild(child)
-                # print(value)
-                # child.setFlags(child.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+                item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
 
 
         QTreeWidget.clear()
         fill_item(QTreeWidget.invisibleRootItem(), value)
 
         QTreeWidget.setColumnWidth(0,200)
-    #
-    # def fill_widget(self, value):
-    #
-    #     def fill_item(item, value):
-    #         item.setExpanded(True)
-    #         if type(value) is dict:
-    #             for key, val in sorted(value.iteritems()):
-    #                 child = QtGui.QTreeWidgetItem()
-    #                 child.setText(0, unicode(key))
-    #                 item.addChild(child)
-    #
-    #                 fill_item(child, val)
-    #         elif type(value) is list:
-    #             for val in value:
-    #                 child = QtGui.QTreeWidgetItem()
-    #                 item.addChild(child)
-    #             if type(val) is dict:
-    #                 child.setText(0, '[dict]')
-    #                 fill_item(child, val)
-    #             elif type(val) is list:
-    #                 child.setText(0, '[list]')
-    #                 fill_item(child, val)
-    #             else:
-    #                 child.setText(0, unicode(val))
-    #             child.setExpanded(True)
-    #             # child.setFlags(QtCore.Qt.ItemIsEditable)
-    #             # child.setFlags(QtCore.Qt.ItemIsEnabled)
-    #             child.setFlags(child.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
-    #
-    #
-    #         else:
-    #             child = QtGui.QTreeWidgetItem()
-    #             child.setText(0, unicode(value))
-    #             item.addChild(child)
-    #             child.setFlags(child.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
-    #             # child.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-    #             # child.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-    #             #
-    #         # item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-    #         # item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
-    #
-    #     self.treeWidget.clear()
-    #     fill_item(self.treeWidget.invisibleRootItem(), value)
-
 
 
 

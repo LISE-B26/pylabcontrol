@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1166</width>
-    <height>736</height>
+    <width>1157</width>
+    <height>859</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,10 +17,10 @@
    <widget class="QListView" name="listView">
     <property name="geometry">
      <rect>
-      <x>730</x>
-      <y>30</y>
-      <width>251</width>
-      <height>221</height>
+      <x>0</x>
+      <y>660</y>
+      <width>711</width>
+      <height>141</height>
      </rect>
     </property>
    </widget>
@@ -136,8 +136,8 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>310</y>
+      <x>730</x>
+      <y>10</y>
       <width>411</width>
       <height>301</height>
      </rect>
@@ -193,8 +193,8 @@
    <widget class="QProgressBar" name="progressBar">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>620</y>
+      <x>870</x>
+      <y>320</y>
       <width>171</width>
       <height>23</height>
      </rect>
@@ -206,8 +206,8 @@
    <widget class="QPushButton" name="btn_start_record_fpga_2">
     <property name="geometry">
      <rect>
-      <x>610</x>
-      <y>620</y>
+      <x>1040</x>
+      <y>320</y>
       <width>91</width>
       <height>23</height>
      </rect>
@@ -219,8 +219,8 @@
    <widget class="QPushButton" name="btn_start_record_fpga">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>620</y>
+      <x>730</x>
+      <y>320</y>
       <width>131</width>
       <height>23</height>
      </rect>
@@ -312,7 +312,7 @@
      <rect>
       <x>0</x>
       <y>320</y>
-      <width>261</width>
+      <width>711</width>
       <height>301</height>
      </rect>
     </property>
@@ -369,7 +369,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1166</width>
+     <width>1157</width>
      <height>21</height>
     </rect>
    </property>
