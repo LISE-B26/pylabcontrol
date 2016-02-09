@@ -11,7 +11,12 @@ Created on Feb 2 2016
 
 # from qt_creator_gui.mainwindow import Ui_MainWindow
 import sys
+# todo: resolve issue with namespace (get rid of from PySide.QtCore import * and from PySide.QtGui import *)
 from PySide import QtCore, QtGui
+from PySide.QtCore import *
+from PySide.QtGui import *
+
+
 import hardware_modules.maestro as maestro
 
 import hardware_modules.DCServo_Kinesis_dll as DCServo_Kinesis
@@ -30,6 +35,10 @@ from matplotlib.backends.backend_qt4agg import (
     NavigationToolbar2QT as NavigationToolbar)
 
 Ui_MainWindow, QMainWindow = loadUiType('mainwindow.ui') # with this we don't have to convert the .ui file into a python file!
+# from qt_creator_gui.mainwindow import Ui_MainWindow # with this we have to first compile (pyside-uic mainwindow.ui -o mainwindow.py)
+
+
+# from qt_creator_gui.mainwindow import Ui_MainWindow
 
 import datetime
 from collections import deque
@@ -42,7 +51,7 @@ import hardware_modules.PI_Controler as PI_Controler
 # ============= GENERAL SETTING ====================================
 # ==================================================================
 
-settings = {
+settings_dict = {
     "serial_port_maestro" : "COM5",
     "channel_beam_block_IR" : 4,
     "channel_beam_block_Green" : 5,
@@ -94,8 +103,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
 
+        self._settings = settings_dict
+
+
+        self._settings = settings_dict
+        # tree = SettingsTree()
+        # self.settings.addWidget(tree)
+
+
         # define variables and datasets
-        parameters_Acq = settings["parameters_Acq"]
+        parameters_Acq = self._settings["parameters_Acq"]
         self.number_of_reads = int(np.ceil(1.0 * parameters_Acq['data_length'] / parameters_Acq['block_size']))
         self.block_size = parameters_Acq['block_size']
         self.elements_left = np.ones(self.number_of_reads)
@@ -104,29 +121,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self._recorded_data = deque()
         self.past_commands = deque()
 
+        self.connect_hardware()
+        self.create_figures()
+        self.connect_controls()
+        self.create_threads()
 
-        # create connections to hardware
-        self.settings = settings
-        self._servo = maestro.Controller(self.settings['serial_port_maestro'])
-        self.beam_block_IR = maestro.BeamBlock(self._servo, self.settings['channel_beam_block_IR'])
-        self.beam_block_Green = maestro.BeamBlock(self._servo, self.settings['channel_beam_block_Green'])
-        self.filterwheel = maestro.FilterWheel(self._servo, **self.settings['parameters_filterwheel'])
-
-        self.servo_polarization = DCServo_Kinesis.TDC001(settings["kinesis_serial_number"])
-
-
-        # =============================================================
-        # ===== NI FPGA ===============================================
-        # =============================================================
-        # connect to FPGA and start it
-        self.fpga = NI.NI7845R()
-        self.fpga.start()
-
-
-        # create PI (proportional integral) controler object
-        self.FPGA_PI = NI.NI_FPGA_PI(self.fpga, **settings["parameters_PI"])
-        self.FPGA_READ_FIFO = NI.NI_FPGA_READ_FIFO(self.fpga, **settings["parameters_Acq"])
-
+    def create_figures(self):
         # fill the empty widgets with a figure
         fig_live = Figure()
         self.canvas_live = FigureCanvas(fig_live)
@@ -145,12 +145,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.axes_psd = fig_psd.add_subplot(111)
         self.axes_psd.set_xlabel('frequency (Hz)')
 
-        # ============================================================
-        # ====== POLARIZATION CONTROL ================================
-
-
-        # feedback_polarization = PI_Controler.PI(set_point = 0, P=1e-6, I=0.0, timestep = 5, output_range = {'min': -3, 'max': 3})
-
+    def create_threads(self):
 
         # ============= threading ====================================
         self._thread_acq = AcquisitionThread(self)
@@ -163,6 +158,30 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self._thread_pol_stab = PolarizationStabilizationThread(self)
 
+    def connect_hardware(self):
+        # create connections to hardware
+
+        self._servo = maestro.Controller(self._settings['serial_port_maestro'])
+        self.beam_block_IR = maestro.BeamBlock(self._servo, self._settings['channel_beam_block_IR'])
+        self.beam_block_Green = maestro.BeamBlock(self._servo, self._settings['channel_beam_block_Green'])
+        self.filterwheel = maestro.FilterWheel(self._servo, **self._settings['parameters_filterwheel'])
+
+        self.servo_polarization = DCServo_Kinesis.TDC001(self._settings["kinesis_serial_number"])
+
+
+        # =============================================================
+        # ===== NI FPGA ===============================================
+        # =============================================================
+        # connect to FPGA and start it
+        self.fpga = NI.NI7845R()
+        self.fpga.start()
+
+
+        # create PI (proportional integral) controler object
+        self.FPGA_PI = NI.NI_FPGA_PI(self.fpga, **self._settings["parameters_PI"])
+        self.FPGA_READ_FIFO = NI.NI_FPGA_READ_FIFO(self.fpga, **self._settings["parameters_Acq"])
+
+    def connect_controls(self):
         # =============================================================
         # ===== LINK WIDGETS TO FUNCTIONS =============================
         # =============================================================
@@ -183,10 +202,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.btn_center.clicked.connect(lambda: self.set_position())
         self.btn_to_zero.clicked.connect(lambda: self.set_position())
 
-        # self.btn_apply.clicked.connect(lambda: self.apply())
-
-        # self.btn_tmp.clicked.connect(lambda: self.tmp())
-
 
         # link checkboxes to functions
         self.checkIRon.stateChanged.connect(lambda: self.control_light())
@@ -194,58 +209,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.checkPIActive.stateChanged.connect(lambda: self.switch_PI_loop())
 
         # link combo box
-        self.cmb_filterwheel.addItems(self.settings['parameters_filterwheel']['position_list'].keys())
+        self.cmb_filterwheel.addItems(self._settings['parameters_filterwheel']['position_list'].keys())
         self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
 
-
-        # self.addItem("top", self.treeWidget_2.invisibleRootItem())
-        print("dfsfas")
-        self.fill_widget(settings)
-
-        # self.editItem(new_item)
-        #
-        # actionEdit = QtGui.QAction("New Folder", self)
-        # actionEdit.triggered.connect(self.addItemAction)
-        #
-        # self.treeWidget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        # self.addAction(actionEdit)
-        #
-        # self.treeWidget.itemDoubleClicked.connect(lambda: self.treeWidget.editItem(self.treeWidget.currentItem()))
-        # self.treeWidget.itemDoubleClicked.connect(lambda: self.treeWidget.editItem(self.treeWidget.currentItem()), QtCore.Qt.QueuedConnection)
-        # self.progressBar.valueChanged.connect(lambda: self.control_light())
-        # model = QtGui.QStandardItemModel(self.listView)
-        # # self.listView.isWrapping = True
-        # item = QtGui.QStandardItem()
-        # item.setText('Item text')
-        # model.appendRow(item)
-        #
-        # item2 = QtGui.QStandardItem()
-        # item2.setText('Item text 2')
-        # model.appendRow(item2)
-        #
-        # self.listView.setModel(model)
-        # self.listView.show()
-
-
-        print(self.windowState() == QtCore.Qt.WindowMinimized)
-
-    def addItem(self, name, parent):
-        self.treeWidget_2.expandItem(parent)
-        item = QtGui.QTreeWidgetItem(parent)
-        item.setText(0, name)
-        #It is important to set the Flag Qt.ItemIsEditable
-        # item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-
-        # item.setIcon(0,self.style().standardIcon(QStyle.SP_DirIcon))
-        return item
 
     def __del__(self):
         '''
         Cleans up connections
         '''
-        self._thread_acq.stop()
-
-        self.fpga.stop()
+        # self._thread_acq.stop()
+        #
+        # self.fpga.stop()
 
     def apply(self):
 
@@ -264,8 +238,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         if progress == 100:
 
-            data_length = settings["parameters_Acq"]["data_length"]
-            time_step = settings["parameters_Acq"]["sample_period_acq"] / 40e6
+            data_length = self._settings["parameters_Acq"]["data_length"]
+            time_step = self._settings["parameters_Acq"]["sample_period_acq"] / 40e6
             freq_step = 1/(time_step * data_length)
 
             print(data_length, time_step, freq_step)
@@ -311,13 +285,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self._recorded_data.append(data_point-2**16)
         else:
             self._recorded_data.append(data_point)
-        if len(self._recorded_data) > settings["record_length"]:
+        if len(self._recorded_data) > self._settings["record_length"]:
             self._recorded_data.popleft()
         self.axes_live.clear()
         self.axes_live.plot(list(self._recorded_data))
-        detector_threshold = settings["detector_threshold"]
-        self.axes_live.plot([0, settings["record_length"]], [detector_threshold, detector_threshold], 'k--')
-        self.axes_live.plot([0, settings["record_length"]], [-detector_threshold, -detector_threshold], 'k--')
+        detector_threshold = self._settings["detector_threshold"]
+        self.axes_live.plot([0, self._settings["record_length"]], [detector_threshold, detector_threshold], 'k--')
+        self.axes_live.plot([0, self._settings["record_length"]], [-detector_threshold, -detector_threshold], 'k--')
         # self.axes.set_ylim([-3000,3000])
         self.canvas_live.draw()
 
@@ -640,6 +614,50 @@ class PolarizationControlThread(QtCore.QThread):
 
 
 
+class SettingsTree(QtGui.QTreeWidget):
+
+    def __init__(self, parent = None):
+        super(SettingsTree, self).__init__(parent)
+        self.setColumnCount(1)
+        self.setHeaderLabel("Settings")
+        self.settings = settings_dict
+        self.style()
+        self.fill_widget(self.settings)
+
+    def fill_widget(self, value):
+
+        def fill_item(item, value):
+            item.setExpanded(True)
+            if type(value) is dict:
+                for key, val in sorted(value.iteritems()):
+                    child = QTreeWidgetItem()
+                    child.setText(0, unicode(key))
+                    item.addChild(child)
+                    fill_item(child, val)
+            elif type(value) is list:
+                for val in value:
+                    child = QTreeWidgetItem()
+                    item.addChild(child)
+                if type(val) is dict:
+                    child.setText(0, '[dict]')
+                    fill_item(child, val)
+                elif type(val) is list:
+                    child.setText(0, '[list]')
+                    fill_item(child, val)
+                else:
+                    child.setText(0, unicode(val))
+                child.setExpanded(True)
+
+                child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+
+            else:
+                child = QTreeWidgetItem()
+                child.setText(0, unicode(value))
+                item.addChild(child)
+                child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+
+        self.clear()
+        fill_item(self.invisibleRootItem(), value)
 
 
 

@@ -203,7 +203,7 @@
      </rect>
     </property>
     <property name="editTriggers">
-     <set>QAbstractItemView::CurrentChanged|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+     <set>QAbstractItemView::AllEditTriggers</set>
     </property>
     <property name="headerHidden">
      <bool>false</bool>
@@ -328,6 +328,23 @@
      </rect>
     </property>
    </widget>
+   <widget class="QWidget" name="tree_settings" native="true">
+    <property name="geometry">
+     <rect>
+      <x>720</x>
+      <y>310</y>
+      <width>221</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <layout class="QVBoxLayout" name="settings"/>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>listView</zorder>
    <zorder>plotWidget</zorder>
@@ -344,6 +361,9 @@
    <zorder>lbl_pol_position</zorder>
    <zorder>btn_plus</zorder>
    <zorder>cmb_filterwheel</zorder>
+   <zorder>widget</zorder>
+   <zorder>widget_2</zorder>
+   <zorder>tree_settings</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
