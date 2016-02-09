@@ -1,7 +1,9 @@
 __author__ = 'Experiment'
 
-import gui_custom_widgets as gui_cw
 from PyQt4 import QtGui
+
+from Archive import gui_custom_widgets as gui_cw
+
 
 def add_zi_layout(self, vbox, plotBox):
     self.ziPlot = gui_cw.MyMplCanvas(self.main_widget, width=5, height=4, dpi=100)

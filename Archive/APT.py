@@ -3,6 +3,7 @@
 
 # This code controls the stepper motor for the Thorlabs filter wheel
 # CODE BROKEN DO NOT USE: device continually disconnects and is otherwise rendered unresponsive
+# Use Kinesis code instead, which operates over .NET
 
 from ctypes import c_long, c_buffer, c_float, windll, pointer
 

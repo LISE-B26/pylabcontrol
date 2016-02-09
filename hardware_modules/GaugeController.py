@@ -33,12 +33,12 @@ NAK = chr(21)  # \x15
 
 class AGC100:
 
-    def __init__(self, port = 2, timeout = 1):
+    def __init__(self, port="COM2", timeout=1):
         # The serial connection should be setup with the following parameters:
         # 1 start bit, 8 data bits, No parity bit, 1 stop bit, no hardware
         # handshake. These are all default for Serial and therefore not input
         # below
-        self.ser = serial.Serial(port = port, timeout = timeout)
+        self.ser = serial.Serial(port=port, timeout=timeout)
 
     # checks the controller's response for errors
     def checkAcknowledgement(self, response):
