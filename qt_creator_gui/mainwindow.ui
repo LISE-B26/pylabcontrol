@@ -2,50 +2,29 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
-  <property name="enabled">
-   <bool>true</bool>
-  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1150</width>
-    <height>698</height>
+    <width>992</width>
+    <height>736</height>
    </rect>
   </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
-  </property>
   <property name="windowTitle">
-   <string>B26 - Control Center</string>
-  </property>
-  <property name="windowOpacity">
-   <double>-6.000000000000000</double>
+   <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QListView" name="listView">
     <property name="geometry">
      <rect>
-      <x>720</x>
+      <x>730</x>
       <y>30</y>
-      <width>351</width>
-      <height>251</height>
+      <width>251</width>
+      <height>221</height>
      </rect>
     </property>
-    <property name="contextMenuPolicy">
-     <enum>Qt::NoContextMenu</enum>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::NoFrame</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
-    </property>
    </widget>
-   <widget class="QWidget" name="plotWidget_live" native="true">
+   <widget class="QWidget" name="plotWidget" native="true">
     <property name="geometry">
      <rect>
       <x>280</x>
@@ -113,22 +92,6 @@
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
     </property>
-    <property name="invertedAppearance">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QProgressBar" name="progressBar">
-    <property name="geometry">
-     <rect>
-      <x>430</x>
-      <y>620</y>
-      <width>171</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="value">
-     <number>0</number>
-    </property>
    </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
@@ -170,111 +133,10 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLabel" name="lbl_detector_signal">
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>260</y>
-      <width>47</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Det.Signal</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_plus">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>260</y>
-      <width>21</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>+</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_minus">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>260</y>
-      <width>21</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>-</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="cmb_filterwheel">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>100</y>
-      <width>69</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_start_record_fpga">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>620</y>
-      <width>131</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Record Data (FPGA)</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_apply">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>200</y>
-      <width>131</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>apply</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_center">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>260</y>
-      <width>21</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>|</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="lbl_pol_position">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>240</y>
-      <width>47</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Pol.Pos</string>
-    </property>
-   </widget>
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>300</x>
       <y>310</y>
       <width>411</width>
       <height>301</height>
@@ -328,55 +190,16 @@
      </widget>
     </widget>
    </widget>
-   <widget class="QPushButton" name="btn_start_record_fpga_2">
-    <property name="geometry">
-     <rect>
-      <x>600</x>
-      <y>620</y>
-      <width>91</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Save to disk</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>160</y>
-      <width>47</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>P gain</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>180</y>
-      <width>47</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>I gain</string>
-    </property>
-   </widget>
    <widget class="QTreeWidget" name="treeWidget">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>20</x>
       <y>310</y>
       <width>261</width>
-      <height>221</height>
+      <height>301</height>
      </rect>
     </property>
     <property name="editTriggers">
@@ -391,73 +214,143 @@
      </property>
     </column>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QProgressBar" name="progressBar">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>150</y>
-      <width>135</width>
-      <height>48</height>
+      <x>440</x>
+      <y>620</y>
+      <width>171</width>
+      <height>23</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QLineEdit" name="txt_P_gain">
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="txt_I_gain">
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <property name="value">
+     <number>0</number>
+    </property>
    </widget>
-   <widget class="QRadioButton" name="radioButton">
+   <widget class="QPushButton" name="btn_start_record_fpga_2">
     <property name="geometry">
      <rect>
-      <x>800</x>
-      <y>370</y>
-      <width>82</width>
-      <height>17</height>
+      <x>610</x>
+      <y>620</y>
+      <width>91</width>
+      <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>RadioButton</string>
+     <string>Save to disk</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_start_record_fpga">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>620</y>
+      <width>131</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Record Data (FPGA)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_minus">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>260</y>
+      <width>21</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_center">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>260</y>
+      <width>21</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>|</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lbl_detector_signal">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>260</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Det.Signal</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lbl_pol_position">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>240</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Pol.Pos</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_plus">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>260</y>
+      <width>21</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>+</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cmb_filterwheel">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>20</y>
+      <width>69</width>
+      <height>22</height>
+     </rect>
     </property>
    </widget>
    <zorder>layoutWidget</zorder>
-   <zorder>layoutWidget</zorder>
    <zorder>listView</zorder>
-   <zorder>plotWidget_live</zorder>
+   <zorder>plotWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>sliderPosition</zorder>
-   <zorder>progressBar</zorder>
-   <zorder>lbl_detector_signal</zorder>
-   <zorder>btn_plus</zorder>
-   <zorder>btn_minus</zorder>
-   <zorder>cmb_filterwheel</zorder>
-   <zorder>btn_start_record_fpga</zorder>
-   <zorder>btn_apply</zorder>
-   <zorder>btn_center</zorder>
-   <zorder>lbl_pol_position</zorder>
    <zorder>tabWidget</zorder>
-   <zorder>btn_start_record_fpga_2</zorder>
-   <zorder>label</zorder>
-   <zorder>label_2</zorder>
    <zorder>treeWidget</zorder>
-   <zorder>radioButton</zorder>
+   <zorder>progressBar</zorder>
+   <zorder>btn_start_record_fpga_2</zorder>
+   <zorder>btn_start_record_fpga</zorder>
+   <zorder>btn_minus</zorder>
+   <zorder>btn_center</zorder>
+   <zorder>lbl_detector_signal</zorder>
+   <zorder>lbl_pol_position</zorder>
+   <zorder>btn_plus</zorder>
+   <zorder>cmb_filterwheel</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1150</width>
+     <width>992</width>
      <height>21</height>
     </rect>
    </property>

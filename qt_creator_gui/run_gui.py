@@ -183,7 +183,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.btn_center.clicked.connect(lambda: self.set_position())
         self.btn_to_zero.clicked.connect(lambda: self.set_position())
 
-        self.btn_apply.clicked.connect(lambda: self.apply())
+        # self.btn_apply.clicked.connect(lambda: self.apply())
 
         # self.btn_tmp.clicked.connect(lambda: self.tmp())
 
@@ -203,13 +203,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.fill_widget(settings)
 
         # self.editItem(new_item)
-
+        #
         # actionEdit = QtGui.QAction("New Folder", self)
         # actionEdit.triggered.connect(self.addItemAction)
-        # QtGui.QTreeWidget.
+        #
         # self.treeWidget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         # self.addAction(actionEdit)
-
+        #
         # self.treeWidget.itemDoubleClicked.connect(lambda: self.treeWidget.editItem(self.treeWidget.currentItem()))
         # self.treeWidget.itemDoubleClicked.connect(lambda: self.treeWidget.editItem(self.treeWidget.currentItem()), QtCore.Qt.QueuedConnection)
         # self.progressBar.valueChanged.connect(lambda: self.control_light())
