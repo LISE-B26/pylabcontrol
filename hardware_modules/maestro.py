@@ -40,7 +40,7 @@ class Controller:
         self.Maxs = [0] * 24
 
     # Cleanup by closing USB serial port
-    def close(self):
+    def __del__(self):
         self.usb.close()
 
     # Set channels min and max value range.  Use this as a safety to protect
@@ -197,10 +197,12 @@ class FilterWheel:
         self.position_list = position_list
 
     def goto(self, position):
+
         if position in self.position_list:
             self.servo.setTarget(self.channel, self.position_list[position])
         else:
             print('position {:s} is not a valid position. Position of filter wheel not changed!'.format(position))
+            print('valid positions are', self.position_list.keys())
 
 class Motor:
     def __init__(self,servo, channel):

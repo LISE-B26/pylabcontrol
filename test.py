@@ -1,64 +1,59 @@
-from PySide import QtCore, QtGui
-import time
+import sys, os
+from PySide.QtCore import *
+from PySide.QtGui import *
 
+class TreeTest(QTreeWidget):
 
-class Ui_Dialog(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(400, 133)
-        self.progressBar = QtGui.QProgressBar(Dialog)
-        self.progressBar.setGeometry(QtCore.QRect(20, 10, 361, 23))
-        self.progressBar.setProperty("value", 24)
-        self.progressBar.setObjectName("progressBar")
-        self.pushButton = QtGui.QPushButton(Dialog)
-        self.pushButton.setGeometry(QtCore.QRect(20, 40, 361, 61))
-        self.pushButton.setObjectName("pushButton")
+    def __init__(self, parent = None):
+        super(TreeTest, self).__init__(parent)
+        self.setColumnCount(1)
+        self.setHeaderLabel("Folders")
 
-        self.worker = Worker()
-        self.worker.updateProgress.connect(self.setProgress)
+        # actionEdit = QAction("New Folder", self)
+        # actionEdit.triggered.connect(self.addItemAction)
+        # self.setContextMenuPolicy(Qt.ActionsContextMenu)
+        # self.addAction(actionEdit)
+        #
+        # actionDelete = QAction("Delete", self)
+        # actionDelete.triggered.connect(self.deleteItem)
+        # self.addAction(actionDelete)
 
-        self.retranslateUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
+        self.style()
 
-        self.progressBar.minimum = 1
-        self.progressBar.maximum = 100
+    def addItem(self, name, parent):
+        self.expandItem(parent)
+        item = QTreeWidgetItem(parent)
+        item.setText(0, name)
+        #It is important to set the Flag Qt.ItemIsEditable
+        item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
 
-    def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton.setText(QtGui.QApplication.translate("Dialog", "PushButton", None, QtGui.QApplication.UnicodeUTF8))
-        self.progressBar.setValue(0)
-        self.pushButton.clicked.connect(self.worker.start)
+        # item.setIcon(0,self.style().standardIcon(QStyle.SP_DirIcon))
+        return item
+    #
+    # def addItemAction(self):
+    #     parent = self.currentItem()
+    #     if parent is None:
+    #         parent = self.invisibleRootItem()
+    #     new_item = self.addItem("New Folder", parent)
+    #     self.editItem(new_item)
+    #
+    # def deleteItem(self):
+    #     root = self.invisibleRootItem()
+    #     for item in self.selectedItems():
+    #         (item.parent() or root).removeChild(item)
 
-    def setProgress(self, progress):
-        self.progressBar.setValue(progress)
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    test = QWidget()
+    treeWidget = TreeTest()
+    layout = QHBoxLayout()
+    layout.addWidget(treeWidget)
 
-#Inherit from QThread
-class Worker(QtCore.QThread):
+    test.setLayout(layout)
+    test.show()
 
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = QtCore.Signal(int)
+    treeWidget.addItem("top", treeWidget.invisibleRootItem())
+    item = treeWidget.addItem("item", treeWidget.invisibleRootItem())
+    treeWidget.addItem("subitem", item)
 
-    #You can do any extra things in this init you need, but for this example
-    #nothing else needs to be done expect call the super's init
-    def __init__(self):
-        QtCore.QThread.__init__(self)
-
-    #A QThread is run by calling it's start() function, which calls this run()
-    #function in it's own "thread".
-    def run(self):
-        #Notice this is the same thing you were doing in your progress() function
-        for i in range(1, 101):
-            #Emit the signal so it can be received on the UI side.
-            self.updateProgress.emit(i)
-            time.sleep(0.1)
-
-if __name__ == "__main__":
-    import sys
-    app = QtGui.QApplication(sys.argv)
-    Dialog = QtGui.QDialog()
-    ui = Ui_Dialog()
-    ui.setupUi(Dialog)
-    Dialog.show()
-    sys.exit(app.exec_())
+    app.exec_()

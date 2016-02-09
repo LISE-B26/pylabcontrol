@@ -10,11 +10,9 @@ higher level Python objects, for an example how to use them see run_NI_FPGA_PID.
 from ctypes import c_uint32, c_int32
 import helper_functions.sgl2int as sgl2int
 import lib.FPGA_PID_Loop_Simple_lib_Wrapper as FPGAlib
-import numpy as numpy
-
-import threading
-import time
 import Queue as queue
+import numpy as np
+from PySide import QtCore
 
 class NI7845R(object):
     session = c_uint32()
@@ -167,7 +165,7 @@ class NI_FPGA_PI(object):
         self._loop_time_PI = getattr(FPGAlib, 'read_LoopTicksPID')(self._fpga.session, self._fpga.status)
         return self._loop_time_PI
 
-class NI_FPGA_READ_FIFO(object):
+class NI_FPGA_READ_FIFO(QtCore.QThread):
 
     def __init__(self, fpga, data_length, sample_period_acq, block_size = 2 ** 16, timeout_buffer = 100, data_queue=None):
         '''
@@ -187,19 +185,24 @@ class NI_FPGA_READ_FIFO(object):
         self._status = {}
         self._acquisition_running = False
 
-        getattr(FPGAlib, 'set_ElementsToWrite') (self._data_length, self._fpga.session, self._fpga.status)
+        QtCore.QThread.__init__(self)
 
-        self.thread = None
+        getattr(FPGAlib, 'set_ElementsToWrite') (self._data_length, self._fpga.session, self._fpga.status)
 
         if data_queue is None:
             self.data_queue = queue.Queue()
         else:
             self.data_queue = data_queue
 
-
     # ===================================================================================
     # ========= PROPETIES ===============================================================
     # ===================================================================================
+
+    @property
+    def number_of_reads(self):
+        self._number_of_reads = int(np.ceil(1.0 * self.data_length / self.block_size))
+        return self._number_of_reads
+
     @property
     def timeout_buffer(self):
         '''
@@ -270,25 +273,6 @@ class NI_FPGA_READ_FIFO(object):
     def configure_fifo(self, fifo_size):
         return FPGAlib.configure_FIFO_AI(fifo_size, self._fpga.session, self._fpga.status)
 
-    def start_acquisition(self):
-        if not self._acquisition_running:
-            self._acquisition_running = True
-            self.start_fifo()
-
-            self.thread = threading.Thread(target=self.run)
-            self.thread.start()
-
-            getattr(FPGAlib, "set_AcquireData") (True, self._fpga.session, self._fpga.status)
-
-
-    def stop_acquisition(self):
-        if self._acquisition_running:
-            self._acquisition_running = False
-            getattr(FPGAlib, "set_AcquireData") (False, self._fpga.session, self._fpga.status)
-            self.thread.join(5) # timeout after 5 seconds
-            self._status['FIFOReadTimeOut'] = self.thread.is_alive()
-            self.stop_fifo()
-
     def read_fifo_block(self):
         '''
         read a block of data from the FIFO
@@ -300,11 +284,15 @@ class NI_FPGA_READ_FIFO(object):
     def run(self):
         '''
         queue to read data from fifo
-        :return:
         '''
-        # the first block is weird sometimes, drop it
-        # self.read_fifo_block()
-        while self._acquisition_running:
-            data = self.read_fifo_block()
 
+        # reset FIFO
+        self.start_fifo()
+        # toggle boolean to start acquisition
+        getattr(FPGAlib, "set_AcquireData") (True, self._fpga.session, self._fpga.status)
+
+        for i in range(self.number_of_reads):
+            data = self.read_fifo_block()
+            # todo: emit signal
             self.data_queue.put(data)
+
