@@ -145,7 +145,7 @@
     <property name="currentIndex">
      <number>1</number>
     </property>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="tab_timetrace">
      <attribute name="title">
       <string>TimeTrace</string>
      </attribute>
@@ -167,7 +167,7 @@
       <layout class="QVBoxLayout" name="plot_data_timetrace"/>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="QWidget" name="tab_psd">
      <attribute name="title">
       <string>Spectrum</string>
      </attribute>
@@ -213,6 +213,19 @@
       <string>Settings</string>
      </property>
     </column>
+    <item>
+     <property name="text">
+      <string>New Item</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>New Subitem</string>
+      </property>
+      <property name="flags">
+       <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+      </property>
+     </item>
+    </item>
    </widget>
    <widget class="QProgressBar" name="progressBar">
     <property name="geometry">
@@ -321,8 +334,8 @@
    <widget class="QComboBox" name="cmb_filterwheel">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>20</y>
+      <x>10</x>
+      <y>100</y>
       <width>69</width>
       <height>22</height>
      </rect>
@@ -331,7 +344,7 @@
    <widget class="QWidget" name="tree_settings" native="true">
     <property name="geometry">
      <rect>
-      <x>720</x>
+      <x>740</x>
       <y>310</y>
       <width>221</width>
       <height>281</height>

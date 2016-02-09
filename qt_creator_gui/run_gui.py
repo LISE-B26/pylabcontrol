@@ -27,13 +27,14 @@ import hardware_modules.DCServo_Kinesis_dll as DCServo_Kinesis
 # from matplotlib.figure import Figure
 # from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 
-from PyQt4.uic import loadUiType
+
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar)
 
+from PyQt4.uic import loadUiType
 Ui_MainWindow, QMainWindow = loadUiType('mainwindow.ui') # with this we don't have to convert the .ui file into a python file!
 # from qt_creator_gui.mainwindow import Ui_MainWindow # with this we have to first compile (pyside-uic mainwindow.ui -o mainwindow.py)
 
@@ -109,6 +110,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self._settings = settings_dict
         # tree = SettingsTree()
         # self.settings.addWidget(tree)
+        # Ui_MainWindow.treeWidget
+
+
+        # item_2 = QtGui.QTreeWidgetItem(self.treeWidget)
+        # item_3 = QtGui.QTreeWidgetItem(item_2)
+        # item_3.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
 
 
         # define variables and datasets
