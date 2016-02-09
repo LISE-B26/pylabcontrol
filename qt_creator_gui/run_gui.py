@@ -69,8 +69,8 @@ settings_dict = {
     },
     "parameters_Acq" : {
         "sample_period_acq" : 100,
-        "data_length" : 2000,
-        "block_size" : 100
+        "data_length" : 10000,
+        "block_size" : 1000
     },
     "kinesis_serial_number" : 83832028,
     "detector_threshold" : 50
@@ -107,16 +107,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self._settings = settings_dict
 
 
-        self._settings = settings_dict
-        # tree = SettingsTree()
-        # self.settings.addWidget(tree)
-        # Ui_MainWindow.treeWidget
-
-
-        # item_2 = QtGui.QTreeWidgetItem(self.treeWidget)
-        # item_3 = QtGui.QTreeWidgetItem(item_2)
-        # item_3.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
-
+        self.fill_treeWidget(self.treeWidget, self._settings)
 
         # define variables and datasets
         parameters_Acq = self._settings["parameters_Acq"]
@@ -224,9 +215,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         '''
         Cleans up connections
         '''
-        # self._thread_acq.stop()
-        #
-        # self.fpga.stop()
+        self._thread_acq.stop()
+
+        self.fpga.stop()
 
     def apply(self):
 
@@ -390,7 +381,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.FPGA_PI.status_PI = status_PI_loop
         self.log("Feedback stabilization on: {:s}".format(str(status_PI_loop)),1000)
 
-    def fill_widget(self, value):
+    def fill_treeWidget(self, QTreeWidget, value):
 
         def fill_item(item, value):
             item.setExpanded(True)
@@ -416,23 +407,70 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 child.setExpanded(True)
                 # child.setFlags(QtCore.Qt.ItemIsEditable)
                 # child.setFlags(QtCore.Qt.ItemIsEnabled)
-                print(unicode(val))
-                # item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+                child.setFlags(child.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
 
 
             else:
-                child = QtGui.QTreeWidgetItem()
-                child.setText(0, unicode(value))
-                item.addChild(child)
-                print(unicode(value))
-                # child.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-                # child.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-                #
-            # item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-            # item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
+                # child = QtGui.QTreeWidgetItem()
+                item.setText(1, unicode(value))
+                # item.addChild(child)
+                print(value)
+                item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
 
-        self.treeWidget.clear()
-        fill_item(self.treeWidget.invisibleRootItem(), value)
+                # child = QtGui.QTreeWidgetItem()
+                # child.setText(0, unicode(value))
+                # item.addChild(child)
+                # print(value)
+                # child.setFlags(child.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+
+
+        QTreeWidget.clear()
+        fill_item(QTreeWidget.invisibleRootItem(), value)
+
+        QTreeWidget.setColumnWidth(0,200)
+    #
+    # def fill_widget(self, value):
+    #
+    #     def fill_item(item, value):
+    #         item.setExpanded(True)
+    #         if type(value) is dict:
+    #             for key, val in sorted(value.iteritems()):
+    #                 child = QtGui.QTreeWidgetItem()
+    #                 child.setText(0, unicode(key))
+    #                 item.addChild(child)
+    #
+    #                 fill_item(child, val)
+    #         elif type(value) is list:
+    #             for val in value:
+    #                 child = QtGui.QTreeWidgetItem()
+    #                 item.addChild(child)
+    #             if type(val) is dict:
+    #                 child.setText(0, '[dict]')
+    #                 fill_item(child, val)
+    #             elif type(val) is list:
+    #                 child.setText(0, '[list]')
+    #                 fill_item(child, val)
+    #             else:
+    #                 child.setText(0, unicode(val))
+    #             child.setExpanded(True)
+    #             # child.setFlags(QtCore.Qt.ItemIsEditable)
+    #             # child.setFlags(QtCore.Qt.ItemIsEnabled)
+    #             child.setFlags(child.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+    #
+    #
+    #         else:
+    #             child = QtGui.QTreeWidgetItem()
+    #             child.setText(0, unicode(value))
+    #             item.addChild(child)
+    #             child.setFlags(child.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+    #             # child.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
+    #             # child.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
+    #             #
+    #         # item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
+    #         # item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
+    #
+    #     self.treeWidget.clear()
+    #     fill_item(self.treeWidget.invisibleRootItem(), value)
 
 
 
@@ -461,7 +499,7 @@ class PolarizationStabilizationThread(QtCore.QThread):
         detector_value_zero = False
         max_iter = 100
         count = 1
-        detector_threshold = settings["detector_threshold"]
+        detector_threshold = settings_dict["detector_threshold"]
 
         while detector_value_zero == False:
             detector_value = self.ControlMainWindow._recorded_data[-1]

@@ -106,6 +106,7 @@ class Ui_MainWindow(object):
         self.treeWidget.setHeaderHidden(False)
         self.treeWidget.setObjectName("treeWidget")
         item_0 = QtGui.QTreeWidgetItem(self.treeWidget)
+        item_1.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
         item_1 = QtGui.QTreeWidgetItem(item_0)
         item_1.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
         self.progressBar = QtGui.QProgressBar(self.centralwidget)

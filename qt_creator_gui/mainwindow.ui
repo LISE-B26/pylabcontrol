@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>992</width>
+    <width>1166</width>
     <height>736</height>
    </rect>
   </property>
@@ -143,7 +143,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_timetrace">
      <attribute name="title">
@@ -189,43 +189,6 @@
       <layout class="QVBoxLayout" name="plot_data_psd"/>
      </widget>
     </widget>
-   </widget>
-   <widget class="QTreeWidget" name="treeWidget">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>310</y>
-      <width>261</width>
-      <height>301</height>
-     </rect>
-    </property>
-    <property name="editTriggers">
-     <set>QAbstractItemView::AllEditTriggers</set>
-    </property>
-    <property name="headerHidden">
-     <bool>false</bool>
-    </property>
-    <column>
-     <property name="text">
-      <string>Settings</string>
-     </property>
-    </column>
-    <item>
-     <property name="text">
-      <string>New Item</string>
-     </property>
-     <item>
-      <property name="text">
-       <string>New Subitem</string>
-      </property>
-      <property name="flags">
-       <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
-      </property>
-     </item>
-    </item>
    </widget>
    <widget class="QProgressBar" name="progressBar">
     <property name="geometry">
@@ -341,22 +304,46 @@
      </rect>
     </property>
    </widget>
-   <widget class="QWidget" name="tree_settings" native="true">
+   <widget class="QTreeWidget" name="treeWidget">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>740</x>
-      <y>310</y>
-      <width>221</width>
-      <height>281</height>
+      <x>0</x>
+      <y>320</y>
+      <width>261</width>
+      <height>301</height>
      </rect>
     </property>
     <property name="sizePolicy">
-     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
-    <layout class="QVBoxLayout" name="settings"/>
+    <property name="editTriggers">
+     <set>QAbstractItemView::AllEditTriggers</set>
+    </property>
+    <property name="headerHidden">
+     <bool>false</bool>
+    </property>
+    <attribute name="headerDefaultSectionSize">
+     <number>150</number>
+    </attribute>
+    <attribute name="headerHighlightSections">
+     <bool>true</bool>
+    </attribute>
+    <column>
+     <property name="text">
+      <string>Parameter</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Value</string>
+     </property>
+    </column>
    </widget>
    <zorder>layoutWidget</zorder>
    <zorder>listView</zorder>
@@ -364,7 +351,6 @@
    <zorder>layoutWidget</zorder>
    <zorder>sliderPosition</zorder>
    <zorder>tabWidget</zorder>
-   <zorder>treeWidget</zorder>
    <zorder>progressBar</zorder>
    <zorder>btn_start_record_fpga_2</zorder>
    <zorder>btn_start_record_fpga</zorder>
@@ -376,14 +362,14 @@
    <zorder>cmb_filterwheel</zorder>
    <zorder>widget</zorder>
    <zorder>widget_2</zorder>
-   <zorder>tree_settings</zorder>
+   <zorder>treeWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>992</width>
+     <width>1166</width>
      <height>21</height>
     </rect>
    </property>
