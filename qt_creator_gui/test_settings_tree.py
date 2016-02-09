@@ -10,8 +10,8 @@ Created on Feb 2 2016
 import sys
 # todo: resolve issue with namespace (get rid of from PySide.QtCore import * and from PySide.QtGui import *)
 from PySide import QtCore, QtGui
-from PySide.QtCore import *
-from PySide.QtGui import *
+#from PySide.QtCore import *
+#from PySide.QtGui import *
 
 
 from matplotlib.figure import Figure
@@ -78,8 +78,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         parent = QtGui.QTreeWidgetItem(self.treeWidget)
         parent.setText(0, "parent")
+
+
         item = QtGui.QTreeWidgetItem(parent)
         item.setText(0, 'ada')
+        item_flags = item.flags()
+        item_flags = item_flags | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEditable
+        item.setFlags(item_flags)
 
         # self.fill_widget(self.treeWidget,  settings_dict)
 
