@@ -203,7 +203,7 @@
      <number>0</number>
     </property>
    </widget>
-   <widget class="QPushButton" name="btn_start_record_fpga_2">
+   <widget class="QPushButton" name="btn_save_to_disk">
     <property name="geometry">
      <rect>
       <x>1040</x>
@@ -345,6 +345,19 @@
      </property>
     </column>
    </widget>
+   <widget class="QPushButton" name="btn_apply_settings">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>630</y>
+      <width>131</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>apply</string>
+    </property>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>listView</zorder>
    <zorder>plotWidget</zorder>
@@ -352,7 +365,7 @@
    <zorder>sliderPosition</zorder>
    <zorder>tabWidget</zorder>
    <zorder>progressBar</zorder>
-   <zorder>btn_start_record_fpga_2</zorder>
+   <zorder>btn_save_to_disk</zorder>
    <zorder>btn_start_record_fpga</zorder>
    <zorder>btn_minus</zorder>
    <zorder>btn_center</zorder>
@@ -363,6 +376,7 @@
    <zorder>widget</zorder>
    <zorder>widget_2</zorder>
    <zorder>treeWidget</zorder>
+   <zorder>btn_apply_settings</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

@@ -20,14 +20,6 @@ from PySide.QtGui import *
 import hardware_modules.maestro as maestro
 
 import hardware_modules.DCServo_Kinesis_dll as DCServo_Kinesis
-# import to plot stuff
-# import matplotlib
-# matplotlib.use('Qt4Agg')
-# matplotlib.rcParams['backend.qt4']='PySide'
-# from matplotlib.figure import Figure
-# from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-
-
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
@@ -108,17 +100,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self._settings = settings_dict
 
-
         self.fill_treeWidget(self.treeWidget, self._settings)
 
-        # define variables and datasets
-        parameters_Acq = self._settings["parameters_Acq"]
-        self.number_of_reads = int(np.ceil(1.0 * parameters_Acq['data_length'] / parameters_Acq['block_size']))
-        self.block_size = parameters_Acq['block_size']
-        self.elements_left = np.ones(self.number_of_reads)
-        self.data_AI1 = np.ones((self.number_of_reads, self.block_size))
-
         self._recorded_data = deque()
+        self._fifo_data = deque()
         self.past_commands = deque()
 
         self.connect_hardware()
@@ -205,6 +190,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.btn_to_zero.clicked.connect(lambda: self.set_position())
 
 
+        self.btn_apply_settings.clicked.connect(lambda: self.apply_settings())
         # link checkboxes to functions
         self.checkIRon.stateChanged.connect(lambda: self.control_light())
         self.checkGreenon.stateChanged.connect(lambda: self.control_light())
@@ -225,17 +211,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.fpga.stop()
 
-    def apply(self):
+    def apply_settings(self):
 
-
-        self._gains = {'proportional': float(self.txt_P_gain.text()), 'integral':float(self.txt_I_gain.text())}
-
+        parameters_Acq = self._settings["parameters_PI"]
+        gains = parameters_Acq['gains']
+        print(gains)
         # assert self._gains['proportional'].isnumeric(), "proportional gain not a valid number"
         # assert self._gains['integral'].isnumeric(), "integral gain not a valid number"
 
-        self.FPGA_PI.gains = self._gains
+        # self.FPGA_PI.gains = self._gains
 
-        self.log("applied new gains {:0.3f}, {:0.3f}" .format(self._gains['proportional'], self._gains['integral']),1000)
+        self.log("applied new gains {:0.3f}, {:0.3f}" .format(gains['proportional'],gains['integral']),1000)
 
     def update_parameters(self):
         '''
@@ -243,7 +229,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         this function updates the dictionary that holds all the parameter
         :return:
         '''
-
+        print(self.treeWidget.currentItem())
         parameter = str(self.treeWidget.currentItem().text(0))
         value = unicode(self.treeWidget.currentItem().text(1))
         parents = []
@@ -252,7 +238,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         else:
             parent = self.treeWidget.currentItem().parent()
             while parent != None:
-                # print(str(parent.text(0)))
                 parents.insert(0,str(parent.text(0)))
                 parent = parent.parent()
             try:
@@ -262,6 +247,20 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     print i
                     dictator = dictator[i]
                 value_old = dictator[parameter]
+
+                dictator = settings_dict
+                for i in parents:
+                    print i
+                    dictator = dictator[i]
+                value_default = dictator[parameter]
+                print("parameter_type", type(value_default))
+
+                if isinstance(value_default, int):
+                    value = int(value)
+                elif isinstance(value_default, float):
+                    value = float(value)
+                else:
+                    print("WARNING, TYPE NOT RECOGNIZED!!!!")
                 dictator.update({parameter : value})
 
                 # self._settings.update({parameter : float(value)})
@@ -269,8 +268,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             except:
                 print "Unexpected error:", sys.exc_info()[0]
                 raise
-            print(self._settings)
-            print(parents)
+
 
     def assert_parameters(self, parameter, value):
         '''
@@ -310,7 +308,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def update_status(self, progress):
         self.progressBar.setValue(progress)
         if progress == 100:
-            self.update_plot_2()
+            self.update_plot_fifo()
 
     def update_plot_live(self, data_point):
         if data_point > 2**15:
@@ -324,23 +322,22 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         detector_threshold = self._settings["detector_threshold"]
         self.axes_live.plot([0, self._settings["record_length"]], [detector_threshold, detector_threshold], 'k--')
         self.axes_live.plot([0, self._settings["record_length"]], [-detector_threshold, -detector_threshold], 'k--')
-        # self.axes.set_ylim([-3000,3000])
+
         self.canvas_live.draw()
 
         self.lbl_detector_signal.setText("{:d}".format(self._recorded_data[-1]))
 
-    def update_plot_2(self):
+    def update_plot_fifo(self):
 
 
-        data_length = self._settings["parameters_Acq"]["data_length"]
-        time_step = self._settings["parameters_Acq"]["sample_period_acq"] / 40e6
+        data_length = len(np.array(self._fifo_data).flatten())
+        print("===>> len data", data_length)
+        time_step = int(self._settings["parameters_Acq"]["sample_period_acq"]) / 40e6
         freq_step = 1/(time_step * data_length)
-
-        print(data_length, time_step, freq_step)
 
         self.axes_timetrace.clear()
         times = 1e3 * np.linspace(0,time_step,data_length)
-        self.axes_timetrace.plot(times, self.data_AI1.flatten())
+        self.axes_timetrace.plot(times, np.array(self._fifo_data).flatten())
 
         self.canvas_timetrace.draw()
         self.log("FIFO acq. completed",1000)
@@ -350,7 +347,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         freqs = np.linspace(0,freq_step * data_length / 2,data_length/2)
 
-        self.data_PSD = np.abs(np.fft.fft(self.data_AI1.flatten()))**2
+        self.data_PSD = np.abs(np.fft.fft(np.array(self._fifo_data).flatten()))**2
         self.data_PSD = self.data_PSD[range(data_length/2)]
 
         self.axes_psd.clear()
@@ -373,20 +370,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.listView.setModel(model)
         self.listView.show()
 
-
-
-
-    # def update_position(self, value):
-    #     print("position {:0.02f}".format(value))
-    #     self.log("position {:0.02f}".format(value),1000)
-
     def clear_plot(self):
         self._recorded_data.clear()
         self.axes_live.clear()
         self.canvas_live.draw()
         self.log("Cleared Data",1000)
-    # def setProgress(self, progress):
-    #     self.progressBar.setValue(progress)
 
 
     def record(self):
@@ -399,7 +387,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         elif sender.objectName() == "btn_clear_record":
             self.clear_plot()
         elif sender.objectName() == "btn_start_record_fpga":
-            print('start FIFO thread')
+            # define variables and datasets
+            # parameters_Acq = self._settings["parameters_Acq"]
+            # number_of_reads = np.ceil(1.0 * int(parameters_Acq['data_length']) / int(parameters_Acq['block_size']))
+            # block_size = parameters_Acq['block_size']
+            # self.elements_left = np.ones(number_of_reads)
+
+            # self.FPGA_READ_FIFO.data_length = int(self._settings['parameters_Acq']['block_size'])
+            # self.FPGA_READ_FIFO.data_length = int(self._settings['parameters_Acq']['data_length'])
             self._thread_acq_fifo.start()
         else:
             print('unknown sender: ', sender.objectName())
@@ -616,30 +611,34 @@ class AcquisitionFIFOThread(QtCore.QThread):
         print("created AcquisitionFIFOThread")
         self._recording = False
         self._FPGA_READ_FIFO = ControlMainWindow.FPGA_READ_FIFO
-        self.data_AI1 = ControlMainWindow.data_AI1
-        self.number_of_reads = ControlMainWindow.number_of_reads
-        self.block_size = ControlMainWindow.block_size
-        self.elements_left = ControlMainWindow.elements_left
+
+        self.parameters_Acq = ControlMainWindow._settings["parameters_Acq"]
+        self.data = ControlMainWindow._fifo_data
 
         QtCore.QThread.__init__(self)
 
     #A QThread is run by calling it's start() function, which calls this run()
     #function in it's own "thread".
     def run(self):
+
+        number_of_reads = int(np.ceil(1.0 * int(self.parameters_Acq['data_length']) / int(self.parameters_Acq['block_size']) ))
+        self.elements_left = np.ones(number_of_reads)
+        print(number_of_reads)
         self._recording = True
+        self.data.clear()
         self._FPGA_READ_FIFO.start()
 
-        print("self.number_of_reads",self.number_of_reads)
-        for i in range(self.number_of_reads):
+        for i in range(number_of_reads):
             print(i)
             fifo_data =self._FPGA_READ_FIFO.data_queue.get()
-            self.data_AI1[i,:] =  np.array(fifo_data[0])
+            self.data.append(np.array(fifo_data[0]))
             self.elements_left[i] = int(fifo_data[2])
-            progress = int(100 * (i+1)  / self.number_of_reads)
+            print(fifo_data[2])
+            progress = int(100 * (i+1)  / number_of_reads)
+
             self.updateProgress.emit(progress)
 
         self._recording = False
-        print("FIFO acquisition ended")
     def stop(self):
         self._recording = False
 
@@ -686,50 +685,50 @@ class PolarizationControlThread(QtCore.QThread):
 
 
 
-class SettingsTree(QtGui.QTreeWidget):
-
-    def __init__(self, parent = None):
-        super(SettingsTree, self).__init__(parent)
-        self.setColumnCount(1)
-        self.setHeaderLabel("Settings")
-        self.settings = settings_dict
-        self.style()
-        self.fill_widget(self.settings)
-
-    def fill_widget(self, value):
-
-        def fill_item(item, value):
-            item.setExpanded(True)
-            if type(value) is dict:
-                for key, val in sorted(value.iteritems()):
-                    child = QTreeWidgetItem()
-                    child.setText(0, unicode(key))
-                    item.addChild(child)
-                    fill_item(child, val)
-            elif type(value) is list:
-                for val in value:
-                    child = QTreeWidgetItem()
-                    item.addChild(child)
-                if type(val) is dict:
-                    child.setText(0, '[dict]')
-                    fill_item(child, val)
-                elif type(val) is list:
-                    child.setText(0, '[list]')
-                    fill_item(child, val)
-                else:
-                    child.setText(0, unicode(val))
-                child.setExpanded(True)
-
-                child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
-
-            else:
-                child = QTreeWidgetItem()
-                child.setText(0, unicode(value))
-                item.addChild(child)
-                child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
-
-        self.clear()
-        fill_item(self.invisibleRootItem(), value)
+# class SettingsTree(QtGui.QTreeWidget):
+#
+#     def __init__(self, parent = None):
+#         super(SettingsTree, self).__init__(parent)
+#         self.setColumnCount(1)
+#         self.setHeaderLabel("Settings")
+#         self.settings = settings_dict
+#         self.style()
+#         self.fill_widget(self.settings)
+#
+#     def fill_widget(self, value):
+#
+#         def fill_item(item, value):
+#             item.setExpanded(True)
+#             if type(value) is dict:
+#                 for key, val in sorted(value.iteritems()):
+#                     child = QTreeWidgetItem()
+#                     child.setText(0, unicode(key))
+#                     item.addChild(child)
+#                     fill_item(child, val)
+#             elif type(value) is list:
+#                 for val in value:
+#                     child = QTreeWidgetItem()
+#                     item.addChild(child)
+#                 if type(val) is dict:
+#                     child.setText(0, '[dict]')
+#                     fill_item(child, val)
+#                 elif type(val) is list:
+#                     child.setText(0, '[list]')
+#                     fill_item(child, val)
+#                 else:
+#                     child.setText(0, unicode(val))
+#                 child.setExpanded(True)
+#
+#                 child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+#
+#             else:
+#                 child = QTreeWidgetItem()
+#                 child.setText(0, unicode(value))
+#                 item.addChild(child)
+#                 child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+#
+#         self.clear()
+#         fill_item(self.invisibleRootItem(), value)
 
 
 
