@@ -44,6 +44,8 @@ import hardware_modules.PI_Controler as PI_Controler
 # ============= GENERAL SETTING ====================================
 # ==================================================================
 
+
+# this is a example for the settings. do not delete. The type is the variables defined here is used to cast the parameters into the right format
 settings_dict = {
     "record_length" : 100,
     "parameters_PI" : {
@@ -212,16 +214,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.fpga.stop()
 
     def apply_settings(self):
-
-        parameters_Acq = self._settings["parameters_PI"]
-        gains = parameters_Acq['gains']
-        print(gains)
-        # assert self._gains['proportional'].isnumeric(), "proportional gain not a valid number"
-        # assert self._gains['integral'].isnumeric(), "integral gain not a valid number"
-
-        # self.FPGA_PI.gains = self._gains
-
+        # todo only update the parameters that have been changed
+        parameters_PI = self._settings["parameters_PI"]
+        gains = parameters_PI['gains']
+        self.FPGA_PI.gains = gains
         self.log("applied new gains {:0.3f}, {:0.3f}" .format(gains['proportional'],gains['integral']),1000)
+
+        parameters_Acq = self._settings["parameters_Acq"]
+        self.FPGA_READ_FIFO.data_length = parameters_Acq['data_length']
+        self.FPGA_READ_FIFO.block_size = parameters_Acq['block_size']
+        self.log("applied new data length {:d}" .format(parameters_Acq['data_length']),1000)
+        self.log("applied new block size {:d}" .format(parameters_Acq['block_size']),1000)
 
     def update_parameters(self):
         '''
@@ -270,39 +273,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 raise
 
 
-    def assert_parameters(self, parameter, value):
-        '''
-        asserts if the parameter has a the right value type and range
-        :param parameter: name of parameter
-        :param value: value of parameter
-        :return: True or False
-        '''
-        # if parameter in {"channel_beam_block_IR", "channel_beam_block_Green", "channel", 'ND1.0', 'LP', 'ND2.0', "detector_threshold" }:
-#
-#
-# "channel_beam_block_IR", "channel_beam_block_Green", "channel"
-# range 0-5
-#
-# 'ND1.0',
-# 'LP'
-# 'ND2.0'
-# 64-3232
-#
-# "record_length"
-#
-# "sample_period_PI"
-# 'proportional'
-# 'integral'
-#
-# "sample_period_acq"
-# "data_length"
-#
-# "block_size"
-#
-# "setpoint", "piezo"
-#
-# "detector_threshold"
-
 
 
     def update_status(self, progress):
@@ -328,16 +298,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.lbl_detector_signal.setText("{:d}".format(self._recorded_data[-1]))
 
     def update_plot_fifo(self):
+        data = np.array(self._fifo_data).flatten()
 
-
-        data_length = len(np.array(self._fifo_data).flatten())
+        data_length = len(data)
         print("===>> len data", data_length)
         time_step = int(self._settings["parameters_Acq"]["sample_period_acq"]) / 40e6
         freq_step = 1/(time_step * data_length)
 
         self.axes_timetrace.clear()
-        times = 1e3 * np.linspace(0,time_step,data_length)
-        self.axes_timetrace.plot(times, np.array(self._fifo_data).flatten())
+        times = 1e3 * np.linspace(0,time_step * data_length,data_length)
+        self.axes_timetrace.plot(times, data)
 
         self.canvas_timetrace.draw()
         self.log("FIFO acq. completed",1000)
@@ -347,7 +317,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         freqs = np.linspace(0,freq_step * data_length / 2,data_length/2)
 
-        self.data_PSD = np.abs(np.fft.fft(np.array(self._fifo_data).flatten()))**2
+        self.data_PSD = np.abs(np.fft.fft(data))**2
         self.data_PSD = self.data_PSD[range(data_length/2)]
 
         self.axes_psd.clear()
@@ -387,14 +357,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         elif sender.objectName() == "btn_clear_record":
             self.clear_plot()
         elif sender.objectName() == "btn_start_record_fpga":
-            # define variables and datasets
-            # parameters_Acq = self._settings["parameters_Acq"]
-            # number_of_reads = np.ceil(1.0 * int(parameters_Acq['data_length']) / int(parameters_Acq['block_size']))
-            # block_size = parameters_Acq['block_size']
-            # self.elements_left = np.ones(number_of_reads)
 
-            # self.FPGA_READ_FIFO.data_length = int(self._settings['parameters_Acq']['block_size'])
-            # self.FPGA_READ_FIFO.data_length = int(self._settings['parameters_Acq']['data_length'])
             self._thread_acq_fifo.start()
         else:
             print('unknown sender: ', sender.objectName())
@@ -629,11 +592,11 @@ class AcquisitionFIFOThread(QtCore.QThread):
         self._FPGA_READ_FIFO.start()
 
         for i in range(number_of_reads):
-            print(i)
+
             fifo_data =self._FPGA_READ_FIFO.data_queue.get()
             self.data.append(np.array(fifo_data[0]))
             self.elements_left[i] = int(fifo_data[2])
-            print(fifo_data[2])
+
             progress = int(100 * (i+1)  / number_of_reads)
 
             self.updateProgress.emit(progress)
