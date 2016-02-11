@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>992</width>
-    <height>736</height>
+    <width>1157</width>
+    <height>859</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,10 +17,10 @@
    <widget class="QListView" name="listView">
     <property name="geometry">
      <rect>
-      <x>730</x>
-      <y>30</y>
-      <width>251</width>
-      <height>221</height>
+      <x>0</x>
+      <y>660</y>
+      <width>711</width>
+      <height>141</height>
      </rect>
     </property>
    </widget>
@@ -136,14 +136,14 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>310</y>
+      <x>730</x>
+      <y>10</y>
       <width>411</width>
       <height>301</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_timetrace">
      <attribute name="title">
@@ -190,48 +190,11 @@
      </widget>
     </widget>
    </widget>
-   <widget class="QTreeWidget" name="treeWidget">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>310</y>
-      <width>261</width>
-      <height>301</height>
-     </rect>
-    </property>
-    <property name="editTriggers">
-     <set>QAbstractItemView::AllEditTriggers</set>
-    </property>
-    <property name="headerHidden">
-     <bool>false</bool>
-    </property>
-    <column>
-     <property name="text">
-      <string>Settings</string>
-     </property>
-    </column>
-    <item>
-     <property name="text">
-      <string>New Item</string>
-     </property>
-     <item>
-      <property name="text">
-       <string>New Subitem</string>
-      </property>
-      <property name="flags">
-       <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
-      </property>
-     </item>
-    </item>
-   </widget>
    <widget class="QProgressBar" name="progressBar">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>620</y>
+      <x>870</x>
+      <y>320</y>
       <width>171</width>
       <height>23</height>
      </rect>
@@ -240,24 +203,11 @@
      <number>0</number>
     </property>
    </widget>
-   <widget class="QPushButton" name="btn_start_record_fpga_2">
-    <property name="geometry">
-     <rect>
-      <x>610</x>
-      <y>620</y>
-      <width>91</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Save to disk</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="btn_start_record_fpga">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>620</y>
+      <x>730</x>
+      <y>320</y>
       <width>131</width>
       <height>23</height>
      </rect>
@@ -341,22 +291,108 @@
      </rect>
     </property>
    </widget>
-   <widget class="QWidget" name="tree_settings" native="true">
+   <widget class="QTreeWidget" name="treeWidget">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>740</x>
-      <y>310</y>
-      <width>221</width>
-      <height>281</height>
+      <x>0</x>
+      <y>320</y>
+      <width>711</width>
+      <height>301</height>
      </rect>
     </property>
     <property name="sizePolicy">
-     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
-    <layout class="QVBoxLayout" name="settings"/>
+    <property name="editTriggers">
+     <set>QAbstractItemView::AllEditTriggers</set>
+    </property>
+    <property name="headerHidden">
+     <bool>false</bool>
+    </property>
+    <attribute name="headerDefaultSectionSize">
+     <number>150</number>
+    </attribute>
+    <attribute name="headerHighlightSections">
+     <bool>true</bool>
+    </attribute>
+    <column>
+     <property name="text">
+      <string>Parameter</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Value</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QPushButton" name="btn_apply_settings">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>630</y>
+      <width>131</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>apply</string>
+    </property>
+   </widget>
+   <widget class="QListView" name="list_timetraces">
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>350</y>
+      <width>411</width>
+      <height>141</height>
+     </rect>
+    </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::MultiSelection</enum>
+    </property>
+    <property name="modelColumn">
+     <number>0</number>
+    </property>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>500</y>
+      <width>411</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLineEdit" name="txt_tag">
+       <property name="text">
+        <string>some tag</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_clear_record_fpga">
+       <property name="text">
+        <string>Delete</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_save_to_disk">
+       <property name="text">
+        <string>Save to disk</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
    <zorder>layoutWidget</zorder>
    <zorder>listView</zorder>
@@ -364,9 +400,8 @@
    <zorder>layoutWidget</zorder>
    <zorder>sliderPosition</zorder>
    <zorder>tabWidget</zorder>
-   <zorder>treeWidget</zorder>
    <zorder>progressBar</zorder>
-   <zorder>btn_start_record_fpga_2</zorder>
+   <zorder>btn_save_to_disk</zorder>
    <zorder>btn_start_record_fpga</zorder>
    <zorder>btn_minus</zorder>
    <zorder>btn_center</zorder>
@@ -376,14 +411,18 @@
    <zorder>cmb_filterwheel</zorder>
    <zorder>widget</zorder>
    <zorder>widget_2</zorder>
-   <zorder>tree_settings</zorder>
+   <zorder>treeWidget</zorder>
+   <zorder>btn_apply_settings</zorder>
+   <zorder>list_timetraces</zorder>
+   <zorder>btn_clear_record_fpga</zorder>
+   <zorder>txt_tag</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>992</width>
+     <width>1157</width>
      <height>21</height>
     </rect>
    </property>

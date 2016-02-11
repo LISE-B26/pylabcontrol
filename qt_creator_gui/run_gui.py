@@ -15,19 +15,11 @@ import sys
 from PySide import QtCore, QtGui
 from PySide.QtCore import *
 from PySide.QtGui import *
-
-
+from helper_functions.reading_writing import save_json
+import pandas as pd
 import hardware_modules.maestro as maestro
-
+from copy import deepcopy
 import hardware_modules.DCServo_Kinesis_dll as DCServo_Kinesis
-# import to plot stuff
-# import matplotlib
-# matplotlib.use('Qt4Agg')
-# matplotlib.rcParams['backend.qt4']='PySide'
-# from matplotlib.figure import Figure
-# from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-
-
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
@@ -52,31 +44,35 @@ import hardware_modules.PI_Controler as PI_Controler
 # ============= GENERAL SETTING ====================================
 # ==================================================================
 
-settings_dict = {
-    "serial_port_maestro" : "COM5",
-    "channel_beam_block_IR" : 4,
-    "channel_beam_block_Green" : 5,
-    "parameters_filterwheel" : {
-        "channel" : 1,
-        "position_list" : {'ND1.0': 4*600, 'LP':4*1550, 'ND2.0':4*2500}
-    },
+
+# this is a example for the settings. do not delete. The type is the variables defined here is used to cast the parameters into the right format
+SETTINGS_DICT = {
     "record_length" : 100,
     "parameters_PI" : {
-        "sample_period_PI" :4e5,
+        "sample_period_PI" : int(8e6),
         "gains" : {'proportional': 1.0, 'integral':0.1},
         "setpoint" : 0,
         "piezo" : 0
     },
     "parameters_Acq" : {
         "sample_period_acq" : 100,
-        "data_length" : 2000,
-        "block_size" : 100
+        "data_length" : 100000,
+        "block_size" : 2000
     },
+    "detector_threshold" : 50,
+    "data_path" : "Z:/Lab/Cantilever/Measurements/20160209_InterferometerStabilization/data",
+    "hardware" : {
+        "serial_port_maestro" : "COM5",
+        "channel_beam_block_IR" : 4,
+        "channel_beam_block_Green" : 5,
+        "parameters_filterwheel" : {
+            "channel" : 1,
+            "position_list" : {'ND1.0': 4*600, 'LP':4*1550, 'ND2.0':4*2500}
+        },
     "kinesis_serial_number" : 83832028,
-    "detector_threshold" : 50
-
-
+    }
 }
+
 
 
 
@@ -101,193 +97,244 @@ settings_dict = {
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, ):
+        def set_settings(settings_dict):
+            '''
+            here we could add to fill the dictionary with some derived values, like total acquisition time
+            :param settings_dict:
+            :return:
+            '''
+            settings = settings_dict
+
+            # settings['parameters_Acq'].update({'acquisition_time': })
+            return settings
+        def create_figures():
+            # fill the empty widgets with a figure
+            fig_live = Figure()
+            self.canvas_live = FigureCanvas(fig_live)
+            self.plot_data_live.addWidget(self.canvas_live)
+            self.axes_live = fig_live.add_subplot(111)
+
+            fig_timetrace = Figure()
+            self.canvas_timetrace = FigureCanvas(fig_timetrace)
+            self.plot_data_timetrace.addWidget(self.canvas_timetrace)
+            self.axes_timetrace = fig_timetrace.add_subplot(111)
+            self.axes_timetrace.set_xlabel('time (ms)')
+
+            fig_psd = Figure()
+            self.canvas_psd = FigureCanvas(fig_psd)
+            self.plot_data_psd.addWidget(self.canvas_psd)
+            self.axes_psd = fig_psd.add_subplot(111)
+            self.axes_psd.set_xlabel('frequency (Hz)')
+        def create_threads():
+
+            # ============= threading ====================================
+            self._thread_acq = AcquisitionThread(self)
+            self._thread_acq.updateProgress.connect(self.update_plot_live)
+
+            self._thread_acq_fifo = AcquisitionFIFOThread(self)
+            self._thread_acq_fifo.updateProgress.connect(self.update_status)
+
+            self._thread_pol = PolarizationControlThread(self)
+
+            self._thread_pol_stab = PolarizationStabilizationThread(self)
+        def connect_hardware():
+            # create connections to hardware
+            hardware_settings = self._settings['hardware']
+            self._servo = maestro.Controller(hardware_settings['serial_port_maestro'])
+            self.beam_block_IR = maestro.BeamBlock(self._servo, hardware_settings['channel_beam_block_IR'])
+            self.beam_block_Green = maestro.BeamBlock(self._servo, hardware_settings['channel_beam_block_Green'])
+            self.filterwheel = maestro.FilterWheel(self._servo, **hardware_settings['parameters_filterwheel'])
+
+            self.servo_polarization = DCServo_Kinesis.TDC001(hardware_settings["kinesis_serial_number"])
+
+
+            # =============================================================
+            # ===== NI FPGA ===============================================
+            # =============================================================
+            # connect to FPGA and start it
+            self.fpga = NI.NI7845R()
+            self.fpga.start()
+
+
+            # create PI (proportional integral) controler object
+            self.FPGA_PI = NI.NI_FPGA_PI(self.fpga, **self._settings["parameters_PI"])
+            self.FPGA_READ_FIFO = NI.NI_FPGA_READ_FIFO(self.fpga, **self._settings["parameters_Acq"])
+        def connect_controls():
+            # =============================================================
+            # ===== LINK WIDGETS TO FUNCTIONS =============================
+            # =============================================================
+
+            # link slider to functions
+            print(self.servo_polarization.get_position() * 100)
+            self.sliderPosition.setValue(int(self.servo_polarization.get_position() * 100))
+            self.sliderPosition.valueChanged.connect(lambda: self.set_position())
+
+            # link buttons to functions
+            self.btn_start_record.clicked.connect(lambda: self.btn_clicked())
+            self.btn_stop_record.clicked.connect(lambda: self.btn_clicked())
+            self.btn_clear_record.clicked.connect(lambda: self.btn_clicked())
+            self.btn_start_record_fpga.clicked.connect(lambda: self.btn_clicked())
+            self.btn_clear_record_fpga.clicked.connect(lambda: self.btn_clicked())
+            self.btn_save_to_disk.clicked.connect(lambda: self.btn_clicked())
+
+            self.btn_plus.clicked.connect(lambda: self.set_position())
+            self.btn_minus.clicked.connect(lambda: self.set_position())
+            self.btn_center.clicked.connect(lambda: self.set_position())
+            self.btn_to_zero.clicked.connect(lambda: self.set_position())
+
+
+            self.btn_apply_settings.clicked.connect(lambda: self.apply_settings())
+            # link checkboxes to functions
+            self.checkIRon.stateChanged.connect(lambda: self.control_light())
+            self.checkGreenon.stateChanged.connect(lambda: self.control_light())
+            self.checkPIActive.stateChanged.connect(lambda: self.switch_PI_loop())
+
+            # link combo box
+            self.cmb_filterwheel.addItems(self._settings['hardware']['parameters_filterwheel']['position_list'].keys())
+            self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
+
+
+            self.treeWidget.itemChanged.connect(lambda: self.update_parameters())
+
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
 
-        self._settings = settings_dict
+        self._settings = set_settings(SETTINGS_DICT)
 
+        self.fill_treeWidget(self.treeWidget, self._settings)
 
-        self._settings = settings_dict
-        # tree = SettingsTree()
-        # self.settings.addWidget(tree)
-        # Ui_MainWindow.treeWidget
+        # define some data sets
+        self._recorded_data = deque() # recorded data in the live plot
+        self._fifo_data = deque() # data from last FIFO read
+        self.past_commands = deque() # history of executed commands
+        self._time_traces  = [] # all the timetraces that have been acquired
 
+        connect_hardware()
+        create_figures()
+        connect_controls()
+        create_threads()
 
-        # item_2 = QtGui.QTreeWidgetItem(self.treeWidget)
-        # item_3 = QtGui.QTreeWidgetItem(item_2)
-        # item_3.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
-
-
-        # define variables and datasets
-        parameters_Acq = self._settings["parameters_Acq"]
-        self.number_of_reads = int(np.ceil(1.0 * parameters_Acq['data_length'] / parameters_Acq['block_size']))
-        self.block_size = parameters_Acq['block_size']
-        self.elements_left = np.ones(self.number_of_reads)
-        self.data_AI1 = np.ones((self.number_of_reads, self.block_size))
-
-        self._recorded_data = deque()
-        self.past_commands = deque()
-
-        self.connect_hardware()
-        self.create_figures()
-        self.connect_controls()
-        self.create_threads()
-
-    def create_figures(self):
-        # fill the empty widgets with a figure
-        fig_live = Figure()
-        self.canvas_live = FigureCanvas(fig_live)
-        self.plot_data_live.addWidget(self.canvas_live)
-        self.axes_live = fig_live.add_subplot(111)
-
-        fig_timetrace = Figure()
-        self.canvas_timetrace = FigureCanvas(fig_timetrace)
-        self.plot_data_timetrace.addWidget(self.canvas_timetrace)
-        self.axes_timetrace = fig_timetrace.add_subplot(111)
-        self.axes_timetrace.set_xlabel('time (ms)')
-
-        fig_psd = Figure()
-        self.canvas_psd = FigureCanvas(fig_psd)
-        self.plot_data_psd.addWidget(self.canvas_psd)
-        self.axes_psd = fig_psd.add_subplot(111)
-        self.axes_psd.set_xlabel('frequency (Hz)')
-
-    def create_threads(self):
-
-        # ============= threading ====================================
-        self._thread_acq = AcquisitionThread(self)
-        self._thread_acq.updateProgress.connect(self.update_plot)
-
-        self._thread_acq_fifo = AcquisitionFIFOThread(self)
-        self._thread_acq_fifo.updateProgress.connect(self.update_status)
-
-        self._thread_pol = PolarizationControlThread(self)
-
-        self._thread_pol_stab = PolarizationStabilizationThread(self)
-
-    def connect_hardware(self):
-        # create connections to hardware
-
-        self._servo = maestro.Controller(self._settings['serial_port_maestro'])
-        self.beam_block_IR = maestro.BeamBlock(self._servo, self._settings['channel_beam_block_IR'])
-        self.beam_block_Green = maestro.BeamBlock(self._servo, self._settings['channel_beam_block_Green'])
-        self.filterwheel = maestro.FilterWheel(self._servo, **self._settings['parameters_filterwheel'])
-
-        self.servo_polarization = DCServo_Kinesis.TDC001(self._settings["kinesis_serial_number"])
-
-
-        # =============================================================
-        # ===== NI FPGA ===============================================
-        # =============================================================
-        # connect to FPGA and start it
-        self.fpga = NI.NI7845R()
-        self.fpga.start()
-
-
-        # create PI (proportional integral) controler object
-        self.FPGA_PI = NI.NI_FPGA_PI(self.fpga, **self._settings["parameters_PI"])
-        self.FPGA_READ_FIFO = NI.NI_FPGA_READ_FIFO(self.fpga, **self._settings["parameters_Acq"])
-
-    def connect_controls(self):
-        # =============================================================
-        # ===== LINK WIDGETS TO FUNCTIONS =============================
-        # =============================================================
-
-        # link slider to functions
-        print(self.servo_polarization.get_position() * 100)
-        self.sliderPosition.setValue(int(self.servo_polarization.get_position() * 100))
-        self.sliderPosition.valueChanged.connect(lambda: self.set_position())
-
-        # link buttons to functions
-        self.btn_start_record.clicked.connect(lambda: self.record())
-        self.btn_stop_record.clicked.connect(lambda: self.record())
-        self.btn_clear_record.clicked.connect(lambda: self.record())
-        self.btn_start_record_fpga.clicked.connect(lambda: self.record())
-
-        self.btn_plus.clicked.connect(lambda: self.set_position())
-        self.btn_minus.clicked.connect(lambda: self.set_position())
-        self.btn_center.clicked.connect(lambda: self.set_position())
-        self.btn_to_zero.clicked.connect(lambda: self.set_position())
-
-
-        # link checkboxes to functions
-        self.checkIRon.stateChanged.connect(lambda: self.control_light())
-        self.checkGreenon.stateChanged.connect(lambda: self.control_light())
-        self.checkPIActive.stateChanged.connect(lambda: self.switch_PI_loop())
-
-        # link combo box
-        self.cmb_filterwheel.addItems(self._settings['parameters_filterwheel']['position_list'].keys())
-        self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
-
+        self.treeWidget.collapseAll()
 
     def __del__(self):
         '''
         Cleans up connections
         '''
-        # self._thread_acq.stop()
-        #
-        # self.fpga.stop()
+        self._thread_acq.stop()
 
-    def apply(self):
+        self.fpga.stop()
+
+    def btn_clicked(self):
+        sender = self.sender()
+        # self.statusBar().showMessage(sender.objectName() + ' was pressed')
+        if sender.objectName() == "btn_start_record":
+            self._thread_acq.start()
+        elif sender.objectName() == "btn_stop_record":
+            self._thread_acq.stop()
+        elif str(sender.objectName()) in {"btn_clear_record","btn_clear_record_fpga"}:
+            self.clear_plot(sender)
+        elif str(sender.objectName()) in {"btn_save_to_disk"}:
+            self.save_data(sender)
+        elif sender.objectName() == "btn_start_record_fpga":
+            self._thread_acq_fifo.start()
+        else:
+            print('unknown sender: ', sender.objectName())
+
+    def apply_settings(self):
+        # todo only update the parameters that have been changed
+        parameters_PI = self._settings["parameters_PI"]
+        gains = parameters_PI['gains']
+        self.FPGA_PI.gains = gains
+        self.log("applied new gains {:0.3f}, {:0.3f}" .format(gains['proportional'],gains['integral']),1000)
+
+        parameters_Acq = self._settings["parameters_Acq"]
+        self.FPGA_READ_FIFO.data_length = parameters_Acq['data_length']
+        self.FPGA_READ_FIFO.block_size = parameters_Acq['block_size']
+        self.log("applied new data length {:d}" .format(parameters_Acq['data_length']),1000)
+        self.log("applied new block size {:d}" .format(parameters_Acq['block_size']),1000)
+
+    def update_parameters(self):
+        '''
+        is called when a parameter in the tree is changed
+        this function updates the dictionary that holds all the parameter
+        :return:
+        '''
+        print(self.treeWidget.currentItem())
+        parameter = str(self.treeWidget.currentItem().text(0))
+        value = unicode(self.treeWidget.currentItem().text(1))
+        parents = []
+        if self.treeWidget.currentColumn() == 0:
+            self.log("Tried to edit parameter name. This is not allowed!!", 1000)
+        else:
+            parent = self.treeWidget.currentItem().parent()
+            while parent != None:
+                parents.insert(0,str(parent.text(0)))
+                parent = parent.parent()
+            try:
+                print(parents)
+                dictator = self._settings
+                for i in parents:
+                    print i
+                    dictator = dictator[i]
+                value_old = dictator[parameter]
+
+                dictator = SETTINGS_DICT
+                for i in parents:
+                    print i
+                    dictator = dictator[i]
+                value_default = dictator[parameter]
+                print("parameter_type", type(value_default))
+
+                if isinstance(value_default, int):
+                    value = int(value)
+                elif isinstance(value_default, float):
+                    value = float(value)
+                else:
+                    print("WARNING, TYPE NOT RECOGNIZED!!!!")
+                dictator.update({parameter : value})
+
+                # self._settings.update({parameter : float(value)})
+                self.log("changed {:s} from {:s} to {:s}".format(parameter, str(value_old), str(value)))
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                raise
 
 
-        self._gains = {'proportional': float(self.txt_P_gain.text()), 'integral':float(self.txt_I_gain.text())}
 
-        # assert self._gains['proportional'].isnumeric(), "proportional gain not a valid number"
-        # assert self._gains['integral'].isnumeric(), "integral gain not a valid number"
+    def save_data(self, sender):
 
-        self.FPGA_PI.gains = self._gains
+        def save_timetrace(timetrace):
 
-        self.log("applied new gains {:0.3f}, {:0.3f}" .format(self._gains['proportional'], self._gains['integral']),1000)
+            filename = "{:s}_{:s}.dat".format(timetrace["time"], timetrace["tag"])
+            filename = filename.replace(' ', '_')
+            filename = filename.replace(':', '_')
+            filename = "{:s}/{:s}".format(self._settings['data_path'], filename)
+
+            save_json(timetrace['parameters'], filename.replace('.dat', '.json'))
+            self.log("{:s} written to disk".format(filename.replace('.dat', '.json')), 1000)
+
+            df = pd.DataFrame(timetrace['data'], columns = ["detector signal (bits)"])
+            df.to_csv(filename, index = False, header=True)
+            self.log("{:s} written to disk".format(filename), 1000)
+
+            print(filename)
+
+        if sender.objectName() == "btn_save_to_disk":
+            selected_timetraces = [index.data().toString().split("\t")[0] for index in self.list_timetraces.selectedIndexes()]
+            for timetrace in self._time_traces:
+                if timetrace.get('time') in  selected_timetraces:
+                    save_timetrace(timetrace)
 
     def update_status(self, progress):
         self.progressBar.setValue(progress)
-
         if progress == 100:
+            parameters = deepcopy(self._settings)
+            self._time_traces.append({'time': self.get_time(), 'tag': str(self.txt_tag.text()), 'data' : np.array(self._fifo_data).flatten(), 'parameters' : parameters})
 
-            data_length = self._settings["parameters_Acq"]["data_length"]
-            time_step = self._settings["parameters_Acq"]["sample_period_acq"] / 40e6
-            freq_step = 1/(time_step * data_length)
-
-            print(data_length, time_step, freq_step)
-
-            self.axes_timetrace.clear()
-            times = 1e3 * np.linspace(0,time_step,data_length)
-            self.axes_timetrace.plot(times, self.data_AI1.flatten())
-
-            self.canvas_timetrace.draw()
+            self.update_plot_fifo()
             self.log("FIFO acq. completed",1000)
 
-            # calculate PSD and plot
-
-
-            freqs = np.linspace(0,freq_step * data_length / 2,data_length/2)
-
-            self.data_PSD = np.abs(np.fft.fft(self.data_AI1.flatten()))**2
-            self.data_PSD = self.data_PSD[range(data_length/2)]
-
-            self.axes_psd.clear()
-            self.axes_psd.loglog(freqs, self.data_PSD)
-            self.axes_psd.set_xlabel('frequency (Hz)')
-            self.canvas_psd.draw()
-
-    def log(self, msg, wait_time = 1000):
-        self.statusbar.showMessage(msg, wait_time)
-        time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
-        self.past_commands.append("{:s}\t {:s}".format(time, msg))
-        if len(self.past_commands) > 10:
-            self.past_commands.popleft()
-
-
-        print time
-        model = QtGui.QStandardItemModel(self.listView)
-        for item in self.past_commands:
-            model.appendRow(QtGui.QStandardItem(item))
-        self.listView.setModel(model)
-        self.listView.show()
-
-
-    def update_plot(self, data_point):
+    def update_plot_live(self, data_point):
         if data_point > 2**15:
             self._recorded_data.append(data_point-2**16)
         else:
@@ -299,38 +346,76 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         detector_threshold = self._settings["detector_threshold"]
         self.axes_live.plot([0, self._settings["record_length"]], [detector_threshold, detector_threshold], 'k--')
         self.axes_live.plot([0, self._settings["record_length"]], [-detector_threshold, -detector_threshold], 'k--')
-        # self.axes.set_ylim([-3000,3000])
+
         self.canvas_live.draw()
 
         self.lbl_detector_signal.setText("{:d}".format(self._recorded_data[-1]))
 
-    # def update_position(self, value):
-    #     print("position {:0.02f}".format(value))
-    #     self.log("position {:0.02f}".format(value),1000)
+    def update_plot_fifo(self):
 
-    def clear_plot(self):
-        self._recorded_data.clear()
-        self.axes_live.clear()
-        self.canvas_live.draw()
-        self.log("Cleared Data",1000)
-    # def setProgress(self, progress):
-    #     self.progressBar.setValue(progress)
+        self.axes_timetrace.clear()
+        self.axes_psd.clear()
+        model = QtGui.QStandardItemModel(self.list_timetraces)
 
+        for data_set in self._time_traces:
+            # data = np.array(self._fifo_data).flatten()
+            data = data_set['data']
+            data_length = len(data)
 
-    def record(self):
-        sender = self.sender()
-        # self.statusBar().showMessage(sender.objectName() + ' was pressed')
-        if sender.objectName() == "btn_start_record":
-            self._thread_acq.start()
-        elif sender.objectName() == "btn_stop_record":
-            self._thread_acq.stop()
-        elif sender.objectName() == "btn_clear_record":
-            self.clear_plot()
-        elif sender.objectName() == "btn_start_record_fpga":
-            print('start FIFO thread')
-            self._thread_acq_fifo.start()
-        else:
-            print('unknown sender: ', sender.objectName())
+            # time traces
+            time_step = int(self._settings["parameters_Acq"]["sample_period_acq"]) / 40e6
+            times = 1e3 * np.linspace(0,time_step * data_length,data_length)
+            self.axes_timetrace.plot(times, data)
+
+            # PSD
+            freq_step = 1/(time_step * data_length)
+            freqs = np.linspace(0,freq_step * data_length / 2,data_length/2)
+            data_PSD = np.abs(np.fft.fft(data))**2
+            data_PSD = data_PSD[range(data_length/2)]
+            self.axes_psd.loglog(freqs, data_PSD)
+
+            model.appendRow(QtGui.QStandardItem("{:s}\t{:s}".format(data_set['time'], data_set['tag'])))
+
+        self.list_timetraces.setModel(model)
+        self.list_timetraces.show()
+
+        self.axes_timetrace.set_xlabel('time (ms)')
+        self.axes_psd.set_xlabel('frequency (Hz)')
+
+        self.canvas_timetrace.draw()
+        self.canvas_psd.draw()
+
+    def get_time(self):
+        return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
+
+    def log(self, msg, wait_time = 1000):
+        self.statusbar.showMessage(msg, wait_time)
+        time = self.get_time()
+        self.past_commands.append("{:s}\t {:s}".format(time, msg))
+        if len(self.past_commands) > 10:
+            self.past_commands.popleft()
+
+        model = QtGui.QStandardItemModel(self.listView)
+        for item in self.past_commands:
+            model.appendRow(QtGui.QStandardItem(item))
+        self.listView.setModel(model)
+        self.listView.show()
+
+    def clear_plot(self, sender):
+        if sender.objectName() == "btn_clear_record":
+            self._recorded_data.clear()
+            self.axes_live.clear()
+            self.canvas_live.draw()
+            self.log("Cleared live Data",1000)
+        elif sender.objectName() == "btn_clear_record_fpga":
+            # get which items are selected. Each entry is of the form {time}\t{tag}. We select only the dataset which were taken at the time of the selected items.
+            selected_timetraces = [index.data().toString().split("\t")[0] for index in self.list_timetraces.selectedIndexes()]
+            self._time_traces = [x for x in self._time_traces if not (x.get('time') in  selected_timetraces)]
+            # delete selected items from data
+            # self._time_traces = []
+            # update plot
+            self.update_plot_fifo()
+            self.log("Cleared FIFO Data",1000)
 
 
     def set_position(self):
@@ -390,7 +475,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.FPGA_PI.status_PI = status_PI_loop
         self.log("Feedback stabilization on: {:s}".format(str(status_PI_loop)),1000)
 
-    def fill_widget(self, value):
+    def fill_treeWidget(self, QTreeWidget, value):
 
         def fill_item(item, value):
             item.setExpanded(True)
@@ -414,26 +499,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     child.setText(0, unicode(val))
                 child.setExpanded(True)
-                # child.setFlags(QtCore.Qt.ItemIsEditable)
-                # child.setFlags(QtCore.Qt.ItemIsEnabled)
-                print(unicode(val))
-                # item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+                child.setFlags(child.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
 
 
             else:
-                child = QtGui.QTreeWidgetItem()
-                child.setText(0, unicode(value))
-                item.addChild(child)
-                print(unicode(value))
-                # child.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-                # child.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-                #
-            # item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-            # item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
+                item.setText(1, unicode(value))
 
-        self.treeWidget.clear()
-        fill_item(self.treeWidget.invisibleRootItem(), value)
+                item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
 
+
+        QTreeWidget.clear()
+        fill_item(QTreeWidget.invisibleRootItem(), value)
+
+        QTreeWidget.setColumnWidth(0,200)
 
 
 
@@ -461,7 +539,7 @@ class PolarizationStabilizationThread(QtCore.QThread):
         detector_value_zero = False
         max_iter = 100
         count = 1
-        detector_threshold = settings["detector_threshold"]
+        detector_threshold = SETTINGS_DICT["detector_threshold"]
 
         while detector_value_zero == False:
             detector_value = self.ControlMainWindow._recorded_data[-1]
@@ -551,30 +629,34 @@ class AcquisitionFIFOThread(QtCore.QThread):
         print("created AcquisitionFIFOThread")
         self._recording = False
         self._FPGA_READ_FIFO = ControlMainWindow.FPGA_READ_FIFO
-        self.data_AI1 = ControlMainWindow.data_AI1
-        self.number_of_reads = ControlMainWindow.number_of_reads
-        self.block_size = ControlMainWindow.block_size
-        self.elements_left = ControlMainWindow.elements_left
+
+        self.parameters_Acq = ControlMainWindow._settings["parameters_Acq"]
+        self.data = ControlMainWindow._fifo_data
 
         QtCore.QThread.__init__(self)
 
     #A QThread is run by calling it's start() function, which calls this run()
     #function in it's own "thread".
     def run(self):
+
+        number_of_reads = int(np.ceil(1.0 * int(self.parameters_Acq['data_length']) / int(self.parameters_Acq['block_size']) ))
+        self.elements_left = np.ones(number_of_reads)
+        print(number_of_reads)
         self._recording = True
+        self.data.clear()
         self._FPGA_READ_FIFO.start()
 
-        print("self.number_of_reads",self.number_of_reads)
-        for i in range(self.number_of_reads):
-            print(i)
+        for i in range(number_of_reads):
+
             fifo_data =self._FPGA_READ_FIFO.data_queue.get()
-            self.data_AI1[i,:] =  np.array(fifo_data[0])
+            self.data.append(np.array(fifo_data[0]))
             self.elements_left[i] = int(fifo_data[2])
-            progress = int(100 * (i+1)  / self.number_of_reads)
+
+            progress = int(100 * (i+1)  / number_of_reads)
+
             self.updateProgress.emit(progress)
 
         self._recording = False
-        print("FIFO acquisition ended")
     def stop(self):
         self._recording = False
 
@@ -621,50 +703,50 @@ class PolarizationControlThread(QtCore.QThread):
 
 
 
-class SettingsTree(QtGui.QTreeWidget):
-
-    def __init__(self, parent = None):
-        super(SettingsTree, self).__init__(parent)
-        self.setColumnCount(1)
-        self.setHeaderLabel("Settings")
-        self.settings = settings_dict
-        self.style()
-        self.fill_widget(self.settings)
-
-    def fill_widget(self, value):
-
-        def fill_item(item, value):
-            item.setExpanded(True)
-            if type(value) is dict:
-                for key, val in sorted(value.iteritems()):
-                    child = QTreeWidgetItem()
-                    child.setText(0, unicode(key))
-                    item.addChild(child)
-                    fill_item(child, val)
-            elif type(value) is list:
-                for val in value:
-                    child = QTreeWidgetItem()
-                    item.addChild(child)
-                if type(val) is dict:
-                    child.setText(0, '[dict]')
-                    fill_item(child, val)
-                elif type(val) is list:
-                    child.setText(0, '[list]')
-                    fill_item(child, val)
-                else:
-                    child.setText(0, unicode(val))
-                child.setExpanded(True)
-
-                child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
-
-            else:
-                child = QTreeWidgetItem()
-                child.setText(0, unicode(value))
-                item.addChild(child)
-                child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
-
-        self.clear()
-        fill_item(self.invisibleRootItem(), value)
+# class SettingsTree(QtGui.QTreeWidget):
+#
+#     def __init__(self, parent = None):
+#         super(SettingsTree, self).__init__(parent)
+#         self.setColumnCount(1)
+#         self.setHeaderLabel("Settings")
+#         self.settings = settings_dict
+#         self.style()
+#         self.fill_widget(self.settings)
+#
+#     def fill_widget(self, value):
+#
+#         def fill_item(item, value):
+#             item.setExpanded(True)
+#             if type(value) is dict:
+#                 for key, val in sorted(value.iteritems()):
+#                     child = QTreeWidgetItem()
+#                     child.setText(0, unicode(key))
+#                     item.addChild(child)
+#                     fill_item(child, val)
+#             elif type(value) is list:
+#                 for val in value:
+#                     child = QTreeWidgetItem()
+#                     item.addChild(child)
+#                 if type(val) is dict:
+#                     child.setText(0, '[dict]')
+#                     fill_item(child, val)
+#                 elif type(val) is list:
+#                     child.setText(0, '[list]')
+#                     fill_item(child, val)
+#                 else:
+#                     child.setText(0, unicode(val))
+#                 child.setExpanded(True)
+#
+#                 child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+#
+#             else:
+#                 child = QTreeWidgetItem()
+#                 child.setText(0, unicode(value))
+#                 item.addChild(child)
+#                 child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+#
+#         self.clear()
+#         fill_item(self.invisibleRootItem(), value)
 
 
 
