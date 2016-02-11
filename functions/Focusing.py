@@ -6,7 +6,7 @@
 import numpy
 import scipy.ndimage
 import scipy.optimize
-from hardware_modules import GalvoMirrors as DaqOut, PiezoController
+from hardware_modules import GalvoMirrors as DaqOut, PiezoController, Attocube
 from functions import ScanPhotodiode_DAQ as GalvoScanPD
 from functions import ScanAPD as GalvoScanAPD
 import matplotlib.gridspec as gridspec
@@ -23,6 +23,8 @@ from PyQt4 import QtGui
 # yRangeMax = .5
 # xPts = 20
 # yPts = 20
+ATTO_FORWARD = 0
+ATTO_REVERSE = 1
 
 
 
@@ -173,6 +175,143 @@ class Focus:
         elif return_data == False:
             return mean
 
+    #TODO: Debug THIS
+    @classmethod
+    def scan_attocube(cls, min_pos, max_pos, center_position, max_deviation, atto_voltage = 7, atto_frequency = 100, attoChannel = 0, waitTime = .1, canvas = None, APD = True, scan_range_roi = None, plotting = True, blocking=True, return_data = False, queue = None, std = True, timePerPt = .001):
+        assert((min_pos < max_pos) and (min_pos > center_position - max_deviation) and (max_pos < center_position + max_deviation))
+
+        if scan_range_roi == None:
+            scan_range_roi = {
+                "dx": 0.1,
+                "dy": 0.1,
+                "xPts": 20,
+                "xo": 0.0,
+                "yPts": 20,
+                "yo": 0.0
+            }
+
+        assert_is_roi
+
+        roi_crop(scan_range_roi)
+
+        pos_range = [min_pos]
+        current_pos = min_pos
+        xdata = []
+        ydata = []
+        (xInit, yInit, _, _) = DaqOut.DaqOutputWave.getOutputVoltages()
+
+        #
+        # # tries to define a square scanRange/2 to each side of the point. If this would include points out of bounds,
+        # # that dimension of the square runs from rangeMax-scanRange to rangeMax
+        # if(numpy.absolute(xInit) > xRangeMax - scanRange/2):
+        #     xMin = numpy.min(numpy.sign(xInit)*xRangeMax, numpy.sign(xInit)*(xRangeMax-scanRange))
+        #     xMax = numpy.max(numpy.sign(xInit)*xRangeMax, numpy.sign(xInit)*(xRangeMax-scanRange))
+        # else:
+        #     xMin = xInit-scanRange/2
+        #     xMax = xInit+scanRange/2
+        # if(numpy.absolute(yInit) > yRangeMax - scanRange/2):
+        #     yMin = numpy.min(numpy.sign(yInit)*yRangeMax, numpy.sign(yInit)*(yRangeMax-scanRange))
+        #     yMax = numpy.max(numpy.sign(yInit)*yRangeMax, numpy.sign(yInit)*(yRangeMax-scanRange))
+        # else:
+        #     yMin = yInit-scanRange/2
+        #     yMin = yInit-scanRange/2
+        #     yMax = yInit+scanRange/2
+
+
+
+        xMin, xMax, yMin, yMax = roi_to_min_max(scan_range_roi)
+
+        xPts = scan_range_roi['xPts']
+        yPts = scan_range_roi['yPts']
+
+        # xMin, xMax = scan_range_roi['xo'] - scan_range_roi['dx']/2., scan_range_roi['xo'] + scan_range_roi['dx']/2.
+        # yMin, yMax = scan_range_roi['yo'] - scan_range_roi['dy']/2., scan_range_roi['yo'] + scan_range_roi['dy']/2.
+
+
+        attocube = Attocube.ANC350()
+        # initializes pyplot figure if using pyplot plotting
+        if canvas is None and plotting:
+            fig = plt.figure()
+            axes = fig.add_subplot(1,3,1)
+            axes_img = fig.add_subplot(1,3,2)
+            axes_img_best = fig.add_subplot(1,3,3)
+            plt.ion()
+        elif plotting:
+            fig = canvas.fig
+            fig.clf()
+            gs = gridspec.GridSpec(2,2)
+            axes_img = fig.add_subplot(gs[0,0])
+            axes_img_best = fig.add_subplot(gs[0,1])
+            axes = fig.add_subplot(gs[1,:])
+            axes.set_xlabel('Piezo Voltage (V)')
+            axes.set_ylabel('Standard Deviation')
+            axes.set_title('Autofocusing')
+            axes_img.set_xlabel('Vx')
+            axes_img.set_ylabel('Vy')
+            axes_img.set_title('Current Image')
+            axes_img_best.set_xlabel('Vx')
+            axes_img_best.set_ylabel('Vy')
+            axes_img_best.set_title('Best Focused Image')
+            gs.tight_layout(fig)
+        # plots junk data to initialize lines used later
+        if plotting:
+            dat=[-1,0]
+            dat2 = [0,0]
+            datline,fitline = axes.plot(dat,dat2,dat,dat2)
+            axes.set_xlim([min_pos-1,max_pos+1])
+            plt.xlabel('Piezo Position [um]')
+            plt.ylabel('Image Standard Deviation [V]')
+            plt.title('Auto-focusing')
+            #axes.set_ylim([0,10])
+            cls.updatePlot(canvas)
+        while current_pos < max_pos:
+            if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
+                return current_pos, pos_range, ydata
+            Attocube.step_piezo(attoChannel,ATTO_FORWARD)
+            current_pos = Attocube.get_position(attoChannel)
+            time.sleep(waitTime)
+            if(APD):
+                scanner = GalvoScanAPD.ScanNV(xMin, xMax, xPts, yMin, yMax, yPts, timePerPt)
+            else:
+                scanner = GalvoScanPD.ScanNV(xMin, xMax, xPts, yMin, yMax, yPts, timePerPt)
+            image = scanner.scan(queue = None)
+            pos_range = pos_range.append(current_pos)
+            if std == True:
+                ydata.append(scipy.ndimage.measurements.standard_deviation(image))
+            else:
+                ydata.append(scipy.ndimage.measurements.mean(image))
+            if plotting:
+                cls.plotData(datline, xdata, ydata, canvas, axes)
+
+                cls.plotImg(image, canvas, axes_img)
+
+                if ydata[-1] == max(ydata): image_best = image
+
+                cls.plotImg(image_best, canvas, axes_img_best)
+
+        cls.setDaqPt(xInit, yInit)
+        (a,mean,sigma,c),_ = cls.fit(pos_range, ydata)
+        if plotting:
+            cls.plotFit(fitline,a,mean,sigma,c,min_pos,max_pos, canvas)
+        # checks if computed mean is outside of scan range and, if so, sets piezo to center of scan range to prevent a
+        # poor fit from trying to move the piezo by a large amount and breaking the stripline
+        attocube.set_amplitude(attoChannel, atto_voltage)
+        attocube.set_frequency(attoChannel, atto_frequency)
+        if(mean > numpy.min(current_pos) and mean < numpy.max(current_pos) and a > 0):
+            attocube.move_absolute(attoChannel, mean)
+            print(mean)
+        else:
+            attocube.move_absolute(attoChannel, numpy.mean(pos_range))
+        if canvas is None and plotting and blocking:
+            plt.show()
+        elif canvas is None and plotting:
+            plt.close()
+
+        if return_data:
+            return mean, pos_range, ydata
+        elif return_data == False:
+            return mean
+
     # Fits the data to a gaussian given by the cls.gaussian method, and returns the fit parameters. If the fit fails,
     # returns (-1,-1,-1) as the parameters
     @classmethod
@@ -223,7 +362,7 @@ class Focus:
     @classmethod
     def plotImg(cls, imadata, canvas, axes):
 
-        axes.imshow(imadata)
+        axes.imshow(imadata, cmap = 'pink')
         # axes.autoscale_view(scalex=False, scaley=True)
         cls.updatePlot(canvas)
 

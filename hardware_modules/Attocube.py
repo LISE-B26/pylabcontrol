@@ -37,7 +37,6 @@ class PositionerInfo(ctypes.Structure):
     _fields_ = [(("id"), ctypes.c_int32), (("locked"), ctypes.c_bool)]
 
 class ANC350:
-
     def __init__(self):
         '''
         Initializes then closes a connection to the attocube to ensure that the connection is working properly
@@ -93,7 +92,7 @@ class ANC350:
     def get_position(self, axis):
         '''
         :param axis: axis_x, axis_y, or axis_z
-        :return: position of axis times 1000
+        :return: position of axis in um
         '''
         device_handle = int32()
         position = int32()
@@ -103,12 +102,12 @@ class ANC350:
         time.sleep(.2)
         self.check_error(attocube.PositionerGetPosition(device_handle, axis, ctypes.byref(position)))
         self.check_error(attocube.PositionerClose(device_handle))
-        return position.value
+        return position.value/1000.0
 
     def get_ref(self, axis):
         '''
         :param axis: axis_x, axis_y, or axis_z
-        :return: position of axis times 1000
+        :return: position of axis in um
         '''
         device_handle = int32()
         position = int32()
@@ -116,7 +115,7 @@ class ANC350:
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
         self.check_error(attocube.PositionerGetReference(device_handle, axis, ctypes.byref(position), ctypes.byref(valid)))
         self.check_error(attocube.PositionerClose(device_handle))
-        return position.value
+        return position.value/1000.0
 
     def cap_measure(self, axis):
         '''
@@ -142,29 +141,29 @@ class ANC350:
 
     def move_absolute(self, axis, position):
         '''
-        BROKEN!!!!! Fluctuates around target position and never stops
+        Precondition: Must set voltage and frequency sufficiently low that ANC's internal feedback will be able to
+        settle on the appropriate position (ex. 7V, 100Hz). Otherwise, fluctuates around target position and never stops
         :param axis: axis_x, axis_y, or axis_z
-        :param position: position of axis to move to times 1000
+        :param position: position of axis to move to in um
         '''
         device_handle = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(attocube.PositionerMoveAbsolute(device_handle, axis, int32(position)))
+        self.check_error(attocube.PositionerMoveAbsolute(device_handle, axis, int32(position*1000.0)))
         self.check_error(attocube.PositionerClose(device_handle))
 
     def move_relative(self, axis, distance):
         '''
-        BROKEN!!!!! Fluctuates around target position and never stops
-        :param axis: axis_x, axis_y, or axis_z
-        :param distance: amount to move axis times 1000
+        Precondition: Must set voltage and frequency sufficiently low that ANC's internal feedback will be able to
+        settle on the appropriate position (ex. 7V, 100Hz). Otherwise, fluctuates around target position and never stops        :param axis: axis_x, axis_y, or axis_z
+        :param distance: amount to move axis in um
         '''
         device_handle = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(attocube.PositionerMoveRelative(device_handle, axis, int32(distance)))
+        self.check_error(attocube.PositionerMoveRelative(device_handle, axis, int32(distance*1000.0)))
         self.check_error(attocube.PositionerClose(device_handle))
 
     def stop_move_to_pos(self, axis):
         '''
-
         :param axis: axis: axis_x, axis_y, or axis_z
         '''
         device_handle = int32()
@@ -174,7 +173,6 @@ class ANC350:
 
     def set_amplitude(self, axis, amplitude):
         '''
-
         :param axis: axis: axis_x, axis_y, or axis_z
         :param amplitude: amplitude in V
         '''
@@ -186,7 +184,6 @@ class ANC350:
 
     def get_amplitude(self, axis):
         '''
-
         :param axis: axis_x, axis_y, or axis_z
         :return: amplitude in V
         '''
@@ -199,7 +196,6 @@ class ANC350:
 
     def get_speed(self, axis):
         '''
-
         :param axis: axis_x, axis_y, or axis_z
         :return: speed in V/s
         '''
@@ -212,7 +208,6 @@ class ANC350:
 
     def step_piezo(self, axis, direction):
         '''
-
         :param axis: axis_x, axis_y, or axis_z
         :param direction: 0 for forwards, 1 for backwards
         '''
@@ -223,7 +218,6 @@ class ANC350:
 
     def cont_move_piezo(self, axis, direction):
         '''
-
         :param axis: axis_x, axis_y, or axis_z
         :param direction: 0 for forwards, 1 for backwards
         '''
@@ -233,18 +227,29 @@ class ANC350:
         self.check_error(attocube.PositionerClose(device_handle))
 
     def stop_piezo(self, axis):
+        '''
+        :param axis: axis_x, axis_y, or axis_z
+        '''
         device_handle = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
         self.check_error(attocube.PositionerStopMoving(device_handle, axis))
         self.check_error(attocube.PositionerClose(device_handle))
 
     def set_frequency(self, axis, freq):
+        '''
+        :param axis: axis_x, axis_y, or axis_z
+        :param freq: frequency to set in Hz
+        '''
         device_handle = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
         self.check_error(attocube.PositionerFrequency(device_handle, axis, int32(freq)))
         self.check_error(attocube.PositionerClose(device_handle))
 
     def get_frequency(self, axis):
+        '''
+        :param axis: axis_x, axis_y, or axis_z
+        :return: current frequency of axis in Hz
+        '''
         device_handle = int32()
         freq = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
@@ -295,7 +300,7 @@ class ANC350:
 a = ANC350()
 #a.load(axis_z, ctypes.c_char_p('C:/Users/Experiment/Downloads/Software_ANC350v2/ANC350_GUI/general_APS_files/ANPz101res.aps'))
 #print(a.cap_measure(axis_z))
-print(a.get_position(axis_x))
+print(a.get_frequency(axis_z))
 #a.cont_move_piezo(axis_z,1)
 #time.sleep(1)
 #a.stop_piezo(axis_z)
