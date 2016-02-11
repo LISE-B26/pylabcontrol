@@ -203,19 +203,6 @@
      <number>0</number>
     </property>
    </widget>
-   <widget class="QPushButton" name="btn_save_to_disk">
-    <property name="geometry">
-     <rect>
-      <x>1040</x>
-      <y>320</y>
-      <width>91</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Save to disk</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="btn_start_record_fpga">
     <property name="geometry">
      <rect>
@@ -358,6 +345,55 @@
      <string>apply</string>
     </property>
    </widget>
+   <widget class="QListView" name="list_timetraces">
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>350</y>
+      <width>411</width>
+      <height>141</height>
+     </rect>
+    </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::MultiSelection</enum>
+    </property>
+    <property name="modelColumn">
+     <number>0</number>
+    </property>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>500</y>
+      <width>411</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLineEdit" name="txt_tag">
+       <property name="text">
+        <string>some tag</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_clear_record_fpga">
+       <property name="text">
+        <string>Delete</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_save_to_disk">
+       <property name="text">
+        <string>Save to disk</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>listView</zorder>
    <zorder>plotWidget</zorder>
@@ -377,6 +413,9 @@
    <zorder>widget_2</zorder>
    <zorder>treeWidget</zorder>
    <zorder>btn_apply_settings</zorder>
+   <zorder>list_timetraces</zorder>
+   <zorder>btn_clear_record_fpga</zorder>
+   <zorder>txt_tag</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
