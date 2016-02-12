@@ -45,6 +45,8 @@ import hardware_modules.PI_Controler as PI_Controler
 # ==================================================================
 
 
+# todo: at startup execute the settings or set the controls such that they match the actual situation of the experiment
+
 # this is a example for the settings. do not delete. The type is the variables defined here is used to cast the parameters into the right format
 SETTINGS_DICT = {
     "record_length" : 100,
@@ -56,7 +58,7 @@ SETTINGS_DICT = {
     },
     "parameters_Acq" : {
         "sample_period_acq" : 100,
-        "data_length" : 100000,
+        "data_length" : 1000000,
         "block_size" : 2000
     },
     "detector_threshold" : 50,
@@ -363,7 +365,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             data_length = len(data)
 
             # time traces
-            time_step = int(self._settings["parameters_Acq"]["sample_period_acq"]) / 40e6
+            print(data_set["parameters"])
+            time_step = int(data_set["parameters"]["parameters_Acq"]["sample_period_acq"]) / 40e6
+            # time_step = int(self._settings["parameters_Acq"]["sample_period_acq"]) / 40e6
             times = 1e3 * np.linspace(0,time_step * data_length,data_length)
             self.axes_timetrace.plot(times, data)
 

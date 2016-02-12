@@ -249,4 +249,3 @@ class LinearActuator:
     def stop(self):
         self.position = 0
         self.servo.goHome()
-
