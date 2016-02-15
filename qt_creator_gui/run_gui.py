@@ -46,7 +46,7 @@ import hardware_modules.PI_Controler as PI_Controler
 
 
 # todo: at startup execute the settings or set the controls such that they match the actual situation of the experiment
-
+# todo: actually turn the servos after position has reached. Now the servo is trying to adjust the position and one can hear a little noise
 # this is a example for the settings. do not delete. The type is the variables defined here is used to cast the parameters into the right format
 SETTINGS_DICT = {
     "record_length" : 100,
@@ -178,6 +178,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_start_record_fpga.clicked.connect(lambda: self.btn_clicked())
             self.btn_clear_record_fpga.clicked.connect(lambda: self.btn_clicked())
             self.btn_save_to_disk.clicked.connect(lambda: self.btn_clicked())
+            self.btn_apply_settings.clicked.connect(lambda: self.btn_clicked())
 
             self.btn_plus.clicked.connect(lambda: self.set_position())
             self.btn_minus.clicked.connect(lambda: self.set_position())
@@ -185,7 +186,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_to_zero.clicked.connect(lambda: self.set_position())
 
 
-            self.btn_apply_settings.clicked.connect(lambda: self.apply_settings())
+
             # link checkboxes to functions
             self.checkIRon.stateChanged.connect(lambda: self.control_light())
             self.checkGreenon.stateChanged.connect(lambda: self.control_light())
@@ -239,6 +240,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.save_data(sender)
         elif sender.objectName() == "btn_start_record_fpga":
             self._thread_acq_fifo.start()
+        elif sender.objectName() == "btn_apply_settings":
+            self.apply_settings()
         else:
             print('unknown sender: ', sender.objectName())
 
@@ -252,8 +255,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         parameters_Acq = self._settings["parameters_Acq"]
         self.FPGA_READ_FIFO.data_length = parameters_Acq['data_length']
         self.FPGA_READ_FIFO.block_size = parameters_Acq['block_size']
+        self.FPGA_READ_FIFO.sample_period_acq = parameters_Acq['sample_period_acq']
         self.log("applied new data length {:d}" .format(parameters_Acq['data_length']),1000)
         self.log("applied new block size {:d}" .format(parameters_Acq['block_size']),1000)
+        self.log("applied new sample period {:d}" .format(parameters_Acq['sample_period_acq']),1000)
+
+
+
+
 
     def update_parameters(self):
         '''
@@ -337,10 +346,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.log("FIFO acq. completed",1000)
 
     def update_plot_live(self, data_point):
-        if data_point > 2**15:
-            self._recorded_data.append(data_point-2**16)
-        else:
-            self._recorded_data.append(data_point)
+
+        def wrap_data(data):
+            if data > 2**15:
+                data -= 2**16
+            return data
+
+        self._detector_signal = wrap_data(data_point)
+        self._recorded_data.append(self._detector_signal)
+
         if len(self._recorded_data) > self._settings["record_length"]:
             self._recorded_data.popleft()
         self.axes_live.clear()
@@ -608,7 +622,7 @@ class AcquisitionThread(QtCore.QThread):
             # try statement
             # try:
             data_point = self._PI.detector
-            self.updateProgress.emit(data_point)
+            self.updateProgress.emit(data_point[0])
             time.sleep(0.1)
             # exept:
 
@@ -704,53 +718,6 @@ class PolarizationControlThread(QtCore.QThread):
             if abs(self.target_position - actual_position)<0.01:
                 self._running = False
             print(abs(self.target_position - actual_position))
-
-
-
-# class SettingsTree(QtGui.QTreeWidget):
-#
-#     def __init__(self, parent = None):
-#         super(SettingsTree, self).__init__(parent)
-#         self.setColumnCount(1)
-#         self.setHeaderLabel("Settings")
-#         self.settings = settings_dict
-#         self.style()
-#         self.fill_widget(self.settings)
-#
-#     def fill_widget(self, value):
-#
-#         def fill_item(item, value):
-#             item.setExpanded(True)
-#             if type(value) is dict:
-#                 for key, val in sorted(value.iteritems()):
-#                     child = QTreeWidgetItem()
-#                     child.setText(0, unicode(key))
-#                     item.addChild(child)
-#                     fill_item(child, val)
-#             elif type(value) is list:
-#                 for val in value:
-#                     child = QTreeWidgetItem()
-#                     item.addChild(child)
-#                 if type(val) is dict:
-#                     child.setText(0, '[dict]')
-#                     fill_item(child, val)
-#                 elif type(val) is list:
-#                     child.setText(0, '[list]')
-#                     fill_item(child, val)
-#                 else:
-#                     child.setText(0, unicode(val))
-#                 child.setExpanded(True)
-#
-#                 child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
-#
-#             else:
-#                 child = QTreeWidgetItem()
-#                 child.setText(0, unicode(value))
-#                 item.addChild(child)
-#                 child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
-#
-#         self.clear()
-#         fill_item(self.invisibleRootItem(), value)
 
 
 
