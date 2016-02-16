@@ -180,7 +180,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_start_record_fpga.clicked.connect(lambda: self.btn_clicked())
             self.btn_clear_record_fpga.clicked.connect(lambda: self.btn_clicked())
             self.btn_save_to_disk.clicked.connect(lambda: self.btn_clicked())
-            self.btn_apply_settings.clicked.connect(lambda: self.btn_clicked())
 
             self.btn_plus.clicked.connect(lambda: self.set_position())
             self.btn_minus.clicked.connect(lambda: self.set_position())
@@ -242,8 +241,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.save_data(sender)
         elif sender.objectName() == "btn_start_record_fpga":
             self._thread_acq_fifo.start()
-        elif sender.objectName() == "btn_apply_settings":
-            self.apply_settings()
         else:
             print('unknown sender: ', sender.objectName())
 
@@ -450,7 +447,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         model = QtGui.QStandardItemModel(self.listView)
         for item in self.past_commands:
-            model.appendRow(QtGui.QStandardItem(item))
+            model.insertRow(0,QtGui.QStandardItem(item))
+
+            # model.appendRow(QtGui.QStandardItem(item))
         self.listView.setModel(model)
         self.listView.show()
 

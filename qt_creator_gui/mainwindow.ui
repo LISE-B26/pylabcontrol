@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>660</y>
+      <y>630</y>
       <width>711</width>
       <height>141</height>
      </rect>
@@ -332,19 +332,6 @@
      </property>
     </column>
    </widget>
-   <widget class="QPushButton" name="btn_apply_settings">
-    <property name="geometry">
-     <rect>
-      <x>580</x>
-      <y>630</y>
-      <width>131</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>apply</string>
-    </property>
-   </widget>
    <widget class="QListView" name="list_timetraces">
     <property name="geometry">
      <rect>
@@ -394,19 +381,6 @@
      </item>
     </layout>
    </widget>
-   <widget class="QCheckBox" name="checkGreenon_2">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>180</y>
-      <width>95</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Ramp</string>
-    </property>
-   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>listView</zorder>
@@ -423,9 +397,7 @@
    <zorder>btn_plus</zorder>
    <zorder>cmb_filterwheel</zorder>
    <zorder>treeWidget</zorder>
-   <zorder>btn_apply_settings</zorder>
    <zorder>list_timetraces</zorder>
-   <zorder>checkGreenon_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
