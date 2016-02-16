@@ -20,6 +20,8 @@ import pandas as pd
 import hardware_modules.maestro as maestro
 from copy import deepcopy
 import hardware_modules.DCServo_Kinesis_dll as DCServo_Kinesis
+import os
+from helper_functions.test_types import dict_difference
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
@@ -51,14 +53,14 @@ import hardware_modules.PI_Controler as PI_Controler
 SETTINGS_DICT = {
     "record_length" : 100,
     "parameters_PI" : {
-        "sample_period_PI" : int(8e6),
+        "sample_period_PI" : int(8e5),
         "gains" : {'proportional': 1.0, 'integral':0.1},
         "setpoint" : 0,
         "piezo" : 0
     },
     "parameters_Acq" : {
         "sample_period_acq" : 100,
-        "data_length" : 1000000,
+        "data_length" : int(1e5),
         "block_size" : 2000
     },
     "detector_threshold" : 50,
@@ -245,20 +247,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         else:
             print('unknown sender: ', sender.objectName())
 
-    def apply_settings(self):
-        # todo only update the parameters that have been changed
-        parameters_PI = self._settings["parameters_PI"]
-        gains = parameters_PI['gains']
-        self.FPGA_PI.gains = gains
-        self.log("applied new gains {:0.3f}, {:0.3f}" .format(gains['proportional'],gains['integral']),1000)
 
-        parameters_Acq = self._settings["parameters_Acq"]
-        self.FPGA_READ_FIFO.data_length = parameters_Acq['data_length']
-        self.FPGA_READ_FIFO.block_size = parameters_Acq['block_size']
-        self.FPGA_READ_FIFO.sample_period_acq = parameters_Acq['sample_period_acq']
-        self.log("applied new data length {:d}" .format(parameters_Acq['data_length']),1000)
-        self.log("applied new block size {:d}" .format(parameters_Acq['block_size']),1000)
-        self.log("applied new sample period {:d}" .format(parameters_Acq['sample_period_acq']),1000)
 
 
 
@@ -270,46 +259,87 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         this function updates the dictionary that holds all the parameter
         :return:
         '''
-        print(self.treeWidget.currentItem())
-        parameter = str(self.treeWidget.currentItem().text(0))
-        value = unicode(self.treeWidget.currentItem().text(1))
-        parents = []
-        if self.treeWidget.currentColumn() == 0:
-            self.log("Tried to edit parameter name. This is not allowed!!", 1000)
-        else:
-            parent = self.treeWidget.currentItem().parent()
-            while parent != None:
-                parents.insert(0,str(parent.text(0)))
-                parent = parent.parent()
-            try:
-                print(parents)
-                dictator = self._settings
-                for i in parents:
-                    print i
-                    dictator = dictator[i]
-                value_old = dictator[parameter]
 
-                dictator = SETTINGS_DICT
-                for i in parents:
-                    print i
-                    dictator = dictator[i]
-                value_default = dictator[parameter]
-                print("parameter_type", type(value_default))
-
-                if isinstance(value_default, int):
-                    value = int(value)
-                elif isinstance(value_default, float):
-                    value = float(value)
+        def change_parameter(parameter, value_old, value_new):
+            updated_success = True
+            if parameter == 'block_size':
+                self.FPGA_READ_FIFO.block_size = value_new
+            elif parameter == 'sample_period_acq':
+                self.FPGA_READ_FIFO.sample_period_acq = value_new
+            elif parameter == 'data_length':
+                self.FPGA_READ_FIFO.data_length = value_new
+            elif parameter == 'integral':
+                gains = self.FPGA_PI.gains
+                gains.update({'integral':value_new})
+                self.FPGA_PI.gains = gains
+            elif parameter == 'proportional':
+                gains = self.FPGA_PI.gains
+                gains.update({'proportional':value_new})
+                self.FPGA_PI.gains = gains
+            elif parameter == 'data_path':
+                if os.path.isdir(value_new):
+                    self.log("path {:s} changed!!!".format(value_new))
                 else:
-                    print("WARNING, TYPE NOT RECOGNIZED!!!!")
-                dictator.update({parameter : value})
+                    self.log("warning path {:s} is not valid!!!".format(value_new))
+                    updated_success = False
+            elif parameter in {'detector_threshold', 'record_length'}:
+                # these parameters are no settings actually just change some visualizations in the gui
+                pass
+            elif parameter in (SETTINGS_DICT['hardware'].keys()
+                                   + SETTINGS_DICT['hardware']['parameters_filterwheel'].keys()
+                                   + SETTINGS_DICT['hardware']['parameters_filterwheel']['position_list'].keys()):
+                self.log("Harware parameter {:s} can not be changed online.".format(parameter))
+                updated_success = False
+            else:
+                updated_success = False
+                self.log("unknown parameter {:s}. No change applied!".format(parameter))
 
-                # self._settings.update({parameter : float(value)})
-                self.log("changed {:s} from {:s} to {:s}".format(parameter, str(value_old), str(value)))
-            except:
-                print "Unexpected error:", sys.exc_info()[0]
-                raise
+            return updated_success
 
+        if not self.treeWidget.currentItem() == None:
+            parameter = str(self.treeWidget.currentItem().text(0))
+            value = unicode(self.treeWidget.currentItem().text(1))
+            parents = []
+            if self.treeWidget.currentColumn() == 0:
+                self.log("Tried to edit parameter name. This is not allowed!!", 1000)
+            else:
+                parent = self.treeWidget.currentItem().parent()
+                while parent != None:
+                    parents.insert(0,str(parent.text(0)))
+                    parent = parent.parent()
+                try:
+                    dictator = self._settings
+                    for i in parents:
+                        dictator = dictator[i]
+                    value_old = dictator[parameter]
+
+                    dictator = SETTINGS_DICT
+                    for i in parents:
+                        print i
+                        dictator = dictator[i]
+                    value_default = dictator[parameter]
+
+                    if isinstance(value_default, int):
+                        value = int(value)
+                    elif isinstance(value_default, float):
+                        value = float(value)
+                    elif isinstance(value_default, str):
+                        value = str(value)
+                    else:
+                        print("WARNING, TYPE NOT RECOGNIZED!!!!")
+
+                    change_success = change_parameter(parameter, value_old, value)
+                    if change_success:
+                        dictator.update({parameter : value})
+                        self.log("changed parameter {:s} from {:s} to {:s}!".format(parameter, str(value_old), str(value)))
+                    else:
+                        # set back to original values if value entered value is not valid
+                        print(self._settings)
+                        self.fill_treeWidget(self.treeWidget, self._settings)
+
+                except:
+                    print "Unexpected error:", sys.exc_info()[0]
+                    raise
 
 
     def save_data(self, sender):
@@ -496,7 +526,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def fill_treeWidget(self, QTreeWidget, value):
 
         def fill_item(item, value):
-            item.setExpanded(True)
+            # item.setExpanded(True)
             if type(value) is dict:
                 for key, val in sorted(value.iteritems()):
                     child = QtGui.QTreeWidgetItem()
