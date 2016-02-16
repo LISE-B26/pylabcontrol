@@ -1,4 +1,5 @@
 import serial
+import time
 #
 #---------------------------
 # Maestro Servo Controller
@@ -179,10 +180,12 @@ class BeamBlock:
 
     def block(self):
         self.servo.setTarget(self.channel, self.position_block)
-
+        time.sleep(0.2)
+        self.servo.goHome()
     def open(self):
         self.servo.setTarget(self.channel, self.position_open)
-
+        time.sleep(0.2)
+        self.servo.goHome()
 class FilterWheel:
     def __init__(self,servo, channel, position_list = {'1': 4*600, '2':4*1550, '3':4*2500}):
         '''
@@ -200,6 +203,8 @@ class FilterWheel:
 
         if position in self.position_list:
             self.servo.setTarget(self.channel, self.position_list[position])
+            time.sleep(0.8)
+            self.servo.goHome()
         else:
             print('position {:s} is not a valid position. Position of filter wheel not changed!'.format(position))
             print('valid positions are', self.position_list.keys())

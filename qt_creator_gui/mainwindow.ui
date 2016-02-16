@@ -361,7 +361,7 @@
      <number>0</number>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>730</x>
@@ -394,6 +394,20 @@
      </item>
     </layout>
    </widget>
+   <widget class="QCheckBox" name="checkGreenon_2">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>180</y>
+      <width>95</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ramp</string>
+    </property>
+   </widget>
+   <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>listView</zorder>
    <zorder>plotWidget</zorder>
@@ -401,7 +415,6 @@
    <zorder>sliderPosition</zorder>
    <zorder>tabWidget</zorder>
    <zorder>progressBar</zorder>
-   <zorder>btn_save_to_disk</zorder>
    <zorder>btn_start_record_fpga</zorder>
    <zorder>btn_minus</zorder>
    <zorder>btn_center</zorder>
@@ -409,13 +422,10 @@
    <zorder>lbl_pol_position</zorder>
    <zorder>btn_plus</zorder>
    <zorder>cmb_filterwheel</zorder>
-   <zorder>widget</zorder>
-   <zorder>widget_2</zorder>
    <zorder>treeWidget</zorder>
    <zorder>btn_apply_settings</zorder>
    <zorder>list_timetraces</zorder>
-   <zorder>btn_clear_record_fpga</zorder>
-   <zorder>txt_tag</zorder>
+   <zorder>checkGreenon_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

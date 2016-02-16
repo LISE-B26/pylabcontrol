@@ -6,7 +6,7 @@ servo = maestro.Controller('COM5')
 
 # define what to test
 
-test_case = 'beamblock' # beamblock, motor, controller, filterwheel
+test_case = 'filterwheel' # beamblock, motor, controller, filterwheel
 
 
 # set channel
@@ -20,7 +20,10 @@ if test_case == 'filterwheel':
     filter.goto('ND1.0')
     # block1.block()
     # close communication channel
-    servo.close()
+    # servo.close()
+
+    for i in range(10):
+        print(servo.getPosition(channel))
 
 # ================== test controler =======================
 # # set ranges, acceleration etc.
@@ -45,7 +48,13 @@ if test_case == 'beamblock':
     block1 = maestro.BeamBlock(servo, channel)
     block1.open()
     # block1.block()
+
+    # for i in range(10):
+    #     print(servo.getPosition(channel))
+    # time.sleep(0.2)
+    servo.setTarget(0,  channel)
+    # servo.goHome()
     # close communication channel
-    servo.close()
+    # servo.close()
 
 

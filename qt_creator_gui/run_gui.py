@@ -290,6 +290,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                                    + SETTINGS_DICT['hardware']['parameters_filterwheel']['position_list'].keys()):
                 self.log("Harware parameter {:s} can not be changed online.".format(parameter))
                 updated_success = False
+            elif parameter == 'piezo':
+                self.FPGA_PI.piezo = value_new
             else:
                 updated_success = False
                 self.log("unknown parameter {:s}. No change applied!".format(parameter))
@@ -321,14 +323,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                     if isinstance(value_default, int):
                         value = int(value)
+                        change_success = change_parameter(parameter, value_old, value)
                     elif isinstance(value_default, float):
                         value = float(value)
+                        change_success = change_parameter(parameter, value_old, value)
                     elif isinstance(value_default, str):
                         value = str(value)
+                        change_success = change_parameter(parameter, value_old, value)
                     else:
+                        change_success = False
                         print("WARNING, TYPE NOT RECOGNIZED!!!!")
 
-                    change_success = change_parameter(parameter, value_old, value)
                     if change_success:
                         dictator.update({parameter : value})
                         self.log("changed parameter {:s} from {:s} to {:s}!".format(parameter, str(value_old), str(value)))
@@ -636,6 +641,7 @@ class AcquisitionThread(QtCore.QThread):
         """
         self._recording = False
         self._PI = ControlMainWindow.FPGA_PI
+
         QtCore.QThread.__init__(self)
 
 
@@ -645,7 +651,6 @@ class AcquisitionThread(QtCore.QThread):
     #function in it's own "thread".
     def run(self):
         self._recording = True
-
         while self._recording:
             #Emit the signal so it can be received on the UI side.
             # data_point = np.random.randint(-32000, 32000)
@@ -653,8 +658,8 @@ class AcquisitionThread(QtCore.QThread):
             # try:
             data_point = self._PI.detector
             self.updateProgress.emit(data_point[0])
-            time.sleep(0.1)
-            # exept:
+            time.sleep(0.2)
+
 
         print("acquisition ended")
     def stop(self):
