@@ -86,6 +86,19 @@ class Controller:
         # Record Target value
         self.Targets[chan] = target
 
+
+    def disable(self, chan):
+
+        target = 0
+        #
+        lsb = target & 0x7f #7 bits for least significant byte
+        msb = (target >> 7) & 0x7f #shift 7 and take next 7 bits for msb
+        # Send Pololu intro, device number, command, channel, and target lsb/msb
+        cmd = self.PololuCmd + chr(0x04) + chr(chan) + chr(lsb) + chr(msb)
+        self.usb.write(cmd)
+        # Record Target value
+        self.Targets[chan] = target
+
     # Set speed of channel
     # Speed is measured as 0.25microseconds/10milliseconds
     # For the standard 1ms pulse width change to move a servo between extremes, a speed
@@ -181,11 +194,11 @@ class BeamBlock:
     def block(self):
         self.servo.setTarget(self.channel, self.position_block)
         time.sleep(0.2)
-        self.servo.goHome()
+        self.servo.disable(self.channel)
     def open(self):
         self.servo.setTarget(self.channel, self.position_open)
         time.sleep(0.2)
-        self.servo.goHome()
+        self.servo.disable(self.channel)
 class FilterWheel:
     def __init__(self,servo, channel, position_list = {'1': 4*600, '2':4*1550, '3':4*2500}):
         '''
@@ -204,7 +217,7 @@ class FilterWheel:
         if position in self.position_list:
             self.servo.setTarget(self.channel, self.position_list[position])
             time.sleep(0.8)
-            self.servo.goHome()
+            self.servo.disable(self.channel)
         else:
             print('position {:s} is not a valid position. Position of filter wheel not changed!'.format(position))
             print('valid positions are', self.position_list.keys())
