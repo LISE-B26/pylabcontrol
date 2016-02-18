@@ -118,9 +118,9 @@ class NI_FPGA_PI(object):
         read detector value
         '''
         # if is_raw_value == True:
-        # self._AI1 = getattr(FPGAlib, 'read_AI1')(self._fpga.session, self._fpga.status)
+        self._AI1_raw = getattr(FPGAlib, 'read_AI1')(self._fpga.session, self._fpga.status)
         self._AI1 = getattr(FPGAlib, 'read_AI1_Filtered')(self._fpga.session, self._fpga.status)
-        return self._AI1
+        return self._AI1, self._AI1_raw
         # else:
         #     self._AI1_filtered = getattr(FPGAlib, 'read_AI1_Filtered')(self._fpga.session, self._fpga.status)
         #     return self._AI1_filtered

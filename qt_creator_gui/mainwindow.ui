@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>660</y>
+      <y>630</y>
       <width>711</width>
       <height>141</height>
      </rect>
@@ -332,19 +332,6 @@
      </property>
     </column>
    </widget>
-   <widget class="QPushButton" name="btn_apply_settings">
-    <property name="geometry">
-     <rect>
-      <x>580</x>
-      <y>630</y>
-      <width>131</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>apply</string>
-    </property>
-   </widget>
    <widget class="QListView" name="list_timetraces">
     <property name="geometry">
      <rect>
@@ -361,7 +348,7 @@
      <number>0</number>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>730</x>
@@ -395,13 +382,13 @@
     </layout>
    </widget>
    <zorder>layoutWidget</zorder>
+   <zorder>layoutWidget</zorder>
    <zorder>listView</zorder>
    <zorder>plotWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>sliderPosition</zorder>
    <zorder>tabWidget</zorder>
    <zorder>progressBar</zorder>
-   <zorder>btn_save_to_disk</zorder>
    <zorder>btn_start_record_fpga</zorder>
    <zorder>btn_minus</zorder>
    <zorder>btn_center</zorder>
@@ -409,13 +396,8 @@
    <zorder>lbl_pol_position</zorder>
    <zorder>btn_plus</zorder>
    <zorder>cmb_filterwheel</zorder>
-   <zorder>widget</zorder>
-   <zorder>widget_2</zorder>
    <zorder>treeWidget</zorder>
-   <zorder>btn_apply_settings</zorder>
    <zorder>list_timetraces</zorder>
-   <zorder>btn_clear_record_fpga</zorder>
-   <zorder>txt_tag</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

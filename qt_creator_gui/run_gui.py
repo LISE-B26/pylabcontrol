@@ -20,6 +20,8 @@ import pandas as pd
 import hardware_modules.maestro as maestro
 from copy import deepcopy
 import hardware_modules.DCServo_Kinesis_dll as DCServo_Kinesis
+import os
+from helper_functions.test_types import dict_difference
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
@@ -45,18 +47,20 @@ import hardware_modules.PI_Controler as PI_Controler
 # ==================================================================
 
 
+# todo: at startup execute the settings or set the controls such that they match the actual situation of the experiment
+# todo: actually turn the servos after position has reached. Now the servo is trying to adjust the position and one can hear a little noise
 # this is a example for the settings. do not delete. The type is the variables defined here is used to cast the parameters into the right format
 SETTINGS_DICT = {
     "record_length" : 100,
     "parameters_PI" : {
-        "sample_period_PI" : int(8e6),
+        "sample_period_PI" : int(8e5),
         "gains" : {'proportional': 1.0, 'integral':0.1},
         "setpoint" : 0,
         "piezo" : 0
     },
     "parameters_Acq" : {
         "sample_period_acq" : 100,
-        "data_length" : 100000,
+        "data_length" : int(1e5),
         "block_size" : 2000
     },
     "detector_threshold" : 50,
@@ -183,7 +187,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_to_zero.clicked.connect(lambda: self.set_position())
 
 
-            self.btn_apply_settings.clicked.connect(lambda: self.apply_settings())
+
             # link checkboxes to functions
             self.checkIRon.stateChanged.connect(lambda: self.control_light())
             self.checkGreenon.stateChanged.connect(lambda: self.control_light())
@@ -240,18 +244,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         else:
             print('unknown sender: ', sender.objectName())
 
-    def apply_settings(self):
-        # todo only update the parameters that have been changed
-        parameters_PI = self._settings["parameters_PI"]
-        gains = parameters_PI['gains']
-        self.FPGA_PI.gains = gains
-        self.log("applied new gains {:0.3f}, {:0.3f}" .format(gains['proportional'],gains['integral']),1000)
 
-        parameters_Acq = self._settings["parameters_Acq"]
-        self.FPGA_READ_FIFO.data_length = parameters_Acq['data_length']
-        self.FPGA_READ_FIFO.block_size = parameters_Acq['block_size']
-        self.log("applied new data length {:d}" .format(parameters_Acq['data_length']),1000)
-        self.log("applied new block size {:d}" .format(parameters_Acq['block_size']),1000)
+
+
+
+
 
     def update_parameters(self):
         '''
@@ -259,46 +256,92 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         this function updates the dictionary that holds all the parameter
         :return:
         '''
-        print(self.treeWidget.currentItem())
-        parameter = str(self.treeWidget.currentItem().text(0))
-        value = unicode(self.treeWidget.currentItem().text(1))
-        parents = []
-        if self.treeWidget.currentColumn() == 0:
-            self.log("Tried to edit parameter name. This is not allowed!!", 1000)
-        else:
-            parent = self.treeWidget.currentItem().parent()
-            while parent != None:
-                parents.insert(0,str(parent.text(0)))
-                parent = parent.parent()
-            try:
-                print(parents)
-                dictator = self._settings
-                for i in parents:
-                    print i
-                    dictator = dictator[i]
-                value_old = dictator[parameter]
 
-                dictator = SETTINGS_DICT
-                for i in parents:
-                    print i
-                    dictator = dictator[i]
-                value_default = dictator[parameter]
-                print("parameter_type", type(value_default))
-
-                if isinstance(value_default, int):
-                    value = int(value)
-                elif isinstance(value_default, float):
-                    value = float(value)
+        def change_parameter(parameter, value_old, value_new):
+            updated_success = True
+            if parameter == 'block_size':
+                self.FPGA_READ_FIFO.block_size = value_new
+            elif parameter == 'sample_period_acq':
+                self.FPGA_READ_FIFO.sample_period_acq = value_new
+            elif parameter == 'data_length':
+                self.FPGA_READ_FIFO.data_length = value_new
+            elif parameter == 'integral':
+                gains = self.FPGA_PI.gains
+                gains.update({'integral':value_new})
+                self.FPGA_PI.gains = gains
+            elif parameter == 'proportional':
+                gains = self.FPGA_PI.gains
+                gains.update({'proportional':value_new})
+                self.FPGA_PI.gains = gains
+            elif parameter == 'data_path':
+                if os.path.isdir(value_new):
+                    self.log("path {:s} changed!!!".format(value_new))
                 else:
-                    print("WARNING, TYPE NOT RECOGNIZED!!!!")
-                dictator.update({parameter : value})
+                    self.log("warning path {:s} is not valid!!!".format(value_new))
+                    updated_success = False
+            elif parameter in {'detector_threshold', 'record_length'}:
+                # these parameters are no settings actually just change some visualizations in the gui
+                pass
+            elif parameter in (SETTINGS_DICT['hardware'].keys()
+                                   + SETTINGS_DICT['hardware']['parameters_filterwheel'].keys()
+                                   + SETTINGS_DICT['hardware']['parameters_filterwheel']['position_list'].keys()):
+                self.log("Harware parameter {:s} can not be changed online.".format(parameter))
+                updated_success = False
+            elif parameter == 'piezo':
+                self.FPGA_PI.piezo = value_new
+            else:
+                updated_success = False
+                self.log("unknown parameter {:s}. No change applied!".format(parameter))
 
-                # self._settings.update({parameter : float(value)})
-                self.log("changed {:s} from {:s} to {:s}".format(parameter, str(value_old), str(value)))
-            except:
-                print "Unexpected error:", sys.exc_info()[0]
-                raise
+            return updated_success
 
+        if not self.treeWidget.currentItem() == None:
+            parameter = str(self.treeWidget.currentItem().text(0))
+            value = unicode(self.treeWidget.currentItem().text(1))
+            parents = []
+            if self.treeWidget.currentColumn() == 0:
+                self.log("Tried to edit parameter name. This is not allowed!!", 1000)
+            else:
+                parent = self.treeWidget.currentItem().parent()
+                while parent != None:
+                    parents.insert(0,str(parent.text(0)))
+                    parent = parent.parent()
+                try:
+                    dictator = self._settings
+                    for i in parents:
+                        dictator = dictator[i]
+                    value_old = dictator[parameter]
+
+                    dictator = SETTINGS_DICT
+                    for i in parents:
+                        print i
+                        dictator = dictator[i]
+                    value_default = dictator[parameter]
+
+                    if isinstance(value_default, int):
+                        value = int(value)
+                        change_success = change_parameter(parameter, value_old, value)
+                    elif isinstance(value_default, float):
+                        value = float(value)
+                        change_success = change_parameter(parameter, value_old, value)
+                    elif isinstance(value_default, str):
+                        value = str(value)
+                        change_success = change_parameter(parameter, value_old, value)
+                    else:
+                        change_success = False
+                        print("WARNING, TYPE NOT RECOGNIZED!!!!")
+
+                    if change_success:
+                        dictator.update({parameter : value})
+                        self.log("changed parameter {:s} from {:s} to {:s}!".format(parameter, str(value_old), str(value)))
+                    else:
+                        # set back to original values if value entered value is not valid
+                        print(self._settings)
+                        self.fill_treeWidget(self.treeWidget, self._settings)
+
+                except:
+                    print "Unexpected error:", sys.exc_info()[0]
+                    raise
 
 
     def save_data(self, sender):
@@ -335,10 +378,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.log("FIFO acq. completed",1000)
 
     def update_plot_live(self, data_point):
-        if data_point > 2**15:
-            self._recorded_data.append(data_point-2**16)
-        else:
-            self._recorded_data.append(data_point)
+
+        def wrap_data(data):
+            if data > 2**15:
+                data -= 2**16
+            return data
+
+        self._detector_signal = wrap_data(data_point)
+        self._recorded_data.append(self._detector_signal)
+
         if len(self._recorded_data) > self._settings["record_length"]:
             self._recorded_data.popleft()
         self.axes_live.clear()
@@ -363,7 +411,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             data_length = len(data)
 
             # time traces
-            time_step = int(self._settings["parameters_Acq"]["sample_period_acq"]) / 40e6
+            print(data_set["parameters"])
+            time_step = int(data_set["parameters"]["parameters_Acq"]["sample_period_acq"]) / 40e6
+            # time_step = int(self._settings["parameters_Acq"]["sample_period_acq"]) / 40e6
             times = 1e3 * np.linspace(0,time_step * data_length,data_length)
             self.axes_timetrace.plot(times, data)
 
@@ -397,7 +447,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         model = QtGui.QStandardItemModel(self.listView)
         for item in self.past_commands:
-            model.appendRow(QtGui.QStandardItem(item))
+            model.insertRow(0,QtGui.QStandardItem(item))
+
+            # model.appendRow(QtGui.QStandardItem(item))
         self.listView.setModel(model)
         self.listView.show()
 
@@ -478,7 +530,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def fill_treeWidget(self, QTreeWidget, value):
 
         def fill_item(item, value):
-            item.setExpanded(True)
+            # item.setExpanded(True)
             if type(value) is dict:
                 for key, val in sorted(value.iteritems()):
                     child = QtGui.QTreeWidgetItem()
@@ -588,6 +640,7 @@ class AcquisitionThread(QtCore.QThread):
         """
         self._recording = False
         self._PI = ControlMainWindow.FPGA_PI
+
         QtCore.QThread.__init__(self)
 
 
@@ -597,16 +650,15 @@ class AcquisitionThread(QtCore.QThread):
     #function in it's own "thread".
     def run(self):
         self._recording = True
-
         while self._recording:
             #Emit the signal so it can be received on the UI side.
             # data_point = np.random.randint(-32000, 32000)
             # try statement
             # try:
             data_point = self._PI.detector
-            self.updateProgress.emit(data_point)
-            time.sleep(0.1)
-            # exept:
+            self.updateProgress.emit(data_point[0])
+            time.sleep(0.2)
+
 
         print("acquisition ended")
     def stop(self):
@@ -700,53 +752,6 @@ class PolarizationControlThread(QtCore.QThread):
             if abs(self.target_position - actual_position)<0.01:
                 self._running = False
             print(abs(self.target_position - actual_position))
-
-
-
-# class SettingsTree(QtGui.QTreeWidget):
-#
-#     def __init__(self, parent = None):
-#         super(SettingsTree, self).__init__(parent)
-#         self.setColumnCount(1)
-#         self.setHeaderLabel("Settings")
-#         self.settings = settings_dict
-#         self.style()
-#         self.fill_widget(self.settings)
-#
-#     def fill_widget(self, value):
-#
-#         def fill_item(item, value):
-#             item.setExpanded(True)
-#             if type(value) is dict:
-#                 for key, val in sorted(value.iteritems()):
-#                     child = QTreeWidgetItem()
-#                     child.setText(0, unicode(key))
-#                     item.addChild(child)
-#                     fill_item(child, val)
-#             elif type(value) is list:
-#                 for val in value:
-#                     child = QTreeWidgetItem()
-#                     item.addChild(child)
-#                 if type(val) is dict:
-#                     child.setText(0, '[dict]')
-#                     fill_item(child, val)
-#                 elif type(val) is list:
-#                     child.setText(0, '[list]')
-#                     fill_item(child, val)
-#                 else:
-#                     child.setText(0, unicode(val))
-#                 child.setExpanded(True)
-#
-#                 child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
-#
-#             else:
-#                 child = QTreeWidgetItem()
-#                 child.setText(0, unicode(value))
-#                 item.addChild(child)
-#                 child.setFlags(Qt.ItemIsSelectable |Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
-#
-#         self.clear()
-#         fill_item(self.invisibleRootItem(), value)
 
 
 

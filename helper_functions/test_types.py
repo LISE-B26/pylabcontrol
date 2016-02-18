@@ -5,6 +5,39 @@ __author__ = 'Experiment'
 '''
 import json as json
 
+def dict_difference(dict1, dict2):
+    '''
+    checks if two dictionaries have the same keys
+    if they have the same keys but different values it returns a dictionary of the values that are different
+    with values corresponding to dict1
+    returns:
+        identical - booean, true is the dictionaries are identical
+        dict_diff - dictionary containing the entries that are different
+    '''
+    identical = True
+    dict_diff = {}
+    if sorted(dict1.keys()) == sorted(dict2.keys()):
+
+        for key, value in dict1.iteritems():
+            if type(value) is dict:
+                print('element is dict')
+                identical_sub, diff_keys_sub = comp_dict(dict1[key], dict2[key])
+                if identical_sub is False:
+                    identical = False
+                    dict_diff.update({key:diff_keys_sub})
+
+            else:
+                if dict1[key] is not dict2[key]:
+                    identical = False
+                    print(dict1[key], dict2[key])
+                    dict_diff.update({key:dict1[key]})
+    else:
+        print('keys don\'t match')
+        identical = False
+
+    return identical, dict_diff
+
+
 def is_autofocus_param(myjson):
     try:
         json_object = json.loads(myjson)
