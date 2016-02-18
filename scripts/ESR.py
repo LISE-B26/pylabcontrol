@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import scipy.optimize as opt
 import time
 import pandas as pd
+from PyQt4 import QtGui, QtCore
 
 RANGE_MIN = 2025000000 #2.025 GHz
 RANGE_MAX = 4050000000 #4.050 GHZ
@@ -58,6 +59,8 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
 
     # run sweeps
     for scan_num in xrange(0, num_avg):
+        if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
+            break
         print("Scan Number: " + str(scan_num))
         esr_data_pos = 0
         mwgen.outputOn()
@@ -190,12 +193,12 @@ def plot_esr(freq_values, esr_data, fit_data = None, converge_data = None):
     if not (fit_data == None or converge_data == None): # plot esr, fit, and convergence data
         scan_array = np.linspace(1,len(converge_data),len(converge_data))
         plt.subplot(211)
-        plt.plot(freq_values, esr_data, freq_values, fit_data)
+        plt.plot(freq_values, esr_data, freq_values, fit_data, color = 'blue')
         plt.title('ESR')
         plt.xlabel('Frequency (Hz)')
         plt.ylabel('Kcounts/s')
         plt.subplot(212)
-        plt.plot(scan_array, converge_data)
+        plt.plot(scan_array, converge_data, color = 'blue')
         plt.title('Convergence Plot')
         plt.xlabel('Scan Number')
         plt.ylabel('Deviation from Fit')
@@ -235,18 +238,18 @@ def plot_esr(freq_values, esr_data, fit_data = None, converge_data = None):
         return None
 
 def plot_esr_gui(canvas, freq_values, esr_data, fit_data = None, converge_data = None):
-    #esrplt = canvas.figure.clf()
+    canvas.figure.clf()
     if not (fit_data == None or converge_data == None): # plot esr, fit, and convergence data
         scan_array = np.linspace(1,len(converge_data),len(converge_data))
         fig = canvas.figure
         #subfig1 = fig.axes
         subfig1 = fig.add_subplot(211)
-        subfig1.plot(freq_values, esr_data, freq_values, fit_data)
+        subfig1.plot(freq_values, esr_data, 'b', freq_values, fit_data, 'r')
         subfig1.set_title('ESR')
         subfig1.set_xlabel('Frequency (Hz)')
         subfig1.set_ylabel('Kcounts/s')
         subfig2 = fig.add_subplot(212)
-        subfig2.plot(scan_array, converge_data)
+        subfig2.plot(scan_array, converge_data, color = 'blue')
         subfig2.set_title('Convergence Plot')
         subfig2.set_xlabel('Scan Number')
         subfig2.set_ylabel('Deviation from Fit')
@@ -258,26 +261,28 @@ def plot_esr_gui(canvas, freq_values, esr_data, fit_data = None, converge_data =
         print(fig)
         #subfig1 = fig.axes
         subfig1 = fig.add_subplot(211)
-        subfig1.plot(freq_values, esr_data)
+        subfig1.plot(freq_values, esr_data, 'b')
         subfig1.set_title('ESR')
         subfig1.set_xlabel('Frequency (Hz)')
         subfig1.set_ylabel('Kcounts/s')
         subfig2 = fig.add_subplot(212)
-        subfig2.plot(scan_array, converge_data)
+        subfig2.plot(scan_array, converge_data, 'b')
         subfig2.set_title('Convergence Plot')
         subfig2.set_xlabel('Scan Number')
         subfig2.set_ylabel('Deviation from Fit')
         #subfig1.SubplotParams()
     elif not (fit_data == None): # plot esr and fit data
-        canvas.plot(freq_values, esr_data, freq_values, fit_data)
+        canvas.plot(freq_values, esr_data, 'b', freq_values, fit_data, 'r')
         canvas.set_title('ESR')
         canvas.set_xlabel('Frequency (Hz)')
         canvas.set_ylabel('Kcounts/s')
     else: #plot just esr data
-        plt.plot(freq_values, esr_data)
-        plt.title('ESR')
-        plt.xlabel('Frequency (Hz)')
-        plt.ylabel('Kcounts/s')
+        canvas.plot(freq_values, esr_data, 'b')
+        canvas.set_title('ESR')
+        canvas.set_xlabel('Frequency (Hz)')
+        canvas.set_ylabel('Kcounts/s')
+    canvas.draw()
+    QtGui.QApplication.processEvents()
 
 # defines a lorentzian with some amplitude, width, center, and offset to use with opt.curve_fit
 def lorentzian(x, amplitude, width, center, offset):

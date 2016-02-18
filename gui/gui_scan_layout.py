@@ -348,7 +348,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         grid.addWidget(ApplicationWindow.label_execute,row_start,column_start)
         ApplicationWindow.cmb_execute = QtGui.QComboBox(ApplicationWindow.main_widget)
         # Add new scripts to be executed here
-        ApplicationWindow.cmb_execute.addItems(['ESR (chosen NVs)', 'ESR (grid)', 'ESR (point)', 'AutoFocus', 'AutoFocus (mean)', 'AutoFocus (mean, grid)', 'Counter', 'Get Distance', 'ZI Frequency Sweep (point)', 'ZI Frequency Sweep (grid)', 'reset scan range'])
+        ApplicationWindow.cmb_execute.addItems(['ESR (chosen NVs)', 'ESR (grid)', 'ESR (point)', 'AutoFocus', 'AutoFocus (attocube)', 'AutoFocus (mean)', 'AutoFocus (mean, grid)', 'Counter', 'Get Distance', 'ZI Frequency Sweep (point)', 'ZI Frequency Sweep (grid)', 'reset scan range'])
         ApplicationWindow.cmb_execute.activated.connect(lambda: change_script(ApplicationWindow))
         grid.addWidget(ApplicationWindow.cmb_execute,row_start+1,column_start)
 
@@ -465,6 +465,18 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                 if not af_parameter == {}:
                     #voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus)
                     voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus, ApplicationWindow.piezo, focPlot=ApplicationWindow.focPlot, queue=ApplicationWindow.script_queue)
+                    ApplicationWindow.statusBar().showMessage('new focus {:0.3f}'.format(voltage_focus),2000)
+                    ApplicationWindow.txt_focus_voltage.setText('{:0.2f}'.format(voltage_focus))
+
+            elif script_name == 'AutoFocus (attocube)':
+                print 'AutoFocus (attocube)'
+                _, pt_a, pt_b, _, _, _, _ = get_pts_and_size(ApplicationWindow)
+                roi_focus = Meshing.two_pts_to_roi(pt_a, pt_b)
+                af_parameter = AF.AF_load_param_grid(ApplicationWindow.path_script.text())
+
+                if not af_parameter == {}:
+                    #voltage_focus = AF.autofocus_RoI(af_parameter, roi_focus)
+                    voltage_focus = AF.autofocus_RoI_attocube(af_parameter, roi_focus, focPlot=ApplicationWindow.focPlot, queue=ApplicationWindow.script_queue)
                     ApplicationWindow.statusBar().showMessage('new focus {:0.3f}'.format(voltage_focus),2000)
                     ApplicationWindow.txt_focus_voltage.setText('{:0.2f}'.format(voltage_focus))
 

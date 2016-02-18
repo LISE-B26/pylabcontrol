@@ -175,9 +175,8 @@ class Focus:
         elif return_data == False:
             return mean
 
-    #TODO: Debug THIS
     @classmethod
-    def scan_attocube(cls, min_pos, max_pos, center_position, max_deviation, atto_voltage = 7, atto_frequency = 100, attoChannel = 0, waitTime = .1, canvas = None, APD = True, scan_range_roi = None, plotting = True, blocking=True, return_data = False, queue = None, std = True, timePerPt = .001):
+    def scan_attocube(cls, min_pos, max_pos, center_position, max_deviation, cont_voltage = 25, step_voltage = 30, atto_frequency = 100, attoChannel = 0, waitTime = .1, canvas = None, APD = True, scan_range_roi = None, plotting = True, blocking=True, return_data = False, queue = None, std = True, timePerPt = .001):
         assert((min_pos < max_pos) and (min_pos > center_position - max_deviation) and (max_pos < center_position + max_deviation))
 
         if scan_range_roi == None:
@@ -194,10 +193,9 @@ class Focus:
 
         roi_crop(scan_range_roi)
 
-        pos_range = [min_pos]
         current_pos = min_pos
-        xdata = []
-        ydata = []
+        xdata = numpy.array([])
+        ydata = numpy.array([])
         (xInit, yInit, _, _) = DaqOut.DaqOutputWave.getOutputVoltages()
 
         #
@@ -229,6 +227,11 @@ class Focus:
 
 
         attocube = Attocube.ANC350()
+        attocube.set_amplitude(attoChannel, cont_voltage)
+        attocube.set_frequency(attoChannel, atto_frequency)
+        attocube.move_absolute(attoChannel, min_pos)
+        attocube.set_amplitude(attoChannel, step_voltage)
+        time.sleep(5)
         # initializes pyplot figure if using pyplot plotting
         if canvas is None and plotting:
             fig = plt.figure()
@@ -266,20 +269,20 @@ class Focus:
             cls.updatePlot(canvas)
         while current_pos < max_pos:
             if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
-                return current_pos, pos_range, ydata
-            Attocube.step_piezo(attoChannel,ATTO_FORWARD)
-            current_pos = Attocube.get_position(attoChannel)
+                return current_pos, xdata, ydata
+            attocube.step_piezo(attoChannel,ATTO_FORWARD)
+            current_pos = attocube.get_position(attoChannel)
             time.sleep(waitTime)
+            xdata = numpy.append(xdata, current_pos)
             if(APD):
                 scanner = GalvoScanAPD.ScanNV(xMin, xMax, xPts, yMin, yMax, yPts, timePerPt)
             else:
                 scanner = GalvoScanPD.ScanNV(xMin, xMax, xPts, yMin, yMax, yPts, timePerPt)
             image = scanner.scan(queue = None)
-            pos_range = pos_range.append(current_pos)
             if std == True:
-                ydata.append(scipy.ndimage.measurements.standard_deviation(image))
+                ydata = numpy.append(ydata, scipy.ndimage.measurements.standard_deviation(image))
             else:
-                ydata.append(scipy.ndimage.measurements.mean(image))
+                ydata = numpy.append(ydata, scipy.ndimage.measurements.mean(image))
             if plotting:
                 cls.plotData(datline, xdata, ydata, canvas, axes)
 
@@ -290,25 +293,26 @@ class Focus:
                 cls.plotImg(image_best, canvas, axes_img_best)
 
         cls.setDaqPt(xInit, yInit)
-        (a,mean,sigma,c),_ = cls.fit(pos_range, ydata)
+        (a,mean,sigma,c),_ = cls.fit(xdata, ydata)
         if plotting:
             cls.plotFit(fitline,a,mean,sigma,c,min_pos,max_pos, canvas)
         # checks if computed mean is outside of scan range and, if so, sets piezo to center of scan range to prevent a
         # poor fit from trying to move the piezo by a large amount and breaking the stripline
-        attocube.set_amplitude(attoChannel, atto_voltage)
-        attocube.set_frequency(attoChannel, atto_frequency)
-        if(mean > numpy.min(current_pos) and mean < numpy.max(current_pos) and a > 0):
+        attocube.set_amplitude(attoChannel, cont_voltage)
+        if(mean > numpy.min(xdata) and mean < numpy.max(xdata) and a > 0):
+            print(mean)
             attocube.move_absolute(attoChannel, mean)
             print(mean)
         else:
-            attocube.move_absolute(attoChannel, numpy.mean(pos_range))
+            print(numpy.mean(xdata))
+            attocube.move_absolute(attoChannel, numpy.mean(xdata))
         if canvas is None and plotting and blocking:
             plt.show()
         elif canvas is None and plotting:
             plt.close()
 
         if return_data:
-            return mean, pos_range, ydata
+            return mean, xdata, ydata
         elif return_data == False:
             return mean
 

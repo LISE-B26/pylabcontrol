@@ -148,7 +148,7 @@ class ANC350:
         '''
         device_handle = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(attocube.PositionerMoveAbsolute(device_handle, axis, int32(position*1000.0)))
+        self.check_error(attocube.PositionerMoveAbsolute(device_handle, axis, int32(int(position*1000.0))))
         self.check_error(attocube.PositionerClose(device_handle))
 
     def move_relative(self, axis, distance):
@@ -159,7 +159,7 @@ class ANC350:
         '''
         device_handle = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(attocube.PositionerMoveRelative(device_handle, axis, int32(distance*1000.0)))
+        self.check_error(attocube.PositionerMoveRelative(device_handle, axis, int32(int(distance*1000.0))))
         self.check_error(attocube.PositionerClose(device_handle))
 
     def stop_move_to_pos(self, axis):
@@ -176,6 +176,7 @@ class ANC350:
         :param axis: axis: axis_x, axis_y, or axis_z
         :param amplitude: amplitude in V
         '''
+        assert(amplitude <= 60)
         device_handle = int32()
         amplitude *= 1000
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
@@ -216,6 +217,17 @@ class ANC350:
         self.check_error(attocube.PositionerMoveSingleStep(device_handle, axis, int32(direction)))
         self.check_error(attocube.PositionerClose(device_handle))
 
+    def step_cnt(self, axis, num_steps):
+        '''
+        :param axis: axis_x, axis_y, or axis_z
+        :param direction: 0 for forwards, 1 for backwards
+        '''
+        device_handle = int32()
+        self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        self.check_error(attocube.PositionerStepCount(device_handle, axis, int32(num_steps)))
+        self.check_error(attocube.PositionerMoveSingleStep(device_handle, axis, int32(1)))
+        self.check_error(attocube.PositionerClose(device_handle))
+
     def cont_move_piezo(self, axis, direction):
         '''
         :param axis: axis_x, axis_y, or axis_z
@@ -240,9 +252,10 @@ class ANC350:
         :param axis: axis_x, axis_y, or axis_z
         :param freq: frequency to set in Hz
         '''
+        assert (freq <= 2000)
         device_handle = int32()
         self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(attocube.PositionerFrequency(device_handle, axis, int32(freq)))
+        self.check_error(attocube.PositionerFrequency(device_handle, axis, int32(int(freq))))
         self.check_error(attocube.PositionerClose(device_handle))
 
     def get_frequency(self, axis):
@@ -300,7 +313,7 @@ class ANC350:
 a = ANC350()
 #a.load(axis_z, ctypes.c_char_p('C:/Users/Experiment/Downloads/Software_ANC350v2/ANC350_GUI/general_APS_files/ANPz101res.aps'))
 #print(a.cap_measure(axis_z))
-print(a.get_frequency(axis_z))
+#print(a.get_frequency(axis_z))
 #a.cont_move_piezo(axis_z,1)
 #time.sleep(1)
 #a.stop_piezo(axis_z)

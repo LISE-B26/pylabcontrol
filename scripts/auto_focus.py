@@ -11,9 +11,6 @@ import hardware_modules.GalvoMirrors as DaqOut
 import pandas as pd
 import time
 
-
-
-
 def AF_load_param(filename_or_json):
     '''
     loads af parameter from json file
@@ -67,6 +64,27 @@ def autofocus_RoI(af_parameter, roi_focus, axis, focPlot = None, return_data = F
         return voltage_focus, voltage_range, y_data
     else:
         return voltage_focus
+
+def autofocus_RoI_attocube(af_parameter, roi_focus, focPlot = None, return_data = False, queue = None):
+
+    min_pos = float(af_parameter['min_pos'])
+    max_pos = float(af_parameter['max_pos'])
+    center_position = float(af_parameter['center_position'])
+    max_deviation = float(af_parameter['max_deviation'])
+    atto_voltage = float(af_parameter['atto_voltage'])
+    atto_frequency = float(af_parameter['atto_frequency'])
+    xyPts = float(af_parameter['xyPts'])
+
+
+    roi_focus['xPts'] = xyPts
+    roi_focus['yPts'] = xyPts
+    print roi_focus
+    pos_focus, xdata, y_data = focusing.Focus.scan_attocube(min_pos, max_pos, center_position, max_deviation, atto_voltage = atto_voltage, atto_frequency = atto_frequency, waitTime = .1, APD=True, scan_range_roi = roi_focus, canvas = focPlot, return_data=True, queue = queue)
+
+    if return_data:
+        return pos_focus, xdata, y_data
+    else:
+        return pos_focus
 
 def autofocus_RoI_mean(af_parameter, roi_focus, axis, focPlot = None, return_data = False, queue = None):
 
