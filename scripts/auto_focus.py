@@ -71,7 +71,8 @@ def autofocus_RoI_attocube(af_parameter, roi_focus, focPlot = None, return_data 
     max_pos = float(af_parameter['max_pos'])
     center_position = float(af_parameter['center_position'])
     max_deviation = float(af_parameter['max_deviation'])
-    atto_voltage = float(af_parameter['atto_voltage'])
+    cont_voltage = float(af_parameter['cont_voltage'])
+    step_voltage = float(af_parameter['step_voltage'])
     atto_frequency = float(af_parameter['atto_frequency'])
     xyPts = float(af_parameter['xyPts'])
 
@@ -79,7 +80,7 @@ def autofocus_RoI_attocube(af_parameter, roi_focus, focPlot = None, return_data 
     roi_focus['xPts'] = xyPts
     roi_focus['yPts'] = xyPts
     print roi_focus
-    pos_focus, xdata, y_data = focusing.Focus.scan_attocube(min_pos, max_pos, center_position, max_deviation, atto_voltage = atto_voltage, atto_frequency = atto_frequency, waitTime = .1, APD=True, scan_range_roi = roi_focus, canvas = focPlot, return_data=True, queue = queue)
+    pos_focus, xdata, y_data = focusing.Focus.scan_attocube(min_pos, max_pos, center_position, max_deviation, cont_voltage = cont_voltage, step_voltage=step_voltage, atto_frequency = atto_frequency, waitTime = .1, APD=True, scan_range_roi = roi_focus, canvas = focPlot, return_data=True, queue = queue)
 
     if return_data:
         return pos_focus, xdata, y_data

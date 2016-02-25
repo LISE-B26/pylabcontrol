@@ -45,7 +45,7 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
     freq_values = np.sort(freq_values)
     freq_range = max(freq_values)-min(freq_values)
     num_freq_sections = int(freq_range) / int(RANGE_STEP) + 1
-    clock_adjust = (int_time+settle_time)/settle_time
+    clock_adjust = int((int_time+settle_time)/settle_time)
     freq_array = np.repeat(freq_values, clock_adjust)
     dt = (int_time+settle_time)/clock_adjust
     mwgen = init_mwgen(rf_power) # object pointing to microwave generator with proper initial settings
@@ -81,7 +81,7 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
             freq_voltage_array = ((freq_section_array-sec_min)/RANGE_STEP)*2 - 1 #normalize voltages to +-1 range
 
             mwgen.setFreq(center_freq)
-            print('test')
+
             readthread = APDIn.ReadAPD("Dev1/ctr0", 1 / dt,
                                        len(freq_voltage_array) + 1, 100000)
             writethread = DaqOut.DaqOutputWave(freq_voltage_array, 1 / dt,
@@ -257,8 +257,6 @@ def plot_esr_gui(canvas, freq_values, esr_data, fit_data = None, converge_data =
     elif not (converge_data == None): # plot esr and convergence, prevents entire plot disappearing when one fit fails
         scan_array = np.linspace(1,len(converge_data),len(converge_data))
         fig = canvas.figure
-        print('here')
-        print(fig)
         #subfig1 = fig.axes
         subfig1 = fig.add_subplot(211)
         subfig1.plot(freq_values, esr_data, 'b')

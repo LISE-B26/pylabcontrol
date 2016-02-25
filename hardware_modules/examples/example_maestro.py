@@ -1,12 +1,14 @@
-import hardware_modules.maestro as maestro
 import time
+import sys
+sys.path.insert(0,"C:\\Users\Experiment\\PycharmProjects\\PythonLab\\")
+import hardware_modules.maestro as maestro
 
 # define com port to communicate with servo (check in device manager for pololu  controler command port)
 servo = maestro.Controller('COM5')
 
 # define what to test
 
-test_case = 'controller' # beamblock, motor, controller, filterwheel
+test_case = 'filterwheel' # beamblock, motor, controller, filterwheel
 
 
 # set channel
@@ -16,8 +18,9 @@ channel = 0
 
 if test_case == 'filterwheel':
     filter = maestro.FilterWheel(servo, channel, {'ND1.0': 4*600, 'LP':4*1550, 'ND2.0':4*2500})
-    # filter.goto('ND2.0')
-    filter.goto('ND1.0')
+    filter.goto('ND2.0')
+    # filter.goto('ND1.0')
+    #filter.goto('LP')
     # block1.block()
     # close communication channel
     # servo.close()

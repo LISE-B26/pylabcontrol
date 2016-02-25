@@ -39,7 +39,7 @@ class ScanNV():
         self.yVmax = yVmax
         self.settleTime = settleTime
         self.timePerPt = timePerPt
-        self.clockAdjust = (timePerPt+settleTime)/settleTime
+        self.clockAdjust = int((timePerPt+settleTime)/settleTime)
         self.xArray = numpy.linspace(xVmin, xVmax, xPts)
         self.yArray = numpy.linspace(yVmin, yVmax, yPts)
         self.xArray = numpy.repeat(self.xArray, self.clockAdjust)

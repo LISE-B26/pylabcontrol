@@ -28,6 +28,8 @@ class PlotAPD():
         self.timePerPt = timePerPt
         self.numSamples = int(sampleRate*timePerPt)+1
 
+        self.plot_length = 100
+
     def startPlot(self,queue = None):
         '''
         Once object created, call this function to start plotting
@@ -45,6 +47,13 @@ class PlotAPD():
             self.xdata = numpy.append(self.xdata,self.timeCtr)
             dataPt = self.readAPD()
             self.ydata = numpy.append(self.ydata,dataPt)
+
+            # keep length of plotted data constant
+            # todo: use more efficient datatype
+            if len(self.xdata)> self.plot_length:
+                self.xdata = numpy.delete(self.xdata, 0)
+                self.ydata = numpy.delete(self.ydata, 0)
+
             if self.canvas == None:
                 self.dispImage()
             else:
@@ -79,6 +88,7 @@ class PlotAPD():
             self.plotting = 1
             plt.pause(.1)
         else:
+            self.fig.clear()
             plt.plot(self.xdata, self.ydata, '-b')
             plt.show(block = False)
             plt.pause(.1)
@@ -96,6 +106,7 @@ class PlotAPD():
             QtGui.QApplication.processEvents()
             self.plotting = 1
         else:
+            self.canvas.axes.clear()
             self.line.set_xdata(self.xdata)
             self.line.set_ydata(self.ydata)
             self.canvas.axes.relim()

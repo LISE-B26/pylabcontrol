@@ -78,7 +78,7 @@ def ESR_load_param(filename_or_json):
 
     return esr_param
 
-def ESR_map(points, esr_param, canvas):
+def ESR_map(points, esr_param, canvas, queue = None):
     '''
         gets the ESR at points defined by points
     '''
@@ -97,7 +97,7 @@ def ESR_map(points, esr_param, canvas):
     for pt in points:
 
         print '{:s}_NV_pt_{:00d}'.format(tag, pt_num)
-        esr_data, fit_params, fig = ESR.run_esr(RF_Power, freqs, (pt[0],pt[1]), num_avg=avg, int_time=int_time, canvas = canvas)
+        esr_data, fit_params, fig = ESR.run_esr(RF_Power, freqs, (pt[0],pt[1]), num_avg=avg, int_time=int_time, canvas = canvas, queue = queue)
         print pt_num
         ESR.save_esr(esr_data, fig, dirpath, '{:s}_NV_pt_{:00d}'.format(tag, pt_num))
 

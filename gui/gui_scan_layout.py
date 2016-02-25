@@ -454,7 +454,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
                 roi_focus = Meshing.two_pts_to_roi(pt_a2, pt_b2)
                 print 'ESR (point)'
                 if not esr_param == {}:
-                    ESR.ESR_map([pt_a2], esr_param, ApplicationWindow.esrPlot)
+                    ESR.ESR_map([pt_a2], esr_param, ApplicationWindow.esrPlot, queue = ApplicationWindow.script_queue)
 
             elif script_name == 'AutoFocus':
                 print 'AutoFocus'
