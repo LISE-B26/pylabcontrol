@@ -1,14 +1,12 @@
-import time
-import sys
-sys.path.insert(0,"C:\\Users\Experiment\\PycharmProjects\\PythonLab\\")
 import hardware_modules.maestro as maestro
+import time
 
 # define com port to communicate with servo (check in device manager for pololu  controler command port)
 servo = maestro.Controller('COM5')
 
 # define what to test
 
-test_case = 'filterwheel' # beamblock, motor, controller, filterwheel
+test_case = 'whitelight' # beamblock, motor, controller, filterwheel
 
 
 # set channel
@@ -18,15 +16,13 @@ channel = 0
 
 if test_case == 'filterwheel':
     filter = maestro.FilterWheel(servo, channel, {'ND1.0': 4*600, 'LP':4*1550, 'ND2.0':4*2500})
-    filter.goto('ND2.0')
-    # filter.goto('ND1.0')
-    #filter.goto('LP')
+    # filter.goto('ND2.0')
+    filter.goto('ND1.0')
     # block1.block()
     # close communication channel
     # servo.close()
 
-    for i in range(10):
-        print(servo.getPosition(channel))
+
 
 # ================== test controler =======================
 # # set ranges, acceleration etc.
@@ -49,7 +45,7 @@ if test_case == 'motor':
     motor.stop()
 # ================== test beam block =======================
 if test_case == 'beamblock':
-    channel = 4
+    channel = 0
     block1 = maestro.BeamBlock(servo, channel)
     # block1.open()
     block1.block()
@@ -58,8 +54,24 @@ if test_case == 'beamblock':
     #     print(servo.getPosition(channel))
     # time.sleep(0.2)
     servo.setTarget(0,  channel)
-    # servo.goHome()
+    servo.goHome()
     # close communication channel
     # servo.close()
 
+
+# ================== test beam block =======================
+if test_case == 'whitelight':
+    channel = 0
+    filter = maestro.FilterWheel(servo, channel, {'on': 4*600, 'off':4*1750})
+    # filter.goto('ND2.0')
+    # filter.goto('off')
+    # for i in range(10):
+    #     print(servo.getPosition(channel))
+    # time.sleep(0.2)
+    servo.setTarget(0,  channel)
+    servo.goHome()
+
+    filter.goto('off')
+    # close communication channel
+    # servo.close()
 

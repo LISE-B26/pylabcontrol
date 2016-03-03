@@ -101,6 +101,19 @@ class NI_FPGA_PI(object):
         return getattr(FPGAlib, 'set_PIDActive') (self._status_PI, self._fpga.session, self._fpga.status)
 
     @property
+    def status_modulation(self):
+        '''
+        activate or read status of PI-Loop (if active or not)
+        '''
+        self._status_modulation = getattr(FPGAlib, 'read_OutputSine')(self._fpga.session, self._fpga.status)
+        return self._status_PI
+    @status_modulation.setter
+    def status_modulation(self, status):
+        self._status_modulation = status
+        return getattr(FPGAlib, 'set_OutputSine') (self._status_PI, self._fpga.session, self._fpga.status)
+
+
+    @property
     def status_LP(self):
         '''
         activate or read status of PI-Loop (if active or not)
@@ -117,13 +130,16 @@ class NI_FPGA_PI(object):
         '''
         read detector value
         '''
-        # if is_raw_value == True:
-        self._AI1_raw = getattr(FPGAlib, 'read_AI1')(self._fpga.session, self._fpga.status)
-        self._AI1 = getattr(FPGAlib, 'read_AI1_Filtered')(self._fpga.session, self._fpga.status)
-        return self._AI1, self._AI1_raw
-        # else:
-        #     self._AI1_filtered = getattr(FPGAlib, 'read_AI1_Filtered')(self._fpga.session, self._fpga.status)
-        #     return self._AI1_filtered
+        AI1_raw = getattr(FPGAlib, 'read_AI1')(self._fpga.session, self._fpga.status)
+        AI1 = getattr(FPGAlib, 'read_AI1_Filtered')(self._fpga.session, self._fpga.status)
+
+        def wrap_data(data):
+            # wrap the data. The date we receive is only positive values (unsingned int). Thus we cast it into a singed int
+            if data > 2**15:
+                data -= 2**16
+            return data
+        return {'AI1' : wrap_data(AI1), 'AI1_raw' : wrap_data(AI1_raw)}
+
 
     @property
     def gains(self):
@@ -165,6 +181,14 @@ class NI_FPGA_PI(object):
         '''
         self._loop_time_PI = getattr(FPGAlib, 'read_LoopTicksPID')(self._fpga.session, self._fpga.status)
         return self._loop_time_PI
+
+    @property
+    def minmax(self):
+        min = getattr(FPGAlib, 'read_Min')(self._fpga.session, self._fpga.status)
+        max = getattr(FPGAlib, 'read_Max')(self._fpga.session, self._fpga.status)
+        stddev = getattr(FPGAlib, 'read_StdDev')(self._fpga.session, self._fpga.status)
+        mean = getattr(FPGAlib, 'read_Mean')(self._fpga.session, self._fpga.status)
+        return {'min':min, 'max':max, 'stddev':stddev, 'mean':mean}
 
 class NI_FPGA_READ_FIFO(QtCore.QThread):
 

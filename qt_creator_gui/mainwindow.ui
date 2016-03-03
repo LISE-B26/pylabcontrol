@@ -46,8 +46,8 @@
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>97</width>
-      <height>65</height>
+      <width>167</width>
+      <height>111</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="layout_checkboxes">
@@ -69,6 +69,20 @@
       <widget class="QCheckBox" name="checkGreenon">
        <property name="text">
         <string>Green on</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkWhiteLighton">
+       <property name="text">
+        <string>White light on</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkCameraon">
+       <property name="text">
+        <string>Camera on</string>
        </property>
       </widget>
      </item>
@@ -246,7 +260,7 @@
     <property name="geometry">
      <rect>
       <x>280</x>
-      <y>260</y>
+      <y>270</y>
       <width>47</width>
       <height>13</height>
      </rect>
@@ -284,8 +298,8 @@
    <widget class="QComboBox" name="cmb_filterwheel">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>100</y>
+      <x>20</x>
+      <y>150</y>
       <width>69</width>
       <height>22</height>
      </rect>

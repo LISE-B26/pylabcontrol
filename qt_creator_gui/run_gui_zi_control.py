@@ -3,13 +3,12 @@ Created on Feb 2 2016
 
 @author: Jan Gieseler
 
-# this file creates the gui
-# gui is designed with QT Designer that creates a .ui file (e.g. mainwindow.ui)
+# this file creates the gui for data acquisition with the ZI lockin
+# gui is designed with QT Designer that creates a .ui file (e.g. zi_control.ui)
 # To get the resulting .py file use the batch (pyside-uic.bat) file that contains C:\Anaconda\python.exe C:\Anaconda\Lib\site-packages\PySide\scripts\uic.py %*
 # This converts the .ui file into .py file (e.g. mainwindow.py) by executing pyside-uic mainwindow.ui -o mainwindow.py
 """
 
-# from qt_creator_gui.mainwindow import Ui_MainWindow
 import sys
 # todo: resolve issue with namespace (get rid of from PySide.QtCore import * and from PySide.QtGui import *)
 from PySide import QtCore, QtGui
@@ -17,99 +16,54 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 from helper_functions.reading_writing import save_json
 import pandas as pd
-import hardware_modules.maestro as maestro
 from copy import deepcopy
-import hardware_modules.DCServo_Kinesis_dll as DCServo_Kinesis
 import os
-from helper_functions.test_types import dict_difference
-
+import hardware_modules.ZiControl as ZI
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar)
 
 from PyQt4.uic import loadUiType
-Ui_MainWindow, QMainWindow = loadUiType('mainwindow.ui') # with this we don't have to convert the .ui file into a python file!
-# from qt_creator_gui.mainwindow import Ui_MainWindow # with this we have to first compile (pyside-uic mainwindow.ui -o mainwindow.py)
-
-
-# from qt_creator_gui.mainwindow import Ui_MainWindow
+Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
 
 import datetime
 from collections import deque
-import numpy as np
-import lib.FPGA_PID_Loop_Simple as NI
 import time
-import hardware_modules.PI_Controler as PI_Controler
 
 
 # ============= GENERAL SETTING ====================================
 # ==================================================================
 
 
-# todo: at startup execute the settings or set the controls such that they match the actual situation of the experiment
-# todo: actually turn the servos after position has reached. Now the servo is trying to adjust the position and one can hear a little noise
-# this is a example for the settings. do not delete. The type is the variables defined here is used to cast the parameters into the right format
 SETTINGS_DICT = {
-    "record_length" : 100,
-    "parameters_PI" : {
-        "sample_period_PI" : int(8e5),
-        "gains" : {'proportional': 1.0, 'integral':0.1},
-        "setpoint" : 0,
-        "piezo" : 0
+    'zi_settings' : {
+        'amplitude' : 0.1e-3,
+        'offset' : 1,
+        'freq' : 1.88e6,
+        'ACCoupling':1,
+        'inChannel' : 0,
+        'outChannel' : 0,
+        'auxChannel' : 0,
+        'add' : 1,
+        'range' : 10e-3
     },
-    "parameters_Acq" : {
-        "sample_period_acq" : 100,
-        "data_length" : int(1e5),
-        "block_size" : 2000
+    'peak_search_settings' : {
+        'f_min': 1875.0e3,
+        'f_max': 1878.0e3,
+        'df_coarse' : 5,
+        'df_fine': 1,
+        'N_fine': 101,
+        'samplesPerPt' : 1
     },
-    "detector_threshold" : 50,
-    "data_path" : "Z:/Lab/Cantilever/Measurements/20160209_InterferometerStabilization/data",
-    "hardware" : {
-        "serial_port_maestro" : "COM5",
-        "parameters_whitelight" : {
-            "channel" : 0,
-            "position_list" : {'on': 4*600, 'off':4*1750},
-            "settle_time" : 0.2
-        },
-        "parameters_filterwheel" : {
-            "channel" : 1,
-            "position_list" : {'ND1.0': 4*600, 'LP':4*1550, 'ND2.0':4*2500}
-        },
-        "parameters_camera" : {
-            "channel" : 2,
-            "position_list" : {'on': 4*600, 'off':4*1750},
-            "settle_time" : 0.2
-        },
-        "channel_beam_block_IR" : 4,
-        "channel_beam_block_Green" : 5,
-    "kinesis_serial_number" : 83832028,
-    },
-    'live_data_ids' : {
-        'AI1': True, 'AI1_raw': True,  'min': False, 'max': True, 'mean': True, 'stddev': True
+    'find_peak_settings' : {
+        'f_min': 1875.0e3,
+        'f_max': 1878.0e3,
+        'df' : 5,
+        'samplesPerPt' : 1
     }
 }
 
-
-
-
-# todo: write generic thread function that takes arbitrary functions for threading
-# class GenericThread(QtCore.QThread):
-#     '''
-#     Generic thread class see: https://joplaete.wordpress.com/2010/07/21/threading-with-pyqt4/
-#     '''
-#     def __init__(self, function, *args, **kwargs):
-#         QtCore.QThread.__init__(self)
-#         self.function = function
-#         self.args = args
-#         self.kwargs = kwargs
-#
-#     def __del__(self):
-#         self.wait()
-#
-#     def run(self):
-#         self.function(*self.args,**self.kwargs)
-#         return
 
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
@@ -131,22 +85,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.plot_data_live.addWidget(self.canvas_live)
             self.axes_live = fig_live.add_subplot(111)
 
-            fig_timetrace = Figure()
-            self.canvas_timetrace = FigureCanvas(fig_timetrace)
-            self.plot_data_timetrace.addWidget(self.canvas_timetrace)
-            self.axes_timetrace = fig_timetrace.add_subplot(111)
-            self.axes_timetrace.set_xlabel('time (ms)')
+            fig_sweep = Figure()
+            self.canvas_sweep = FigureCanvas(fig_sweep)
+            self.plot_data_sweep.addWidget(self.canvas_sweep)
+            self.axes_sweep = fig_sweep.add_subplot(111)
+            self.axes_sweep.set_xlabel('frequency (Hz)')
 
-            fig_psd = Figure()
-            self.canvas_psd = FigureCanvas(fig_psd)
-            self.plot_data_psd.addWidget(self.canvas_psd)
-            self.axes_psd = fig_psd.add_subplot(111)
-            self.axes_psd.set_xlabel('frequency (Hz)')
         def create_threads():
-
-            # ============= threading ====================================
-            # self._thread_acq = AcquisitionThread(self)
-            # self._thread_acq.updateProgress.connect(self.update_plot_live)
 
             self._thread_acq_new = AcquisitionThreadNew(self)
             self._thread_acq_new.updateProgress.connect(self.update_plot_live_new)
@@ -157,29 +102,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self._thread_pol = PolarizationControlThread(self)
 
             self._thread_pol_stab = PolarizationStabilizationThread(self)
+
         def connect_hardware():
             # create connections to hardware
-            hardware_settings = self._settings['hardware']
-            self._servo = maestro.Controller(hardware_settings['serial_port_maestro'])
-            self.beam_block_IR = maestro.BeamBlock(self._servo, hardware_settings['channel_beam_block_IR'])
-            self.beam_block_Green = maestro.BeamBlock(self._servo, hardware_settings['channel_beam_block_Green'])
-            self.filterwheel = maestro.FilterWheel(self._servo, **hardware_settings['parameters_filterwheel'])
-            self.whitelight = maestro.FilterWheel(self._servo, **hardware_settings['parameters_whitelight'])
-            self.camera = maestro.FilterWheel(self._servo, **hardware_settings['parameters_camera'])
-            self.servo_polarization = DCServo_Kinesis.TDC001(hardware_settings["kinesis_serial_number"])
-
-
-            # =============================================================
-            # ===== NI FPGA ===============================================
-            # =============================================================
-            # connect to FPGA and start it
-            self.fpga = NI.NI7845R()
-            self.fpga.start()
-
-
-            # create PI (proportional integral) controler object
-            self.FPGA_PI = NI.NI_FPGA_PI(self.fpga, **self._settings["parameters_PI"])
-            self.FPGA_READ_FIFO = NI.NI_FPGA_READ_FIFO(self.fpga, **self._settings["parameters_Acq"])
+            self.zi = ZI.ZIHF2(**zi_settings)
 
         def connect_controls():
             # =============================================================
@@ -228,19 +154,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.fill_treeWidget(self.treeWidget, self._settings)
 
         # define some data sets
-        self._recorded_data = deque() # recorded data in the live plot
-        self._fifo_data = deque() # data from last FIFO read
         self.past_commands = deque() # history of executed commands
-        self._time_traces  = [] # all the timetraces that have been acquired
         # also for recorded data in the live plot but can me easy extended to take more data
         self._live_data = {}
-        for id in self._settings['live_data_ids']:
-            self._live_data.update({id: deque()})
+        # for id in self._settings['live_data_ids']:
+        #     self._live_data.update({id: deque()})
 
-        connect_hardware()
+        # connect_hardware()
         create_figures()
-        connect_controls()
-        create_threads()
+        # connect_controls()
+        # create_threads()
 
         self.treeWidget.collapseAll()
 

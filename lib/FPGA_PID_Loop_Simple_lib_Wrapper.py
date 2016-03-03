@@ -29,6 +29,7 @@ _libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/lib/FPGA_PID_li
 setter_functions = {
     "set_PiezoOut": c_int16,
     "set_Setpoint": c_int16,
+    "set_AmplitudeScaleCoefficient": c_int16,
     "set_ScaledCoefficient_1": c_int32,
     "set_ScaledCoefficient_2": c_int32,
     "set_ScaledCoefficient_3": c_int32,
@@ -41,7 +42,8 @@ setter_functions = {
     "set_LowPassActive": c_bool,
     "set_PIDActive": c_bool,
     "set_AcquireData": c_bool,
-    "set_Stop": c_bool
+    "set_Stop": c_bool,
+    "set_OutputSine" : c_bool
 }
 
 for fun_name in setter_functions:
@@ -63,6 +65,10 @@ getter_functions = {
     "read_AI2": c_int16,
     "read_DeviceTemperature": c_int16,
     "read_PiezoOut": c_int16,
+    "read_Min": c_int16,
+    "read_Max": c_int16,
+    "read_Mean": c_int16,
+    "read_StdDev": c_uint16,
     "read_ElementsWritten": c_int32,
     "read_SamplePeriodsPID": c_uint32,
     "read_SamplePeriodsAcq": c_uint32,
@@ -76,7 +82,8 @@ getter_functions = {
     "read_PIDActive": c_bool,
     "read_FPGARunning": c_bool,
     "read_DMATimeOut": c_bool,
-    "read_AcquireData": c_bool
+    "read_AcquireData": c_bool,
+    "read_OutputSine": c_bool
 }
 
 for fun_name in getter_functions:

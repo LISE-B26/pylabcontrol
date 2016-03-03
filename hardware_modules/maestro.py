@@ -200,7 +200,7 @@ class BeamBlock:
         time.sleep(0.2)
         self.servo.disable(self.channel)
 class FilterWheel:
-    def __init__(self,servo, channel, position_list = {'1': 4*600, '2':4*1550, '3':4*2500}):
+    def __init__(self,servo, channel, position_list = {'1': 4*600, '2':4*1550, '3':4*2500}, settle_time = 0.8):
         '''
         :param servo: servo controler to which motor is connected
         :param channel: channel to which motor is connected
@@ -211,12 +211,13 @@ class FilterWheel:
         self.channel = channel
         self.servo = servo
         self.position_list = position_list
+        self.settle_time = settle_time
 
     def goto(self, position):
 
         if position in self.position_list:
             self.servo.setTarget(self.channel, self.position_list[position])
-            time.sleep(0.8)
+            time.sleep(self.settle_time)
             self.servo.disable(self.channel)
         else:
             print('position {:s} is not a valid position. Position of filter wheel not changed!'.format(position))
