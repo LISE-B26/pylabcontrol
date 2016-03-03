@@ -13,7 +13,7 @@ from hardware_modules import APD as APDIn
 # so there is some reset time between points that isn't recorded. From brief testing, the default settings
 # sampleRate = 1000, timePerPt = .25 yield a duty cycle of ~70%
 class PlotAPD():
-    def __init__(self, canvas = None, sampleRate = 1000, timePerPt = .25):
+    def __init__(self, canvas = None, sampleRate = 1000.0, bufferSize = 1):
         '''
 
         :param canvas: canvas to plot on. Supply one if calling from GUI, if not a pyplot plot is created
@@ -27,8 +27,7 @@ class PlotAPD():
         self.plotting = 0
         self.canvas = canvas
         self.sampleRate = sampleRate
-        self.timePerPt = timePerPt
-        self.numSamples = int(sampleRate*timePerPt)+1
+        self.bufferSize = max(int(sampleRate)+1, bufferSize)
 
 
     def startPlot(self,queue = None):
@@ -37,12 +36,11 @@ class PlotAPD():
         :param queue: To stop plotting elegantly, pass in queue. Putting 'STOP' in queue breaks loop (other code can
             execute in parallel because below code creates own thread)
         '''
+        self.readthread = APDIn.ReadAPD("Dev1/ctr0", self.sampleRate, self.bufferSize, continuous_acquisition= True)
+        self.readthread.runCtr()
         while True:
             if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
                 break
-            self.readthread = APDIn.ReadAPD("Dev1/ctr0", self.sampleRate,
-                                               self.numSamples)
-            self.readthread.runCtr()
             #time.sleep(1) #not really understood why this works, but definitely fails without it
             self.timeCtr += 1
             #self.xdata = numpy.append(self.xdata,self.timeCtr)
@@ -50,21 +48,20 @@ class PlotAPD():
             dataPt = self.readAPD()
             #self.ydata = numpy.append(self.ydata,dataPt)
             self.ydata.append(dataPt)
-
             if self.canvas == None:
                 self.dispImage()
             else:
                 self.dispImageGui()
-            self.readthread.stopCtr()
-            self.readthread.stopClk()
+        self.readthread.stopCtr()
+        self.readthread.stopClk()
 
     def readAPD(self):
         '''
         Reads from readthread defined above and averages over all samples taken in timeperpt
         :return: average value at timestep (scalar) to be plotted
         '''
-        data = self.readthread.read()
-        diffData = numpy.diff(data)
+        data, num_samples_read = self.readthread.read()
+        diffData = numpy.diff(data[0:num_samples_read.value])*(self.sampleRate/1000)
         normData = numpy.mean(diffData)*(self.sampleRate/1000)
         return normData
 

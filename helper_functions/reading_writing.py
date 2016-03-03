@@ -24,20 +24,29 @@ def load_esr_data(filename):
     :return: esr_data
     '''
 
+
+def date_prefix():
+    return time.strftime("%Y-%m-%d_%H-%M-%S_")
+
+
 def save_data(array, dirpath, tag, columns = None):
     df = pd.DataFrame(array, columns = columns)
     if(columns == None):
         header = False
     else:
         header = True
-    day = time.strftime("%d")
-    month = time.strftime("%m")
-    year = time.strftime("%Y")
-    hour = time.strftime("%H")
-    minute = time.strftime("%M")
-    second = time.strftime("%S")
-    filename = '\\' + year + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second  +'-' + str(tag)
-    filepathCSV = dirpath + filename + '.csv'
+    # day = time.strftime("%d")
+    # month = time.strftime("%m")
+    # year = time.strftime("%Y")
+    # hour = time.strftime("%H")
+    # minute = time.strftime("%M")
+    # second = time.strftime("%S")
+    # filename = '\\' + year + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second  +'-' + str(tag)
+    # filepathCSV = dirpath + filename + '.csv'
+    #
+    #
+
+    filepathCSV = dirpath + date_prefix() + str(tag) + '.csv'
     df.to_csv(filepathCSV, index = False, header=header)
 
 

@@ -79,7 +79,7 @@ class ScanNV():
             writethread.run()
             writethread.waitToFinish()
             writethread.stop()
-            self.xLineData = readthread.read()
+            self.xLineData,_ = readthread.read()
             self.diffData = numpy.diff(self.xLineData)
             self.summedData = numpy.zeros(len(self.xArray)/self.clockAdjust)
             for i in range(0,int((len(self.xArray)/self.clockAdjust))):

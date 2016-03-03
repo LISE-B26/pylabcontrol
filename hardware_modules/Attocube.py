@@ -310,7 +310,7 @@ class ANC350:
             print( "Error: unknown\n" )
             raise Exception
 
-a = ANC350()
+#a = ANC350()
 #a.load(axis_z, ctypes.c_char_p('C:/Users/Experiment/Downloads/Software_ANC350v2/ANC350_GUI/general_APS_files/ANPz101res.aps'))
 #print(a.cap_measure(axis_z))
 #print(a.get_frequency(axis_z))

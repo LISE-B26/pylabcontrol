@@ -17,26 +17,31 @@ from PyQt4 import QtGui, QtCore
 # This class initializes an input, output, and auxillary channel on the ZIHF2, and currently has functionality to run
 # a sweep, and plot and save the results.
 class ZIHF2:
-    # initializes values
-    # amplitude: output channel amplitude (Vpk)
-    # offset: auxillary channel output (V), only functions as offset if aux0 connected to inChannel add port
-    # freq: output channel frequence (Hz)
-    # ACCoupling: turns ac coupling on (1) or off (0), default off (0)
-    # inChannel: specifies input channel number, default channel 1 as listed on device (value 0)
-    # outChannel: specifies output channel number, default channel 1 as listed on device (value 0)
-    # auxChannel: specifies auxillary channel to use, default channel 1 as listed on device (value 0)
-    # add: turns add mode on output channel on (1) or off (0), default 1
-    # range: sets output range (V), default 10
+
     def __init__(self, amplitude, offset, freq, ACCoupling = 0, inChannel = 0, outChannel = 0, auxChannel = 0, add = 1, range = 10, canvas = None):
-        # find and connect to device
-        self.daq = utils.autoConnect(8005,1)
+
+        '''
+            initializes values
+        :param amplitude: output channel amplitude (Vpk)
+        :param offset: auxillary channel output (V), only functions as offset if aux1  (value 0) connected to inChannel add port
+        :param freq: output channel frequence (Hz)
+        :param ACCoupling: turns ac coupling on (1) or off (0), default off (0)
+        :param inChannel: specifies input channel number, default channel 1 as listed on device (value 0)
+        :param outChannel: specifies output channel number, default channel 1 as listed on device (value 0)
+        :param auxChannel: specifies auxillary channel to use, default channel 1 as listed on device (value 0)
+        :param add: turns add mode on output channel on (1) or off (0), default 1
+        :param range: sets output range (V), default 10
+        :param find and connect to device
+        '''
+
+        self.daq = utils.autoConnect(8005,1) # connect to ZI, 8005 is the port number
         self.device = utils.autoDetect(self.daq)
         self.options = self.daq.getByte('/%s/features/options' % self.device)
          #channel settings
         self.in_c = inChannel
         self.out_c = outChannel
         self.demod_c = 0
-        self.demod_rate = 10e3
+        self.demod_rate = 10e3 # sample rate of low pass filtered signal after mixing
         self.osc_c = 0
         if (not re.match('MF', self.options)):
             self.out_mixer_c = 6
@@ -51,6 +56,7 @@ class ZIHF2:
 
         # Configure the settings relevant to this experiment
         # note that the output amplitude has to be scaled with the range to give the right result
+        # todo: JG - this can probably be written in a single line using a propper dictionary
         self.exp_setting = [
             ['/%s/sigins/%d/imp50'          % (self.device, self.in_c), 1],
             ['/%s/sigins/%d/ac'             % (self.device, self.in_c), ACCoupling],
@@ -73,15 +79,20 @@ class ZIHF2:
         self.daq.set(self.exp_setting)
         print(self.exp_setting)
 
-    # performs a frequency sweep and stores result in self.samples
-    # freqStart: initial frequency for sweep (Hz)
-    # freqEnd: ending frequency for sweep (Hz)
-    # sampleNum: number of samples in sweep range
-    # samplesPerPt: number of samples to take at each frequency point
-    # xScale: choose linear (0) or logarithmic (1) frequency scale, default linear
-    # direction: choose sequential (0), binary (1), or bidirectional (2) scan modes, default sequential
-    # loopcount: number of times to repeat sweep, default 1
+
     def sweep(self, freqStart, freqEnd, sampleNum, samplesPerPt, xScale = 0, direction = 0, loopcount = 1, timeout=100000000):
+        '''
+        performs a frequency sweep and stores result in self.samples
+        :param freqStart: initial frequency for sweep (Hz)
+        :param freqEnd: ending frequency for sweep (Hz)
+        :param sampleNum: number of samples in sweep range
+        :param samplesPerPt: number of samples to take at each frequency point
+        :param xScale: choose linear (0) or logarithmic (1) frequency scale, default linear
+        :param direction: choose sequential (0), binary (1), or bidirectional (2) scan modes, default sequential
+        :param loopcount: number of times to repeat sweep, default 1
+        :param timeout:
+        :return:
+        '''
         self.freqStart = freqStart
         self.freqEnd = freqEnd
         self.xScale = xScale
@@ -113,9 +124,9 @@ class ZIHF2:
         print "Will perform %d sweeps...." % loopcount
         #should probably check data[path] is empty instead, just continue if it is
         while not sweeper.finished():
-            time.sleep(.5)
+            time.sleep(5)
             progress = sweeper.progress()
-            print "Individual sweep %.2f%% complete.   \r" % (100*progress),
+            print "Individual sweep %.2f%% complete. \n" % (100*progress),
             #read and plot data as it is collected
             data = sweeper.read(True)
             # ensures that first point has completed before attempting to read data
@@ -164,7 +175,9 @@ class ZIHF2:
 
         self.dataFinal = numpy.column_stack((self.samples[0][0]['frequency'],self.samples[0][0]['x'], self.samples[0][0]['y']))
 
-        return self.dataFinal, self.fig
+        # todo: JG: should be able to run this without figures, plotting should be optional
+        # return self.dataFinal, self.fig
+        return self.dataFinal
 
 # saves the esr_data to a timestamped file in the dirpath with a tag
     def save_ZI(self, ZI_data, fig, dirpath, tag = "", saveImage = True):

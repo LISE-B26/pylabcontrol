@@ -94,4 +94,4 @@ class PulseBlaster:
 
 if __name__ == '__main__':
     pulse_blaster = PulseBlaster()
-    pulse_blaster.set_high_channels([0])
+    #pulse_blaster.set_high_channels([0])

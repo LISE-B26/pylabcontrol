@@ -19,7 +19,7 @@ import scripts.auto_focus as AF
 from Archive import gui_custom_widgets as gui_cw
 from functions import track_NVs as track
 from gui import GuiDeviceTriggers as DeviceTriggers
-from gui import PlotAPDCounts2 as Cnts
+from gui import PlotAPDCounts3 as Cnts
 from hardware_modules import PiezoController as PC
 from scripts import ZiControl_many_pts as ZIControl
 from scripts import set_focus as f
@@ -514,7 +514,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
             elif script_name == 'Counter':
                 cnts_parameter = Cnts.counter_load_param(ApplicationWindow.path_script.text())
                 #counter = Cnts.PlotAPD(sampleRate=float(cnts_parameter['sample_rate']), timePerPt=float(cnts_parameter['time_per_pt']), canvas = ApplicationWindow.esrPlot)
-                counter = Cnts.PlotAPD(sampleRate=float(cnts_parameter['sample_rate']), timePerPt=float(cnts_parameter['time_per_pt']), canvas = None)
+                counter = Cnts.PlotAPD(canvas = None)
                 counter.startPlot(queue = ApplicationWindow.script_queue)
 
 

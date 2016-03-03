@@ -40,9 +40,13 @@ class ReadAPD(threading.Thread):
     # sampleNum: number of samples to acquire in buffer
     # RETURN: a 1D array with sampleNum ctypes.c_double values taken at the
     #         desired frequency
-    def __init__(self, device, frequency, sampleNum, overrideBufferSize = -1):
+    def __init__(self, device, frequency, sampleNum, overrideBufferSize = -1, continuous_acquisition = False):
         self.running = True
         self.sampleNum = sampleNum
+        if continuous_acquisition == False:
+            self.numSampsPerChan = sampleNum
+        elif continuous_acquisition == True:
+            self.numSampsPerChan = -1
         self.device = device
         self.timeout = float64(5 * (1 / frequency) * sampleNum)
         self.taskHandleCtr = TaskHandle(0)
@@ -70,14 +74,14 @@ class ReadAPD(threading.Thread):
     # read sampleNum previously generated values from a buffer, and return the
     # corresponding 1D array of ctypes.c_double values
     def read(self):
-        #initialize array and intiger to pass as pointers
+        #initialize array and integer to pass as pointers
         self.data = (float64 * self.sampleNum)()
         self.samplesPerChanRead = int32()
         self.CHK(nidaq.DAQmxReadCounterF64(self.taskHandleCtr,
-                 int32(self.sampleNum), float64(-1), ctypes.byref(self.data),
+                 int32(self.numSampsPerChan), float64(-1), ctypes.byref(self.data),
                  uInt32(self.sampleNum), ctypes.byref(self.samplesPerChanRead),
                  None))
-        return self.data
+        return self.data, self.samplesPerChanRead
 
     # stop and clean up clock
     def stopClk(self):
