@@ -65,7 +65,6 @@ SETTINGS_DICT = {
 }
 
 
-
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, ):
         def set_settings(settings_dict):
@@ -91,60 +90,48 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.axes_sweep = fig_sweep.add_subplot(111)
             self.axes_sweep.set_xlabel('frequency (Hz)')
 
-        def create_threads():
-
-            self._thread_acq_new = AcquisitionThreadNew(self)
-            self._thread_acq_new.updateProgress.connect(self.update_plot_live_new)
-
-            self._thread_acq_fifo = AcquisitionFIFOThread(self)
-            self._thread_acq_fifo.updateProgress.connect(self.update_status)
-
-            self._thread_pol = PolarizationControlThread(self)
-
-            self._thread_pol_stab = PolarizationStabilizationThread(self)
-
         def connect_hardware():
             # create connections to hardware
-            self.zi = ZI.ZIHF2(**zi_settings)
-
+            self.zi = ZI.ZIHF2_v2()
+            self.zi.sweep_settings = {'start': 1e3, 'stop': 1e4, 'samplecount':10}
         def connect_controls():
             # =============================================================
             # ===== LINK WIDGETS TO FUNCTIONS =============================
             # =============================================================
 
-            # link slider to functions
-            print(self.servo_polarization.get_position() * 100)
-            self.sliderPosition.setValue(int(self.servo_polarization.get_position() * 100))
-            self.sliderPosition.valueChanged.connect(lambda: self.set_position())
-
-            # link buttons to functions
-            self.btn_start_record.clicked.connect(lambda: self.btn_clicked())
-            self.btn_stop_record.clicked.connect(lambda: self.btn_clicked())
-            self.btn_clear_record.clicked.connect(lambda: self.btn_clicked())
-            self.btn_start_record_fpga.clicked.connect(lambda: self.btn_clicked())
-            self.btn_clear_record_fpga.clicked.connect(lambda: self.btn_clicked())
-            self.btn_save_to_disk.clicked.connect(lambda: self.btn_clicked())
-
-            self.btn_plus.clicked.connect(lambda: self.set_position())
-            self.btn_minus.clicked.connect(lambda: self.set_position())
-            self.btn_center.clicked.connect(lambda: self.set_position())
-            self.btn_to_zero.clicked.connect(lambda: self.set_position())
-
-
-
-            # link checkboxes to functions
-            self.checkIRon.stateChanged.connect(lambda: self.control_light())
-            self.checkGreenon.stateChanged.connect(lambda: self.control_light())
-            self.checkWhiteLighton.stateChanged.connect(lambda: self.control_light())
-            self.checkCameraon.stateChanged.connect(lambda: self.control_light())
-            self.checkPIActive.stateChanged.connect(lambda: self.switch_PI_loop())
-
-            # link combo box
-            self.cmb_filterwheel.addItems(self._settings['hardware']['parameters_filterwheel']['position_list'].keys())
-            self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
-
-            print("servopos",self.servo_polarization.get_position())
-            self.treeWidget.itemChanged.connect(lambda: self.update_parameters())
+            # # link slider to functions
+            # print(self.servo_polarization.get_position() * 100)
+            # self.sliderPosition.setValue(int(self.servo_polarization.get_position() * 100))
+            # self.sliderPosition.valueChanged.connect(lambda: self.set_position())
+            #
+            # # link buttons to functions
+            self.btn_start.clicked.connect(lambda: self.btn_clicked())
+            # self.btn_stop_record.clicked.connect(lambda: self.btn_clicked())
+            # self.btn_clear_record.clicked.connect(lambda: self.btn_clicked())
+            # self.btn_start_record_fpga.clicked.connect(lambda: self.btn_clicked())
+            # self.btn_clear_record_fpga.clicked.connect(lambda: self.btn_clicked())
+            # self.btn_save_to_disk.clicked.connect(lambda: self.btn_clicked())
+            #
+            # self.btn_plus.clicked.connect(lambda: self.set_position())
+            # self.btn_minus.clicked.connect(lambda: self.set_position())
+            # self.btn_center.clicked.connect(lambda: self.set_position())
+            # self.btn_to_zero.clicked.connect(lambda: self.set_position())
+            #
+            #
+            #
+            # # link checkboxes to functions
+            # self.checkIRon.stateChanged.connect(lambda: self.control_light())
+            # self.checkGreenon.stateChanged.connect(lambda: self.control_light())
+            # self.checkWhiteLighton.stateChanged.connect(lambda: self.control_light())
+            # self.checkCameraon.stateChanged.connect(lambda: self.control_light())
+            # self.checkPIActive.stateChanged.connect(lambda: self.switch_PI_loop())
+            #
+            # # link combo box
+            # self.cmb_filterwheel.addItems(self._settings['hardware']['parameters_filterwheel']['position_list'].keys())
+            # self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
+            #
+            # print("servopos",self.servo_polarization.get_position())
+            # self.treeWidget.itemChanged.connect(lambda: self.update_parameters())
 
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
@@ -160,9 +147,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # for id in self._settings['live_data_ids']:
         #     self._live_data.update({id: deque()})
 
-        # connect_hardware()
+        connect_hardware()
         create_figures()
-        # connect_controls()
+        connect_controls()
         # create_threads()
 
         self.treeWidget.collapseAll()
@@ -178,18 +165,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def btn_clicked(self):
         sender = self.sender()
         # self.statusBar().showMessage(sender.objectName() + ' was pressed')
-        if sender.objectName() == "btn_start_record":
-            # self._thread_acq.start()
-            self._thread_acq_new.start()
-        elif sender.objectName() == "btn_stop_record":
-            # self._thread_acq.stop()
-            self._thread_acq_new.stop()
-        elif str(sender.objectName()) in {"btn_clear_record","btn_clear_record_fpga"}:
-            self.clear_plot(sender)
-        elif str(sender.objectName()) in {"btn_save_to_disk"}:
-            self.save_data(sender)
-        elif sender.objectName() == "btn_start_record_fpga":
-            self._thread_acq_fifo.start()
+        if sender.objectName() == "btn_start":
+            self.zi.run_sweep()
+        #
+        # elif sender.objectName() == "btn_stop_record":
+        #     # self._thread_acq.stop()
+        #     self._thread_acq_new.stop()
+        # elif str(sender.objectName()) in {"btn_clear_record","btn_clear_record_fpga"}:
+        #     self.clear_plot(sender)
+        # elif str(sender.objectName()) in {"btn_save_to_disk"}:
+        #     self.save_data(sender)
+        # elif sender.objectName() == "btn_start_record_fpga":
+        #     self._thread_acq_fifo.start()
         else:
             print('unknown sender: ', sender.objectName())
 
