@@ -46,7 +46,7 @@ import hardware_modules.PI_Controler as PI_Controler
 # ============= GENERAL SETTING ====================================
 # ==================================================================
 
-
+# todo: asign data containers to thread objects and read those datacontainers in gui where it is written to the guis data container
 # todo: at startup execute the settings or set the controls such that they match the actual situation of the experiment
 # todo: actually turn the servos after position has reached. Now the servo is trying to adjust the position and one can hear a little noise
 # this is a example for the settings. do not delete. The type is the variables defined here is used to cast the parameters into the right format

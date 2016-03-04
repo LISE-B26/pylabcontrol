@@ -14,6 +14,7 @@ import pandas as pd
 import sys
 from PyQt4 import QtGui, QtCore
 from copy import deepcopy
+from collections import deque
 # This class initializes an input, output, and auxillary channel on the ZIHF2, and currently has functionality to run
 # a sweep, and plot and save the results.
 class ZIHF2:
@@ -297,165 +298,6 @@ class ZIHF2:
     #zi.writeData('C:\Users\Experiment\Desktop\ziwritetest.txt')
 
 
-class ZI_Sweep(QtCore.QThread):
-    updateProgress = QtCore.Signal(int)
-
-    DEFAULT_SWEEP_SETTINGS = {
-        'device' : 'X',
-        'start' : 0,
-        'stop' : 0,
-        'samplecount' : 0,
-        'gridnode' : 'oscs/0/freq',
-        'xmapping' : 0, #0 = linear, 1 = logarithmic
-        'bandwidthcontrol': 2, #2 = automatic bandwidth control
-        'scan' : 0, #scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)
-        'loopcount': 1,
-        'averaging/sample' : 1 #number of samples to average over
-    }
-
-    def __init__(self, zi, sweep_settings = {}, timeout = 100000000):
-        '''
-        :param zi: ZIHF2_v2 object that is the connection to the ZI
-        :param settings = None: sweep settings in form of a dictionary (see DEFAULT_SETTINGS)
-        :return:
-        '''
-
-        def connect(zi):
-            self.zi = zi
-            self.daq = zi.daq
-            self._sweeper = self.daq.sweep(timeout)
-            # self.device = zi.device
-
-        connect(zi)
-        self.settings = self.DEFAULT_SWEEP_SETTINGS.update(sweep_settings)
-        self.apply_settings(self.settings)
-
-
-    def __del__(self):
-        self.stop()
-
-    def apply_settings(self):
-        for key, val in self.settings.iteritems():
-            self._sweeper.set('sweep/%s'%key, val)
-
-        #always use samples per point, so set time to 0
-        self._sweeper.set('sweep/averaging/tc', 0)
-
-        demod_channel = self.zi.settings['demods']['channel']
-        #specify nodes to recorder data from
-        path = '/%s/demods/%d/sample' % (self.device, demod_channel)
-        self._sweeper.subscribe(path)
-
-    @property
-    def settings(self):
-        return self._settings
-    @settings.setter
-    def settings(self, value):
-        self._settings = value
-
-    def run(self, freqStart, freqEnd, sampleNum, samplesPerPt, direction = 0, loopcount = 1, timeout=100000000):
-        #todo: finsish this code such that signal is sent back to gui / or just output progress
-        '''
-
-        performs a frequency sweep and stores result in self.samples
-        :param freqStart: initial frequency for sweep (Hz)
-        :param freqEnd: ending frequency for sweep (Hz)
-        :param sampleNum: number of samples in sweep range
-        :param samplesPerPt: number of samples to take at each frequency point
-        :param xScale: choose linear (0) or logarithmic (1) frequency scale, default linear
-        :param direction: choose sequential (0), binary (1), or bidirectional (2) scan modes, default sequential
-        :param loopcount: number of times to repeat sweep, default 1
-        :param timeout:
-        :return:
-        '''
-        self.freqStart = freqStart
-        self.freqEnd = freqEnd
-        self.xScale = xScale
-        sweeper = self.daq.sweep(int(timeout))
-
-        sweeper.set('sweep/device', self.device)
-        sweeper.set('sweep/start', freqStart)
-        sweeper.set('sweep/stop', freqEnd)
-        sweeper.set('sweep/samplecount', sampleNum)
-        sweeper.set('sweep/gridnode', 'oscs/%d/freq' % self.osc_c)
-        #0 = linear, 1 = logarithmic
-        sweeper.set('sweep/xmapping', xScale)
-        #automatic bandwidth control
-        sweeper.set('sweep/bandwidthcontrol', 2)
-        #0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)
-        sweeper.set('sweep/scan', direction)
-        sweeper.set('sweep/loopcount', loopcount)
-        #always use samples per point, so set time to 0
-        sweeper.set('sweep/averaging/tc', 0)
-        #number of samples to average over
-        sweeper.set('sweep/averaging/sample', samplesPerPt)
-
-        #specify nodes to recorder data from
-        path = '/%s/demods/%d/sample' % (self.device, self.demod_c)
-        sweeper.subscribe(path)
-        sweeper.execute()
-
-        start = time.time()
-        # timeout = 60  # [s]
-        print "Will perform %d sweeps...." % loopcount
-        #should probably check data[path] is empty instead, just continue if it is
-        while not sweeper.finished():
-            time.sleep(5)
-            progress = sweeper.progress()
-            print "Individual sweep %.2f%% complete. \n" % (100*progress),
-            #read and plot data as it is collected
-            data = sweeper.read(True)
-            # ensures that first point has completed before attempting to read data
-            if path not in data:
-                continue
-            self.samples = data[path]
-            if(not(self.canvas == None)):
-                self.plotGui()
-            # else:
-                # self.plot()
-            if (time.time() - start) > timeout:
-                # If for some reason the sweep is blocking, force the end of the
-                # measurement
-                print "\nSweep still not finished, forcing finish..."
-                sweeper.finish()
-            QtGui.QApplication.processEvents()
-        print ""
-
-        # Read the sweep data. This command can also be executed whilst sweeping
-        # (before finished() is True), in this case sweep data up to that time point
-        # is returned. It's still necessary to issue read() at the end to
-        # fetch the rest.
-        return_flat_dict = True
-        data = sweeper.read(return_flat_dict)
-        sweeper.unsubscribe(path)
-
-        # Stop the sweeper thread and clear the memory
-        sweeper.clear()
-        self.plotting = 0
-
-        # weird bug in code from sample that causes empty data dict when real time reading is implemented, code
-        # disabled and this code reads any final samples if data is not empty
-
-        # Check the dictionary returned is non-empty
-        #assert data, "read() returned an empty data dictionary, did you subscribe to any paths?"
-        # note: data could be empty if no data arrived, e.g., if the demods were
-        # disabled or had rate 0
-        if(data):
-        #assert path in data, "no sweep data in data dictionary: it has no key '%s'" % path
-            self.samples = data[path]
-        print "sample contains %d sweeps" % len(self.samples)
-
-        # frequency = self.samples[0][0]['frequency']
-        # response = numpy.sqrt(self.samples[0][0]['x']**2 + self.samples[0][0]['y']**2)
-        # self.dataFinal = numpy.column_stack((frequency,response))
-
-        self.dataFinal = numpy.column_stack((self.samples[0][0]['frequency'],self.samples[0][0]['x'], self.samples[0][0]['y']))
-
-        # todo: JG: should be able to run this without figures, plotting should be optional
-        # return self.dataFinal, self.fig
-        return self.dataFinal
-
-
 # This class initializes an input, output, and auxillary channel on the ZIHF2, and currently has functionality to run
 # a sweep, and plot and save the results.
 # version 2, started by JG March 3rd 2016
@@ -493,16 +335,27 @@ class ZIHF2_v2(QtCore.QThread):
                 'offset' : 1
             },
         },
-        'sweep_settings' : {
-            'start' : 0,
-            'stop' : 0,
-            'samplecount' : 0,
-            'gridnode' : 'oscs/0/freq',
-            'xmapping' : 0, #0 = linear, 1 = logarithmic
-            'bandwidthcontrol': 2, #2 = automatic bandwidth control
-            'scan' : 0, #scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)
-            'loopcount': 1,
-            'averaging/sample' : 1 #number of samples to average over
+        # 'sweep' : {
+        #     'start' : 0,
+        #     'stop' : 0,
+        #     'samplecount' : 0,
+        #     'gridnode' : 'oscs/0/freq',
+        #     'xmapping' : 0, #0 = linear, 1 = logarithmic
+        #     'bandwidthcontrol': 2, #2 = automatic bandwidth control
+        #     'scan' : 0, #scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)
+        #     'loopcount': 1,
+        #     'averaging/sample' : 2 #number of samples to average over
+        # }
+        'sweep' : {
+            'start' : {'value': 0, 'valid_values': None, 'info':'start value of sweep', 'visible' : True},
+            'stop' : {'value': 0, 'valid_values': None, 'info':'end value of sweep', 'visible' : True},
+            'samplecount' : {'value': 0, 'valid_values': None, 'info':'number of data points', 'visible' : True},
+            'gridnode' : {'value': 'oscs/0/freq', 'valid_values': ['oscs/0/freq', 'oscs/1/freq'], 'info':'channel that\'s used in sweep', 'visible' : True},
+            'xmapping' : {'value': 0, 'valid_values': [0,1], 'info':'mapping 0 = linear, 1 = logarithmic', 'visible' : True},
+            'bandwidthcontrol' : {'value': 2, 'valid_values': [2], 'info':'2 = automatic bandwidth control', 'visible' : True},
+            'scan' : {'value': 0, 'valid_values': [0, 1, 2], 'info':'#scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)', 'visible' : True},
+            'loopcount' : {'value': 1, 'valid_values': None, 'info':'number of times it sweeps', 'visible' : False},
+            'averaging/sample' : {'value': 0, 'valid_values': None, 'info':'number of samples to average over', 'visible' : True}
         }
     }
 
@@ -520,12 +373,13 @@ class ZIHF2_v2(QtCore.QThread):
 
     @property
     def sweep_settings(self):
-        return self._settings['sweep_settings']
+        return self._settings['sweep']
     @sweep_settings.setter
     def sweep_settings(self, value):
-        self._settings['sweep_settings'].update(value)
+
+        self._settings['sweep'].update(value)
         # print('======== sweep settings =================')
-        commands = self.dict_to_settings({'sweep_settings' : value})
+        commands = self.dict_to_settings({'sweep' : value})
         # print(commands)
         self.sweeper.set(commands)
 
@@ -537,6 +391,7 @@ class ZIHF2_v2(QtCore.QThread):
     def OutputOn(self, value):
         self._ZI_Settings['sigouts']['on'] = int(value)
         self.daq.set(['/%s/sigouts/%d/on' % (self.device, self._ZI_Settings['sigouts']['channel']), self._ZI_Settings['sigouts']['on']])
+
 
     def dict_to_settings(self, dictionary):
         '''
@@ -558,15 +413,16 @@ class ZIHF2_v2(QtCore.QThread):
                 settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, element['channel']), element['offset']])
             elif key in ['freq']:
                 settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
-            elif isinstance(element, dict) and key in ['sweep_settings']:
+            elif isinstance(element, dict) and key in ['sweep']:
                 for key, val in element.iteritems():
-                    settings.append(['sweep/%s' % (key), val])
+
+                    if isinstance(val, dict) and 'value' in  val:
+                        settings.append(['sweep/%s' % (key), val['value']])
+                    else:
+                        settings.append(['sweep/%s' % (key), val])
             elif isinstance(element, dict) == False:
                 settings.append([key, element])
 
-                # #always use samples per point, so set time to 0
-                # # self._sweeper.set('sweep/averaging/tc', 0)
-                # zi_sweep.append(['sweep/averaging/tc', 0])
 
         return settings
 
@@ -589,21 +445,26 @@ class ZIHF2_v2(QtCore.QThread):
         self._settings = deepcopy(self.ZI_Default_Settings)
         self._settings.update(ZI_Settings)
         self.general_settings = self._settings['general']
-        self.sweep_settings = self._settings['sweep_settings']
+        self.sweep_settings = self._settings['sweep']
 
         self.sweeper.set('sweep/device', self.device)
         #
-        self.data = None
+        self.sweep_data = deque()
         QtCore.QThread.__init__(self)
 
     def __del__(self):
         self.stop()
 
-    def run_sweep(self):
-        #todo: implement
+    def run_sweep(self, sweep_data):
+        '''
+        starts a sweep
+        :param sweep_data: dictionary that contains the data acquired from the ZI, e.g. 'frequency', 'r'
+        :return:
+        '''
 
         self._recording = False
         self._acquisition_mode = 'sweep'
+        self._sweep_values = sweep_data.keys()
         self.start()
 
     def run(self):
@@ -617,14 +478,20 @@ class ZIHF2_v2(QtCore.QThread):
                 self.sweeper.subscribe(path)
                 self.sweeper.execute()
                 start = time.time()
-                while not  self.sweeper.finished():
+                while not self.sweeper.finished():
+                    time.sleep(1)
                     progress = int(100*self.sweeper.progress())
-                    data = self.sweeper.read(True)
-                    # ensures that first point has completed before attempting to read data
+                    data = self.sweeper.read(True)# True: flattened dictionary
+
+                    #  ensures that first point has completed before attempting to read data
                     if path not in data:
                         continue
-                    self.samples = data[path]
-                    print(self.samples)
+
+                    data = data[path][0][0] # the data is nested, we remove the outer brackets with [0][0]
+                    # now we only want a subset of the data porvided by ZI
+                    data = {k : data[k] for k in self._sweep_values}
+
+                    self.sweep_data.append(data)
 
                     if (time.time() - start) > self._timeout:
                         # If for some reason the sweep is blocking, force the end of the
@@ -633,13 +500,21 @@ class ZIHF2_v2(QtCore.QThread):
                         self.sweeper.finish()
                         self._recording = False
 
-                    # self.updateProgress.emit(progress)
+                    print("Individual sweep %.2f%% complete. \n" % (progress))
+                    self.updateProgress.emit(progress)
+
+                if self.sweeper.finished():
+                    self._recording = False
+                    progress = 100 # make sure that progess is set 1o 100 because we check that in the gui
+
             else:
                 # todo: raise error
-                self._recording = False
+                self.stop()
                 print('unknown acquisition type!! acquisition stopped')
 
     def stop(self):
+        if self._acquisition_mode == 'sweep':
+            self.sweeper.finish()
         self._recording = False
 
     def poll(self, pollTime, timeout = 500):
@@ -668,4 +543,4 @@ if __name__ == '__main__':
 
     zi.sweep_settings = {'start': 1e3, 'stop': 1e4, 'samplecount':10}
 
-    zi.run_sweep()
+    zi.run_sweep({'frequency':0})
