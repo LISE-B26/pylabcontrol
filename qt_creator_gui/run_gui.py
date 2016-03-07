@@ -22,6 +22,7 @@ from copy import deepcopy
 import hardware_modules.DCServo_Kinesis_dll as DCServo_Kinesis
 import os
 from helper_functions.test_types import dict_difference
+from gui import gui_custom_widgets as gui_cw
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
@@ -135,7 +136,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.canvas_timetrace = FigureCanvas(fig_timetrace)
             self.plot_data_timetrace.addWidget(self.canvas_timetrace)
             self.axes_timetrace = fig_timetrace.add_subplot(111)
-            self.axes_timetrace.set_xlabel('time (ms)')
 
             fig_psd = Figure()
             self.canvas_psd = FigureCanvas(fig_psd)
@@ -167,7 +167,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.whitelight = maestro.FilterWheel(self._servo, **hardware_settings['parameters_whitelight'])
             self.camera = maestro.FilterWheel(self._servo, **hardware_settings['parameters_camera'])
             self.servo_polarization = DCServo_Kinesis.TDC001(hardware_settings["kinesis_serial_number"])
-
 
             # =============================================================
             # ===== NI FPGA ===============================================
@@ -235,7 +234,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # also for recorded data in the live plot but can me easy extended to take more data
         self._live_data = {}
         for id in self._settings['live_data_ids']:
-            self._live_data.update({id: deque()})
+            self._live_data.update({id: deque(maxlen = self._settings["record_length"])})
+        self.lines = deepcopy(self._settings['live_data_ids'])
 
         connect_hardware()
         create_figures()
@@ -257,10 +257,22 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # self.statusBar().showMessage(sender.objectName() + ' was pressed')
         if sender.objectName() == "btn_start_record":
             # self._thread_acq.start()
+            self.axes_live.clear()
+            for id in self._settings['live_data_ids']:
+                self.live_data = {}
+                self._live_data.update({id: deque(maxlen = self._settings["record_length"])})
+                self.lines[id], = self.axes_live.plot(list(self._live_data[id]))
+            detector_threshold = self._settings["detector_threshold"]
+            self.axes_live.plot([0, self._settings["record_length"]], [detector_threshold, detector_threshold], 'k--')
+            self.axes_live.plot([0, self._settings["record_length"]], [-detector_threshold, -detector_threshold], 'k--')
+            self.axes_live.autoscale(enable = True, axis = 'y')
+            self.canvas_live.draw()
             self._thread_acq_new.start()
+            self.plotting_live = True
         elif sender.objectName() == "btn_stop_record":
             # self._thread_acq.stop()
             self._thread_acq_new.stop()
+            self.plotting_live = False
         elif str(sender.objectName()) in {"btn_clear_record","btn_clear_record_fpga"}:
             self.clear_plot(sender)
         elif str(sender.objectName()) in {"btn_save_to_disk"}:
@@ -271,7 +283,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             print('unknown sender: ', sender.objectName())
 
 
-
+    def reset_servo(self):
+        self.servo_polarization.goto_home()
+        self.sliderPosition.setValue(300)
 
 
 
@@ -439,22 +453,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         :param data_point:
         :return:
         '''
-
-        self.axes_live.clear()
-        #todo: update plot without clearing all the data, so that it doesn't "blink"
         for ID in self._settings['live_data_ids']:
-            # throw out oldest data point if max queue length has been reached
-            if len(self._live_data[ID]) > self._settings["record_length"]:
-                self._live_data[ID].popleft()
-
-            # plot data if set to true
+            # plot data if set to true]
             if self._settings['live_data_ids'][ID] == True:
-                self.axes_live.plot(list(self._live_data[ID]))
-                detector_threshold = self._settings["detector_threshold"]
-                self.axes_live.plot([0, self._settings["record_length"]], [detector_threshold, detector_threshold], 'k--')
-                self.axes_live.plot([0, self._settings["record_length"]], [-detector_threshold, -detector_threshold], 'k--')
+                self.lines[ID].set_xdata(np.arange(0,len(list(self._live_data[ID])))+1)
+                self.lines[ID].set_ydata(list(self._live_data[ID]))
 
-            self.canvas_live.draw()
+        self.axes_live.relim()
+        self.axes_live.autoscale_view(scalex=False, scaley=True)
+        self.canvas_live.draw()
 
             # self.lbl_detector_signal.setText("{:d}".format(self._recorded_data[-1]))
 
@@ -544,7 +551,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         elif sender.objectName() == "btn_plus":
             self.sliderPosition.setValue(self.sliderPosition.value()+10)
         elif sender.objectName() == "btn_center":
-            self.sliderPosition.setValue(300)
+            #self.sliderPosition.setValue(300)
+            self.reset_servo()
         elif sender.objectName() == "btn_minus":
             self.sliderPosition.setValue(self.sliderPosition.value()-10)
         elif sender.objectName() == "btn_to_zero":
@@ -656,7 +664,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         QTreeWidget.setColumnWidth(0,200)
 
 
-
+#TODO: not yet finished, still buggy
 class PolarizationStabilizationThread(QtCore.QThread):
 
     #This is the signal that will be emitted during the processing.
@@ -673,19 +681,20 @@ class PolarizationStabilizationThread(QtCore.QThread):
         """
         QtCore.QThread.__init__(self)
         self.ControlMainWindow = ControlMainWindow
+        self.servo = self.ControlMainWindow.servo_polarization
 
 
     def run(self):
-
-
+        if not self.ControlMainWindow._thread_acq_new._recording:
+            self.ControlMainWindow._thread_acq_new.start()
+            time.sleep(.2)
         detector_value_zero = False
         max_iter = 100
         count = 1
         detector_threshold = SETTINGS_DICT["detector_threshold"]
 
         while detector_value_zero == False:
-            detector_value = self.ControlMainWindow._recorded_data[-1]
-
+            detector_value = self.ControlMainWindow._live_data['AI1'][-1]
             if abs(detector_value > detector_threshold) > 2000:
                 step_size = 40
             elif abs(detector_value > detector_threshold) > 1000:
@@ -891,7 +900,6 @@ class PolarizationControlThread(QtCore.QThread):
     def run(self):
         self._running = True
         while self._running:
-
             self._servo.move_servo(self.target_position)
             time.sleep(0.1)
             actual_position = self._servo.get_position()
@@ -900,7 +908,6 @@ class PolarizationControlThread(QtCore.QThread):
             if abs(self.target_position - actual_position)<0.01:
                 self._running = False
             print(abs(self.target_position - actual_position))
-
 
 
 if __name__ == '__main__':

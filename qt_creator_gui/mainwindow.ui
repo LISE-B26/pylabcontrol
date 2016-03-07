@@ -82,7 +82,7 @@
      <item>
       <widget class="QCheckBox" name="checkCameraon">
        <property name="text">
-        <string>Camera on</string>
+        <string>Camera on (not implemented)</string>
        </property>
       </widget>
      </item>
@@ -167,9 +167,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>10</y>
-        <width>401</width>
-        <height>241</height>
+        <y>0</y>
+        <width>411</width>
+        <height>271</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -345,6 +345,35 @@
       <string>Value</string>
      </property>
     </column>
+    <item>
+     <property name="text">
+      <string>New Item</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>New Item</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>New Subitem</string>
+      </property>
+      <property name="font">
+       <font>
+        <strikeout>false</strikeout>
+       </font>
+      </property>
+      <property name="background">
+       <brush brushstyle="NoBrush">
+        <color alpha="255">
+         <red>3</red>
+         <green>12</green>
+         <blue>3</blue>
+        </color>
+       </brush>
+      </property>
+     </item>
+    </item>
    </widget>
    <widget class="QListView" name="list_timetraces">
     <property name="geometry">

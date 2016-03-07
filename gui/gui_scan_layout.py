@@ -6,17 +6,17 @@ import subprocess
 import time
 
 import Image
+import helper_functions.meshing as Meshing
 import matplotlib.patches as patches
 import numpy as np
 import pandas as pd
 import scipy.spatial
 from PyQt4 import QtGui
 
-import helper_functions.meshing as Meshing
 import helper_functions.reading_writing as rw
 import scripts.ESR_many_NVs as ESR
 import scripts.auto_focus as AF
-from Archive import gui_custom_widgets as gui_cw
+from gui import gui_custom_widgets as gui_cw
 from functions import track_NVs as track
 from gui import GuiDeviceTriggers as DeviceTriggers
 from gui import PlotAPDCounts3 as Cnts

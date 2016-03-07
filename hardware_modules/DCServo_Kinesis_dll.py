@@ -81,6 +81,13 @@ class TDC001:
             raise
         # print ("Device Moved")
 
+    def goto_home(self):
+        try:
+            self.device.Home(60000)
+        except Exception:
+            print("Failed to move to position")
+            raise
+
     def get_position(self):
         '''
         :return: position of servo
@@ -147,5 +154,7 @@ if __name__ == '__main__':
     serial_number = 83832028
     a = TDC001(serial_number)
     print(a.get_position())
-    a.move_servo(3.0)
+    #a.goto_home()
+    #print(a.get_position())
+    a.move_servo(6)
     print(a.get_position())

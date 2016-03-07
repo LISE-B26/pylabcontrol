@@ -19,8 +19,6 @@ from PyQt4 import QtGui, QtCore
 
 from gui import gui_scan_layout
 
-#TODO: Add better attocube control
-
 # Class corresponding to window in which all widgets (objects used to display things) are placed. Extends QtGui.QMainWindow
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):

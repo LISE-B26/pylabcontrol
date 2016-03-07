@@ -2,7 +2,7 @@ __author__ = 'Experiment'
 
 from PyQt4 import QtGui
 
-from Archive import gui_custom_widgets as gui_cw
+from gui import gui_custom_widgets as gui_cw
 
 
 def add_zi_layout(self, vbox, plotBox):
