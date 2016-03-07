@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QListView" name="listView">
+   <widget class="QListView" name="list_history">
     <property name="geometry">
      <rect>
       <x>760</x>
@@ -41,7 +41,7 @@
     </property>
     <layout class="QVBoxLayout" name="plot_data_live"/>
    </widget>
-   <widget class="QListView" name="list_timetraces">
+   <widget class="QListView" name="list_records">
     <property name="geometry">
      <rect>
       <x>740</x>
@@ -75,14 +75,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btn_clear_record_fpga">
+      <widget class="QPushButton" name="btn_clear_record">
        <property name="text">
         <string>Delete</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btn_save_to_disk">
+      <widget class="QPushButton" name="btn_save_record_to_disk">
        <property name="text">
         <string>Save to disk</string>
        </property>
@@ -120,13 +120,13 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_scripts">
      <attribute name="title">
       <string>Scripts</string>
      </attribute>
-     <widget class="QTreeWidget" name="treeWidget">
+     <widget class="QTreeWidget" name="tree_scripts">
       <property name="enabled">
        <bool>true</bool>
       </property>
@@ -239,11 +239,11 @@
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_settings">
+    <widget class="QWidget" name="tab_main_settings">
      <attribute name="title">
       <string>Settings</string>
      </attribute>
-     <widget class="QTreeWidget" name="treeWidget_2">
+     <widget class="QTreeWidget" name="tree_main_settings">
       <property name="enabled">
        <bool>true</bool>
       </property>
@@ -318,10 +318,10 @@
      </widget>
     </widget>
    </widget>
-   <zorder>listView</zorder>
+   <zorder>list_history</zorder>
    <zorder>plotWidget_live</zorder>
    <zorder>layoutWidget</zorder>
-   <zorder>list_timetraces</zorder>
+   <zorder>list_records</zorder>
    <zorder>plotWidget_sweep</zorder>
    <zorder>tabWidget</zorder>
   </widget>
