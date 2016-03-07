@@ -84,35 +84,35 @@ import helper_functions.reading_writing as rw
 #         }
 # }
 
-SETTINGS_DICT = {
-        'sweep' : {
-            'start' : {'value': 0.0, 'valid_values': None, 'info':'start value of sweep', 'visible' : True},
-            'stop' : {'value': 0.0, 'valid_values': None, 'info':'end value of sweep', 'visible' : True},
-            'samplecount' : {'value': 0, 'valid_values': None, 'info':'number of data points', 'visible' : True},
-            'gridnode' : {'value': 'oscs/0/freq', 'valid_values': ['oscs/0/freq', 'oscs/1/freq'], 'info':'channel that\'s used in sweep', 'visible' : True},
-            'xmapping' : {'value': 0, 'valid_values': [0,1], 'info':'mapping 0 = linear, 1 = logarithmic', 'visible' : True},
-            'bandwidthcontrol' : {'value': 2, 'valid_values': [2], 'info':'2 = automatic bandwidth control', 'visible' : True},
-            'scan' : {'value': 0, 'valid_values': [0, 1, 2], 'info':'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)', 'visible' : True},
-            'loopcount' : {'value': 1, 'valid_values': None, 'info':'number of times it sweeps', 'visible' : False},
-            'averaging/sample' : {'value': 0, 'valid_values': None, 'info':'number of samples to average over', 'visible' : True}
-        },
-        'peak_search_settings' : {
-            'f_min': 1875.0e3,
-            'f_max': 1878.0e3,
-            'df_coarse' : 5,
-            'df_fine': 1,
-            'N_fine': 101,
-            'samplesPerPt' : 1,
-            'samplesPerPt' : {'arthur':1, 'jan':2, 'aaron':{'1':1,'2':2}}
-        }
-}
+# SETTINGS_DICT = {
+#         'sweep' : {
+#             'start' : {'value': 0.0, 'valid_values': None, 'info':'start value of sweep', 'visible' : True},
+#             'stop' : {'value': 0.0, 'valid_values': None, 'info':'end value of sweep', 'visible' : True},
+#             'samplecount' : {'value': 0, 'valid_values': None, 'info':'number of data points', 'visible' : True},
+#             'gridnode' : {'value': 'oscs/0/freq', 'valid_values': ['oscs/0/freq', 'oscs/1/freq'], 'info':'channel that\'s used in sweep', 'visible' : True},
+#             'xmapping' : {'value': 0, 'valid_values': [0,1], 'info':'mapping 0 = linear, 1 = logarithmic', 'visible' : True},
+#             'bandwidthcontrol' : {'value': 2, 'valid_values': [2], 'info':'2 = automatic bandwidth control', 'visible' : True},
+#             'scan' : {'value': 0, 'valid_values': [0, 1, 2], 'info':'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)', 'visible' : True},
+#             'loopcount' : {'value': 1, 'valid_values': None, 'info':'number of times it sweeps', 'visible' : False},
+#             'averaging/sample' : {'value': 0, 'valid_values': None, 'info':'number of samples to average over', 'visible' : True}
+#         },
+#         'peak_search_settings' : {
+#             'f_min': 1875.0e3,
+#             'f_max': 1878.0e3,
+#             'df_coarse' : 5,
+#             'df_fine': 1,
+#             'N_fine': 101,
+#             'samplesPerPt' : 1,
+#             'samplesPerPt' : {'arthur':1, 'jan':2, 'aaron':{'1':1,'2':2}}
+#         }
+# }
 
 
 
-from default_settings import SETTINGS_DICT
+from default_settings import MAIN_SETTINGS, SCRIPTS, SWEEP_SETTINGS
 
 
-rw.save_json(SETTINGS_DICT, './gui_zi_control_default_settings.json')
+# rw.save_json(SETTINGS_DICT, './gui_zi_control_default_settings.json')
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, ):
@@ -177,15 +177,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
             #
             # print("servopos",self.servo_polarization.get_position())
-            self.treeWidget.itemChanged.connect(lambda: self.update_parameters())
+            # self.tree_scripts.itemChanged.connect(lambda: self.update_parameters())
+            self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts, self._script_settings))
+            self.tree_main_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_main_settings, self._main_settings))
             self.zi.updateProgress.connect(self.update_status)
 
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
 
-        self._settings = set_settings(SETTINGS_DICT)
+        self._script_settings = set_settings(SCRIPTS)
+        self._main_settings = set_settings(MAIN_SETTINGS)
 
-        self.fill_treeWidget(self.treeWidget, self._settings)
+        self.fill_treeWidget(self.tree_scripts, self._script_settings)
+        self.fill_treeWidget(self.tree_main_settings, self._main_settings)
 
         # define some data sets
         # todo: use maxlength to limit number of commands, the we don't have to pop them manually
@@ -201,7 +205,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         connect_controls()
         # create_threads()
 
-        self.treeWidget.collapseAll()
+        # self.tree_scripts.collapseAll()
+        self._scripts = ['sweep', 'measure Q high res']
+
 
     def __del__(self):
         '''
@@ -211,9 +217,36 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def btn_clicked(self):
         sender = self.sender()
-        # self.statusBar().showMessage(sender.objectName() + ' was pressed')
+
         if sender.objectName() == "btn_start":
-            self.zi.run_sweep(self.sweep_data)
+            if self.tree_scripts.currentItem() == None:
+                self.log('No script selected. Select script first!')
+            else:
+                parents = []
+                parent = self.tree_scripts.currentItem()
+                script_name = None
+                while parent != None:
+                    if str(parent.text(0)) in self._scripts and script_name == None:
+                        script_name = parent.text(0)
+                    parents.insert(0,str(parent.text(0)))
+                    parent = parent.parent()
+
+                if script_name == None:
+                    script_name = str(self.tree_scripts.currentItem().text(0))
+                    parents.insert(0, script_name)
+
+                script_parameter = self._script_settings
+                for i in parents:
+                    script_parameter = script_parameter[i]
+
+                if script_name in self._scripts:
+                    self._script_name = script_name
+                    self.run_script(script_parameter)
+
+
+
+
+            # self.zi.run_sweep(self.sweep_data)
         elif sender.objectName() == "btn_stop":
             self.zi.stop()
         # elif str(sender.objectName()) in {"btn_clear_record","btn_clear_record_fpga"}:
@@ -225,112 +258,137 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         else:
             print('unknown sender: ', sender.objectName())
 
+    def run_script(self, script_parameter = None):
+
+        if self._script_name == 'sweep':
+            self.zi.run_sweep(self.sweep_data)
+        elif self._script_name == 'measure Q high res':
+            pass
+
+    def stop_script(self):
+        if self._script_name == 'sweep':
+            self.zi.stop()
 
 
 
-    def update_parameters(self):
+
+
+    def update_parameters(self, treeWidget, parameter_dict):
         '''
         is called when a parameter in the tree is changed
         this function updates the dictionary that holds all the parameter
-        :return:
+        :param treeWidget: treeWiget object where some element has been changed
+        :param parameter_dict: a map of the current values of the treeWidget
+        :return: None
         '''
 
-        def change_parameter(parameter, value_old, value_new):
-            updated_success = True
 
-            if parameter in (SETTINGS_DICT['sweep'].keys()):
-                print({parameter : value_new})
+
+        def send_parameter_to_harware(parameter, value_new, target):
+            '''
+            for certain parameters we want to send the changes to the hardware
+            :param parameter: paranmeter that has been changed
+            :param value_new: new parameter value
+            :return:
+            '''
+
+            if target  == 'ZI sweep':
                 self.zi.sweep_settings = {parameter : value_new}
                 updated_success = True
-            else:
-                updated_success = False
-                self.log("unknown parameter {:s}. No change applied!".format(parameter))
+                self.log("parameter ({:s}) change sent to {:s}.".format(parameter, target))
 
-            return updated_success
+        def set_type(value, valid_values):
 
-        if not self.treeWidget.currentItem() == None:
-            parameter = str(self.treeWidget.currentItem().text(0))
-            value = unicode(self.treeWidget.currentItem().text(1))
+            '''
+            checks if value is in valid_values
+            :param value: value to be checked
+            :param valid_values: list of valid values | type | tuple of types
+            :return: value_new the value cast into the type of value_default
+            '''
+            msg = ''
+            def cast_type(var, typ):
+                '''
+                cast variable var into type typ
+                :param var:
+                :param typ:
+                :return: variable cast into the same type as typ or None if not recognized
+                '''
+                try:
+                    if typ == int:
+                        var = int(var)
+                    elif typ == float:
+                        var = float(var)
+                    elif typ  == str:
+                        var = str(var)
+                    else:
+                        var = None
+                except ValueError:
+                    var = None
+                return var
+
+            if isinstance(valid_values, list):
+                # if valid_values is a list, we cast into the same type (because we receive a unicode type from the GUI) and check if value is
+                # contained in the list
+                value = cast_type(value, type(valid_values[0])) # cast into same type as valid values
+                if value in valid_values:
+                    value_new = value
+                else:
+                    msg = '{:s} is wrong value. Should be {:s}'.format(str(value), str(valid_values))
+                    value_new = None
+            elif isinstance(valid_values, type):
+                # if valid value is a type we cast into value into same type
+                value_new = cast_type(value, valid_values)
+            elif isinstance(valid_values, tuple):
+                # if valid values is a tuple is is most likely (inf, float)
+                # in that case min(int, float) gives float, which is the more general type
+                value = cast_type(value, min(valid_values))
+                if isinstance(value, valid_values):
+                    value_new = value
+                else:
+                    msg = '{:s} is wrong value. Should be of type {:s}'.format(str(value), str(valid_values))
+                    value_new = None
+
+            return value_new, msg
+        if not treeWidget.currentItem() == None:
+            parameter = str(treeWidget.currentItem().text(0))
+            value = unicode(treeWidget.currentItem().text(1))
             parents = []
-            if self.treeWidget.currentColumn() == 0:
+            if treeWidget.currentColumn() == 0:
                 self.log("Tried to edit parameter name. This is not allowed!!", 1000)
+                self.fill_treeWidget(treeWidget, parameter_dict) # set tree back to status before it was edited by user
             else:
-                parent = self.treeWidget.currentItem().parent()
+                parent = treeWidget.currentItem().parent()
                 while parent != None:
                     parents.insert(0,str(parent.text(0)))
                     parent = parent.parent()
                 try:
-                    dictator = self._settings
+                    # get the value before it was changed in the treeWidget
+                    dictator = parameter_dict
                     for i in parents:
                         dictator = dictator[i]
-                    value_old = dictator[parameter]
+                    print(dictator[parameter])
+                    value_old = dictator[parameter]['value']
+                    valid_values = dictator[parameter]['valid_values']
 
-                    dictator = SETTINGS_DICT
-                    for i in parents:
-                        print i
-                        dictator = dictator[i]
-                    value_default = dictator[parameter]
-                    value, msg = self.set_type(value, value_default)
+                    # verify that the new value is valid
+                    value, msg = set_type(value, valid_values)
                     print('value, msg')
                     print(value, msg)
                     if value == None:
-                        change_success = False
                         self.log(msg)
+                        self.fill_treeWidget(treeWidget, parameter_dict)
                     else:
-                        change_success = change_parameter(parameter, value_old, value)
-
-                    if change_success:
-                        dictator.update({parameter : value})
-                        if isinstance(value, dict) and 'value' in value:
-                            self.log("changed parameter {:s} from {:s} to {:s}!".format(parameter, str(value_old['value']), str(value['value'])))
-                        else:
-                            self.log("changed parameter {:s} from {:s} to {:s}!".format(parameter, str(value_old), str(value)))
-                    else:
-                        # set back to original values if value entered value is not valid
-                        print(self._settings)
-                        self.fill_treeWidget(self.treeWidget, self._settings)
+                        self.log("Updated {:s} from {:s} to {:s}!!".format(parameter,str(value_old), str(value)), 1000)
+                        print('send_parameter_to_harware(parameter, value)')
+                        if 'target' in dictator[parameter].keys():
+                            send_parameter_to_harware(parameter, value, dictator[parameter]['target'])
+                        dictator[parameter].update({'value' : value})
 
                 except:
                     print "Unexpected error:", sys.exc_info()[0]
                     raise
 
-    def set_type(self, value, value_default, valid_values = None):
-        '''
-        casts value to the same type as value_default
-        :param value:
-        :param value_default:
-        :return: value_new the value cast into the type of value_default
-        '''
 
-        msg = 'everything ok'
-        try:
-            if isinstance(value_default, bool):
-                value_new = value == 'True'
-            elif isinstance(value_default, int):
-                value_new = int(value)
-            elif isinstance(value_default, float):
-                value_new = float(value)
-            elif isinstance(value_default, str):
-                value_new = str(value)
-            elif isinstance(value_default, dict) and 'value' in value_default:
-                # construct dictionary
-                value_new = deepcopy(value_default)
-                value_new['value'], msg = self.set_type(value, value_default['value'], value_default['valid_values'])
-                if value_new['value'] == None:
-                    value_new = None
-            else:
-                value_new = None
-        except ValueError:
-            value_new = None
-            msg = 'wrong type - no change applied'
-
-        if value_new != None and valid_values!=None:
-            if (value_new in valid_values) == False:
-                value_new = None
-                #todo: more detailed msg
-                msg = 'value not valid !'
-
-        return value_new, msg
 
     def plot_psd(self, freq, psd,  axes):
         '''
@@ -370,13 +428,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if len(self.past_commands) > 10:
             self.past_commands.popleft()
 
-        model = QtGui.QStandardItemModel(self.listView)
+        model = QtGui.QStandardItemModel(self.list_history)
         for item in self.past_commands:
             model.insertRow(0,QtGui.QStandardItem(item))
 
             # model.appendRow(QtGui.QStandardItem(item))
-        self.listView.setModel(model)
-        self.listView.show()
+        self.list_history.setModel(model)
+        self.list_history.show()
 
     def clear_plot(self, sender):
         if sender.objectName() == "btn_clear_record":
@@ -455,7 +513,50 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         QTreeWidget.clear()
         fill_item(QTreeWidget.invisibleRootItem(), value)
 
-        QTreeWidget.setColumnWidth(0,200)
+        QTreeWidget.setColumnWidth(0,300)
+
+
+class ScriptThread(QtCore.QThread):
+    '''
+    This class starts a script on its own thread
+    '''
+
+    #This is the signal that will be emitted during the processing.
+    #By including int as an argument, it lets the signal know to expect
+    #an integer argument when emitting.
+    updateProgress = QtCore.Signal(int)
+
+    #You can do any extra things in this init you need
+    def __init__(self):
+        """
+
+        :param PI: lib.FPGA_PID_Loop_Simple.NI_FPGA_PI object that handles the feedback loop
+        :return:
+        """
+        self._recording = False
+
+        QtCore.QThread.__init__(self)
+
+
+    def __del__(self):
+        self.stop()
+    #A QThread is run by calling it's start() function, which calls this run()
+    #function in it's own "thread".
+    def run(self):
+        self._recording = True
+        while self._recording:
+            #Emit the signal so it can be received on the UI side.
+            # data_point = np.random.randint(-32000, 32000)
+            # try statement
+            # try:
+            data_point = self._PI.detector
+            self.updateProgress.emit(data_point[0])
+            time.sleep(0.2)
+
+
+        print("acquisition ended")
+    def stop(self):
+        self._recording = False
 
 
 if __name__ == '__main__':
