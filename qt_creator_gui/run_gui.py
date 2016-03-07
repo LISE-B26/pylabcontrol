@@ -665,7 +665,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
 #TODO: not yet finished, still buggy
-class PolarizationStabilizationThread(QtCore.QThread):
+class PolarizationStabilizationThrea d(QtCore.QThread):
 
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect

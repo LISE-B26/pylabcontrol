@@ -110,7 +110,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_scripts">
      <attribute name="title">
@@ -323,11 +323,22 @@
      </widget>
     </widget>
    </widget>
+   <widget class="QWidget" name="centralwidget_2" native="true">
+    <property name="geometry">
+     <rect>
+      <x>789</x>
+      <y>590</y>
+      <width>241</width>
+      <height>111</height>
+     </rect>
+    </property>
+   </widget>
    <zorder>plotWidget_live</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>list_records</zorder>
    <zorder>plotWidget_sweep</zorder>
    <zorder>tabWidget</zorder>
+   <zorder>centralwidget_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
