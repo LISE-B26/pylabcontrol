@@ -13,10 +13,12 @@ import numpy
 import pandas as pd
 import sys
 from PyQt4 import QtGui, QtCore
-
+from copy import deepcopy
+from collections import deque
 # This class initializes an input, output, and auxillary channel on the ZIHF2, and currently has functionality to run
 # a sweep, and plot and save the results.
 class ZIHF2:
+
 
     def __init__(self, amplitude, offset, freq, ACCoupling = 0, inChannel = 0, outChannel = 0, auxChannel = 0, add = 1, range = 10, canvas = None):
 
@@ -294,3 +296,251 @@ class ZIHF2:
     #zi = ZIHF2(1, .5)
     #zi.sweep(1e6, 50e6, 100, 10, xScale = 0)
     #zi.writeData('C:\Users\Experiment\Desktop\ziwritetest.txt')
+
+
+# This class initializes an input, output, and auxillary channel on the ZIHF2, and currently has functionality to run
+# a sweep, and plot and save the results.
+# version 2, started by JG March 3rd 2016
+class ZIHF2_v2(QtCore.QThread):
+
+    updateProgress = QtCore.Signal(int)
+
+    ZI_Default_Settings = {
+        'general': {
+            'freq' : 1e6,
+            'sigins' : {
+                'channel' : 0,
+                'imp50': 1,
+                'ac' : 1,
+                'range': 10,
+                'diff' : 0
+            },
+            'sigouts' : {
+                'channel' : 0,
+                'on' : 1,
+                'range' : 10,
+                'add': 1
+            },
+            'demods': {
+                'channel' : 0,
+                'order' : 4,
+                'rate' : 10e3,
+                'harmonic': 1,
+                'phaseshift': 0,
+                'oscselect': 0,
+                'adcselect' : 0
+            },
+            'aux':{
+                'channel' : 0,
+                'offset' : 1
+            },
+        },
+        # 'sweep' : {
+        #     'start' : 0,
+        #     'stop' : 0,
+        #     'samplecount' : 0,
+        #     'gridnode' : 'oscs/0/freq',
+        #     'xmapping' : 0, #0 = linear, 1 = logarithmic
+        #     'bandwidthcontrol': 2, #2 = automatic bandwidth control
+        #     'scan' : 0, #scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)
+        #     'loopcount': 1,
+        #     'averaging/sample' : 2 #number of samples to average over
+        # }
+        'sweep' : {
+            'start' : {'value': 0, 'valid_values': None, 'info':'start value of sweep', 'visible' : True},
+            'stop' : {'value': 0, 'valid_values': None, 'info':'end value of sweep', 'visible' : True},
+            'samplecount' : {'value': 0, 'valid_values': None, 'info':'number of data points', 'visible' : True},
+            'gridnode' : {'value': 'oscs/0/freq', 'valid_values': ['oscs/0/freq', 'oscs/1/freq'], 'info':'channel that\'s used in sweep', 'visible' : True},
+            'xmapping' : {'value': 0, 'valid_values': [0,1], 'info':'mapping 0 = linear, 1 = logarithmic', 'visible' : True},
+            'bandwidthcontrol' : {'value': 2, 'valid_values': [2], 'info':'2 = automatic bandwidth control', 'visible' : True},
+            'scan' : {'value': 0, 'valid_values': [0, 1, 2], 'info':'#scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)', 'visible' : True},
+            'loopcount' : {'value': 1, 'valid_values': None, 'info':'number of times it sweeps', 'visible' : False},
+            'averaging/sample' : {'value': 0, 'valid_values': None, 'info':'number of samples to average over', 'visible' : True}
+        }
+    }
+
+    @property
+    def general_settings(self):
+        return self._settings['general']
+    @general_settings.setter
+    def general_settings(self, value):
+        # print('======== general settings =================')
+        self._settings['general'].update(value)
+        commands = self.dict_to_settings(value)
+        # print(commands)
+        self.daq.set(commands)
+
+
+    @property
+    def sweep_settings(self):
+        return self._settings['sweep']
+    @sweep_settings.setter
+    def sweep_settings(self, value):
+
+        self._settings['sweep'].update(value)
+        # print('======== sweep settings =================')
+        commands = self.dict_to_settings({'sweep' : value})
+        # print(commands)
+        self.sweeper.set(commands)
+
+    # This function switches output on or off
+    @property
+    def OutputOn(self):
+        return bool(self._ZI_Settings['sigouts']['on'])
+    @OutputOn.setter
+    def OutputOn(self, value):
+        self._ZI_Settings['sigouts']['on'] = int(value)
+        self.daq.set(['/%s/sigouts/%d/on' % (self.device, self._ZI_Settings['sigouts']['channel']), self._ZI_Settings['sigouts']['on']])
+
+
+    def dict_to_settings(self, dictionary):
+        '''
+        converts dictionary to list of  setting, which can then be passed to the zi controler
+        :param dictionary = dictionary that contains the settings
+        :return: settings = list of settings, which can then be passed to the zi controler
+        '''
+        # create list that is passed to the ZI controler
+
+
+        settings = []
+        for key, element in sorted(dictionary.iteritems()):
+            if isinstance(element, dict) and key in ['sigins', 'sigouts', 'demods']:
+                channel = element['channel']
+                for sub_key, val in sorted(element.iteritems()):
+                    if not sub_key == 'channel':
+                        settings.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
+            elif isinstance(element, dict) and key in ['aux']:
+                settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, element['channel']), element['offset']])
+            elif key in ['freq']:
+                settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
+            elif isinstance(element, dict) and key in ['sweep']:
+                for key, val in element.iteritems():
+
+                    if isinstance(val, dict) and 'value' in  val:
+                        settings.append(['sweep/%s' % (key), val['value']])
+                    else:
+                        settings.append(['sweep/%s' % (key), val])
+            elif isinstance(element, dict) == False:
+                settings.append([key, element])
+
+
+        return settings
+
+    def __init__(self, ZI_Settings = {}, port_number = 8005, timeout = 100000000):
+        print('creating')
+
+        '''
+        initializes values
+        :ZI_Settings dictionary with settings for ZI HF2 control, check ZI_Default_Settings variable for elements
+        '''
+        def connect(port_number, timeout):
+            self.daq = utils.autoConnect(port_number,1) # connect to ZI, 8005 is the port number
+            self.device = utils.autoDetect(self.daq)
+            self.options = self.daq.getByte('/%s/features/options' % self.device)
+            self.sweeper = self.daq.sweep(timeout)
+            self._timeout = timeout
+
+        connect(port_number, timeout)
+        # overwrite the default setting with the settings that have been provided
+        self._settings = deepcopy(self.ZI_Default_Settings)
+        self._settings.update(ZI_Settings)
+        self.general_settings = self._settings['general']
+        self.sweep_settings = self._settings['sweep']
+
+        self.sweeper.set('sweep/device', self.device)
+        #
+        self.sweep_data = deque()
+        QtCore.QThread.__init__(self)
+
+    def __del__(self):
+        self.stop()
+
+    def run_sweep(self, sweep_data):
+        '''
+        starts a sweep
+        :param sweep_data: dictionary that contains the data acquired from the ZI, e.g. 'frequency', 'r'
+        :return:
+        '''
+
+        self._recording = False
+        self._acquisition_mode = 'sweep'
+        self._sweep_values = sweep_data.keys()
+        self.start()
+
+    def run(self):
+        self._recording = True
+
+        while self._recording:
+            #Emit the signal so it can be received on the UI side.
+            if self._acquisition_mode == 'sweep':
+                #specify nodes to recorder data from
+                path = '/%s/demods/%d/sample' % (self.device, self.general_settings['demods']['channel'])
+                self.sweeper.subscribe(path)
+                self.sweeper.execute()
+                start = time.time()
+                while not self.sweeper.finished():
+                    time.sleep(1)
+                    progress = int(100*self.sweeper.progress())
+                    data = self.sweeper.read(True)# True: flattened dictionary
+
+                    #  ensures that first point has completed before attempting to read data
+                    if path not in data:
+                        continue
+
+                    data = data[path][0][0] # the data is nested, we remove the outer brackets with [0][0]
+                    # now we only want a subset of the data porvided by ZI
+                    data = {k : data[k] for k in self._sweep_values}
+
+                    self.sweep_data.append(data)
+
+                    if (time.time() - start) > self._timeout:
+                        # If for some reason the sweep is blocking, force the end of the
+                        # measurement
+                        print("\nSweep still not finished, forcing finish...")
+                        self.sweeper.finish()
+                        self._recording = False
+
+                    print("Individual sweep %.2f%% complete. \n" % (progress))
+                    self.updateProgress.emit(progress)
+
+                if self.sweeper.finished():
+                    self._recording = False
+                    progress = 100 # make sure that progess is set 1o 100 because we check that in the gui
+
+            else:
+                # todo: raise error
+                self.stop()
+                print('unknown acquisition type!! acquisition stopped')
+
+    def stop(self):
+        if self._acquisition_mode == 'sweep':
+            self.sweeper.finish()
+        self._recording = False
+
+    def poll(self, pollTime, timeout = 500):
+        #todo: implement
+        '''
+        NOT FINISHED!!!!
+        Poll the value of input 1 for polltime seconds and return the magnitude of the average data. Timeout is in milisecond.
+        :param pollTime:
+        :param timeout:
+        :return:
+        '''
+        pass
+        # path = '/%s/demods/%d/sample' % (self.device, self.demod_c)
+        # self.daq.subscribe(path)
+        # flat_dictionary_key = True
+        # data = self.daq.poll(pollTime,timeout,1,flat_dictionary_key)
+        # R = numpy.sqrt(numpy.square(data[path]['x'])+numpy.square(data[path]['y']))
+        # return(numpy.mean(R))
+
+
+
+if __name__ == '__main__':
+
+    zi = ZIHF2_v2()
+
+
+    zi.sweep_settings = {'start': 1e3, 'stop': 1e4, 'samplecount':10}
+
+    zi.run_sweep({'frequency':0})

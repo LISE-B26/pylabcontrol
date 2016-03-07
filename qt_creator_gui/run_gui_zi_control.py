@@ -30,41 +30,89 @@ Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't ha
 import datetime
 from collections import deque
 import time
-
+import helper_functions.reading_writing as rw
 
 # ============= GENERAL SETTING ====================================
 # ==================================================================
 
+#
+# SETTINGS_DICT = {
+#     'zi_settings' : {
+#         'amplitude' : 0.1e-3,
+#         'offset' : 1,
+#         'freq' : 1.88e6,
+#         'ACCoupling':1,
+#         'inChannel' : 0,
+#         'outChannel' : 0,
+#         'auxChannel' : 0,
+#         'add' : 1,
+#         'range' : 10e-3
+#     },
+#     'peak_search_settings' : {
+#         'f_min': 1875.0e3,
+#         'f_max': 1878.0e3,
+#         'df_coarse' : 5,
+#         'df_fine': 1,
+#         'N_fine': 101,
+#         'samplesPerPt' : 1
+#     },
+#     'find_peak_settings' : {
+#         'f_min': 1875.0e3,
+#         'f_max': 1878.0e3,
+#         'df' : 5,
+#         'samplesPerPt' : 1
+#     }
+# }
+# SETTINGS_DICT =rw.load_json('./gui_zi_control_default_settings.json')
+
+# SETTINGS_DICT = {
+#         'sweep' : {
+#             'start' : 0,
+#             'stop' : 0,
+#             'samplecount' : 0,
+#             'gridnode' : 'oscs/0/freq',
+#             'xmapping' : 0, #0 = linear, 1 = logarithmic
+#             'bandwidthcontrol': 2, #2 = automatic bandwidth control
+#             'scan' : 0, #scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)
+#             'loopcount': 1,
+#             'averaging/sample' : 2, #number of samples to average over
+#             'start' : {'value': 0, 'valid_values': None, 'info':'start value of sweep', 'visible' : True},
+#             'stop' : {'value': 0, 'valid_values': None, 'info':'end value of sweep', 'visible' : True},
+#             'samplecount' : {'value': 0, 'valid_values': None, 'info':'end value of sweep', 'visible' : True},
+#             'gridnode' : {'value': 'oscs/0/freq', 'valid_values': ['oscs/0/freq', 'oscs/1/freq'], 'info':'channel that\'s used in sweep', 'visible' : True},
+#             'xmapping' : {'value': 0, 'valid_values': [0,1], 'info':'mapping 0 = linear, 1 = logarithmic', 'visible' : True}
+#         }
+# }
 
 SETTINGS_DICT = {
-    'zi_settings' : {
-        'amplitude' : 0.1e-3,
-        'offset' : 1,
-        'freq' : 1.88e6,
-        'ACCoupling':1,
-        'inChannel' : 0,
-        'outChannel' : 0,
-        'auxChannel' : 0,
-        'add' : 1,
-        'range' : 10e-3
-    },
-    'peak_search_settings' : {
-        'f_min': 1875.0e3,
-        'f_max': 1878.0e3,
-        'df_coarse' : 5,
-        'df_fine': 1,
-        'N_fine': 101,
-        'samplesPerPt' : 1
-    },
-    'find_peak_settings' : {
-        'f_min': 1875.0e3,
-        'f_max': 1878.0e3,
-        'df' : 5,
-        'samplesPerPt' : 1
-    }
+        'sweep' : {
+            'start' : {'value': 0.0, 'valid_values': None, 'info':'start value of sweep', 'visible' : True},
+            'stop' : {'value': 0.0, 'valid_values': None, 'info':'end value of sweep', 'visible' : True},
+            'samplecount' : {'value': 0, 'valid_values': None, 'info':'number of data points', 'visible' : True},
+            'gridnode' : {'value': 'oscs/0/freq', 'valid_values': ['oscs/0/freq', 'oscs/1/freq'], 'info':'channel that\'s used in sweep', 'visible' : True},
+            'xmapping' : {'value': 0, 'valid_values': [0,1], 'info':'mapping 0 = linear, 1 = logarithmic', 'visible' : True},
+            'bandwidthcontrol' : {'value': 2, 'valid_values': [2], 'info':'2 = automatic bandwidth control', 'visible' : True},
+            'scan' : {'value': 0, 'valid_values': [0, 1, 2], 'info':'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)', 'visible' : True},
+            'loopcount' : {'value': 1, 'valid_values': None, 'info':'number of times it sweeps', 'visible' : False},
+            'averaging/sample' : {'value': 0, 'valid_values': None, 'info':'number of samples to average over', 'visible' : True}
+        },
+        'peak_search_settings' : {
+            'f_min': 1875.0e3,
+            'f_max': 1878.0e3,
+            'df_coarse' : 5,
+            'df_fine': 1,
+            'N_fine': 101,
+            'samplesPerPt' : 1,
+            'samplesPerPt' : {'arthur':1, 'jan':2, 'aaron':{'1':1,'2':2}}
+        }
 }
 
 
+
+from default_settings import SETTINGS_DICT
+
+
+rw.save_json(SETTINGS_DICT, './gui_zi_control_default_settings.json')
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, ):
@@ -89,62 +137,48 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.canvas_sweep = FigureCanvas(fig_sweep)
             self.plot_data_sweep.addWidget(self.canvas_sweep)
             self.axes_sweep = fig_sweep.add_subplot(111)
-            self.axes_sweep.set_xlabel('frequency (Hz)')
-
-        def create_threads():
-
-            self._thread_acq_new = AcquisitionThreadNew(self)
-            self._thread_acq_new.updateProgress.connect(self.update_plot_live_new)
-
-            self._thread_acq_fifo = AcquisitionFIFOThread(self)
-            self._thread_acq_fifo.updateProgress.connect(self.update_status)
-
-            self._thread_pol = PolarizationControlThread(self)
-
-            self._thread_pol_stab = PolarizationStabilizationThread(self)
-
         def connect_hardware():
             # create connections to hardware
-            self.zi = ZI.ZIHF2(**zi_settings)
-
+            self.zi = ZI.ZIHF2_v2()
         def connect_controls():
             # =============================================================
             # ===== LINK WIDGETS TO FUNCTIONS =============================
             # =============================================================
 
-            # link slider to functions
-            print(self.servo_polarization.get_position() * 100)
-            self.sliderPosition.setValue(int(self.servo_polarization.get_position() * 100))
-            self.sliderPosition.valueChanged.connect(lambda: self.set_position())
-
-            # link buttons to functions
-            self.btn_start_record.clicked.connect(lambda: self.btn_clicked())
-            self.btn_stop_record.clicked.connect(lambda: self.btn_clicked())
-            self.btn_clear_record.clicked.connect(lambda: self.btn_clicked())
-            self.btn_start_record_fpga.clicked.connect(lambda: self.btn_clicked())
-            self.btn_clear_record_fpga.clicked.connect(lambda: self.btn_clicked())
-            self.btn_save_to_disk.clicked.connect(lambda: self.btn_clicked())
-
-            self.btn_plus.clicked.connect(lambda: self.set_position())
-            self.btn_minus.clicked.connect(lambda: self.set_position())
-            self.btn_center.clicked.connect(lambda: self.set_position())
-            self.btn_to_zero.clicked.connect(lambda: self.set_position())
-
-
-
-            # link checkboxes to functions
-            self.checkIRon.stateChanged.connect(lambda: self.control_light())
-            self.checkGreenon.stateChanged.connect(lambda: self.control_light())
-            self.checkWhiteLighton.stateChanged.connect(lambda: self.control_light())
-            self.checkCameraon.stateChanged.connect(lambda: self.control_light())
-            self.checkPIActive.stateChanged.connect(lambda: self.switch_PI_loop())
-
-            # link combo box
-            self.cmb_filterwheel.addItems(self._settings['hardware']['parameters_filterwheel']['position_list'].keys())
-            self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
-
-            print("servopos",self.servo_polarization.get_position())
+            # # link slider to functions
+            # print(self.servo_polarization.get_position() * 100)
+            # self.sliderPosition.setValue(int(self.servo_polarization.get_position() * 100))
+            # self.sliderPosition.valueChanged.connect(lambda: self.set_position())
+            #
+            # # link buttons to functions
+            self.btn_start.clicked.connect(lambda: self.btn_clicked())
+            # self.btn_stop_record.clicked.connect(lambda: self.btn_clicked())
+            # self.btn_clear_record.clicked.connect(lambda: self.btn_clicked())
+            # self.btn_start_record_fpga.clicked.connect(lambda: self.btn_clicked())
+            # self.btn_clear_record_fpga.clicked.connect(lambda: self.btn_clicked())
+            # self.btn_save_to_disk.clicked.connect(lambda: self.btn_clicked())
+            #
+            # self.btn_plus.clicked.connect(lambda: self.set_position())
+            # self.btn_minus.clicked.connect(lambda: self.set_position())
+            # self.btn_center.clicked.connect(lambda: self.set_position())
+            # self.btn_to_zero.clicked.connect(lambda: self.set_position())
+            #
+            #
+            #
+            # # link checkboxes to functions
+            # self.checkIRon.stateChanged.connect(lambda: self.control_light())
+            # self.checkGreenon.stateChanged.connect(lambda: self.control_light())
+            # self.checkWhiteLighton.stateChanged.connect(lambda: self.control_light())
+            # self.checkCameraon.stateChanged.connect(lambda: self.control_light())
+            # self.checkPIActive.stateChanged.connect(lambda: self.switch_PI_loop())
+            #
+            # # link combo box
+            # self.cmb_filterwheel.addItems(self._settings['hardware']['parameters_filterwheel']['position_list'].keys())
+            # self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
+            #
+            # print("servopos",self.servo_polarization.get_position())
             self.treeWidget.itemChanged.connect(lambda: self.update_parameters())
+            self.zi.updateProgress.connect(self.update_status)
 
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
@@ -154,15 +188,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.fill_treeWidget(self.treeWidget, self._settings)
 
         # define some data sets
+        # todo: use maxlength to limit number of commands, the we don't have to pop them manually
         self.past_commands = deque() # history of executed commands
         # also for recorded data in the live plot but can me easy extended to take more data
         self._live_data = {}
+        self.sweep_data = {'frequency' : [], 'x' : [], 'y' : [], 'phase': [], 'r':[]}
         # for id in self._settings['live_data_ids']:
         #     self._live_data.update({id: deque()})
 
-        # connect_hardware()
+        connect_hardware()
         create_figures()
-        # connect_controls()
+        connect_controls()
         # create_threads()
 
         self.treeWidget.collapseAll()
@@ -171,30 +207,23 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         '''
         Cleans up connections
         '''
-        self._thread_acq.stop()
-
-        self.fpga.stop()
+        self.zi.stop()
 
     def btn_clicked(self):
         sender = self.sender()
         # self.statusBar().showMessage(sender.objectName() + ' was pressed')
-        if sender.objectName() == "btn_start_record":
-            # self._thread_acq.start()
-            self._thread_acq_new.start()
-        elif sender.objectName() == "btn_stop_record":
-            # self._thread_acq.stop()
-            self._thread_acq_new.stop()
-        elif str(sender.objectName()) in {"btn_clear_record","btn_clear_record_fpga"}:
-            self.clear_plot(sender)
+        if sender.objectName() == "btn_start":
+            self.zi.run_sweep(self.sweep_data)
+        elif sender.objectName() == "btn_stop":
+            self.zi.stop()
+        # elif str(sender.objectName()) in {"btn_clear_record","btn_clear_record_fpga"}:
+        #     self.clear_plot(sender)
         elif str(sender.objectName()) in {"btn_save_to_disk"}:
-            self.save_data(sender)
-        elif sender.objectName() == "btn_start_record_fpga":
-            self._thread_acq_fifo.start()
+            print(self.zi.sweep_data)
+        # elif sender.objectName() == "btn_start_record_fpga":
+        #     self._thread_acq_fifo.start()
         else:
             print('unknown sender: ', sender.objectName())
-
-
-
 
 
 
@@ -208,39 +237,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         def change_parameter(parameter, value_old, value_new):
             updated_success = True
-            if parameter == 'block_size':
-                self.FPGA_READ_FIFO.block_size = value_new
-            elif parameter == 'sample_period_acq':
-                self.FPGA_READ_FIFO.sample_period_acq = value_new
-            elif parameter == 'data_length':
-                self.FPGA_READ_FIFO.data_length = value_new
-            elif parameter == 'integral':
-                gains = self.FPGA_PI.gains
-                gains.update({'integral':value_new})
-                self.FPGA_PI.gains = gains
-            elif parameter == 'proportional':
-                gains = self.FPGA_PI.gains
-                gains.update({'proportional':value_new})
-                self.FPGA_PI.gains = gains
-            elif parameter == 'data_path':
-                if os.path.isdir(value_new):
-                    self.log("path {:s} changed!!!".format(value_new))
-                else:
-                    self.log("warning path {:s} is not valid!!!".format(value_new))
-                    updated_success = False
-            elif parameter in {'detector_threshold', 'record_length'}:
-                # these parameters are no settings actually just change some visualizations in the gui
-                pass
-            elif parameter in SETTINGS_DICT['live_data_ids'].keys():
-                # these parameters are no settings actually just change some visualizations in the gui
-                pass
-            elif parameter in (SETTINGS_DICT['hardware'].keys()
-                                   + SETTINGS_DICT['hardware']['parameters_filterwheel'].keys()
-                                   + SETTINGS_DICT['hardware']['parameters_filterwheel']['position_list'].keys()):
-                self.log("Harware parameter {:s} can not be changed online.".format(parameter))
-                updated_success = False
-            elif parameter == 'piezo':
-                self.FPGA_PI.piezo = value_new
+
+            if parameter in (SETTINGS_DICT['sweep'].keys()):
+                print({parameter : value_new})
+                self.zi.sweep_settings = {parameter : value_new}
+                updated_success = True
             else:
                 updated_success = False
                 self.log("unknown parameter {:s}. No change applied!".format(parameter))
@@ -269,28 +270,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         print i
                         dictator = dictator[i]
                     value_default = dictator[parameter]
-
-                    if isinstance(value_default, bool):
-                        print(value)
-                        value = value == 'True'
-                        print(value)
-                        change_success = change_parameter(parameter, value_old, value)
-                    elif isinstance(value_default, int):
-                        value = int(value)
-                        change_success = change_parameter(parameter, value_old, value)
-                    elif isinstance(value_default, float):
-                        value = float(value)
-                        change_success = change_parameter(parameter, value_old, value)
-                    elif isinstance(value_default, str):
-                        value = str(value)
-                        change_success = change_parameter(parameter, value_old, value)
-                    else:
+                    value, msg = self.set_type(value, value_default)
+                    print('value, msg')
+                    print(value, msg)
+                    if value == None:
                         change_success = False
-                        print("WARNING, TYPE NOT RECOGNIZED!!!!")
+                        self.log(msg)
+                    else:
+                        change_success = change_parameter(parameter, value_old, value)
 
                     if change_success:
                         dictator.update({parameter : value})
-                        self.log("changed parameter {:s} from {:s} to {:s}!".format(parameter, str(value_old), str(value)))
+                        if isinstance(value, dict) and 'value' in value:
+                            self.log("changed parameter {:s} from {:s} to {:s}!".format(parameter, str(value_old['value']), str(value['value'])))
+                        else:
+                            self.log("changed parameter {:s} from {:s} to {:s}!".format(parameter, str(value_old), str(value)))
                     else:
                         # set back to original values if value entered value is not valid
                         print(self._settings)
@@ -300,122 +294,71 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     print "Unexpected error:", sys.exc_info()[0]
                     raise
 
+    def set_type(self, value, value_default, valid_values = None):
+        '''
+        casts value to the same type as value_default
+        :param value:
+        :param value_default:
+        :return: value_new the value cast into the type of value_default
+        '''
 
-    def save_data(self, sender):
+        msg = 'everything ok'
+        try:
+            if isinstance(value_default, bool):
+                value_new = value == 'True'
+            elif isinstance(value_default, int):
+                value_new = int(value)
+            elif isinstance(value_default, float):
+                value_new = float(value)
+            elif isinstance(value_default, str):
+                value_new = str(value)
+            elif isinstance(value_default, dict) and 'value' in value_default:
+                # construct dictionary
+                value_new = deepcopy(value_default)
+                value_new['value'], msg = self.set_type(value, value_default['value'], value_default['valid_values'])
+                if value_new['value'] == None:
+                    value_new = None
+            else:
+                value_new = None
+        except ValueError:
+            value_new = None
+            msg = 'wrong type - no change applied'
 
-        def save_timetrace(timetrace):
+        if value_new != None and valid_values!=None:
+            if (value_new in valid_values) == False:
+                value_new = None
+                #todo: more detailed msg
+                msg = 'value not valid !'
 
-            filename = "{:s}_{:s}.dat".format(timetrace["time"], timetrace["tag"])
-            filename = filename.replace(' ', '_')
-            filename = filename.replace(':', '_')
-            filename = "{:s}/{:s}".format(self._settings['data_path'], filename)
+        return value_new, msg
 
-            save_json(timetrace['parameters'], filename.replace('.dat', '.json'))
-            self.log("{:s} written to disk".format(filename.replace('.dat', '.json')), 1000)
+    def plot_psd(self, freq, psd,  axes):
+        '''
+        plots the power spectral density on to the canvas
+        :param freq: x-values array of length N
+        :param psd: y-values array of length N
+        :param axes: target axes object
+        :return: None
+        '''
+        axes.clear()
 
-            df = pd.DataFrame(timetrace['data'], columns = ["detector signal (bits)"])
-            df.to_csv(filename, index = False, header=True)
-            self.log("{:s} written to disk".format(filename), 1000)
+        axes.semilogy(freq, psd)
 
-            print(filename)
+        axes.set_xlabel('frequency (Hz)')
 
-        if sender.objectName() == "btn_save_to_disk":
-            selected_timetraces = [index.data().toString().split("\t")[0] for index in self.list_timetraces.selectedIndexes()]
-            for timetrace in self._time_traces:
-                if timetrace.get('time') in  selected_timetraces:
-                    save_timetrace(timetrace)
 
     def update_status(self, progress):
         self.progressBar.setValue(progress)
-        if progress == 100:
-            parameters = deepcopy(self._settings)
-            self._time_traces.append({'time': self.get_time(), 'tag': str(self.txt_tag.text()), 'data' : np.array(self._fifo_data).flatten(), 'parameters' : parameters})
+        # retrieve elements from queue
+        if self.zi.sweep_data:
+            for key, value in self.sweep_data.iteritems():
+                x = self.zi.sweep_data[0][key]
+                self.sweep_data[key] = x[np.isfinite(x)] # filter out NaN elements
+            self.zi.sweep_data.popleft() # remove from queue
 
-            self.update_plot_fifo()
-            self.log("FIFO acq. completed",1000)
+        self.plot_psd(self.sweep_data['frequency'], self.sweep_data['r'], self.axes_sweep)
+        self.canvas_sweep.draw()
 
-    def update_plot_live(self, data_point):
-
-        def wrap_data(data):
-            if data > 2**15:
-                data -= 2**16
-            return data
-
-        self._detector_signal = wrap_data(data_point)
-        self._recorded_data.append(self._detector_signal)
-
-        if len(self._recorded_data) > self._settings["record_length"]:
-            self._recorded_data.popleft()
-        self.axes_live.clear()
-        self.axes_live.plot(list(self._recorded_data))
-        detector_threshold = self._settings["detector_threshold"]
-        self.axes_live.plot([0, self._settings["record_length"]], [detector_threshold, detector_threshold], 'k--')
-        self.axes_live.plot([0, self._settings["record_length"]], [-detector_threshold, -detector_threshold], 'k--')
-
-        self.canvas_live.draw()
-
-        self.lbl_detector_signal.setText("{:d}".format(self._recorded_data[-1]))
-
-    def update_plot_live_new(self, XX):
-        '''
-        when done thsis function will replace update_plot_live
-        :param data_point:
-        :return:
-        '''
-
-        self.axes_live.clear()
-        #todo: update plot without clearing all the data, so that it doesn't "blink"
-        for ID in self._settings['live_data_ids']:
-            # throw out oldest data point if max queue length has been reached
-            if len(self._live_data[ID]) > self._settings["record_length"]:
-                self._live_data[ID].popleft()
-
-            # plot data if set to true
-            if self._settings['live_data_ids'][ID] == True:
-                self.axes_live.plot(list(self._live_data[ID]))
-                detector_threshold = self._settings["detector_threshold"]
-                self.axes_live.plot([0, self._settings["record_length"]], [detector_threshold, detector_threshold], 'k--')
-                self.axes_live.plot([0, self._settings["record_length"]], [-detector_threshold, -detector_threshold], 'k--')
-
-            self.canvas_live.draw()
-
-            # self.lbl_detector_signal.setText("{:d}".format(self._recorded_data[-1]))
-
-    def update_plot_fifo(self):
-
-        self.axes_timetrace.clear()
-        self.axes_psd.clear()
-        model = QtGui.QStandardItemModel(self.list_timetraces)
-
-        for data_set in self._time_traces:
-            # data = np.array(self._fifo_data).flatten()
-            data = data_set['data']
-            data_length = len(data)
-
-            # time traces
-            print(data_set["parameters"])
-            time_step = int(data_set["parameters"]["parameters_Acq"]["sample_period_acq"]) / 40e6
-            # time_step = int(self._settings["parameters_Acq"]["sample_period_acq"]) / 40e6
-            times = 1e3 * np.linspace(0,time_step * data_length,data_length)
-            self.axes_timetrace.plot(times, data)
-
-            # PSD
-            freq_step = 1/(time_step * data_length)
-            freqs = np.linspace(0,freq_step * data_length / 2,data_length/2)
-            data_PSD = np.abs(np.fft.fft(data))**2
-            data_PSD = data_PSD[range(data_length/2)]
-            self.axes_psd.loglog(freqs, data_PSD)
-
-            model.appendRow(QtGui.QStandardItem("{:s}\t{:s}".format(data_set['time'], data_set['tag'])))
-
-        self.list_timetraces.setModel(model)
-        self.list_timetraces.show()
-
-        self.axes_timetrace.set_xlabel('time (ms)')
-        self.axes_psd.set_xlabel('frequency (Hz)')
-
-        self.canvas_timetrace.draw()
-        self.canvas_psd.draw()
 
     def get_time(self):
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
@@ -456,90 +399,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.update_plot_fifo()
             self.log("Cleared FIFO Data",1000)
 
-
-    def set_position(self):
-
-        sender = self.sender()
-        if sender.objectName() == "sliderPosition":
-            value = 0.01 * self.sliderPosition.value() # slider max value 600 corresponding to 6mm
-            self._thread_pol.target_position = value
-            self._thread_pol.start()
-        elif sender.objectName() == "btn_plus":
-            self.sliderPosition.setValue(self.sliderPosition.value()+10)
-        elif sender.objectName() == "btn_center":
-            self.sliderPosition.setValue(300)
-        elif sender.objectName() == "btn_minus":
-            self.sliderPosition.setValue(self.sliderPosition.value()-10)
-        elif sender.objectName() == "btn_to_zero":
-            self._thread_pol_stab.start()
-        self.lbl_pol_position.setText("{:0.02f} mm".format(0.01 * self.sliderPosition.value()))
-
-    def control_light(self):
-        '''
-        Changes script to be executed based on current text in box
-        :param ApplicationWindow:
-        '''
-
-        sender = self.sender()
-        if sender.objectName() == "checkIRon":
-            status = self.checkIRon.isChecked()
-            if status:
-                self.beam_block_IR.open()
-            else:
-                self.beam_block_IR.block()
-
-            self.log("IR laser {:s}".format(str(status)),1000)
-        elif sender.objectName() == "checkGreenon":
-            status = self.checkGreenon.isChecked()
-            # the beam block is mounted in a different way that's why the calls for blocking and closing are inverted
-            if status:
-                self.beam_block_Green.block()
-            else:
-                self.beam_block_Green.open()
-
-            self.log("Green laser {:s}".format(str(status)),1000)
-        elif sender.objectName() == "checkWhiteLighton":
-            status = self.checkWhiteLighton.isChecked()
-            if status:
-                self.whitelight.goto("on")
-            else:
-                self.whitelight.goto("off")
-            self.log("White light {:s}".format(str(status)),1000)
-        elif sender.objectName() == "checkCameraon":
-            status = self.checkCameraon.isChecked()
-            if status:
-                self.camera.goto("on")
-            else:
-                self.camera.goto("off")
-            self.log("Camera {:s}".format(str(status)),1000)
-
-
-
-        elif sender.objectName() == "cmb_filterwheel":
-            # cast explicitely to str because combobox element is QString, but filterwheel only understands python strings
-            filter = str(self.cmb_filterwheel.currentText())
-            self.log("Filter set to {:s}".format(filter),1000)
-            self.filterwheel.goto(filter)
-
-    def switch_PI_loop(self):
-        '''
-        Changes script to be executed based on current text in box
-        :param ApplicationWindow:
-        '''
-        status_PI_loop =self.checkPIActive.isChecked()
-        self.FPGA_PI.status_PI = status_PI_loop
-        self.log("Feedback stabilization on: {:s}".format(str(status_PI_loop)),1000)
-
     def fill_treeWidget(self, QTreeWidget, value):
 
         def fill_item(item, value):
             # item.setExpanded(True)
-            if type(value) is dict:
+            if type(value) is dict and not 'value' in value:
+
                 for key, val in sorted(value.iteritems()):
-                    child = QtGui.QTreeWidgetItem()
-                    child.setText(0, unicode(key))
-                    item.addChild(child)
-                    fill_item(child, val)
+                    # don't show the items that have porperty invisible = False
+                    if type(val) is dict and 'value' in val and val['visible'] == False:
+                        pass
+                    else:
+                        child = QtGui.QTreeWidgetItem()
+                        child.setText(0, unicode(key))
+                        item.addChild(child)
+                        fill_item(child, val)
             elif type(value) is list:
                 for val in value:
                     child = QtGui.QTreeWidgetItem()
@@ -566,10 +440,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             #         item.checkState(0) == Qt.Unchecked
             #     else:
             #         print('XXXXX')
+            elif type(value) is dict and 'value' in value:
+                # instead of a value we have a dictionary that contains additional metadata
+                if value['visible']:
+                    item.setText(1, unicode(value['value']))
+                    item.setToolTip(1, unicode(value['info']))
+                    item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
 
             else:
                 item.setText(1, unicode(value))
-
                 item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
 
 
@@ -577,253 +456,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         fill_item(QTreeWidget.invisibleRootItem(), value)
 
         QTreeWidget.setColumnWidth(0,200)
-
-
-
-class PolarizationStabilizationThread(QtCore.QThread):
-
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = QtCore.Signal(float) # returns the new motor position as a signal
-
-    #You can do any extra things in this init you need
-    def __init__(self, ControlMainWindow):
-        """
-
-        :param servo: Kinsesis Servo controler object that controls the polarization
-        :return:
-        """
-        QtCore.QThread.__init__(self)
-        self.ControlMainWindow = ControlMainWindow
-
-
-    def run(self):
-
-
-        detector_value_zero = False
-        max_iter = 100
-        count = 1
-        detector_threshold = SETTINGS_DICT["detector_threshold"]
-
-        while detector_value_zero == False:
-            detector_value = self.ControlMainWindow._recorded_data[-1]
-
-            if abs(detector_value > detector_threshold) > 2000:
-                step_size = 40
-            elif abs(detector_value > detector_threshold) > 1000:
-                step_size = 20
-            elif abs(detector_value > detector_threshold) > 500:
-                step_size = 10
-            elif abs(detector_value > detector_threshold) > 100:
-                step_size = 5
-            else:
-                step_size = 1
-
-            if detector_value > detector_threshold:
-                # print(detector_value, "step down")
-                self.ControlMainWindow.sliderPosition.setValue(self.ControlMainWindow.sliderPosition.value()-step_size)
-            elif detector_value < -detector_threshold:
-                # print(detector_value, "step up")
-                self.ControlMainWindow.sliderPosition.setValue(self.ControlMainWindow.sliderPosition.value()+step_size)
-            else:
-                print(detector_value, "detector close to zero!")
-                detector_value_zero = True
-
-            count += 1
-            if count >max_iter:
-                detector_value_zero = True
-
-            wait_time = self.ControlMainWindow.servo_polarization.wait_time(step_size)
-            time.sleep(wait_time)
-
-class AcquisitionThread(QtCore.QThread):
-
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = QtCore.Signal(int)
-
-    #You can do any extra things in this init you need
-    def __init__(self, ControlMainWindow):
-        """
-
-        :param PI: lib.FPGA_PID_Loop_Simple.NI_FPGA_PI object that handles the feedback loop
-        :return:
-        """
-        self._recording = False
-        self._PI = ControlMainWindow.FPGA_PI
-
-        QtCore.QThread.__init__(self)
-
-
-    def __del__(self):
-        self.stop()
-    #A QThread is run by calling it's start() function, which calls this run()
-    #function in it's own "thread".
-    def run(self):
-        self._recording = True
-        while self._recording:
-            #Emit the signal so it can be received on the UI side.
-            # data_point = np.random.randint(-32000, 32000)
-            # try statement
-            # try:
-            data_point = self._PI.detector
-            self.updateProgress.emit(data_point[0])
-            time.sleep(0.2)
-
-
-        print("acquisition ended")
-    def stop(self):
-        self._recording = False
-
-class AcquisitionThreadNew(QtCore.QThread):
-
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = QtCore.Signal(int)
-
-    #You can do any extra things in this init you need
-    def __init__(self, ControlMainWindow):
-        """
-
-        :param PI: lib.FPGA_PID_Loop_Simple.NI_FPGA_PI object that handles the feedback loop
-        :return:
-        """
-        self._recording = False
-
-        self.data = ControlMainWindow._live_data
-        print('============== creating threaddddd =============')
-        print(self.data)
-        self.data_ids =  ControlMainWindow._settings['live_data_ids']
-        self._PI = ControlMainWindow.FPGA_PI
-        QtCore.QThread.__init__(self)
-
-
-    def __del__(self):
-        self.stop()
-    #A QThread is run by calling it's start() function, which calls this run()
-    #function in it's own "thread".
-    def run(self):
-        self._recording = True
-
-        while self._recording:
-            #Emit the signal so it can be received on the UI side.
-            # data_point = np.random.randint(-32000, 32000)
-            # try statement
-            # try:
-            data = {}
-            data.update(self._PI.minmax)
-            data.update(self._PI.detector)
-
-            try:
-                for ID in self.data_ids:
-                    self.data[ID].append(data[ID])
-
-            except KeyError:
-                print('AcquisitionThreadNew: key {:s} not valid'.format(ID))
-            except:
-                # todo: this error should be caught and raise an exeption that the requested data doesn't exist
-                print("Unexpected error:", sys.exc_info()[0])
-                raise
-            # just emit any signal to trigger an action in the gui
-            self.updateProgress.emit(1)
-            time.sleep(0.2)
-
-    def stop(self):
-        self._recording = False
-
-
-class AcquisitionFIFOThread(QtCore.QThread):
-
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = QtCore.Signal(int) # returns progess in %
-
-    #You can do any extra things in this init you need
-    def __init__(self, ControlMainWindow):
-        """
-
-        :param PI: lib.FPGA_PID_Loop_Simple.NI_FPGA_PI object that handles the feedback loop
-        :return:
-        """
-        print("created AcquisitionFIFOThread")
-        self._recording = False
-        self._FPGA_READ_FIFO = ControlMainWindow.FPGA_READ_FIFO
-
-        self.parameters_Acq = ControlMainWindow._settings["parameters_Acq"]
-        self.data = ControlMainWindow._fifo_data
-
-        QtCore.QThread.__init__(self)
-
-    #A QThread is run by calling it's start() function, which calls this run()
-    #function in it's own "thread".
-    def run(self):
-
-        number_of_reads = int(np.ceil(1.0 * int(self.parameters_Acq['data_length']) / int(self.parameters_Acq['block_size']) ))
-        self.elements_left = np.ones(number_of_reads)
-        print(number_of_reads)
-        self._recording = True
-        self.data.clear()
-        self._FPGA_READ_FIFO.start()
-
-        for i in range(number_of_reads):
-
-            fifo_data =self._FPGA_READ_FIFO.data_queue.get()
-            self.data.append(np.array(fifo_data[0]))
-            self.elements_left[i] = int(fifo_data[2])
-
-            progress = int(100 * (i+1)  / number_of_reads)
-
-            self.updateProgress.emit(progress)
-
-        self._recording = False
-    def stop(self):
-        self._recording = False
-
-
-class PolarizationControlThread(QtCore.QThread):
-
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = QtCore.Signal(float)
-
-    #You can do any extra things in this init you need
-    def __init__(self, ControlMainWindow):
-        """
-
-        :param servo: Kinsesis Servo controler object that controls the polarization
-        :return:
-        """
-        self._running = False
-        self._servo = ControlMainWindow.servo_polarization
-        QtCore.QThread.__init__(self)
-
-    @property
-    def target_position(self):
-        return self._target_position
-    @target_position.setter
-    def  target_position(self, target_position):
-        self._target_position = target_position
-
-    #A QThread is run by calling it's start() function, which calls this run()
-    #function in it's own "thread".
-    def run(self):
-        self._running = True
-        while self._running:
-
-            self._servo.move_servo(self.target_position)
-            time.sleep(0.1)
-            actual_position = self._servo.get_position()
-            #Emit the signal so it can be received on the UI side.
-            self.updateProgress.emit(actual_position)
-            if abs(self.target_position - actual_position)<0.01:
-                self._running = False
-            print(abs(self.target_position - actual_position))
-
 
 
 if __name__ == '__main__':
