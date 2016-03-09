@@ -627,7 +627,7 @@ try:
 
             commands = self.dict_to_settings(dictonary)
             self.daq.set(commands)
-
+# todo: make sweeper "script"
     class ZI_Sweeper(Instrument):
 
         def __init__(self, zihf2, name = None, parameter_list = []):

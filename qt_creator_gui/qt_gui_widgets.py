@@ -1,5 +1,6 @@
 
 from PySide import QtCore, QtGui
+
 from hardware_modules.instruments import Parameter
 
 from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller

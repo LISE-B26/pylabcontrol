@@ -14,23 +14,6 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="plotWidget_live" native="true">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>401</width>
-      <height>221</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <layout class="QVBoxLayout" name="plot_data_live"/>
-   </widget>
    <widget class="QListView" name="list_records">
     <property name="geometry">
      <rect>
@@ -79,23 +62,6 @@
       </widget>
      </item>
     </layout>
-   </widget>
-   <widget class="QWidget" name="plotWidget_sweep" native="true">
-    <property name="geometry">
-     <rect>
-      <x>710</x>
-      <y>20</y>
-      <width>401</width>
-      <height>221</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <layout class="QVBoxLayout" name="plot_data_sweep"/>
    </widget>
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
@@ -156,38 +122,6 @@
         <string>Value</string>
        </property>
       </column>
-      <item>
-       <property name="text">
-        <string>New Item</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>New Item</string>
-       </property>
-       <item>
-        <property name="text">
-         <string>New Subitem</string>
-        </property>
-        <property name="font">
-         <font>
-          <strikeout>false</strikeout>
-         </font>
-        </property>
-        <property name="background">
-         <brush brushstyle="NoBrush">
-          <color alpha="255">
-           <red>3</red>
-           <green>12</green>
-           <blue>3</blue>
-          </color>
-         </brush>
-        </property>
-        <property name="flags">
-         <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsEnabled</set>
-        </property>
-       </item>
-      </item>
      </widget>
      <widget class="QProgressBar" name="progressBar">
       <property name="geometry">
@@ -273,38 +207,6 @@
         <string>Value</string>
        </property>
       </column>
-      <item>
-       <property name="text">
-        <string>New Item</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>New Item</string>
-       </property>
-       <item>
-        <property name="text">
-         <string>New Subitem</string>
-        </property>
-        <property name="font">
-         <font>
-          <strikeout>false</strikeout>
-         </font>
-        </property>
-        <property name="background">
-         <brush brushstyle="NoBrush">
-          <color alpha="255">
-           <red>3</red>
-           <green>12</green>
-           <blue>3</blue>
-          </color>
-         </brush>
-        </property>
-        <property name="flags">
-         <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsEnabled</set>
-        </property>
-       </item>
-      </item>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_history">
@@ -323,22 +225,20 @@
      </widget>
     </widget>
    </widget>
-   <widget class="QWidget" name="centralwidget_2" native="true">
+   <widget class="MatplotlibWidget" name="matplotlibwidget">
     <property name="geometry">
      <rect>
-      <x>789</x>
-      <y>590</y>
-      <width>241</width>
-      <height>111</height>
+      <x>170</x>
+      <y>20</y>
+      <width>400</width>
+      <height>300</height>
      </rect>
     </property>
    </widget>
-   <zorder>plotWidget_live</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>list_records</zorder>
-   <zorder>plotWidget_sweep</zorder>
    <zorder>tabWidget</zorder>
-   <zorder>centralwidget_2</zorder>
+   <zorder>matplotlibwidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -352,6 +252,13 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MatplotlibWidget</class>
+   <extends>QWidget</extends>
+   <header>matplotlibwidget</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
