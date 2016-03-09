@@ -474,14 +474,21 @@ def test_intrument():
 
 if __name__ == '__main__':
 
+
+    zi = ZIHF2('my zi instrument')
+    # test updating parameter
+    zi.update_parameter_list([Parameter('freq', 2e6)])
+
+
+    print(zi)
     # test_parameter()
     # test_intrument()
 
-    zi = ZIHF2('my zi instrument')
-    zi_sweep = ZI_Sweeper(zi, 'my zi sweeper')
-
-    print(zi_sweep)
-    print(zi_sweep.zihf2.device)
+    # zi = ZIHF2('my zi instrument')
+    # zi_sweep = ZI_Sweeper(zi, 'my zi sweeper')
+    #
+    # print(zi_sweep)
+    # print(zi_sweep.zihf2.device)
     #
     # zi = ZIHF2('my zi instrument')
     #

@@ -25,7 +25,11 @@ from matplotlib.backends.backend_qt4agg import (
     NavigationToolbar2QT as NavigationToolbar)
 
 from PyQt4.uic import loadUiType
+# option A
 Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
+# option B
+# from qt_creator_gui.zi_control import Ui_MainWindow # with this we have to first compile (pyside-uic mainwindow.ui -o mainwindow.py)
+
 
 import datetime
 from collections import deque
