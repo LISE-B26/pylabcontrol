@@ -2,7 +2,7 @@
 from PySide import QtCore, QtGui
 from hardware_modules.instruments import Parameter
 
-import hardware_modules.instruments as inst
+from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller
 
 
 class QTreeParameter(QtGui.QTreeWidgetItem, Parameter):
@@ -57,7 +57,7 @@ class QTreeInstrument(QtGui.QTreeWidgetItem):
         super( QTreeInstrument, self ).__init__( parent )
         self.setText(0, unicode(instrument.name))
 
-        for parameter in self.instrument.parameter_list:
+        for parameter in self.instrument.parameters:
             print(parameter.dict)
             parameter_dict = {
                 'name' : parameter.name,
@@ -101,8 +101,8 @@ class UI(QtGui.QMainWindow):
 
 
         my_instruments = [
-            inst.Instrument_Dummy('inst dummy 1'),
-            inst.ZI_Sweeper('sweeper')
+            Instrument_Dummy('inst dummy 1'),
+            Maestro_Controller('maestro 6 channels')
         ]
 
         for elem in my_instruments:
