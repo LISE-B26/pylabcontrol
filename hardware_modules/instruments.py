@@ -269,8 +269,9 @@ class Instrument(object):
                 parameters_new = []
                 for key, value in parameters.iteritems():
                     parameters_new.append(Parameter(key, value))
-            if isinstance(parameters, list):
-                parameters_new = parameters
+            elif isinstance(parameters, list):
+                # if listelement is not a  parameter cast it into a parameter
+                parameters_new = [p if isinstance(p, Parameter) else Parameter(p) for p in parameters]
             else:
                 raise TypeError('parameters should be a list!')
 
@@ -291,8 +292,8 @@ class Instrument_Dummy(Instrument):
     dummy instrument class, just to see how the creation of a new instrument works
     '''
     def __init__(self, name = None, parameter_list = []):
-        super(Instrument_Dummy, self).__init__(name)
-        self.update_parameters(parameter_list)
+        super(Instrument_Dummy, self).__init__(name, parameter_list)
+        # self.update_parameters(parameter_list)
 
     @property
     def parameters_default(self):
@@ -759,8 +760,8 @@ def test_intrument():
 
 
 if __name__ == '__main__':
-    test_parameter()
-
+    # test_parameter()
+    test_intrument()
     # zi = ZIHF2('my zi instrument')
     # # test updating parameter
     # zi.update_parameters([Parameter('freq', 2e6)])
