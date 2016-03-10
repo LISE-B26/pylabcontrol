@@ -1,10 +1,10 @@
 
 from PyQt4.uic import loadUiType
-# Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
-from qt_creator_gui.zi_control import Ui_MainWindow
+Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
+# from qt_creator_gui.zi_control import Ui_MainWindow
 
 from qt_gui_widgets import Instrument_Dummy, Maestro_Controller
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 
 from qt_creator_gui.qt_gui_widgets import QTreeInstrument
 from matplotlib.figure import Figure
@@ -12,7 +12,7 @@ from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar)
 
-class ControlMainWindow(QtGui.QMainWindow, Ui_MainWindow):
+class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, ):
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
@@ -35,8 +35,8 @@ class ControlMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             Maestro_Controller('maestro 6 channel')
         ]
 
-        # for elem in my_instruments:
-        #     item = QTreeInstrument( self.tree_scripts, elem )
+        for elem in my_instruments:
+             item = QTreeInstrument( self.tree_scripts, elem )
 
         # create_figures()
 
