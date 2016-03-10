@@ -2,13 +2,18 @@
 import numpy as np
 
 class Parameter(object):
+
     def __init__(self, name, value = None, valid_values = None, info = None):
         '''
+        Parameter(name (str), value (anything) )
+        Parameter(name (str), value (anything), valid_values (type, tuple of types, list), info (str) )
+        Parameter({name : value })
 
-        :param name:
-        :param value:
-        :param valid_values: either a list of valid values, a type or a tuple of types
-        :param info:
+
+        :param name: name of parameter,
+        :param value = None:
+        :param valid_values = None: if empty valid_values = type(value) otherwise can be a list of valid values, a type or a tuple of types
+        :param info = None: string describing the parameter
         :return:
         '''
 
@@ -270,7 +275,6 @@ class Instrument(object):
                 raise TypeError('parameters should be a list!')
 
             return parameters_new
-
 
 
 
@@ -734,6 +738,9 @@ def test_intrument():
         inst.update_parameters([p_new])
 
         inst = Instrument_Dummy('my dummny', [p_new])
+
+        inst = Instrument_Dummy('my dummny', [{'parameter 2': 2.0},{'parameter 1': 2.0}])
+
 
 
         print("instrument class test passed")
