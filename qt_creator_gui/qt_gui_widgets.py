@@ -1,5 +1,5 @@
 
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 
 from hardware_modules.instruments import Parameter
 
@@ -55,6 +55,7 @@ class QTreeInstrument(QtGui.QTreeWidgetItem):
     def __init__(self, parent, instrument):
         self.instrument = instrument
 
+        print(type(parent))
         super( QTreeInstrument, self ).__init__( parent )
         self.setText(0, unicode(instrument.name))
 

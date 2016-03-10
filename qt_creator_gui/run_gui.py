@@ -12,9 +12,9 @@ Created on Feb 2 2016
 # from qt_creator_gui.mainwindow import Ui_MainWindow
 import sys
 # todo: resolve issue with namespace (get rid of from PySide.QtCore import * and from PySide.QtGui import *)
-from PySide import QtCore, QtGui
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 from helper_functions.reading_writing import save_json
 import pandas as pd
 import hardware_modules.maestro as maestro
