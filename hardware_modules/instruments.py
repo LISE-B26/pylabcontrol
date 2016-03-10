@@ -2,13 +2,18 @@
 import numpy as np
 
 class Parameter(object):
-    def __init__(self, name, value, valid_values = None, info = None):
-        '''
 
-        :param name:
-        :param value:
-        :param valid_values: either a list of valid values, a type or a tuple of types
-        :param info:
+    def __init__(self, name, value = None, valid_values = None, info = None):
+        '''
+        Parameter(name (str), value (anything) )
+        Parameter(name (str), value (anything), valid_values (type, tuple of types, list), info (str) )
+        Parameter({name : value })
+
+
+        :param name: name of parameter,
+        :param value = None:
+        :param valid_values = None: if empty valid_values = type(value) otherwise can be a list of valid values, a type or a tuple of types
+        :param info = None: string describing the parameter
         :return:
         '''
 
@@ -32,6 +37,12 @@ class Parameter(object):
                 valid = True
             return valid
 
+        # if input is only a dictionary we take the key as name and the value as value
+        if isinstance(name, dict) and value is None:
+            name, value = name.keys()[0], name[name.keys()[0]]
+            # is the value is again a dict, we convert it into a parameter
+            if isinstance(value, dict):
+                value = Parameter(value)
 
         if valid_values is None:
             valid_values = type(value)
@@ -173,10 +184,11 @@ class Instrument(object):
     '''
     generic instrument class
     '''
-    def __init__(self, name = None):
+    def __init__(self, name = None, parameter_list = []):
 
 
         self._parameters = self.parameters_default
+        self.update_parameters(parameter_list)
 
         if name is None:
             name = self.__class__.__name__
@@ -247,7 +259,26 @@ class Instrument(object):
         :param parameters_new:
         :return:
         '''
-        for parameter in parameters_new:
+
+        def check_parameter_list(parameters):
+            '''
+            check if parameters is a list of parameters or a dictionary
+            if it is a dictionary we create a parameter list from it
+            '''
+            if isinstance(parameters, dict):
+                parameters_new = []
+                for key, value in parameters.iteritems():
+                    parameters_new.append(Parameter(key, value))
+            if isinstance(parameters, list):
+                parameters_new = parameters
+            else:
+                raise TypeError('parameters should be a list!')
+
+            return parameters_new
+
+
+
+        for parameter in check_parameter_list(parameters_new):
             # get index of parameter in default list
             index = [i for i, p in enumerate(self.parameters_default) if p == parameter]
             if len(index)>1:
@@ -682,6 +713,13 @@ def test_parameter():
         p_nested = Parameter('param nested', p1, None, 'test list')
         p_nested = Parameter('param nested', p4, [p1,p4], 'test list')
         print('passed nested parameter test')
+
+        p_dict = Parameter({'param dict': 0 })
+        print(p_dict)
+        print('passed dictionary test')
+        p_dict_nested = Parameter({'param dict': {'sub param dict': 1 } })
+        print(p_dict_nested.name, p_dict_nested.value, p_dict_nested.info)
+        print('passed nested dictionary test')
     except:
         passed =False
 
@@ -701,6 +739,9 @@ def test_intrument():
 
         inst = Instrument_Dummy('my dummny', [p_new])
 
+        inst = Instrument_Dummy('my dummny', [{'parameter 2': 2.0},{'parameter 1': 2.0}])
+
+
 
         print("instrument class test passed")
     except:
@@ -718,14 +759,14 @@ def test_intrument():
 
 
 if __name__ == '__main__':
+    test_parameter()
 
-
-    zi = ZIHF2('my zi instrument')
-    # test updating parameter
-    zi.update_parameters([Parameter('freq', 2e6)])
-
-
-    print(zi)
+    # zi = ZIHF2('my zi instrument')
+    # # test updating parameter
+    # zi.update_parameters([Parameter('freq', 2e6)])
+    #
+    #
+    # print(zi)
     # test_parameter()
     # test_intrument()
 
