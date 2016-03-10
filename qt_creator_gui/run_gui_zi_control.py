@@ -520,48 +520,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         QTreeWidget.setColumnWidth(0,300)
 
 
-class ScriptThread(QtCore.QThread):
-    '''
-    This class starts a script on its own thread
-    '''
-
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = QtCore.Signal(int)
-
-    #You can do any extra things in this init you need
-    def __init__(self):
-        """
-
-        :param PI: lib.FPGA_PID_Loop_Simple.NI_FPGA_PI object that handles the feedback loop
-        :return:
-        """
-        self._recording = False
-
-        QtCore.QThread.__init__(self)
-
-
-    def __del__(self):
-        self.stop()
-    #A QThread is run by calling it's start() function, which calls this run()
-    #function in it's own "thread".
-    def run(self):
-        self._recording = True
-        while self._recording:
-            #Emit the signal so it can be received on the UI side.
-            # data_point = np.random.randint(-32000, 32000)
-            # try statement
-            # try:
-            data_point = self._PI.detector
-            self.updateProgress.emit(data_point[0])
-            time.sleep(0.2)
-
-
-        print("acquisition ended")
-    def stop(self):
-        self._recording = False
-
 
 if __name__ == '__main__':
     import sys

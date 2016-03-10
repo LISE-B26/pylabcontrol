@@ -1,14 +1,24 @@
-import time
-import numpy as np
 
+import datetime
+from PyQt4 import QtCore
 from hardware_modules.instruments import Parameter, Instrument
-# todo: inherit from threading
+
 class Script(object):
-    def __init__(self, name = None, threading = False):
+    def __init__(self, name = None, settings = []):
+        '''
+        generic script class
+        :param name: name of script
+        :param threading: if script is excecuted on thread, default is False
+        '''
         if name is None:
             name = self.__class__.__name__
         self.name = name
-        self.threading = threading
+        # set end time to be before start time if script hasn't been excecuted this tells us
+        self.time_start = datetime.datetime.now()
+        self.time_end =self.time_start - datetime.timedelta(seconds=1)
+
+        self._settings = self.settings_default
+        self.update_settings(settings)
 
     def __str__(self):
         pass
@@ -28,11 +38,10 @@ class Script(object):
         #
         output_string = '{:s} (class type: {:s})\n'.format(self.name, self.__class__.__name__)
         output_string += 'threading = {:s}'.format(str(self.threading))
-        #
-        # for parameter in self.parameter_list:
-        #     # output_string += parameter_to_string(parameter)
-        #     output_string += str(parameter)+'\n'
-        #
+
+        output_string += 'settings:\n'
+        for element in self.settings:
+            output_string += str(element)+'\n'
         return output_string
     @property
     def name(self):
@@ -55,13 +64,12 @@ class Script(object):
         return settings_default
 
     @property
-    def parameters(self):
+    def settings(self):
         '''
         :return: returns the settings of the script
         settings contain Parameters, Instruments and Scripts
         '''
-        return self._parameters
-
+        return self._settings
 
     def update_settings(self, settings_new):
         '''
@@ -83,9 +91,16 @@ class Script(object):
                 # if list element is not a  parameter, instrument or script cast it into a parameter
                 settings_new = [element if isinstance(element, (Parameter, Instrument, Script)) else Parameter(element) for element in settings]
             else:
-                raise TypeError('parameters should be a valid list or dictionary!')
-
+                raise TypeError('settings should be a valid list or dictionary!')
             return settings_new
+
+        for setting in check_settings_list(settings_new):
+            # get index of setting in default list
+            index = [i for i, s in enumerate(self.settings_default) if s == setting]
+            if len(index)>1:
+                raise TypeError('Error: Dublicate setting in default list')
+            elif len(index)==1:
+                self.settings[index[0]].update(setting)
 
     @property
     def dict(self):
@@ -104,17 +119,6 @@ class Script(object):
         return config
 
     @property
-    def threading(self):
-        '''
-        boolean if True, script is executed on a thread if False it is not
-        '''
-        return self._threading
-    @threading.setter
-    def threading(self, value):
-        assert isinstance(value, bool)
-        self._threading = value
-
-    @property
     def time_end(self):
         '''
         time when script execution started
@@ -123,7 +127,7 @@ class Script(object):
         return self._time_stop
     @time_end.setter
     def time_end(self, value):
-        assert isinstance(value, time.struct_time)
+        assert isinstance(value, datetime.datetime)
         self._time_stop = value
 
     @property
@@ -135,56 +139,148 @@ class Script(object):
         return self._time_start
     @time_start.setter
     def time_start(self, value):
-        assert isinstance(value, time.struct_time)
+        assert isinstance(value, datetime.datetime)
         self._time_start = value
 
-    def start(self, threading = []):
+    @property
+    def excecution_time(self):
+        '''
+        :return: script excecition time as time_delta object to get time in seconds use .total_seconds()
+        '''
+        return self.time_end - self.time_start
+
+    def run(self):
         '''
         executes the script
-        :param threading: optional argument that decides if script is run on a thread, if not provided this is determined by threading property
         :return: boolean if execution of script finished succesfully
         '''
         self.is_running = True
-        self.time_start  = time.localtime()
+        self.time_start  = datetime.datetime.now()
         while self.is_running and self.abort == False:
             # do something
             self.is_running = False
 
-        self.time_end  = time.localtime()
+        self.time_end  = datetime.datetime.now()
 
         success = self.abort == False
         return success
 
-    def stop(self):
-        '''
-        stops the script
-        :return: boolean if termination of script finished succesfully
-        '''
-        success = True
-        self.abort = True
-        # todo: can we implement here to kill a thread?
 
         return success
 
-class Script_Dummy(object):
-    def __init__(self):
+class QtScript(QtCore.QThread, Script):
+    '''
+    This class starts a script on its own thread
+    '''
 
-        self.signal = None
+    #You can do any extra things in this init you need
+    def __init__(self, name = None, settings = []):
+        """
+
+        :param
+        :return:
+        """
+        self._recording = False
+
+        QtCore.QThread.__init__(self)
+        Script.__init__(self, name, settings)
+
+    def __del__(self):
+        self.stop()
+
+    #A QThread is run by calling it's start() function, which calls this run()
+    #function in it's own "thread".
     def run(self):
-        self.running  = True
-        while self.running:
-            time.sleep(0.1)
-            self.signal = np.random.random()
-    def stop(self):
-        self.running  = False
+        import time
+        import random
 
+        self.is_running = True
+        self.time_start  = datetime.datetime.now()
+        while self.is_running and self._abort == False:
+            # do something
+            self.updateProgress.emit(random.random())
+            time.sleep(0.2)
+
+        self.time_end  = datetime.datetime.now()
+
+        success = self._abort == False
+        return success
+
+    def stop(self):
+        self._abort = False
+
+
+
+class QtScript_Dummy(QtScript):
+    #This is the signal that will be emitted during the processing.
+    #By including int as an argument, it lets the signal know to expect
+    #an integer argument when emitting.
+    updateProgress = QtCore.Signal(int)
+
+    def __init__(self, name, threading, settings):
+        super(QtScript_Dummy, self).__init__(name, settings)
+
+    @property
+    def settings_default(self):
+        '''
+        returns the default settings of the script
+        settings contain Parameters, Instruments and Scripts
+        :return:
+        '''
+        settings_default = [
+            Parameter({'a':0}),
+            Parameter({'b':0.1})
+        ]
+        return settings_default
+    @property
+    def a(self):
+        return [element for element in self.settings if element.name == 'a'][0]
+
+    #A QThread is run by calling it's start() function, which calls this run()
+    #function in it's own "thread".
+    def run(self):
+        import time
+        import random
+
+        self.is_running = True
+        self.time_start  = datetime.datetime.now()
+        while self.is_running and self._abort == False:
+            random.random()
+            # do something
+            self.updateProgress.emit()
+            self.settings[]
+            print('a' : signal)
+            time.sleep(0.2)
+
+        self.time_end  = datetime.datetime.now()
+
+        success = self._abort == False
+        return success
+
+class Script_Dummy(Script):
+    def __init__(self, name, settings):
+        super(Script_Dummy, self).__init__(name, settings)
+    @property
+    def settings_default(self):
+        '''
+        returns the default settings of the script
+        settings contain Parameters, Instruments and Scripts
+        :return:
+        '''
+        settings_default = [
+            Parameter({'a':0}),
+            Parameter({'b':0.1})
+        ]
+        return settings_default
+
+
+def testing():
+    script = Script_Dummy('test script', False, {'a': 0, 'b':1.2})
+
+    print(script)
+    print(script.settings)
 
 
 if __name__ == '__main__':
 
-    inst = fake_inst()
-    inst.run()
-    for i in range(10):
-        print(inst.signal)
-    inst.stop()
 
