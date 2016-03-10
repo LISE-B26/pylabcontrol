@@ -1,16 +1,18 @@
 import time
 import numpy as np
 
-
+from hardware_modules.instruments import Parameter, Instrument
 # todo: inherit from threading
 class Script(object):
-    def __init__(self, name = None):
+    def __init__(self, name = None, threading = False):
         if name is None:
             name = self.__class__.__name__
         self.name = name
+        self.threading = threading
+
     def __str__(self):
         pass
-        #todo: implement
+        #todo: finsish implementation
         # def parameter_to_string(parameter):
         #     # print('parameter', parameter)
         #     return_string = ''
@@ -24,13 +26,14 @@ class Script(object):
         #
         #     return return_string
         #
-        # output_string = '{:s} (class type: {:s})\n'.format(self.name, self.__class__.__name__)
+        output_string = '{:s} (class type: {:s})\n'.format(self.name, self.__class__.__name__)
+        output_string += 'threading = {:s}'.format(str(self.threading))
         #
         # for parameter in self.parameter_list:
         #     # output_string += parameter_to_string(parameter)
         #     output_string += str(parameter)+'\n'
         #
-        # return output_string
+        return output_string
     @property
     def name(self):
         return self._name
@@ -42,32 +45,47 @@ class Script(object):
             raise TypeError('Name has to be a string')
 
     @property
-    def parameters_default(self):
+    def settings_default(self):
         '''
-        returns the default parameter_list of the instrument
+        returns the default settings of the script
+        settings contain Parameters, Instruments and Scripts
         :return:
         '''
-        parameter_list_default = []
-        return parameter_list_default
+        settings_default = []
+        return settings_default
 
     @property
     def parameters(self):
-        return self._parameter_list
-
-
-    def update_parameters(self, parameters_new):
         '''
-        updates the parameters if they exist
-        :param parameters_new:
+        :return: returns the settings of the script
+        settings contain Parameters, Instruments and Scripts
+        '''
+        return self._parameters
+
+
+    def update_settings(self, settings_new):
+        '''
+        updates the settings if they exist
+        :param settings_new:
         :return:
         '''
-        for parameter in parameters_new:
-            # get index of parameter in default list
-            index = [i for i, p in enumerate(self.parameter_list_default) if p == parameter]
-            if len(index)>1:
-                raise TypeError('Error: Dublicate parameter in default list')
-            elif len(index)==1:
-                self.parameter_list[index[0]].update(parameter)
+
+        def check_settings_list(settings):
+            '''
+            check if settings is a list of settings or a dictionary
+            if it is a dictionary we create a settings list from it
+            '''
+            if isinstance(settings, dict):
+                settings_new = []
+                for key, value in settings.iteritems():
+                    settings_new.append(Parameter(key, value))
+            elif isinstance(settings, list):
+                # if list element is not a  parameter, instrument or script cast it into a parameter
+                settings_new = [element if isinstance(element, (Parameter, Instrument, Script)) else Parameter(element) for element in settings]
+            else:
+                raise TypeError('parameters should be a valid list or dictionary!')
+
+            return settings_new
 
     @property
     def dict(self):
@@ -85,12 +103,68 @@ class Script(object):
 
         return config
 
-    def run(self):
-        pass
+    @property
+    def threading(self):
+        '''
+        boolean if True, script is executed on a thread if False it is not
+        '''
+        return self._threading
+    @threading.setter
+    def threading(self, value):
+        assert isinstance(value, bool)
+        self._threading = value
+
+    @property
+    def time_end(self):
+        '''
+        time when script execution started
+        :return:
+        '''
+        return self._time_stop
+    @time_end.setter
+    def time_end(self, value):
+        assert isinstance(value, time.struct_time)
+        self._time_stop = value
+
+    @property
+    def time_start(self):
+        '''
+        time when script execution started
+        :return:
+        '''
+        return self._time_start
+    @time_start.setter
+    def time_start(self, value):
+        assert isinstance(value, time.struct_time)
+        self._time_start = value
+
+    def start(self, threading = []):
+        '''
+        executes the script
+        :param threading: optional argument that decides if script is run on a thread, if not provided this is determined by threading property
+        :return: boolean if execution of script finished succesfully
+        '''
+        self.is_running = True
+        self.time_start  = time.localtime()
+        while self.is_running and self.abort == False:
+            # do something
+            self.is_running = False
+
+        self.time_end  = time.localtime()
+
+        success = self.abort == False
+        return success
 
     def stop(self):
-        pass
+        '''
+        stops the script
+        :return: boolean if termination of script finished succesfully
+        '''
+        success = True
+        self.abort = True
+        # todo: can we implement here to kill a thread?
 
+        return success
 
 class Script_Dummy(object):
     def __init__(self):
