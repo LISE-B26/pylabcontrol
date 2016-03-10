@@ -726,74 +726,64 @@ def test_parameter():
 
     return passed
 
-def test_intrument():
+import unittest
 
+class TestInstrumentObjects(unittest.TestCase):
 
-    try:
-        inst = Instrument_Dummy('my dummny')
-        print(inst)
+    def test_parameter(self):
+        passed =True
 
-        print(inst.parameters)
+        try:
 
-        p_new = Parameter('parameter 1', 1)
-        inst.update_parameters([p_new])
+            p1 = Parameter('param', 0.0)
+            p2 = Parameter('param', 0, int, 'test int')
+            p3 = Parameter('param', 0.0, (int, float), 'test tupple')
+            p4 = Parameter('param', 0.0, [0.0, 0.1], 'test list')
+            print('passed single parameter test')
 
-        inst = Instrument_Dummy('my dummny', [p_new])
+            p_nested = Parameter('param nested', p1, None, 'test list')
+            p_nested = Parameter('param nested', p4, [p1,p4], 'test list')
+            print('passed nested parameter test')
 
-        inst = Instrument_Dummy('my dummny', [{'parameter 2': 2.0},{'parameter 1': 2.0}])
+            p_dict = Parameter({'param dict': 0 })
+            print(p_dict)
+            print('passed dictionary test')
+            p_dict_nested = Parameter({'param dict': {'sub param dict': 1 } })
+            print(p_dict_nested.name, p_dict_nested.value, p_dict_nested.info)
+            print('passed nested dictionary test')
+        except:
+            passed =False
+        self.assertTrue(passed)
 
+    def test_intrument_dummy(self):
 
+        passed =True
+        try:
+            inst = Instrument_Dummy('my dummny')
+            print(inst)
 
-        print("instrument class test passed")
-    except:
-        print("instrument test failed")
+            print(inst.parameters)
 
-    try:
-        zi = ZIHF2('my zi instrument')
-        # test updating parameter
-        zi.update_parameters([Parameter('freq', 2e6)])
+            p_new = Parameter('parameter 1', 1)
+            inst.update_parameters([p_new])
 
+            inst = Instrument_Dummy('my dummny', [p_new])
 
-        print("ZIHF2 instrument class test passed")
-    except:
-        print("ZIHF2 instrument test failed")
+            inst = Instrument_Dummy('my dummny', [{'parameter 2': 2.0},{'parameter 1': 2.0}])
+            inst = Instrument_Dummy('my dummny', {'parameter 2': 2.0, 'parameter 1': 2.0})
+        except:
+            passed =False
 
+        self.assertTrue(passed)
 
+    def test_intrument_ZIHF2(self):
+        passed =True
+        try:
+            zi = ZIHF2('my zi instrument')
+            # test updating parameter
+            zi.update_parameters([Parameter('freq', 2e6)])
+
+        except:
+            passed =False
 if __name__ == '__main__':
-    # test_parameter()
-    test_intrument()
-    # zi = ZIHF2('my zi instrument')
-    # # test updating parameter
-    # zi.update_parameters([Parameter('freq', 2e6)])
-    #
-    #
-    # print(zi)
-    # test_parameter()
-    # test_intrument()
-
-    # zi = ZIHF2('my zi instrument')
-    # zi_sweep = ZI_Sweeper(zi, 'my zi sweeper')
-    #
-    # print(zi_sweep)
-    # print(zi_sweep.zihf2.device)
-    #
-    # zi = ZIHF2('my zi instrument')
-    #
-    # zi.update_parameter_list([Parameter('freq', 2e6)])
-    # print(zi)
-    # print('====')
-    # print(zi.dict)
-    # p1 = Parameter('param 1', 0.0)
-    # p2 = Parameter('param 2', 0, int, 'test int')
-    # p3 = Parameter('param 3', 0.0, (int, float), 'test tupple')
-    # p4 = Parameter('param 4', 0.4, [0.4, 0.1], 'test list')
-    # print('passed single parameter test')
-    #
-    # p_nested_1 = Parameter('param nested', [p1,p2], None, 'test list')
-    # p_nested = Parameter('param nested 2', [p4, p3, p_nested_1], None, 'test list')
-    # print('passed nested parameter test')
-    #
-    # print('======')
-    # print(p_nested.dict_to_str(p_nested.dict))
-    # print('======')
-    # print(p_nested.dict)
+    unittest.main()

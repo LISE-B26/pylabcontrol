@@ -2,7 +2,7 @@ import time
 import numpy as np
 
 
-
+# todo: inherit from threading
 class Script(object):
     def __init__(self, name = None):
         if name is None:
