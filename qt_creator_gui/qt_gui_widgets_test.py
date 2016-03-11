@@ -3,7 +3,7 @@ from PyQt4.uic import loadUiType
 Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
 # from qt_creator_gui.zi_control import Ui_MainWindow
 
-from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller, ZIHF2
+from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller, ZIHF2, Maestro_BeamBlock
 from scripts.scripts import Script_Dummy
 
 from PyQt4 import QtCore, QtGui
@@ -31,12 +31,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # self.plot_data_psd.addWidget(self.canvas_psd)
             # self.axes_psd = fig_psd.add_subplot(111)
             # self.axes_psd.set_xlabel('frequency (Hz)')
-
+        maestro = Maestro_Controller('maestro 6 channels')
         my_instruments = [
             Instrument_Dummy('inst dummy 1'),
-            Maestro_Controller('maestro 6 channels'),
-            ZIHF2('ZiHF2')
+            ZIHF2('ZiHF2'),
+            Maestro_BeamBlock(maestro,'IR beam block')
         ]
+
 
         for elem in my_instruments:
             item = QTreeInstrument( self.tree_scripts, elem )
