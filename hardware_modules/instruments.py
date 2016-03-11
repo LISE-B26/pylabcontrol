@@ -352,7 +352,6 @@ class Maestro_Controller(Instrument):
 
         super(Maestro_Controller, self).__init__(name, parameters)
         self.update_parameters(self.parameters)
-        print(self.parameters)
         # Open the command port
         # self.usb = self.serial.Serial(port)
         # Command lead-in and device 12 are sent for each Pololu serial commands.
@@ -789,7 +788,6 @@ if __name__ == '__main__':
     # inst = Instrument_Dummy('my dummny', {'parameter1': 1})
 
     inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
-    print(inst)
     if inst.status:
         print("hardware success")
     else:

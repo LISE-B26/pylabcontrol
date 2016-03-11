@@ -76,7 +76,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="tab_scripts">
      <attribute name="title">
@@ -114,7 +114,7 @@
       </attribute>
       <column>
        <property name="text">
-        <string>Parameter</string>
+        <string>Parameter/Script</string>
        </property>
       </column>
       <column>
@@ -167,12 +167,7 @@
      <attribute name="title">
       <string>Monitor</string>
      </attribute>
-    </widget>
-    <widget class="QWidget" name="tab_settings">
-     <attribute name="title">
-      <string>Settings</string>
-     </attribute>
-     <widget class="QTreeWidget" name="tree_main_settings">
+     <widget class="QTreeWidget" name="tree_monitor">
       <property name="enabled">
        <bool>true</bool>
       </property>
@@ -214,6 +209,52 @@
       </column>
      </widget>
     </widget>
+    <widget class="QWidget" name="tab_settings">
+     <attribute name="title">
+      <string>Settings</string>
+     </attribute>
+     <widget class="QTreeWidget" name="tree_settings">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>711</width>
+        <height>431</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::AllEditTriggers</set>
+      </property>
+      <property name="headerHidden">
+       <bool>false</bool>
+      </property>
+      <attribute name="headerDefaultSectionSize">
+       <number>150</number>
+      </attribute>
+      <attribute name="headerHighlightSections">
+       <bool>true</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>Instrument</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Value</string>
+       </property>
+      </column>
+     </widget>
+    </widget>
     <widget class="QWidget" name="tab_history">
      <attribute name="title">
       <string>History</string>
@@ -222,9 +263,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>10</y>
         <width>711</width>
-        <height>441</height>
+        <height>431</height>
        </rect>
       </property>
      </widget>
