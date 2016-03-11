@@ -340,9 +340,14 @@ class Instrument_Dummy(Instrument):
         :return:
         '''
         parameter_list_default = [
-            Parameter('parameter1', 0),
+            Parameter('parameter1', 0, [0,1]),
+            Parameter('parameter1', True,bool),
             Parameter('parameter2', 2.0),
-            Parameter('parameter string', 'a')
+            Parameter('parameter string', 'a'),
+            Parameter('parameter string', [
+                Parameter('parameter sub1', 'a_1'),
+                Parameter('parameter sub2', 'a_1')
+            ])
         ]
         return parameter_list_default
 # =============== MAESTRO ==================================

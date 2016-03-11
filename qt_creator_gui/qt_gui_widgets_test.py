@@ -57,6 +57,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
 
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+            self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
 
         # define data container
         self.past_commands = deque() # history of executed commands
