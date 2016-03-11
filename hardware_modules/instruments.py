@@ -554,157 +554,146 @@ except:
     raise
 # =============== ZURCIH INSTRUMENTS =======================
 # ==========================================================
-try:
-    class ZIHF2(Instrument):
+
+class ZIHF2(Instrument):
+
+    try:
         import zhinst.utils as utils
-        '''
-        instrument class to talk to Zurich instrument HF2 lock in ampifier
-        '''
-        def __init__(self, name = None, parameter_list = []):
+        zhinst_installed = True
+    except ImportError:
+        # make a fake ZI instrument
+        zhinst_installed = False
+    except:
+        raise
 
+    '''
+    instrument class to talk to Zurich instrument HF2 lock in ampifier
+    '''
+    def __init__(self, name = None, parameter_list = []):
 
+        if self.zhinst_installed:
             self.daq = self.utils.autoConnect(8005,1) # connect to ZI, 8005 is the port number
             self.device = self.utils.autoDetect(self.daq)
             self.options = self.daq.getByte('/%s/features/options' % self.device)
+        else:
+            self.daq = None
+            self.device = None
+            self.options = None
+        super(ZIHF2, self).__init__(name)
+        self.update_parameters(self.parameters_default)
 
-            super(ZIHF2, self).__init__(name)
-            self.update_parameters(self.parameters_default)
+    @property
+    def parameters_default(self):
+        '''
+        returns the default parameter_list of the instrument
+        :return:
+        '''
+        parameter_list_default = [
+            Parameter('freq', 1e6, (int, float), 'frequency of output channel'),
+            Parameter('sigins',
+                      [
+                          Parameter('channel', 0, [0,1], 'signal input channel'),
+                          Parameter('imp50', 1, [0,1], '50Ohm impedance on (1) or off (0)'),
+                          Parameter('ac', 0, [0,1], 'ac coupling on (1) or off (0)'),
+                          Parameter('range', 10, [0.01, 0.1, 1, 10], 'range of signal input'),
+                          Parameter('diff', 0, [0,1], 'differential signal on (1) or off (0)')
+                       ]
+                      ),
+            Parameter('sigouts',
+                      [
+                          Parameter('channel', 0, [0,1], 'signal output channel'),
+                          Parameter('on', 1, [0,1], 'output on (1) or off (0)'),
+                          Parameter('add', 0, [0,1], 'add aux signal on (1) or off (0)'),
+                          Parameter('range', 10, [0.01, 0.1, 1, 10], 'range of signal output')
+                       ]
+                      ),
+            Parameter('demods',
+                      [
+                          Parameter('channel', 0, [0,1], 'demodulation channel'),
+                          Parameter('order', 4, int, 'filter order'),
+                          Parameter('rate', 10e3, [10e3], 'rate'),
+                          Parameter('harmonic', 1, int, 'harmonic at which to demodulate'),
+                          Parameter('phaseshift', 0, (int, float), 'phaseshift of demodulation'),
+                          Parameter('oscselect', 0, [0,1], 'oscillator for demodulation'),
+                          Parameter('adcselect', 0, int, 'adcselect')
+                       ]
+                      ),
+            Parameter('aux',
+                      [
+                          Parameter('channel', 0, [0,1], 'auxilary channel'),
+                          Parameter('offset', 1, (int, float), 'offset in volts')
+                       ]
+                      )
+        ]
 
-        @property
-        def parameters_default(self):
-            '''
-            returns the default parameter_list of the instrument
-            :return:
-            '''
-            parameter_list_default = [
-                Parameter('freq', 1e6, (int, float), 'frequency of output channel'),
-                Parameter('sigins',
-                          [
-                              Parameter('channel', 0, [0,1], 'signal input channel'),
-                              Parameter('imp50', 1, [0,1], '50Ohm impedance on (1) or off (0)'),
-                              Parameter('ac', 0, [0,1], 'ac coupling on (1) or off (0)'),
-                              Parameter('range', 10, [0.01, 0.1, 1, 10], 'range of signal input'),
-                              Parameter('diff', 0, [0,1], 'differential signal on (1) or off (0)')
-                           ]
-                          ),
-                Parameter('sigouts',
-                          [
-                              Parameter('channel', 0, [0,1], 'signal output channel'),
-                              Parameter('on', 1, [0,1], 'output on (1) or off (0)'),
-                              Parameter('add', 0, [0,1], 'add aux signal on (1) or off (0)'),
-                              Parameter('range', 10, [0.01, 0.1, 1, 10], 'range of signal output')
-                           ]
-                          ),
-                Parameter('demods',
-                          [
-                              Parameter('channel', 0, [0,1], 'demodulation channel'),
-                              Parameter('order', 4, int, 'filter order'),
-                              Parameter('rate', 10e3, [10e3], 'rate'),
-                              Parameter('harmonic', 1, int, 'harmonic at which to demodulate'),
-                              Parameter('phaseshift', 0, (int, float), 'phaseshift of demodulation'),
-                              Parameter('oscselect', 0, [0,1], 'oscillator for demodulation'),
-                              Parameter('adcselect', 0, int, 'adcselect')
-                           ]
-                          ),
-                Parameter('aux',
-                          [
-                              Parameter('channel', 0, [0,1], 'auxilary channel'),
-                              Parameter('offset', 1, (int, float), 'offset in volts')
-                           ]
-                          )
-            ]
+        return parameter_list_default
 
-            return parameter_list_default
+    # Poll the value of input 1 for polltime seconds and return the magnitude of the average data. Timeout is in milisecond.
+    def poll(self,  pollTime, variable = 'R', timeout = 500):
+        '''
+        :param variable: string or list of string, which varibale to poll ('R', 'x', 'y')
+        :param pollTime:
+        :param timeout:
+        :return:
+        '''
 
-        # Poll the value of input 1 for polltime seconds and return the magnitude of the average data. Timeout is in milisecond.
-        def poll(self, pollTime, timeout = 500):
+        valid_variables = ['R','X','Y']
+
+        if self.zhinst_installed:
             path = '/%s/demods/%d/sample' % (self.device, self.demod_c)
             self.daq.subscribe(path)
             flat_dictionary_key = True
-            data = self.daq.poll(pollTime,timeout,1,flat_dictionary_key)
-            R = np.sqrt(np.square(data[path]['x'])+np.square(data[path]['y']))
-            return(np.mean(R))
+            data_poll = self.daq.poll(pollTime,timeout,1,flat_dictionary_key)
+            data = {}
+            for var in ['X','Y']:
+                data.update({var: data_poll[path][var.lower()]})
+            data.update({'R': np.sqrt(np.square(data['x'])+np.square(data['y']))})
 
-        def dict_to_settings(self, dictionary):
-            '''
-            converts dictionary to list of  setting, which can then be passed to the zi controler
-            :param dictionary = dictionary that contains the settings
-            :return: settings = list of settings, which can then be passed to the zi controler
-            '''
-            # create list that is passed to the ZI controler
+        if isinstance(variable,str):
+            variable = [variable]
+        return {k: data[k] for k in variable}
 
-
-            settings = []
-
-
-
-            for key, element in sorted(dictionary.iteritems()):
-                if isinstance(element, dict) and key in ['sigins', 'sigouts', 'demods']:
-                    channel = element['channel']
-                    for sub_key, val in sorted(element.iteritems()):
-                        if not sub_key == 'channel':
-                            settings.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
-                elif isinstance(element, dict) and key in ['aux']:
-                    settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, element['channel']), element['offset']])
-                elif key in ['freq']:
-                    settings.append(['/%s/oscs/%d/freq' % (self.device, self.dict['sigouts']['channel']), dictionary['freq']])
-                    # settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
-                elif isinstance(element, dict) == False:
-                    settings.append([key, element])
+    def dict_to_settings(self, dictionary):
+        '''
+        converts dictionary to list of  setting, which can then be passed to the zi controler
+        :param dictionary = dictionary that contains the settings
+        :return: settings = list of settings, which can then be passed to the zi controler
+        '''
+        # create list that is passed to the ZI controler
 
 
-            return settings
+        settings = []
 
-        def update_parameters(self, parameters_new):
-            # call the update_parameter_list to update the parameter list
-            super(ZIHF2, self).update_parameters(parameters_new)
-            # now we actually apply these newsettings to the hardware
-            dictonary = {}
-            for parameter in parameters_new:
-                dictonary.update(parameter.dict)
 
-            commands = self.dict_to_settings(dictonary)
-            self.daq.set(commands)
-# todo: make sweeper "script"
-    class ZI_Sweeper(Instrument):
 
-        def __init__(self, zihf2, name = None, parameter_list = []):
-            '''
+        for key, element in sorted(dictionary.iteritems()):
+            if isinstance(element, dict) and key in ['sigins', 'sigouts', 'demods']:
+                channel = element['channel']
+                for sub_key, val in sorted(element.iteritems()):
+                    if not sub_key == 'channel':
+                        settings.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
+            elif isinstance(element, dict) and key in ['aux']:
+                settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, element['channel']), element['offset']])
+            elif key in ['freq']:
+                settings.append(['/%s/oscs/%d/freq' % (self.device, self.dict['sigouts']['channel']), dictionary['freq']])
+                # settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
+            elif isinstance(element, dict) == False:
+                settings.append([key, element])
 
-            :param zihf2: ZIHF2 instrument object
-            :param name:
-            :param parameter_list:
-            :return:
-            '''
-            self.zihf2 = zihf2
 
-            super(ZI_Sweeper, self).__init__(name)
-            self.update_parameters(self.parameters_default)
+        return settings
 
-        @property
-        def parameters_default(self):
-            '''
-            returns the default parameter_list of the instrument
-            :return:
-            '''
+    def update_parameters(self, parameters_new):
+        # call the update_parameter_list to update the parameter list
+        super(ZIHF2, self).update_parameters(parameters_new)
+        # now we actually apply these newsettings to the hardware
+        dictonary = {}
+        for parameter in parameters_new:
+            dictonary.update(parameter.dict)
 
-            parameter_list_default = [
-                Parameter('start', 1.8e6, (float, int), 'start value of sweep'),
-                Parameter('stop', 1.9e6, (float, int), 'end value of sweep'),
-                Parameter('samplecount', 101, int, 'number of data points'),
-                Parameter('gridnode', 'oscs/0/freq', ['oscs/0/freq', 'oscs/1/freq'], 'start value of sweep'),
-                Parameter('xmapping', 0, [0, 1], 'mapping 0 = linear, 1 = logarithmic'),
-                Parameter('bandwidthcontrol', 2, [2], '2 = automatic bandwidth control'),
-                Parameter('scan', 0, [0, 1, 2], 'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)'),
-                Parameter('loopcount', 1, int, 'number of times it sweeps'),
-                Parameter('averaging/sample', 1, int, 'number of samples to average over')
+        commands = self.dict_to_settings(dictonary)
+        self.daq.set(commands)
 
-            ]
-            return parameter_list_default
-except ImportError:
-    print("Failed to load Zurich instrument. Not installed")
-except:
-    raise
 
 def test_parameter():
     passed =True
