@@ -19,4 +19,4 @@ class TestParameter(TestCase):
     print('passed dictionary test')
     p_dict_nested = Parameter({'param dict': {'sub param dict': 1 } })
     print(p_dict_nested.name, p_dict_nested.value, p_dict_nested.info)
-print('passed nested dictionary test')
+    print('passed nested dictionary test')

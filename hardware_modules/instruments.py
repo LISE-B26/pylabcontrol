@@ -348,10 +348,10 @@ class Maestro_Controller(Instrument):
 
     import serial
 
-    def __init__(self,name, parameter_list = []):
+    def __init__(self, name, parameters = []):
 
-        super(Maestro_Controller, self).__init__(name, parameter_list)
-        self.update_parameters(parameter_list)
+        super(Maestro_Controller, self).__init__(name, parameters)
+        self.update_parameters(self.parameters)
         print(self.parameters)
         # Open the command port
         # self.usb = self.serial.Serial(port)
@@ -376,12 +376,10 @@ class Maestro_Controller(Instrument):
         ]
         return parameter_list_default
     def update_parameters(self, parameters_new):
-        print('XX')
         # call the update_parameter_list to update the parameter list
         super(Maestro_Controller, self).update_parameters(parameters_new)
         # now we actually apply these newsettings to the hardware
         for parameter in parameters_new:
-            print(parameter)
             if parameter.name == 'port':
                 self.usb = self.serial.Serial(parameter.value)
     # Cleanup by closing USB serial port
