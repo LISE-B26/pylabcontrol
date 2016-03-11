@@ -11,9 +11,9 @@ Created on Feb 2 2016
 
 import sys
 # todo: resolve issue with namespace (get rid of from PySide.QtCore import * and from PySide.QtGui import *)
-from PySide import QtCore, QtGui
-from PySide.QtCore import *
-from PySide.QtGui import *
+
+from PyQt4 import QtGui, QtCore
+
 from helper_functions.reading_writing import save_json
 import pandas as pd
 from copy import deepcopy

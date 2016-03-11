@@ -210,52 +210,52 @@ class QtScript(QtCore.QThread, Script):
         self._abort = False
 
 
-class QtScript_Dummy(QtScript):
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = QtCore.Signal(int)
-
-    def __init__(self, name, threading, settings):
-        super(QtScript_Dummy, self).__init__(name, settings)
-
-    @property
-    def settings_default(self):
-        '''
-        returns the default settings of the script
-        settings contain Parameters, Instruments and Scripts
-        :return:
-        '''
-        settings_default = [
-            Parameter('a', 0, [0,1]),
-            Parameter({'b':0.1}),
-            Parameter({'threading':True}),
-            Instrument_Dummy('dummy inst')
-        ]
-        return settings_default
-    @property
-    def a(self):
-        return [element for element in self.settings if element.name == 'a'][0]
-
-    #A QThread is run by calling it's start() function, which calls this run()
-    #function in it's own "thread".
-    def run(self):
-        import time
-        import random
-
-        self.is_running = True
-        self.time_start  = datetime.datetime.now()
-        while self.is_running and self._abort == False:
-            signal = random.random()
-            # do something
-            self.updateProgress.emit()
-            print('a', signal)
-            time.sleep(0.2)
-
-        self.time_end  = datetime.datetime.now()
-
-        success = self._abort == False
-        return success
+# class QtScript_Dummy(QtScript):
+#     #This is the signal that will be emitted during the processing.
+#     #By including int as an argument, it lets the signal know to expect
+#     #an integer argument when emitting.
+#     updateProgress = QtCore.Signal(int)
+#
+#     def __init__(self, name, threading, settings):
+#         super(QtScript_Dummy, self).__init__(name, settings)
+#
+#     @property
+#     def settings_default(self):
+#         '''
+#         returns the default settings of the script
+#         settings contain Parameters, Instruments and Scripts
+#         :return:
+#         '''
+#         settings_default = [
+#             Parameter('a', 0, [0,1]),
+#             Parameter({'b':0.1}),
+#             Parameter({'threading':True}),
+#             Instrument_Dummy('dummy inst')
+#         ]
+#         return settings_default
+#     @property
+#     def a(self):
+#         return [element for element in self.settings if element.name == 'a'][0]
+#
+#     #A QThread is run by calling it's start() function, which calls this run()
+#     #function in it's own "thread".
+#     def run(self):
+#         import time
+#         import random
+#
+#         self.is_running = True
+#         self.time_start  = datetime.datetime.now()
+#         while self.is_running and self._abort == False:
+#             signal = random.random()
+#             # do something
+#             self.updateProgress.emit()
+#             print('a', signal)
+#             time.sleep(0.2)
+#
+#         self.time_end  = datetime.datetime.now()
+#
+#         success = self._abort == False
+#         return success
 
 class Script_Dummy(Script):
     def __init__(self, name, settings = []):

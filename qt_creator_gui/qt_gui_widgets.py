@@ -100,52 +100,52 @@ if __name__ == '__main__':
     import sys
 
 
-class UI(QtGui.QMainWindow):
+    class UI(QtGui.QMainWindow):
 
-    def __init__( self, parent=None ):
+        def __init__( self, parent=None ):
 
-        ## Init:
-        super(UI, self).__init__( parent )
+            ## Init:
+            super(UI, self).__init__( parent )
 
-        # ----------------
-        # Create Simple UI with QTreeWidget
-        # ----------------
-        self.centralwidget = QtGui.QWidget(self)
-        self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
-        self.treeWidget = QtGui.QTreeWidget(self.centralwidget)
-        self.verticalLayout.addWidget(self.treeWidget)
-        self.setCentralWidget(self.centralwidget)
+            # ----------------
+            # Create Simple UI with QTreeWidget
+            # ----------------
+            self.centralwidget = QtGui.QWidget(self)
+            self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
+            self.treeWidget = QtGui.QTreeWidget(self.centralwidget)
+            self.verticalLayout.addWidget(self.treeWidget)
+            self.setCentralWidget(self.centralwidget)
 
-        # ----------------
-        # Set TreeWidget Headers
-        # ----------------
-        HEADERS = ( "parameter", "value" )
-        self.treeWidget.setColumnCount( len(HEADERS) )
-        self.treeWidget.setHeaderLabels( HEADERS )
+            # ----------------
+            # Set TreeWidget Headers
+            # ----------------
+            HEADERS = ( "parameter", "value" )
+            self.treeWidget.setColumnCount( len(HEADERS) )
+            self.treeWidget.setHeaderLabels( HEADERS )
 
-        # ----------------
-        # Add Custom QTreeWidgetItem
-        # ----------------
+            # ----------------
+            # Add Custom QTreeWidgetItem
+            # ----------------
 
 
-        my_instruments = [
-            Instrument_Dummy('inst dummy 1'),
-            Maestro_Controller('maestro 6 channels')
-        ]
+            my_instruments = [
+                Instrument_Dummy('inst dummy 1'),
+                Maestro_Controller('maestro 6 channels')
+            ]
 
-        for elem in my_instruments:
-            item = QTreeInstrument( self.treeWidget, elem )
+            for elem in my_instruments:
+                item = QTreeInstrument( self.treeWidget, elem )
 
-        my_scripts = [
-            Script_Dummy('script dummy 1')
-        ]
+            my_scripts = [
+                Script_Dummy('script dummy 1')
+            ]
 
-        for elem in my_scripts:
-            item = QTreeScript( self.treeWidget, elem )
+            for elem in my_scripts:
+                item = QTreeScript( self.treeWidget, elem )
 
-        ## Set Columns Width to match content:
-        for column in range( self.treeWidget.columnCount() ):
-            self.treeWidget.resizeColumnToContents( column )
+            ## Set Columns Width to match content:
+            for column in range( self.treeWidget.columnCount() ):
+                self.treeWidget.resizeColumnToContents( column )
 
     app = QtGui.QApplication(sys.argv)
     ex = UI()
