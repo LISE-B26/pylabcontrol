@@ -125,15 +125,28 @@ class Parameter(object):
         :return: True or False depending if value is valid
         '''
         valid = True
-        for value in values:
+        if isinstance(values, list):
+            for value in values:
+                if isinstance(self._data['valid_values'], list):
+                    if not value in self._data['valid_values']:
+                        valid = False
+                elif isinstance(self._data['valid_values'], tuple):
+                    if not type(value) in self._data['valid_values']:
+                        valid = False
+                elif isinstance(self._data['valid_values'], type):
+                    if not type(value) is self._data['valid_values']:
+                        valid = False
+                else:
+                    valid = False
+        else:
             if isinstance(self._data['valid_values'], list):
-                if not value in self._data['valid_values']:
+                if not values in self._data['valid_values']:
                     valid = False
             elif isinstance(self._data['valid_values'], tuple):
-                if not type(value) in self._data['valid_values']:
+                if not type(values) in self._data['valid_values']:
                     valid = False
             elif isinstance(self._data['valid_values'], type):
-                if not type(value) is self._data['valid_values']:
+                if not type(values) is self._data['valid_values']:
                     valid = False
             else:
                 valid = False
