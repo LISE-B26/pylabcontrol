@@ -205,7 +205,6 @@ class Instrument(object):
     def __str__(self):
 
         def parameter_to_string(parameter):
-            # print('parameter', parameter)
             return_string = ''
             # if value is a list of parameters
             if isinstance(parameter.value, list) and isinstance(parameter.value[0],Parameter):
@@ -285,19 +284,17 @@ class Instrument(object):
             elif isinstance(parameters, list):
                 # if listelement is not a  parameter cast it into a parameter
                 parameters_new = [p if isinstance(p, Parameter) else Parameter(p) for p in parameters]
+            elif isinstance(parameters, Parameter):
+                parameters_new = [parameters]
             else:
-                raise TypeError('parameters should be a list!')
+                raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
 
             return parameters_new
-        # if input is a dictionary convert to a list of parameters
-        if isinstance(parameters_new, dict):
-            parameters_new = [Parameter(key, value) for key, value in parameters_new.iteritems()]
+
 
         for parameter in check_parameter_list(parameters_new):
-            print(self.parameters_default)
             # get index of parameter in default list
             index = [i for i, p in enumerate(self.parameters_default) if p == parameter]
-            print(index)
             if len(index)>1:
                 raise TypeError('Error: Dublicate parameter in default list')
             elif len(index)==1:
@@ -374,7 +371,6 @@ class Maestro_Controller(Instrument):
         # now we actually apply these newsettings to the hardware
         for parameter in parameters_new:
             if parameter.name == 'port':
-                print('XXXX')
                 self.usb = self.serial.Serial(parameter.value)
     # Cleanup by closing USB serial port
     def __del__(self):
@@ -597,16 +593,16 @@ class ZIHF2(Instrument):
                       [
                           Parameter('channel', 0, [0,1], 'signal input channel'),
                           Parameter('imp50', 1, [0,1], '50Ohm impedance on (1) or off (0)'),
-                          Parameter('ac', True, bool, 'ac coupling on (1) or off (0)'),
+                          Parameter('ac', False, bool, 'ac coupling on (1) or off (0)'),
                           Parameter('range', 10, [0.01, 0.1, 1, 10], 'range of signal input'),
-                          Parameter('diff', 0, [0,1], 'differential signal on (1) or off (0)')
+                          Parameter('diff',  False, bool, 'differential signal on (1) or off (0)')
                        ]
                       ),
             Parameter('sigouts',
                       [
                           Parameter('channel', 0, [0,1], 'signal output channel'),
-                          Parameter('on', 1, [0,1], 'output on (1) or off (0)'),
-                          Parameter('add', 0, [0,1], 'add aux signal on (1) or off (0)'),
+                          Parameter('on',  False, bool, 'output on (1) or off (0)'),
+                          Parameter('add',  False, bool, 'add aux signal on (1) or off (0)'),
                           Parameter('range', 10, [0.01, 0.1, 1, 10], 'range of signal output')
                        ]
                       ),
@@ -696,10 +692,17 @@ class ZIHF2(Instrument):
 
     def update_parameters(self, parameters_new):
         # call the update_parameter_list to update the parameter list
+
         super(ZIHF2, self).update_parameters(parameters_new)
+
         # now we actually apply these newsettings to the hardware
+
+        if isinstance(parameters_new, dict):
+            parameters_new = Parameter(parameters_new)
+        if isinstance(parameters_new, Parameter):
+            parameters_new = [parameters_new]
+
         dictonary = {}
-        print(parameters_new)
         for parameter in parameters_new:
             dictonary.update(parameter.dict)
 
@@ -798,7 +801,10 @@ def test_parameter(qweqwerq):
 #     unittest.main()
 if __name__ == '__main__':
     # inst = Instrument_Dummy('my dummny', {'parameter1': 1})
-    inst = ZIHF2('my dummny')
+
+    print(Parameter( {'freq':1.0}))
+
+    inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
     if inst.status:
         print("hardware success")
     else:
@@ -808,9 +814,9 @@ if __name__ == '__main__':
 
 
 
-    if inst.status:
-        print("hardware success")
-    else:
-        print('failed')
+    # if inst.status:
+    #     print("hardware success")
+    # else:
+    #     print('failed')
 
 
