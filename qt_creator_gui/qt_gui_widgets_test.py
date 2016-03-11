@@ -3,7 +3,7 @@ from PyQt4.uic import loadUiType
 Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
 # from qt_creator_gui.zi_control import Ui_MainWindow
 
-from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller
+from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller, ZIHF2
 from scripts.scripts import Script_Dummy
 
 from PyQt4 import QtCore, QtGui
@@ -34,7 +34,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         my_instruments = [
             Instrument_Dummy('inst dummy 1'),
-            Maestro_Controller('maestro 6 channels')
+            Maestro_Controller('maestro 6 channels'),
+            ZIHF2('ZiHF2')
         ]
 
         for elem in my_instruments:

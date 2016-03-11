@@ -649,9 +649,12 @@ class ZIHF2(Instrument):
                 data.update({var: data_poll[path][var.lower()]})
             data.update({'R': np.sqrt(np.square(data['x'])+np.square(data['y']))})
 
-        if isinstance(variable,str):
-            variable = [variable]
-        return {k: data[k] for k in variable}
+            if isinstance(variable,str):
+                variable = [variable]
+            return_variable = {k: data[k] for k in variable}
+        else:
+            return_variable = None
+        return return_variable
 
     def dict_to_settings(self, dictionary):
         '''
@@ -692,7 +695,8 @@ class ZIHF2(Instrument):
             dictonary.update(parameter.dict)
 
         commands = self.dict_to_settings(dictonary)
-        self.daq.set(commands)
+        if self.zhinst_installed:
+            self.daq.set(commands)
 
 
 def test_parameter():
