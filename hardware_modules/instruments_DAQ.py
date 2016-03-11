@@ -61,9 +61,29 @@ class DAQ(Instrument):
         '''
         parameter_list_default = [
             Parameter('device', 'Dev1', (str), 'Name of DAQ device'),
+            Parameter('buffer_size', -1, int, 'Buffer size for manual override (unused if -1)'),
             Parameter('output',
                       [
-                          Parameter('channel', [0,1], [0,1,2,3], 'output channel(s)')
+                          Parameter('channel', [0,1], [0,1,2,3], 'output channel(s)'),
+                          Parameter('sample rate', 1000, (int, float), 'output sample rate'),
+                          Parameter('min_voltage', -10, (int, float), 'minimum output voltage'),
+                          Parameter('max_voltage', 10, (int, float), 'maximum output voltage')
+                       ]
+                      ),
+            Parameter('analog_input',
+                      [
+                          Parameter('channel', 0, range(0,32), 'input channel(s)'),
+                          Parameter('sample rate', 1000, (int, float), 'input sample rate'),
+                          Parameter('min_voltage', -10, (int, float), 'minimum input voltage'),
+                          Parameter('max_voltage', 10, (int, float), 'maximum input voltage')
+                       ]
+                      ),
+            Parameter('digital_input',
+                      [
+                          Parameter('input_channel', 0, range(0,32), 'input channel(s)'),
+                          Parameter('clock_PFI_channel', 13, range(0,32), 'PFI output clock channel'),
+                          Parameter('clock_counter_channel', 1, [0,1], 'counter output clock channel'),
+                          Parameter('sample rate', 1000, (int, float), 'input sample rate')
                        ]
                       )
         ]
