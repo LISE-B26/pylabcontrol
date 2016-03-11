@@ -2,7 +2,7 @@
 from PyQt4 import QtCore, QtGui
 
 from hardware_modules.instruments import Parameter
-
+# import scripts.scripts
 from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller
 
 
@@ -11,56 +11,69 @@ class QTreeParameter(QtGui.QTreeWidgetItem, Parameter):
     Custom QTreeWidgetItem with Widgets
     '''
 
-    def __init__(self, parent, name, value = None, valid_values = None, info = None, visible = True, target = None):
+    def __init__(self, parent, **kwargs):
         '''
+        QTreeParameter(parent, name, value, valid_values, info, visible, target)
+        QTreeParameter(parent, name, value)
+        QTreeParameter(parent, name, value, visible)
+        QTreeParameter(parent, name, value, target)
+        QTreeParameter(parent, name, value, visible, target)
+
         parent (QTreeWidget) : Item's QTreeWidget parent.
         name   (str)         : Item's name. just an example.
         '''
-        if valid_values == None:
-            valid_values = type(value)
+        assert 'name' in kwargs, 'parameter needs to have a name'
 
-
-        self._data = {
-            'name' : name,
-            'value': value,
-            'valid_values': valid_values,
-            'info':info,
-            'visible' : visible,
-            'target' : target
-            }
-        ## Init super class ( QtGui.QTreeWidgetItem )
         super( QTreeParameter, self ).__init__( parent )
+        Parameter.__init__(self, **dict([(k, kwargs.get(k)) for k in ['name', 'value', 'valid_values', 'info'] if kwargs.has_key(k)]))
+        if kwargs.has_key('target'):
+            self.target = kwargs['target']
+        if kwargs.has_key('visible'):
+            self.visible = kwargs['visible']
+
 
         ## Column 0 - Text:
-        self.setText( 0, unicode(name) )
+        self.setText( 0, unicode(self.name) )
 
-        if isinstance(self._data['valid_values'], list):
+        if isinstance(self.valid_values, list):
             self.combobox = QtGui.QComboBox()
-            for item in self._data['valid_values']:
+            for item in self.valid_values:
                 self.combobox.addItem(unicode(item))
-            # self.combobox.setItemText(value)
-            self.combobox.setCurrentIndex(self.combobox.findText(unicode(value)))
+            self.combobox.setCurrentIndex(self.combobox.findText(unicode(self.value)))
             self.treeWidget().setItemWidget( self, 1, self.combobox )
-        elif self._data['valid_values'] is bool:
+        elif self.valid_values is bool:
             self.check = QtGui.QCheckBox()
-            self.check.setChecked(value)
+            self.check.setChecked(self.value)
             self.treeWidget().setItemWidget( self, 1, self.check )
         else:
-            self.setText(1, unicode(value))
+            self.setText(1, unicode(self.value))
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-        self.setToolTip(1, unicode(info) )
+        self.setToolTip(1, unicode(self.info) )
+
+    @property
+    def visible(self):
+        return self._data['visible']
+    @visible.setter
+    def visible(self, value):
+        assert isinstance(value, bool)
+        self._data.update({'visible':value})
+
+    @property
+    def target(self):
+        return self._data['target']
+    @visible.setter
+    def target(self, value):
+        self._data.update({'target':value})
 
 class QTreeInstrument(QtGui.QTreeWidgetItem):
 
     def __init__(self, parent, instrument):
         self.instrument = instrument
 
-        print(type(parent))
-        super( QTreeInstrument, self ).__init__( parent )
+        super(QTreeInstrument, self ).__init__( parent )
         self.setText(0, unicode(instrument.name))
 
         for parameter in self.instrument.parameters:
-            print(parameter.dict)
             parameter_dict = {
                 'name' : parameter.name,
                 'value' : parameter.value,
@@ -69,7 +82,7 @@ class QTreeInstrument(QtGui.QTreeWidgetItem):
                 'target' : self.instrument.name,
                 'visible' : True
                 }
-
+            print('parameter_dict')
             print(parameter_dict)
             QTreeParameter( self, **parameter_dict )
 
