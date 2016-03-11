@@ -8,7 +8,7 @@ from scripts.scripts import Script_Dummy
 
 from PyQt4 import QtCore, QtGui
 
-from qt_creator_gui.qt_gui_widgets import QTreeInstrument, QTreeScript
+from qt_creator_gui.qt_gui_widgets import QTreeInstrument, QTreeScript, QTreeParameter
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,

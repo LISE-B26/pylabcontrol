@@ -3,7 +3,7 @@ from PyQt4 import QtCore, QtGui
 
 from hardware_modules.instruments import Parameter, Instrument
 from scripts.scripts import Script, Script_Dummy
-from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller
+from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller, ZIHF2
 
 
 class QTreeParameter(QtGui.QTreeWidgetItem):
@@ -41,6 +41,11 @@ class QTreeParameter(QtGui.QTreeWidgetItem):
             self.check = QtGui.QCheckBox()
             self.check.setChecked(parameter.value)
             self.treeWidget().setItemWidget( self, 1, self.check )
+        elif isinstance(parameter.value, Parameter):
+            QTreeParameter(self, parameter, target=target, visible=visible)
+        elif isinstance(parameter.value, list):
+            for item in parameter.value:
+                QTreeParameter(self, item, target=target, visible=visible)
         else:
             self.setText(1, unicode(parameter.value))
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
@@ -129,8 +134,9 @@ if __name__ == '__main__':
 
 
             my_instruments = [
-                Instrument_Dummy('inst dummy 1'),
-                Maestro_Controller('maestro 6 channels')
+                # Instrument_Dummy('inst dummy 1'),
+                # Maestro_Controller('maestro 6 channels'),
+                ZIHF2('Zurich instrument')
             ]
 
             for elem in my_instruments:

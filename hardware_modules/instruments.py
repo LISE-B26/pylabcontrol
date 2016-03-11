@@ -559,10 +559,10 @@ class ZIHF2(Instrument):
 
     try:
         import zhinst.utils as utils
-        zhinst_installed = True
+        harware_detected = True
     except ImportError:
         # make a fake ZI instrument
-        zhinst_installed = False
+        harware_detected = False
     except:
         raise
 
@@ -571,7 +571,7 @@ class ZIHF2(Instrument):
     '''
     def __init__(self, name = None, parameter_list = []):
 
-        if self.zhinst_installed:
+        if self.harware_detected:
             self.daq = self.utils.autoConnect(8005,1) # connect to ZI, 8005 is the port number
             self.device = self.utils.autoDetect(self.daq)
             self.options = self.daq.getByte('/%s/features/options' % self.device)
@@ -639,7 +639,7 @@ class ZIHF2(Instrument):
 
         valid_variables = ['R','X','Y']
 
-        if self.zhinst_installed:
+        if self.harware_detected:
             path = '/%s/demods/%d/sample' % (self.device, self.demod_c)
             self.daq.subscribe(path)
             flat_dictionary_key = True
@@ -695,7 +695,7 @@ class ZIHF2(Instrument):
             dictonary.update(parameter.dict)
 
         commands = self.dict_to_settings(dictonary)
-        if self.zhinst_installed:
+        if self.harware_detected:
             self.daq.set(commands)
 
 
