@@ -3,10 +3,12 @@ from PyQt4.uic import loadUiType
 Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
 # from qt_creator_gui.zi_control import Ui_MainWindow
 
-from qt_gui_widgets import Instrument_Dummy, Maestro_Controller
+from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller
+from scripts.scripts import Script_Dummy
+
 from PyQt4 import QtCore, QtGui
 
-from qt_creator_gui.qt_gui_widgets import QTreeInstrument
+from qt_creator_gui.qt_gui_widgets import QTreeInstrument, QTreeScript
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
@@ -32,13 +34,20 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         my_instruments = [
             Instrument_Dummy('inst dummy 1'),
-            Maestro_Controller('maestro 6 channel')
+            Maestro_Controller('maestro 6 channels')
         ]
 
         for elem in my_instruments:
-             item = QTreeInstrument( self.tree_scripts, elem )
+            item = QTreeInstrument( self.tree_scripts, elem )
 
-        # create_figures()
+        my_scripts = [
+            Script_Dummy('script dummy 1')
+        ]
+
+        for elem in my_scripts:
+            item = QTreeScript( self.tree_scripts, elem )
+
+        self.tree_scripts.setColumnWidth(0,200)
 
 if __name__ == '__main__':
 
