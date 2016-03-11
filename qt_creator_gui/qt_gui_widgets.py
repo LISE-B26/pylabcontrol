@@ -1,90 +1,103 @@
 
 from PyQt4 import QtCore, QtGui
 
-from hardware_modules.instruments import Parameter
-# import scripts.scripts
+from hardware_modules.instruments import Parameter, Instrument
+from scripts.scripts import Script, Script_Dummy
 from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller
 
 
-class QTreeParameter(QtGui.QTreeWidgetItem, Parameter):
+class QTreeParameter(QtGui.QTreeWidgetItem):
     '''
     Custom QTreeWidgetItem with Widgets
     '''
 
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent, parameter, target = None, visible = True):
         '''
-        QTreeParameter(parent, name, value, valid_values, info, visible, target)
-        QTreeParameter(parent, name, value)
-        QTreeParameter(parent, name, value, visible)
-        QTreeParameter(parent, name, value, target)
-        QTreeParameter(parent, name, value, visible, target)
-
         parent (QTreeWidget) : Item's QTreeWidget parent.
         name   (str)         : Item's name. just an example.
         '''
-        assert 'name' in kwargs, 'parameter needs to have a name'
 
+        ## Init super class ( QtGui.QTreeWidgetItem )
         super( QTreeParameter, self ).__init__( parent )
-        Parameter.__init__(self, **dict([(k, kwargs.get(k)) for k in ['name', 'value', 'valid_values', 'info'] if kwargs.has_key(k)]))
-        if kwargs.has_key('target'):
-            self.target = kwargs['target']
-        if kwargs.has_key('visible'):
-            self.visible = kwargs['visible']
 
+        assert isinstance(parameter, Parameter)
+        assert isinstance(target, str)
+
+        self.visible = visible
+        self.target = target
+        self.Parameter = parameter
 
         ## Column 0 - Text:
-        self.setText( 0, unicode(self.name) )
+        self.setText(0, unicode(parameter.name))
 
-        if isinstance(self.valid_values, list):
+        if isinstance(parameter.valid_values, list):
             self.combobox = QtGui.QComboBox()
-            for item in self.valid_values:
+            for item in parameter.valid_values:
                 self.combobox.addItem(unicode(item))
-            self.combobox.setCurrentIndex(self.combobox.findText(unicode(self.value)))
+            # self.combobox.setItemText(value)
+            self.combobox.setCurrentIndex(self.combobox.findText(unicode(parameter.value)))
             self.treeWidget().setItemWidget( self, 1, self.combobox )
-        elif self.valid_values is bool:
+        elif parameter.valid_values is bool:
             self.check = QtGui.QCheckBox()
-            self.check.setChecked(self.value)
+            self.check.setChecked(parameter.value)
             self.treeWidget().setItemWidget( self, 1, self.check )
         else:
-            self.setText(1, unicode(self.value))
+            self.setText(1, unicode(parameter.value))
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-        self.setToolTip(1, unicode(self.info) )
+        self.setToolTip(1, unicode(parameter.info))
 
     @property
     def visible(self):
-        return self._data['visible']
+        return self._visible
     @visible.setter
     def visible(self, value):
         assert isinstance(value, bool)
-        self._data.update({'visible':value})
-
-    @property
-    def target(self):
-        return self._data['target']
-    @visible.setter
-    def target(self, value):
-        self._data.update({'target':value})
+        self._visible = value
 
 class QTreeInstrument(QtGui.QTreeWidgetItem):
 
     def __init__(self, parent, instrument):
+        assert isinstance(instrument, Instrument)
         self.instrument = instrument
 
-        super(QTreeInstrument, self ).__init__( parent )
+        super( QTreeInstrument, self ).__init__( parent )
         self.setText(0, unicode(instrument.name))
 
         for parameter in self.instrument.parameters:
-            parameter_dict = {
-                'name' : parameter.name,
-                'value' : parameter.value,
-                'info' : parameter.info,
-                'valid_values' : parameter.valid_values,
-                'target' : self.instrument.name,
-                'visible' : True
-                }
-            print('parameter_dict')
-            print(parameter_dict)
-            QTreeParameter( self, **parameter_dict )
+            QTreeParameter( self, parameter, target=self.instrument.name, visible=True)
+
+
+class QTreeScript(QtGui.QTreeWidgetItem):
+
+    def __init__(self, parent, script):
+        '''
+
+        :param parent:
+        :param script: a Script object
+        :return:
+        '''
+
+        assert isinstance(script, Script)
+
+        self.script = script
+
+        super( QTreeScript, self ).__init__( parent )
+        self.setText(0, unicode(script.name))
+
+        for element in self.script.settings:
+            if isinstance(element, Parameter):
+                QTreeParameter( self, element, target=self.script.name, visible=True)
+            elif isinstance(element, Script):
+                QTreeScript( self, element)
+            elif isinstance(element, Instrument):
+                QTreeInstrument( self, element)
+
+
+
+
+if __name__ == '__main__':
+
+    import sys
 
 
 class UI(QtGui.QMainWindow):
@@ -123,19 +136,17 @@ class UI(QtGui.QMainWindow):
         for elem in my_instruments:
             item = QTreeInstrument( self.treeWidget, elem )
 
-        # for d in SWEEP_SETTINGS:
-        #     print(d)
-        #     item = ScriptParameter( self.treeWidget, **d )
+        my_scripts = [
+            Script_Dummy('script dummy 1')
+        ]
+
+        for elem in my_scripts:
+            item = QTreeScript( self.treeWidget, elem )
 
         ## Set Columns Width to match content:
         for column in range( self.treeWidget.columnCount() ):
             self.treeWidget.resizeColumnToContents( column )
 
-
-
-if __name__ == '__main__':
-
-    import sys
     app = QtGui.QApplication(sys.argv)
     ex = UI()
     ex.show()

@@ -1,7 +1,7 @@
 
 import datetime
 from PyQt4 import QtCore
-from hardware_modules.instruments import Parameter, Instrument
+from hardware_modules.instruments import Parameter, Instrument, Instrument_Dummy
 
 class Script(object):
     def __init__(self, name = None, settings = []):
@@ -210,7 +210,6 @@ class QtScript(QtCore.QThread, Script):
         self._abort = False
 
 
-
 class QtScript_Dummy(QtScript):
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
@@ -228,8 +227,10 @@ class QtScript_Dummy(QtScript):
         :return:
         '''
         settings_default = [
-            Parameter({'a':0}),
-            Parameter({'b':0.1})
+            Parameter('a', 0, [0,1]),
+            Parameter({'b':0.1}),
+            Parameter({'threading':True}),
+            Instrument_Dummy('dummy inst')
         ]
         return settings_default
     @property
@@ -245,11 +246,10 @@ class QtScript_Dummy(QtScript):
         self.is_running = True
         self.time_start  = datetime.datetime.now()
         while self.is_running and self._abort == False:
-            random.random()
+            signal = random.random()
             # do something
             self.updateProgress.emit()
-            self.settings[]
-            print('a' : signal)
+            print('a', signal)
             time.sleep(0.2)
 
         self.time_end  = datetime.datetime.now()
@@ -258,7 +258,7 @@ class QtScript_Dummy(QtScript):
         return success
 
 class Script_Dummy(Script):
-    def __init__(self, name, settings):
+    def __init__(self, name, settings = []):
         super(Script_Dummy, self).__init__(name, settings)
     @property
     def settings_default(self):
@@ -268,8 +268,10 @@ class Script_Dummy(Script):
         :return:
         '''
         settings_default = [
-            Parameter({'a':0}),
-            Parameter({'b':0.1})
+            Parameter('a', 0, [0,1]),
+            Parameter({'b':0.1}),
+            Parameter({'b':True}),
+            Instrument_Dummy('dummy inst')
         ]
         return settings_default
 
