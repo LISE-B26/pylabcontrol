@@ -14,7 +14,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar)
-
+from copy import deepcopy
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, ):
         super(ControlMainWindow, self).__init__()
@@ -57,7 +57,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
 
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
-            self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+            self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
 
         # define data container
         self.past_commands = deque() # history of executed commands
@@ -89,7 +89,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def get_time(self):
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
     def log(self, msg, wait_time = 1000):
-        print(msg)
+
         self.statusbar.showMessage(msg, wait_time)
         time = self.get_time()
         self.past_commands.append("{:s}\t {:s}".format(time, msg))
@@ -219,9 +219,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 except:
                     print "Unexpected error:", sys.exc_info()[0]
                     raise
+
     def update_parameters(self, treeWidget):
 
-        print('XXX')
         # todo: catch changes from checkboxes and combos
         if not treeWidget.currentItem() == None:
             if treeWidget.currentColumn() == 0:
@@ -230,13 +230,24 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.fill_treeWidget(treeWidget, parameter_dict) # set tree back to status before it was edited by user
             else:
                 if isinstance(treeWidget.currentItem(), QTreeParameter):
-                    self.log("parameter .. changed!", 1000)
-                elif isinstance(treeWidget.currentItem(), QTreeScript):
-                    self.log("script .. changed!", 1000)
-                elif isinstance(treeWidget.currentItem(), QTreeInstrument):
-                    self.log("instrument .. changed!", 1000)
-                else:
-                    raise TypeError('Unknown item!!')
+                    new_value = treeWidget.currentItem().text(1)
+                    parameter = treeWidget.currentItem().parameter
+                    # old_value = deepcopy(parameter.value)
+                    old_value = parameter.value
+                    parameter.value = new_value
+                    # read the new value back from the actual parameter
+                    new_value = parameter.value
+
+                    new_value = str(treeWidget.currentItem().text(1))
+
+                    # self.log("Updated {:s} from {:s} to {:s}!!".format(element, str(value_old), str(value)), 1000)
+                    self.log("parameter {:s} changed from {:s} to {:s}!".format(parameter.name, str(old_value), str(new_value)), 1000)
+                # elif isinstance(treeWidget.currentItem(), QTreeScript):
+                #     self.log("script .. changed!", 1000)
+                # elif isinstance(treeWidget.currentItem(), QTreeInstrument):
+                #     self.log("instrument .. changed!", 1000)
+                # else:
+                #     raise TypeError('Unknown item!!')
 
     def fill_treewidget(self, treeWidget):
         if treeWidget == self.tree_scripts:

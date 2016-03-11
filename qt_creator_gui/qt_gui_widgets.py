@@ -25,7 +25,7 @@ class QTreeParameter(QtGui.QTreeWidgetItem):
 
         self.visible = visible
         self.target = target
-        self.Parameter = parameter
+        self.parameter = parameter
 
         ## Column 0 - Text:
         self.setText(0, unicode(parameter.name))
@@ -55,6 +55,9 @@ class QTreeParameter(QtGui.QTreeWidgetItem):
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
         self.setToolTip(1, unicode(parameter.info))
 
+    # @property
+    # def parameter(self):
+    #     return self._parameter
     @property
     def visible(self):
         return self._visible

@@ -1,6 +1,6 @@
 
 import numpy as np
-
+from PyQt4 import QtCore
 class Parameter(object):
 
     def __init__(self, name, value = None, valid_values = None, info = None):
@@ -94,14 +94,27 @@ class Parameter(object):
         if isinstance(value, str):
             self._data.update({'name' : value.replace(' ', '_')}) # replace spaces with underscores
         else:
-            raise TypeError('Wrong type! \
-                             name should be a string')
+            raise TypeError('Wrong type! name should be a string,  got {:s}'.format(type(value)))
     @property
     def value(self):
         return self._data['value']
 
     @value.setter
     def value(self, value):
+        if isinstance(value, (unicode, QtCore.QString)) :
+            # cast to unicode
+            print(self.valid_values)
+            if isinstance(self.valid_values, tuple):
+                cast_type = min(self.valid_values)
+            elif self.valid_values in (int, float, str, bool):
+                cast_type = self.valid_values
+            elif isinstance(self.valid_values, type([])):
+                pass
+            cast_type = str(cast_type).split('<type \'')[1].split('\'')[0]
+
+            value = eval('{:s}(value)'.format(cast_type))
+
+
         if self.isvalid(value):
             self._data.update({'value':value})
         else:
