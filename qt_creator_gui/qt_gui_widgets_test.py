@@ -34,7 +34,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         maestro = Maestro_Controller('maestro 6 channels')
         my_instruments = [
             Instrument_Dummy('inst dummy 1'),
-            ZIHF2('ZiHF2',{'freq', 10.0}),
+            ZIHF2('ZiHF2',{'freq': 10.0}),
             Maestro_BeamBlock(maestro,'IR beam block')
         ]
 

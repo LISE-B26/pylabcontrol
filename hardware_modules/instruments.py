@@ -27,7 +27,12 @@ class Parameter(object):
                 value = Parameter(value)
 
         if valid_values is None:
+
             valid_values = type(value)
+
+            if valid_values == type([]):
+
+                valid_values = (valid_values, type(value[0]))
 
         if info is None:
             info = 'N/A'
@@ -100,8 +105,8 @@ class Parameter(object):
         if self.isvalid(value):
             self._data.update({'value':value})
         else:
-            raise TypeError('Wrong type! \
-                             Type should be .. improve msg here')
+            msg = 'Wrong type ({:s})! Type should be {:s}.'.format(str(type(value)), str(self.valid_values))
+            raise TypeError(msg)
     @property
     def info(self):
         return self._data['info']
@@ -159,7 +164,7 @@ class Parameter(object):
 
     def __eq__(self, other):
         '''
-        checks if two parameters have the same valid_values and name
+        checks if two parameters have the same name
         :param other:
         :return:
         '''
@@ -167,8 +172,8 @@ class Parameter(object):
         is_equal = True
         if self.name != other.name:
             is_equal = False
-        if self.valid_values != other.valid_values:
-            is_equal = False
+        # if self.valid_values != other.valid_values:
+        #     is_equal = False
         return is_equal
 
     def update(self, other):
@@ -176,7 +181,11 @@ class Parameter(object):
             other = Parameter(other)
 
         if self == other:
-            self.value = other.value
+            if isinstance(other.value, dict):
+                self.value = Parameter(other.value)
+            else:
+                self.value = other.value
+
             self.info = other.info
         else:
             raise TypeError('Parameters are not of the same type! \
@@ -190,6 +199,7 @@ class Instrument(object):
 
 
         self._parameters = self.parameters_default
+
         self.update_parameters(parameter_list)
 
         if name is None:
@@ -290,7 +300,6 @@ class Instrument(object):
                 raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
 
             return parameters_new
-
 
         for parameter in check_parameter_list(parameters_new):
             # get index of parameter in default list
@@ -783,6 +792,7 @@ def test_parameter(qweqwerq):
 #
 #             inst = Instrument_Dummy('my dummny', [{'parameter 2': 2.0},{'parameter 1': 2.0}])
 #             inst = Instrument_Dummy('my dummny', {'parameter 2': 2.0, 'parameter 1': 2.0})
+#             inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
 #         except:
 #             passed =False
 #
@@ -802,9 +812,8 @@ def test_parameter(qweqwerq):
 if __name__ == '__main__':
     # inst = Instrument_Dummy('my dummny', {'parameter1': 1})
 
-    print(Parameter( {'freq':1.0}))
-
     inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
+    print(inst)
     if inst.status:
         print("hardware success")
     else:
