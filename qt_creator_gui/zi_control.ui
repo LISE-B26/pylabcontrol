@@ -76,7 +76,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_scripts">
      <attribute name="title">
@@ -163,7 +163,12 @@
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_main_settings">
+    <widget class="QWidget" name="tab_monitor">
+     <attribute name="title">
+      <string>Monitor</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="tab_settings">
      <attribute name="title">
       <string>Settings</string>
      </attribute>
@@ -228,8 +233,8 @@
    <widget class="MatplotlibWidget" name="matplotlibwidget">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>20</y>
+      <x>30</x>
+      <y>10</y>
       <width>400</width>
       <height>300</height>
      </rect>

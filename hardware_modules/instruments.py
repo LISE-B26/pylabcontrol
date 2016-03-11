@@ -350,8 +350,9 @@ class Maestro_Controller(Instrument):
 
     def __init__(self,name, parameter_list = []):
 
-        super(Maestro_Controller, self).__init__(name)
+        super(Maestro_Controller, self).__init__(name, parameter_list)
         self.update_parameters(parameter_list)
+        print(self.parameters)
         # Open the command port
         # self.usb = self.serial.Serial(port)
         # Command lead-in and device 12 are sent for each Pololu serial commands.
@@ -371,14 +372,16 @@ class Maestro_Controller(Instrument):
         :return:
         '''
         parameter_list_default = [
-            Parameter('port', 'COM5', ['COM5', 'COM3'])
+            Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected')
         ]
         return parameter_list_default
     def update_parameters(self, parameters_new):
+        print('XX')
         # call the update_parameter_list to update the parameter list
         super(Maestro_Controller, self).update_parameters(parameters_new)
         # now we actually apply these newsettings to the hardware
         for parameter in parameters_new:
+            print(parameter)
             if parameter.name == 'port':
                 self.usb = self.serial.Serial(parameter.value)
     # Cleanup by closing USB serial port
@@ -720,32 +723,7 @@ class ZIHF2(Instrument):
             self.daq.set(commands)
 
 
-def test_parameter(qweqwerq):
 
-    passed =True
-
-    try:
-
-        p1 = Parameter('param', 0.0)
-        p2 = Parameter('param', 0, int, 'test int')
-        p3 = Parameter('param', 0.0, (int, float), 'test tupple')
-        p4 = Parameter('param', 0.0, [0.0, 0.1], 'test list')
-        print('passed single parameter test')
-
-        p_nested = Parameter('param nested', p1, None, 'test list')
-        p_nested = Parameter('param nested', p4, [p1,p4], 'test list')
-        print('passed nested parameter test')
-
-        p_dict = Parameter({'param dict': 0 })
-        print(p_dict)
-        print('passed dictionary test')
-        p_dict_nested = Parameter({'param dict': {'sub param dict': 1 } })
-        print(p_dict_nested.name, p_dict_nested.value, p_dict_nested.info)
-        print('passed nested dictionary test')
-    except:
-        passed =False
-
-    return passed
 
 # import unittest
 #
