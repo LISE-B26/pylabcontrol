@@ -807,3 +807,43 @@ if __name__ == '__main__':
     #     print('failed')
 
 
+
+
+class AGC100(Instrument):
+    import serial
+
+    # Translations of the controller's status messages
+    MEASUREMENT_STATUS = {
+        '0': 'Measurement data okay',
+        '1': 'Underrange',
+        '2': 'Overrange',
+        '3': 'Sensor error',
+        '4': 'Sensor off',
+        '5': 'No sensor',
+        '6': 'Identification error',
+        '7': 'Error FRG-720, FRG-730'
+    }
+
+    # Translation of the controller's units check  messages
+    MEASUREMENT_UNITS = {
+        '0': 'mbar/bar',
+        '1': 'Torr',
+        '2': 'Pascal',
+        '3': 'Micron'
+    }
+
+    # ASCII Characters used for controller communication
+    ETX = chr(3)  # \x03
+    CR = chr(13)
+    LF = chr(10)
+    ENQ = chr(5)  # \x05
+    ACK = chr(6)  # \x06
+    NAK = chr(21)  # \x15
+
+    def __init__(self, port="COM2", timeout=1):
+        # The serial connection should be setup with the following parameters:
+        # 1 start bit, 8 data bits, No parity bit, 1 stop bit, no hardware
+        # handshake. These are all default for Serial and therefore not input
+        # below
+
+        self.ser = serial.Serial(port=port, timeout=timeout)
