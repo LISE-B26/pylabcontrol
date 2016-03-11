@@ -676,7 +676,7 @@ class PolarizationStabilizationThread(QtCore.QThread):
     def __init__(self, ControlMainWindow):
         """
 
-        :param servo: Kinsesis Servo controler object that controls the polarization
+        :param servo: Kinesis Servo controller object that controls the polarization
         :return:
         """
         QtCore.QThread.__init__(self)

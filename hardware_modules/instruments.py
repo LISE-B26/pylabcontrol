@@ -118,22 +118,25 @@ class Parameter(object):
             raise TypeError('Wrong type! \
                              info should be a string')
 
-    def isvalid(self, value):
+    def isvalid(self, values):
         '''
-        checks if value is a valid parameter value
+        checks if every value in values is a valid parameter value
         :param value:
         :return: True or False depending if value is valid
         '''
-        valid = False
-        if isinstance(self._data['valid_values'], list):
-            if value in self._data['valid_values']:
-                valid = True
-        elif isinstance(self._data['valid_values'], tuple):
-            if type(value) in self._data['valid_values']:
-                valid = True
-        elif isinstance(self._data['valid_values'], type):
-            if type(value) is self._data['valid_values']:
-                valid = True
+        valid = True
+        for value in values:
+            if isinstance(self._data['valid_values'], list):
+                if not value in self._data['valid_values']:
+                    valid = False
+            elif isinstance(self._data['valid_values'], tuple):
+                if not type(value) in self._data['valid_values']:
+                    valid = False
+            elif isinstance(self._data['valid_values'], type):
+                if not type(value) is self._data['valid_values']:
+                    valid = False
+            else:
+                valid = False
 
         return valid
 
