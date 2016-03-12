@@ -25,7 +25,7 @@ class QTreeParameter(QtGui.QTreeWidgetItem):
 
         self.visible = visible
         self.target = target
-        self.Parameter = parameter
+        self.parameter = parameter
 
         ## Column 0 - Text:
         self.setText(0, unicode(parameter.name))
@@ -37,10 +37,14 @@ class QTreeParameter(QtGui.QTreeWidgetItem):
             # self.combobox.setItemText(value)
             self.combobox.setCurrentIndex(self.combobox.findText(unicode(parameter.value)))
             self.treeWidget().setItemWidget( self, 1, self.combobox )
+            self.combobox.currentIndexChanged.connect(lambda: self.parent().emitDataChanged())
         elif parameter.valid_values is bool:
             self.check = QtGui.QCheckBox()
             self.check.setChecked(parameter.value)
+            # self.treeWidget().setItemWidget( self, 1, self.check )
             self.treeWidget().setItemWidget( self, 1, self.check )
+            self.check.stateChanged.connect(lambda: self.parent().emitDataChanged())
+            # self.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
         elif isinstance(parameter.value, Parameter):
             QTreeParameter(self, parameter, target=target, visible=visible)
         elif isinstance(parameter.value, list):
@@ -51,6 +55,9 @@ class QTreeParameter(QtGui.QTreeWidgetItem):
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
         self.setToolTip(1, unicode(parameter.info))
 
+    # @property
+    # def parameter(self):
+    #     return self._parameter
     @property
     def visible(self):
         return self._visible

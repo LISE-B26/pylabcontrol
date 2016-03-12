@@ -1,6 +1,6 @@
 
 import numpy as np
-
+from PyQt4 import QtCore
 class Parameter(object):
 
     def __init__(self, name, value = None, valid_values = None, info = None):
@@ -94,14 +94,27 @@ class Parameter(object):
         if isinstance(value, str):
             self._data.update({'name' : value.replace(' ', '_')}) # replace spaces with underscores
         else:
-            raise TypeError('Wrong type! \
-                             name should be a string')
+            raise TypeError('Wrong type! name should be a string,  got {:s}'.format(type(value)))
     @property
     def value(self):
         return self._data['value']
 
     @value.setter
     def value(self, value):
+        if isinstance(value, (unicode, QtCore.QString)) :
+            # cast to unicode
+            print(self.valid_values)
+            if isinstance(self.valid_values, tuple):
+                cast_type = min(self.valid_values)
+            elif self.valid_values in (int, float, str, bool):
+                cast_type = self.valid_values
+            elif isinstance(self.valid_values, type([])):
+                pass
+            cast_type = str(cast_type).split('<type \'')[1].split('\'')[0]
+
+            value = eval('{:s}(value)'.format(cast_type))
+
+
         if self.isvalid(value):
             self._data.update({'value':value})
         else:
@@ -340,9 +353,14 @@ class Instrument_Dummy(Instrument):
         :return:
         '''
         parameter_list_default = [
-            Parameter('parameter1', 0),
+            Parameter('parameter1', 0, [0,1]),
+            Parameter('parameter1', True,bool),
             Parameter('parameter2', 2.0),
-            Parameter('parameter string', 'a')
+            Parameter('parameter string', 'a'),
+            Parameter('parameter string', [
+                Parameter('parameter sub1', 'a_1'),
+                Parameter('parameter sub2', 'a_1')
+            ])
         ]
         return parameter_list_default
 # =============== MAESTRO ==================================
@@ -368,7 +386,6 @@ class Maestro_Controller(Instrument):
 
         super(Maestro_Controller, self).__init__(name, parameters)
         self.update_parameters(self.parameters)
-        print(self.parameters)
         # Open the command port
         # self.usb = self.serial.Serial(port)
         # Command lead-in and device 12 are sent for each Pololu serial commands.
@@ -805,7 +822,6 @@ if __name__ == '__main__':
     # inst = Instrument_Dummy('my dummny', {'parameter1': 1})
 
     inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
-    print(inst)
     if inst.status:
         print("hardware success")
     else:
