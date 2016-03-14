@@ -19,6 +19,7 @@ class Script(object):
 
         self._settings = self.settings_default
         self.update_settings(settings)
+        self._abort = False
 
     def __str__(self):
         pass
@@ -37,7 +38,6 @@ class Script(object):
         #     return return_string
         #
         output_string = '{:s} (class type: {:s})\n'.format(self.name, self.__class__.__name__)
-        output_string += 'threading = {:s}'.format(str(self.threading))
 
         output_string += 'settings:\n'
         for element in self.settings:
@@ -156,23 +156,26 @@ class Script(object):
         '''
         self.is_running = True
         self.time_start  = datetime.datetime.now()
-        while self.is_running and self.abort == False:
+        while self.is_running and self._abort == False:
             # do something
             self.is_running = False
 
         self.time_end  = datetime.datetime.now()
 
-        success = self.abort == False
+        success = self._abort == False
         return success
 
 
         return success
+
+    def stop(self):
+        self._abort == True
 
 class QtScript(QtCore.QThread, Script):
     '''
     This class starts a script on its own thread
     '''
-
+    updateProgress = QtCore.Signal(int)
     #You can do any extra things in this init you need
     def __init__(self, name = None, settings = []):
         """
@@ -196,10 +199,13 @@ class QtScript(QtCore.QThread, Script):
 
         self.is_running = True
         self.time_start  = datetime.datetime.now()
-        while self.is_running and self._abort == False:
+
+        for i in range(100):
+        # while self.is_running and self._abort == False:
             # do something
-            self.updateProgress.emit(random.random())
-            time.sleep(0.2)
+            self.updateProgress.emit(i+1)
+            # self.updateProgress.emit(random.random())
+            time.sleep(0.05)
 
         self.time_end  = datetime.datetime.now()
 
@@ -257,6 +263,53 @@ class QtScript(QtCore.QThread, Script):
 #         success = self._abort == False
 #         return success
 
+class QtScript_Dummy(QtScript):
+    def __init__(self, name, settings = []):
+        super(QtScript_Dummy, self).__init__(name, settings)
+    @property
+    def settings_default(self):
+        '''
+        returns the default settings of the script
+        settings contain Parameters, Instruments and Scripts
+        :return:
+        '''
+        settings_default = [
+            Parameter('a', 0, [0,1]),
+            Parameter('txt', 'a', ['a','b']),
+            Parameter('param', [Parameter('a', 0, [0,1]), Parameter('b', 2, [2,3])]),
+            Parameter({'b':0.1}),
+            Parameter({'b':True}),
+            Instrument_Dummy('dummy inst'),
+            Sub_Script_Dummy('sub_script')
+        ]
+        return settings_default
+    def run(self):
+        '''
+        executes the script
+        :return: boolean if execution of script finished succesfully
+        '''
+        import time
+        self.is_running = True
+        self.time_start  = datetime.datetime.now()
+        print('this is script {:s}'.format(self.name))
+        print('counting')
+        for i in range(10):
+            time.sleep(0.1)
+            print(i)
+        self.time_end  = datetime.datetime.now()
+
+        print('run subscript')
+        for element in self.settings:
+            if isinstance(element, Script) and element.name == 'sub_script':
+                element.run()
+
+
+        success = self._abort == False
+        print('total execution time: {:s}'.format(str(self.excecution_time)))
+        self.is_running = False
+
+        return success
+
 class Script_Dummy(Script):
     def __init__(self, name, settings = []):
         super(Script_Dummy, self).__init__(name, settings)
@@ -277,6 +330,32 @@ class Script_Dummy(Script):
             Sub_Script_Dummy('sub_script')
         ]
         return settings_default
+    def run(self):
+        '''
+        executes the script
+        :return: boolean if execution of script finished succesfully
+        '''
+        import time
+        self.is_running = True
+        self.time_start  = datetime.datetime.now()
+        print('this is script {:s}'.format(self.name))
+        print('counting')
+        for i in range(10):
+            time.sleep(0.1)
+            print(i)
+        self.time_end  = datetime.datetime.now()
+
+        print('run subscript')
+        for element in self.settings:
+            if isinstance(element, Script) and element.name == 'sub_script':
+                element.run()
+
+
+        success = self._abort == False
+        print('total execution time: {:s}'.format(str(self.excecution_time)))
+        self.is_running = False
+
+        return success
 
 class Sub_Script_Dummy(Script):
     def __init__(self, name, settings = []):
@@ -297,7 +376,26 @@ class Sub_Script_Dummy(Script):
             Instrument_Dummy('dummy inst')
         ]
         return settings_default
+    def run(self):
+        '''
+        executes the script
+        :return: boolean if execution of script finished succesfully
+        '''
+        import time
+        self.is_running = True
+        self.time_start  = datetime.datetime.now()
+        print('this is script {:s}'.format(self.name))
+        print('my settings are:')
+        for setting in self.settings:
+            print(setting)
 
+        self.time_end  = datetime.datetime.now()
+
+        success = self._abort == False
+        print('total execution time: {:s}'.format(self.excecution_time))
+        self.is_running = False
+
+        return success
 class ZI_Sweeper(QtScript):
 
     def __init__(self, zihf2, name = None, parameter_list = []):

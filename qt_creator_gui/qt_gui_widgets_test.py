@@ -3,8 +3,11 @@ from PyQt4.uic import loadUiType
 Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
 # from qt_creator_gui.zi_control import Ui_MainWindow
 
-from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller, ZIHF2, Maestro_BeamBlock
-from scripts.scripts import Script_Dummy
+
+from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller, ZIHF2, Maestro_BeamBlock, get_elemet
+
+
+from scripts.scripts import *
 
 from PyQt4 import QtCore, QtGui
 import datetime
@@ -29,6 +32,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             #
             # self.sliderPosition.setValue(int(self.servo_polarization.get_position() * 100))
             # self.sliderPosition.valueChanged.connect(lambda: self.set_position())
+
+
+
 
             # link buttons to functions
             self.btn_start_script.clicked.connect(lambda: self.btn_clicked())
@@ -59,19 +65,35 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
 
+
+            for script in self.scripts:
+                if isinstance(script, QtScript):
+                    print(script.name)
+                    script.updateProgress.connect(self.update_progress)
+
         # define data container
         self.past_commands = deque() # history of executed commands
 
         # define instruments
         maestro = Maestro_Controller('maestro 6 channels')
         self.instruments = [
-            ZIHF2('ZiHF2',{'freq': 10.0}),
+            ZIHF2('ZiHF2'),
             Maestro_BeamBlock(maestro,'IR beam block')
+        ]
+
+
+
+        # define scripts
+
+        zi_inst = get_elemet('ZiHF2', self.instruments)
+        self.monitor_parameters = [
+            {'target' : zi_inst, 'parameter' : get_elemet('freq', zi_inst.parameters)}
         ]
 
         # define scripts
         self.scripts = [
-            Script_Dummy('script dummy 1')
+            Script_Dummy('script dummy 1'),
+            QtScript('threaded script')
         ]
 
         # fill the trees
@@ -86,6 +108,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.tree_monitor.setColumnWidth(0,200)
 
         connect_controls()
+
+
+    def update_progress(self, current_progress):
+        self.progressBar.setValue(current_progress)
+        if current_progress == 100:
+            self.log('finished!!!')
+
     def get_time(self):
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
     def log(self, msg, wait_time = 5000):
@@ -107,23 +136,25 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         sender = self.sender()
 
         script = self.tree_scripts.currentItem()
-        x = 0
-        while isinstance(script, QTreeScript) == False:
-            print(script)
-            x +=1
-            script = script.parent()
-            if x>5:
-                exit
 
-
-        # self.statusBar().showMessage(sender.objectName() + ' was pressed')
-        if sender.objectName() == "btn_start_script":
-            # self._thread_acq.start()
-            self.log('start {:s}'.format(script))
-        elif sender.objectName() == "btn_stop_script":
-            self.log('stop {:s}'.format(script))
+        if script is not None:
+            while isinstance(script, QTreeScript) == False:
+                script = script.parent()
+            script = script.script
+            # self.statusBar().showMessage(sender.objectName() + ' was pressed')
+            if sender.objectName() == "btn_start_script":
+                # self._thread_acq.start()
+                self.log('start {:s}'.format(script.name))
+                script.run()
+                if isinstance(script, Script):
+                    self.log('finished')
+            elif sender.objectName() == "btn_stop_script":
+                self.log('stop {:s}'.format(script.name))
+                script.stop()
+            else:
+                print('unknown sender: ', sender.objectName())
         else:
-            print('unknown sender: ', sender.objectName())
+            self.log('No script selected. Select script and try again!')
 
 
     def update_parameters(self, treeWidget):
@@ -180,7 +211,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             for elem in self.instruments:
                 QTreeInstrument( self.tree_settings, elem )
         elif treeWidget == self.tree_monitor:
-             print('nothing to do....')
+            for elem in self.monitor_parameters:
+                QTreeParameter( self.tree_monitor, elem['parameter'],  elem['target'])
+
+            # print('nothing to do....')
 
 if __name__ == '__main__':
 

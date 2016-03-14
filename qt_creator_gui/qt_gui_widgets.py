@@ -21,7 +21,7 @@ class QTreeParameter(QtGui.QTreeWidgetItem):
         super( QTreeParameter, self ).__init__( parent )
 
         assert isinstance(parameter, Parameter)
-        assert isinstance(target, str)
+        assert isinstance(target, (Script, Instrument))
 
         self.visible = visible
         self.target = target
@@ -34,17 +34,14 @@ class QTreeParameter(QtGui.QTreeWidgetItem):
             self.combobox = QtGui.QComboBox()
             for item in parameter.valid_values:
                 self.combobox.addItem(unicode(item))
-            # self.combobox.setItemText(value)
             self.combobox.setCurrentIndex(self.combobox.findText(unicode(parameter.value)))
             self.treeWidget().setItemWidget( self, 1, self.combobox )
             self.combobox.currentIndexChanged.connect(lambda: self.parent().emitDataChanged())
         elif parameter.valid_values is bool:
             self.check = QtGui.QCheckBox()
             self.check.setChecked(parameter.value)
-            # self.treeWidget().setItemWidget( self, 1, self.check )
             self.treeWidget().setItemWidget( self, 1, self.check )
             self.check.stateChanged.connect(lambda: self.parent().emitDataChanged())
-            # self.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
         elif isinstance(parameter.value, Parameter):
             QTreeParameter(self, parameter, target=target, visible=visible)
         elif isinstance(parameter.value, list):
@@ -76,8 +73,7 @@ class QTreeInstrument(QtGui.QTreeWidgetItem):
         self.setText(0, unicode(instrument.name))
 
         for parameter in self.instrument.parameters:
-            QTreeParameter( self, parameter, target=self.instrument.name, visible=True)
-
+            QTreeParameter( self, parameter, target=self.instrument, visible=True)
 
 class QTreeScript(QtGui.QTreeWidgetItem):
 
@@ -98,12 +94,11 @@ class QTreeScript(QtGui.QTreeWidgetItem):
 
         for element in self.script.settings:
             if isinstance(element, Parameter):
-                QTreeParameter( self, element, target=self.script.name, visible=True)
+                QTreeParameter( self, element, target=self.script, visible=True)
             elif isinstance(element, Script):
                 QTreeScript( self, element)
             elif isinstance(element, Instrument):
                 QTreeInstrument( self, element)
-
 
 
 

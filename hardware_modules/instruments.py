@@ -1,6 +1,27 @@
 
 import numpy as np
 from PyQt4 import QtCore
+
+
+def get_elemet(name, element_list):
+    '''
+    get the element with name 'name'
+    list should be a list of objects that have a property name, e.g. Instrument, Parameter, Script
+    :param name:
+    :param element_list:
+    :return:
+    '''
+    assert isinstance(name, str)
+    assert isinstance(element_list, list)
+    assert [elem.name for elem in element_list] # check that all elements have a property name
+
+    element = [elem for elem in element_list if elem.name == name][0]
+
+    return element
+
+
+
+
 class Parameter(object):
 
     def __init__(self, name, value = None, valid_values = None, info = None):
