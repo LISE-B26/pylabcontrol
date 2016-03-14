@@ -259,16 +259,6 @@
      <attribute name="title">
       <string>History</string>
      </attribute>
-     <widget class="QListView" name="list_history">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>10</y>
-        <width>711</width>
-        <height>431</height>
-       </rect>
-      </property>
-     </widget>
     </widget>
    </widget>
    <widget class="MatplotlibWidget" name="matplotlibwidget">
@@ -281,10 +271,21 @@
      </rect>
     </property>
    </widget>
+   <widget class="QListView" name="list_history">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>10</y>
+      <width>631</width>
+      <height>211</height>
+     </rect>
+    </property>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>list_records</zorder>
    <zorder>tabWidget</zorder>
    <zorder>matplotlibwidget</zorder>
+   <zorder>list_history</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

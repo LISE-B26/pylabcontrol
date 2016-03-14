@@ -88,7 +88,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         connect_controls()
     def get_time(self):
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
-    def log(self, msg, wait_time = 1000):
+    def log(self, msg, wait_time = 5000):
 
         self.statusbar.showMessage(msg, wait_time)
         time = self.get_time()
@@ -230,15 +230,31 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.fill_treeWidget(treeWidget, parameter_dict) # set tree back to status before it was edited by user
             else:
                 if isinstance(treeWidget.currentItem(), QTreeParameter):
-                    new_value = treeWidget.currentItem().text(1)
                     parameter = treeWidget.currentItem().parameter
+
+                    if isinstance(parameter.valid_values, list):
+                        new_value = treeWidget.currentItem().combobox.currentText()
+                    elif parameter.valid_values is bool:
+                        new_value = treeWidget.currentItem().check.checkState()
+                        if new_value == int(2):
+                            new_value = True
+                        elif new_value == int(0):
+                            new_value = False
+                    elif isinstance(parameter.value, list):
+
+                        print('list')
+                    else:
+                        new_value = treeWidget.currentItem().text(1)
+                    print(treeWidget.currentItem())
+
+
                     # old_value = deepcopy(parameter.value)
                     old_value = parameter.value
                     parameter.value = new_value
                     # read the new value back from the actual parameter
                     new_value = parameter.value
 
-                    new_value = str(treeWidget.currentItem().text(1))
+                    # new_value = str(treeWidget.currentItem().text(1))
 
                     # self.log("Updated {:s} from {:s} to {:s}!!".format(element, str(value_old), str(value)), 1000)
                     self.log("parameter {:s} changed from {:s} to {:s}!".format(parameter.name, str(old_value), str(new_value)), 1000)

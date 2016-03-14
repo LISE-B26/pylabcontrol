@@ -269,6 +269,8 @@ class Script_Dummy(Script):
         '''
         settings_default = [
             Parameter('a', 0, [0,1]),
+            Parameter('txt', 'a', ['a','b']),
+            Parameter('param', [Parameter('a', 0, [0,1]), Parameter('b', 2, [2,3])]),
             Parameter({'b':0.1}),
             Parameter({'b':True}),
             Instrument_Dummy('dummy inst')

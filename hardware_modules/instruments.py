@@ -102,18 +102,15 @@ class Parameter(object):
     @value.setter
     def value(self, value):
         if isinstance(value, (unicode, QtCore.QString)) :
-            # cast to unicode
-            print(self.valid_values)
+            value =  unicode(value) # cast to unicode so we don't have to work with QStrings
             if isinstance(self.valid_values, tuple):
-                cast_type = min(self.valid_values)
+                cast_type = str(min(self.valid_values)).replace('<type ','').replace('>','')
+                value = eval('{:s}(value)'.format(cast_type))
             elif self.valid_values in (int, float, str, bool):
-                cast_type = self.valid_values
+                cast_type = str(self.valid_values).replace('<type \'','').replace('\'>','')
+                value = eval('{:s}(value)'.format(cast_type))
             elif isinstance(self.valid_values, type([])):
-                pass
-            cast_type = str(cast_type).split('<type \'')[1].split('\'')[0]
-
-            value = eval('{:s}(value)'.format(cast_type))
-
+                value  = [v for v in self.valid_values if unicode(v) == value][0]
 
         if self.isvalid(value):
             self._data.update({'value':value})
