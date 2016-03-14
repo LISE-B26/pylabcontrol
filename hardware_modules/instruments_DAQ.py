@@ -87,7 +87,6 @@ class DAQ(Instrument):
                        ]
                       )
         ]
-
         return parameter_list_default
 
 
