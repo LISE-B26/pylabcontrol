@@ -76,7 +76,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_scripts">
      <attribute name="title">
@@ -136,7 +136,7 @@
        <number>0</number>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_stop_record">
+     <widget class="QPushButton" name="btn_stop_script">
       <property name="geometry">
        <rect>
         <x>120</x>
@@ -149,7 +149,7 @@
        <string>stop</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_start">
+     <widget class="QPushButton" name="btn_start_script">
       <property name="geometry">
        <rect>
         <x>20</x>

@@ -273,11 +273,30 @@ class Script_Dummy(Script):
             Parameter('param', [Parameter('a', 0, [0,1]), Parameter('b', 2, [2,3])]),
             Parameter({'b':0.1}),
             Parameter({'b':True}),
-            Instrument_Dummy('dummy inst')
+            Instrument_Dummy('dummy inst'),
+            Sub_Script_Dummy('sub_script')
         ]
         return settings_default
 
-
+class Sub_Script_Dummy(Script):
+    def __init__(self, name, settings = []):
+        super(Sub_Script_Dummy, self).__init__(name, settings)
+    @property
+    def settings_default(self):
+        '''
+        returns the default settings of the script
+        settings contain Parameters, Instruments and Scripts
+        :return:
+        '''
+        settings_default = [
+            Parameter('a', 0, [0,1]),
+            Parameter('txt', 'a', ['a','b']),
+            Parameter('param', [Parameter('a', 0, [0,1]), Parameter('b', 2, [2,3])]),
+            Parameter({'b':0.1}),
+            Parameter({'b':True}),
+            Instrument_Dummy('dummy inst')
+        ]
+        return settings_default
 
 class ZI_Sweeper(QtScript):
 
