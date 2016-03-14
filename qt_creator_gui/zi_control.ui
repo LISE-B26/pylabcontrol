@@ -91,7 +91,7 @@
         <x>0</x>
         <y>10</y>
         <width>711</width>
-        <height>381</height>
+        <height>291</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -160,6 +160,22 @@
       </property>
       <property name="text">
        <string>start</string>
+      </property>
+     </widget>
+     <widget class="QListView" name="list_scripts">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>320</y>
+        <width>711</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::MultiSelection</enum>
+      </property>
+      <property name="modelColumn">
+       <number>0</number>
       </property>
      </widget>
     </widget>

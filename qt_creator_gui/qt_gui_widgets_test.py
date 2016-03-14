@@ -81,10 +81,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             Maestro_BeamBlock(maestro,'IR beam block')
         ]
 
-
-
-        # define scripts
-
+        # define parameters to monitor
         zi_inst = get_elemet('ZiHF2', self.instruments)
         self.monitor_parameters = [
             {'target' : zi_inst, 'parameter' : get_elemet('freq', zi_inst.parameters)}
@@ -97,7 +94,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         ]
 
         # fill the trees
-
         self.fill_treewidget(self.tree_scripts)
         self.tree_scripts.setColumnWidth(0,200)
 
@@ -159,7 +155,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def update_parameters(self, treeWidget):
 
-        # todo: catch changes from checkboxes and combos
         if not treeWidget.currentItem() == None:
             if treeWidget.currentColumn() == 0:
                 self.log("Tried to edit parameter name. This is not allowed!!", 1000)
@@ -182,12 +177,20 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         print('list')
                     else:
                         new_value = treeWidget.currentItem().text(1)
-                    print(treeWidget.currentItem())
+                    print('target',treeWidget.currentItem().target)
+                    print('parameter', treeWidget.currentItem().parameter)
 
 
                     # old_value = deepcopy(parameter.value)
                     old_value = parameter.value
-                    parameter.value = new_value
+
+
+                    # todo = this asignment doesn't work yet!!!
+                    # parameter.value = new_value
+                    # instead we have to use the following syntax
+
+                    treeWidget.currentItem().target.update_parameters(Parameter(parameter.name, new_value))
+
                     # read the new value back from the actual parameter
                     new_value = parameter.value
 

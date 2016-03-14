@@ -281,7 +281,7 @@ class Instrument(object):
         return output_string
 
     @property
-    def status(self):
+    def is_connected(self):
         '''
         check if instrument is active and connected and return True in that case
         :return: bool
@@ -296,7 +296,7 @@ class Instrument(object):
         assert isinstance(value, str)
         self._name = value
     @property
-    def dict(self):
+    def parameters_dict(self):
         '''
         returns the configuration of the instrument as a dictionary
         :return: nested dictionary with entries name and value
@@ -312,15 +312,40 @@ class Instrument(object):
     @property
     def parameters_default(self):
         '''
-        returns the default parameter_list of the instrument
-        :return:
+        returns the default parameter_list of the instrument this function should be over written in any subclass
+        :return: a list of parameter objects
         '''
-        parameter_list_default = []
+        parameter_list_default = [
+            Parameter('test1', 0, int, 'test parameter (int)'),
+            Parameter('test2' ,
+                      [Parameter('test2_1', 'string', str, 'test parameter (str)'),
+                       Parameter('test2_2', 0.0, float, 'test parameter (float)')
+                       ])
+        ]
         return parameter_list_default
 
     @property
     def parameters(self):
         return self._parameters
+
+    def convert_to_parameter_list(self, parameters):
+        '''
+        check if parameters is a list of parameters or a dictionary
+        if it is a dictionary we create a parameter list from it
+        '''
+        if isinstance(parameters, dict):
+            parameters_new = []
+            for key, value in parameters.iteritems():
+                parameters_new.append(Parameter(key, value))
+        elif isinstance(parameters, list):
+            # if listelement is not a  parameter cast it into a parameter
+            parameters_new = [p if isinstance(p, Parameter) else Parameter(p) for p in parameters]
+        elif isinstance(parameters, Parameter):
+            parameters_new = [parameters]
+        else:
+            raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
+
+        return parameters_new
 
     def update_parameters(self, parameters_new):
         '''
@@ -329,32 +354,18 @@ class Instrument(object):
         :return:
         '''
 
-        def check_parameter_list(parameters):
-            '''
-            check if parameters is a list of parameters or a dictionary
-            if it is a dictionary we create a parameter list from it
-            '''
-            if isinstance(parameters, dict):
-                parameters_new = []
-                for key, value in parameters.iteritems():
-                    parameters_new.append(Parameter(key, value))
-            elif isinstance(parameters, list):
-                # if listelement is not a  parameter cast it into a parameter
-                parameters_new = [p if isinstance(p, Parameter) else Parameter(p) for p in parameters]
-            elif isinstance(parameters, Parameter):
-                parameters_new = [parameters]
-            else:
-                raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
-
-            return parameters_new
-
-        for parameter in check_parameter_list(parameters_new):
+        parameters_new = self.convert_to_parameter_list(parameters_new)
+        for parameter in parameters_new:
             # get index of parameter in default list
             index = [i for i, p in enumerate(self.parameters_default) if p == parameter]
             if len(index)>1:
                 raise TypeError('Error: Dublicate parameter in default list')
             elif len(index)==1:
                 self.parameters[index[0]].update(parameter)
+            else:
+                raise ValueError('Parameter {:s} not in default parameter list for {:s}!'.format(parameter.name, self.name))
+
+
 
 class Instrument_Dummy(Instrument):
     '''
@@ -582,6 +593,7 @@ class Maestro_BeamBlock(Instrument):
         '''
         super(Maestro_BeamBlock, self).__init__(name)
         self.update_parameters(parameter_list)
+        self.maestro = maestro
 
     @property
     def parameters_default(self):
@@ -599,8 +611,14 @@ class Maestro_BeamBlock(Instrument):
         return parameter_list_default
 
     def update_parameters(self, parameters_new):
+
+        parameters_new = self.convert_to_parameter_list(parameters_new)
+
         # call the update_parameter_list to update the parameter list
         super(Maestro_BeamBlock, self).update_parameters(parameters_new)
+
+
+
         # now we actually apply these newsettings to the hardware
         for parameter in parameters_new:
             if parameter.name == 'open':
@@ -609,9 +627,10 @@ class Maestro_BeamBlock(Instrument):
                 else:
                     self.goto(self.position_closed)
     def goto(self, position):
-        self.servo.setTarget(self.channel, position)
+        print('goto ', position)
+        self.maestro.setTarget(self.channel, position)
         self.sleep(self.settle_time)
-        self.servo.disable(self.channel)
+        self.maestro.disable(self.channel)
 
 # =============== ZURCIH INSTRUMENTS =======================
 # ==========================================================
@@ -743,7 +762,7 @@ class ZIHF2(Instrument):
             elif isinstance(element, dict) and key in ['aux']:
                 settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, element['channel']), element['offset']])
             elif key in ['freq']:
-                settings.append(['/%s/oscs/%d/freq' % (self.device, self.dict['sigouts']['channel']), dictionary['freq']])
+                settings.append(['/%s/oscs/%d/freq' % (self.device, self.parameters_dict['sigouts']['channel']), dictionary['freq']])
                 # settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
             elif isinstance(element, dict) == False:
                 settings.append([key, element])
@@ -765,10 +784,10 @@ class ZIHF2(Instrument):
 
         dictonary = {}
         for parameter in parameters_new:
-            dictonary.update(parameter.dict)
+            dictonary.update(parameter.parameters_dict)
 
         commands = self.dict_to_settings(dictonary)
-        if self.status:
+        if self.is_connected:
             self.daq.set(commands)
 
 
@@ -840,7 +859,7 @@ if __name__ == '__main__':
     # inst = Instrument_Dummy('my dummny', {'parameter1': 1})
 
     inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
-    if inst.status:
+    if inst.is_connected:
         print("hardware success")
     else:
         print('failed')

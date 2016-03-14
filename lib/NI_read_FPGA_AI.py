@@ -40,7 +40,7 @@ class AnalogInput(object):
         self._fpga = fpga
 
     def read(self):
-        return getattr(FPGAlib, 'read_AI%0d' % self._channel_number)(self._fpga.session, self._fpga.status)
+        return getattr(FPGAlib, 'read_AI%0d' % self._channel_number)(self._fpga.session, self._fpga.is_connected)
 
 
 class AnalogOutput(object):
@@ -54,4 +54,4 @@ class AnalogOutput(object):
     def write(self, value):
         return getattr(FPGAlib, 'set_AO%0d' % self._channel_number) \
             (value, self._fpga.session,
-             self._fpga.status)
+             self._fpga.is_connected)
