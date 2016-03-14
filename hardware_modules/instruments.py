@@ -256,9 +256,11 @@ class Instrument(object):
 
         # dynamically create attribute based on parameters,
         # i.e if there is a parameter called p it can be accessed via Instrument.p
-        for parameter in self.parameters:
-            setattr(self, parameter.name, parameter.value)
-
+        try:
+            for parameter in self.parameters:
+                setattr(self, parameter.name, parameter.value)
+        except:
+            pass
     def __str__(self):
 
         def parameter_to_string(parameter):
@@ -344,7 +346,6 @@ class Instrument(object):
             parameters_new = [parameters]
         else:
             raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
-
         return parameters_new
 
     def update_parameters(self, parameters_new):
@@ -584,7 +585,7 @@ class Maestro_Controller(Instrument):
 
 class Maestro_BeamBlock(Instrument):
     from time import sleep
-    def __init__(self, maestro, name,  parameter_list = []):
+    def __init__(self, maestro, name, parameters = []):
         '''
         :param maestro: maestro servo controler to which motor is connected
         :param channel: channel to which motor is connected
@@ -592,7 +593,7 @@ class Maestro_BeamBlock(Instrument):
         :return:
         '''
         super(Maestro_BeamBlock, self).__init__(name)
-        self.update_parameters(parameter_list)
+        self.update_parameters(parameters)
         self.maestro = maestro
 
     @property
@@ -618,19 +619,31 @@ class Maestro_BeamBlock(Instrument):
         super(Maestro_BeamBlock, self).update_parameters(parameters_new)
 
 
-
         # now we actually apply these newsettings to the hardware
         for parameter in parameters_new:
             if parameter.name == 'open':
                 if parameter.value == True:
-                    self.goto(self.position_open)
+                    # todo: this work once we have the dynamically get/set functions of the super class
+                    # self.goto(self.position_open)
+                    # until then:
+                    self.goto(get_elemet('position_open',self.parameters).value)
                 else:
-                    self.goto(self.position_closed)
+                    # todo: this work once we have the dynamically get/set functions of the super class
+                    # self.goto(self.position_closed)
+                    # until then:
+                    self.goto(get_elemet('position_closed',self.parameters).value)
+
     def goto(self, position):
-        print('goto ', position)
         self.maestro.setTarget(self.channel, position)
-        self.sleep(self.settle_time)
+        # todo: this work once we have the dynamically get/set functions of the super class
+        # self.sleep(self.settle_time)
+        # until then:
+        self.sleep(get_elemet('settle_time',self.parameters).value)
         self.maestro.disable(self.channel)
+    # todo: this should by taken care of in the dynamically get/set functions of the super class
+    @property
+    def channel(self):
+        return get_elemet('channel',self.parameters).value
 
 # =============== ZURCIH INSTRUMENTS =======================
 # ==========================================================

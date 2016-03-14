@@ -78,7 +78,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         maestro = Maestro_Controller('maestro 6 channels')
         self.instruments = [
             ZIHF2('ZiHF2'),
-            Maestro_BeamBlock(maestro,'IR beam block')
+            Maestro_BeamBlock(maestro,'IR beam block', {'channel':4})
         ]
 
         # define parameters to monitor
@@ -216,8 +216,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         elif treeWidget == self.tree_monitor:
             for elem in self.monitor_parameters:
                 QTreeParameter( self.tree_monitor, elem['parameter'],  elem['target'])
-
-            # print('nothing to do....')
 
 if __name__ == '__main__':
 
