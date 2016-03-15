@@ -48,16 +48,19 @@ class Parameter(object):
                 value = Parameter(value)
 
         if valid_values is None:
-
-            valid_values = type(value)
+            if isinstance(value, QtCore.QString):
+                valid_values = QtCore.QString
+            else:
+                valid_values = type(value)
 
             if valid_values == type([]):
-
                 valid_values = (valid_values, type(value[0]))
 
         if info is None:
             info = 'N/A'
 
+        if isinstance(valid_values, QtCore.QString):
+            raise TypeError
         self._data = {}
         self.name = name
         self.valid_values = valid_values
@@ -122,7 +125,8 @@ class Parameter(object):
 
     @value.setter
     def value(self, value):
-        if isinstance(value, (unicode, QtCore.QString)) :
+
+        if isinstance(value, (unicode, QtCore.QString)):
             value =  unicode(value) # cast to unicode so we don't have to work with QStrings
             if isinstance(self.valid_values, tuple):
                 cast_type = str(min(self.valid_values)).replace('<type ','').replace('>','')
@@ -224,6 +228,7 @@ class Parameter(object):
         return is_equal
 
     def update(self, other):
+
         if not isinstance(other, Parameter):
             other = Parameter(other)
 
@@ -330,24 +335,6 @@ class Instrument(object):
     def parameters(self):
         return self._parameters
 
-    def convert_to_parameter_list(self, parameters):
-        '''
-        check if parameters is a list of parameters or a dictionary
-        if it is a dictionary we create a parameter list from it
-        '''
-        if isinstance(parameters, dict):
-            parameters_new = []
-            for key, value in parameters.iteritems():
-                parameters_new.append(Parameter(key, value))
-        elif isinstance(parameters, list):
-            # if listelement is not a  parameter cast it into a parameter
-            parameters_new = [p if isinstance(p, Parameter) else Parameter(p) for p in parameters]
-        elif isinstance(parameters, Parameter):
-            parameters_new = [parameters]
-        else:
-            raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
-        return parameters_new
-
     def update_parameters(self, parameters_new):
         '''
         updates the parameters if they exist
@@ -355,7 +342,27 @@ class Instrument(object):
         :return:
         '''
 
-        parameters_new = self.convert_to_parameter_list(parameters_new)
+
+        def convert_to_parameter_list(parameters):
+            '''
+            check if parameters is a list of parameters or a dictionary
+            if it is a dictionary we create a parameter list from it
+            '''
+            if isinstance(parameters, dict):
+                parameters_new = []
+                for key, value in parameters.iteritems():
+                    parameters_new.append(Parameter(key, value))
+            elif isinstance(parameters, list):
+                # if listelement is not a  parameter cast it into a parameter
+                parameters_new = [p if isinstance(p, Parameter) else Parameter(p) for p in parameters]
+            elif isinstance(parameters, Parameter):
+                parameters_new = [parameters]
+            else:
+                raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
+            return parameters_new
+
+
+        parameters_new = convert_to_parameter_list(parameters_new)
         for parameter in parameters_new:
             # get index of parameter in default list
             index = [i for i, p in enumerate(self.parameters_default) if p == parameter]
@@ -613,14 +620,33 @@ class Maestro_BeamBlock(Instrument):
 
     def update_parameters(self, parameters_new):
 
-        parameters_new = self.convert_to_parameter_list(parameters_new)
+
 
         # call the update_parameter_list to update the parameter list
         super(Maestro_BeamBlock, self).update_parameters(parameters_new)
 
+        # parameters_new = convert_to_parameter_list(parameters_new)
+
+        def convert_to_parameter_list(parameters):
+            '''
+            check if parameters is a list of parameters or a dictionary
+            if it is a dictionary we create a parameter list from it
+            '''
+            if isinstance(parameters, dict):
+                parameters_new = []
+                for key, value in parameters.iteritems():
+                    parameters_new.append(Parameter(key, value))
+            elif isinstance(parameters, list):
+                # if listelement is not a  parameter cast it into a parameter
+                parameters_new = [p if isinstance(p, Parameter) else Parameter(p) for p in parameters]
+            elif isinstance(parameters, Parameter):
+                parameters_new = [parameters]
+            else:
+                raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
+            return parameters_new
 
         # now we actually apply these newsettings to the hardware
-        for parameter in parameters_new:
+        for parameter in convert_to_parameter_list(parameters_new):
             if parameter.name == 'open':
                 if parameter.value == True:
                     # todo: this work once we have the dynamically get/set functions of the super class
