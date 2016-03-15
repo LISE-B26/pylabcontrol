@@ -177,7 +177,7 @@ class QtScript(QtCore.QThread, Script):
     '''
     This class starts a script on its own thread
     '''
-    updateProgress = QtCore.Signal(int)
+    updateProgress = QtCore.pyqtSignal(int)
     #You can do any extra things in this init you need
     def __init__(self, name = None, settings = []):
         """

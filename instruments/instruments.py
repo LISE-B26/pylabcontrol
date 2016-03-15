@@ -20,8 +20,6 @@ def get_elemet(name, element_list):
     return element
 
 
-
-
 class Parameter(object):
 
     def __init__(self, name, value = None, valid_values = None, info = None):
@@ -89,73 +87,109 @@ class Parameter(object):
         return return_str.replace('\n','\n\t')
     @property
     def dict(self):
-        def parameter_to_dict(parameter):
-            '''
-            casts parameter into a (nested) dictonary {name : value}
-            :return:
-            '''
-            return_dict = {}
-            # if value is a list of parameters
-            if isinstance(parameter.value, list) and isinstance(parameter.value[0],Parameter):
-                sub_dict = {}
-                for element in parameter.value:
-                    sub_dict.update(parameter_to_dict(element))
-                return_dict.update({parameter.name : sub_dict})
-            elif isinstance(parameter.value, Parameter):
-                return_dict.update({parameter.name : parameter_to_dict(parameter.value)})
-            elif isinstance(parameter, Parameter):
-                return_dict.update({parameter.name : parameter.value})
-
-            return return_dict
-
-        return parameter_to_dict(self)
+        return self.as_dict()
     @property
     def name(self):
         return self._data['name']
-
     @name.setter
     def name(self, value):
-        if isinstance(value, str):
-            self._data.update({'name' : value.replace(' ', '_')}) # replace spaces with underscores
-        else:
-            raise TypeError('Wrong type! name should be a string,  got {:s}'.format(type(value)))
+        assert isinstance(value, str)
+        self._data.update({'name' : value.replace(' ', '_')}) # replace spaces with underscores
+
     @property
     def value(self):
         return self._data['value']
-
     @value.setter
     def value(self, value):
-
-        if isinstance(value, (unicode, QtCore.QString)):
-            value =  unicode(value) # cast to unicode so we don't have to work with QStrings
-            if isinstance(self.valid_values, tuple):
-                cast_type = str(min(self.valid_values)).replace('<type ','').replace('>','')
-                value = eval('{:s}(value)'.format(cast_type))
-            elif self.valid_values in (int, float, str, bool):
-                cast_type = str(self.valid_values).replace('<type \'','').replace('\'>','')
-                value = eval('{:s}(value)'.format(cast_type))
-            elif isinstance(self.valid_values, type([])):
-                value  = [v for v in self.valid_values if unicode(v) == value][0]
-
+        '''
+        update the internal dictionary if value not in valid_values try to cast into right type
+        this happends for instance when a value is returned from the GUI where it is a unicode or QString
+        :param value: new value
+        '''
         if self.isvalid(value):
             self._data.update({'value':value})
         else:
-            msg = 'Wrong type ({:s})! Type should be {:s}.'.format(str(type(value)), str(self.valid_values))
-            raise TypeError(msg)
+            self._data.update({'value': self.cast_to_valid_type(value)})
+            # msg = 'Wrong type ({:s})! Type should be {:s}.'.format(str(type(value)), str(self.valid_values))
+            # raise TypeError(msg)
     @property
     def info(self):
         return self._data['info']
     @info.setter
     def info(self, value):
-        if isinstance(value, str):
-            self._data.update({'info' : value})
-        else:
-            raise TypeError('Wrong type! \
-                             info should be a string')
+        assert isinstance(value, str)
+        self._data.update({'info' : value})
+    @property
+    def valid_values(self):
+        return self._data['valid_values']
+    @valid_values.setter
+    def valid_values(self, value):
+        '''
+        check if valid value is a valid input
+        :param value:
+        :return: True or False
+        '''
+        valid = False
+        if isinstance(value, list):
+            valid = True
+        elif isinstance(value, tuple):
+            valid = True
+            for element in value:
+                if not isinstance(element, type):
+                    valid = False
+        elif isinstance(value, type):
+            valid = True
 
+        if valid:
+            self._data.update({'valid_values':value})
+
+    def as_dict(self):
+        '''
+        casts parameter into a (nested) dictonary {name : value}
+        :return: dictionary of type {parameter.name: parameter.value}
+        '''
+        return_dict = {}
+        # if value is a list of parameters
+        if isinstance(self.value, list) and isinstance(self.value[0],Parameter):
+            sub_dict = {}
+            for element in self.value:
+                sub_dict.update(element.as_dict())
+            return_dict.update({self.name : sub_dict})
+        elif isinstance(self.value, Parameter):
+            return_dict.update({self.name : self.value.as_dict()})
+        else:
+            return_dict.update({self.name : self.value})
+
+        return return_dict
+
+    def cast_to_valid_type(self, value):
+        '''
+        takes a value and tried to cast it into the correct type, which is give by the valid_values of the parameter
+        if casting is not possible a TypeError is raised
+        :param value: value to be checked and cast into type that corresponds to valid_data type
+        :return: value cast into the correct data type
+        '''
+        # if isinstance(value, (unicode, QtCore.QString)):
+        #     value =  unicode(value) # cast to unicode so we don't have to work with QStrings
+
+        valid_values = self.valid_values
+
+        # for a tupple of type we take the one that min returns, e.g. for a (int, float) this would be float
+        if isinstance(valid_values, tuple):
+            valid_values = min(self.valid_values)
+
+        if valid_values in (int, float, str, bool):
+            cast_type = str(valid_values).replace('<type \'','').replace('\'>','')
+            value = eval('{:s}(value)'.format(cast_type))
+        elif isinstance(valid_values, type(Parameter)):
+            value = Parameter(value)
+        else:
+            raise TypeError('unknown type for {:s}'.format(str(value)))
+
+        return value
     def isvalid(self, values):
         '''
-        checks if every value in values is a valid parameter value
+        checks if every value in values is a valid parameter value, i.e. if within values defined by valid_values
         :param value:
         :return: True or False depending if value is valid
         '''
@@ -188,65 +222,46 @@ class Parameter(object):
 
         return valid
 
-    @property
-    def valid_values(self):
-        return self._data['valid_values']
-    @valid_values.setter
-    def valid_values(self, value):
-        '''
-        check if valid value is a valid input
-        :param value:
-        :return: True or False
-        '''
-        valid = False
-        if isinstance(value, list):
-            valid = True
-        elif isinstance(value, tuple):
-            valid = True
-            for element in value:
-                if not isinstance(element, type):
-                    valid = False
-        elif isinstance(value, type):
-            valid = True
 
-        if valid:
-            self._data.update({'valid_values':value})
-
-
-    def __eq__(self, other):
-        '''
-        checks if two parameters have the same name
-        :param other:
-        :return:
-        '''
-
-        is_equal = True
-        if self.name != other.name:
-            is_equal = False
-        # if self.valid_values != other.valid_values:
-        #     is_equal = False
-        return is_equal
-
-    def update(self, other):
-
-        if not isinstance(other, Parameter):
-            other = Parameter(other)
-
-        if self == other:
-            if isinstance(other.value, dict):
-                self.value = Parameter(other.value)
-            else:
-                self.value = other.value
-
-            self.info = other.info
-        else:
-            raise TypeError('Parameters are not of the same type! \
-                             They should have the same name and same valid values')
+    # def __eq__(self, other):
+    #     '''
+    #     checks if two parameters have the same name
+    #     :param other:
+    #     :return:
+    #     '''
+    #
+    #     is_equal = True
+    #     if self.name != other.name:
+    #         is_equal = False
+    #     # if self.valid_values != other.valid_values:
+    #     #     is_equal = False
+    #     return is_equal
+    #
+    # def update(self, name, ):
+    #     '''
+    #
+    #     :param other:
+    #     :return:
+    #     '''
+    #     if not isinstance(other, Parameter):
+    #         other = Parameter(other)
+    #
+    #     if self == other:
+    #         if isinstance(other.value, dict):
+    #             self.value = Parameter(other.value)
+    #         else:
+    #             self.value = other.value
+    #
+    #         self.info = other.info
+    #     else:
+    #         raise TypeError('Parameters are not of the same type! \
+    #                          They should have the same name and same valid values')
 
 class Instrument(object):
     '''
     generic instrument class
     '''
+    _is_connected = False #internal flag that indicated if instrument is actually connected
     def __init__(self, name = None, parameter_list = []):
 
 
@@ -305,8 +320,8 @@ class Instrument(object):
     def name(self, value):
         assert isinstance(value, str)
         self._name = value
-    @property
-    def parameters_dict(self):
+
+    def as_dict(self):
         '''
         returns the configuration of the instrument as a dictionary
         :return: nested dictionary with entries name and value
@@ -315,8 +330,7 @@ class Instrument(object):
 
         config = {}
         for p in self._parameters:
-            config.update(p.dict)
-
+            config.update(p.as_dict())
         return config
 
     @property
@@ -341,38 +355,51 @@ class Instrument(object):
     def update_parameters(self, parameters_new):
         '''
         updates the parameters if they exist
-        :param parameters_new:
-        :return:
+        :param parameters_new: can be a
+            - dictionary of type {'param1':value1, 'param2':value2, etc.}
+            - list of dictionaries of form [{'param1':value1}, {'param2':value2}, etc.]
+            - list of parameters [param1, param2, etc.,  where param1, param2 are Parameter objects
         '''
 
-
-        def convert_to_parameter_list(parameters):
+        def convert_to_dict(parameters):
             '''
-            check if parameters is a list of parameters or a dictionary
-            if it is a dictionary we create a parameter list from it
+            :param parameters: can be a
+            - dictionary of type {'param1':value1, 'param2':value2, etc.}
+            - list of dictionaries of form [{'param1':value1}, {'param2':value2}, etc.]
+            - list of parameters [param1, param2, etc.],  where param1, param2 are Parameter objects
+            - a single parameter object
+            :return a dictionary of type {'param1':value1, 'param2':value2, etc.}
             '''
             if isinstance(parameters, dict):
-                parameters_new = []
-                for key, value in parameters.iteritems():
-                    parameters_new.append(Parameter(key, value))
+                parameters_new = parameters
             elif isinstance(parameters, list):
-                # if listelement is not a  parameter cast it into a parameter
-                parameters_new = [p if isinstance(p, Parameter) else Parameter(p) for p in parameters]
+                # if listelement is not a  dict cast it into a dict
+                parameters_new = {}
+                for p in parameters:
+                    if isinstance(p, dict):
+                        parameters_new.update(p)
+                    elif isinstance(p, Parameter):
+                        parameters_new.update({parameters.name: parameters.value})
+                    else:
+                        raise TypeError('list of unknown type {:s}'.format(str(type(p))))
+                    # parameters_new = [p if isinstance(p, dict) else {p.name: p.value} for p in parameters]
             elif isinstance(parameters, Parameter):
-                parameters_new = [parameters]
+                parameters_new = {parameters.name: parameters.value}
             else:
                 raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
             return parameters_new
 
 
-        parameters_new = convert_to_parameter_list(parameters_new)
-        for parameter in parameters_new:
+        parameters_new = convert_to_dict(parameters_new)
+
+        # for parameter in parameters_new:
+        for key, value in parameters_new.iteritems():
             # get index of parameter in default list
-            index = [i for i, p in enumerate(self.parameters_default) if p == parameter]
+            index = [i for i, p in enumerate(self.parameters_default) if p.name == key]
             if len(index)>1:
                 raise TypeError('Error: Dublicate parameter in default list')
-            elif len(index)==1:
-                self.parameters[index[0]].update(parameter)
+            elif len(index) == 1:
+                self.parameters[index[0]].value = value
             else:
                 raise ValueError('Parameter {:s} not in default parameter list for {:s}!'.format(parameter.name, self.name))
 
@@ -805,7 +832,7 @@ class ZIHF2(Instrument):
             elif isinstance(element, dict) and key in ['aux']:
                 settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, element['channel']), element['offset']])
             elif key in ['freq']:
-                settings.append(['/%s/oscs/%d/freq' % (self.device, self.parameters_dict['sigouts']['channel']), dictionary['freq']])
+                settings.append(['/%s/oscs/%d/freq' % (self.device, self.as_dict['sigouts']['channel']), dictionary['freq']])
                 # settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
             elif isinstance(element, dict) == False:
                 settings.append([key, element])
@@ -827,7 +854,7 @@ class ZIHF2(Instrument):
 
         dictonary = {}
         for parameter in parameters_new:
-            dictonary.update(parameter.parameters_dict)
+            dictonary.update(parameter.as_dict)
 
         commands = self.dict_to_settings(dictonary)
         if self.is_connected:
