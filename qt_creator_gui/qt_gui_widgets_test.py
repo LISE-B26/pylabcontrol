@@ -187,7 +187,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     # if parameter belongs to an instrument, we update it
                     if isinstance(treeWidget.currentItem().target, Instrument):
                         # treeWidget.currentItem().target.update_parameters(Parameter(parameter.name, new_value))
-                        print('xxxxx')
+                        print('xxxxaaaax')
                         print(parameter.valid_values)
                         print(parameter.value)
                         print({parameter.name: new_value})

@@ -112,50 +112,84 @@ class Parameter(object):
     @property
     def name(self):
         return self._data['name']
-
     @name.setter
     def name(self, value):
-        if isinstance(value, str):
-            self._data.update({'name' : value.replace(' ', '_')}) # replace spaces with underscores
-        else:
-            raise TypeError('Wrong type! name should be a string,  got {:s}'.format(type(value)))
+        assert isinstance(value, str)
+        self._data.update({'name' : value.replace(' ', '_')}) # replace spaces with underscores
+
     @property
     def value(self):
         return self._data['value']
-
     @value.setter
     def value(self, value):
-
-        if isinstance(value, (unicode, QtCore.QString)):
-            value =  unicode(value) # cast to unicode so we don't have to work with QStrings
-            if isinstance(self.valid_values, tuple):
-                cast_type = str(min(self.valid_values)).replace('<type ','').replace('>','')
-                value = eval('{:s}(value)'.format(cast_type))
-            elif self.valid_values in (int, float, str, bool):
-                cast_type = str(self.valid_values).replace('<type \'','').replace('\'>','')
-                value = eval('{:s}(value)'.format(cast_type))
-            elif isinstance(self.valid_values, type([])):
-                value  = [v for v in self.valid_values if unicode(v) == value][0]
-
+        '''
+        update the internal dictionary if value not in valid_values try to cast into right type
+        this happends for instance when a value is returned from the GUI where it is a unicode or QString
+        :param value: new value
+        '''
         if self.isvalid(value):
             self._data.update({'value':value})
         else:
-            msg = 'Wrong type ({:s})! Type should be {:s}.'.format(str(type(value)), str(self.valid_values))
-            raise TypeError(msg)
+            self._data.update({'value': self.cast_to_valid_type(value)})
+            # msg = 'Wrong type ({:s})! Type should be {:s}.'.format(str(type(value)), str(self.valid_values))
+            # raise TypeError(msg)
     @property
     def info(self):
         return self._data['info']
     @info.setter
     def info(self, value):
-        if isinstance(value, str):
-            self._data.update({'info' : value})
-        else:
-            raise TypeError('Wrong type! \
-                             info should be a string')
+        assert isinstance(value, str)
+        self._data.update({'info' : value})
 
+    @property
+    def valid_values(self):
+        return self._data['valid_values']
+    @valid_values.setter
+    def valid_values(self, value):
+        '''
+        check if valid value is a valid input
+        :param value:
+        :return: True or False
+        '''
+        valid = False
+        if isinstance(value, list):
+            valid = True
+        elif isinstance(value, tuple):
+            valid = True
+            for element in value:
+                if not isinstance(element, type):
+                    valid = False
+        elif isinstance(value, type):
+            valid = True
+
+        if valid:
+            self._data.update({'valid_values':value})
+
+    def cast_to_valid_type(self, value):
+        '''
+        takes a value and tried to cast it into the correct type, which is give by the valid_values of the parameter
+        if casting is not possible a TypeError is raised
+        :param value: value to be checked and cast into type that corresponds to valid_data type
+        :return: value cast into the correct data type
+        '''
+        # if isinstance(value, (unicode, QtCore.QString)):
+        #     value =  unicode(value) # cast to unicode so we don't have to work with QStrings
+        if isinstance(self.valid_values, tuple):
+            # for a tupple of type we take the one that min returns, e.g. for a (int, float) this would be float
+            cast_type = str(min(self.valid_values)).replace('<type ','').replace('>','')
+            value = eval('{:s}(value)'.format(cast_type))
+        elif self.valid_values in (int, float, str, bool):
+            cast_type = str(self.valid_values).replace('<type \'','').replace('\'>','')
+            value = eval('{:s}(value)'.format(cast_type))
+        # elif isinstance(self.valid_values, type([])):
+        #     value  = [v for v in self.valid_values if unicode(v) == value][0]
+        else:
+            raise TypeError('unknown type for {:s}'.format(str(value)))
+
+        return value
     def isvalid(self, values):
         '''
-        checks if every value in values is a valid parameter value
+        checks if every value in values is a valid parameter value, i.e. if within values defined by valid_values
         :param value:
         :return: True or False depending if value is valid
         '''
@@ -188,60 +222,41 @@ class Parameter(object):
 
         return valid
 
-    @property
-    def valid_values(self):
-        return self._data['valid_values']
-    @valid_values.setter
-    def valid_values(self, value):
-        '''
-        check if valid value is a valid input
-        :param value:
-        :return: True or False
-        '''
-        valid = False
-        if isinstance(value, list):
-            valid = True
-        elif isinstance(value, tuple):
-            valid = True
-            for element in value:
-                if not isinstance(element, type):
-                    valid = False
-        elif isinstance(value, type):
-            valid = True
 
-        if valid:
-            self._data.update({'valid_values':value})
+    # def __eq__(self, other):
+    #     '''
+    #     checks if two parameters have the same name
+    #     :param other:
+    #     :return:
+    #     '''
+    #
+    #     is_equal = True
+    #     if self.name != other.name:
+    #         is_equal = False
+    #     # if self.valid_values != other.valid_values:
+    #     #     is_equal = False
+    #     return is_equal
+    #
+    # def update(self, name, ):
+    #     '''
+    #
+    #     :param other:
+    #     :return:
+    #     '''
+    #     if not isinstance(other, Parameter):
+    #         other = Parameter(other)
+    #
+    #     if self == other:
+    #         if isinstance(other.value, dict):
+    #             self.value = Parameter(other.value)
+    #         else:
+    #             self.value = other.value
+    #
+    #         self.info = other.info
+    #     else:
+    #         raise TypeError('Parameters are not of the same type! \
+    #                          They should have the same name and same valid values')
 
-
-    def __eq__(self, other):
-        '''
-        checks if two parameters have the same name
-        :param other:
-        :return:
-        '''
-
-        is_equal = True
-        if self.name != other.name:
-            is_equal = False
-        # if self.valid_values != other.valid_values:
-        #     is_equal = False
-        return is_equal
-
-    def update(self, other):
-
-        if not isinstance(other, Parameter):
-            other = Parameter(other)
-
-        if self == other:
-            if isinstance(other.value, dict):
-                self.value = Parameter(other.value)
-            else:
-                self.value = other.value
-
-            self.info = other.info
-        else:
-            raise TypeError('Parameters are not of the same type! \
-                             They should have the same name and same valid values')
 
 class Instrument(object):
     '''
@@ -341,6 +356,9 @@ class Instrument(object):
         :param parameters_new:
         :return:
         '''
+        print('=========================================================================================\n')
+        print('parameters_new', parameters_new)
+
 
 
         def convert_to_parameter_list(parameters):
@@ -348,24 +366,57 @@ class Instrument(object):
             check if parameters is a list of parameters or a dictionary
             if it is a dictionary we create a parameter list from it
             '''
+            print('1X', type(parameters))
             if isinstance(parameters, dict):
                 parameters_new = []
+                print('X dict')
                 for key, value in parameters.iteritems():
+                    p = Parameter(key, value)
+                    print('p', p)
+
                     parameters_new.append(Parameter(key, value))
+
             elif isinstance(parameters, list):
+                print('X list')
                 # if listelement is not a  parameter cast it into a parameter
                 parameters_new = [p if isinstance(p, Parameter) else Parameter(p) for p in parameters]
             elif isinstance(parameters, Parameter):
+                print('X param')
                 parameters_new = [parameters]
+            else:
+                raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
+            return parameters_new
+        def convert_to_dict_list(parameters):
+            '''
+            check if parameters is a list of parameters or a dictionary
+            if it is a dictionary we create a parameter list from it
+            '''
+            print('1X', type(parameters))
+            if isinstance(parameters, dict):
+                parameters_new = []
+                print('X dict')
+                for key, value in parameters.iteritems():
+                    parameters_new.append({key: value})
+
+            elif isinstance(parameters, list):
+                print('X list')
+                # if listelement is not a  dict cast it into a dict
+                parameters_new = [p if isinstance(p, dict) else {p.name: p.value} for p in parameters]
+            elif isinstance(parameters, Parameter):
+                print('X param')
+                parameters_new = [{parameters.name: parameters.value}]
             else:
                 raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
             return parameters_new
 
 
-        parameters_new = convert_to_parameter_list(parameters_new)
+        parameters_new = convert_to_dict_list(parameters_new)
+
+        print('parameters_new after conversion', parameters_new)
+        # for parameter in parameters_new:
         for parameter in parameters_new:
             # get index of parameter in default list
-            index = [i for i, p in enumerate(self.parameters_default) if p == parameter]
+            index = [i for i, p in enumerate(self.parameters_default) if p.name == parameter.keys()[0]]
             if len(index)>1:
                 raise TypeError('Error: Dublicate parameter in default list')
             elif len(index)==1:
