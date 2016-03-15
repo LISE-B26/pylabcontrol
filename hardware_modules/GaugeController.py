@@ -31,7 +31,7 @@ ENQ = chr(5)  # \x05
 ACK = chr(6)  # \x06
 NAK = chr(21)  # \x15
 
-class AGC100:
+class AGC100():
 
     def __init__(self, port="COM2", timeout=1):
         # The serial connection should be setup with the following parameters:
@@ -105,6 +105,7 @@ class AGC100:
     # closes the connection with the controller
     def closeConnection(self):
         self.ser.close()
+
 
 
 if __name__ == '__main__':

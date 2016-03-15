@@ -195,6 +195,7 @@ class Instrument(object):
     '''
     generic instrument class
     '''
+
     def __init__(self, name = None, parameter_list = []):
 
 
@@ -375,6 +376,7 @@ class Maestro_Controller(Instrument):
             Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected')
         ]
         return parameter_list_default
+
     def update_parameters(self, parameters_new):
         print('XX')
         # call the update_parameter_list to update the parameter list
@@ -552,6 +554,7 @@ class Maestro_BeamBlock(Instrument):
     def update_parameters(self, parameters_new):
         # call the update_parameter_list to update the parameter list
         super(Maestro_BeamBlock, self).update_parameters(parameters_new)
+
         # now we actually apply these newsettings to the hardware
         for parameter in parameters_new:
             if parameter.name == 'open':
@@ -559,6 +562,7 @@ class Maestro_BeamBlock(Instrument):
                     self.goto(self.position_open)
                 else:
                     self.goto(self.position_closed)
+
     def goto(self, position):
         self.servo.setTarget(self.channel, position)
         self.sleep(self.settle_time)
@@ -808,8 +812,6 @@ if __name__ == '__main__':
 
 
 
-
-class AGC100(Instrument):
     import serial
 
     # Translations of the controller's status messages
@@ -840,10 +842,126 @@ class AGC100(Instrument):
     ACK = chr(6)  # \x06
     NAK = chr(21)  # \x15
 
-    def __init__(self, port="COM2", timeout=1):
+class AGC100(Instrument):
+
+
+    def __init__(self, name='AGC100', parameter_list = []):
         # The serial connection should be setup with the following parameters:
         # 1 start bit, 8 data bits, No parity bit, 1 stop bit, no hardware
         # handshake. These are all default for Serial and therefore not input
         # below
 
-        self.ser = serial.Serial(port=port, timeout=timeout)
+        super(AGC100, self).__init__(name, parameter_list)
+        self.ser = self.serial.Serial(port = self.port, timeout=self.timeout)
+
+
+    @property
+    def parameters_default(self):
+        '''
+        returns the default parameter_list of the instrument
+        :return:
+        '''
+
+        parameter_list_default = [
+            Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected'),
+            Parameter('timeout', 1, (int, float), 'com port to which maestro controler is connected')
+        ]
+
+        return parameter_list_default
+
+
+    def check_acknowledgement(self, response):
+        '''
+        check_acknowledgement raises an error if the response passed in indicates an negatice response from the guage.
+
+        :param response: the string response from the Guage Controller
+        '''
+
+        if (response == NAK + CR + LF):
+            message = 'Serial communication returned negative acknowledge (NAK). ' \
+                      'Check AGC100 documentation for more details.'
+            raise IOError(message)
+
+        elif (response != ACK + CR + LF):
+            message = 'Serial communication returned unknown response:\n{}' \
+                ''.format(repr(response))
+            raise IOError(message)
+
+
+    def get_pressure(self):
+        '''
+        Returns the pressure currently read by the guage controller.
+        '''
+        assert self.ser.isOpen()
+
+        self.ser.write('PR1' + CR + LF)
+        acknowledgement = self.ser.readline()
+        self.check_acknowledgement(acknowledgement)
+
+        self.ser.write(ENQ)
+        err_msg_and_pressure = self.ser.readline().rstrip(LF).rstrip(CR)
+
+        err_msg = err_msg_and_pressure[0]
+        pressure = float(err_msg_and_pressure[3:])
+
+        if err_msg != '0':
+            message = 'Pressure query resulted in an error: ' + MEASUREMENT_STATUS[err_msg]
+            raise IOError(message)
+
+        self.ser.write(CR + LF)
+        return pressure
+
+
+    def get_gauge_model(self):
+        '''
+        Returns the model of the connected guage controller.
+        :return:
+        '''
+        assert self.ser.isOpen()
+
+        self.ser.write('TID' + CR + LF)
+        acknowledgement = self.ser.readline(25)
+        self.check_acknowledgement(acknowledgement)
+
+        self.ser.write(ENQ)
+        model = self.ser.readline().rstrip(LF).rstrip(CR)
+
+        self.ser.write(CR + LF)
+
+        return model
+
+
+    def get_units(self):
+        '''
+        Returns the units that are in use by the guage controller.
+
+        :return:
+        '''
+        assert self.ser.isOpen()
+
+        self.ser.write('UNI' + CR + LF)
+        acknowledgement = self.ser.readline()
+        self.check_acknowledgement(acknowledgement)
+
+        self.ser.write(ENQ)
+        unit = MEASUREMENT_UNITS[self.ser.readline().rstrip(LF).rstrip(CR)]
+
+        self.ser.write(CR + LF)
+
+        return unit
+
+
+    def is_connected(self):
+        '''
+        checks if serial connection is still open with instrument.
+        :return:
+        '''
+        return self.ser.isOpen()
+
+
+    def __del__ (self):
+        '''
+        Destructor, to close the serial connection when the instance is this class is garbage-collected
+        :return:
+        '''
+        self.ser.close()
