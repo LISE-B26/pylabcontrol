@@ -4,20 +4,16 @@ Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't ha
 # from qt_creator_gui.zi_control import Ui_MainWindow
 
 
-from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller, ZIHF2, Maestro_BeamBlock, get_elemet
-
+from instruments.instruments import Maestro_Controller, ZIHF2, Maestro_BeamBlock
 
 from scripts.scripts import *
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtGui
 import datetime
 from collections import deque
 from qt_creator_gui.qt_gui_widgets import QTreeInstrument, QTreeScript, QTreeParameter
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt4agg import (
-    FigureCanvasQTAgg as FigureCanvas,
-    NavigationToolbar2QT as NavigationToolbar)
-from copy import deepcopy
+
+
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, ):
         super(ControlMainWindow, self).__init__()
@@ -75,17 +71,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.past_commands = deque() # history of executed commands
 
         # define instruments
-        # maestro = Maestro_Controller('maestro 6 channels')
+        maestro = Maestro_Controller('maestro 6 channels')
         self.instruments = [
-            ZIHF2('ZiHF2')
+            ZIHF2('ZiHF2'),
             # Maestro_BeamBlock(maestro,'IR beam block', {'channel':4})
+            Maestro_BeamBlock(maestro,'IR beam block')
         ]
-
-        # define parameters to monitor
-        zi_inst = get_elemet('ZiHF2', self.instruments)
-        self.monitor_parameters = [
-            {'target' : zi_inst, 'parameter' : get_elemet('freq', zi_inst.parameters)}
-        ]
+        #
+        # # define parameters to monitor
+        # zi_inst = get_elemet('ZiHF2', self.instruments)
+        # self.monitor_parameters = [
+        #     {'target' : zi_inst, 'parameter' : get_elemet('freq', zi_inst.parameters)}
+        # ]
 
         # define scripts
         self.scripts = [
@@ -100,8 +97,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.fill_treewidget(self.tree_settings)
         self.tree_settings.setColumnWidth(0,200)
 
-        self.fill_treewidget(self.tree_monitor)
-        self.tree_monitor.setColumnWidth(0,200)
+        # self.fill_treewidget(self.tree_monitor)
+        # self.tree_monitor.setColumnWidth(0,200)
 
         connect_controls()
 
@@ -173,23 +170,41 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         elif new_value == int(0):
                             new_value = False
                     elif isinstance(parameter.value, list):
-
                         print('list')
                     else:
+                        print('asdasd')
                         new_value = treeWidget.currentItem().text(1)
-                    print('target',treeWidget.currentItem().target)
-                    print('parameter', treeWidget.currentItem().parameter)
+                    # print('target',treeWidget.currentItem().target)
+                    # print('parameter', treeWidget.currentItem().parameter)
 
 
                     # old_value = deepcopy(parameter.value)
                     old_value = parameter.value
 
-
                     # todo = this asignment doesn't work yet!!!
                     # parameter.value = new_value
                     # instead we have to use the following syntax
+                    # if parameter belongs to an instrument, we update it
+                    if isinstance(treeWidget.currentItem().target, Instrument):
+                        # treeWidget.currentItem().target.update_parameters(Parameter(parameter.name, new_value))
+                        print('xxxxx')
+                        print(parameter.valid_values)
+                        print(parameter.value)
+                        print({parameter.name: new_value})
+                        treeWidget.currentItem().target.update_parameters({parameter.name: new_value})
+                        print( 'parameter ins' , parameter)
+                    elif isinstance(treeWidget.currentItem().target, Script):
+                        print( 'parameter script' , parameter)
 
-                    treeWidget.currentItem().target.update_parameters(Parameter(parameter.name, new_value))
+                        print('xxxxx')
+                        print(parameter.valid_values)
+                        print(parameter.value)
+                        print({parameter.name: new_value})
+
+                        p = Parameter(parameter.name, new_value)
+                        print(p)
+
+                        treeWidget.currentItem().target.update_settings(Parameter(parameter.name, new_value))
 
                     # read the new value back from the actual parameter
                     new_value = parameter.value

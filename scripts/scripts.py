@@ -1,7 +1,9 @@
-
 import datetime
+
 from PyQt4 import QtCore
-from hardware_modules.instruments import Parameter, Instrument, Instrument_Dummy
+
+from instruments.instruments import Parameter, Instrument, Instrument_Dummy
+
 
 class Script(object):
     def __init__(self, name = None, settings = []):
@@ -195,7 +197,6 @@ class QtScript(QtCore.QThread, Script):
     #function in it's own "thread".
     def run(self):
         import time
-        import random
 
         self.is_running = True
         self.time_start  = datetime.datetime.now()
@@ -381,7 +382,6 @@ class Sub_Script_Dummy(Script):
         executes the script
         :return: boolean if execution of script finished succesfully
         '''
-        import time
         self.is_running = True
         self.time_start  = datetime.datetime.now()
         print('this is script {:s}'.format(self.name))

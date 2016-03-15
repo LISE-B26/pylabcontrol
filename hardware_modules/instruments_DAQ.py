@@ -3,7 +3,7 @@ import numpy
 import threading
 import time
 import sys
-from instruments import *
+from instruments.instruments import *
 
 ##############################
 # Setup some typedefs and constants

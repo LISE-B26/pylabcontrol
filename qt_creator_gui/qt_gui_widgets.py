@@ -1,9 +1,8 @@
-
 from PyQt4 import QtCore, QtGui
 
-from hardware_modules.instruments import Parameter, Instrument
+from instruments.instruments import Parameter, Instrument
+from instruments.instruments import ZIHF2
 from scripts.scripts import Script, Script_Dummy
-from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller, ZIHF2
 
 
 class QTreeParameter(QtGui.QTreeWidgetItem):
