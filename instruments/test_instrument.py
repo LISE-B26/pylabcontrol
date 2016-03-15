@@ -31,8 +31,22 @@ class TestInstrument(TestCase):
 
         print(test)
 
+    def test_QString(self):
+        from PyQt4 import QtCore
+        test = Instrument()
+
+        test.update_parameters(Parameter('test1', QtCore.QString(unicode('10'))))
+        print('test.parameters')
+        print(test.parameters)
+
+        test.update_parameters({'test1': QtCore.QString(unicode('10'))} )
+        print('test.parameters 2')
+        print(test.parameters)
+
+
 
     def test_dynamic_setter(self):
+        test = Instrument()
         new_val = 30
         test.test1 = 30
         if get_elemet('test1', test.parameters).value != test.test1:
