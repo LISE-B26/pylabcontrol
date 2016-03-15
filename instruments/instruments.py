@@ -276,11 +276,29 @@ class Instrument(object):
 
         # dynamically create attribute based on parameters,
         # i.e if there is a parameter called p it can be accessed via Instrument.p
+        # try:
+        #     for parameter in self.parameters:
+        #         setattr(self, parameter.name, parameter.value)
+        # except:
+        #     pass
+
+        self._is_connected = False
+
+    def __getattr__(self, name):
         try:
-            for parameter in self.parameters:
-                setattr(self, parameter.name, parameter.value)
-        except:
-            pass
+            return self.as_dict()[str(name)]
+        except KeyError:
+            #restores standard behavior for missing keys
+            raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
+
+    def __setattr__(self, key, value):
+        try:
+            print('setter')
+            self.update_parameters(Parameter(key, value))
+        except Exception:
+            print('here')
+            object.__setattr__(self, key, value)
+
     def __str__(self):
 
         def parameter_to_string(parameter):
@@ -356,7 +374,6 @@ class Instrument(object):
             - dictionary of type {'param1':value1, 'param2':value2, etc.}
             - list of dictionaries of form [{'param1':value1}, {'param2':value2}, etc.]
             - list of parameters [param1, param2, etc.,  where param1, param2 are Parameter objects
-            - a single parameter object
         '''
 
         def convert_to_dict(parameters):
@@ -374,22 +391,23 @@ class Instrument(object):
                 # if listelement is not a  dict cast it into a dict
                 parameters_new = {}
                 for p in parameters:
-                    print('pp', p, type(p))
                     if isinstance(p, dict):
                         parameters_new.update(p)
                     elif isinstance(p, Parameter):
-                        parameters_new.update({p.name: p.value})
+                        parameters_new.update({parameters.name: parameters.value})
                     else:
                         raise TypeError('list of unknown type {:s}'.format(str(type(p))))
+                    # parameters_new = [p if isinstance(p, dict) else {p.name: p.value} for p in parameters]
             elif isinstance(parameters, Parameter):
                 parameters_new = {parameters.name: parameters.value}
             else:
                 raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
             return parameters_new
 
-        print(parameters_new)
+
         parameters_new = convert_to_dict(parameters_new)
-        print(parameters_new)
+
+        # for parameter in parameters_new:
         for key, value in parameters_new.iteritems():
             # get index of parameter in default list
             index = [i for i, p in enumerate(self.parameters_default) if p.name == key]
@@ -401,32 +419,6 @@ class Instrument(object):
                 raise ValueError('Parameter {:s} not in default parameter list for {:s}!'.format(parameter.name, self.name))
 
 
-
-class Instrument_Dummy(Instrument):
-    '''
-    dummy instrument class, just to see how the creation of a new instrument works
-    '''
-    def __init__(self, name = None, parameter_list = []):
-        super(Instrument_Dummy, self).__init__(name, parameter_list)
-        # self.update_parameters(parameter_list)
-
-    @property
-    def parameters_default(self):
-        '''
-        returns the default parameter_list of the instrument
-        :return:
-        '''
-        parameter_list_default = [
-            Parameter('parameter1', 0, [0,1]),
-            Parameter('parameter1', True,bool),
-            Parameter('parameter2', 2.0),
-            Parameter('parameter string', 'a'),
-            Parameter('parameter string', [
-                Parameter('parameter sub1', 'a_1'),
-                Parameter('parameter sub2', 'a_1')
-            ])
-        ]
-        return parameter_list_default
 # =============== MAESTRO ==================================
 # ==========================================================
 
@@ -446,7 +438,7 @@ class Maestro_Controller(Instrument):
 
     import serial
 
-    def __init__(self, name = None, parameters = []):
+    def __init__(self, name, parameters = []):
 
         super(Maestro_Controller, self).__init__(name, parameters)
         self.update_parameters(self.parameters)
@@ -921,14 +913,38 @@ class ZIHF2(Instrument):
 #             passed =False
 # if __name__ == '__main__':
 #     unittest.main()
-# if __name__ == '__main__':
+
+class Instrument_Dummy(Instrument):
+    '''
+    dummy instrument class, just to see how the creation of a new instrument works
+    '''
+    def __init__(self, name = None, parameter_list = []):
+        super(Instrument_Dummy, self).__init__(name, parameter_list)
+
+    @property
+    def parameters_default(self):
+        '''
+        returns the default parameter_list of the instrument
+        :return:
+        '''
+        parameter_list_default = [
+            Parameter('parameter1', 0, [0,1]),
+            Parameter('parameter2', 2.0),
+            Parameter('parameter_string', 'a'),
+            Parameter('parameter_string', [
+                Parameter('parameter_sub1', 'a_1'),
+                Parameter('parameter_sub2', 'a_1')
+            ])
+        ]
+        return parameter_list_default
+
+if __name__ == '__main__':
     # inst = Instrument_Dummy('my dummny', {'parameter1': 1})
-    # pass
-    # inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
-    # if inst.is_connected:
-    #     print("hardware success")
-    # else:
-    #     print('failed')
+
+    inst = Instrument_Dummy('my dummny')
+    #print(inst.parameter2)
+    inst.parameter2 = 3.0
+    print(inst.parameters)
 
 
 
