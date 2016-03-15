@@ -356,6 +356,7 @@ class Instrument(object):
             - dictionary of type {'param1':value1, 'param2':value2, etc.}
             - list of dictionaries of form [{'param1':value1}, {'param2':value2}, etc.]
             - list of parameters [param1, param2, etc.,  where param1, param2 are Parameter objects
+            - a single parameter object
         '''
 
         def convert_to_dict(parameters):
@@ -373,23 +374,22 @@ class Instrument(object):
                 # if listelement is not a  dict cast it into a dict
                 parameters_new = {}
                 for p in parameters:
+                    print('pp', p, type(p))
                     if isinstance(p, dict):
                         parameters_new.update(p)
                     elif isinstance(p, Parameter):
-                        parameters_new.update({parameters.name: parameters.value})
+                        parameters_new.update({p.name: p.value})
                     else:
                         raise TypeError('list of unknown type {:s}'.format(str(type(p))))
-                    # parameters_new = [p if isinstance(p, dict) else {p.name: p.value} for p in parameters]
             elif isinstance(parameters, Parameter):
                 parameters_new = {parameters.name: parameters.value}
             else:
                 raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
             return parameters_new
 
-
+        print(parameters_new)
         parameters_new = convert_to_dict(parameters_new)
-
-        # for parameter in parameters_new:
+        print(parameters_new)
         for key, value in parameters_new.iteritems():
             # get index of parameter in default list
             index = [i for i, p in enumerate(self.parameters_default) if p.name == key]
@@ -446,7 +446,7 @@ class Maestro_Controller(Instrument):
 
     import serial
 
-    def __init__(self, name, parameters = []):
+    def __init__(self, name = None, parameters = []):
 
         super(Maestro_Controller, self).__init__(name, parameters)
         self.update_parameters(self.parameters)
@@ -921,14 +921,14 @@ class ZIHF2(Instrument):
 #             passed =False
 # if __name__ == '__main__':
 #     unittest.main()
-if __name__ == '__main__':
+# if __name__ == '__main__':
     # inst = Instrument_Dummy('my dummny', {'parameter1': 1})
-
-    inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
-    if inst.is_connected:
-        print("hardware success")
-    else:
-        print('failed')
+    # pass
+    # inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
+    # if inst.is_connected:
+    #     print("hardware success")
+    # else:
+    #     print('failed')
 
 
 
