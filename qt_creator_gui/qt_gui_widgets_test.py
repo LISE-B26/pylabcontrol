@@ -75,10 +75,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.past_commands = deque() # history of executed commands
 
         # define instruments
-        maestro = Maestro_Controller('maestro 6 channels')
+        # maestro = Maestro_Controller('maestro 6 channels')
         self.instruments = [
-            ZIHF2('ZiHF2'),
-            Maestro_BeamBlock(maestro,'IR beam block', {'channel':4})
+            ZIHF2('ZiHF2')
+            # Maestro_BeamBlock(maestro,'IR beam block', {'channel':4})
         ]
 
         # define parameters to monitor

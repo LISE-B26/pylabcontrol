@@ -261,6 +261,9 @@ class Instrument(object):
                 setattr(self, parameter.name, parameter.value)
         except:
             pass
+
+        self._is_connected = False
+
     def __str__(self):
 
         def parameter_to_string(parameter):
@@ -288,7 +291,7 @@ class Instrument(object):
         check if instrument is active and connected and return True in that case
         :return: bool
         '''
-        pass
+        return self._is_connected
 
     @property
     def name(self):
@@ -393,6 +396,7 @@ class Instrument_Dummy(Instrument):
             ])
         ]
         return parameter_list_default
+
 # =============== MAESTRO ==================================
 # ==========================================================
 
@@ -871,11 +875,12 @@ class ZIHF2(Instrument):
 if __name__ == '__main__':
     # inst = Instrument_Dummy('my dummny', {'parameter1': 1})
 
-    inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
+    inst = Instrument_Dummy('my dummny')
     if inst.is_connected:
         print("hardware success")
     else:
         print('failed')
+    print(inst.parameters)
 
 
 
