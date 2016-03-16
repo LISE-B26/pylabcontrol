@@ -36,13 +36,16 @@ class QTreeParameter(QtGui.QTreeWidgetItem):
             self.combobox.setCurrentIndex(self.combobox.findText(unicode(parameter.value)))
             self.treeWidget().setItemWidget( self, 1, self.combobox )
             self.combobox.currentIndexChanged.connect(lambda: self.parent().emitDataChanged())
+
         elif parameter.valid_values is bool:
             self.check = QtGui.QCheckBox()
             self.check.setChecked(parameter.value)
             self.treeWidget().setItemWidget( self, 1, self.check )
             self.check.stateChanged.connect(lambda: self.parent().emitDataChanged())
+
         elif isinstance(parameter.value, Parameter):
             QTreeParameter(self, parameter, target=target, visible=visible)
+
         elif isinstance(parameter.value, list):
             for item in parameter.value:
                 QTreeParameter(self, item, target=target, visible=visible)
