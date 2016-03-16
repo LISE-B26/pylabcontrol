@@ -1,7 +1,5 @@
 import serial
-
-from src.core.instruments import *
-
+from src.core import Instrument
 
 class PressureGauge(Instrument):
     """
@@ -81,6 +79,8 @@ class PressureGauge(Instrument):
     def get_pressure(self):
         """
         Returns the pressure currently read by the guage controller.
+
+        :return: pressure
         """
         assert self.ser.isOpen()
 
@@ -104,7 +104,7 @@ class PressureGauge(Instrument):
     def get_model(self):
         """
         Returns the model of the connected gauge controller.
-        :return:
+        :return: model name
         """
         assert self.ser.isOpen()
 
@@ -123,7 +123,7 @@ class PressureGauge(Instrument):
         """
         Returns the units that are in use by the guage controller.
 
-        :return:
+        :return: gauge units (either bar, Torr, Pascal, or Micron)
         """
         assert self.ser.isOpen()
 
@@ -141,13 +141,13 @@ class PressureGauge(Instrument):
     def is_connected(self):
         """
         checks if serial connection is still open with instrument.
-        :return:
+
+        :return: boolean connection status
         """
         return self.ser.isOpen()
 
     def __del__ (self):
         """
         Destructor, to close the serial connection when the instance is this class is garbage-collected
-        :return:
         """
         self.ser.close()

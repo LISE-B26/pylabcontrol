@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# PythonLab Instruments documentation build configuration file, created by
-# sphinx-quickstart on Wed Mar 16 02:25:25 2016.
+# PythonLab documentation build configuration file, created by
+# sphinx-quickstart on Wed Mar 16 16:14:23 2016.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -19,8 +19,9 @@ import shlex
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, '/Users/ASafira/PycharmProjects/PythonLab/instrument_tests')
+sys.path.insert(0, os.path.abspath('../../src'))
+sys.path.insert(0, os.path.abspath('../..'))
+print(sys.path)
 
 # -- General configuration ------------------------------------------------
 
@@ -32,6 +33,10 @@ sys.path.insert(0, '/Users/ASafira/PycharmProjects/PythonLab/instrument_tests')
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -49,7 +54,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'PythonLab Instruments'
+project = u'PythonLab'
 copyright = u'2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell'
 author = u'Arthur Safira, Jan Gieseler, Aaron Kabcenell'
 
@@ -104,7 +109,7 @@ pygments_style = 'sphinx'
 #keep_warnings = False
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = False
+todo_include_todos = True
 
 
 # -- Options for HTML output ----------------------------------------------
@@ -203,7 +208,7 @@ html_static_path = ['_static']
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'PythonLabInstrumentsdoc'
+htmlhelp_basename = 'PythonLabdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -225,7 +230,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'PythonLabInstruments.tex', u'PythonLab Instruments Documentation',
+  (master_doc, 'PythonLab.tex', u'PythonLab Documentation',
    u'Arthur Safira, Jan Gieseler, Aaron Kabcenell', 'manual'),
 ]
 
@@ -255,7 +260,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pythonlabinstruments', u'PythonLab Instruments Documentation',
+    (master_doc, 'pythonlab', u'PythonLab Documentation',
      [author], 1)
 ]
 
@@ -269,8 +274,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'PythonLabInstruments', u'PythonLab Instruments Documentation',
-   author, 'PythonLabInstruments', 'One line description of project.',
+  (master_doc, 'PythonLab', u'PythonLab Documentation',
+   author, 'PythonLab', 'One line description of project.',
    'Miscellaneous'),
 ]
 

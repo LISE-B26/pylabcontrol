@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Auto Generated Documentation &mdash; PythonLab Instruments 2.0.1 documentation</title>
+    <title>Code &mdash; PythonLab 2.0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -23,7 +23,9 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PythonLab Instruments 2.0.1 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="index.html" />
+    <link rel="prev" title="PythonLab" href="project.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -37,9 +39,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">PythonLab Instruments 2.0.1 documentation</a> &raquo;</li> 
+          <a href="project.html" title="PythonLab"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PythonLab 2.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -48,8 +50,70 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="auto-generated-documentation">
-<h1>Auto Generated Documentation<a class="headerlink" href="#auto-generated-documentation" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="code">
+<h1>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="instruments.PressureGauge">
+<em class="property">class </em><code class="descclassname">instruments.</code><code class="descname">PressureGauge</code><span class="sig-paren">(</span><em>name='PressureGauge'</em>, <em>parameter_list=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/instruments/gauge_controller.html#PressureGauge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#instruments.PressureGauge" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class implements the AGC100 pressure gauge.</p>
+<dl class="method">
+<dt id="instruments.PressureGauge.get_model">
+<code class="descname">get_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/instruments/gauge_controller.html#PressureGauge.get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#instruments.PressureGauge.get_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the model of the connected gauge controller.
+:return: model name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="instruments.PressureGauge.get_pressure">
+<code class="descname">get_pressure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/instruments/gauge_controller.html#PressureGauge.get_pressure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#instruments.PressureGauge.get_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the pressure currently read by the guage controller.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">pressure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="instruments.PressureGauge.get_units">
+<code class="descname">get_units</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/instruments/gauge_controller.html#PressureGauge.get_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#instruments.PressureGauge.get_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the units that are in use by the guage controller.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">gauge units (either bar, Torr, Pascal, or Micron)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="instruments.PressureGauge.is_connected">
+<code class="descname">is_connected</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/instruments/gauge_controller.html#PressureGauge.is_connected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#instruments.PressureGauge.is_connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks if serial connection is still open with instrument.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">boolean connection status</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="instruments.PressureGauge.parameters_default">
+<code class="descname">parameters_default</code><a class="headerlink" href="#instruments.PressureGauge.parameters_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the default parameter_list of the instrument
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -58,6 +122,9 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="project.html"
+                        title="previous chapter">PythonLab</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
