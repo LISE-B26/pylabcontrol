@@ -49,8 +49,8 @@ class Piezo_Controller(Instrument):
 
     def set_voltage(self, voltage):
         #todo: will work on fixing of auto getters
-        #self.ser.write(self.axis + 'voltage=' + str(voltage) + '\r')
-        self.ser.write(self.parameters_dict['axis'] + 'voltage=' + str(voltage) + '\r')
+        self.ser.write(self.axis + 'voltage=' + str(voltage) + '\r')
+        #self.ser.write(self.parameters_dict['axis'] + 'voltage=' + str(voltage) + '\r')
         successCheck = self.ser.readlines()
         # print(successCheck)
         # * and ! are values returned by controller on success or failure respectively
@@ -61,6 +61,19 @@ class Piezo_Controller(Instrument):
             raise ValueError(message)
 
         #todo: write voltage getter once auto getters completed
+    def __getattr__(self, name):
+        if(name == 'voltage'):
+            self.ser.write(self.axis + 'voltage?\r')
+            xVoltage = self.ser.readline()
+            return(float(xVoltage[2:-2].strip()))
+        else:
+            try:
+                return self.as_dict()[str(name)]
+            except KeyError:
+                #restores standard behavior for missing keys
+                raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
+
+
     @property
     def voltage(self):
         self.ser.write(self.axis + 'R?\r')

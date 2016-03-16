@@ -292,10 +292,8 @@ class Instrument(object):
 
     def __setattr__(self, key, value):
         try:
-            print('setter')
             self.update_parameters(Parameter(key, value))
         except Exception:
-            print('here')
             object.__setattr__(self, key, value)
 
     def __str__(self):
@@ -938,12 +936,12 @@ class Instrument_Dummy(Instrument):
         return parameter_list_default
 
 if __name__ == '__main__':
-    # inst = Instrument_Dummy('my dummny', {'parameter1': 1})
+    #inst = Instrument_Dummy('my dummny', {'parameter1': 1})
 
     inst = Instrument_Dummy('my dummny')
     #print(inst.parameter2)
-    inst.parameter2 = 3.0
-    print(inst.parameters)
+    #inst.parameter2 = 3.0
+    #print(inst.parameters)
 
 
 
