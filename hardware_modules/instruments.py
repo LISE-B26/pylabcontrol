@@ -810,8 +810,6 @@ if __name__ == '__main__':
     # else:
     #     print('failed')
 
-
-
     import serial
 
     # Translations of the controller's status messages
@@ -853,6 +851,7 @@ class AGC100(Instrument):
 
         super(AGC100, self).__init__(name, parameter_list)
         self.ser = self.serial.Serial(port = self.port, timeout=self.timeout)
+        self.probes = ['pressure', 'units']
 
 
     @property
@@ -870,7 +869,7 @@ class AGC100(Instrument):
         return parameter_list_default
 
 
-    def check_acknowledgement(self, response):
+    def __check_acknowledgement(self, response):
         '''
         check_acknowledgement raises an error if the response passed in indicates an negatice response from the guage.
 
@@ -896,7 +895,7 @@ class AGC100(Instrument):
 
         self.ser.write('PR1' + CR + LF)
         acknowledgement = self.ser.readline()
-        self.check_acknowledgement(acknowledgement)
+        self.__check_acknowledgement(acknowledgement)
 
         self.ser.write(ENQ)
         err_msg_and_pressure = self.ser.readline().rstrip(LF).rstrip(CR)
@@ -921,7 +920,7 @@ class AGC100(Instrument):
 
         self.ser.write('TID' + CR + LF)
         acknowledgement = self.ser.readline(25)
-        self.check_acknowledgement(acknowledgement)
+        self.__check_acknowledgement(acknowledgement)
 
         self.ser.write(ENQ)
         model = self.ser.readline().rstrip(LF).rstrip(CR)
@@ -941,7 +940,7 @@ class AGC100(Instrument):
 
         self.ser.write('UNI' + CR + LF)
         acknowledgement = self.ser.readline()
-        self.check_acknowledgement(acknowledgement)
+        self.__check_acknowledgement(acknowledgement)
 
         self.ser.write(ENQ)
         unit = MEASUREMENT_UNITS[self.ser.readline().rstrip(LF).rstrip(CR)]
