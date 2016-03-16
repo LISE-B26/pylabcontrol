@@ -266,7 +266,6 @@ class Instrument(object):
 
 
         self._parameters = self.parameters_default
-
         self.update_parameters(parameter_list)
 
         if name is None:
@@ -357,6 +356,7 @@ class Instrument(object):
             - list of dictionaries of form [{'param1':value1}, {'param2':value2}, etc.]
             - list of parameters [param1, param2, etc.,  where param1, param2 are Parameter objects
             - a single parameter object
+        :returns: a dictionary of the form {'param1':value1, 'param2':value2, etc.} of  parameters_new
         '''
 
         def convert_to_dict(parameters):
@@ -374,7 +374,6 @@ class Instrument(object):
                 # if listelement is not a  dict cast it into a dict
                 parameters_new = {}
                 for p in parameters:
-                    print('pp', p, type(p))
                     if isinstance(p, dict):
                         parameters_new.update(p)
                     elif isinstance(p, Parameter):
@@ -387,9 +386,8 @@ class Instrument(object):
                 raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
             return parameters_new
 
-        print(parameters_new)
         parameters_new = convert_to_dict(parameters_new)
-        print(parameters_new)
+
         for key, value in parameters_new.iteritems():
             # get index of parameter in default list
             index = [i for i, p in enumerate(self.parameters_default) if p.name == key]
@@ -398,8 +396,9 @@ class Instrument(object):
             elif len(index) == 1:
                 self.parameters[index[0]].value = value
             else:
-                raise ValueError('Parameter {:s} not in default parameter list for {:s}!'.format(parameter.name, self.name))
+                raise ValueError('Parameter {:s} not in default parameter list for {:s}!'.format(key, self.name))
 
+        return parameters_new
 
 
 class Instrument_Dummy(Instrument):
@@ -725,6 +724,7 @@ class ZIHF2(Instrument):
             self.daq = None
             self.device = None
             self.options = None
+
         super(ZIHF2, self).__init__(name, parameter_list)
 
     @property
@@ -733,6 +733,7 @@ class ZIHF2(Instrument):
         returns the default parameter_list of the instrument
         :return:
         '''
+
         parameter_list_default = [
             Parameter('freq', 1e6, (int, float), 'frequency of output channel'),
             Parameter('sigins',
@@ -821,14 +822,19 @@ class ZIHF2(Instrument):
 
         for key, element in sorted(dictionary.iteritems()):
             if isinstance(element, dict) and key in ['sigins', 'sigouts', 'demods']:
-                channel = element['channel']
+                # channel = element['channel']
+                channel = get_elemet('sigouts', self.parameters).as_dict()['sigouts']['channel']
+                print('xxxxxxsssss',channel)
                 for sub_key, val in sorted(element.iteritems()):
                     if not sub_key == 'channel':
                         settings.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
             elif isinstance(element, dict) and key in ['aux']:
-                settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, element['channel']), element['offset']])
+                print('DDD',get_elemet('aux', self.parameters))
+                channel = get_elemet('aux', self.parameters).as_dict()['aux']['channel']
+                settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, channel), element['offset']])
             elif key in ['freq']:
-                settings.append(['/%s/oscs/%d/freq' % (self.device, self.as_dict['sigouts']['channel']), dictionary['freq']])
+                channel = get_elemet('sigouts', self.parameters).as_dict()['sigouts']['channel']
+                settings.append(['/%s/oscs/%d/freq' % (self.device, channel), dictionary['freq']])
                 # settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
             elif isinstance(element, dict) == False:
                 settings.append([key, element])
@@ -838,21 +844,12 @@ class ZIHF2(Instrument):
 
     def update_parameters(self, parameters_new):
         # call the update_parameter_list to update the parameter list
-
-        super(ZIHF2, self).update_parameters(parameters_new)
-
+        # print('parameters_new', parameters_new)
+        parameters_new = super(ZIHF2, self).update_parameters(parameters_new)
+        print('parameters_new x', parameters_new)
         # now we actually apply these newsettings to the hardware
 
-        if isinstance(parameters_new, dict):
-            parameters_new = Parameter(parameters_new)
-        if isinstance(parameters_new, Parameter):
-            parameters_new = [parameters_new]
-
-        dictonary = {}
-        for parameter in parameters_new:
-            dictonary.update(parameter.as_dict)
-
-        commands = self.dict_to_settings(dictonary)
+        commands = self.dict_to_settings(parameters_new)
         if self.is_connected:
             self.daq.set(commands)
 
