@@ -8,21 +8,89 @@
 
 
 
+class ScriptParameter:
+    def __init__(self, name, value, valid_values = None, info = None, visible = True, target = None):
 
+        if valid_values == None:
+            valid_values = type(value)
+
+        self._data = {
+            'name' : name,
+            'value': value,
+            'valid_values': valid_values,
+            'info':info,
+            'visible' : visible,
+            'target' : target
+            }
+
+
+    def __str__(self):
+        return '{:s}'.format(str(self._data['value']))
+    def __repr__(self):
+        return '{:s}'.format(str(self._data['value']))
+    @property
+    def name(self):
+        return self._data['name']
+    @property
+    def visible(self):
+        return self._data['visible']
+    @property
+    def info(self):
+        return self._data['info']
+    @property
+    def value(self):
+        return self._data['value']
+    @property
+    def dict(self):
+        return self._data
+
+class Script:
+    def __init__(self, name, parameter_list):
+        self.parameter_list = []
+        self.name = name
+        for p in parameter_list:
+            self.append(p)
+    def append(self, parameter):
+        self.parameter_list.append(parameter)
+
+    @property
+    def parameter_names(self):
+        return [p.name for p in self.parameter_list]
+    @property
+    def parameter(self):
+        return self.parameter_list
+    @property
+    def name(self):
+        return self.name
 
 # ============= SWEEP SETTING ====================================
 # ==================================================================
-SWEEP_SETTINGS =  {
-    'start' : {'value': 0.0, 'valid_values': (float, int), 'info':'start value of sweep', 'visible' : True, 'target' : 'ZI sweep'},
-    'stop' : {'value': 0.0, 'valid_values': (float, int), 'info':'end value of sweep', 'visible' : True, 'target' : 'ZI sweep'},
-    'samplecount' : {'value': 0, 'valid_values': int, 'info':'number of data points', 'visible' : True, 'target' : 'ZI sweep'},
-    'gridnode' : {'value': 'oscs/0/freq', 'valid_values': ['oscs/0/freq', 'oscs/1/freq'], 'info':'channel that\'s used in sweep', 'visible' : True, 'target' : 'ZI sweep'},
-    'xmapping' : {'value': 0, 'valid_values': [0,1], 'info':'mapping 0 = linear, 1 = logarithmic', 'visible' : True, 'target' : 'ZI sweep'},
-    'bandwidthcontrol' : {'value': 2, 'valid_values': [2], 'info':'2 = automatic bandwidth control', 'visible' : True, 'target' : 'ZI sweep'},
-    'scan' : {'value': 0, 'valid_values': [0, 1, 2], 'info':'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)', 'visible' : True, 'target' : 'ZI sweep'},
-    'loopcount' : {'value': 1, 'valid_values': int, 'info':'number of times it sweeps', 'visible' : False, 'target' : 'ZI sweep'},
-    'averaging/sample' : {'value': 0, 'valid_values': int, 'info':'number of samples to average over', 'visible' : True, 'target' : 'ZI sweep'}
-}
+
+SWEEP_SETTINGS =  [
+    ScriptParameter('start', 1.8e6, (float, int), 'start value of sweep', True, 'ZI sweep'),
+    ScriptParameter('stop', 1.9e6, (float, int), 'end value of sweep', True, 'ZI sweep'),
+    ScriptParameter('samplecount', 1.8e6, int, 'number of data points', True, 'ZI sweep'),
+    ScriptParameter('gridnode', 'oscs/0/freq', ['oscs/0/freq', 'oscs/1/freq'], 'start value of sweep', True, 'ZI sweep'),
+    ScriptParameter('xmapping', 0, [0, 1], 'mapping 0 = linear, 1 = logarithmic', True, 'ZI sweep'),
+    ScriptParameter('bandwidthcontrol', 2, [2], '2 = automatic bandwidth control', True, 'ZI sweep'),
+    ScriptParameter('scan', 0, [0, 1, 2], 'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)', True, 'ZI sweep'),
+    ScriptParameter('loopcount', 1, int, 'number of times it sweeps', True, 'ZI sweep'),
+    ScriptParameter('averaging/sample', 1, int, 'number of samples to average over', True, 'ZI sweep')
+
+    ]
+#
+#
+# SWEEP_SETTINGS =  {
+#     'start' : {'value': 1.8e6, 'valid_values': (float, int), 'info':'start value of sweep', 'visible' : True, 'target' : 'ZI sweep'},
+#     'stop' : {'value': 1.9e6, 'valid_values': (float, int), 'info':'end value of sweep', 'visible' : True, 'target' : 'ZI sweep'},
+#     'samplecount' : {'value': 11, 'valid_values': int, 'info':'number of data points', 'visible' : True, 'target' : 'ZI sweep'},
+#     'gridnode' : {'value': 'oscs/0/freq', 'valid_values': ['oscs/0/freq', 'oscs/1/freq'], 'info':'channel that\'s used in sweep', 'visible' : True, 'target' : 'ZI sweep'},
+#     'xmapping' : {'value': 0, 'valid_values': [0,1], 'info':'mapping 0 = linear, 1 = logarithmic', 'visible' : True, 'target' : 'ZI sweep'},
+#     'bandwidthcontrol' : {'value': 2, 'valid_values': [2], 'info':'2 = automatic bandwidth control', 'visible' : True, 'target' : 'ZI sweep'},
+#     'scan' : {'value': 0, 'valid_values': [0, 1, 2], 'info':'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)', 'visible' : True, 'target' : 'ZI sweep'},
+#     'loopcount' : {'value': 1, 'valid_values': int, 'info':'number of times it sweeps', 'visible' : False, 'target' : 'ZI sweep'},
+#     'averaging/sample' : {'value': 1, 'valid_values': int, 'info':'number of samples to average over', 'visible' : True, 'target' : 'ZI sweep'}
+# }
 
 # ============= Dummy SETTING ====================================
 # ==================================================================
@@ -99,4 +167,14 @@ SCRIPTS = {
             'find_max' : find_max
         }
 }
+
+if __name__ == '__main__':
+
+    tp = ScriptParameter('start', 1.8e6, (float, int))
+
+    print(tp)
+    print(tp.dict)
+    print(SWEEP_SETTINGS)
+    sweep_script = Script(SWEEP_SETTINGS)
+    print(sweep_script.parameter)
 

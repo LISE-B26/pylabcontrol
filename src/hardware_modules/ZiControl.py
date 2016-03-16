@@ -466,13 +466,14 @@ class ZIHF2_v2(QtCore.QThread):
         self._acquisition_mode = 'sweep'
         self._sweep_values = sweep_data.keys()
         self.start()
-
+        print('self.start()')
     def run(self):
         self._recording = True
 
         while self._recording:
             #Emit the signal so it can be received on the UI side.
             if self._acquisition_mode == 'sweep':
+
                 #specify nodes to recorder data from
                 path = '/%s/demods/%d/sample' % (self.device, self.general_settings['demods']['channel'])
                 self.sweeper.subscribe(path)
@@ -481,6 +482,7 @@ class ZIHF2_v2(QtCore.QThread):
                 while not self.sweeper.finished():
                     time.sleep(1)
                     progress = int(100*self.sweeper.progress())
+                    print('progress', progress)
                     data = self.sweeper.read(True)# True: flattened dictionary
 
                     #  ensures that first point has completed before attempting to read data
@@ -490,7 +492,7 @@ class ZIHF2_v2(QtCore.QThread):
                     data = data[path][0][0] # the data is nested, we remove the outer brackets with [0][0]
                     # now we only want a subset of the data porvided by ZI
                     data = {k : data[k] for k in self._sweep_values}
-
+                    print('data', data)
                     self.sweep_data.append(data)
 
                     if (time.time() - start) > self._timeout:

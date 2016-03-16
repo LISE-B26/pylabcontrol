@@ -43,7 +43,7 @@ def plot_AI(device, freq, run_time):
             plt.pause(.1)
     ai.stop()
 
-
+# Saves AI input to file
 def save_AI(device, freq, run_time, dirpath, tag):
     '''
     :param device: Device name in standard NI format ex. 'Dev1/AI0'
@@ -74,7 +74,17 @@ def save_AI(device, freq, run_time, dirpath, tag):
         df.to_csv(filepathCSV, index = False, header=header, mode = 'a')
     ai.stop()
 
+# Saves AI input to file, keeping all data in memory until after reading in order to prevent slowdown due to disk access
+# and allow higher frequency reads
 def save_AI_toRAM(device, freq, run_time, dirpath, tag):
+    '''
+    :param device: Device name in standard NI format ex. 'Dev1/AI0'
+    :param freq: Sampling frequency (Hz). Greatly exceeding 100 kHz will result in data being written faster than it can be read and will crash program
+    :param run_time: Time for which to sample (s). Reading for more than a minute or so (depending on sampling rate) will overload matplotlib
+    :param dirpath: Path in which to save data
+    :param tag: tag for file
+    :return: None
+    '''
     ai = ReadAI.ReadAI(device, freq)
     ai.run()
     num_samps_read = 0
@@ -97,7 +107,16 @@ def save_AI_toRAM(device, freq, run_time, dirpath, tag):
     np.savetxt(filepathCSV, array, delimiter=',') # direct save instead of pandas to prevent copying array into dataframe/reduce memory
     ai.stop()
 
+# Corresponds to running both plot_AI and save_AI as above
 def save_and_plot_AI(device, freq, run_time, dirpath, tag):
+    '''
+    :param device: Device name in standard NI format ex. 'Dev1/AI0'
+    :param freq: Sampling frequency (Hz). Greatly exceeding 100 kHz will result in data being written faster than it can be read and will crash program
+    :param run_time: Time for which to sample (s). Reading for more than a minute or so (depending on sampling rate) will overload matplotlib
+    :param dirpath: Path in which to save data
+    :param tag: tag for file
+    :return: None
+    '''
     ai = ReadAI.ReadAI(device, freq)
     ai.run()
     plotting = 0
@@ -144,5 +163,4 @@ def save_and_plot_AI(device, freq, run_time, dirpath, tag):
     fig.savefig(str(filepathJPG), format = 'jpg')
     ai.stop()
 
-#plot_AI('Dev1/AI0', 20000, 20)
-save_AI_toRAM('Dev1/AI0', 1000000, 10, 'Z:\\Lab\\Cantilever\\Measurements\\tmp_', 'test')
+save_AI('Dev1/AI2', 1000, 30000, "Z:/Lab/Cantilever/Measurements/20160301_ResonatorDrift", 'PLL')
