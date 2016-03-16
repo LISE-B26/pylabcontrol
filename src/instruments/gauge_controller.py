@@ -1,5 +1,5 @@
 import serial
-from src.core import Instrument
+from src.core import Instrument, Parameter
 
 class PressureGauge(Instrument):
     """

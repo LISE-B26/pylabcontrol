@@ -1,1 +1,1 @@
-from instruments import Instrument
+from instruments import Instrument, Parameter
