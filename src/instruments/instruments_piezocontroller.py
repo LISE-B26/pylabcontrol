@@ -3,9 +3,9 @@ import serial
 from src.core.instruments import *
 
 
-class Piezo_Controller(Instrument):
+class PiezoController(Instrument):
     def __init__(self, name, parameters = []):
-        super(Piezo_Controller, self).__init__(name, parameters)
+        super(PiezoController, self).__init__(name, parameters)
         self._is_connected = False
         try:
             self.connect(port = self.as_dict()['port'], baudrate = self.as_dict()['baudrate'], timeout = self.as_dict()['timeout'])
@@ -39,7 +39,7 @@ class Piezo_Controller(Instrument):
             self.ser.close()
 
     def update_parameters(self, parameters_new):
-        parameters_new = super(Piezo_Controller, self).update_parameters(parameters_new)
+        parameters_new = super(PiezoController, self).update_parameters(parameters_new)
         for key, value in parameters_new.iteritems():
             if key == 'port' or key == 'baudrate' or key == 'timeout':
                 if self._is_connected:
@@ -68,7 +68,7 @@ class Piezo_Controller(Instrument):
 
 
 
-a = Piezo_Controller('PC')
+a = PiezoController('PC')
 a.axis = 'y'
 print(a.voltage)
 a.voltage = 25

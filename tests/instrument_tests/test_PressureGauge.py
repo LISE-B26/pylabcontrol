@@ -1,11 +1,11 @@
 from unittest import TestCase
 
-from src.core import instruments as inst
+from src.instruments import PressureGauge
 
 
 class TestAGC100(TestCase):
     def test_parameters_default(self):
-        param_list = gauge.parameters_default()
+        param_list = self.gauge.parameters_default()
         self.assertTrue(len(param_list) == 2) # only has 2 parameters
 
     def test_get_pressure(self):
@@ -21,4 +21,4 @@ class TestAGC100(TestCase):
         self.fail()
 
     def setUp(self):
-        gauge = inst.AGC100()
+        self.gauge = PressureGauge()

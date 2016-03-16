@@ -70,7 +70,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # define data container
         self.past_commands = deque() # history of executed commands
 
-        # define instruments
+        # define instrument_tests
         maestro = Maestro_Controller('maestro 6 channels')
         self.instruments = [
             ZIHF2('ZiHF2'),
@@ -79,7 +79,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         ]
         #
         # # define parameters to monitor
-        # zi_inst = get_elemet('ZiHF2', self.instruments)
+        # zi_inst = get_elemet('ZiHF2', self.instrument_tests)
         # self.monitor_parameters = [
         #     {'target' : zi_inst, 'parameter' : get_elemet('freq', zi_inst.parameters)}
         # ]

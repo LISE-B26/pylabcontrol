@@ -13,15 +13,14 @@ from __future__ import unicode_literals
 
 import Queue
 import json
-import sys
-import time
-
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy
 import numpy.random
 import pandas as pd
 import scipy.spatial
+import sys
+import time
 from PyQt4 import QtGui, QtCore
 from functions import track_NVs as track
 from functions.regions import *
@@ -31,7 +30,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.widgets import RectangleSelector
 
-from src.Archive import PlotAPDCounts
+from archive.Archive import PlotAPDCounts
 from src.scripts import ESR
 
 
