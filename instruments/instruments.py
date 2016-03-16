@@ -59,7 +59,7 @@ class Parameter(object):
 
         if isinstance(valid_values, QtCore.QString):
             raise TypeError
-        self._data = {}
+        self._data = {'name':None, 'value': None, 'valid_values':None, 'info':None}
         self.name = name
         self.valid_values = valid_values
         self.value = value
@@ -106,6 +106,7 @@ class Parameter(object):
         this happends for instance when a value is returned from the GUI where it is a unicode or QString
         :param value: new value
         '''
+
         if self.isvalid(value):
             self._data.update({'value':value})
         else:
@@ -139,6 +140,7 @@ class Parameter(object):
                     valid = False
         elif isinstance(value, type):
             valid = True
+
 
         if valid:
             self._data.update({'valid_values':value})
@@ -187,35 +189,39 @@ class Parameter(object):
             raise TypeError('unknown type for {:s}'.format(str(value)))
 
         return value
-    def isvalid(self, values):
+    def isvalid(self, value):
         '''
         checks if every value in values is a valid parameter value, i.e. if within values defined by valid_values
         :param value:
         :return: True or False depending if value is valid
         '''
         valid = True
-        if isinstance(values, list):
-            for value in values:
-                if isinstance(self._data['valid_values'], list):
-                    if not value in self._data['valid_values']:
+        if isinstance(value, list):
+            for value in value:
+                if isinstance(self.valid_values, list):
+                    if not value in self.valid_values:
                         valid = False
-                elif isinstance(self._data['valid_values'], tuple):
-                    if not type(value) in self._data['valid_values']:
+                elif isinstance(self.valid_values, tuple):
+                    if not type(value) in self.valid_values:
                         valid = False
-                elif isinstance(self._data['valid_values'], type):
-                    if not type(value) is self._data['valid_values']:
+                elif isinstance(self.valid_values, type):
+                    if not type(value) is self.valid_values:
                         valid = False
                 else:
                     valid = False
+        elif isinstance(value, Parameter):
+            # make sure that the old parameter is actually the same as the new one
+            if not value.name == self.value.name:
+                valid = False
         else:
-            if isinstance(self._data['valid_values'], list):
-                if not values in self._data['valid_values']:
+            if isinstance(self.valid_values, list):
+                if not value in self.valid_values:
                     valid = False
-            elif isinstance(self._data['valid_values'], tuple):
-                if not type(values) in self._data['valid_values']:
+            elif isinstance(self.valid_values, tuple):
+                if not type(value) in self.valid_values:
                     valid = False
-            elif isinstance(self._data['valid_values'], type):
-                if not type(values) is self._data['valid_values']:
+            elif isinstance(self.valid_values, type):
+                if not type(value) is self.valid_values:
                     valid = False
             else:
                 valid = False

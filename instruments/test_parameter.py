@@ -4,7 +4,7 @@ from instruments import Parameter
 
 class TestParameter(TestCase):
 
-    def test_init(self):
+    def Ttest_init(self):
         # initiate Paremater in all possible ways
         p1 = Parameter('param', 0.0)
         p2 = Parameter('param', 0, int, 'test int')
@@ -28,27 +28,36 @@ class TestParameter(TestCase):
 
         p1 = Parameter('param', 0)
         p2 = Parameter('param2', 2)
+
         p3 = Parameter('par 3', [p1, p2])
         p4 = Parameter('param4', 4)
 
-        p3.value = [p4,p1]
         p3.value = p1
-        print(p3.value)
+
+        p3.value = [p4,p1]
+
+
+
+        # this should give an error
+        # with self.assertRaises(TypeError):
+        #     p3.value = [p4,p1]
+        # # p3.value = p1
+        # print(p3.value)
 
         # if value is a parameter, the is should also be able to accept dictionaries and cast them into parameter objects
-        p1 = Parameter('param', 0)
-        p2 = Parameter('param2', p1)
-        p4 = Parameter('param4', 4)
-        p2.value = {'param4' : 4}
-
-
-        print(p2)
+        # p1 = Parameter('param', 0)
+        # p2 = Parameter('param2', p1)
+        # p4 = Parameter('param4', 4)
+        # p2.value = {'param4' : 4}
+        #
+        #
+        # print(p2)
         # self.fail()
 
 
 
 
-    def test_casting(self):
+    def Ttest_casting(self):
         '''
         test all possible ways to update a parameter
         :return:
