@@ -1,5 +1,5 @@
-Auto Generated Documentation
-===============================
+Code
+==================
 
-.. automodule::Piezo_Controller
-   :members:
+..  autoclass:: instruments.PressureGauge
+    :members:
