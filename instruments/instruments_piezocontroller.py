@@ -6,7 +6,6 @@ class Piezo_Controller(Instrument):
         super(Piezo_Controller, self).__init__(name, parameters)
         self._is_connected = False
         try:
-            print(self.parameters)
             self.connect(port = self.as_dict()['port'], baudrate = self.as_dict()['baudrate'], timeout = self.as_dict()['timeout'])
         except Exception:
             print('No Piezo Controller Detected')
@@ -38,17 +37,16 @@ class Piezo_Controller(Instrument):
             self.ser.close()
 
     def update_parameters(self, parameters_new):
-        super(Piezo_Controller, self).update_parameters(parameters_new)
-        for parameter in parameters_new:
-            if parameter.name == 'port' or parameter.name == 'baudrate' or parameter.name == 'timeout':
+        parameters_new = super(Piezo_Controller, self).update_parameters(parameters_new)
+        for key, value in parameters_new.iteritems():
+            if key == 'port' or key == 'baudrate' or key == 'timeout':
                 if self._is_connected:
                        self.ser.close()
                 self.connect(port = self.parameters_dict['port'], baudrate = self.parameters_dict['baudrate'], timeout = self.parameters_dict['timeout'])
-            elif parameter.name == 'voltage':
-                self.set_voltage(self.parameters_dict['voltage'])
+            elif key == 'voltage':
+                self.set_voltage(value)
 
     def set_voltage(self, voltage):
-        #todo: will work on fixing of auto getters
         self.ser.write(self.axis + 'voltage=' + str(voltage) + '\r')
         #self.ser.write(self.parameters_dict['axis'] + 'voltage=' + str(voltage) + '\r')
         successCheck = self.ser.readlines()
@@ -60,26 +58,17 @@ class Piezo_Controller(Instrument):
             message = 'Setting voltage failed. Confirm that device is properly connected and a valid voltage was entered'
             raise ValueError(message)
 
-        #todo: write voltage getter once auto getters completed
-    def __getattr__(self, name):
-        if(name == 'voltage'):
-            self.ser.write(self.axis + 'voltage?\r')
-            xVoltage = self.ser.readline()
-            return(float(xVoltage[2:-2].strip()))
-        else:
-            try:
-                return self.as_dict()[str(name)]
-            except KeyError:
-                #restores standard behavior for missing keys
-                raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
-
-
     @property
     def voltage(self):
-        self.ser.write(self.axis + 'R?\r')
+        self.ser.write(self.axis + 'voltage?\r')
         xVoltage = self.ser.readline()
-        xVoltage = xVoltage[6:-2].strip()
-        return xVoltage
+        return(float(xVoltage[2:-2].strip()))
+
+
 
 a = Piezo_Controller('PC')
+a.axis = 'y'
+print(a.voltage)
+a.voltage = 25
+print(a.parameters)
 print(a.voltage)
