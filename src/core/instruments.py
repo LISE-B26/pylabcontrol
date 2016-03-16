@@ -289,12 +289,16 @@ class Instrument(object):
 
         self._is_connected = False
 
+    # do not override this, override get_values instead
     def __getattr__(self, name):
         try:
-            return self.as_dict()[str(name)]
+            return self.get_values(name)
         except KeyError:
             #restores standard behavior for missing keys
             raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
+
+    def get_values(self, name):
+        return self.as_dict()[str(name)]
 
     def __setattr__(self, key, value):
         try:
