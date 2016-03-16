@@ -108,7 +108,7 @@ class Script(object):
     def dict(self):
         '''
         returns the configuration of the script as a dictionary
-        that contains {'parameters': parameters, 'instruments':instruments, 'scripts': scripts}
+        that contains {'parameters': parameters, 'instrument_tests':instrument_tests, 'scripts': scripts}
         :return: nested dictionary with entries name and value
         '''
         # build dictionary

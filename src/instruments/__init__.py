@@ -1,1 +1,1 @@
-from instruments_gauge_controller import Piezo_Controller
+from gauge_controller import PressureGauge
