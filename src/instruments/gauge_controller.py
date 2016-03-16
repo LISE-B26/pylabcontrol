@@ -54,7 +54,7 @@ class PressureGauge(Instrument):
         """
 
         parameter_list_default = [
-            Parameter('port', 'COM1', ['COM1', 'COM17'], 'com port to which maestro controler is connected'),
+            Parameter('port', 'COM3', ['COM1', 'COM3', 'COM17'], 'com port to which maestro controler is connected'),
             Parameter('timeout', 1, (int, float), 'com port to which maestro controler is connected')
         ]
 
