@@ -54,9 +54,12 @@ class TestInstrument(TestCase):
     def Ttest_dynamic_setter(self):
         test = Instrument()
         new_val = 30
-        test.test1 = 30
+        print(test.parameters)
+        #test.test1 = 30
+        test.update_parameters(Parameter('test1', 30))
+        print(test.parameters)
         if get_elemet('test1', test.parameters).value != test.test1:
-            print(test.parameters)
+            #print(test.parameters)
             self.fail('setter function doesn\'t work')
     #
     # # def test_update_2(self):

@@ -275,11 +275,29 @@ class Instrument(object):
 
         # dynamically create attribute based on parameters,
         # i.e if there is a parameter called p it can be accessed via Instrument.p
+        # try:
+        #     for parameter in self.parameters:
+        #         setattr(self, parameter.name, parameter.value)
+        # except:
+        #     pass
+
+        self._is_connected = False
+
+    def __getattr__(self, name):
         try:
-            for parameter in self.parameters:
-                setattr(self, parameter.name, parameter.value)
-        except:
-            pass
+            return self.as_dict()[str(name)]
+        except KeyError:
+            #restores standard behavior for missing keys
+            raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
+
+    def __setattr__(self, key, value):
+        try:
+            print('setter')
+            self.update_parameters(Parameter(key, value))
+        except Exception:
+            print('here')
+            object.__setattr__(self, key, value)
+
     def __str__(self):
 
         def parameter_to_string(parameter):
@@ -400,32 +418,6 @@ class Instrument(object):
 
         return parameters_new
 
-
-class Instrument_Dummy(Instrument):
-    '''
-    dummy instrument class, just to see how the creation of a new instrument works
-    '''
-    def __init__(self, name = None, parameter_list = []):
-        super(Instrument_Dummy, self).__init__(name, parameter_list)
-        # self.update_parameters(parameter_list)
-
-    @property
-    def parameters_default(self):
-        '''
-        returns the default parameter_list of the instrument
-        :return:
-        '''
-        parameter_list_default = [
-            Parameter('parameter1', 0, [0,1]),
-            Parameter('parameter1', True,bool),
-            Parameter('parameter2', 2.0),
-            Parameter('parameter string', 'a'),
-            Parameter('parameter string', [
-                Parameter('parameter sub1', 'a_1'),
-                Parameter('parameter sub2', 'a_1')
-            ])
-        ]
-        return parameter_list_default
 # =============== MAESTRO ==================================
 # ==========================================================
 
@@ -471,6 +463,7 @@ class Maestro_Controller(Instrument):
             Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected')
         ]
         return parameter_list_default
+
     def update_parameters(self, parameters_new):
         # call the update_parameter_list to update the parameter list
         super(Maestro_Controller, self).update_parameters(parameters_new)
@@ -670,6 +663,7 @@ class Maestro_BeamBlock(Instrument):
             else:
                 raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
             return parameters_new
+
 
         # now we actually apply these newsettings to the hardware
         for parameter in convert_to_parameter_list(parameters_new):
@@ -918,14 +912,38 @@ class ZIHF2(Instrument):
 #             passed =False
 # if __name__ == '__main__':
 #     unittest.main()
-# if __name__ == '__main__':
+
+class Instrument_Dummy(Instrument):
+    '''
+    dummy instrument class, just to see how the creation of a new instrument works
+    '''
+    def __init__(self, name = None, parameter_list = []):
+        super(Instrument_Dummy, self).__init__(name, parameter_list)
+
+    @property
+    def parameters_default(self):
+        '''
+        returns the default parameter_list of the instrument
+        :return:
+        '''
+        parameter_list_default = [
+            Parameter('parameter1', 0, [0,1]),
+            Parameter('parameter2', 2.0),
+            Parameter('parameter_string', 'a'),
+            Parameter('parameter_string', [
+                Parameter('parameter_sub1', 'a_1'),
+                Parameter('parameter_sub2', 'a_1')
+            ])
+        ]
+        return parameter_list_default
+
+if __name__ == '__main__':
     # inst = Instrument_Dummy('my dummny', {'parameter1': 1})
-    # pass
-    # inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
-    # if inst.is_connected:
-    #     print("hardware success")
-    # else:
-    #     print('failed')
+
+    inst = Instrument_Dummy('my dummny')
+    #print(inst.parameter2)
+    inst.parameter2 = 3.0
+    print(inst.parameters)
 
 
 
@@ -935,5 +953,3 @@ class ZIHF2(Instrument):
     #     print("hardware success")
     # else:
     #     print('failed')
-
-
