@@ -62,6 +62,16 @@ class Parameter(object):
         self.value = value
         self.info = info
         assert self.is_valid(value), "value is not if valid type"
+    def __getitem__(self, name):
+        if name is self.name:
+            return self.value
+        else:
+            raise KeyError('wrong parameter name {:s}, should be {:s}'.format(name, self.name))
+    def __setitem__(self, name, value):
+        if name is self.name:
+            self.value = value
+        else:
+            raise KeyError('wrong parameter name {:s}, should be {:s}'.format(name, self.name))
 
     def __repr__(self):
         return str(self.dict)
@@ -188,7 +198,7 @@ class Parameter(object):
         elif isinstance(self.valid_values, type(Parameter)):
             value = value
         else:
-            raise TypeError('unknown type for {:s}'.format(str(value)))
+            raise ValueError('value for {:s} not valid,  values are {:s}'.format(str(value), str(self.valid_values)))
 
         return value
     def is_valid(self, new_value):
@@ -237,8 +247,6 @@ class Parameter(object):
             elif isinstance(self.valid_values, type):
                 if not type(new_value) is self.valid_values:
                     valid = False
-        # print('S:', valid, new_value, self.value )
-        # print('D:', isinstance(new_value, list) ,isinstance(self.valid_values, list), self.valid_values is type([]))
         return valid
 
 

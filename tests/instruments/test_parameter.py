@@ -1,15 +1,30 @@
 from unittest import TestCase
 from copy import deepcopy
-from src.core.instruments import Parameter
+from src.core.instruments import Parameter, get_elemet
 
 class TestParameter(TestCase):
 
     def Ttest_init(self):
         # initiate Paremater in all possible ways
-        p1 = Parameter('param', 0.0)
-        p2 = Parameter('param', 0, int, 'test int')
-        p3 = Parameter('param', 0.0, (int, float), 'test tupple')
-        p4 = Parameter('param', 0.0, [0.0, 0.1], 'test list')
+        p1 = Parameter('param1', 0.0)
+        p2 = Parameter('param2', 0, int, 'test int')
+        p3 = Parameter('param3', 0.0, float, 'test tupple')
+        p4 = Parameter('param4', 0.0, [0.0, 0.1], 'test list')
+
+        p4.value = 0.1
+        p1.value = '1e6'
+        p1.value = '13'
+        p2.value = 0.1
+        p2.value = '13'
+        with self.assertRaises(ValueError):
+            p4.value = 0.2
+            p2.value = 's'
+
+
+        print(p1.as_dict())
+        print(p2.as_dict())
+        print(p3.as_dict())
+        print(p4.as_dict())
 
         p_nested = Parameter('param nested', p1, None, 'test list')
         p_nested = Parameter('param nested', p4, [p1,p4], 'test list')
@@ -17,9 +32,7 @@ class TestParameter(TestCase):
         p_dict = Parameter({'param dict': 0 })
         p_dict_nested = Parameter({'param dict': {'sub param dict': 1 } })
 
-
-
-    def test_update_Parameter(self):
+    def Ttest_update_Parameter(self):
 
         # ======================================================
         # update Parameter
@@ -63,26 +76,32 @@ class TestParameter(TestCase):
         # p2.value = {'param' : 4}
 
 
-
-
-
-
-
-
-
-    def Ttest_casting(self):
+    def test_casting(self):
         '''
         test all possible ways to update a parameter
         :return:
         '''
         p1 = Parameter('param', 0)
         p2 = Parameter('param2', 2)
-        p3 = Parameter('par 3', [p1, p2])
+        p3 = Parameter('param3', [p1, p2])
+
+        print(p1['param'])
+        p1['param'] = 44
+
+        #
+        # initial = deepcopy(p3.as_dict())
+        # p3.value = Parameter({'param2': 4})
+        # final = deepcopy(p3.as_dict())
+        #
+        # get_elemet('param', p3.value).value = 3
+        #
+        # # print(p1.as_dict())
+        # # print(p3.as_dict())
+        # # print(p3)
+        #
+        # parameters = {'param1': 'value1', 'param2': 'value2'}
+        # parameters = [{'param1':'value1'}, {'param2':'value2'}]
+        # parameters = [Parameter('param1', 'value1'), Parameter('param2', 'value2')]
+        # print(p1.as_dict())
 
         print(p1.as_dict())
-        print(p3.as_dict())
-        print(p3)
-
-        parameters = {'param1': 'value1', 'param2': 'value2'}
-        parameters = [{'param1':'value1'}, {'param2':'value2'}]
-        parameters = [Parameter('param1', 'value1'), Parameter('param2', 'value2')]
