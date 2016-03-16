@@ -226,11 +226,5 @@ if __name__ == '__main__':
     #    zController.setVoltage(95)
     #    time.sleep(5)
 
-    a = MDT693B('X')
-    for i in range(1000):
-        print(i)
-        a.setVoltage(5)
-        time.sleep(1)
-        a.setVoltage(95)
-        time.sleep(1)
-        print(i)
+    a = MDT693B('Y')
+    a.setVoltage(50)

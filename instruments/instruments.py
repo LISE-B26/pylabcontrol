@@ -1,5 +1,24 @@
 
 import numpy as np
+from PyQt4 import QtCore
+
+
+def get_elemet(name, element_list):
+    '''
+    get the element with name 'name'
+    list should be a list of objects that have a property name, e.g. Instrument, Parameter, Script
+    :param name:
+    :param element_list:
+    :return:
+    '''
+    assert isinstance(name, str)
+    assert isinstance(element_list, list)
+    assert [elem.name for elem in element_list] # check that all elements have a property name
+
+    element = [elem for elem in element_list if elem.name == name][0]
+
+    return element
+
 
 class Parameter(object):
 
@@ -27,16 +46,19 @@ class Parameter(object):
                 value = Parameter(value)
 
         if valid_values is None:
-
-            valid_values = type(value)
+            if isinstance(value, QtCore.QString):
+                valid_values = QtCore.QString
+            else:
+                valid_values = type(value)
 
             if valid_values == type([]):
-
                 valid_values = (valid_values, type(value[0]))
 
         if info is None:
             info = 'N/A'
 
+        if isinstance(valid_values, QtCore.QString):
+            raise TypeError
         self._data = {}
         self.name = name
         self.valid_values = valid_values
@@ -65,78 +87,38 @@ class Parameter(object):
         return return_str.replace('\n','\n\t')
     @property
     def dict(self):
-        def parameter_to_dict(parameter):
-            '''
-            casts parameter into a (nested) dictonary {name : value}
-            :return:
-            '''
-            return_dict = {}
-            # if value is a list of parameters
-            if isinstance(parameter.value, list) and isinstance(parameter.value[0],Parameter):
-                sub_dict = {}
-                for element in parameter.value:
-                    sub_dict.update(parameter_to_dict(element))
-                return_dict.update({parameter.name : sub_dict})
-            elif isinstance(parameter.value, Parameter):
-                return_dict.update({parameter.name : parameter_to_dict(parameter.value)})
-            elif isinstance(parameter, Parameter):
-                return_dict.update({parameter.name : parameter.value})
-
-            return return_dict
-
-        return parameter_to_dict(self)
+        return self.as_dict()
     @property
     def name(self):
         return self._data['name']
-
     @name.setter
     def name(self, value):
-        if isinstance(value, str):
-            self._data.update({'name' : value.replace(' ', '_')}) # replace spaces with underscores
-        else:
-            raise TypeError('Wrong type! \
-                             name should be a string')
+        assert isinstance(value, str)
+        self._data.update({'name' : value.replace(' ', '_')}) # replace spaces with underscores
+
     @property
     def value(self):
         return self._data['value']
-
     @value.setter
     def value(self, value):
+        '''
+        update the internal dictionary if value not in valid_values try to cast into right type
+        this happends for instance when a value is returned from the GUI where it is a unicode or QString
+        :param value: new value
+        '''
         if self.isvalid(value):
             self._data.update({'value':value})
         else:
-            msg = 'Wrong type ({:s})! Type should be {:s}.'.format(str(type(value)), str(self.valid_values))
-            raise TypeError(msg)
+            self._data.update({'value': self.cast_to_valid_type(value)})
+            # msg = 'Wrong type ({:s})! Type should be {:s}.'.format(str(type(value)), str(self.valid_values))
+            # raise TypeError(msg)
     @property
     def info(self):
         return self._data['info']
     @info.setter
     def info(self, value):
-        if isinstance(value, str):
-            self._data.update({'info' : value})
-        else:
-            raise TypeError('Wrong type! \
-                             info should be a string')
-
-    def isvalid(self, value):
-        '''
-        checks if value is a valid parameter value
-        :param value:
-        :return: True or False depending if value is valid
-        '''
-        valid = False
-        if isinstance(self._data['valid_values'], list):
-            if value in self._data['valid_values']:
-                valid = True
-        elif isinstance(self._data['valid_values'], tuple):
-            if type(value) in self._data['valid_values']:
-                valid = True
-        elif isinstance(self._data['valid_values'], type):
-            if type(value) is self._data['valid_values']:
-                valid = True
-
-        return valid
-
+        assert isinstance(value, str)
+        self._data.update({'info' : value})
     @property
     def valid_values(self):
         return self._data['valid_values']
@@ -161,41 +143,125 @@ class Parameter(object):
         if valid:
             self._data.update({'valid_values':value})
 
-
-    def __eq__(self, other):
+    def as_dict(self):
         '''
-        checks if two parameters have the same name
-        :param other:
-        :return:
+        casts parameter into a (nested) dictonary {name : value}
+        :return: dictionary of type {parameter.name: parameter.value}
         '''
-
-        is_equal = True
-        if self.name != other.name:
-            is_equal = False
-        # if self.valid_values != other.valid_values:
-        #     is_equal = False
-        return is_equal
-
-    def update(self, other):
-        if not isinstance(other, Parameter):
-            other = Parameter(other)
-
-        if self == other:
-            if isinstance(other.value, dict):
-                self.value = Parameter(other.value)
-            else:
-                self.value = other.value
-
-            self.info = other.info
+        return_dict = {}
+        # if value is a list of parameters
+        if isinstance(self.value, list) and isinstance(self.value[0],Parameter):
+            sub_dict = {}
+            for element in self.value:
+                sub_dict.update(element.as_dict())
+            return_dict.update({self.name : sub_dict})
+        elif isinstance(self.value, Parameter):
+            return_dict.update({self.name : self.value.as_dict()})
         else:
-            raise TypeError('Parameters are not of the same type! \
-                             They should have the same name and same valid values')
+            return_dict.update({self.name : self.value})
+
+        return return_dict
+
+    def cast_to_valid_type(self, value):
+        '''
+        takes a value and tried to cast it into the correct type, which is give by the valid_values of the parameter
+        if casting is not possible a TypeError is raised
+        :param value: value to be checked and cast into type that corresponds to valid_data type
+        :return: value cast into the correct data type
+        '''
+        # if isinstance(value, (unicode, QtCore.QString)):
+        #     value =  unicode(value) # cast to unicode so we don't have to work with QStrings
+
+        valid_values = self.valid_values
+
+        # for a tupple of type we take the one that min returns, e.g. for a (int, float) this would be float
+        if isinstance(valid_values, tuple):
+            valid_values = min(self.valid_values)
+
+        if valid_values in (int, float, str, bool):
+            cast_type = str(valid_values).replace('<type \'','').replace('\'>','')
+            value = eval('{:s}(value)'.format(cast_type))
+        elif isinstance(valid_values, type(Parameter)):
+            value = Parameter(value)
+        else:
+            raise TypeError('unknown type for {:s}'.format(str(value)))
+
+        return value
+    def isvalid(self, values):
+        '''
+        checks if every value in values is a valid parameter value, i.e. if within values defined by valid_values
+        :param value:
+        :return: True or False depending if value is valid
+        '''
+        valid = True
+        if isinstance(values, list):
+            for value in values:
+                if isinstance(self._data['valid_values'], list):
+                    if not value in self._data['valid_values']:
+                        valid = False
+                elif isinstance(self._data['valid_values'], tuple):
+                    if not type(value) in self._data['valid_values']:
+                        valid = False
+                elif isinstance(self._data['valid_values'], type):
+                    if not type(value) is self._data['valid_values']:
+                        valid = False
+                else:
+                    valid = False
+        else:
+            if isinstance(self._data['valid_values'], list):
+                if not values in self._data['valid_values']:
+                    valid = False
+            elif isinstance(self._data['valid_values'], tuple):
+                if not type(values) in self._data['valid_values']:
+                    valid = False
+            elif isinstance(self._data['valid_values'], type):
+                if not type(values) is self._data['valid_values']:
+                    valid = False
+            else:
+                valid = False
+
+        return valid
+
+
+    # def __eq__(self, other):
+    #     '''
+    #     checks if two parameters have the same name
+    #     :param other:
+    #     :return:
+    #     '''
+    #
+    #     is_equal = True
+    #     if self.name != other.name:
+    #         is_equal = False
+    #     # if self.valid_values != other.valid_values:
+    #     #     is_equal = False
+    #     return is_equal
+    #
+    # def update(self, name, ):
+    #     '''
+    #
+    #     :param other:
+    #     :return:
+    #     '''
+    #     if not isinstance(other, Parameter):
+    #         other = Parameter(other)
+    #
+    #     if self == other:
+    #         if isinstance(other.value, dict):
+    #             self.value = Parameter(other.value)
+    #         else:
+    #             self.value = other.value
+    #
+    #         self.info = other.info
+    #     else:
+    #         raise TypeError('Parameters are not of the same type! \
+    #                          They should have the same name and same valid values')
 
 class Instrument(object):
     '''
     generic instrument class
     '''
-
+    _is_connected = False #internal flag that indicated if instrument is actually connected
     def __init__(self, name = None, parameter_list = []):
 
 
@@ -210,8 +276,28 @@ class Instrument(object):
 
         # dynamically create attribute based on parameters,
         # i.e if there is a parameter called p it can be accessed via Instrument.p
-        for parameter in self.parameters:
-            setattr(self, parameter.name, parameter.value)
+        # try:
+        #     for parameter in self.parameters:
+        #         setattr(self, parameter.name, parameter.value)
+        # except:
+        #     pass
+
+        self._is_connected = False
+
+    def __getattr__(self, name):
+        try:
+            return self.as_dict()[str(name)]
+        except KeyError:
+            #restores standard behavior for missing keys
+            raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
+
+    def __setattr__(self, key, value):
+        try:
+            print('setter')
+            self.update_parameters(Parameter(key, value))
+        except Exception:
+            print('here')
+            object.__setattr__(self, key, value)
 
     def __str__(self):
 
@@ -235,12 +321,12 @@ class Instrument(object):
         return output_string
 
     @property
-    def status(self):
+    def is_connected(self):
         '''
         check if instrument is active and connected and return True in that case
         :return: bool
         '''
-        pass
+        return self._is_connected
 
     @property
     def name(self):
@@ -249,8 +335,8 @@ class Instrument(object):
     def name(self, value):
         assert isinstance(value, str)
         self._name = value
-    @property
-    def dict(self):
+
+    def as_dict(self):
         '''
         returns the configuration of the instrument as a dictionary
         :return: nested dictionary with entries name and value
@@ -259,17 +345,22 @@ class Instrument(object):
 
         config = {}
         for p in self._parameters:
-            config.update(p.dict)
-
+            config.update(p.as_dict())
         return config
 
     @property
     def parameters_default(self):
         '''
-        returns the default parameter_list of the instrument
-        :return:
+        returns the default parameter_list of the instrument this function should be over written in any subclass
+        :return: a list of parameter objects
         '''
-        parameter_list_default = []
+        parameter_list_default = [
+            Parameter('test1', 0, int, 'test parameter (int)'),
+            Parameter('test2' ,
+                      [Parameter('test2_1', 'string', str, 'test parameter (str)'),
+                       Parameter('test2_2', 0.0, float, 'test parameter (float)')
+                       ])
+        ]
         return parameter_list_default
 
     @property
@@ -279,57 +370,55 @@ class Instrument(object):
     def update_parameters(self, parameters_new):
         '''
         updates the parameters if they exist
-        :param parameters_new:
-        :return:
+        :param parameters_new: can be a
+            - dictionary of type {'param1':value1, 'param2':value2, etc.}
+            - list of dictionaries of form [{'param1':value1}, {'param2':value2}, etc.]
+            - list of parameters [param1, param2, etc.,  where param1, param2 are Parameter objects
         '''
 
-        def check_parameter_list(parameters):
+        def convert_to_dict(parameters):
             '''
-            check if parameters is a list of parameters or a dictionary
-            if it is a dictionary we create a parameter list from it
+            :param parameters: can be a
+            - dictionary of type {'param1':value1, 'param2':value2, etc.}
+            - list of dictionaries of form [{'param1':value1}, {'param2':value2}, etc.]
+            - list of parameters [param1, param2, etc.],  where param1, param2 are Parameter objects
+            - a single parameter object
+            :return a dictionary of type {'param1':value1, 'param2':value2, etc.}
             '''
             if isinstance(parameters, dict):
-                parameters_new = []
-                for key, value in parameters.iteritems():
-                    parameters_new.append(Parameter(key, value))
+                parameters_new = parameters
             elif isinstance(parameters, list):
-                # if listelement is not a  parameter cast it into a parameter
-                parameters_new = [p if isinstance(p, Parameter) else Parameter(p) for p in parameters]
+                # if listelement is not a  dict cast it into a dict
+                parameters_new = {}
+                for p in parameters:
+                    if isinstance(p, dict):
+                        parameters_new.update(p)
+                    elif isinstance(p, Parameter):
+                        parameters_new.update({parameters.name: parameters.value})
+                    else:
+                        raise TypeError('list of unknown type {:s}'.format(str(type(p))))
+                    # parameters_new = [p if isinstance(p, dict) else {p.name: p.value} for p in parameters]
             elif isinstance(parameters, Parameter):
-                parameters_new = [parameters]
+                parameters_new = {parameters.name: parameters.value}
             else:
                 raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
-
             return parameters_new
 
-        for parameter in check_parameter_list(parameters_new):
+
+        parameters_new = convert_to_dict(parameters_new)
+
+        # for parameter in parameters_new:
+        for key, value in parameters_new.iteritems():
             # get index of parameter in default list
-            index = [i for i, p in enumerate(self.parameters_default) if p == parameter]
+            index = [i for i, p in enumerate(self.parameters_default) if p.name == key]
             if len(index)>1:
                 raise TypeError('Error: Dublicate parameter in default list')
-            elif len(index)==1:
-                self.parameters[index[0]].update(parameter)
+            elif len(index) == 1:
+                self.parameters[index[0]].value = value
+            else:
+                raise ValueError('Parameter {:s} not in default parameter list for {:s}!'.format(parameter.name, self.name))
 
-class Instrument_Dummy(Instrument):
-    '''
-    dummy instrument class, just to see how the creation of a new instrument works
-    '''
-    def __init__(self, name = None, parameter_list = []):
-        super(Instrument_Dummy, self).__init__(name, parameter_list)
-        # self.update_parameters(parameter_list)
 
-    @property
-    def parameters_default(self):
-        '''
-        returns the default parameter_list of the instrument
-        :return:
-        '''
-        parameter_list_default = [
-            Parameter('parameter1', 0),
-            Parameter('parameter2', 2.0),
-            Parameter('parameter string', 'a')
-        ]
-        return parameter_list_default
 # =============== MAESTRO ==================================
 # ==========================================================
 
@@ -349,11 +438,10 @@ class Maestro_Controller(Instrument):
 
     import serial
 
-    def __init__(self,name, parameter_list = []):
+    def __init__(self, name, parameters = []):
 
-        super(Maestro_Controller, self).__init__(name, parameter_list)
-        self.update_parameters(parameter_list)
-        print(self.parameters)
+        super(Maestro_Controller, self).__init__(name, parameters)
+        self.update_parameters(self.parameters)
         # Open the command port
         # self.usb = self.serial.Serial(port)
         # Command lead-in and device 12 are sent for each Pololu serial commands.
@@ -378,12 +466,10 @@ class Maestro_Controller(Instrument):
         return parameter_list_default
 
     def update_parameters(self, parameters_new):
-        print('XX')
         # call the update_parameter_list to update the parameter list
         super(Maestro_Controller, self).update_parameters(parameters_new)
         # now we actually apply these newsettings to the hardware
         for parameter in parameters_new:
-            print(parameter)
             if parameter.name == 'port':
                 self.usb = self.serial.Serial(parameter.value)
     # Cleanup by closing USB serial port
@@ -526,7 +612,7 @@ class Maestro_Controller(Instrument):
 
 class Maestro_BeamBlock(Instrument):
     from time import sleep
-    def __init__(self, maestro, name,  parameter_list = []):
+    def __init__(self, maestro, name, parameters = []):
         '''
         :param maestro: maestro servo controler to which motor is connected
         :param channel: channel to which motor is connected
@@ -534,7 +620,8 @@ class Maestro_BeamBlock(Instrument):
         :return:
         '''
         super(Maestro_BeamBlock, self).__init__(name)
-        self.update_parameters(parameter_list)
+        self.update_parameters(parameters)
+        self.maestro = maestro
 
     @property
     def parameters_default(self):
@@ -552,21 +639,60 @@ class Maestro_BeamBlock(Instrument):
         return parameter_list_default
 
     def update_parameters(self, parameters_new):
+
+
+
         # call the update_parameter_list to update the parameter list
         super(Maestro_BeamBlock, self).update_parameters(parameters_new)
 
+        # parameters_new = convert_to_parameter_list(parameters_new)
+
+        def convert_to_parameter_list(parameters):
+            '''
+            check if parameters is a list of parameters or a dictionary
+            if it is a dictionary we create a parameter list from it
+            '''
+            if isinstance(parameters, dict):
+                parameters_new = []
+                for key, value in parameters.iteritems():
+                    parameters_new.append(Parameter(key, value))
+            elif isinstance(parameters, list):
+                # if listelement is not a  parameter cast it into a parameter
+                parameters_new = [p if isinstance(p, Parameter) else Parameter(p) for p in parameters]
+            elif isinstance(parameters, Parameter):
+                parameters_new = [parameters]
+            else:
+                raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
+            return parameters_new
+
+
         # now we actually apply these newsettings to the hardware
-        for parameter in parameters_new:
+        for parameter in convert_to_parameter_list(parameters_new):
             if parameter.name == 'open':
                 if parameter.value == True:
-                    self.goto(self.position_open)
+                    # todo: this work once we have the dynamically get/set functions of the super class
+                    # self.goto(self.position_open)
+                    # until then:
+                    self.goto(get_elemet('position_open',self.parameters).value)
                 else:
                     self.goto(self.position_closed)
 
+                    # todo: this work once we have the dynamically get/set functions of the super class
+                    # self.goto(self.position_closed)
+                    # until then:
+                    self.goto(get_elemet('position_closed',self.parameters).value)
+
     def goto(self, position):
-        self.servo.setTarget(self.channel, position)
-        self.sleep(self.settle_time)
-        self.servo.disable(self.channel)
+        self.maestro.setTarget(self.channel, position)
+        # todo: this work once we have the dynamically get/set functions of the super class
+        # self.sleep(self.settle_time)
+        # until then:
+        self.sleep(get_elemet('settle_time',self.parameters).value)
+        self.maestro.disable(self.channel)
+    # todo: this should by taken care of in the dynamically get/set functions of the super class
+    @property
+    def channel(self):
+        return get_elemet('channel',self.parameters).value
 
 # =============== ZURCIH INSTRUMENTS =======================
 # ==========================================================
@@ -698,7 +824,7 @@ class ZIHF2(Instrument):
             elif isinstance(element, dict) and key in ['aux']:
                 settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, element['channel']), element['offset']])
             elif key in ['freq']:
-                settings.append(['/%s/oscs/%d/freq' % (self.device, self.dict['sigouts']['channel']), dictionary['freq']])
+                settings.append(['/%s/oscs/%d/freq' % (self.device, self.as_dict['sigouts']['channel']), dictionary['freq']])
                 # settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
             elif isinstance(element, dict) == False:
                 settings.append([key, element])
@@ -720,10 +846,10 @@ class ZIHF2(Instrument):
 
         dictonary = {}
         for parameter in parameters_new:
-            dictonary.update(parameter.dict)
+            dictonary.update(parameter.as_dict)
 
         commands = self.dict_to_settings(dictonary)
-        if self.status:
+        if self.is_connected:
             self.daq.set(commands)
 
 
@@ -791,15 +917,38 @@ class ZIHF2(Instrument):
 #             passed =False
 # if __name__ == '__main__':
 #     unittest.main()
+
+class Instrument_Dummy(Instrument):
+    '''
+    dummy instrument class, just to see how the creation of a new instrument works
+    '''
+    def __init__(self, name = None, parameter_list = []):
+        super(Instrument_Dummy, self).__init__(name, parameter_list)
+
+    @property
+    def parameters_default(self):
+        '''
+        returns the default parameter_list of the instrument
+        :return:
+        '''
+        parameter_list_default = [
+            Parameter('parameter1', 0, [0,1]),
+            Parameter('parameter2', 2.0),
+            Parameter('parameter_string', 'a'),
+            Parameter('parameter_string', [
+                Parameter('parameter_sub1', 'a_1'),
+                Parameter('parameter_sub2', 'a_1')
+            ])
+        ]
+        return parameter_list_default
+
 if __name__ == '__main__':
     # inst = Instrument_Dummy('my dummny', {'parameter1': 1})
 
-    inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
-    print(inst)
-    if inst.status:
-        print("hardware success")
-    else:
-        print('failed')
+    inst = Instrument_Dummy('my dummny')
+    #print(inst.parameter2)
+    inst.parameter2 = 3.0
+    print(inst.parameters)
 
 
 

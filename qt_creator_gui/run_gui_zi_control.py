@@ -10,7 +10,6 @@ Created on Feb 2 2016
 """
 
 import sys
-# todo: resolve issue with namespace (get rid of from PySide.QtCore import * and from PySide.QtGui import *)
 
 from PyQt4 import QtGui, QtCore
 
@@ -205,7 +204,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         #     self._live_data.update({id: deque()})
 
         connect_hardware()
-        create_figures()
+        #create_figures()
         connect_controls()
         # create_threads()
 
@@ -489,7 +488,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     child.setText(0, unicode(val))
                 child.setExpanded(True)
-                child.setFlags(child.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+                child.setFlags(child.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
             #
             # elif type(value) is bool:
             #     item.setText(0, unicode(value))
@@ -507,11 +506,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 if value['visible']:
                     item.setText(1, unicode(value['value']))
                     item.setToolTip(1, unicode(value['info']))
-                    item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+                    item.setFlags(item.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
 
             else:
                 item.setText(1, unicode(value))
-                item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsEditable)
+                item.setFlags(item.flags()  | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
 
 
         QTreeWidget.clear()

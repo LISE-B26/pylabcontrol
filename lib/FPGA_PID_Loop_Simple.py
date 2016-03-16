@@ -64,7 +64,7 @@ class NI_FPGA_PI(object):
         '''
         get or set the piezo output. Note that if PI-Loop is active, piezo value can not be changed
         '''
-        self._piezo = getattr(FPGAlib, 'read_PiezoOut')(self._fpga.session, self._fpga.status)
+        self._piezo = getattr(FPGAlib, 'read_PiezoOut')(self._fpga.session, self._fpga.is_connected)
         return self._piezo
     @piezo.setter
     def piezo(self, value):
@@ -75,7 +75,7 @@ class NI_FPGA_PI(object):
             return False
         else:
             self._piezo = value
-            return getattr(FPGAlib, 'set_PiezoOut')(self._piezo, self._fpga.session, self._fpga.status)
+            return getattr(FPGAlib, 'set_PiezoOut')(self._piezo, self._fpga.session, self._fpga.is_connected)
 
     @property
     def setpoint(self):
@@ -86,31 +86,31 @@ class NI_FPGA_PI(object):
     @setpoint.setter
     def setpoint(self, value):
             self._setpoint = value
-            return getattr(FPGAlib, 'set_Setpoint')(self._setpoint, self._fpga.session, self._fpga.status)
+            return getattr(FPGAlib, 'set_Setpoint')(self._setpoint, self._fpga.session, self._fpga.is_connected)
 
     @property
     def status_PI(self):
         '''
         activate or read status of PI-Loop (if active or not)
         '''
-        self._status_PI = getattr(FPGAlib, 'read_PIDActive')(self._fpga.session, self._fpga.status)
+        self._status_PI = getattr(FPGAlib, 'read_PIDActive')(self._fpga.session, self._fpga.is_connected)
         return self._status_PI
     @status_PI.setter
     def status_PI(self, status):
         self._status_PI = status
-        return getattr(FPGAlib, 'set_PIDActive') (self._status_PI, self._fpga.session, self._fpga.status)
+        return getattr(FPGAlib, 'set_PIDActive') (self._status_PI, self._fpga.session, self._fpga.is_connected)
 
     @property
     def status_modulation(self):
         '''
         activate or read status of PI-Loop (if active or not)
         '''
-        self._status_modulation = getattr(FPGAlib, 'read_OutputSine')(self._fpga.session, self._fpga.status)
+        self._status_modulation = getattr(FPGAlib, 'read_OutputSine')(self._fpga.session, self._fpga.is_connected)
         return self._status_PI
     @status_modulation.setter
     def status_modulation(self, status):
         self._status_modulation = status
-        return getattr(FPGAlib, 'set_OutputSine') (self._status_PI, self._fpga.session, self._fpga.status)
+        return getattr(FPGAlib, 'set_OutputSine') (self._status_PI, self._fpga.session, self._fpga.is_connected)
 
 
     @property
@@ -118,20 +118,20 @@ class NI_FPGA_PI(object):
         '''
         activate or read status of PI-Loop (if active or not)
         '''
-        self._status_LP = getattr(FPGAlib, 'read_LowPassActive')(self._fpga.session, self._fpga.status)
+        self._status_LP = getattr(FPGAlib, 'read_LowPassActive')(self._fpga.session, self._fpga.is_connected)
         return self._status_PI
     @status_LP.setter
     def status_LP(self, status):
         self._status_LP = status
-        return getattr(FPGAlib, 'set_LowPassActive') (self._status_LP, self._fpga.session, self._fpga.status)
+        return getattr(FPGAlib, 'set_LowPassActive') (self._status_LP, self._fpga.session, self._fpga.is_connected)
 
     @property
     def detector(self):
         '''
         read detector value
         '''
-        AI1_raw = getattr(FPGAlib, 'read_AI1')(self._fpga.session, self._fpga.status)
-        AI1 = getattr(FPGAlib, 'read_AI1_Filtered')(self._fpga.session, self._fpga.status)
+        AI1_raw = getattr(FPGAlib, 'read_AI1')(self._fpga.session, self._fpga.is_connected)
+        AI1 = getattr(FPGAlib, 'read_AI1_Filtered')(self._fpga.session, self._fpga.is_connected)
 
         def wrap_data(data):
             # wrap the data. The date we receive is only positive values (unsingned int). Thus we cast it into a singed int
@@ -151,27 +151,27 @@ class NI_FPGA_PI(object):
     def gains(self, gains):
         # map the floating point number to a U32 integer
         self._gains = {'proportional': sgl2int.SGL_to_U32(gains['proportional']), 'integral': sgl2int.SGL_to_U32(gains['integral'])}
-        getattr(FPGAlib, 'set_PI_gain_prop') (self._gains['proportional'], self._fpga.session, self._fpga.status)
-        getattr(FPGAlib, 'set_PI_gain_int') (self._gains['integral'], self._fpga.session, self._fpga.status)
+        getattr(FPGAlib, 'set_PI_gain_prop') (self._gains['proportional'], self._fpga.session, self._fpga.is_connected)
+        getattr(FPGAlib, 'set_PI_gain_int') (self._gains['integral'], self._fpga.session, self._fpga.is_connected)
 
     @property
     def sample_period_PI(self):
         '''
         set and read sample_period of PI_Loop in ticks (clock cycle is 40MHz)
         '''
-        self._sample_period_PI = getattr(FPGAlib, 'read_SamplePeriodsPID')(self._fpga.session, self._fpga.status)
+        self._sample_period_PI = getattr(FPGAlib, 'read_SamplePeriodsPID')(self._fpga.session, self._fpga.is_connected)
         return self._sample_period_PI
     @sample_period_PI.setter
     def sample_period_PI(self, sample_period_PI):
         self._sample_period_PI = int(sample_period_PI)
-        getattr(FPGAlib, "set_SamplePeriodsPID") (self._sample_period_PI, self._fpga.session, self._fpga.status)
+        getattr(FPGAlib, "set_SamplePeriodsPID") (self._sample_period_PI, self._fpga.session, self._fpga.is_connected)
 
     @property
     def loop_rate_limit_PI(self):
         '''
         read status if PI-loop runs slower than expected
         '''
-        self._loop_rate_limit_PI = getattr(FPGAlib, 'read_LoopRateLimitPID')(self._fpga.session, self._fpga.status)
+        self._loop_rate_limit_PI = getattr(FPGAlib, 'read_LoopRateLimitPID')(self._fpga.session, self._fpga.is_connected)
         return self._loop_rate_limit_PI
 
     @property
@@ -179,15 +179,15 @@ class NI_FPGA_PI(object):
         '''
         read duration of PI loop in ticks (clock cycle 40MHz)
         '''
-        self._loop_time_PI = getattr(FPGAlib, 'read_LoopTicksPID')(self._fpga.session, self._fpga.status)
+        self._loop_time_PI = getattr(FPGAlib, 'read_LoopTicksPID')(self._fpga.session, self._fpga.is_connected)
         return self._loop_time_PI
 
     @property
     def minmax(self):
-        min = getattr(FPGAlib, 'read_Min')(self._fpga.session, self._fpga.status)
-        max = getattr(FPGAlib, 'read_Max')(self._fpga.session, self._fpga.status)
-        stddev = getattr(FPGAlib, 'read_StdDev')(self._fpga.session, self._fpga.status)
-        mean = getattr(FPGAlib, 'read_Mean')(self._fpga.session, self._fpga.status)
+        min = getattr(FPGAlib, 'read_Min')(self._fpga.session, self._fpga.is_connected)
+        max = getattr(FPGAlib, 'read_Max')(self._fpga.session, self._fpga.is_connected)
+        stddev = getattr(FPGAlib, 'read_StdDev')(self._fpga.session, self._fpga.is_connected)
+        mean = getattr(FPGAlib, 'read_Mean')(self._fpga.session, self._fpga.is_connected)
         return {'min':min, 'max':max, 'stddev':stddev, 'mean':mean}
 
 class NI_FPGA_READ_FIFO(QtCore.QThread):
@@ -212,7 +212,7 @@ class NI_FPGA_READ_FIFO(QtCore.QThread):
 
         QtCore.QThread.__init__(self)
 
-        getattr(FPGAlib, 'set_ElementsToWrite') (self._data_length, self._fpga.session, self._fpga.status)
+        getattr(FPGAlib, 'set_ElementsToWrite') (self._data_length, self._fpga.session, self._fpga.is_connected)
 
         if data_queue is None:
             self.data_queue = queue.Queue()
@@ -237,7 +237,7 @@ class NI_FPGA_READ_FIFO(QtCore.QThread):
     @timeout_buffer.setter
     def timeout_buffer(self, value):
         self._timeout_buffer = value
-        return getattr(FPGAlib, 'set_TimeoutBuffer') (self._timeout_buffer, self._fpga.session, self._fpga.status)
+        return getattr(FPGAlib, 'set_TimeoutBuffer') (self._timeout_buffer, self._fpga.session, self._fpga.is_connected)
 
     @property
     def data_length(self):
@@ -248,7 +248,7 @@ class NI_FPGA_READ_FIFO(QtCore.QThread):
     @data_length.setter
     def data_length(self, data_length):
         self._data_length = data_length
-        return getattr(FPGAlib, 'set_ElementsToWrite') (self._data_length, self._fpga.session, self._fpga.status)
+        return getattr(FPGAlib, 'set_ElementsToWrite') (self._data_length, self._fpga.session, self._fpga.is_connected)
 
 
     @property
@@ -256,12 +256,12 @@ class NI_FPGA_READ_FIFO(QtCore.QThread):
         '''
         set and read sample_period of acquisition in ticks (clock cycle is 40MHz)
         '''
-        self._sample_period_acq = getattr(FPGAlib, 'read_SamplePeriodsAcq')(self._fpga.session, self._fpga.status)
+        self._sample_period_acq = getattr(FPGAlib, 'read_SamplePeriodsAcq')(self._fpga.session, self._fpga.is_connected)
         return self._sample_period_acq
     @sample_period_acq.setter
     def sample_period_acq(self, sample_period_acq):
         self._sample_period_acq = sample_period_acq
-        getattr(FPGAlib, "set_SamplePeriodsAcq") (self._sample_period_acq, self._fpga.session, self._fpga.status)
+        getattr(FPGAlib, "set_SamplePeriodsAcq") (self._sample_period_acq, self._fpga.session, self._fpga.is_connected)
 
     @property
     def block_size(self):
@@ -273,15 +273,15 @@ class NI_FPGA_READ_FIFO(QtCore.QThread):
 
     @property
     def status(self):
-        self._status['LoopRateLimitAcq'] = bool(getattr(FPGAlib, "read_LoopRateLimitAcq") (self._fpga.session, self._fpga.status))
-        self._status['TimeOutAcq'] = bool(getattr(FPGAlib, "read_TimeOutAcq") (self._fpga.session, self._fpga.status))
-        self._status['PIDActive'] = bool(getattr(FPGAlib, "read_PIDActive") (self._fpga.session, self._fpga.status))
-        self._status['FPGARunning'] = bool(getattr(FPGAlib, "read_FPGARunning") (self._fpga.session, self._fpga.status))
-        self._status['DMATimeOut'] = bool(getattr(FPGAlib, "read_DMATimeOut") (self._fpga.session, self._fpga.status))
-        self._status['AcquireData'] = bool(getattr(FPGAlib, "read_AcquireData") (self._fpga.session, self._fpga.status))
-        self._status['LoopTicksAcq'] = getattr(FPGAlib, 'read_LoopTicksAcq')(self._fpga.session, self._fpga.status)
-        self._status['ElementsWritten'] = getattr(FPGAlib, 'read_ElementsWritten') (self._fpga.session, self._fpga.status)
-        self._status['AcqTime'] = getattr(FPGAlib, 'read_AcqTime') (self._fpga.session, self._fpga.status)
+        self._status['LoopRateLimitAcq'] = bool(getattr(FPGAlib, "read_LoopRateLimitAcq") (self._fpga.session, self._fpga.is_connected))
+        self._status['TimeOutAcq'] = bool(getattr(FPGAlib, "read_TimeOutAcq") (self._fpga.session, self._fpga.is_connected))
+        self._status['PIDActive'] = bool(getattr(FPGAlib, "read_PIDActive") (self._fpga.session, self._fpga.is_connected))
+        self._status['FPGARunning'] = bool(getattr(FPGAlib, "read_FPGARunning") (self._fpga.session, self._fpga.is_connected))
+        self._status['DMATimeOut'] = bool(getattr(FPGAlib, "read_DMATimeOut") (self._fpga.session, self._fpga.is_connected))
+        self._status['AcquireData'] = bool(getattr(FPGAlib, "read_AcquireData") (self._fpga.session, self._fpga.is_connected))
+        self._status['LoopTicksAcq'] = getattr(FPGAlib, 'read_LoopTicksAcq')(self._fpga.session, self._fpga.is_connected)
+        self._status['ElementsWritten'] = getattr(FPGAlib, 'read_ElementsWritten') (self._fpga.session, self._fpga.is_connected)
+        self._status['AcqTime'] = getattr(FPGAlib, 'read_AcqTime') (self._fpga.session, self._fpga.is_connected)
 
         return self._status
 
@@ -290,20 +290,20 @@ class NI_FPGA_READ_FIFO(QtCore.QThread):
     # ===================================================================================
 
     def start_fifo(self):
-        FPGAlib.start_FIFO_AI(self._fpga.session, self._fpga.status)
+        FPGAlib.start_FIFO_AI(self._fpga.session, self._fpga.is_connected)
 
     def stop_fifo(self):
-        FPGAlib.stop_FIFO_AI(self._fpga.session, self._fpga.status)
+        FPGAlib.stop_FIFO_AI(self._fpga.session, self._fpga.is_connected)
 
     def configure_fifo(self, fifo_size):
-        return FPGAlib.configure_FIFO_AI(fifo_size, self._fpga.session, self._fpga.status)
+        return FPGAlib.configure_FIFO_AI(fifo_size, self._fpga.session, self._fpga.is_connected)
 
     def read_fifo_block(self):
         '''
         read a block of data from the FIFO
         :return: data from channels AI1 and AI2 and the elements remaining in the FIFO
         '''
-        ai1, ai2, elements_remaining = FPGAlib.read_FIFO_AI(self.block_size, self._fpga.session, self._fpga.status)
+        ai1, ai2, elements_remaining = FPGAlib.read_FIFO_AI(self.block_size, self._fpga.session, self._fpga.is_connected)
         return ai1, ai2, elements_remaining
 
     def run(self):
@@ -314,7 +314,7 @@ class NI_FPGA_READ_FIFO(QtCore.QThread):
         # reset FIFO
         self.start_fifo()
         # toggle boolean to start acquisition
-        getattr(FPGAlib, "set_AcquireData") (True, self._fpga.session, self._fpga.status)
+        getattr(FPGAlib, "set_AcquireData") (True, self._fpga.session, self._fpga.is_connected)
 
         for i in range(self.number_of_reads):
             data = self.read_fifo_block()

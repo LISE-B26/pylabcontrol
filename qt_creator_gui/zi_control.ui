@@ -91,7 +91,7 @@
         <x>0</x>
         <y>10</y>
         <width>711</width>
-        <height>381</height>
+        <height>291</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -114,7 +114,7 @@
       </attribute>
       <column>
        <property name="text">
-        <string>Parameter</string>
+        <string>Parameter/Script</string>
        </property>
       </column>
       <column>
@@ -136,7 +136,7 @@
        <number>0</number>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_stop_record">
+     <widget class="QPushButton" name="btn_stop_script">
       <property name="geometry">
        <rect>
         <x>120</x>
@@ -149,7 +149,7 @@
        <string>stop</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_start">
+     <widget class="QPushButton" name="btn_start_script">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -162,17 +162,28 @@
        <string>start</string>
       </property>
      </widget>
+     <widget class="QListView" name="list_scripts">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>320</y>
+        <width>711</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::MultiSelection</enum>
+      </property>
+      <property name="modelColumn">
+       <number>0</number>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_monitor">
      <attribute name="title">
       <string>Monitor</string>
      </attribute>
-    </widget>
-    <widget class="QWidget" name="tab_settings">
-     <attribute name="title">
-      <string>Settings</string>
-     </attribute>
-     <widget class="QTreeWidget" name="tree_main_settings">
+     <widget class="QTreeWidget" name="tree_monitor">
       <property name="enabled">
        <bool>true</bool>
       </property>
@@ -214,20 +225,56 @@
       </column>
      </widget>
     </widget>
+    <widget class="QWidget" name="tab_settings">
+     <attribute name="title">
+      <string>Settings</string>
+     </attribute>
+     <widget class="QTreeWidget" name="tree_settings">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>711</width>
+        <height>431</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::AllEditTriggers</set>
+      </property>
+      <property name="headerHidden">
+       <bool>false</bool>
+      </property>
+      <attribute name="headerDefaultSectionSize">
+       <number>150</number>
+      </attribute>
+      <attribute name="headerHighlightSections">
+       <bool>true</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>Instrument</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Value</string>
+       </property>
+      </column>
+     </widget>
+    </widget>
     <widget class="QWidget" name="tab_history">
      <attribute name="title">
       <string>History</string>
      </attribute>
-     <widget class="QListView" name="list_history">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>711</width>
-        <height>441</height>
-       </rect>
-      </property>
-     </widget>
     </widget>
    </widget>
    <widget class="MatplotlibWidget" name="matplotlibwidget">
@@ -240,10 +287,21 @@
      </rect>
     </property>
    </widget>
+   <widget class="QListView" name="list_history">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>10</y>
+      <width>631</width>
+      <height>211</height>
+     </rect>
+    </property>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>list_records</zorder>
    <zorder>tabWidget</zorder>
    <zorder>matplotlibwidget</zorder>
+   <zorder>list_history</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

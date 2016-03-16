@@ -1,9 +1,8 @@
-
 from PyQt4 import QtCore, QtGui
 
-from hardware_modules.instruments import Parameter, Instrument
+from instruments.instruments import Parameter, Instrument
+from instruments.instruments import ZIHF2
 from scripts.scripts import Script, Script_Dummy
-from hardware_modules.instruments import Instrument_Dummy, Maestro_Controller, ZIHF2
 
 
 class QTreeParameter(QtGui.QTreeWidgetItem):
@@ -21,11 +20,11 @@ class QTreeParameter(QtGui.QTreeWidgetItem):
         super( QTreeParameter, self ).__init__( parent )
 
         assert isinstance(parameter, Parameter)
-        assert isinstance(target, str)
+        assert isinstance(target, (Script, Instrument))
 
         self.visible = visible
         self.target = target
-        self.Parameter = parameter
+        self.parameter = parameter
 
         ## Column 0 - Text:
         self.setText(0, unicode(parameter.name))
@@ -34,13 +33,14 @@ class QTreeParameter(QtGui.QTreeWidgetItem):
             self.combobox = QtGui.QComboBox()
             for item in parameter.valid_values:
                 self.combobox.addItem(unicode(item))
-            # self.combobox.setItemText(value)
             self.combobox.setCurrentIndex(self.combobox.findText(unicode(parameter.value)))
             self.treeWidget().setItemWidget( self, 1, self.combobox )
+            self.combobox.currentIndexChanged.connect(lambda: self.parent().emitDataChanged())
         elif parameter.valid_values is bool:
             self.check = QtGui.QCheckBox()
             self.check.setChecked(parameter.value)
             self.treeWidget().setItemWidget( self, 1, self.check )
+            self.check.stateChanged.connect(lambda: self.parent().emitDataChanged())
         elif isinstance(parameter.value, Parameter):
             QTreeParameter(self, parameter, target=target, visible=visible)
         elif isinstance(parameter.value, list):
@@ -51,6 +51,9 @@ class QTreeParameter(QtGui.QTreeWidgetItem):
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
         self.setToolTip(1, unicode(parameter.info))
 
+    # @property
+    # def parameter(self):
+    #     return self._parameter
     @property
     def visible(self):
         return self._visible
@@ -69,8 +72,7 @@ class QTreeInstrument(QtGui.QTreeWidgetItem):
         self.setText(0, unicode(instrument.name))
 
         for parameter in self.instrument.parameters:
-            QTreeParameter( self, parameter, target=self.instrument.name, visible=True)
-
+            QTreeParameter( self, parameter, target=self.instrument, visible=True)
 
 class QTreeScript(QtGui.QTreeWidgetItem):
 
@@ -91,12 +93,11 @@ class QTreeScript(QtGui.QTreeWidgetItem):
 
         for element in self.script.settings:
             if isinstance(element, Parameter):
-                QTreeParameter( self, element, target=self.script.name, visible=True)
+                QTreeParameter( self, element, target=self.script, visible=True)
             elif isinstance(element, Script):
                 QTreeScript( self, element)
             elif isinstance(element, Instrument):
                 QTreeInstrument( self, element)
-
 
 
 
