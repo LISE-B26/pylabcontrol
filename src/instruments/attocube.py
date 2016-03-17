@@ -34,6 +34,7 @@ class Attocube(inst.Instrument):
     def __init__(self, name = None, parameters = []):
         super(Attocube, self).__init__(name, parameters)
         self._is_connected = False
+        self.probes = ['capacitance']
         try:
             self.attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')
             dll_detected = True
@@ -59,6 +60,7 @@ class Attocube(inst.Instrument):
         parameter_list_default = [
             inst.Parameter('x',
                 [
+                    inst.Parameter('on', False, [True, False], 'x axis on'),
                     inst.Parameter('pos', 0, (int, float), 'x axis position in um'),
                     inst.Parameter('voltage', 30, (int, float), 'voltage on x axis'),
                     inst.Parameter('freq', 1000, (int, float), 'x frequency in Hz')
@@ -66,6 +68,7 @@ class Attocube(inst.Instrument):
                 ),
             inst.Parameter('y',
                 [
+                    inst.Parameter('on', False, [True, False], 'y axis on'),
                     inst.Parameter('pos', 0, (int, float), 'y axis position in um'),
                     inst.Parameter('voltage', 30, (int, float), 'voltage on y axis'),
                     inst.Parameter('freq', 1000, (int, float), 'y frequency in Hz')
@@ -73,6 +76,7 @@ class Attocube(inst.Instrument):
                 ),
             inst.Parameter('z',
                 [
+                    inst.Parameter('on', False, [True, False], 'z axis on'),
                     inst.Parameter('pos', 0, (int, float), 'x axis position in um'),
                     inst.Parameter('voltage', 30, (int, float), 'voltage on x axis'),
                     inst.Parameter('freq', 1000, (int, float), 'x frequency in Hz')
@@ -80,6 +84,17 @@ class Attocube(inst.Instrument):
                 ),
         ]
         return parameter_list_default
+
+    def toggle_axis(self, axis, on):
+        '''
+        Turn axis on or off
+        :param axis: axis_x, axis_y, or axis_z
+        :param on: True or False
+        '''
+        device_handle = int32()
+        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        self.check_error(self.attocube.PositionerSetOutput(device_handle, axis, ctypes.c_bool(on)))
+        self.check_error(self.attocube.PositionerClose(device_handle))
 
     def set_frequency(self, axis, freq):
         '''
@@ -103,6 +118,46 @@ class Attocube(inst.Instrument):
         self.check_error(self.attocube.PositionerGetFrequency(device_handle, axis, ctypes.byref(freq)))
         self.check_error(self.attocube.PositionerClose(device_handle))
         return freq.value
+
+    def get_position(self, axis):
+        '''
+        :param axis: axis_x, axis_y, or axis_z
+        :return: position of axis in um
+        '''
+        device_handle = int32()
+        position = int32()
+        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        # wait command needed since polling rate of attocube is 20 Hz. Empirically determined that .2 is lowest value
+        # that always works. No idea why no other function also needs this wait command
+        time.sleep(.2)
+        self.check_error(self.attocube.PositionerGetPosition(device_handle, axis, ctypes.byref(position)))
+        self.check_error(self.attocube.PositionerClose(device_handle))
+        return position.value/1000.0
+
+    def cap_measure(self, axis):
+        '''
+        :param axis: axis_x, axis_y, or axis_z
+        :return: Capacitance in uF
+        '''
+        device_handle = int32()
+        capacitance = int32()
+        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        self.check_error(self.attocube.PositionerCapMeasure(device_handle, axis, ctypes.byref(capacitance)))
+        self.check_error(self.attocube.PositionerClose(device_handle))
+        return capacitance.value
+
+    def move_absolute(self, axis, position):
+        '''
+        Precondition: Must set voltage and frequency sufficiently low that ANC's internal feedback will be able to
+        settle on the appropriate position (ex. 7V, 100Hz). Otherwise, fluctuates around target position and never stops
+        :param axis: axis_x, axis_y, or axis_z
+        :param position: position of axis to move to in um
+        '''
+        device_handle = int32()
+        self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        self.check_error(attocube.PositionerMoveAbsolute(device_handle, axis, int32(int(position*1000.0))))
+        self.check_error(attocube.PositionerClose(device_handle))
+
 
 
     @staticmethod
