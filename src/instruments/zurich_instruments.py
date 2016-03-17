@@ -1,23 +1,25 @@
 from src.core import Instrument,Parameter
+import numpy as np
+
 # =============== ZURCIH INSTRUMENTS =======================
 # ==========================================================
 class ZIHF2(Instrument):
 
     try:
         import zhinst.utils as utils
-        _status = True
+        _is_connected = True
     except ImportError:
         # make a fake ZI instrument
-        _status = False
+        _is_connected = False
     except:
         raise
 
     '''
     instrument class to talk to Zurich instrument HF2 lock in ampifier
     '''
-    def __init__(self, name = None, parameter_list = []):
+    def __init__(self, name = None, parameters = None):
 
-        if self._status:
+        if self._is_connected:
             self.daq = self.utils.autoConnect(8005,1) # connect to ZI, 8005 is the port number
             self.device = self.utils.autoDetect(self.daq)
             self.options = self.daq.getByte('/%s/features/options' % self.device)
@@ -26,8 +28,12 @@ class ZIHF2(Instrument):
             self.device = None
             self.options = None
 
-        super(ZIHF2, self).__init__(name, parameter_list)
+        super(ZIHF2, self).__init__(name, parameters)
 
+
+    # ========================================================================================
+    # ======= overwrite functions from instrument superclass =================================
+    # ========================================================================================
     @property
     def _parameters_default(self):
         '''
@@ -35,8 +41,8 @@ class ZIHF2(Instrument):
         :return:
         '''
 
-        parameter_list_default = [
-            Parameter('freq', 1e6, (int, float), 'frequency of output channel'),
+        parameters_default = Parameter([
+            Parameter('freq', 1e6, float, 'frequency of output channel'),
             Parameter('sigins',
                       [
                           Parameter('channel', 0, [0,1], 'signal input channel'),
@@ -60,7 +66,7 @@ class ZIHF2(Instrument):
                           Parameter('order', 4, int, 'filter order'),
                           Parameter('rate', 10e3, [10e3], 'rate'),
                           Parameter('harmonic', 1, int, 'harmonic at which to demodulate'),
-                          Parameter('phaseshift', 0, (int, float), 'phaseshift of demodulation'),
+                          Parameter('phaseshift', 0.0, float, 'phaseshift of demodulation'),
                           Parameter('oscselect', 0, [0,1], 'oscillator for demodulation'),
                           Parameter('adcselect', 0, int, 'adcselect')
                        ]
@@ -68,26 +74,127 @@ class ZIHF2(Instrument):
             Parameter('aux',
                       [
                           Parameter('channel', 0, [0,1], 'auxilary channel'),
-                          Parameter('offset', 1, (int, float), 'offset in volts')
+                          Parameter('offset', 1.0, float, 'offset in volts')
                        ]
                       )
-        ]
+        ])
 
-        return parameter_list_default
+        return parameters_default
 
-
-
-
-        return self.harware_detected
-    # Poll the value of input 1 for polltime seconds and return the magnitude of the average data. Timeout is in milisecond.
-    def poll(self,  pollTime, variable = 'R', timeout = 500):
+    def update(self, parameters):
         '''
-        :param variable: string or list of string, which varibale to poll ('R', 'x', 'y')
-        :param pollTime:
-        :param timeout:
+        updates the internal dictionary and sends changed values to instrument
+        Args:
+            parameters: parameters to be set
+        '''
+        # call the update_parameter_list to update the parameter list
+        super(ZIHF2, self).update(parameters)
+
+
+        def commands_from_parameters(parameters):
+            '''
+            converts dictionary to list of  setting, which can then be passed to the zi controler
+            :param parameters = dictionary that contains the settings
+            :return: settings = list of settings, which can then be passed to the zi controler
+            '''
+            # create list that is passed to the ZI controler
+
+
+            settings = []
+
+
+
+            for key, element in sorted(parameters.iteritems()):
+                if isinstance(element, dict) and key in ['sigins', 'sigouts', 'demods']:
+                    # channel = self.parameters['sigouts']['channel']
+                    channel = element['channel']
+                    print('verify channel (sigins, sigouts, demods)', channel)
+                    for sub_key, val in sorted(element.iteritems()):
+                        if not sub_key == 'channel':
+                            settings.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
+                elif isinstance(element, dict) and key in ['aux']:
+                    # channel = get_elemet('aux', self.parameters).as_dict()['aux']['channel']
+                    channel = element['channel']
+                    print('verify channel (aux)', channel)
+                    settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, channel), element['offset']])
+                elif key in ['freq']:
+                    # channel = get_elemet('sigouts', self.parameters).as_dict()['sigouts']['channel']
+                    channel = self.parameters['sigouts']['channel']
+                    print('verify channel (freq)', channel)
+                    settings.append(['/%s/oscs/%d/freq' % (self.device, channel), parameters['freq']])
+                    # settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
+                elif isinstance(element, dict) == False:
+                    settings.append([key, element])
+
+
+            return settings
+
+
+        # now we actually apply these newsettings to the hardware
+        commands = commands_from_parameters(parameters)
+        if self.is_connected:
+            self.daq.set(commands)
+        else:
+            print('hardware is not connected, the command to be send is:')
+            print(commands)
+
+    @property
+    def values(self):
+        '''
+
+        Returns: a dictionary that contains the values that can be read from the instrument
+        the key is the name of the value and the value of the dictionary is an info
+
+        '''
+        return {
+            'input1': 'this is the input from channel 1',
+            'R': 'the amplitude of the demodulation signal',
+            'X': 'the X-quadrature of the demodulation signal',
+            'Y': 'the Y-quadrature of the demodulation signal',
+            'freq': 'the frequency of the output channel'
+        }
+
+    def get_values(self, key):
+        '''
+        requestes value from the instrument and returns it
+        Args:
+            key: name of requested value
+
+        Returns: reads values from instrument
+
+        '''
+        assert key in self.values.keys()
+        assert isinstance(key, str)
+
+        if key.upper() in ['X', 'Y', 'R']:
+            # these values we actually request from the instrument
+            data = self.poll(key)
+            data = data[key]
+        elif key in ['freq']:
+            # these values just look up in the parameter settings
+            data = self.parameters['freq']
+
+        return data
+
+    @property
+    def is_connected(self):
+        '''
+        check if instrument is active and connected and return True in that case
+        :return: bool
+        '''
+        return self._is_connected
+
+
+    # Poll the value of input 1 for polltime seconds and return the magnitude of the average data. Timeout is in milisecond.
+    def poll(self,  variable = 'R', pollTime = 0.1, timeout = 500):
+        '''
+        :param variable: string or list of strings, which varibale to poll ('R', 'x', 'y')
+        :param pollTime: set to
+        :param timeout: 0.1s could be varibale in the future
         :return:
         '''
 
+        print('warning! polling from ZI, pollTime and timeout still hardcoded')
         valid_variables = ['R','X','Y']
 
         if self.is_connected:
@@ -98,54 +205,12 @@ class ZIHF2(Instrument):
             data = {}
             for var in ['X','Y']:
                 data.update({var: data_poll[path][var.lower()]})
-            data.update({'R': np.sqrt(np.square(data['x'])+np.square(data['y']))})
+            data.update({'R': np.sqrt(np.square(data['X'])+np.square(data['Y']))})
 
             if isinstance(variable,str):
                 variable = [variable]
-            return_variable = {k: data[k] for k in variable}
+            return_variable = {k: data[k.upper()] for k in variable}
         else:
             return_variable = None
 
         return return_variable
-
-    def dict_to_settings(self, dictionary):
-        '''
-        converts dictionary to list of  setting, which can then be passed to the zi controler
-        :param dictionary = dictionary that contains the settings
-        :return: settings = list of settings, which can then be passed to the zi controler
-        '''
-        # create list that is passed to the ZI controler
-
-
-        settings = []
-
-
-
-        for key, element in sorted(dictionary.iteritems()):
-            if isinstance(element, dict) and key in ['sigins', 'sigouts', 'demods']:
-                # channel = element['channel']
-                channel = get_elemet('sigouts', self.parameters).as_dict()['sigouts']['channel']
-                for sub_key, val in sorted(element.iteritems()):
-                    if not sub_key == 'channel':
-                        settings.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
-            elif isinstance(element, dict) and key in ['aux']:
-                channel = get_elemet('aux', self.parameters).as_dict()['aux']['channel']
-                settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, channel), element['offset']])
-            elif key in ['freq']:
-                channel = get_elemet('sigouts', self.parameters).as_dict()['sigouts']['channel']
-                settings.append(['/%s/oscs/%d/freq' % (self.device, channel), dictionary['freq']])
-                # settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
-            elif isinstance(element, dict) == False:
-                settings.append([key, element])
-
-
-        return settings
-
-    def update_parameters(self, parameters_new):
-        # call the update_parameter_list to update the parameter list
-        parameters_new = super(ZIHF2, self).update_parameters(parameters_new)
-        # now we actually apply these newsettings to the hardware
-
-        commands = self.dict_to_settings(parameters_new)
-        if self.is_connected:
-            self.daq.set(commands)

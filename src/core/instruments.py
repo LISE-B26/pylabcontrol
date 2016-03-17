@@ -9,14 +9,13 @@ class Instrument(object):
     generic instrument class
 
     for subclass overwrite following functions / properties:
-        - _parameters_default
-        - get_values
-        - is_connected
-        - update
-        - values
+        - _parameters_default => parameter object, that is a list of parameters that can be set to configure the instrument
+        - update => function that sends parameter changes to the instrument
+        - values => dictionary that contains all the values that can be read from the instrument
+        - get_values => function that actually requests the values from the instrument
+        - is_connected => property that checks if instrument is actually connected
     '''
     _is_connected = False #internal flag that indicated if instrument is actually connected
-
 
 
     def __init__(self, name = None, parameters = None):
@@ -31,19 +30,22 @@ class Instrument(object):
 
         self.name = name
 
-    # do not override this, override get_values instead
-    def __getattr__(self, name):
-        try:
-            return self.get_values(name)
-        except KeyError:
-            #restores standard behavior for missing keys
-            raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
-
-    def __setattr__(self, key, value):
-        try:
-            self.update(key, value)
-        except Exception:
-            object.__setattr__(self, key, value)
+    # ========================================================================================
+    # ======= Following functions have to be customized for each instrument subclass =========
+    # ========================================================================================
+    @property
+    def _parameters_default(self):
+        '''
+        returns the default parameter_list of the instrument this function should be over written in any subclass
+        '''
+        parameters_default = Parameter([
+            Parameter('test1', 0, int, 'test parameter (int)'),
+            Parameter('test2' ,
+                      [Parameter('test2_1', 'string', str, 'test parameter (str)'),
+                       Parameter('test2_2', 0.0, float, 'test parameter (float)')
+                       ])
+        ])
+        return parameters_default
 
     def update(self, parameters):
         '''
@@ -55,6 +57,16 @@ class Instrument(object):
 
         '''
         self._parameters.update(parameters)
+
+    @property
+    def values(self):
+        '''
+
+        Returns: a dictionary that contains the values that can be read from the instrument
+        the key is the name of the value and the value of the dictionary is an info
+
+        '''
+        return {'value1': 'this is some value from the instrument', 'value2': 'this is another'}
 
     def get_values(self, key):
         '''
@@ -71,6 +83,31 @@ class Instrument(object):
 
         return value
 
+    @property
+    def is_connected(self):
+        '''
+        check if instrument is active and connected and return True in that case
+        :return: bool
+        '''
+        return self._is_connected
+
+    # ========================================================================================
+    # ======= Following functions are generic ================================================
+    # ========================================================================================
+    # do not override this, override get_values instead
+    def __getattr__(self, name):
+        try:
+            return self.get_values(name)
+        except KeyError:
+            #restores standard behavior for missing keys
+            raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
+
+    def __setattr__(self, key, value):
+        try:
+            self.update(key, value)
+        except Exception:
+            object.__setattr__(self, key, value)
+
     def __repr__(self):
 
         output_string = '{:s} (class type: {:s})\n'.format(self.name, self.__class__.__name__)
@@ -81,14 +118,6 @@ class Instrument(object):
         return output_string
 
     @property
-    def is_connected(self):
-        '''
-        check if instrument is active and connected and return True in that case
-        :return: bool
-        '''
-        return self._is_connected
-
-    @property
     def name(self):
         return self._name
     @name.setter
@@ -97,30 +126,5 @@ class Instrument(object):
         self._name = value
 
     @property
-    def values(self):
-        '''
-
-        Returns: a dictionary that contains the values that can be read from the instrument
-        the key is the name of the value and the value of the dictionary is an info
-
-        '''
-        return {'value1': 'this is some value from the instrument', 'value2': 'this is another'}
-
-    @property
-    def _parameters_default(self):
-        '''
-        returns the default parameter_list of the instrument this function should be over written in any subclass
-        '''
-        parameters_default = Parameter([
-            Parameter('test1', 0, int, 'test parameter (int)'),
-            Parameter('test2' ,
-                      [Parameter('test2_1', 'string', str, 'test parameter (str)'),
-                       Parameter('test2_2', 0.0, float, 'test parameter (float)')
-                       ])
-        ])
-        return parameters_default
-
-    @property
     def parameters(self):
         return self._parameters
-
