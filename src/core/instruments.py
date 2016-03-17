@@ -135,11 +135,13 @@ class Instrument(object):
     _is_connected = False #internal flag that indicated if instrument is actually connected
     def __init__(self, name = None, parameters = None):
 
-        a = self.parameters_default
-
+        print(name)
+        print(parameters)
         self._parameters = self.parameters_default
+
         if parameters is not None:
-            self.set_parameters(parameters)
+            print(parameters)
+            self._parameters.update(parameters)
 
         if name is None:
             name = self.__class__.__name__
