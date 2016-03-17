@@ -51,9 +51,6 @@ class Parameter(object):
             else:
                 valid_values = type(value)
 
-            if valid_values == type([]):
-                valid_values = (valid_values, type(value[0]))
-
         if info is None:
             info = 'N/A'
 
@@ -64,8 +61,17 @@ class Parameter(object):
         self.valid_values = valid_values
         self.value = value
         self.info = info
-
-        assert self.isvalid(value), "value is not if valid type"
+        assert self.is_valid(value), "value is not if valid type"
+    def __getitem__(self, name):
+        if name is self.name:
+            return self.value
+        else:
+            raise KeyError('wrong parameter name {:s}, should be {:s}'.format(name, self.name))
+    def __setitem__(self, name, value):
+        if name is self.name:
+            self.value = value
+        else:
+            raise KeyError('wrong parameter name {:s}, should be {:s}'.format(name, self.name))
 
     def __repr__(self):
         return str(self.dict)
@@ -107,8 +113,24 @@ class Parameter(object):
         :param value: new value
         '''
 
-        if self.isvalid(value):
-            self._data.update({'value':value})
+        if self.is_valid(value):
+            if isinstance(self.value, list) and isinstance(self.value[0],Parameter):
+
+                # cast input into a list of parameters
+                if isinstance(value, dict):
+                    value = [Parameter(value)]
+                elif isinstance(value, Parameter):
+                    value = [value]
+                if isinstance(value, list):
+                    value = [p if isinstance(p,Parameter) else Parameter(p) for p in value]
+
+                for p in value:
+                    get_elemet(p.name, self.value).value = p.value
+
+                # print('??', value, self.value)
+                # pass
+            else:
+                self._data.update({'value':value})
         else:
             self._data.update({'value': self.cast_to_valid_type(value)})
             # msg = 'Wrong type ({:s})! Type should be {:s}.'.format(str(type(value)), str(self.valid_values))
@@ -133,17 +155,13 @@ class Parameter(object):
         valid = False
         if isinstance(value, list):
             valid = True
-        elif isinstance(value, tuple):
-            valid = True
-            for element in value:
-                if not isinstance(element, type):
-                    valid = False
         elif isinstance(value, type):
             valid = True
 
-
         if valid:
             self._data.update({'valid_values':value})
+        else:
+            raise TypeError('wrong type for valid_values')
 
     def as_dict(self):
         '''
@@ -174,58 +192,61 @@ class Parameter(object):
         # if isinstance(value, (unicode, QtCore.QString)):
         #     value =  unicode(value) # cast to unicode so we don't have to work with QStrings
 
-        valid_values = self.valid_values
-
-        # for a tupple of type we take the one that min returns, e.g. for a (int, float) this would be float
-        if isinstance(valid_values, tuple):
-            valid_values = min(self.valid_values)
-
-        if valid_values in (int, float, str, bool):
-            cast_type = str(valid_values).replace('<type \'','').replace('\'>','')
+        if self.valid_values in (int, float, str, bool):
+            cast_type = str(self.valid_values).replace('<type \'','').replace('\'>','')
             value = eval('{:s}(value)'.format(cast_type))
-        elif isinstance(valid_values, type(Parameter)):
-            value = Parameter(value)
+        elif isinstance(self.valid_values, type(Parameter)):
+            value = value
         else:
-            raise TypeError('unknown type for {:s}'.format(str(value)))
+            raise ValueError('value for {:s} not valid,  values are {:s}'.format(str(value), str(self.valid_values)))
 
         return value
-    def isvalid(self, value):
+    def is_valid(self, new_value):
         '''
-        checks if every value in values is a valid parameter value, i.e. if within values defined by valid_values
-        :param value:
+        checks if every value in value is a valid parameter value, i.e. if within values defined by valid_values
+        :param new_value: new value that is to be assigned to self.value
         :return: True or False depending if value is valid
         '''
         valid = True
-        if isinstance(value, list):
-            for value in value:
-                if isinstance(self.valid_values, list):
-                    if not value in self.valid_values:
-                        valid = False
-                elif isinstance(self.valid_values, tuple):
-                    if not type(value) in self.valid_values:
-                        valid = False
-                elif isinstance(self.valid_values, type):
-                    if not type(value) is self.valid_values:
-                        valid = False
-                else:
-                    valid = False
-        elif isinstance(value, Parameter):
-            # make sure that the old parameter is actually the same as the new one
-            if not value.name == self.value.name:
+
+        # if new value is a list then it hast to be a list of Parameters or a dictionary and valid values are type list
+        if isinstance(new_value, list):
+            # if new value is a list, the valid values hast to be type([])
+            if self.valid_values is not type([]):
                 valid = False
+            else:
+                # now check that each new value is actually in the valid values
+                for value in new_value:
+                    if isinstance(value, (dict, Parameter)):
+                        valid = self.is_valid(value)
         else:
             if isinstance(self.valid_values, list):
-                if not value in self.valid_values:
+                if not new_value in self.valid_values:
                     valid = False
-            elif isinstance(self.valid_values, tuple):
-                if not type(value) in self.valid_values:
+            elif isinstance(new_value, (Parameter, dict)):
+                # if the new value is a parameter, then the current value hast to be a parameter with the same name
+                # or it hast to be a list of parameters where one of them has the same name as the new parameter
+                if isinstance(self.value, Parameter):
+                    # make sure that the old parameter is actually the same as the new one
+                    if isinstance(new_value, Parameter):
+                        if not new_value.name == self.value.name:
+                            valid = False
+                    elif isinstance(new_value, dict):
+                        if not new_value['name'] == self.value.name:
+                            valid = False
+                elif isinstance(self.value, list):
+                    # make sure that the new parameter is in the list of the current parameters
                     valid = False
+                    for p in self.value:
+                        if isinstance(new_value, Parameter):
+                            if new_value.name == p.name:
+                                valid = True
+                        elif isinstance(new_value, dict):
+                            if new_value['name'] == p.name:
+                                valid = True
             elif isinstance(self.valid_values, type):
-                if not type(value) is self.valid_values:
+                if not type(new_value) is self.valid_values:
                     valid = False
-            else:
-                valid = False
-
         return valid
 
 
@@ -832,12 +853,10 @@ class ZIHF2(Instrument):
             if isinstance(element, dict) and key in ['sigins', 'sigouts', 'demods']:
                 # channel = element['channel']
                 channel = get_elemet('sigouts', self.parameters).as_dict()['sigouts']['channel']
-                print('xxxxxxsssss',channel)
                 for sub_key, val in sorted(element.iteritems()):
                     if not sub_key == 'channel':
                         settings.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
             elif isinstance(element, dict) and key in ['aux']:
-                print('DDD',get_elemet('aux', self.parameters))
                 channel = get_elemet('aux', self.parameters).as_dict()['aux']['channel']
                 settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, channel), element['offset']])
             elif key in ['freq']:
@@ -852,9 +871,7 @@ class ZIHF2(Instrument):
 
     def update_parameters(self, parameters_new):
         # call the update_parameter_list to update the parameter list
-        # print('parameters_new', parameters_new)
         parameters_new = super(ZIHF2, self).update_parameters(parameters_new)
-        print('parameters_new x', parameters_new)
         # now we actually apply these newsettings to the hardware
 
         commands = self.dict_to_settings(parameters_new)
@@ -862,70 +879,6 @@ class ZIHF2(Instrument):
             self.daq.set(commands)
 
 
-
-
-# import unittest
-#
-# class TestInstrumentObjects(unittest.TestCase):
-#
-#     def test_parameter(self):
-#         passed =True
-#
-#         try:
-#
-#             p1 = Parameter('param', 0.0)
-#             p2 = Parameter('param', 0, int, 'test int')
-#             p3 = Parameter('param', 0.0, (int, float), 'test tupple')
-#             p4 = Parameter('param', 0.0, [0.0, 0.1], 'test list')
-#             print('passed single parameter test')
-#
-#             p_nested = Parameter('param nested', p1, None, 'test list')
-#             p_nested = Parameter('param nested', p4, [p1,p4], 'test list')
-#             print('passed nested parameter test')
-#
-#             p_dict = Parameter({'param dict': 0 })
-#             print(p_dict)
-#             print('passed dictionary test')
-#             p_dict_nested = Parameter({'param dict': {'sub param dict': 1 } })
-#             print(p_dict_nested.name, p_dict_nested.value, p_dict_nested.info)
-#             print('passed nested dictionary test')
-#         except:
-#             passed =False
-#         self.assertTrue(passed)
-#
-#     def test_intrument_dummy(self):
-#
-#         passed =True
-#         try:
-#             inst = Instrument_Dummy('my dummny')
-#             print(inst)
-#
-#             print(inst.parameters)
-#
-#             p_new = Parameter('parameter 1', 1)
-#             inst.update_parameters([p_new])
-#
-#             inst = Instrument_Dummy('my dummny', [p_new])
-#
-#             inst = Instrument_Dummy('my dummny', [{'parameter 2': 2.0},{'parameter 1': 2.0}])
-#             inst = Instrument_Dummy('my dummny', {'parameter 2': 2.0, 'parameter 1': 2.0})
-#             inst = ZIHF2('my dummny', {'freq':1.0, 'sigins': {'diff': True}})
-#         except:
-#             passed =False
-#
-#         self.assertTrue(passed)
-#
-#     def test_intrument_ZIHF2(self):
-#         passed =True
-#         try:
-#             zi = ZIHF2('my zi instrument')
-#             # test updating parameter
-#             zi.update_parameters([Parameter('freq', 2e6)])
-#
-#         except:
-#             passed =False
-# if __name__ == '__main__':
-#     unittest.main()
 
 class Instrument_Dummy(Instrument):
     '''
@@ -952,18 +905,4 @@ class Instrument_Dummy(Instrument):
         return parameter_list_default
 
 if __name__ == '__main__':
-    #inst = Instrument_Dummy('my dummny', {'parameter1': 1})
-
     inst = Instrument_Dummy('my dummny')
-    #print(inst.parameter2)
-    #inst.parameter2 = 3.0
-    #print(inst.parameters)
-
-
-
-
-
-    # if inst.status:
-    #     print("hardware success")
-    # else:
-    #     print('failed')
