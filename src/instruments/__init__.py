@@ -1,5 +1,7 @@
 from gauge_controller import PressureGauge
-#from instruments_DAQ import DAQ
-#from instruments_piezocontroller import PiezoController
+from spectrum_analyzer import SpectrumAnalyzer
+from instruments_DAQ import DAQ
+from piezo_controller import PiezoController
 
-__all__ = ['PressureGauge', 'DAQ', 'PiezoController']
+
+__all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer']
