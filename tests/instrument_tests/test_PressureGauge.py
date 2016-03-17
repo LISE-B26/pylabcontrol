@@ -8,7 +8,7 @@ class TestAGC100(TestCase):
         self.gauge = PressureGauge()
 
     def test_parameters_default(self):
-        param_list = self.gauge.parameters_default()
+        param_list = self.gauge._parameters_default()
         self.assertTrue(len(param_list) == 2)  # only has 2 parameters
 
     def test_get_pressure(self):

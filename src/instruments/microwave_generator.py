@@ -19,7 +19,7 @@ class MicrowaveGenerator(Instrument):
     #     self.srs.close()
 
     @property
-    def parameters_default(self):
+    def _parameters_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:

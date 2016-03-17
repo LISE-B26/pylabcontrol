@@ -131,11 +131,21 @@ class Parameter(dict):
 class Instrument(object):
     '''
     generic instrument class
+
+    for subclass overwrite following functions / properties:
+        - _parameters_default
+        - get_values
+        - is_connected
+        - update
+        - values
     '''
     _is_connected = False #internal flag that indicated if instrument is actually connected
+
+
+
     def __init__(self, name = None, parameters = None):
 
-        self._parameters = self.parameters_default
+        self._parameters = self._parameters_default
 
         if parameters is not None:
             self.update(parameters)
@@ -144,7 +154,6 @@ class Instrument(object):
             name = self.__class__.__name__
 
         self.name = name
-
 
     # do not override this, override get_values instead
     def __getattr__(self, name):
@@ -171,7 +180,6 @@ class Instrument(object):
         '''
         self._parameters.update(parameters)
 
-
     def get_values(self, key):
         '''
         requestes value from the instrument and returns it
@@ -181,11 +189,11 @@ class Instrument(object):
         Returns: reads values from instrument
 
         '''
+        assert key in self.values.keys()
 
         value = None
 
         return value
-
 
     def __repr__(self):
 
@@ -212,9 +220,18 @@ class Instrument(object):
         assert isinstance(value, str)
         self._name = value
 
+    @property
+    def values(self):
+        '''
+
+        Returns: a dictionary that contains the values that can be read from the instrument
+        the key is the name of the value and the value of the dictionary is an info
+
+        '''
+        return {'value1': 'this is some value from the instrument', 'value2': 'this is another'}
 
     @property
-    def parameters_default(self):
+    def _parameters_default(self):
         '''
         returns the default parameter_list of the instrument this function should be over written in any subclass
         '''
@@ -268,7 +285,7 @@ class Maestro_Controller(Instrument):
         self.Maxs = [0] * 24
 
     @property
-    def parameters_default(self):
+    def _parameters_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:
@@ -437,7 +454,7 @@ class Maestro_BeamBlock(Instrument):
         self.maestro = maestro
 
     @property
-    def parameters_default(self):
+    def _parameters_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:
@@ -536,7 +553,7 @@ class ZIHF2(Instrument):
         super(ZIHF2, self).__init__(name, parameter_list)
 
     @property
-    def parameters_default(self):
+    def _parameters_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:

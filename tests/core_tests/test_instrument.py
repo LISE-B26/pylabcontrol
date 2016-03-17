@@ -41,8 +41,17 @@ class TestInstrument(TestCase):
         self.assertEqual(test.parameters, {'test1': 200, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
         print(test.parameters)
 
+    def test_tes(self):
+        test = Instrument('my inst')
 
+        print(test.parameters)
 
+        with self.assertRaises(AssertionError):
+            # request variable that is not in values
+            test.test4
+
+        a = test.value1
+        self.assertEqual(a, None)
 
     def Ttest_QString(self):
         from PyQt4 import QtCore

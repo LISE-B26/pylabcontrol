@@ -7,11 +7,11 @@ class TestZIHF2(TestCase):
     def test_init(self):
         test = ZIHF2()
         # test = ZIHF2('ZI inst',{'sigins': {'diff': True, 'ac': False, 'imp50': 1, 'range': 10, 'channel': 0}})
-        print([p.as_dict() for p in test.parameters_default])
+        print([p.as_dict() for p in test._parameters_default])
 
         # values get over-written i
 
-        test = ZIHF2('test',[p.as_dict() for p in test.parameters_default])
+        test = ZIHF2('test', [p.as_dict() for p in test._parameters_default])
         print(test)
     # def test_update(self):
     #     '''

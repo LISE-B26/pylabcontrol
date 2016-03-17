@@ -45,7 +45,7 @@ class PressureGauge(Instrument):
         self.probes = ['pressure', 'units']
 
     @property
-    def parameters_default(self):
+    def _parameters_default(self):
         """
         returns the default parameter_list of the instrument
         :return:
