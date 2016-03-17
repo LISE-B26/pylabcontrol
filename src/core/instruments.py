@@ -135,13 +135,10 @@ class Instrument(object):
     _is_connected = False #internal flag that indicated if instrument is actually connected
     def __init__(self, name = None, parameters = None):
 
-        print(name)
-        print(parameters)
         self._parameters = self.parameters_default
 
         if parameters is not None:
-            print(parameters)
-            self._parameters.update(parameters)
+            self.update(parameters)
 
         if name is None:
             name = self.__class__.__name__
@@ -159,15 +156,35 @@ class Instrument(object):
 
     def __setattr__(self, key, value):
         try:
-            self.set_parameters(key, value)
+            self.update(key, value)
         except Exception:
             object.__setattr__(self, key, value)
 
-    def set_parameters(self, key, value):
-        self.parameters[key] = value
+    def update(self, parameters):
+        '''
+        updates the internal dictionary and sends changed values to instrument
+        Args:
+            parameters: parameters to be set
+        # mabe in the future:
+        # Returns: boolean that is true if update successful
+
+        '''
+        self._parameters.update(parameters)
+
 
     def get_values(self, key):
-        return self.parameters[key]
+        '''
+        requestes value from the instrument and returns it
+        Args:
+            key: name of requested value
+
+        Returns: reads values from instrument
+
+        '''
+
+        value = None
+
+        return value
 
 
     def __repr__(self):
@@ -200,7 +217,6 @@ class Instrument(object):
     def parameters_default(self):
         '''
         returns the default parameter_list of the instrument this function should be over written in any subclass
-        :return: a list of parameter objects
         '''
         parameters_default = Parameter([
             Parameter('test1', 0, int, 'test parameter (int)'),
@@ -214,8 +230,7 @@ class Instrument(object):
     @property
     def parameters(self):
         return self._parameters
-    # @property.setter
-    # def parameters(self, value):
+
 
 # =============== MAESTRO ==================================
 # ==========================================================

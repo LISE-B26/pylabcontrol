@@ -44,22 +44,6 @@ class TestInstrument(TestCase):
 
 
 
-        #
-        # test.update_parameters(Parameter('test1', 10))
-        # test.update_parameters({'test1':1000})
-        #
-        # # test update of a part of a subdict
-        # test = Instrument()
-        # parameter_start = deepcopy(test.parameters)
-        #
-        # # we update with the original value, but only one entry
-        # value = get_elemet('test2',parameter_start).as_dict()['test2']['test2_1']
-        # test.update_parameters({'test2':{'test2_1':value}})
-        # parameter_end = test.parameters
-        #
-        # for x1, x2 in zip(parameter_start, parameter_end):
-        #     self.assertEquals(x1,x2)
-
     def Ttest_QString(self):
         from PyQt4 import QtCore
         test = Instrument()
