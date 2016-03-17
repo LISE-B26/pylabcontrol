@@ -18,10 +18,10 @@ class MaestroController(Instrument):
 
     import serial
 
-    def __init__(self, name = None, parameters = []):
+    def __init__(self, name = None, parameters = None):
 
         super(MaestroController, self).__init__(name, parameters)
-        self.update_parameters(self.parameters)
+        self.update(self.parameters)
         # Open the command port
         # self.usb = self.serial.Serial(port)
         # Command lead-in and device 12 are sent for each Pololu serial commands.

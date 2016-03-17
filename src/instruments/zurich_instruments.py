@@ -29,6 +29,8 @@ class ZIHF2(Instrument):
             self.options = None
 
         super(ZIHF2, self).__init__(name, parameters)
+        # apply all settings to instrument
+        self.update(self.parameters)
 
 
     # ========================================================================================
