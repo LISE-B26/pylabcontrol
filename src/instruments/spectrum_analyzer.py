@@ -11,11 +11,23 @@ class SpectrumAnalyzer(Instrument):
     # String returned by spectrum analyzer upon querying it with '*IDN?'
 
     def __init__(self, name='SpectrumAnalyzer', parameter_list=[]):
+        """
+
+        Args:
+            name (str): optional name of instance of class
+            parameter_list (list): list of other values to initialize class with
+
+        """
         super(SpectrumAnalyzer, self).__init__(name, parameter_list)
         self.rm = visa.ResourceManager()
         self.spec_anal = self.rm.open_resource(self.visa_resource)
 
     def parameters_default(self):
+        """
+        parameters_default lists the default Parameters used by the Spectrum Analyzer
+
+        Returns: a list of Parameter objects for the parameters associated with the instrument.
+        """
 
         parameter_list_default = [
             Parameter('visa_resource', 'USB0::0x0957::0xFFEF::CN0323B356::INSTR', (str),
@@ -27,5 +39,10 @@ class SpectrumAnalyzer(Instrument):
         return parameter_list_default
 
     def is_connected(self):
+        """
+        Checks if the instrument is connected.
+        Returns: True if connected, False otherwise.
+
+        """
         identification = self.spec_anal.query('*IDN?\n')
         return identification == self.INSTRUMENT_IDENTIFIER
