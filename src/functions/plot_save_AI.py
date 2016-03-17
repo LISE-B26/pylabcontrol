@@ -162,5 +162,6 @@ def save_and_plot_AI(device, freq, run_time, dirpath, tag):
         df.to_csv(filepathCSV, index = False, header=header, mode = 'a')
     fig.savefig(str(filepathJPG), format = 'jpg')
     ai.stop()
+if __name__ == '__main__':
+    save_AI('Dev1/AI2', 1000, 30000, "Z:/Lab/Cantilever/Measurements/20160301_ResonatorDrift", 'PLL')
 
-save_AI('Dev1/AI2', 1000, 30000, "Z:/Lab/Cantilever/Measurements/20160301_ResonatorDrift", 'PLL')

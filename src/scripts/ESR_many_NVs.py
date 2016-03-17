@@ -7,8 +7,12 @@ import helper_functions.test_types as test_types
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from hardware_modules import GalvoMirrors as DaqOut
-from hardware_modules import PiezoController as PC
+
+from src.scripts import ESR
+from src.functions import track_NVs as track
+from src.functions import ScanAPD
+from src.hardware_modules import GalvoMirrors as DaqOut
+from src.hardware_modules import PiezoController as PC
 
 from src.functions import Focusing as F
 from src.functions import ScanAPD

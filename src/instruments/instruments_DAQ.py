@@ -317,5 +317,6 @@ class SetGalvoPoint:
         pointthread.stop()
 
 
-a = DAQ('Dev1')
-print(a.parameters)
+if __name__ == '__main__':
+    a = DAQ('Dev1')
+    print(a.parameters)

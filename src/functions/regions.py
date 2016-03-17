@@ -71,4 +71,5 @@ roi = {
 # roi_crop(roi)
 # print roi
 
-print roi_to_min_max(roi)
+if __name__ == '__main__':
+    print roi_to_min_max(roi)

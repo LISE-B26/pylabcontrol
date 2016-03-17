@@ -134,4 +134,5 @@ def process_results():
     plt.legend(loc = 'right')
     plt.show()
 
-process_results()
+if __name__ == '__main__':
+    process_results()

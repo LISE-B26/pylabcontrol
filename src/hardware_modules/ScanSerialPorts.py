@@ -14,6 +14,7 @@ def scan():
            pass
    return available
 
-print "Found ports:"
-for n,s in scan(): print "(%d) %s" % (n,s)
-print('done')
+if __name__ == '__main__':
+    print "Found ports:"
+    for n,s in scan(): print "(%d) %s" % (n,s)
+    print('done')

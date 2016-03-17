@@ -33,4 +33,5 @@ def analyze_dist():
     print np.mean(space_list)
     print np.std(space_list)
 
-analyze_dist()
+if __name__ == '__main__':
+    analyze_dist()

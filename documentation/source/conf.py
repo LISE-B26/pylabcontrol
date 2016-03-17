@@ -21,7 +21,6 @@ import shlex
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../../src'))
 sys.path.insert(0, os.path.abspath('../..'))
-print(sys.path)
 
 # -- General configuration ------------------------------------------------
 
@@ -37,7 +36,11 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
+    'sphinx.ext.napoleon'
 ]
+
+#adds __special__ members to doc
+autodoc_default_flags = ['special-members']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

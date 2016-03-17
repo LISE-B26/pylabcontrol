@@ -41,12 +41,10 @@ class PiezoController(Instrument):
     def update_parameters(self, parameters_new):
         parameters_new = super(PiezoController, self).update_parameters(parameters_new)
         for key, value in parameters_new.iteritems():
-            if key == 'port' or key == 'baudrate' or key == 'timeout':
-                if self._is_connected:
-                       self.ser.close()
-                self.connect(port = self.as_dict()['port'], baudrate = self.as_dict()['baudrate'], timeout = self.as_dict()['timeout'])
-            elif key == 'voltage':
+            if key == 'voltage':
                 self.set_voltage(value)
+            elif key == 'voltage_limit':
+                raise EnvironmentError('Voltage limit cannot be set in software. Change physical switch on back of device')
 
     def set_voltage(self, voltage):
         self.ser.write(self.axis + 'voltage=' + str(voltage) + '\r')
@@ -64,3 +62,13 @@ class PiezoController(Instrument):
         self.ser.write(self.axis + 'voltage?\r')
         xVoltage = self.ser.readline()
         return(float(xVoltage[2:-2].strip()))
+
+    @property
+    def voltage_limit(self):
+            self.ser.write('vlimit?\r')
+            vlimit = self.ser.readline()
+            return vlimit[2:-3].strip()
+
+if __name__ == '__main__':
+    a = PiezoController('hi')
+    print(a.parameters)

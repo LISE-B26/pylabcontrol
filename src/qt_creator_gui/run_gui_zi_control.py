@@ -11,6 +11,16 @@ Created on Feb 2 2016
 
 from PyQt4 import QtCore
 from PyQt4.uic import loadUiType
+import sys
+
+from PyQt4 import QtGui, QtCore
+
+from src.helper_functions.reading_writing import save_json
+import pandas as pd
+from copy import deepcopy
+import os
+import src.hardware_modules.ZiControl as ZI
+from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas)
 from matplotlib.figure import Figure

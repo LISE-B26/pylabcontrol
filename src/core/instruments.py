@@ -270,7 +270,6 @@ class Instrument(object):
     _is_connected = False #internal flag that indicated if instrument is actually connected
     def __init__(self, name = None, parameter_list = []):
 
-
         self._parameters = self.parameters_default
         self.update_parameters(parameter_list)
 
@@ -300,11 +299,18 @@ class Instrument(object):
     def get_values(self, name):
         return self.as_dict()[str(name)]
 
+    #have derived classes throw an environment error when external hardware setting fails
     def __setattr__(self, key, value):
         try:
             self.update_parameters(Parameter(key, value))
+        except EnvironmentError:
+            raise
         except Exception:
             object.__setattr__(self, key, value)
+        # if key in self._parameters:
+        #     self.update_parameters(Parameter(key, value))
+        # else:
+        #     object.__setattr__(self, key, value)
 
     def __str__(self):
 

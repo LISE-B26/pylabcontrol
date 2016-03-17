@@ -280,8 +280,13 @@
    <widget class="MatplotlibWidget" name="matplotlibwidget">
     <property name="geometry">
      <rect>
+<<<<<<< Updated upstream:src/qt_creator_gui/zi_control.ui
       <x>30</x>
       <y>10</y>
+=======
+      <x>10</x>
+      <y>30</y>
+>>>>>>> Stashed changes:qt_creator_gui/zi_control.ui
       <width>400</width>
       <height>300</height>
      </rect>

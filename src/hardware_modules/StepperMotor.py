@@ -13,5 +13,5 @@ class SMC100:
         temp = self.ser.readlines()
         print(temp)
 
-
-a = SMC100()
+if __name__ == '__main__':
+    a = SMC100()

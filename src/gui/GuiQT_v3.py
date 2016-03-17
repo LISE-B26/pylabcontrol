@@ -82,11 +82,12 @@ class ApplicationWindow(QtGui.QMainWindow):
     def about(self):
         QtGui.QMessageBox.about(self, "About", """Temp""")
 
-# Core application loop which starts and runs the GUI
-qApp = QtGui.QApplication(sys.argv)
-aw = ApplicationWindow()
-progname = 'Experiment Gui'
-aw.setWindowTitle("%s" % progname)
-aw.show()
-sys.exit(qApp.exec_())
-#qApp.exec_()
+if __name__ == '__main__':
+    # Core application loop which starts and runs the GUI
+    qApp = QtGui.QApplication(sys.argv)
+    aw = ApplicationWindow()
+    progname = 'Experiment Gui'
+    aw.setWindowTitle("%s" % progname)
+    aw.show()
+    sys.exit(qApp.exec_())
+    #qApp.exec_()

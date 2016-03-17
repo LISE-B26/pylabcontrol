@@ -6,18 +6,18 @@ import subprocess
 import time
 
 import Image
-import helper_functions.meshing as Meshing
-import helper_functions.reading_writing as rw
+import src.helper_functions.Meshing as Meshing
+import src.helper_functions.reading_writing as rw
 import matplotlib.patches as patches
 import numpy as np
 import pandas as pd
 import scipy.spatial
-import scripts.ESR_many_NVs as ESR
+import src.scripts.ESR_many_NVs as ESR
 from PyQt4 import QtGui
-from functions import track_NVs as track
-from hardware_modules import PiezoController as PC
-from scripts import ZiControl_many_pts as ZIControl
-from scripts import set_focus as f
+from src.functions import track_NVs as track
+from src.hardware_modules import PiezoController as PC
+from src.scripts import ZiControl_many_pts as ZIControl
+from src.scripts import set_focus as f
 
 import src.scripts.auto_focus as AF
 from src.gui import GuiDeviceTriggers as DeviceTriggers

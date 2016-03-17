@@ -113,6 +113,6 @@ def fit_all_plots():
     plt.ylabel('Shift (um)')
     plt.legend(bbox_to_anchor=(1, .5))
     plt.show()
-
-#process_images()
-fit_all_plots()
+if __name__ == '__main__':
+    #process_images()
+    fit_all_plots()

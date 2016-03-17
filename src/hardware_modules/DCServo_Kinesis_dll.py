@@ -152,9 +152,9 @@ class TDC001:
 if __name__ == '__main__':
     # TDC001 serial number is 83832028 as given on physical device
     serial_number = 83832028
-    a = TDC001(serial_number)
-    print(a.get_position())
+    #a = TDC001(serial_number)
+    #print(a.get_position())
     #a.goto_home()
     #print(a.get_position())
-    a.move_servo(6)
-    print(a.get_position())
+    # a.move_servo(6)
+    # print(a.get_position())

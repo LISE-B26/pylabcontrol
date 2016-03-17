@@ -44,4 +44,5 @@ def plot_temp():
     plt.ylabel('Temperature (K)')
     plt.show()
 
-record_temp()
+if __name__ == '__main__':
+    record_temp()

@@ -155,63 +155,64 @@ class plotScannedResonator():
         plt.imshow(imageData,cmap='pink')
         plt.show()
 
-#Pre-sweep sequence
-#point specification
-xminpair = 0
-xmaxpair = .1
-xpts = 9
-yminpair = 0
-ymaxpair = .1
-ypts = 21
-theta = -23.7
+if __name__ == '__main__':
+    #Pre-sweep sequence
+    #point specification
+    xminpair = 0
+    xmaxpair = .1
+    xpts = 9
+    yminpair = 0
+    ymaxpair = .1
+    ypts = 21
+    theta = -23.7
 
-#image specification
-xImMin = -.4
-xImMax = .4
-yImMin = -.4
-yImMax = .4
+    #image specification
+    xImMin = -.4
+    xImMax = .4
+    yImMin = -.4
+    yImMax = .4
 
-#Pre-sweep helper_functions
-temp = plotScannedResonator(xminpair,xmaxpair,xpts,yminpair,ymaxpair,ypts,theta)
-temp.plotPreSweep(xImMin, xImMax, yImMin, yImMax)
-
-
-#Run Sequence: uses points specified above
-#Sweep specifications
-amplitude = .2
-offset = 2
-freqMin = 2000000
-freqMax = 2100000
-averagingPerPt = 16
+    #Pre-sweep helper_functions
+    temp = plotScannedResonator(xminpair,xmaxpair,xpts,yminpair,ymaxpair,ypts,theta)
+    temp.plotPreSweep(xImMin, xImMax, yImMin, yImMax)
 
 
-xypairs = defXYpairs.getPairs(xminpair, xmaxpair, xpts, yminpair, ymaxpair, ypts, theta)
-scanner = SweepScan(xypairs)
-scanner.sweepscan(amplitude, offset, freqMin, freqMax, 50, 16)
+    #Run Sequence: uses points specified above
+    #Sweep specifications
+    amplitude = .2
+    offset = 2
+    freqMin = 2000000
+    freqMax = 2100000
+    averagingPerPt = 16
 
 
-
+    xypairs = defXYpairs.getPairs(xminpair, xmaxpair, xpts, yminpair, ymaxpair, ypts, theta)
+    scanner = SweepScan(xypairs)
+    scanner.sweepscan(amplitude, offset, freqMin, freqMax, 50, 16)
 
 
 
-#amps = [2,.8,.2,.08,.02]
-#offset = [4,4,2,2,2]
-#name = ['1_','2_','3_','4_','5_']
 
-#xypairs = defXYpairs.getPairs(.2, .228, 15, -.084, .01, 51, -23.7)
-#scanner = SweepScan(xypairs)
-#scanner.sweepscan(.2, 2, 551000, 553000, 50, 16)
-#daq = ZI.ZIHF2(.2, 2, 2000000, ACCoupling=1)
-#daq.poll()
 
-#for a,off,n in zip(amps,offset,name):
-#    scanner = SweepScan(xypairs)
-#    scanner.sweepscan(a, off, 551250, 552250, 150, 16, n)
 
-#temp = plotScannedResonator()
-#temp.getData()
-#temp.plotResSweep()
-#temp.linPlotx(4)
-#temp.linPloty(9)
-#plotScannedResonator.plotImage()
+    #amps = [2,.8,.2,.08,.02]
+    #offset = [4,4,2,2,2]
+    #name = ['1_','2_','3_','4_','5_']
+
+    #xypairs = defXYpairs.getPairs(.2, .228, 15, -.084, .01, 51, -23.7)
+    #scanner = SweepScan(xypairs)
+    #scanner.sweepscan(.2, 2, 551000, 553000, 50, 16)
+    #daq = ZI.ZIHF2(.2, 2, 2000000, ACCoupling=1)
+    #daq.poll()
+
+    #for a,off,n in zip(amps,offset,name):
+    #    scanner = SweepScan(xypairs)
+    #    scanner.sweepscan(a, off, 551250, 552250, 150, 16, n)
+
+    #temp = plotScannedResonator()
+    #temp.getData()
+    #temp.plotResSweep()
+    #temp.linPlotx(4)
+    #temp.linPloty(9)
+    #plotScannedResonator.plotImage()
 

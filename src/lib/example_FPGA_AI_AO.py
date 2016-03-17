@@ -12,24 +12,25 @@ import time
 
 from src import lib as NI
 
-fpga = NI.NI7845R()
+if __name__ == '__main__':
+    fpga = NI.NI7845R()
 
-print(fpga.session, fpga.status)
-fpga.start()
+    print(fpga.session, fpga.status)
+    fpga.start()
 
-print(fpga.session, fpga.status)
+    print(fpga.session, fpga.status)
 
 
 
-AI = NI.AnalogInput(1,fpga)
-AO = NI.AnalogOutput(0,fpga)
+    AI = NI.AnalogInput(1,fpga)
+    AO = NI.AnalogOutput(0,fpga)
 
-for i in range(0,20000,1000):
-    AO.write(i)
-    time.sleep(0.1)
-    x = AI.read()
-    print('set {:05d}\t actual {:05d}\t error {:0.2f}%'.format(i, x, 100.* (x-i) / (x+i)))
-fpga.stop()
+    for i in range(0,20000,1000):
+        AO.write(i)
+        time.sleep(0.1)
+        x = AI.read()
+        print('set {:05d}\t actual {:05d}\t error {:0.2f}%'.format(i, x, 100.* (x-i) / (x+i)))
+    fpga.stop()
 
-print(fpga.session, fpga.status)
+    print(fpga.session, fpga.status)
 

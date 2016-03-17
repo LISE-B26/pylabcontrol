@@ -1,5 +1,6 @@
 import numpy
 import pandas
 
-a = pandas.read_csv('')
+if __name__ == '__main__':
+    a = pandas.read_csv('')
 

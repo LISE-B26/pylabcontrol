@@ -19,12 +19,13 @@
 
 from src import lib as NI
 
-fpga = NI.NI7845R()
-fpga.start()
+if __name__ == '__main__':
+    fpga = NI.NI7845R()
+    fpga.start()
 
-AI = NI.AnalogInput(0, fpga)
-for i in range(10):
-    x = AI.read()
-    print(x)
-fpga.stop()
+    AI = NI.AnalogInput(0, fpga)
+    for i in range(10):
+        x = AI.read()
+        print(x)
+    fpga.stop()
 
