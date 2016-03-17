@@ -20,10 +20,13 @@ def get_elemet(name, element_list):
     return element
 
 class Parameter(dict):
-    def __init__(self, name, value, valid_values = None, info = None):
+    def __init__(self, name, value = None, valid_values = None, info = None):
 
         if info is None:
             info = ''
+
+        if value is None and isinstance(name, dict) and len(name) == 1:
+            name, value  = list(name.iteritems())[0]
         if valid_values is None:
             valid_values = type(value)
 

@@ -1,26 +1,17 @@
 from unittest import TestCase
 from copy import deepcopy
-from src.core.instruments import Parameter, ParameterList, is_valid
+from src.core.instruments import Parameter
 from PyQt4 import QtCore
 class TestParameter(TestCase):
 
-    def test_valid_check(self):
-
-        # p1 = Parameter('param', 0)
-        # print(is_valid(1, p1.valid_values))
-
-        p2 = Parameter('param2', 2)
-        p1 = Parameter('param', p2)
-        p2a = Parameter('param2', 3)
-        print(is_valid(p2a, p1.valid_values))
 
 
     def  test_parameter_single(self):
         # init
         p0 = Parameter('param', 0)
 
-        self.assertEquals(p0,0)
-        self.assertEquals(p0.value,0)
+        self.assertEquals(p0,{'param':0})
+        self.assertEquals(p0['param'],0)
 
         p0 = Parameter({'param':  1})
 
