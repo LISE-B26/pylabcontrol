@@ -1,107 +1,139 @@
 from unittest import TestCase
 from copy import deepcopy
-from src.core.instruments import Parameter, get_elemet
-
+from src.core.instruments import Parameter, ParameterList, is_valid
+from PyQt4 import QtCore
 class TestParameter(TestCase):
 
-    def Ttest_init(self):
-        # initiate Paremater in all possible ways
-        p1 = Parameter('param1', 0.0)
-        p2 = Parameter('param2', 0, int, 'test int')
-        p3 = Parameter('param3', 0.0, float, 'test tupple')
-        p4 = Parameter('param4', 0.0, [0.0, 0.1], 'test list')
+    def test_valid_check(self):
 
-        p4.value = 0.1
-        p1.value = '1e6'
-        p1.value = '13'
-        p2.value = 0.1
-        p2.value = '13'
+        # p1 = Parameter('param', 0)
+        # print(is_valid(1, p1.valid_values))
+
+        p2 = Parameter('param2', 2)
+        p1 = Parameter('param', p2)
+        p2a = Parameter('param2', 3)
+        print(is_valid(p2a, p1.valid_values))
+
+
+    def  test_parameter_single(self):
+        # init
+        p0 = Parameter('param', 0)
+
+        self.assertEquals(p0,0)
+        self.assertEquals(p0.value,0)
+
+        p0 = Parameter({'param':  1})
+
+        self.assertEquals(p0,1)
+
+        #update
+        p0 = 2
+
+        self.assertEquals(p0,2)
+
+        p0.value = 3
+
+        self.assertEquals(p0,3)
+
+        p0 = {'param':  4}
+
+        self.assertEquals(p0,4)
+
         with self.assertRaises(ValueError):
-            p4.value = 0.2
-            p2.value = 's'
+            p1 = Parameter('param1', 0, [0, 1, 2, 3])
+            p1.value = 5
 
 
-        print(p1.as_dict())
-        print(p2.as_dict())
-        print(p3.as_dict())
-        print(p4.as_dict())
-
-        p_nested = Parameter('param nested', p1, None, 'test list')
-        p_nested = Parameter('param nested', p4, [p1,p4], 'test list')
-
-        p_dict = Parameter({'param dict': 0 })
-        p_dict_nested = Parameter({'param dict': {'sub param dict': 1 } })
-
-    def Ttest_update_Parameter(self):
-
-        # ======================================================
-        # update Parameter
-        p1 = Parameter('param', 0)
-        p1.value = 0.1
-        p1.value = '2'
-        p1 = Parameter('par 3', [1,2])
-        new_value = [2,3,5,4]
-        p1.value = new_value
-        self.assertEquals(new_value, p1.value)
-
-        # ======================================================
-        p1 = Parameter('param', 0)
-        p1b = Parameter('param', 1)
+    def  test_parameter_multi(self):
+        # init
+        p1 = Parameter('param1', 1)
         p2 = Parameter('param2', 2)
-        p3 = Parameter('par 3', [p1, p2])
-        p4 = Parameter('param4', 4)
+        p0 = Parameter('param0', [p1, p2])
+
+        self.assertEquals(p0 , {'param1':1, 'param2':2})
 
 
-        # ======================================================
-        p3 = Parameter('par 3', [p1, p2])
-        initial = deepcopy(p3.as_dict())
-        p3.value = p1
-        final = p3.as_dict()
+        #update
+        p0['param1'] = 3
+        self.assertEquals(p0 , {'param1':3, 'param2':2})
+        self.assertEquals(p0['param1'] , 3)
+        self.assertEquals(p0['param1'].value , 3)
 
-        self.assertEquals(initial, final)
+        p0.update({'param1':4})
+        self.assertEquals(p0 , {'param1':4, 'param2':2})
 
-        # ======================================================
-        # this should give an IndexError
-        p3 = Parameter('par 3', [p1, p2])
+        p0.update(Parameter('param2', 7))
+        self.assertEquals(p0 , {'param1':4, 'param2':7})
+
+        p0.update('param2', 8)
+        self.assertEquals(p0 , {'param1':4, 'param2':8})
+
+        p0 = {'param1':5, 'param2':6}
+        self.assertEquals(p0 , {'param1':5, 'param2':6})
+
+        self.assertEquals(p0['param1'] ,5)
+        self.assertEquals(p0['param2'] ,6)
+
+
         with self.assertRaises(IndexError):
-            p3.value = [p4,p1]
-        # p3.value = p1
+            print(p0['param3'])
 
-        # ======================================================
-        # if value is a parameter, the is should also be able to accept dictionaries and cast them into parameter objects
-        p1 = Parameter('param', 0)
-        p2 = Parameter('param2', p1)
-        p2.value = Parameter('param', 4)
+        with self.assertRaises(IndexError):
+            p0.update({'param3', 2})
 
-        # p2.value = {'param' : 4}
+        with self.assertRaises(ValueError):
+            Parameter('param', [1, p2])
 
+        with self.assertRaises(ValueError):
+            p3 = Parameter('param3', 3)
 
-    def test_casting(self):
-        '''
-        test all possible ways to update a parameter
-        :return:
-        '''
-        p1 = Parameter('param', 0)
+        with self.assertRaises(ValueError):
+            p0.update('param2', p3)
+
+        with self.assertRaises(ValueError):
+            p0.value = [1, 2]
+
+        with self.assertRaises(ValueError):
+            px1 = Parameter('param1', [0, 1])
+            px1.value = [p1, p2]
+
+        with self.assertRaises(ValueError):
+            p1 = Parameter('param1', 1)
+            p2 = Parameter('param2', 2)
+            p3 = Parameter('param3', 3)
+            p0 = Parameter('param0', [p1, p2])
+
+            p0.update([p1,p3])
+
+        p1 = Parameter('param1', 1)
         p2 = Parameter('param2', 2)
-        p3 = Parameter('param3', [p1, p2])
+        p3 = Parameter('param2', 3)
+        p0 = Parameter('param0', [p1, p2])
 
-        print(p1['param'])
-        p1['param'] = 44
+        p0.update([p1,p3])
 
-        #
-        # initial = deepcopy(p3.as_dict())
-        # p3.value = Parameter({'param2': 4})
-        # final = deepcopy(p3.as_dict())
-        #
-        # get_elemet('param', p3.value).value = 3
-        #
-        # # print(p1.as_dict())
-        # # print(p3.as_dict())
-        # # print(p3)
-        #
-        # parameters = {'param1': 'value1', 'param2': 'value2'}
-        # parameters = [{'param1':'value1'}, {'param2':'value2'}]
-        # parameters = [Parameter('param1', 'value1'), Parameter('param2', 'value2')]
-        # print(p1.as_dict())
+        p1 = Parameter('param1', [0, 1])
+        p1.value = [0,1,2,3]
 
-        print(p1.as_dict())
+        self.assertEquals(p1.value, [0,1,2,3])
+
+
+
+
+    def test_QString(self):
+        p1 = Parameter('param1', 0)
+
+        value_from_gui = QtCore.QString('1')
+
+        p1.value = value_from_gui
+
+        self.assertEquals(p1.value, 1)
+
+
+        p1 = Parameter('param1', [0,1,2,3])
+
+        value_from_gui = QtCore.QString('[1,2,3,4,5]')
+
+        p1.value = value_from_gui
+
+        self.assertEquals(p1.value, [1,2,3,4,5])
