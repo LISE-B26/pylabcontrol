@@ -35,6 +35,8 @@ class PressureGauge(Instrument):
     ACK = chr(6)  # \x06
     NAK = chr(21)  # \x15
 
+    PROBES = ['pressure', 'units']
+
     def __init__(self, name='PressureGauge', parameter_list=[]):
         """
         The serial connection should be setup with the following parameters:
@@ -45,7 +47,7 @@ class PressureGauge(Instrument):
 
         super(PressureGauge, self).__init__(name, parameter_list)
         self.ser = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
-        self.probes = ['pressure', 'units']
+
 
     @property
     def parameters_default(self):
@@ -56,7 +58,7 @@ class PressureGauge(Instrument):
 
         possible_com_ports = ['COM' + str(i) for i in range(0, 256)]
         parameter_list_default = [
-            Parameter('port', 'COM3', possible_com_ports, 'com port to which the gauge controller is connected'),
+            Parameter('port', 'COM4', possible_com_ports, 'com port to which the gauge controller is connected'),
             Parameter('timeout', 1.0, float, 'amount of time to wait for a response from the gauge controller for each query'),
             Parameter('baudrate', 9600, int, 'baudrate of serial communication with gauge')
         ]

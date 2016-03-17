@@ -21,7 +21,7 @@ class TestAGC100(TestCase):
 
     def test_get_gauge_model(self):
         model = self.gauge.model
-        self.assertTrue(model == 'FRG70x')
+        self.assertEqual(model, 'FRG70x')
 
     def test_get_units(self):
         units = self.gauge.units
@@ -30,3 +30,7 @@ class TestAGC100(TestCase):
 
     def test_is_connected(self):
         self.assertTrue(self.gauge.is_connected())
+
+    def test_probe_list(self):
+        probes = self.gauge.PROBES
+        self.assertEqual(probes, ['pressure', 'units'])
