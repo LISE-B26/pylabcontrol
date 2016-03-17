@@ -1,5 +1,5 @@
-Project Info
-=====================
+PythonLab
+==========================
 
-
-This code is maintained by the Lukin Lab, specifically Arthur Safira, Jan Gieseler, and Aaron Kabcenell.
+PythonLab is laboratory software used to run experiments in the Lukin Group at Harvard University.
+It is currently maintained by Arthur Safira, Jan Gieseler, Aaron Kabcenell.

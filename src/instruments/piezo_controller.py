@@ -44,13 +44,12 @@ class PiezoController(Instrument):
             if key == 'port' or key == 'baudrate' or key == 'timeout':
                 if self._is_connected:
                        self.ser.close()
-                self.connect(port = self.parameters_dict['port'], baudrate = self.parameters_dict['baudrate'], timeout = self.parameters_dict['timeout'])
+                self.connect(port = self.as_dict()['port'], baudrate = self.as_dict()['baudrate'], timeout = self.as_dict()['timeout'])
             elif key == 'voltage':
                 self.set_voltage(value)
 
     def set_voltage(self, voltage):
         self.ser.write(self.axis + 'voltage=' + str(voltage) + '\r')
-        #self.ser.write(self.parameters_dict['axis'] + 'voltage=' + str(voltage) + '\r')
         successCheck = self.ser.readlines()
         # print(successCheck)
         # * and ! are values returned by controller on success or failure respectively
@@ -65,12 +64,3 @@ class PiezoController(Instrument):
         self.ser.write(self.axis + 'voltage?\r')
         xVoltage = self.ser.readline()
         return(float(xVoltage[2:-2].strip()))
-
-
-
-a = PiezoController('PC')
-a.axis = 'y'
-print(a.voltage)
-a.voltage = 25
-print(a.parameters)
-print(a.voltage)
