@@ -154,9 +154,9 @@ class Attocube(inst.Instrument):
         :param position: position of axis to move to in um
         '''
         device_handle = int32()
-        self.check_error(attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(attocube.PositionerMoveAbsolute(device_handle, axis, int32(int(position*1000.0))))
-        self.check_error(attocube.PositionerClose(device_handle))
+        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        self.check_error(self.attocube.PositionerMoveAbsolute(device_handle, axis, int32(int(position*1000.0))))
+        self.check_error(self.attocube.PositionerClose(device_handle))
 
 
 
