@@ -21,12 +21,29 @@ def get_elemet(name, element_list):
 
 class Parameter(dict):
     def __init__(self, name, value = None, valid_values = None, info = None):
+        '''
+        Args:
+            name:
+            value:
+            valid_values:
+            info:
 
+        Returns:
+
+        '''
         if info is None:
             info = ''
 
         if value is None and isinstance(name, dict) and len(name) == 1:
             name, value  = list(name.iteritems())[0]
+        elif value is None and isinstance(name, dict):
+            print('init with list of parameters Parameter([p1, p2, p3]) not implemented yet')
+            raise ValueError
+            # value = [Parameter(k,v) for k, v in name.items()]
+        elif value is None and isinstance(name, list) and isinstance(name[0], Parameter):
+            print('init with list of parameters Parameter([p1, p2, p3]) not implemented yet')
+            raise ValueError
+
         if valid_values is None:
             valid_values = type(value)
 
@@ -39,6 +56,7 @@ class Parameter(dict):
         assert self.is_valid(value, valid_values)
 
         if isinstance(value, list) and isinstance(value[0], Parameter):
+            # this should create a Parameter object and not a dict!
             self._valid_values = {name: {k: v for d in value for k, v in d.valid_values.iteritems()}}
             self.update({name: {k: v for d in value for k, v in d.iteritems()}})
 
@@ -54,7 +72,7 @@ class Parameter(dict):
 
         assert self.is_valid(value, self.valid_values[key])
         if isinstance(value, dict) and len(self)>0:
-            for k, v in value.items():
+            for k, v in value.iteritems():
                 self[key].update({k:v})
         else:
             super(Parameter, self).__setitem__(key, value)
@@ -76,8 +94,8 @@ class Parameter(dict):
             valid = True
         elif isinstance(value, dict) and isinstance(valid_values, dict):
             # check that all values actually exist in valid_values
-            assert value.keys() & valid_values.keys() == value.keys()
-
+            # assert value.keys() & valid_values.keys() == value.keys() # python 3 syntax
+            assert set(value.keys()) & set(valid_values.keys()) == set(value.keys()) # python 2
             valid = True
             for k ,v in value.items():
                 if type(v) is not valid_values[k]:
