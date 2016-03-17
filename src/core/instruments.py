@@ -38,8 +38,6 @@ class Parameter(dict):
             valid_values: defines which values are accepted for value can be a type or a list if not provided => type(value)
             info: description of parameter, if not provided => empty string
 
-        Returns:
-
         '''
         if info is None:
             info = ''
@@ -47,34 +45,40 @@ class Parameter(dict):
         self.__doc__ = info
 
 
-        if value is None and isinstance(name, dict) and len(name) == 1:
-            name, value  = list(name.iteritems())[0]
-        elif value is None and isinstance(name, dict):
-            print('init with dict of parameters: Parameter({p1:val1, p2, val2}) not implemented yet')
-            raise ValueError
-            # value = [Parameter(k,v) for k, v in name.items()]
-        elif value is None and isinstance(name, list) and isinstance(name[0], Parameter):
-            print('init with list of parameters Parameter([p1, p2, p3]) not implemented yet')
-            raise ValueError
+        if isinstance(name, str):
 
-        if valid_values is None:
-            valid_values = type(value)
+            if valid_values is None:
+                valid_values = type(value)
 
+            assert isinstance(valid_values, (type,list))
+            assert self.is_valid(value, valid_values)
 
-        assert isinstance(name, str)
-        assert isinstance(valid_values, (type,list))
+            if isinstance(value, list) and isinstance(value[0], Parameter):
+                # this should create a Parameter object and not a dict!
+                self._valid_values = {name: {k: v for d in value for k, v in d.valid_values.iteritems()}}
+                self.update({name: {k: v for d in value for k, v in d.iteritems()}})
 
+            else:
+                self._valid_values = {name: valid_values}
+                self.update({name: value})
 
-        assert self.is_valid(value, valid_values)
+        elif isinstance(name, (list, dict)) and value is None:
 
-        if isinstance(value, list) and isinstance(value[0], Parameter):
-            # this should create a Parameter object and not a dict!
-            self._valid_values = {name: {k: v for d in value for k, v in d.valid_values.iteritems()}}
-            self.update({name: {k: v for d in value for k, v in d.iteritems()}})
-
-        else:
-            self._valid_values = {name: valid_values}
-            self.update({name: value})
+            self._valid_values = {}
+            if isinstance(name, dict):
+                for k, v in name.iteritems():
+                    # convert to Parameter if value is a dict
+                    if isinstance(v, dict):
+                        v = Parameter(v)
+                    self._valid_values.update({k: type(v)})
+                    self.update({k: v})
+            elif isinstance(name, list) and isinstance(name[0], Parameter):
+                for p in name:
+                    for k, v in p.iteritems():
+                        self._valid_values.update({k: p.valid_values[k]})
+                        self.update({k: v})
+            else:
+                raise TypeError('unknown input: ', name)
 
 
     def __setitem__(self, key, value):

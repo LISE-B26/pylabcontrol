@@ -10,9 +10,12 @@ class TestParameter(TestCase):
         # init
 
         p0 = Parameter('param', 0, int, 'integer')
+        self.assertEqual(p0.info, 'integer')
+
         p0 = Parameter('param', 0.0, float, 'float')
         p0 = Parameter('param', '0', str, 'string')
         p0 = Parameter('param', 0, [0,1,2,3], 'list')
+
 
 
         p0 = Parameter('param', 0)
@@ -36,6 +39,9 @@ class TestParameter(TestCase):
 
         p0.update({'param':2})
         self.assertEquals(p0,{'param':2})
+
+        with self.assertRaises(KeyError):
+            p0.update({'paramX':2})
 
 
         with self.assertRaises(AssertionError):
@@ -138,22 +144,39 @@ class TestParameter(TestCase):
         '''
 
 
-
         p0 = Parameter({'p1' : 1, 'p2' : 2})
 
+        self.assertEqual(p0, {'p2': 2, 'p1': 1})
+
         with self.assertRaises(KeyError):
-            p0['param0'].update({'param3': 2})
+            p0['p3']
+
+
+        with self.assertRaises(KeyError):
+            p0.update({'p3': 2})
+
+        with self.assertRaises(AssertionError):
+            p0.update({'p1': 2.0})
 
         p0 = Parameter('p0', 0)
-        with self.assertRaises(ValueError):
-            Parameter('param', [1, p0]) # list values that are of a different type
+        p1 = Parameter('p1', 1)
+        p2 = Parameter([p0,p1])
 
-        p1 = Parameter('p1', [1,2]) # list values
-        with self.assertRaises(ValueError):
-            p1['p1'] =  [1, p0] # list values that are of a different type
+        self.assertEqual(p2, {'p0': 0, 'p1': 1})
 
-        with self.assertRaises(ValueError):
-            p3 = Parameter('param3', 3)
+
+        p2['p0'] = 44
+        self.assertEqual(p2, {'p0': 44, 'p1': 1})
+
+        p2.update({'p0': 45 })
+        self.assertEqual(p2, {'p0': 45, 'p1': 1})
+
+
+        #
+        # with self.assertRaises(ValueError):
+        #     p3 = Parameter('p3', 3)
+        #     p2.update(p3)
+
 
     # def test_QString(self):
     #     p1 = Parameter('param1', 0)
