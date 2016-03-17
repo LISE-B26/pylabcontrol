@@ -4,21 +4,29 @@ from src.instruments import PressureGauge
 
 
 class TestAGC100(TestCase):
+
     def setUp(self):
         self.gauge = PressureGauge()
 
+    def tearDown(self):
+        self.gauge.__del__()
+
     def test_parameters_default(self):
-        param_list = self.gauge.parameters_default()
-        self.assertTrue(len(param_list) == 2)  # only has 2 parameters
+        param_list = self.gauge.parameters_default
+        self.assertTrue(len(param_list) == 3)  # only has 2 parameters
 
     def test_get_pressure(self):
-        self.gauge.pressure
+        pressure = self.gauge.pressure
+        self.assertTrue(isinstance(pressure, float) and pressure > 0)
 
     def test_get_gauge_model(self):
-        self.fail()
+        model = self.gauge.model
+        self.assertTrue(model == 'FRG70x')
 
     def test_get_units(self):
-        self.fail()
+        units = self.gauge.units
+        possible_units = ['mbar/bar', 'Torr', 'Pascal', 'Micron']
+        self.assertTrue(units in possible_units)
 
     def test_is_connected(self):
-        self.fail()
+        self.assertTrue(self.gauge.is_connected())

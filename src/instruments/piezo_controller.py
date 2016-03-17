@@ -4,13 +4,14 @@ from src.core.instruments import *
 
 
 class PiezoController(Instrument):
-    def __init__(self, name, parameters = []):
+    def __init__(self, name, parameters=[]):
         super(PiezoController, self).__init__(name, parameters)
         self._is_connected = False
         try:
             self.connect(port = self.as_dict()['port'], baudrate = self.as_dict()['baudrate'], timeout = self.as_dict()['timeout'])
         except Exception:
             print('No Piezo Controller Detected')
+            raise
 
     def connect(self, port, baudrate, timeout):
             self.ser = serial.Serial(port = port, baudrate = baudrate, timeout = timeout)
@@ -25,11 +26,11 @@ class PiezoController(Instrument):
         :return:
         '''
         parameter_list_default = [
-            Parameter('axis', 'x', (str), '"x", "y", or "z" axis'),
+            Parameter('axis', 'x', ['x', 'y', 'z'], '"x", "y", or "z" axis'),
             Parameter('port', 'COM17', (str), 'serial port on which to connect'),
             Parameter('baudrate', 115200, (int), 'baudrate of connection'),
             Parameter('timeout', .1, (float), 'connection timeout'),
-            Parameter('voltage', 0.0, (int, float), 'current voltage'),
+            Parameter('voltage', 0.0, (float), 'current voltage'),
             Parameter('voltage_limit', 100, [75, 100, 150], 'maximum voltage')
         ]
         return parameter_list_default
