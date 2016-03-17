@@ -8,3 +8,8 @@ class TestAGC100(TestCase):
         spec_anal = SpectrumAnalyzer()
 
     def test_default_params(self):
+        default_params = self.spec_analyzer.parameters_default
+        self.assertEqual(len(default_params), 3)
+
+    def test_is_connected(self):
+        self.assertTrue(self.spec_anal.is_connected())
