@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from src.core.instruments import ZIHF2
+from src.instruments import ZIHF2
 
 
 class TestZIHF2(TestCase):

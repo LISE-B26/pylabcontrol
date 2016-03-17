@@ -2,7 +2,7 @@ from src.core import Instrument,Parameter
 # =============== MAESTRO ==================================
 # ==========================================================
 
-class Maestro_Controller(Instrument):
+class MaestroController(Instrument):
     # When connected via USB, the Maestro creates two virtual serial ports
     # /dev/ttyACM0 for commands and /dev/ttyACM1 for communications.
     # Be sure the Maestro is configured for "USB Dual Port" serial mode.
@@ -20,7 +20,7 @@ class Maestro_Controller(Instrument):
 
     def __init__(self, name = None, parameters = []):
 
-        super(Maestro_Controller, self).__init__(name, parameters)
+        super(MaestroController, self).__init__(name, parameters)
         self.update_parameters(self.parameters)
         # Open the command port
         # self.usb = self.serial.Serial(port)
@@ -47,7 +47,7 @@ class Maestro_Controller(Instrument):
 
     def update_parameters(self, parameters_new):
         # call the update_parameter_list to update the parameter list
-        super(Maestro_Controller, self).update_parameters(parameters_new)
+        super(MaestroController, self).update_parameters(parameters_new)
         # now we actually apply these newsettings to the hardware
         for parameter in parameters_new:
             if parameter.name == 'port':
@@ -190,7 +190,7 @@ class Maestro_Controller(Instrument):
         self.usb.write(cmd)
 
 
-class Maestro_BeamBlock(Instrument):
+class MaestroBeamBlock(Instrument):
     from time import sleep
     def __init__(self, maestro, name, parameters = []):
         '''
@@ -199,7 +199,7 @@ class Maestro_BeamBlock(Instrument):
         :param position_list: dictonary that contains the target positions, a factor 4 is needed to get the same values as in the maestro control center
         :return:
         '''
-        super(Maestro_BeamBlock, self).__init__(name)
+        super(MaestroBeamBlock, self).__init__(name)
         self.update_parameters(parameters)
         self.maestro = maestro
 
@@ -223,7 +223,7 @@ class Maestro_BeamBlock(Instrument):
 
 
         # call the update_parameter_list to update the parameter list
-        super(Maestro_BeamBlock, self).update_parameters(parameters_new)
+        super(MaestroBeamBlock, self).update_parameters(parameters_new)
 
         # parameters_new = convert_to_parameter_list(parameters_new)
 

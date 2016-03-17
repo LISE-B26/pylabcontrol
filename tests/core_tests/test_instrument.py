@@ -1,7 +1,7 @@
 from copy import deepcopy
 from unittest import TestCase
 
-from src.core.instruments import Instrument, Parameter
+from src.core import Instrument, Parameter
 
 
 class TestInstrument(TestCase):
