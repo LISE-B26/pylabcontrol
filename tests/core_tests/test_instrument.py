@@ -44,8 +44,6 @@ class TestInstrument(TestCase):
     def test_tes(self):
         test = Instrument('my inst')
 
-        print(test.parameters)
-
         with self.assertRaises(AssertionError):
             # request variable that is not in values
             test.test4
@@ -58,46 +56,19 @@ class TestInstrument(TestCase):
         test = Instrument()
 
         test.update_parameters(Parameter('test1', QtCore.QString(unicode('10'))))
-        print('test.parameters')
-        print(test.parameters)
 
         test.update_parameters({'test1': QtCore.QString(unicode('10'))} )
-        print('test.parameters 2')
-        print(test.parameters)
 
 
 
     def Ttest_dynamic_setter(self):
         test = Instrument()
         new_val = 30
-        print(test.parameters)
         #test.test1 = 30
         test.update_parameters(Parameter('test1', 30))
-        print(test.parameters)
         if get_elemet('test1', test.parameters).value != test.test1:
             #print(test.parameters)
             self.fail('setter function doesn\'t work')
-    #
-    # # def test_update_2(self):
-    # #     '''
-    # #     test all possible ways to update a parameter
-    # #     :return:
-    # #     '''
-    # #     from PyQt4 import QtCore
-    # #     test = Instrument()
-    # #
-    # #     test.update_parameters(Parameter('test1', QtCore.QString(unicode('10'))))
-    # #     print('test.parameters')
-    # #     print(test.parameters)
-    # #
-    # #     test.update_parameters({'test1': QtCore.QString(unicode('10'))} )
-    # #     print('test.parameters 2')
-    # #     print(test.parameters)
-    # #
-    # #     self.fail('setter ')
-
-
-
 
 
 
