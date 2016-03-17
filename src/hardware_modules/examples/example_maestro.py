@@ -54,8 +54,8 @@ if test_case == 'beamblock':
     # for i in range(10):
     #     print(servo.getPosition(channel))
     # time.sleep(0.2)
-    servo.setTarget(0,  channel)
-    servo.goHome()
+    servo.set_target(0, channel)
+    servo.go_home()
     # close communication channel
     # servo.close()
 
@@ -69,8 +69,8 @@ if test_case == 'whitelight':
     # for i in range(10):
     #     print(servo.getPosition(channel))
     # time.sleep(0.2)
-    servo.setTarget(0,  channel)
-    servo.goHome()
+    servo.set_target(0, channel)
+    servo.go_home()
 
     filter.goto('off')
     # close communication channel

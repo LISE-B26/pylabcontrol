@@ -192,11 +192,11 @@ class BeamBlock:
         self.position_open = position_open
 
     def block(self):
-        self.servo.setTarget(self.channel, self.position_block)
+        self.servo.set_target(self.channel, self.position_block)
         time.sleep(0.2)
         self.servo.disable(self.channel)
     def open(self):
-        self.servo.setTarget(self.channel, self.position_open)
+        self.servo.set_target(self.channel, self.position_open)
         time.sleep(0.2)
         self.servo.disable(self.channel)
 class FilterWheel:
@@ -216,7 +216,7 @@ class FilterWheel:
     def goto(self, position):
 
         if position in self.position_list:
-            self.servo.setTarget(self.channel, self.position_list[position])
+            self.servo.set_target(self.channel, self.position_list[position])
             time.sleep(self.settle_time)
             self.servo.disable(self.channel)
         else:
@@ -228,7 +228,7 @@ class Motor:
         self.channel = channel
         self.servo = servo
         self.neutral_position = 6000
-        self.servo.setRange(channel, self.neutral_position-2000, self.neutral_position+2000)
+        self.servo.set_range(channel, self.neutral_position - 2000, self.neutral_position + 2000)
 
     def rotate(self, speed):
         '''
@@ -237,18 +237,18 @@ class Motor:
         '''
 
         # 6000 is neutral position, not that the values used here differ by a factor 4 from the values used in the maestro control center
-        self.servo.setTarget(self.channel, speed+self.neutral_position)
+        self.servo.set_target(self.channel, speed + self.neutral_position)
 
     def stop(self):
         self.rotate(0)
-        self.servo.goHome()
+        self.servo.go_home()
 
 class LinearActuator:
     def __init__(self,servo, channel):
         self.channel = channel
         self.servo = servo
         self.neutral_position = 6000
-        self.servo.setRange(channel, self.neutral_position-2000, self.neutral_position+2000)
+        self.servo.set_range(channel, self.neutral_position - 2000, self.neutral_position + 2000)
 
     @property
     def position(self):
@@ -263,8 +263,8 @@ class LinearActuator:
 
         self._position = x
         # 6000 is neutral position, note that the values used here differ by a factor 4 from the values used in the maestro control center
-        self.servo.setTarget(self.channel, self._position+self.neutral_position)
+        self.servo.set_target(self.channel, self._position + self.neutral_position)
 
     def stop(self):
         self.position = 0
-        self.servo.goHome()
+        self.servo.go_home()

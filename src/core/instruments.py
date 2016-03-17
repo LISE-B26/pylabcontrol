@@ -77,6 +77,7 @@ class Instrument(object):
         Returns: reads values from instrument
 
         '''
+        print(key, self.values.keys())
         assert key in self.values.keys()
 
         value = None
@@ -98,10 +99,11 @@ class Instrument(object):
     def __getattr__(self, name):
         try:
             return self.get_values(name)
-        except KeyError:
+        except (KeyError):
             #restores standard behavior for missing keys
             raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
-
+        except (AssertionError):
+            raise AttributeError()
     def __setattr__(self, key, value):
         try:
             self.update(key, value)

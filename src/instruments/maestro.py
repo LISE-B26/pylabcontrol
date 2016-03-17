@@ -117,16 +117,16 @@ class MaestroController(Instrument):
     # ***Note that the Maestro itself is configured to limit the range of servo travel
     # which has precedence over these values.  Use the Maestro Control Center to configure
     # ranges that are saved to the controller.  Use setRange for software controllable ranges.
-    def setRange(self, chan, min, max):
+    def set_range(self, chan, min, max):
         self.Mins[chan] = min
         self.Maxs[chan] = max
 
     # Return Minimum channel range value
-    def getMin(self, chan):
+    def get_min(self, chan):
         return self.Mins[chan]
 
     # Return Minimum channel range value
-    def getMax(self, chan):
+    def get_max(self, chan):
         return self.Maxs[chan]
 
     # Set channel to a specified target value.  Servo will begin moving based
@@ -136,7 +136,7 @@ class MaestroController(Instrument):
     # Servo center is at 1500 microseconds, or 6000 quarter-microseconds
     # Typcially valid servo range is 3000 to 9000 quarter-microseconds
     # If channel is configured for digital output, values < 6000 = Low ouput
-    def setTarget(self, chan, target):
+    def set_target(self, chan, target):
         # if Min is defined and Target is below, force to Min
         if self.Mins[chan] > 0 and target < self.Mins[chan]:
             target = self.Mins[chan]
@@ -170,7 +170,7 @@ class MaestroController(Instrument):
     # For the standard 1ms pulse width change to move a servo between extremes, a speed
     # of 1 will take 1 minute, and a speed of 60 would take 1 second.
     # Speed of 0 is unrestricted.
-    def setSpeed(self, chan, speed):
+    def set_speed(self, chan, speed):
         lsb = speed & 0x7f #7 bits for least significant byte
         msb = (speed >> 7) & 0x7f #shift 7 and take next 7 bits for msb
         # Send Pololu intro, device number, command, channel, speed lsb, speed msb
@@ -181,7 +181,7 @@ class MaestroController(Instrument):
     # This provide soft starts and finishes when servo moves to target position.
     # Valid values are from 0 to 255. 0=unrestricted, 1 is slowest start.
     # A value of 1 will take the servo about 3s to move between 1ms to 2ms range.
-    def setAccel(self, chan, accel):
+    def set_accel(self, chan, accel):
         lsb = accel & 0x7f #7 bits for least significant byte
         msb = (accel >> 7) & 0x7f #shift 7 and take next 7 bits for msb
         # Send Pololu intro, device number, command, channel, accel lsb, accel msb
@@ -239,22 +239,30 @@ class MaestroController(Instrument):
     #     self.usb.write(cmd)
 
     # Stop the current Maestro Script
-    def goHome(self):
+    def go_home(self):
         cmd = self.PololuCmd + chr(0x22)
         self.usb.write(cmd)
 
 
 class MaestroBeamBlock(Instrument):
     from time import sleep
-    def __init__(self, maestro, name, parameters = []):
+    def __init__(self, maestro = None, name = None, parameters = None):
         '''
         :param maestro: maestro servo controler to which motor is connected
         :param channel: channel to which motor is connected
         :param position_list: dictonary that contains the target positions, a factor 4 is needed to get the same values as in the maestro control center
         :return:
         '''
-        super(MaestroBeamBlock, self).__init__(name)
-        self.update(parameters)
+
+        if maestro is None:
+            maestro = MaestroController()
+        if  name is None:
+            name = 'maestro_beam_block'
+
+        assert isinstance(maestro, MaestroController)
+        assert isinstance(name, str)
+        super(MaestroBeamBlock, self).__init__(name, parameters)
+        self.update(self.parameters)
         self.maestro = maestro
 
     @property
@@ -266,7 +274,7 @@ class MaestroBeamBlock(Instrument):
         parameters_default = Parameter([
             Parameter('channel', 0, int, 'channel to which motor is connected'),
             Parameter('open', True, bool, 'beam block open or closed'),
-            Parameter('settle_time', 0.2, (int, float),'settling time'),
+            Parameter('settle_time', 0.2, float,'settling time'),
             Parameter('position_open', 4*1900, int,'position corresponding to open'),
             Parameter('position_closed', 4*950, int,'position corresponding to closed')
         ])
@@ -275,15 +283,27 @@ class MaestroBeamBlock(Instrument):
     def update(self, parameters):
 
         # call the update_parameter_list to update the parameter list
-        super(MaestroBeamBlock, self).update_parameters(parameters)
+        super(MaestroBeamBlock, self).update(parameters)
 
         # now we actually apply these newsettings to the hardware
         for key, value in parameters.iteritems():
             if key == 'open':
+                print('aaa', key, value)
+                print(self.parameters)
                 if value is True:
                     self.goto(self.parameters['position_open'])
                 else:
                     self.goto(self.parameters['position_closed'])
+
+    @property
+    def values(self):
+        '''
+
+        Returns: a dictionary that contains the values that can be read from the instrument
+        the key is the name of the value and the value of the dictionary is an info
+
+        '''
+        return {}
 
     @property
     def is_connected(self):
@@ -294,6 +314,7 @@ class MaestroBeamBlock(Instrument):
         return self.maestro._is_connected
 
     def goto(self, position):
-        self.maestro.setTarget(self.parameters['channel'], position)
+        print('fff', self.parameters['channel'], position)
+        self.maestro.set_target(self.parameters['channel'], position)
         self.sleep(self.parameters['settle_time'])
         self.maestro.disable(self.parameters['channel']) # diconnect to avoid piezo from going crazy
