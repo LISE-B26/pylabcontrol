@@ -20,6 +20,7 @@ class MaestroController(Instrument):
 
     def __init__(self, name = None, parameters = None):
 
+        self.usb = None
         super(MaestroController, self).__init__(name, parameters)
         self.update(self.parameters)
         # Open the command port
@@ -34,27 +35,80 @@ class MaestroController(Instrument):
         self.Mins = [0] * 24
         self.Maxs = [0] * 24
 
+
+    # ========================================================================================
+    # ======= Following functions have to be customized for each instrument subclass =========
+    # ========================================================================================
     @property
     def _parameters_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:
         '''
-        parameter_list_default = [
+        parameters_default = Parameter([
             Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected')
-        ]
-        return parameter_list_default
+        ])
+        return parameters_default
 
-    def update_parameters(self, parameters_new):
+    def update(self, parameters):
         # call the update_parameter_list to update the parameter list
-        super(MaestroController, self).update_parameters(parameters_new)
+        super(MaestroController, self).update(parameters)
         # now we actually apply these newsettings to the hardware
-        for parameter in parameters_new:
-            if parameter.name == 'port':
-                self.usb = self.serial.Serial(parameter.value)
+        for key, value in parameters.iteritems():
+            if key == 'port':
+                try:
+                    self.usb = self.serial.Serial(value)
+                except OSError:
+                    print('Couln\'t connect to maestro controler at port {:s}'.format(value))
+
+
+    @property
+    def values(self):
+        '''
+
+        Returns: a dictionary that contains the values that can be read from the instrument
+        the key is the name of the value and the value of the dictionary is an info
+
+        '''
+        # todo: implement values
+        return {'value1': 'this is some value from the instrument', 'value2': 'this is another'}
+
+    def get_values(self, key):
+        '''
+        requestes value from the instrument and returns it
+        Args:
+            key: name of requested value
+
+        Returns: reads values from instrument
+
+        '''
+        # todo: replace getter functions with this function
+        assert key in self.values.keys()
+
+        value = None
+
+        return value
+
+    @property
+    def is_connected(self):
+        '''
+        check if instrument is active and connected and return True in that case
+        :return: bool
+        '''
+        if self.usb is None:
+            self._is_connected = False
+        else:
+            self._is_connected = True
+
+        #todo: implement check
+
+
+        return self._is_connected
+
     # Cleanup by closing USB serial port
     def __del__(self):
-        self.usb.close()
+        if not self.usb == None:
+            self.usb.close()
 
     # Set channels min and max value range.  Use this as a safety to protect
     # from accidentally moving outside known safe parameters. A setting of 0
@@ -141,7 +195,7 @@ class MaestroController(Instrument):
     # to the servo. If the Speed is set to below the top speed of the servo, then
     # the position result will align well with the acutal servo position, assuming
     # it is not stalled or slowed.
-    def getPosition(self, chan):
+    def get_position(self, chan):
         cmd = self.PololuCmd + chr(0x10) + chr(chan)
         self.usb.write(cmd)
         lsb = ord(self.usb.read())
@@ -200,7 +254,7 @@ class MaestroBeamBlock(Instrument):
         :return:
         '''
         super(MaestroBeamBlock, self).__init__(name)
-        self.update_parameters(parameters)
+        self.update(parameters)
         self.maestro = maestro
 
     @property
@@ -209,65 +263,37 @@ class MaestroBeamBlock(Instrument):
         returns the default parameter_list of the instrument
         :return:
         '''
-        parameter_list_default = [
+        parameters_default = Parameter([
             Parameter('channel', 0, int, 'channel to which motor is connected'),
             Parameter('open', True, bool, 'beam block open or closed'),
             Parameter('settle_time', 0.2, (int, float),'settling time'),
             Parameter('position_open', 4*1900, int,'position corresponding to open'),
             Parameter('position_closed', 4*950, int,'position corresponding to closed')
-        ]
-        return parameter_list_default
+        ])
+        return parameters_default
 
-    def update_parameters(self, parameters_new):
-
-
+    def update(self, parameters):
 
         # call the update_parameter_list to update the parameter list
-        super(MaestroBeamBlock, self).update_parameters(parameters_new)
-
-        # parameters_new = convert_to_parameter_list(parameters_new)
-
-        def convert_to_parameter_list(parameters):
-            '''
-            check if parameters is a list of parameters or a dictionary
-            if it is a dictionary we create a parameter list from it
-            '''
-            if isinstance(parameters, dict):
-                parameters_new = []
-                for key, value in parameters.iteritems():
-                    parameters_new.append(Parameter(key, value))
-            elif isinstance(parameters, list):
-                # if listelement is not a  parameter cast it into a parameter
-                parameters_new = [p if isinstance(p, Parameter) else Parameter(p) for p in parameters]
-            elif isinstance(parameters, Parameter):
-                parameters_new = [parameters]
-            else:
-                raise TypeError('parameters should be a list, dictionary or Parameter! However it is {:s}'.format(str(type(parameters))))
-            return parameters_new
-
+        super(MaestroBeamBlock, self).update_parameters(parameters)
 
         # now we actually apply these newsettings to the hardware
-        for parameter in convert_to_parameter_list(parameters_new):
-            if parameter.name == 'open':
-                if parameter.value == True:
-                    # todo: this work once we have the dynamically get/set functions of the super class
-                    # self.goto(self.position_open)
-                    # until then:
-                    self.goto(get_elemet('position_open',self.parameters).value)
+        for key, value in parameters.iteritems():
+            if key == 'open':
+                if value is True:
+                    self.goto(self.parameters['position_open'])
                 else:
-                    # todo: this work once we have the dynamically get/set functions of the super class
-                    # self.goto(self.position_closed)
-                    # until then:
-                    self.goto(get_elemet('position_closed',self.parameters).value)
+                    self.goto(self.parameters['position_closed'])
+
+    @property
+    def is_connected(self):
+        '''
+        check if instrument is active and connected and return True in that case
+        :return: bool
+        '''
+        return self.maestro._is_connected
 
     def goto(self, position):
-        self.maestro.setTarget(self.channel, position)
-        # todo: this work once we have the dynamically get/set functions of the super class
-        # self.sleep(self.settle_time)
-        # until then:
-        self.sleep(get_elemet('settle_time',self.parameters).value)
-        self.maestro.disable(self.channel)
-    # todo: this should by taken care of in the dynamically get/set functions of the super class
-    @property
-    def channel(self):
-        return get_elemet('channel',self.parameters).value
+        self.maestro.setTarget(self.parameters['channel'], position)
+        self.sleep(self.parameters['settle_time'])
+        self.maestro.disable(self.parameters['channel']) # diconnect to avoid piezo from going crazy

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from src.instruments.maestro import MaestroController
+from src.instruments import MaestroController
 
 
 class TestMaestroController(TestCase):

@@ -191,7 +191,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         print(parameter.valid_values)
                         print(parameter.value)
                         print({parameter.name: new_value})
-                        treeWidget.currentItem().target.update_parameters({parameter.name: new_value})
+                        treeWidget.currentItem().target.update({parameter.name: new_value})
                         print( 'parameter ins' , parameter)
                     elif isinstance(treeWidget.currentItem().target, Script):
                         print( 'parameter script' , parameter)
