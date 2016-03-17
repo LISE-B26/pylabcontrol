@@ -33,7 +33,7 @@ class Parameter(dict):
 
         assert isinstance(name, str)
         assert isinstance(info, str)
-        assert isinstance(valid_values, type)
+        assert isinstance(valid_values, (type,list))
 
 
         assert self.is_valid(value, valid_values)
@@ -74,7 +74,7 @@ class Parameter(dict):
 
         if isinstance(valid_values, type) and type(value) is valid_values:
             valid = True
-        if isinstance(value, dict) and isinstance(valid_values, dict):
+        elif isinstance(value, dict) and isinstance(valid_values, dict):
             # check that all values actually exist in valid_values
             assert value.keys() & valid_values.keys() == value.keys()
 
@@ -86,7 +86,8 @@ class Parameter(dict):
 #             print('aaaa', value, valid_values)
 #         elif isinstance(value, (unicode)):
 #             print('unico?de')
-
+        elif isinstance(valid_values, list) and value in valid_values:
+            valid = True
         return valid
 
 
