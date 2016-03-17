@@ -1,22 +1,46 @@
 from copy import deepcopy
 from unittest import TestCase
 
-from src.core.instruments import Instrument, Parameter, get_elemet
+from src.core.instruments import Instrument, Parameter
 
 
 class TestInstrument(TestCase):
-    def Ttest_init(self):
+    def test_init(self):
         '''
         initiallize instance in all possible ways
         :return:
         '''
 
-        test = Instrument()
-        print(test.as_dict())
-        test = Instrument('test inst', Parameter('test1', 2))
-        test = Instrument('test inst', {'test1':0, 'test2':{'test2_1':'aa'}})
+        p0 = Parameter('test1', 0, int, 'test parameter (int)')
+        print('p0', p0, p0.valid_values)
+        p1 = Parameter('test2_1', 'string', str, 'test parameter (str)')
+        print('p1', p1, p1.valid_values)
+        p2 = Parameter('test2_2', 0.0, float, 'test parameter (float)')
+        print('p2', p2, p2.valid_values)
+        p12 = Parameter('test2', Parameter([p1,p2]))
+        print('p12', p12, p12.valid_values)
 
-    def test_update(self):
+        p12 = Parameter('test2', [p1,p2])
+        print('p12', p12, p12.valid_values)
+
+        # pall = Parameter([p0, p12])
+
+        # print(pall)
+        # Parameter([
+        #             Parameter('test1', 0, int, 'test parameter (int)'),
+        #             Parameter('test2' ,
+        #                       [Parameter('test2_1', 'string', str, 'test parameter (str)'),
+        #                        Parameter('test2_2', 0.0, float, 'test parameter (float)')
+        #                        ])
+        #         ])
+
+
+        # test = Instrument()
+        # print(test.as_dict())
+        # test = Instrument('test inst', Parameter('test1', 2))
+        # test = Instrument('test inst', {'test1':0, 'test2':{'test2_1':'aa'}})
+
+    def tTest_update(self):
         '''
         test all possible ways to update a parameter
         :return:

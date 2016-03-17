@@ -171,11 +171,19 @@ class TestParameter(TestCase):
         p2.update({'p0': 45 })
         self.assertEqual(p2, {'p0': 45, 'p1': 1})
 
+        p0['p0'] = 555
+        p2.update(p0)
+        self.assertEqual(p2, {'p0': 555, 'p1': 1})
 
-        #
-        # with self.assertRaises(ValueError):
-        #     p3 = Parameter('p3', 3)
-        #     p2.update(p3)
+        # check for nested parameters
+        p0 = Parameter('p0', 0, int, 'test parameter (int)')
+        p1 = Parameter('p1', 'string', str, 'test parameter (str)')
+        p2 = Parameter('p2', 0.0, float, 'test parameter (float)')
+        p12 = Parameter('p12', [p1,p2])
+
+        pall = Parameter([p0, p12])
+
+        self.assertEqual(pall, {'p0': 0, 'p12': {'p2': 0.0, 'p1': 'string'}})
 
 
     # def test_QString(self):
