@@ -22,22 +22,35 @@ def get_elemet(name, element_list):
 class Parameter(dict):
     def __init__(self, name, value = None, valid_values = None, info = None):
         '''
+
+        Parameter(name, value, valid_values, info)
+        Parameter(name, value, valid_values)
+        Parameter(name, value)
+        Parameter({name: value})
+
+        Future updates:
+        Parameter({name1: value1, name2: value2})
+        Parameter([p1, p2]), where p1 and p2 are parameter objects
+
         Args:
-            name:
-            value:
-            valid_values:
-            info:
+            name: name of parameter
+            value: value of parameter can be any basic type or a list
+            valid_values: defines which values are accepted for value can be a type or a list if not provided => type(value)
+            info: description of parameter, if not provided => empty string
 
         Returns:
 
         '''
         if info is None:
             info = ''
+        assert isinstance(info, str)
+        self.__doc__ = info
+
 
         if value is None and isinstance(name, dict) and len(name) == 1:
             name, value  = list(name.iteritems())[0]
         elif value is None and isinstance(name, dict):
-            print('init with list of parameters Parameter([p1, p2, p3]) not implemented yet')
+            print('init with dict of parameters: Parameter({p1:val1, p2, val2}) not implemented yet')
             raise ValueError
             # value = [Parameter(k,v) for k, v in name.items()]
         elif value is None and isinstance(name, list) and isinstance(name[0], Parameter):
@@ -49,7 +62,6 @@ class Parameter(dict):
 
 
         assert isinstance(name, str)
-        assert isinstance(info, str)
         assert isinstance(valid_values, (type,list))
 
 
@@ -85,6 +97,10 @@ class Parameter(dict):
     @property
     def valid_values(self):
         return self._valid_values
+
+    @property
+    def info(self):
+        return self.__doc__
 
     @staticmethod
     def is_valid(value, valid_values):
