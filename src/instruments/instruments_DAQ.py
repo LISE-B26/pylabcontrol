@@ -56,10 +56,10 @@ class DAQ(Instrument):
             except RuntimeError:
                 self.hardware_detected = False
             super(DAQ, self).__init__(name)
-            self.update_parameters(self.parameters_default)
+            self.update_parameters(self._parameters_default)
 
     @property
-    def parameters_default(self):
+    def _parameters_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:

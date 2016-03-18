@@ -100,7 +100,7 @@ class plotScannedResonator():
             if(self.results == True):
                 filepath = 'C:\Users\Experiment\Desktop\Sweeptest\sweep4_' + str(pointnum) + '.txt'
                 data = pd.read_csv(filepath)
-                self.R = numpy.append(self.R,numpy.max(data['Response'].values))
+                self.R = numpy.append(self.R, numpy.max(data['Response']._probes))
 
     def plotResSweep(self, xmin, xmax, ymin, ymax):
         if(self.results == False):

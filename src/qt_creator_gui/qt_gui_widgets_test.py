@@ -6,7 +6,7 @@ Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't ha
 
 from src.core.instruments import Maestro_Controller, ZIHF2, Maestro_BeamBlock
 
-from src.scripts.scripts import *
+from src.core.scripts import *
 
 from PyQt4 import QtGui
 import datetime
@@ -191,7 +191,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         print(parameter.valid_values)
                         print(parameter.value)
                         print({parameter.name: new_value})
-                        treeWidget.currentItem().target.update_parameters({parameter.name: new_value})
+                        treeWidget.currentItem().target.update({parameter.name: new_value})
                         print( 'parameter ins' , parameter)
                     elif isinstance(treeWidget.currentItem().target, Script):
                         print( 'parameter script' , parameter)
@@ -204,7 +204,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         p = Parameter(parameter.name, new_value)
                         print(p)
 
-                        treeWidget.currentItem().target.update_settings(Parameter(parameter.name, new_value))
+                        treeWidget.currentItem().target.update(Parameter(parameter.name, new_value))
 
                     # read the new value back from the actual parameter
                     new_value = parameter.value

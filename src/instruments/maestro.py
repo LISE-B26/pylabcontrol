@@ -1,20 +1,8 @@
-import serial
-import time
-#
-#---------------------------
-# Maestro Servo Controller
-#---------------------------
-#
-# Support for the Pololu Maestro line of servo controllers
-#
-# Steven Jacobs -- Aug 2013
-# https://github.com/FRC4564/Maestro/
-#
-# Modified by Jan Gieseler Jan 2016
-# These functions provide access to many of the Maestro's capabilities using the
-# Pololu serial protocol
-#
-class Controller:
+from src.core import Instrument,Parameter
+# =============== MAESTRO ==================================
+# ==========================================================
+
+class MaestroController(Instrument):
     # When connected via USB, the Maestro creates two virtual serial ports
     # /dev/ttyACM0 for commands and /dev/ttyACM1 for communications.
     # Be sure the Maestro is configured for "USB Dual Port" serial mode.
@@ -27,9 +15,16 @@ class Controller:
     # ports, then you can specify the port number when intiating a controller
     # object. Ports will typically start at 0 and count by twos.  So with two
     # controllers ports 0 and 2 would be used.
-    def __init__(self,port = 'COM5'):
+
+    import serial
+
+    def __init__(self, name = None, parameters = None):
+
+        self.usb = None
+        super(MaestroController, self).__init__(name, parameters)
+        self.update(self.parameters)
         # Open the command port
-        self.usb = serial.Serial(port)
+        # self.usb = self.serial.Serial(port)
         # Command lead-in and device 12 are sent for each Pololu serial commands.
         self.PololuCmd = chr(0xaa) + chr(0xc)
         # Track target position for each servo. The function isMoving() will
@@ -40,9 +35,80 @@ class Controller:
         self.Mins = [0] * 24
         self.Maxs = [0] * 24
 
+
+    # ========================================================================================
+    # ======= Following functions have to be customized for each instrument subclass =========
+    # ========================================================================================
+    @property
+    def _parameters_default(self):
+        '''
+        returns the default parameter_list of the instrument
+        :return:
+        '''
+        parameters_default = Parameter([
+            Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected')
+        ])
+        return parameters_default
+
+    def update(self, parameters):
+        # call the update_parameter_list to update the parameter list
+        super(MaestroController, self).update(parameters)
+        # now we actually apply these newsettings to the hardware
+        for key, value in parameters.iteritems():
+            if key == 'port':
+                try:
+                    self.usb = self.serial.Serial(value)
+                except OSError:
+                    print('Couln\'t connect to maestro controler at port {:s}'.format(value))
+
+
+    @property
+    def _probes(self):
+        '''
+
+        Returns: a dictionary that contains the values that can be read from the instrument
+        the key is the name of the value and the value of the dictionary is an info
+
+        '''
+        # todo: implement values
+        return {'value1': 'this is some value from the instrument', 'value2': 'this is another'}
+
+    def read_probes(self, key):
+        '''
+        requestes value from the instrument and returns it
+        Args:
+            key: name of requested value
+
+        Returns: reads values from instrument
+
+        '''
+        # todo: replace getter functions with this function
+        assert key in self._probes.keys()
+
+        value = None
+
+        return value
+
+    @property
+    def is_connected(self):
+        '''
+        check if instrument is active and connected and return True in that case
+        :return: bool
+        '''
+        if self.usb is None:
+            self._is_connected = False
+        else:
+            self._is_connected = True
+
+        #todo: implement check
+
+
+        return self._is_connected
+
     # Cleanup by closing USB serial port
     def __del__(self):
-        self.usb.close()
+        if not self.usb == None:
+            self.usb.close()
 
     # Set channels min and max value range.  Use this as a safety to protect
     # from accidentally moving outside known safe parameters. A setting of 0
@@ -51,16 +117,16 @@ class Controller:
     # ***Note that the Maestro itself is configured to limit the range of servo travel
     # which has precedence over these values.  Use the Maestro Control Center to configure
     # ranges that are saved to the controller.  Use setRange for software controllable ranges.
-    def setRange(self, chan, min, max):
+    def set_range(self, chan, min, max):
         self.Mins[chan] = min
         self.Maxs[chan] = max
 
     # Return Minimum channel range value
-    def getMin(self, chan):
+    def get_min(self, chan):
         return self.Mins[chan]
 
     # Return Minimum channel range value
-    def getMax(self, chan):
+    def get_max(self, chan):
         return self.Maxs[chan]
 
     # Set channel to a specified target value.  Servo will begin moving based
@@ -70,7 +136,7 @@ class Controller:
     # Servo center is at 1500 microseconds, or 6000 quarter-microseconds
     # Typcially valid servo range is 3000 to 9000 quarter-microseconds
     # If channel is configured for digital output, values < 6000 = Low ouput
-    def setTarget(self, chan, target):
+    def set_target(self, chan, target):
         # if Min is defined and Target is below, force to Min
         if self.Mins[chan] > 0 and target < self.Mins[chan]:
             target = self.Mins[chan]
@@ -104,7 +170,7 @@ class Controller:
     # For the standard 1ms pulse width change to move a servo between extremes, a speed
     # of 1 will take 1 minute, and a speed of 60 would take 1 second.
     # Speed of 0 is unrestricted.
-    def setSpeed(self, chan, speed):
+    def set_speed(self, chan, speed):
         lsb = speed & 0x7f #7 bits for least significant byte
         msb = (speed >> 7) & 0x7f #shift 7 and take next 7 bits for msb
         # Send Pololu intro, device number, command, channel, speed lsb, speed msb
@@ -115,7 +181,7 @@ class Controller:
     # This provide soft starts and finishes when servo moves to target position.
     # Valid values are from 0 to 255. 0=unrestricted, 1 is slowest start.
     # A value of 1 will take the servo about 3s to move between 1ms to 2ms range.
-    def setAccel(self, chan, accel):
+    def set_accel(self, chan, accel):
         lsb = accel & 0x7f #7 bits for least significant byte
         msb = (accel >> 7) & 0x7f #shift 7 and take next 7 bits for msb
         # Send Pololu intro, device number, command, channel, accel lsb, accel msb
@@ -129,7 +195,7 @@ class Controller:
     # to the servo. If the Speed is set to below the top speed of the servo, then
     # the position result will align well with the acutal servo position, assuming
     # it is not stalled or slowed.
-    def getPosition(self, chan):
+    def get_position(self, chan):
         cmd = self.PololuCmd + chr(0x10) + chr(chan)
         self.usb.write(cmd)
         lsb = ord(self.usb.read())
@@ -173,98 +239,100 @@ class Controller:
     #     self.usb.write(cmd)
 
     # Stop the current Maestro Script
-    def goHome(self):
+    def go_home(self):
         cmd = self.PololuCmd + chr(0x22)
         self.usb.write(cmd)
 
-class BeamBlock:
-    def __init__(self,servo, channel, position_block = 4*950, position_open = 4*1900):
+
+class MaestroBeamBlock(Instrument):
+    from time import sleep
+    def __init__(self, maestro = None, name = None, parameters = None):
         '''
-        :param servo: servo controler to which motor is connected
+        :param maestro: maestro servo controler to which motor is connected
         :param channel: channel to which motor is connected
-        :param position_block: block position, a factor 4 is needed to get the same values as in the maestro control center
-        :param position_open: open position, factor 4 needed
-        :return:
-        '''
-        self.channel = channel
-        self.servo = servo
-        self.position_block = position_block
-        self.position_open = position_open
-
-    def block(self):
-        self.servo.set_target(self.channel, self.position_block)
-        time.sleep(0.2)
-        self.servo.disable(self.channel)
-    def open(self):
-        self.servo.set_target(self.channel, self.position_open)
-        time.sleep(0.2)
-        self.servo.disable(self.channel)
-class FilterWheel:
-    def __init__(self,servo, channel, position_list = {'1': 4*600, '2':4*1550, '3':4*2500}, settle_time = 0.8):
-        '''
-        :param servo: servo controler to which motor is connected
-        :param channel: channel to which motor is connected
-        :param position_block: block position, a factor 4 is needed to get the same values as in the maestro control center
-        :param position_open: open position, factor 4 needed
-        :return:
-        '''
-        self.channel = channel
-        self.servo = servo
-        self.position_list = position_list
-        self.settle_time = settle_time
-
-    def goto(self, position):
-
-        if position in self.position_list:
-            self.servo.set_target(self.channel, self.position_list[position])
-            time.sleep(self.settle_time)
-            self.servo.disable(self.channel)
-        else:
-            print('position {:s} is not a valid position. Position of filter wheel not changed!'.format(position))
-            print('valid positions are', self.position_list.keys())
-
-class Motor:
-    def __init__(self,servo, channel):
-        self.channel = channel
-        self.servo = servo
-        self.neutral_position = 6000
-        self.servo.set_range(channel, self.neutral_position - 2000, self.neutral_position + 2000)
-
-    def rotate(self, speed):
-        '''
-        :param speed: s
+        :param position_list: dictonary that contains the target positions, a factor 4 is needed to get the same values as in the maestro control center
         :return:
         '''
 
-        # 6000 is neutral position, not that the values used here differ by a factor 4 from the values used in the maestro control center
-        self.servo.set_target(self.channel, speed + self.neutral_position)
+        if maestro is None:
+            maestro = MaestroController()
+        assert isinstance(maestro, MaestroController)
+        self.maestro = maestro
 
-    def stop(self):
-        self.rotate(0)
-        self.servo.go_home()
+        if  name is None:
+            name = 'maestro_beam_block'
 
-class LinearActuator:
-    def __init__(self,servo, channel):
-        self.channel = channel
-        self.servo = servo
-        self.neutral_position = 6000
-        self.servo.set_range(channel, self.neutral_position - 2000, self.neutral_position + 2000)
+
+        assert isinstance(name, str)
+        super(MaestroBeamBlock, self).__init__(name, parameters)
+        self.update(self.parameters)
+
 
     @property
-    def position(self):
+    def _parameters_default(self):
         '''
-        set or get position of motor
+        returns the default parameter_list of the instrument
+        :return:
         '''
-        self._position = self.servo.get_position(self.channel)
-        return self._position
+        parameters_default = Parameter([
+            Parameter('channel', 0, int, 'channel to which motor is connected'),
+            Parameter('open', True, bool, 'beam block open or closed'),
+            Parameter('settle_time', 0.2, float,'settling time'),
+            Parameter('position_open', 4*1900, int,'position corresponding to open'),
+            Parameter('position_closed', 4*950, int,'position corresponding to closed')
+        ])
+        return parameters_default
 
-    @position.setter
-    def position(self, x):
+    def update(self, parameters):
 
-        self._position = x
-        # 6000 is neutral position, note that the values used here differ by a factor 4 from the values used in the maestro control center
-        self.servo.set_target(self.channel, self._position + self.neutral_position)
+        # call the update_parameter_list to update the parameter list
+        super(MaestroBeamBlock, self).update(parameters)
 
-    def stop(self):
-        self.position = 0
-        self.servo.go_home()
+        # now we actually apply these newsettings to the hardware
+        for key, value in parameters.iteritems():
+            if key == 'open':
+                print('aaa', key, value)
+                print(self.parameters)
+                if value is True:
+                    self.goto(self.parameters['position_open'])
+                else:
+                    self.goto(self.parameters['position_closed'])
+
+    @property
+    def _probes(self):
+        '''
+
+        Returns: a dictionary that contains the values that can be read from the instrument
+        the key is the name of the value and the value of the dictionary is an info
+
+        '''
+        return {}
+
+    def read_probes(self, key):
+        '''
+        requestes value from the instrument and returns it
+        Args:
+            key: name of requested value
+
+        Returns: reads values from instrument
+
+        '''
+        # todo: replace getter functions with this function
+        assert key in self._probes.keys()
+
+        value = None
+
+        return value
+
+    @property
+    def is_connected(self):
+        """
+        check if instrument is active and connected and return True in that case
+        :return: bool
+        """
+        return self.maestro._is_connected
+
+    def goto(self, position):
+        self.maestro.set_target(self.parameters['channel'], position)
+        self.sleep(self.parameters['settle_time'])
+        self.maestro.disable(self.parameters['channel']) # diconnect to avoid piezo from going crazy
