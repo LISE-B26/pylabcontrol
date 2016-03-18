@@ -1,6 +1,6 @@
 import ctypes
 import threading
-
+import os
 import numpy
 
 from src.core.instruments import *
@@ -37,8 +37,11 @@ DAQmx_Val_Low =10214; #Low
 class DAQ(Instrument):
 
     try:
-        nidaq = ctypes.WinDLL("C:\\Windows\\System32\\nicaiu.dll") # load the DLL
-        dll_detected = True
+        if os.name == 'nt':
+            nidaq = ctypes.WinDLL("C:\\Windows\\System32\\nicaiu.dll") # load the DLL
+            dll_detected = True
+        else:
+            dll_detected = False
     except WindowsError:
         # make a fake DAQOut instrument
         dll_detected = False
