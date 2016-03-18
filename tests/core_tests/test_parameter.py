@@ -238,3 +238,19 @@ class TestParameter(TestCase):
     #     p1.value = value_from_gui
     #
     #     self.assertEquals(p1.value, [1,2,3,4,5])
+
+    def test_info(self):
+        p0 = Parameter('test', 0, int, 'some info')
+        self.assertEqual(p0.info['test'], 'some info')
+
+        parameters = Parameter([
+            Parameter('test1', 0, int, 'test parameter (int)'),
+            Parameter('test2' ,
+                      [Parameter('test2_1', 'string', str, 'test parameter (str)'),
+                       Parameter('test2_2', 0.0, float, 'test parameter (float)')
+                       ])
+        ])
+
+        self.assertEqual(parameters.info['test2'], {'test2_1': 'test parameter (str)', 'test2_2': 'test parameter (float)'})
+        self.assertEqual(parameters.info['test1'], 'test parameter (int)')
+        self.assertEqual(parameters.info['test2']['test2_1'], 'test parameter (str)')

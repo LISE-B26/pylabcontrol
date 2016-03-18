@@ -20,40 +20,13 @@ class B26QTreeWidget(QtGui.QTreeWidget):
         super( B26QTreeWidget, self ).__init__( parent )
 
         assert isinstance(parameters, Parameter)
-        self.parameter = parameters
+        self.parameters = parameters
         # assert that parent is a layout widget
 
+        # for parameter in self.parameters:
 
-        self.visible = {}
-        self.target = {}
+            # B26QTreeItem( self, parameter, target=self.instrument, visible=True)
 
-        ## Column 0 - Text:
-        self.setText(0, unicode(parameters.name))
-
-        if isinstance(parameters.valid_values, list):
-            self.combobox = QtGui.QComboBox()
-            for item in parameters.valid_values:
-                self.combobox.addItem(unicode(item))
-            self.combobox.setCurrentIndex(self.combobox.findText(unicode(parameters.value)))
-            self.treeWidget().setItemWidget( self, 1, self.combobox )
-            self.combobox.currentIndexChanged.connect(lambda: self.parent().emitDataChanged())
-
-        elif parameters.valid_values is bool:
-            self.check = QtGui.QCheckBox()
-            self.check.setChecked(parameters.value)
-            self.treeWidget().setItemWidget( self, 1, self.check )
-            self.check.stateChanged.connect(lambda: self.parent().emitDataChanged())
-
-        elif isinstance(parameters.value, Parameter):
-            QTreeParameter(self, parameters, target=target, visible=visible)
-
-        elif isinstance(parameters.value, list):
-            for item in parameters.value:
-                QTreeParameter(self, item, target=target, visible=visible)
-        else:
-            self.setText(1, unicode(parameters.value))
-            self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-        self.setToolTip(1, unicode(parameters.info))
 
 class B26QTreeItem(QtGui.QTreeWidgetItem):
     '''
@@ -185,7 +158,21 @@ if __name__ == '__main__':
             # for column in range( self.treeWidget.columnCount() ):
             #     self.treeWidget.resizeColumnToContents( column )
 
-    app = QtGui.QApplication(sys.argv)
-    ex = UI()
-    ex.show()
-    sys.exit(app.exec_())
+    # app = QtGui.QApplication(sys.argv)
+    # ex = UI()
+    # ex.show()
+    # sys.exit(app.exec_())
+
+    parameters = Parameter([
+        Parameter('test1', 0, int, 'test parameter (int)'),
+        Parameter('test2' ,
+                  [Parameter('test2_1', 'string', str, 'test parameter (str)'),
+                   Parameter('test2_2', 0.0, float, 'test parameter (float)')
+                   ])
+    ])
+
+
+    for key, value in parameters.iteritems():
+        print(key, value, parameters.valid_values[key], parameters.info)
+
+        # B26QTreeItem( self, parameter, target=self.instrument, visible=True)
