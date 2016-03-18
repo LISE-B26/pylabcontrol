@@ -6,7 +6,7 @@ Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't ha
 
 from src.core.instruments import Maestro_Controller, ZIHF2, Maestro_BeamBlock
 
-from src.scripts.scripts import *
+from src.core.scripts import *
 
 from PyQt4 import QtGui
 import datetime
