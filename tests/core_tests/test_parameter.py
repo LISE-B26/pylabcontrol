@@ -206,10 +206,7 @@ class TestParameter(TestCase):
                        ])
         ])
 
-        print(parameters)
-
-        print(type(parameters))
-        print(type(parameters['test2']))
+        self.assertIsInstance(parameters['test2'], Parameter)
 
     # def test_QString(self):
     #     p1 = Parameter('param1', 0)

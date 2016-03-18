@@ -58,7 +58,7 @@ class Parameter(dict):
                     for k, v in p.iteritems():
                         c+=1
                         self._valid_values.update({k: p.valid_values[k]})
-                        self.update({k: v})
+                        self.update(Parameter({k: v}))
             else:
                 raise TypeError('unknown input: ', name)
 
