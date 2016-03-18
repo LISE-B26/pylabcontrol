@@ -208,6 +208,19 @@ class TestParameter(TestCase):
 
         self.assertIsInstance(parameters['test2'], Parameter)
 
+        with self.assertRaises(AssertionError):
+            parameters['test1'] = 0.2
+
+        with self.assertRaises(AssertionError):
+            parameters['test2'] = 0.2
+
+        with self.assertRaises(AssertionError):
+            parameters['test2']['test2_1'] = 0.2
+
+        with self.assertRaises(AssertionError):
+            parameters['test2']['test2_2'] = 's'
+
+
     # def test_QString(self):
     #     p1 = Parameter('param1', 0)
     #
