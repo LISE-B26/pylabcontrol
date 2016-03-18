@@ -40,7 +40,7 @@ class TestInstrument(TestCase):
         test.parameters['test2']['test2_1'] = 'hello'
         self.assertEqual(test.parameters, {'test1': 200, 'test2': {'test2_1': 'hello', 'test2_2': 0.2}})
 
-        test.parameters['test2'].update({'test2_2':'ss'})
+    
         print(test.parameters['test2'])
 
         print(test.parameters)
