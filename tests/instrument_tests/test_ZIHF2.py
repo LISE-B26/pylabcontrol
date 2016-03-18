@@ -29,5 +29,7 @@ class TestZIHF2(TestCase):
         test.update({'freq':  100.})
         self.assertEqual(test.freq, 100.)
 
-        self.assertEqual(test.freq, 100.)
+
         test.parameters['freq'] = 101.
+
+        self.assertEqual(test.freq, 101.)

@@ -17,6 +17,9 @@ class Instrument(object):
     '''
     _is_connected = False #internal flag that indicated if instrument is actually connected
 
+    # ========================================================================================
+    # ======= Following functions have to be customized for each instrument subclass =========
+    # ========================================================================================
 
     def __init__(self, name = None, parameters = None):
 
@@ -30,9 +33,6 @@ class Instrument(object):
 
         self.name = name
 
-    # ========================================================================================
-    # ======= Following functions have to be customized for each instrument subclass =========
-    # ========================================================================================
     @property
     def _parameters_default(self):
         '''

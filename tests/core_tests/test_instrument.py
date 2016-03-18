@@ -1,4 +1,3 @@
-from copy import deepcopy
 from unittest import TestCase
 
 from src.core import Instrument, Parameter

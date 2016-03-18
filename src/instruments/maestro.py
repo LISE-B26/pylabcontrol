@@ -326,14 +326,13 @@ class MaestroBeamBlock(Instrument):
 
     @property
     def is_connected(self):
-        '''
+        """
         check if instrument is active and connected and return True in that case
         :return: bool
-        '''
+        """
         return self.maestro._is_connected
 
     def goto(self, position):
-        print('fff', self.parameters['channel'], position)
         self.maestro.set_target(self.parameters['channel'], position)
         self.sleep(self.parameters['settle_time'])
         self.maestro.disable(self.parameters['channel']) # diconnect to avoid piezo from going crazy

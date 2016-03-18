@@ -204,7 +204,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         p = Parameter(parameter.name, new_value)
                         print(p)
 
-                        treeWidget.currentItem().target.update_settings(Parameter(parameter.name, new_value))
+                        treeWidget.currentItem().target.update(Parameter(parameter.name, new_value))
 
                     # read the new value back from the actual parameter
                     new_value = parameter.value
