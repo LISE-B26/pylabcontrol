@@ -7,4 +7,4 @@ from maestro import MaestroBeamBlock, MaestroController
 from attocube import Attocube
 
 
-__all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer']
+__all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']

@@ -62,11 +62,284 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="src.core.instruments.html">src.core.instruments module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.core.parameter.html">src.core.parameter module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.core.scripts.html">src.core.scripts module</a></li>
 </ul>
 </div>
 </div>
 <div class="section" id="module-src.core">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.core" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.core.Script_new">
+<em class="property">class </em><code class="descclassname">src.core.</code><code class="descname">Script_new</code><span class="sig-paren">(</span><em>script_function</em>, <em>name=None</em>, <em>settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_new"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Script_new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="src.core.Script_new.__dict__">
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.core.scripts', '_settings_default': &lt;property object at 0x0000000004604EA8&gt;, 'run': &lt;function run at 0x00000000046D2668&gt;, 'name': &lt;property object at 0x0000000004707278&gt;, 'settings': &lt;property object at 0x0000000004707228&gt;, '__str__': &lt;function __str__ at 0x00000000046D2208&gt;, 'stop': &lt;function stop at 0x00000000046D26D8&gt;, 'update': &lt;function update at 0x00000000046D23C8&gt;, '__doc__': None, '_function': &lt;function _function at 0x00000000046D2198&gt;, 'excecution_time': &lt;property object at 0x00000000047072C8&gt;, 'end_time': &lt;property object at 0x0000000004707318&gt;, '__dict__': &lt;attribute '__dict__' of 'Script_new' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Script_new' objects&gt;, 'start_time': &lt;property object at 0x0000000004707368&gt;, '__init__': &lt;function __init__ at 0x00000000046D20B8&gt;})</em><a class="headerlink" href="#src.core.Script_new.__dict__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.Script_new.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>script_function</em>, <em>name=None</em>, <em>settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_new.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Script_new.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>executes scripts and stores script parameters and settings
+:param script_function: script that
+:type script_function: required
+:param name: name of script, if not provided take name of function
+:type name: optinal
+:param settings: a Parameter object that contains all the information needed in the script</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Script_new.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.core.scripts'</em><a class="headerlink" href="#src.core.Script_new.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.Script_new.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_new.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Script_new.__str__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Script_new.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#src.core.Script_new.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Script_new.end_time">
+<code class="descname">end_time</code><a class="headerlink" href="#src.core.Script_new.end_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>time when script execution started
+:return:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Script_new.excecution_time">
+<code class="descname">excecution_time</code><a class="headerlink" href="#src.core.Script_new.excecution_time" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">script excecition time as time_delta object to get time in seconds use .total_seconds()</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Script_new.name">
+<code class="descname">name</code><a class="headerlink" href="#src.core.Script_new.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.Script_new.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_new.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Script_new.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>executes the script
+:return: boolean if execution of script finished succesfully</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Script_new.settings">
+<code class="descname">settings</code><a class="headerlink" href="#src.core.Script_new.settings" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">returns the settings of the script</td>
+</tr>
+</tbody>
+</table>
+<p>settings contain Parameters, Instruments and Scripts</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Script_new.start_time">
+<code class="descname">start_time</code><a class="headerlink" href="#src.core.Script_new.start_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>time when script execution started
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.Script_new.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_new.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Script_new.stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.Script_new.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>settings_new</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_new.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Script_new.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates the settings if they exist
+:param settings_new:
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.core.Instrument">
+<em class="property">class </em><code class="descclassname">src.core.</code><code class="descname">Instrument</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Instrument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>generic instrument class</p>
+<dl class="docutils">
+<dt>for subclass overwrite following functions / properties:</dt>
+<dd><ul class="first last simple">
+<li>_parameters_default =&gt; parameter object, that is a list of parameters that can be set to configure the instrument</li>
+<li>update =&gt; function that sends parameter changes to the instrument</li>
+<li>values =&gt; dictionary that contains all the values that can be read from the instrument</li>
+<li>get_values =&gt; function that actually requests the values from the instrument</li>
+<li>is_connected =&gt; property that checks if instrument is actually connected</li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="src.core.Instrument.__dict__">
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.core.instruments', 'name': &lt;property object at 0x0000000004604E08&gt;, 'parameters': &lt;property object at 0x0000000004604DB8&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Instrument' objects&gt;, '_is_connected': False, 'update': &lt;function update at 0x00000000044A9BA8&gt;, '__getattr__': &lt;function __getattr__ at 0x00000000044A9D68&gt;, '_probes': &lt;property object at 0x0000000004604D18&gt;, '__dict__': &lt;attribute '__dict__' of 'Instrument' objects&gt;, '__init__': &lt;function __init__ at 0x00000000044A9AC8&gt;, '__setattr__': &lt;function __setattr__ at 0x00000000044A9DD8&gt;, 'read_probes': &lt;function read_probes at 0x00000000044A9C88&gt;, 'is_connected': &lt;property object at 0x0000000004604D68&gt;, '__doc__': '\n    generic instrument class\n\n    for subclass overwrite following functions / properties:\n        - _parameters_default =&gt; parameter object, that is a list of parameters that can be set to configure the instrument\n        - update =&gt; function that sends parameter changes to the instrument\n        - values =&gt; dictionary that contains all the values that can be read from the instrument\n        - get_values =&gt; function that actually requests the values from the instrument\n        - is_connected =&gt; property that checks if instrument is actually connected\n    ', '_parameters_default': &lt;property object at 0x0000000004604CC8&gt;, '__repr__': &lt;function __repr__ at 0x00000000044A9E48&gt;})</em><a class="headerlink" href="#src.core.Instrument.__dict__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.Instrument.__getattr__">
+<code class="descname">__getattr__</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__getattr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Instrument.__getattr__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.Instrument.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Instrument.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Instrument.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.core.instruments'</em><a class="headerlink" href="#src.core.Instrument.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.Instrument.__repr__">
+<code class="descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Instrument.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.Instrument.__setattr__">
+<code class="descname">__setattr__</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__setattr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Instrument.__setattr__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Instrument.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#src.core.Instrument.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Instrument.is_connected">
+<code class="descname">is_connected</code><a class="headerlink" href="#src.core.Instrument.is_connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if instrument is active and connected and return True in that case
+:return: bool</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Instrument.name">
+<code class="descname">name</code><a class="headerlink" href="#src.core.Instrument.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Instrument.parameters">
+<code class="descname">parameters</code><a class="headerlink" href="#src.core.Instrument.parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.Instrument.read_probes">
+<code class="descname">read_probes</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.read_probes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Instrument.read_probes" title="Permalink to this definition">¶</a></dt>
+<dd><p>requestes value from the instrument and returns it
+:param key: name of requested value</p>
+<p>Returns: reads values from instrument</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.Instrument.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>parameters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Instrument.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates the internal dictionary and sends changed values to instrument
+:param parameters: parameters to be set</p>
+<p># mabe in the future:
+# Returns: boolean that is true if update successful</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.core.Parameter">
+<em class="property">class </em><code class="descclassname">src.core.</code><code class="descname">Parameter</code><span class="sig-paren">(</span><em>name</em>, <em>value=None</em>, <em>valid_values=None</em>, <em>info=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/parameter.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code></p>
+<dl class="attribute">
+<dt id="src.core.Parameter.__dict__">
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'info': &lt;property object at 0x0000000004516958&gt;, '__dict__': &lt;attribute '__dict__' of 'Parameter' objects&gt;, '__module__': 'src.core.parameter', 'is_valid': &lt;staticmethod object at 0x000000000420C3A8&gt;, 'valid_values': &lt;property object at 0x0000000004516868&gt;, '__setitem__': &lt;function __setitem__ at 0x00000000044A94A8&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Parameter' objects&gt;, 'update': &lt;function update at 0x00000000044A9518&gt;, '__init__': &lt;function __init__ at 0x00000000044A9438&gt;, '__doc__': None})</em><a class="headerlink" href="#src.core.Parameter.__dict__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.Parameter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>value=None</em>, <em>valid_values=None</em>, <em>info=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/parameter.html#Parameter.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Parameter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameter(name, value, valid_values, info)
+Parameter(name, value, valid_values)
+Parameter(name, value)
+Parameter({name: value})</p>
+<p>Future updates:
+Parameter({name1: value1, name2: value2})
+Parameter([p1, p2]), where p1 and p2 are parameter objects</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; name of parameter</li>
+<li><strong>value</strong> &#8211; value of parameter can be any basic type or a list</li>
+<li><strong>valid_values</strong> &#8211; defines which values are accepted for value can be a type or a list if not provided =&gt; type(value)</li>
+<li><strong>info</strong> &#8211; description of parameter, if not provided =&gt; empty string</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Parameter.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.core.parameter'</em><a class="headerlink" href="#src.core.Parameter.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.Parameter.__setitem__">
+<code class="descname">__setitem__</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/parameter.html#Parameter.__setitem__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Parameter.__setitem__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Parameter.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#src.core.Parameter.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Parameter.info">
+<code class="descname">info</code><a class="headerlink" href="#src.core.Parameter.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.core.Parameter.is_valid">
+<em class="property">static </em><code class="descname">is_valid</code><span class="sig-paren">(</span><em>value</em>, <em>valid_values</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/parameter.html#Parameter.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Parameter.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.Parameter.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/parameter.html#Parameter.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.Parameter.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.Parameter.valid_values">
+<code class="descname">valid_values</code><a class="headerlink" href="#src.core.Parameter.valid_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 

@@ -71,6 +71,94 @@
 </div>
 <div class="section" id="module-src.gui">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.gui" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.gui.ApplicationWindow">
+<em class="property">class </em><code class="descclassname">src.gui.</code><code class="descname">ApplicationWindow</code><a class="headerlink" href="#src.gui.ApplicationWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QMainWindow</span></code></p>
+<dl class="method">
+<dt id="src.gui.ApplicationWindow.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.ApplicationWindow.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the gui window</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.gui.ApplicationWindow.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.gui.GuiQT_v3'</em><a class="headerlink" href="#src.gui.ApplicationWindow.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.gui.ApplicationWindow.about">
+<code class="descname">about</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.ApplicationWindow.about" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.gui.ApplicationWindow.closeEvent">
+<code class="descname">closeEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.ApplicationWindow.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.gui.ApplicationWindow.fileQuit">
+<code class="descname">fileQuit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.ApplicationWindow.fileQuit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.gui.PlotAPD">
+<em class="property">class </em><code class="descclassname">src.gui.</code><code class="descname">PlotAPD</code><span class="sig-paren">(</span><em>canvas=None</em>, <em>sampleRate=1000.0</em>, <em>bufferSize=1</em><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPD" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="src.gui.PlotAPD.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>canvas=None</em>, <em>sampleRate=1000.0</em>, <em>bufferSize=1</em><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPD.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>canvas</strong> &#8211; canvas to plot on. Supply one if calling from GUI, if not a pyplot plot is created</li>
+<li><strong>sampleRate</strong> &#8211; Samples/sec to read from apd</li>
+<li><strong>timePerPt</strong> &#8211; time to average over these samples per plotted pt</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.gui.PlotAPD.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.gui.PlotAPDCounts3'</em><a class="headerlink" href="#src.gui.PlotAPD.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.gui.PlotAPD.dispImage">
+<code class="descname">dispImage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPD.dispImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots data using pyplot</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.gui.PlotAPD.dispImageGui">
+<code class="descname">dispImageGui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPD.dispImageGui" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots data to canvas, to be used with GUI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.gui.PlotAPD.readAPD">
+<code class="descname">readAPD</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPD.readAPD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads from readthread defined above and averages over all samples taken in timeperpt
+:return: average value at timestep (scalar) to be plotted</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.gui.PlotAPD.startPlot">
+<code class="descname">startPlot</code><span class="sig-paren">(</span><em>queue=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPD.startPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Once object created, call this function to start plotting
+:param queue: To stop plotting elegantly, pass in queue. Putting &#8216;STOP&#8217; in queue breaks loop (other code can</p>
+<blockquote>
+<div>execute in parallel because below code creates own thread)</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 

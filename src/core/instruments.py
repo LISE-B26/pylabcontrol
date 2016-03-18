@@ -77,7 +77,6 @@ class Instrument(object):
         Returns: reads values from instrument
 
         '''
-        print(key, self._probes.keys())
         assert key in self._probes.keys()
 
         value = None

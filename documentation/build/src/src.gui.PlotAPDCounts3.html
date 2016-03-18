@@ -60,10 +60,10 @@
 <span id="src-gui-plotapdcounts3-module"></span><h1>src.gui.PlotAPDCounts3 module<a class="headerlink" href="#module-src.gui.PlotAPDCounts3" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="src.gui.PlotAPDCounts3.PlotAPD">
-<em class="property">class </em><code class="descclassname">src.gui.PlotAPDCounts3.</code><code class="descname">PlotAPD</code><span class="sig-paren">(</span><em>canvas=None</em>, <em>sampleRate=1000.0</em>, <em>bufferSize=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/gui/PlotAPDCounts3.html#PlotAPD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.gui.PlotAPDCounts3.PlotAPD" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.gui.PlotAPDCounts3.</code><code class="descname">PlotAPD</code><span class="sig-paren">(</span><em>canvas=None</em>, <em>sampleRate=1000.0</em>, <em>bufferSize=1</em><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPDCounts3.PlotAPD" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
 <dt id="src.gui.PlotAPDCounts3.PlotAPD.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>canvas=None</em>, <em>sampleRate=1000.0</em>, <em>bufferSize=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/gui/PlotAPDCounts3.html#PlotAPD.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.gui.PlotAPDCounts3.PlotAPD.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>canvas=None</em>, <em>sampleRate=1000.0</em>, <em>bufferSize=1</em><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPDCounts3.PlotAPD.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -86,26 +86,26 @@
 
 <dl class="method">
 <dt id="src.gui.PlotAPDCounts3.PlotAPD.dispImage">
-<code class="descname">dispImage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/gui/PlotAPDCounts3.html#PlotAPD.dispImage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.gui.PlotAPDCounts3.PlotAPD.dispImage" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dispImage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPDCounts3.PlotAPD.dispImage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots data using pyplot</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.gui.PlotAPDCounts3.PlotAPD.dispImageGui">
-<code class="descname">dispImageGui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/gui/PlotAPDCounts3.html#PlotAPD.dispImageGui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.gui.PlotAPDCounts3.PlotAPD.dispImageGui" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dispImageGui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPDCounts3.PlotAPD.dispImageGui" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots data to canvas, to be used with GUI</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.gui.PlotAPDCounts3.PlotAPD.readAPD">
-<code class="descname">readAPD</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/gui/PlotAPDCounts3.html#PlotAPD.readAPD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.gui.PlotAPDCounts3.PlotAPD.readAPD" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readAPD</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPDCounts3.PlotAPD.readAPD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads from readthread defined above and averages over all samples taken in timeperpt
 :return: average value at timestep (scalar) to be plotted</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.gui.PlotAPDCounts3.PlotAPD.startPlot">
-<code class="descname">startPlot</code><span class="sig-paren">(</span><em>queue=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/gui/PlotAPDCounts3.html#PlotAPD.startPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.gui.PlotAPDCounts3.PlotAPD.startPlot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">startPlot</code><span class="sig-paren">(</span><em>queue=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPDCounts3.PlotAPD.startPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Once object created, call this function to start plotting
 :param queue: To stop plotting elegantly, pass in queue. Putting &#8216;STOP&#8217; in queue breaks loop (other code can</p>
 <blockquote>
@@ -116,7 +116,7 @@
 
 <dl class="function">
 <dt id="src.gui.PlotAPDCounts3.counter_load_param">
-<code class="descclassname">src.gui.PlotAPDCounts3.</code><code class="descname">counter_load_param</code><span class="sig-paren">(</span><em>filename_or_json</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/gui/PlotAPDCounts3.html#counter_load_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.gui.PlotAPDCounts3.counter_load_param" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">src.gui.PlotAPDCounts3.</code><code class="descname">counter_load_param</code><span class="sig-paren">(</span><em>filename_or_json</em><span class="sig-paren">)</span><a class="headerlink" href="#src.gui.PlotAPDCounts3.counter_load_param" title="Permalink to this definition">¶</a></dt>
 <dd><p>loads counter parameter from json file into gui</p>
 </dd></dl>
 

@@ -7,6 +7,8 @@ Submodules
 .. toctree::
 
    src.core.instruments
+   src.core.parameter
+   src.core.scripts
 
 Module contents
 ---------------
@@ -15,3 +17,4 @@ Module contents
     :members:
     :undoc-members:
     :show-inheritance:
+
