@@ -1,6 +1,6 @@
 from PyQt4 import QtCore, QtGui
 
-from src.core.instruments import Parameter, Instrument
+from src.core import Parameter, Instrument
 from src.core.scripts import Script, Script_Dummy
 from src.instruments import ZIHF2
 
