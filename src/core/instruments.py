@@ -59,16 +59,16 @@ class Instrument(object):
         self._parameters.update(parameters)
 
     @property
-    def values(self):
-        '''
+    def _probes(self):
+        """
 
         Returns: a dictionary that contains the values that can be read from the instrument
         the key is the name of the value and the value of the dictionary is an info
 
-        '''
+        """
         return {'value1': 'this is some value from the instrument', 'value2': 'this is another'}
 
-    def get_values(self, key):
+    def read_probes(self, key):
         '''
         requestes value from the instrument and returns it
         Args:
@@ -77,8 +77,8 @@ class Instrument(object):
         Returns: reads values from instrument
 
         '''
-        print(key, self.values.keys())
-        assert key in self.values.keys()
+        print(key, self._probes.keys())
+        assert key in self._probes.keys()
 
         value = None
 
@@ -98,7 +98,7 @@ class Instrument(object):
     # do not override this, override get_values instead
     def __getattr__(self, name):
         try:
-            return self.get_values(name)
+            return self.read_probes(name)
         except (KeyError):
             #restores standard behavior for missing keys
             raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))

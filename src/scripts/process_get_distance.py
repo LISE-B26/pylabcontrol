@@ -18,8 +18,8 @@ nv_err = list()
 for f in files:
     print(f)
     df = pd.read_csv(f, header = -1)
-    voltages = df.values[0]
-    stddev = df.values[1]
+    voltages = df._probes[0]
+    stddev = df._probes[1]
     (a,mean,sigma,c),_ = F.Focus.fit(voltages, stddev)
     fitdata = (F.Focus.gaussian(voltages, a, mean, sigma, c))
     #plt.plot(voltages, stddev, voltages, fitdata)

@@ -91,6 +91,13 @@ class TestParameter(TestCase):
         self.assertEquals(p0['param0']['param1'] ,5)
         self.assertEquals(p0['param0']['param2'] ,6)
 
+        # p0['param0'].update(Parameter('param2', 's'))
+        #
+        # p0['param0'].update(Parameter('param3', 's'))
+        #
+
+        # p0['param0'].update({'param2', 's'})
+
 
         with self.assertRaises(KeyError):
             print(p0['param3'])
@@ -99,6 +106,7 @@ class TestParameter(TestCase):
         p1 = Parameter('param1', 1)
         p2 = Parameter('param2', 2)
         p0 = Parameter('param0', [p1, p2])
+
 
         with self.assertRaises(AssertionError):
             p0['param0'] = [0,1] # asign list of different type
@@ -112,6 +120,8 @@ class TestParameter(TestCase):
 
 
             p0['param0'] = [p1,p3]
+
+
 
 
         with self.assertRaises(AssertionError):
@@ -185,6 +195,21 @@ class TestParameter(TestCase):
 
         self.assertEqual(pall, {'p0': 0, 'p12': {'p2': 0.0, 'p1': 'string'}})
 
+
+
+
+        parameters = Parameter([
+            Parameter('test1', 0, int, 'test parameter (int)'),
+            Parameter('test2' ,
+                      [Parameter('test2_1', 'string', str, 'test parameter (str)'),
+                       Parameter('test2_2', 0.0, float, 'test parameter (float)')
+                       ])
+        ])
+
+        print(parameters)
+
+        print(type(parameters))
+        print(type(parameters['test2']))
 
     # def test_QString(self):
     #     p1 = Parameter('param1', 0)

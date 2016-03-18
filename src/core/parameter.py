@@ -1,7 +1,7 @@
 
 class Parameter(dict):
     def __init__(self, name, value = None, valid_values = None, info = None):
-        '''
+        """
 
         Parameter(name, value, valid_values, info)
         Parameter(name, value, valid_values)
@@ -18,7 +18,7 @@ class Parameter(dict):
             valid_values: defines which values are accepted for value can be a type or a list if not provided => type(value)
             info: description of parameter, if not provided => empty string
 
-        '''
+        """
         if info is None:
             info = ''
         assert isinstance(info, str)
@@ -54,25 +54,10 @@ class Parameter(dict):
                     self.update({k: v})
             elif isinstance(name, list) and isinstance(name[0], Parameter):
                 for p in name:
-                    # print('RRRR', p.keys())
                     c= 0
                     for k, v in p.iteritems():
                         c+=1
-                        # if c>0:
-                            # print('-------')
-                            # # print('XXp', k, v, p.valid_values[k], type(v))
-                            # print('self _vv', self._valid_values)
-                            # print('self', self)
-                            # print('key', k)
-                            # print('v', v)
-                            # print('vv', p.valid_values)
-
-                        # print('{k: p.valid_values[k]}', {k: p.valid_values[k]})
                         self._valid_values.update({k: p.valid_values[k]})
-
-
-                        # print('{k: v}', {k: v})
-
                         self.update({k: v})
             else:
                 raise TypeError('unknown input: ', name)

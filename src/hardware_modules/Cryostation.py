@@ -121,7 +121,7 @@ class TemperatureData:
             print(filepath)
         else:
             filepath = 'C:/Cryostation/Temperature Data/MI_DiagnosticsDataLog ' + date + '.csv'
-        mat = pd.read_csv(filepath).values
+        mat = pd.read_csv(filepath)._probes
         times = [x.split(':') for x in mat[:,1]]
         times = [[float(x[0])*3600+float(x[1])*60+float(x[2])][0] for x in times]
         if initial_time == 0:

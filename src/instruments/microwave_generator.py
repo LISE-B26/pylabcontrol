@@ -47,7 +47,7 @@ class MicrowaveGenerator(Instrument):
                     value = int(value)                #the integers used internally in the SRS
                 self.srs.write(key + ' ' + str(value))
 
-    def get_values(self, name):
+    def read_probes(self, name):
         if (name == 'port' or name == 'GPIB_num'):
             return self.as_dict()[str(name)]
         elif name in self.as_dict():

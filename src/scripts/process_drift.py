@@ -64,8 +64,8 @@ def fit_plot():
     #dirpath = 'Z:\\Lab\\Cantilever\\Measurements\\20150807_PushingDiamonds\\run4\\2015-08-11_18-41-56-processed.csv'
 
     df = pd.read_csv(dirpath, header = -1)
-    num = df.values[0][0:20]
-    dist = df.values[1][0:20]/.1*5
+    num = df._probes[0][0:20]
+    dist = df._probes[1][0:20] / .1 * 5
 
     def linear(x, a, b):
         return a*x + b
@@ -102,8 +102,8 @@ def fit_all_plots():
 
     for idx, f in enumerate(dirpath):
         df = pd.read_csv(f, header = -1)
-        num = (df.values[0][0:30] + 1)*35
-        dist = df.values[1][0:30]
+        num = (df._probes[0][0:30] + 1) * 35
+        dist = df._probes[1][0:30]
         np.insert(num,0,0)
         np.insert(dist,0,0)
 

@@ -141,7 +141,7 @@ class ZIHF2(Instrument):
             print(commands)
 
     @property
-    def values(self):
+    def _probes(self):
         '''
 
         Returns: a dictionary that contains the values that can be read from the instrument
@@ -156,7 +156,7 @@ class ZIHF2(Instrument):
             'freq': 'the frequency of the output channel'
         }
 
-    def get_values(self, key):
+    def read_probes(self, key):
         '''
         requestes value from the instrument and returns it
         Args:
@@ -165,7 +165,7 @@ class ZIHF2(Instrument):
         Returns: reads values from instrument
 
         '''
-        assert key in self.values.keys()
+        assert key in self._probes.keys()
         assert isinstance(key, str)
 
         if key.upper() in ['X', 'Y', 'R']:

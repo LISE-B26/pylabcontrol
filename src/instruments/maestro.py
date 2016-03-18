@@ -63,7 +63,7 @@ class MaestroController(Instrument):
 
 
     @property
-    def values(self):
+    def _probes(self):
         '''
 
         Returns: a dictionary that contains the values that can be read from the instrument
@@ -73,7 +73,7 @@ class MaestroController(Instrument):
         # todo: implement values
         return {'value1': 'this is some value from the instrument', 'value2': 'this is another'}
 
-    def get_values(self, key):
+    def read_probes(self, key):
         '''
         requestes value from the instrument and returns it
         Args:
@@ -83,7 +83,7 @@ class MaestroController(Instrument):
 
         '''
         # todo: replace getter functions with this function
-        assert key in self.values.keys()
+        assert key in self._probes.keys()
 
         value = None
 
@@ -299,7 +299,7 @@ class MaestroBeamBlock(Instrument):
                     self.goto(self.parameters['position_closed'])
 
     @property
-    def values(self):
+    def _probes(self):
         '''
 
         Returns: a dictionary that contains the values that can be read from the instrument
@@ -308,7 +308,7 @@ class MaestroBeamBlock(Instrument):
         '''
         return {}
 
-    def get_values(self, key):
+    def read_probes(self, key):
         '''
         requestes value from the instrument and returns it
         Args:
@@ -318,7 +318,7 @@ class MaestroBeamBlock(Instrument):
 
         '''
         # todo: replace getter functions with this function
-        assert key in self.values.keys()
+        assert key in self._probes.keys()
 
         value = None
 
