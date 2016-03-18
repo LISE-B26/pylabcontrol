@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.functions.ScanResonators &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.functions.ScanResonators</h1><div class="highlight"><pre>
+<span class="c"># B26 Lab Code</span>
+<span class="c"># Last Update: 1/28/15</span>
+
+<span class="c"># External Connections: Galvo x axis on DAQ channel 0</span>
+<span class="c">#                       Galvo y axis on DAQ channel 1</span>
+<span class="c">#                       APD input to counter 0 (PFI8)</span>
+<span class="c">#                       No external connection to counter 1 out (PFI13)</span>
+
+
+<span class="c"># import external files</span>
+<span class="kn">import</span> <span class="nn">hardware_modules.ZiControl</span> <span class="kn">as</span> <span class="nn">ZI</span>
+<span class="kn">from</span> <span class="nn">hardware_modules</span> <span class="kn">import</span> <span class="n">GalvoMirrors</span> <span class="k">as</span> <span class="n">DaqOut</span>
+
+<span class="c"># import standard libraries</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="kn">as</span> <span class="nn">mpl</span>
+<span class="kn">from</span> <span class="nn">src.functions</span> <span class="kn">import</span> <span class="n">ScanTest</span> <span class="k">as</span> <span class="n">GalvoScan</span>
+
+
+<div class="viewcode-block" id="SweepScan"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.SweepScan">[docs]</a><span class="k">class</span> <span class="nc">SweepScan</span><span class="p">():</span>
+<div class="viewcode-block" id="SweepScan.__init__"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.SweepScan.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xypairs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xypairs</span> <span class="o">=</span> <span class="n">xypairs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="o">.</span><span class="mo">001</span>
+
+    <span class="c"># runs scan</span></div>
+<div class="viewcode-block" id="SweepScan.sweepscan"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.SweepScan.sweepscan">[docs]</a>    <span class="k">def</span> <span class="nf">sweepscan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">freqStart</span><span class="p">,</span> <span class="n">freqEnd</span><span class="p">,</span> <span class="n">sampleNum</span><span class="p">,</span> <span class="n">samplesPerPt</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sweeper</span> <span class="o">=</span> <span class="n">ZI</span><span class="o">.</span><span class="n">ZIHF2</span><span class="p">(</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="mi">500000</span><span class="p">,</span> <span class="n">ACCoupling</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">pointnum</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">xypairs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initPt</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initPt</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initPt</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="c"># move galvo to first point in line</span>
+            <span class="n">pointthread</span> <span class="o">=</span> <span class="n">DaqOut</span><span class="o">.</span><span class="n">DaqOutputWave</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initPt</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="s">&quot;Dev1/ao0:1&quot;</span><span class="p">)</span>
+            <span class="n">pointthread</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">pointthread</span><span class="o">.</span><span class="n">waitToFinish</span><span class="p">()</span>
+            <span class="n">pointthread</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sweepData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweeper</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="n">freqStart</span><span class="p">,</span> <span class="n">freqEnd</span><span class="p">,</span> <span class="n">sampleNum</span><span class="p">,</span> <span class="n">samplesPerPt</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="s">&#39;C:\Users\Experiment\Desktop\Sweeptest\sweep&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pointnum</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;.txt&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sweepData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;Frequency&#39;</span><span class="p">,</span> <span class="s">&#39;Response&#39;</span><span class="p">])</span>
+            <span class="n">pointnum</span> <span class="o">+=</span> <span class="mi">1</span>
+</div>
+<div class="viewcode-block" id="SweepScan.resonancescan"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.SweepScan.resonancescan">[docs]</a>    <span class="k">def</span> <span class="nf">resonancescan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">freq</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scanner</span> <span class="o">=</span> <span class="n">ZI</span><span class="o">.</span><span class="n">ZIHF2</span><span class="p">(</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">ACCoupling</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">xypairs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initPt</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initPt</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initPt</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="c"># move galvo to first point in line</span>
+            <span class="n">pointthread</span> <span class="o">=</span> <span class="n">DaqOut</span><span class="o">.</span><span class="n">DaqOutputWave</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initPt</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="s">&quot;Dev1/ao0:1&quot;</span><span class="p">)</span>
+            <span class="n">pointthread</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">pointthread</span><span class="o">.</span><span class="n">waitToFinish</span><span class="p">()</span>
+            <span class="n">pointthread</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">R</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">scanner</span><span class="o">.</span><span class="n">poll</span><span class="p">())</span>
+        <span class="c">#self.filepath = &#39;C:\Users\Experiment\Desktop\Sweeptest\scan.txt&#39;</span>
+        <span class="c">#self.writeArray(R, self.filepath, [&#39;Frequency&#39;, &#39;Response&#39;])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="n">R</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">pink</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="SweepScan.writeArray"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.SweepScan.writeArray">[docs]</a>    <span class="k">def</span> <span class="nf">writeArray</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">columns</span> <span class="o">==</span> <span class="bp">None</span><span class="p">):</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="defXYpairs"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.defXYpairs">[docs]</a><span class="k">class</span> <span class="nc">defXYpairs</span><span class="p">():</span>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="defXYpairs.getPairs"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.defXYpairs.getPairs">[docs]</a>    <span class="k">def</span> <span class="nf">getPairs</span><span class="p">(</span><span class="n">xMin</span><span class="p">,</span> <span class="n">xMax</span><span class="p">,</span> <span class="n">xPts</span><span class="p">,</span> <span class="n">yMin</span><span class="p">,</span> <span class="n">yMax</span><span class="p">,</span> <span class="n">yPts</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
+        <span class="n">xArray</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xMin</span><span class="p">,</span> <span class="n">xMax</span><span class="p">,</span> <span class="n">xPts</span><span class="p">)</span>
+        <span class="n">yArray</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">yMin</span><span class="p">,</span> <span class="n">yMax</span><span class="p">,</span> <span class="n">yPts</span><span class="p">)</span>
+        <span class="n">xypairs</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">transpose</span><span class="p">([</span><span class="n">numpy</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">xArray</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">yArray</span><span class="p">)),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">yArray</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">xArray</span><span class="p">))])</span>
+        <span class="n">xAve</span> <span class="o">=</span> <span class="p">(</span><span class="n">xMax</span><span class="o">+</span><span class="n">xMin</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">yAve</span> <span class="o">=</span> <span class="p">(</span><span class="n">yMax</span><span class="o">+</span><span class="n">yMin</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="p">[</span><span class="n">xAve</span><span class="p">,</span><span class="n">yAve</span><span class="p">]</span>
+        <span class="n">rotmat</span> <span class="o">=</span> <span class="p">[[</span><span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span><span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)],[</span><span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span><span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)]]</span>
+        <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">xypairs</span><span class="p">:</span>
+            <span class="n">xypairs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rotmat</span><span class="p">,</span><span class="n">point</span><span class="o">-</span><span class="n">shift</span><span class="p">)</span><span class="o">+</span><span class="n">shift</span>
+            <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">xypairs</span>
+</div></div>
+<div class="viewcode-block" id="plotScannedResonator"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.plotScannedResonator">[docs]</a><span class="k">class</span> <span class="nc">plotScannedResonator</span><span class="p">():</span>
+<div class="viewcode-block" id="plotScannedResonator.__init__"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.plotScannedResonator.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xminpair</span><span class="p">,</span><span class="n">xmaxpair</span><span class="p">,</span><span class="n">xpts</span><span class="p">,</span><span class="n">yminpair</span><span class="p">,</span><span class="n">ymaxpair</span><span class="p">,</span><span class="n">ypts</span><span class="p">,</span><span class="n">theta</span><span class="p">,</span><span class="n">results</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="n">xypairs</span> <span class="o">=</span> <span class="n">defXYpairs</span><span class="o">.</span><span class="n">getPairs</span><span class="p">(</span><span class="n">xminpair</span><span class="p">,</span> <span class="n">xmaxpair</span><span class="p">,</span> <span class="n">xpts</span><span class="p">,</span> <span class="n">yminpair</span><span class="p">,</span> <span class="n">ymaxpair</span><span class="p">,</span> <span class="n">ypts</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">R</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">results</span>
+        <span class="k">for</span> <span class="n">pointnum</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">xpts</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">ypts</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">xypairs</span><span class="p">[</span><span class="n">pointnum</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="n">xypairs</span><span class="p">[</span><span class="n">pointnum</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">==</span> <span class="bp">True</span><span class="p">):</span>
+                <span class="n">filepath</span> <span class="o">=</span> <span class="s">&#39;C:\Users\Experiment\Desktop\Sweeptest\sweep4_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pointnum</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;.txt&#39;</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">R</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">,</span><span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;Response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="plotScannedResonator.plotResSweep"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.plotScannedResonator.plotResSweep">[docs]</a>    <span class="k">def</span> <span class="nf">plotResSweep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">):</span>
+        <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">==</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;In pre-sweep mode, use results=True when initializing to run in processing mode&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">scanner</span> <span class="o">=</span> <span class="n">GalvoScan</span><span class="o">.</span><span class="n">ScanNV</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
+        <span class="n">imageData</span> <span class="o">=</span> <span class="n">scanner</span><span class="o">.</span><span class="n">scan</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">edgecolors</span> <span class="o">=</span> <span class="s">&#39;none&#39;</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">cool</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LogNorm</span><span class="p">())</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">imageData</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">&#39;pink&#39;</span><span class="p">,</span><span class="n">interpolation</span><span class="o">=</span><span class="s">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">,</span><span class="n">ymax</span><span class="p">,</span><span class="n">ymin</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="plotScannedResonator.plotPreSweep"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.plotScannedResonator.plotPreSweep">[docs]</a>    <span class="k">def</span> <span class="nf">plotPreSweep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">):</span>
+        <span class="n">scanner</span> <span class="o">=</span> <span class="n">GalvoScan</span><span class="o">.</span><span class="n">ScanNV</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
+        <span class="n">imageData</span> <span class="o">=</span> <span class="n">scanner</span><span class="o">.</span><span class="n">scan</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">imageData</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">&#39;pink&#39;</span><span class="p">,</span><span class="n">interpolation</span><span class="o">=</span><span class="s">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">,</span><span class="n">ymax</span><span class="p">,</span><span class="n">ymin</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="plotScannedResonator.linPlotx"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.plotScannedResonator.linPlotx">[docs]</a>    <span class="k">def</span> <span class="nf">linPlotx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lineNum</span><span class="p">):</span>
+        <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">==</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;In pre-sweep mode, use results=True when initializing to run in processing mode&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">xpts</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">R</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="p">(</span><span class="n">lineNum</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">xpts</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">R</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="plotScannedResonator.linPloty"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.plotScannedResonator.linPloty">[docs]</a>    <span class="k">def</span> <span class="nf">linPloty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lineNum</span><span class="p">):</span>
+        <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">==</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;In pre-sweep mode, use results=True when initializing to run in processing mode&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ypts</span><span class="p">):</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">R</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">xpts</span><span class="o">+</span><span class="p">(</span><span class="n">lineNum</span><span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">R</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="plotScannedResonator.plotImage"><a class="viewcode-back" href="../../../src/src.functions.ScanResonators.html#src.functions.ScanResonators.plotScannedResonator.plotImage">[docs]</a>    <span class="k">def</span> <span class="nf">plotImage</span><span class="p">():</span>
+        <span class="n">xmin</span> <span class="o">=</span> <span class="o">-.</span><span class="mi">4</span>
+        <span class="n">xmax</span> <span class="o">=</span> <span class="o">.</span><span class="mi">4</span>
+        <span class="n">ymin</span> <span class="o">=</span> <span class="o">-.</span><span class="mi">4</span>
+        <span class="n">ymax</span> <span class="o">=</span> <span class="o">.</span><span class="mi">4</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="s">&#39;C:\Users\Experiment\Desktop\Sweeptest</span><span class="se">\\</span><span class="s">photodiode1.txt&#39;</span>
+        <span class="n">imageData</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">imageData</span><span class="p">,</span><span class="n">cmap</span><span class="o">=</span><span class="s">&#39;pink&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c">#Pre-sweep sequence</span>
+    <span class="c">#point specification</span>
+    <span class="n">xminpair</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">xmaxpair</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span>
+    <span class="n">xpts</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">yminpair</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ymaxpair</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span>
+    <span class="n">ypts</span> <span class="o">=</span> <span class="mi">21</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="o">-</span><span class="mf">23.7</span>
+
+    <span class="c">#image specification</span>
+    <span class="n">xImMin</span> <span class="o">=</span> <span class="o">-.</span><span class="mi">4</span>
+    <span class="n">xImMax</span> <span class="o">=</span> <span class="o">.</span><span class="mi">4</span>
+    <span class="n">yImMin</span> <span class="o">=</span> <span class="o">-.</span><span class="mi">4</span>
+    <span class="n">yImMax</span> <span class="o">=</span> <span class="o">.</span><span class="mi">4</span>
+
+    <span class="c">#Pre-sweep helper_functions</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">plotScannedResonator</span><span class="p">(</span><span class="n">xminpair</span><span class="p">,</span><span class="n">xmaxpair</span><span class="p">,</span><span class="n">xpts</span><span class="p">,</span><span class="n">yminpair</span><span class="p">,</span><span class="n">ymaxpair</span><span class="p">,</span><span class="n">ypts</span><span class="p">,</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">temp</span><span class="o">.</span><span class="n">plotPreSweep</span><span class="p">(</span><span class="n">xImMin</span><span class="p">,</span> <span class="n">xImMax</span><span class="p">,</span> <span class="n">yImMin</span><span class="p">,</span> <span class="n">yImMax</span><span class="p">)</span>
+
+
+    <span class="c">#Run Sequence: uses points specified above</span>
+    <span class="c">#Sweep specifications</span>
+    <span class="n">amplitude</span> <span class="o">=</span> <span class="o">.</span><span class="mi">2</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">freqMin</span> <span class="o">=</span> <span class="mi">2000000</span>
+    <span class="n">freqMax</span> <span class="o">=</span> <span class="mi">2100000</span>
+    <span class="n">averagingPerPt</span> <span class="o">=</span> <span class="mi">16</span>
+
+
+    <span class="n">xypairs</span> <span class="o">=</span> <span class="n">defXYpairs</span><span class="o">.</span><span class="n">getPairs</span><span class="p">(</span><span class="n">xminpair</span><span class="p">,</span> <span class="n">xmaxpair</span><span class="p">,</span> <span class="n">xpts</span><span class="p">,</span> <span class="n">yminpair</span><span class="p">,</span> <span class="n">ymaxpair</span><span class="p">,</span> <span class="n">ypts</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+    <span class="n">scanner</span> <span class="o">=</span> <span class="n">SweepScan</span><span class="p">(</span><span class="n">xypairs</span><span class="p">)</span>
+    <span class="n">scanner</span><span class="o">.</span><span class="n">sweepscan</span><span class="p">(</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">freqMin</span><span class="p">,</span> <span class="n">freqMax</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+
+
+
+
+
+
+    <span class="c">#amps = [2,.8,.2,.08,.02]</span>
+    <span class="c">#offset = [4,4,2,2,2]</span>
+    <span class="c">#name = [&#39;1_&#39;,&#39;2_&#39;,&#39;3_&#39;,&#39;4_&#39;,&#39;5_&#39;]</span>
+
+    <span class="c">#xypairs = defXYpairs.getPairs(.2, .228, 15, -.084, .01, 51, -23.7)</span>
+    <span class="c">#scanner = SweepScan(xypairs)</span>
+    <span class="c">#scanner.sweepscan(.2, 2, 551000, 553000, 50, 16)</span>
+    <span class="c">#daq = ZI.ZIHF2(.2, 2, 2000000, ACCoupling=1)</span>
+    <span class="c">#daq.poll()</span>
+
+    <span class="c">#for a,off,n in zip(amps,offset,name):</span>
+    <span class="c">#    scanner = SweepScan(xypairs)</span>
+    <span class="c">#    scanner.sweepscan(a, off, 551250, 552250, 150, 16, n)</span>
+
+    <span class="c">#temp = plotScannedResonator()</span>
+    <span class="c">#temp.getData()</span>
+    <span class="c">#temp.plotResSweep()</span>
+    <span class="c">#temp.linPlotx(4)</span>
+    <span class="c">#temp.linPloty(9)</span>
+    <span class="c">#plotScannedResonator.plotImage()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.hardware_modules.maestro module &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
+    <link rel="up" title="src.hardware_modules package" href="src.hardware_modules.html" />
+    <link rel="next" title="src.hardware_modules.polarization_control module" href="src.hardware_modules.polarization_control.html" />
+    <link rel="prev" title="src.hardware_modules.ZiControl module" href="src.hardware_modules.ZiControl.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.polarization_control.html" title="src.hardware_modules.polarization_control module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.ZiControl.html" title="src.hardware_modules.ZiControl module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.hardware_modules.html" accesskey="U">src.hardware_modules package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-src.hardware_modules.maestro">
+<span id="src-hardware-modules-maestro-module"></span><h1>src.hardware_modules.maestro module<a class="headerlink" href="#module-src.hardware_modules.maestro" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="src.hardware_modules.maestro.BeamBlock">
+<em class="property">class </em><code class="descclassname">src.hardware_modules.maestro.</code><code class="descname">BeamBlock</code><span class="sig-paren">(</span><em>servo</em>, <em>channel</em>, <em>position_block=3800</em>, <em>position_open=7600</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.BeamBlock" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="src.hardware_modules.maestro.BeamBlock.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>servo</em>, <em>channel</em>, <em>position_block=3800</em>, <em>position_open=7600</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.BeamBlock.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>servo</strong> &#8211; servo controler to which motor is connected</li>
+<li><strong>channel</strong> &#8211; channel to which motor is connected</li>
+<li><strong>position_block</strong> &#8211; block position, a factor 4 is needed to get the same values as in the maestro control center</li>
+<li><strong>position_open</strong> &#8211; open position, factor 4 needed</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.maestro.BeamBlock.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.hardware_modules.maestro'</em><a class="headerlink" href="#src.hardware_modules.maestro.BeamBlock.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.BeamBlock.block">
+<code class="descname">block</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.BeamBlock.block" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.BeamBlock.open">
+<code class="descname">open</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.BeamBlock.open" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.hardware_modules.maestro.Controller">
+<em class="property">class </em><code class="descclassname">src.hardware_modules.maestro.</code><code class="descname">Controller</code><span class="sig-paren">(</span><em>port='COM5'</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Controller" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="src.hardware_modules.maestro.Controller.__del__">
+<code class="descname">__del__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Controller.__del__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.Controller.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>port='COM5'</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Controller.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.maestro.Controller.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.hardware_modules.maestro'</em><a class="headerlink" href="#src.hardware_modules.maestro.Controller.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.Controller.disable">
+<code class="descname">disable</code><span class="sig-paren">(</span><em>chan</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Controller.disable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.Controller.getMax">
+<code class="descname">getMax</code><span class="sig-paren">(</span><em>chan</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Controller.getMax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.Controller.getMin">
+<code class="descname">getMin</code><span class="sig-paren">(</span><em>chan</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Controller.getMin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.Controller.getPosition">
+<code class="descname">getPosition</code><span class="sig-paren">(</span><em>chan</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Controller.getPosition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.Controller.goHome">
+<code class="descname">goHome</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Controller.goHome" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.Controller.setAccel">
+<code class="descname">setAccel</code><span class="sig-paren">(</span><em>chan</em>, <em>accel</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Controller.setAccel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.Controller.setRange">
+<code class="descname">setRange</code><span class="sig-paren">(</span><em>chan</em>, <em>min</em>, <em>max</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Controller.setRange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.Controller.setSpeed">
+<code class="descname">setSpeed</code><span class="sig-paren">(</span><em>chan</em>, <em>speed</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Controller.setSpeed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.Controller.setTarget">
+<code class="descname">setTarget</code><span class="sig-paren">(</span><em>chan</em>, <em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Controller.setTarget" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.hardware_modules.maestro.FilterWheel">
+<em class="property">class </em><code class="descclassname">src.hardware_modules.maestro.</code><code class="descname">FilterWheel</code><span class="sig-paren">(</span><em>servo</em>, <em>channel</em>, <em>position_list={'1': 2400</em>, <em>'3': 10000</em>, <em>'2': 6200}</em>, <em>settle_time=0.8</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.FilterWheel" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="src.hardware_modules.maestro.FilterWheel.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>servo</em>, <em>channel</em>, <em>position_list={'1': 2400</em>, <em>'3': 10000</em>, <em>'2': 6200}</em>, <em>settle_time=0.8</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.FilterWheel.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>servo</strong> &#8211; servo controler to which motor is connected</li>
+<li><strong>channel</strong> &#8211; channel to which motor is connected</li>
+<li><strong>position_block</strong> &#8211; block position, a factor 4 is needed to get the same values as in the maestro control center</li>
+<li><strong>position_open</strong> &#8211; open position, factor 4 needed</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.maestro.FilterWheel.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.hardware_modules.maestro'</em><a class="headerlink" href="#src.hardware_modules.maestro.FilterWheel.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.FilterWheel.goto">
+<code class="descname">goto</code><span class="sig-paren">(</span><em>position</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.FilterWheel.goto" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.hardware_modules.maestro.LinearActuator">
+<em class="property">class </em><code class="descclassname">src.hardware_modules.maestro.</code><code class="descname">LinearActuator</code><span class="sig-paren">(</span><em>servo</em>, <em>channel</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.LinearActuator" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="src.hardware_modules.maestro.LinearActuator.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>servo</em>, <em>channel</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.LinearActuator.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.maestro.LinearActuator.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.hardware_modules.maestro'</em><a class="headerlink" href="#src.hardware_modules.maestro.LinearActuator.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.maestro.LinearActuator.position">
+<code class="descname">position</code><a class="headerlink" href="#src.hardware_modules.maestro.LinearActuator.position" title="Permalink to this definition">¶</a></dt>
+<dd><p>set or get position of motor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.LinearActuator.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.LinearActuator.stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.hardware_modules.maestro.Motor">
+<em class="property">class </em><code class="descclassname">src.hardware_modules.maestro.</code><code class="descname">Motor</code><span class="sig-paren">(</span><em>servo</em>, <em>channel</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Motor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="src.hardware_modules.maestro.Motor.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>servo</em>, <em>channel</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Motor.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.maestro.Motor.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.hardware_modules.maestro'</em><a class="headerlink" href="#src.hardware_modules.maestro.Motor.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.Motor.rotate">
+<code class="descname">rotate</code><span class="sig-paren">(</span><em>speed</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Motor.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>speed</strong> &#8211; s</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.maestro.Motor.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.maestro.Motor.stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="src.hardware_modules.ZiControl.html"
+                        title="previous chapter">src.hardware_modules.ZiControl module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="src.hardware_modules.polarization_control.html"
+                        title="next chapter">src.hardware_modules.polarization_control module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/src/src.hardware_modules.maestro.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.polarization_control.html" title="src.hardware_modules.polarization_control module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.ZiControl.html" title="src.hardware_modules.ZiControl module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.hardware_modules.html" >src.hardware_modules package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.hardware_modules.Attocube &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.hardware_modules.Attocube</h1><div class="highlight"><pre>
+<span class="c"># B26 Lab Code</span>
+<span class="c"># Last Update 12/11/15</span>
+
+<span class="c"># External Connections: usb connection to ANC350 controller. Confirm connection using DAISY software</span>
+
+<span class="kn">import</span> <span class="nn">ctypes</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">int32</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_long</span>
+<span class="n">uInt32</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span>
+<span class="n">uInt64</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulonglong</span>
+<span class="n">float64</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span>
+
+<span class="c">#define built-in error codes</span>
+<span class="n">NCB_Ok</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">NCB_Error</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">NCB_Timeout</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">NCB_NotConnected</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">NCB_DriverError</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">NCB_BootIgnored</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">NCB_FileNotFound</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">NCB_InvalidParam</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">NCB_DeviceLocked</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">NCB_NotSpecifiedParam</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c"># converts x,y,z to axis number in controller</span>
+<span class="n">axis_x</span> <span class="o">=</span> <span class="n">int32</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">axis_y</span> <span class="o">=</span> <span class="n">int32</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">axis_z</span> <span class="o">=</span> <span class="n">int32</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">attocube</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">WinDLL</span><span class="p">(</span><span class="s">&#39;C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll&#39;</span><span class="p">)</span>
+<span class="c">#attocube = ctypes.WinDLL(&#39;C:/Users/Experiment/Downloads/Software_ANC350v2/DLL/Win64/lib/hvpositionerv2.dll&#39;)</span>
+
+<span class="c"># c struct used as return type for some functions</span>
+<div class="viewcode-block" id="PositionerInfo"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.PositionerInfo">[docs]</a><span class="k">class</span> <span class="nc">PositionerInfo</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[((</span><span class="s">&quot;id&quot;</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int32</span><span class="p">),</span> <span class="p">((</span><span class="s">&quot;locked&quot;</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_bool</span><span class="p">)]</span>
+</div>
+<div class="viewcode-block" id="ANC350"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350">[docs]</a><span class="k">class</span> <span class="nc">ANC350</span><span class="p">:</span>
+<div class="viewcode-block" id="ANC350.__init__"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initializes then closes a connection to the attocube to ensure that the connection is working properly</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pi</span> <span class="o">=</span> <span class="n">PositionerInfo</span><span class="p">()</span>
+        <span class="n">dev_count</span> <span class="o">=</span> <span class="n">attocube</span><span class="o">.</span><span class="n">PositionerCheck</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+        <span class="c">#if not dev_count == 1:</span>
+        <span class="c">#    if dev_count == 0:</span>
+        <span class="c">#        print(&#39;No attocube controller connected. Connect a device.&#39;)</span>
+        <span class="c">#        raise Exception</span>
+        <span class="c">#    elif dev_count &gt; 1:</span>
+        <span class="c">#        print(&#39;Multiple attocube controllers detected. This program will not continue.&#39;)</span>
+        <span class="c">#        raise Exception</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.load"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerSetOutput</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">filepath</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.get_status"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.get_status">[docs]</a>    <span class="k">def</span> <span class="nf">get_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Check axis status</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :return: four status bytes (0 if false, 1 if true) to check if the axis is moving, stopped, there is a sensor</span>
+<span class="sd">            error, or the sensor is disconnected in that order</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerGetStatus</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">status</span><span class="p">)))</span>
+        <span class="n">moving</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">value</span> <span class="o">%</span> <span class="mi">2</span>
+        <span class="n">stopped</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span> <span class="o">%</span> <span class="mi">2</span>
+        <span class="n">sensor_error</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span> <span class="o">%</span> <span class="mi">2</span>
+        <span class="n">sensor_disconnect</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span> <span class="o">%</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">moving</span><span class="p">,</span> <span class="n">stopped</span><span class="p">,</span> <span class="n">sensor_error</span><span class="p">,</span> <span class="n">sensor_disconnect</span>
+</div>
+<div class="viewcode-block" id="ANC350.toggle_axis"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.toggle_axis">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">on</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Turn axis on or off</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :param on: True or False</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerSetOutput</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_bool</span><span class="p">(</span><span class="n">on</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.get_position"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.get_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :return: position of axis in um</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="c"># wait command needed since polling rate of attocube is 20 Hz. Empirically determined that .2 is lowest value</span>
+        <span class="c"># that always works. No idea why no other function also needs this wait command</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerGetPosition</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">position</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">position</span><span class="o">.</span><span class="n">value</span><span class="o">/</span><span class="mf">1000.0</span>
+</div>
+<div class="viewcode-block" id="ANC350.get_ref"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.get_ref">[docs]</a>    <span class="k">def</span> <span class="nf">get_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :return: position of axis in um</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerGetReference</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">position</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">valid</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">position</span><span class="o">.</span><span class="n">value</span><span class="o">/</span><span class="mf">1000.0</span>
+</div>
+<div class="viewcode-block" id="ANC350.cap_measure"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.cap_measure">[docs]</a>    <span class="k">def</span> <span class="nf">cap_measure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :return: Capacitance in uF</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="n">capacitance</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerCapMeasure</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">capacitance</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">capacitance</span><span class="o">.</span><span class="n">value</span>
+</div>
+<div class="viewcode-block" id="ANC350.set_origin"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.set_origin">[docs]</a>    <span class="k">def</span> <span class="nf">set_origin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Reset axis origin to current position</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerResetPosition</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.move_absolute"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.move_absolute">[docs]</a>    <span class="k">def</span> <span class="nf">move_absolute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Precondition: Must set voltage and frequency sufficiently low that ANC&#39;s internal feedback will be able to</span>
+<span class="sd">        settle on the appropriate position (ex. 7V, 100Hz). Otherwise, fluctuates around target position and never stops</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :param position: position of axis to move to in um</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerMoveAbsolute</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">int32</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">*</span><span class="mf">1000.0</span><span class="p">))))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.move_relative"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.move_relative">[docs]</a>    <span class="k">def</span> <span class="nf">move_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Precondition: Must set voltage and frequency sufficiently low that ANC&#39;s internal feedback will be able to</span>
+<span class="sd">        settle on the appropriate position (ex. 7V, 100Hz). Otherwise, fluctuates around target position and never stops        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :param distance: amount to move axis in um</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerMoveRelative</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">int32</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">distance</span><span class="o">*</span><span class="mf">1000.0</span><span class="p">))))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.stop_move_to_pos"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.stop_move_to_pos">[docs]</a>    <span class="k">def</span> <span class="nf">stop_move_to_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerStopApproach</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.set_amplitude"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.set_amplitude">[docs]</a>    <span class="k">def</span> <span class="nf">set_amplitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :param amplitude: amplitude in V</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span><span class="p">(</span><span class="n">amplitude</span> <span class="o">&lt;=</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="n">amplitude</span> <span class="o">*=</span> <span class="mi">1000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerAmplitude</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">int32</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">amplitude</span><span class="p">))))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.get_amplitude"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.get_amplitude">[docs]</a>    <span class="k">def</span> <span class="nf">get_amplitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :return: amplitude in V</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="n">amplitude</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerGetAmplitude</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">amplitude</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">amplitude</span><span class="o">.</span><span class="n">value</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ANC350.get_speed"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.get_speed">[docs]</a>    <span class="k">def</span> <span class="nf">get_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :return: speed in V/s</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="n">speed</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerGetSpeed</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">speed</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">speed</span><span class="o">.</span><span class="n">value</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ANC350.step_piezo"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.step_piezo">[docs]</a>    <span class="k">def</span> <span class="nf">step_piezo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">direction</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :param direction: 0 for forwards, 1 for backwards</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerMoveSingleStep</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">int32</span><span class="p">(</span><span class="n">direction</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.step_cnt"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.step_cnt">[docs]</a>    <span class="k">def</span> <span class="nf">step_cnt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">num_steps</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :param direction: 0 for forwards, 1 for backwards</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerStepCount</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">int32</span><span class="p">(</span><span class="n">num_steps</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerMoveSingleStep</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">int32</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.cont_move_piezo"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.cont_move_piezo">[docs]</a>    <span class="k">def</span> <span class="nf">cont_move_piezo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">direction</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :param direction: 0 for forwards, 1 for backwards</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerMoveContinuous</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">int32</span><span class="p">(</span><span class="n">direction</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.stop_piezo"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.stop_piezo">[docs]</a>    <span class="k">def</span> <span class="nf">stop_piezo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerStopMoving</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.set_frequency"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.set_frequency">[docs]</a>    <span class="k">def</span> <span class="nf">set_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">freq</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :param freq: frequency to set in Hz</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">freq</span> <span class="o">&lt;=</span> <span class="mi">2000</span><span class="p">)</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerFrequency</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">int32</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">freq</span><span class="p">))))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ANC350.get_frequency"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.get_frequency">[docs]</a>    <span class="k">def</span> <span class="nf">get_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param axis: axis_x, axis_y, or axis_z</span>
+<span class="sd">        :return: current frequency of axis in Hz</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerGetFrequency</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">freq</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">freq</span><span class="o">.</span><span class="n">value</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ANC350.check_error"><a class="viewcode-back" href="../../../src/src.hardware_modules.Attocube.html#src.hardware_modules.Attocube.ANC350.check_error">[docs]</a>    <span class="k">def</span> <span class="nf">check_error</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Translates error codes to human readable message</span>
+<span class="sd">        :param code: input error code (integer 0-8)</span>
+<span class="sd">        :poststate: message printed to stdout</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_Ok</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_BootIgnored</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Warning: boot ignored</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+        <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_Error</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: unspecific</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+        <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_Timeout</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: comm. timeout</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+        <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_NotConnected</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: not connected</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+        <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_DriverError</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: driver error</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+        <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_FileNotFound</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: file not found</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+        <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_InvalidParam</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: invalid parameter</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+        <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_DeviceLocked</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: device locked</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+        <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_NotSpecifiedParam</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: unspec. parameter</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: unknown</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+
+<span class="c">#a = ANC350()</span>
+<span class="c">#a.load(axis_z, ctypes.c_char_p(&#39;C:/Users/Experiment/Downloads/Software_ANC350v2/ANC350_GUI/general_APS_files/ANPz101res.aps&#39;))</span>
+<span class="c">#print(a.cap_measure(axis_z))</span>
+<span class="c">#print(a.get_frequency(axis_z))</span>
+<span class="c">#a.cont_move_piezo(axis_z,1)</span>
+<span class="c">#time.sleep(1)</span>
+<span class="c">#a.stop_piezo(axis_z)</span>
+<span class="c">#a.move_relative(axis_y,5000)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

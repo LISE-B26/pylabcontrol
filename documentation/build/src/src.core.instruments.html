@@ -1,0 +1,584 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.core.instruments module &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
+    <link rel="up" title="src.core package" href="src.core.html" />
+    <link rel="next" title="src.hardware_modules package" href="src.hardware_modules.html" />
+    <link rel="prev" title="src.core package" href="src.core.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.html" title="src.hardware_modules package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="src.core.html" title="src.core package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.core.html" accesskey="U">src.core package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-src.core.instruments">
+<span id="src-core-instruments-module"></span><h1>src.core.instruments module<a class="headerlink" href="#module-src.core.instruments" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="src.core.instruments.Instrument">
+<em class="property">class </em><code class="descclassname">src.core.instruments.</code><code class="descname">Instrument</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameter_list=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>generic instrument class</p>
+<dl class="attribute">
+<dt id="src.core.instruments.Instrument.__dict__">
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.core.instruments', 'parameters_default': &lt;property object at 0x0000000008B34B88&gt;, 'name': &lt;property object at 0x0000000008B34BD8&gt;, 'parameters': &lt;property object at 0x0000000008B34C28&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Instrument' objects&gt;, '_is_connected': False, 'as_dict': &lt;function as_dict at 0x0000000008AFDF98&gt;, '__setattr__': &lt;function __setattr__ at 0x0000000008AFDD68&gt;, '__getattr__': &lt;function __getattr__ at 0x0000000008AFDC88&gt;, '__doc__': '\n    generic instrument class\n    ', '__dict__': &lt;attribute '__dict__' of 'Instrument' objects&gt;, 'get_values': &lt;function get_values at 0x0000000008AFDCF8&gt;, 'is_connected': &lt;property object at 0x0000000008B34B38&gt;, '__str__': &lt;function __str__ at 0x0000000008AFDDD8&gt;, '__init__': &lt;function __init__ at 0x0000000008AFDC18&gt;, 'update_parameters': &lt;function update_parameters at 0x0000000008B82128&gt;})</em><a class="headerlink" href="#src.core.instruments.Instrument.__dict__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Instrument.__getattr__">
+<code class="descname">__getattr__</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__getattr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.__getattr__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Instrument.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameter_list=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Instrument.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.core.instruments'</em><a class="headerlink" href="#src.core.instruments.Instrument.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Instrument.__setattr__">
+<code class="descname">__setattr__</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__setattr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.__setattr__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Instrument.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.__str__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Instrument.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#src.core.instruments.Instrument.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Instrument.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the configuration of the instrument as a dictionary
+:return: nested dictionary with entries name and value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Instrument.get_values">
+<code class="descname">get_values</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.get_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.get_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Instrument.is_connected">
+<code class="descname">is_connected</code><a class="headerlink" href="#src.core.instruments.Instrument.is_connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if instrument is active and connected and return True in that case
+:return: bool</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Instrument.name">
+<code class="descname">name</code><a class="headerlink" href="#src.core.instruments.Instrument.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Instrument.parameters">
+<code class="descname">parameters</code><a class="headerlink" href="#src.core.instruments.Instrument.parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Instrument.parameters_default">
+<code class="descname">parameters_default</code><a class="headerlink" href="#src.core.instruments.Instrument.parameters_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the default parameter_list of the instrument this function should be over written in any subclass
+:return: a list of parameter objects</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Instrument.update_parameters">
+<code class="descname">update_parameters</code><span class="sig-paren">(</span><em>parameters_new</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.update_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.update_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates the parameters if they exist
+:param parameters_new: can be a</p>
+<blockquote>
+<div><ul class="simple">
+<li>dictionary of type {&#8216;param1&#8217;:value1, &#8216;param2&#8217;:value2, etc.}</li>
+<li>list of dictionaries of form [{&#8216;param1&#8217;:value1}, {&#8216;param2&#8217;:value2}, etc.]</li>
+<li>list of parameters [param1, param2, etc.,  where param1, param2 are Parameter objects</li>
+<li>a single parameter object</li>
+</ul>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a dictionary of the form {&#8216;param1&#8217;:value1, &#8216;param2&#8217;:value2, etc.} of  parameters_new</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.core.instruments.Instrument_Dummy">
+<em class="property">class </em><code class="descclassname">src.core.instruments.</code><code class="descname">Instrument_Dummy</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameter_list=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument_Dummy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument_Dummy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.core.instruments.Instrument" title="src.core.instruments.Instrument"><code class="xref py py-class docutils literal"><span class="pre">src.core.instruments.Instrument</span></code></a></p>
+<p>dummy instrument class, just to see how the creation of a new instrument works</p>
+<dl class="method">
+<dt id="src.core.instruments.Instrument_Dummy.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameter_list=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument_Dummy.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument_Dummy.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Instrument_Dummy.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.core.instruments'</em><a class="headerlink" href="#src.core.instruments.Instrument_Dummy.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Instrument_Dummy.parameters_default">
+<code class="descname">parameters_default</code><a class="headerlink" href="#src.core.instruments.Instrument_Dummy.parameters_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the default parameter_list of the instrument
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.core.instruments.Maestro_BeamBlock">
+<em class="property">class </em><code class="descclassname">src.core.instruments.</code><code class="descname">Maestro_BeamBlock</code><span class="sig-paren">(</span><em>maestro</em>, <em>name</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_BeamBlock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_BeamBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.core.instruments.Instrument" title="src.core.instruments.Instrument"><code class="xref py py-class docutils literal"><span class="pre">src.core.instruments.Instrument</span></code></a></p>
+<dl class="method">
+<dt id="src.core.instruments.Maestro_BeamBlock.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>maestro</em>, <em>name</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_BeamBlock.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_BeamBlock.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>maestro</strong> &#8211; maestro servo controler to which motor is connected</li>
+<li><strong>channel</strong> &#8211; channel to which motor is connected</li>
+<li><strong>position_list</strong> &#8211; dictonary that contains the target positions, a factor 4 is needed to get the same values as in the maestro control center</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Maestro_BeamBlock.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.core.instruments'</em><a class="headerlink" href="#src.core.instruments.Maestro_BeamBlock.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Maestro_BeamBlock.channel">
+<code class="descname">channel</code><a class="headerlink" href="#src.core.instruments.Maestro_BeamBlock.channel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_BeamBlock.goto">
+<code class="descname">goto</code><span class="sig-paren">(</span><em>position</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_BeamBlock.goto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_BeamBlock.goto" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Maestro_BeamBlock.parameters_default">
+<code class="descname">parameters_default</code><a class="headerlink" href="#src.core.instruments.Maestro_BeamBlock.parameters_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the default parameter_list of the instrument
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_BeamBlock.sleep">
+<code class="descname">sleep</code><span class="sig-paren">(</span><em>seconds</em><span class="sig-paren">)</span><a class="headerlink" href="#src.core.instruments.Maestro_BeamBlock.sleep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delay execution for a given number of seconds.  The argument may be
+a floating point number for subsecond precision.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_BeamBlock.update_parameters">
+<code class="descname">update_parameters</code><span class="sig-paren">(</span><em>parameters_new</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_BeamBlock.update_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_BeamBlock.update_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.core.instruments.Maestro_Controller">
+<em class="property">class </em><code class="descclassname">src.core.instruments.</code><code class="descname">Maestro_Controller</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.core.instruments.Instrument" title="src.core.instruments.Instrument"><code class="xref py py-class docutils literal"><span class="pre">src.core.instruments.Instrument</span></code></a></p>
+<dl class="method">
+<dt id="src.core.instruments.Maestro_Controller.__del__">
+<code class="descname">__del__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller.__del__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller.__del__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_Controller.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Maestro_Controller.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.core.instruments'</em><a class="headerlink" href="#src.core.instruments.Maestro_Controller.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_Controller.disable">
+<code class="descname">disable</code><span class="sig-paren">(</span><em>chan</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller.disable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller.disable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_Controller.getMax">
+<code class="descname">getMax</code><span class="sig-paren">(</span><em>chan</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller.getMax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller.getMax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_Controller.getMin">
+<code class="descname">getMin</code><span class="sig-paren">(</span><em>chan</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller.getMin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller.getMin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_Controller.getPosition">
+<code class="descname">getPosition</code><span class="sig-paren">(</span><em>chan</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller.getPosition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller.getPosition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_Controller.goHome">
+<code class="descname">goHome</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller.goHome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller.goHome" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Maestro_Controller.parameters_default">
+<code class="descname">parameters_default</code><a class="headerlink" href="#src.core.instruments.Maestro_Controller.parameters_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the default parameter_list of the instrument
+:return:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Maestro_Controller.serial">
+<code class="descname">serial</code><em class="property"> = &lt;module 'serial' from 'C:\Anaconda\lib\site-packages\serial\__init__.pyc'&gt;</em><a class="headerlink" href="#src.core.instruments.Maestro_Controller.serial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_Controller.setAccel">
+<code class="descname">setAccel</code><span class="sig-paren">(</span><em>chan</em>, <em>accel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller.setAccel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller.setAccel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_Controller.setRange">
+<code class="descname">setRange</code><span class="sig-paren">(</span><em>chan</em>, <em>min</em>, <em>max</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller.setRange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller.setRange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_Controller.setSpeed">
+<code class="descname">setSpeed</code><span class="sig-paren">(</span><em>chan</em>, <em>speed</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller.setSpeed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller.setSpeed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_Controller.setTarget">
+<code class="descname">setTarget</code><span class="sig-paren">(</span><em>chan</em>, <em>target</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller.setTarget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller.setTarget" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Maestro_Controller.update_parameters">
+<code class="descname">update_parameters</code><span class="sig-paren">(</span><em>parameters_new</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Maestro_Controller.update_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Maestro_Controller.update_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.core.instruments.Parameter">
+<em class="property">class </em><code class="descclassname">src.core.instruments.</code><code class="descname">Parameter</code><span class="sig-paren">(</span><em>name</em>, <em>value=None</em>, <em>valid_values=None</em>, <em>info=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="src.core.instruments.Parameter.__dict__">
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'info': &lt;property object at 0x0000000008B34A98&gt;, '__module__': 'src.core.instruments', 'name': &lt;property object at 0x0000000008B349F8&gt;, '__getitem__': &lt;function __getitem__ at 0x0000000008AFD518&gt;, 'dict_to_str': &lt;function dict_to_str at 0x0000000008AFD668&gt;, 'as_dict': &lt;function as_dict at 0x0000000008AFDAC8&gt;, 'value': &lt;property object at 0x0000000008B34A48&gt;, 'cast_to_valid_type': &lt;function cast_to_valid_type at 0x0000000008AFDB38&gt;, '__setitem__': &lt;function __setitem__ at 0x0000000008AFD588&gt;, 'valid_values': &lt;property object at 0x0000000008B34AE8&gt;, 'dict': &lt;property object at 0x0000000008B34958&gt;, '__repr__': &lt;function __repr__ at 0x0000000008AFD5F8&gt;, '__dict__': &lt;attribute '__dict__' of 'Parameter' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Parameter' objects&gt;, '__doc__': None, '__init__': &lt;function __init__ at 0x0000000008AFD4A8&gt;, 'is_valid': &lt;function is_valid at 0x0000000008AFDBA8&gt;})</em><a class="headerlink" href="#src.core.instruments.Parameter.__dict__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Parameter.__getitem__">
+<code class="descname">__getitem__</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Parameter.__getitem__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Parameter.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Parameter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>value=None</em>, <em>valid_values=None</em>, <em>info=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Parameter.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Parameter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameter(name (str), value (anything) )
+Parameter(name (str), value (anything), valid_values (type, tuple of types, list), info (str) )
+Parameter({name : value })</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; name of parameter,</li>
+<li><strong>= None</strong> (<a class="reference internal" href="#src.core.instruments.Parameter.info" title="src.core.instruments.Parameter.info"><em>info</em></a>) &#8211; </li>
+<li><strong>= None</strong> &#8211; if empty valid_values = type(value) otherwise can be a list of valid values, a type or a tuple of types</li>
+<li><strong>= None</strong> &#8211; string describing the parameter</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Parameter.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.core.instruments'</em><a class="headerlink" href="#src.core.instruments.Parameter.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Parameter.__repr__">
+<code class="descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Parameter.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Parameter.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Parameter.__setitem__">
+<code class="descname">__setitem__</code><span class="sig-paren">(</span><em>name</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Parameter.__setitem__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Parameter.__setitem__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Parameter.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#src.core.instruments.Parameter.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Parameter.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Parameter.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Parameter.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>casts parameter into a (nested) dictonary {name : value}
+:return: dictionary of type {parameter.name: parameter.value}</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Parameter.cast_to_valid_type">
+<code class="descname">cast_to_valid_type</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Parameter.cast_to_valid_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Parameter.cast_to_valid_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>takes a value and tried to cast it into the correct type, which is give by the valid_values of the parameter
+if casting is not possible a TypeError is raised
+:param value: value to be checked and cast into type that corresponds to valid_data type
+:return: value cast into the correct data type</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Parameter.dict">
+<code class="descname">dict</code><a class="headerlink" href="#src.core.instruments.Parameter.dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Parameter.dict_to_str">
+<code class="descname">dict_to_str</code><span class="sig-paren">(</span><em>dictonary</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Parameter.dict_to_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Parameter.dict_to_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>casts dict into a (nested) string name : value
+:return:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Parameter.info">
+<code class="descname">info</code><a class="headerlink" href="#src.core.instruments.Parameter.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Parameter.is_valid">
+<code class="descname">is_valid</code><span class="sig-paren">(</span><em>new_value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Parameter.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Parameter.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks if every value in value is a valid parameter value, i.e. if within values defined by valid_values
+:param new_value: new value that is to be assigned to self.value
+:return: True or False depending if value is valid</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Parameter.name">
+<code class="descname">name</code><a class="headerlink" href="#src.core.instruments.Parameter.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Parameter.valid_values">
+<code class="descname">valid_values</code><a class="headerlink" href="#src.core.instruments.Parameter.valid_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Parameter.value">
+<code class="descname">value</code><a class="headerlink" href="#src.core.instruments.Parameter.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.core.instruments.ZIHF2">
+<em class="property">class </em><code class="descclassname">src.core.instruments.</code><code class="descname">ZIHF2</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameter_list=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#ZIHF2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.ZIHF2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.core.instruments.Instrument" title="src.core.instruments.Instrument"><code class="xref py py-class docutils literal"><span class="pre">src.core.instruments.Instrument</span></code></a></p>
+<dl class="method">
+<dt id="src.core.instruments.ZIHF2.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameter_list=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#ZIHF2.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.ZIHF2.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.ZIHF2.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.core.instruments'</em><a class="headerlink" href="#src.core.instruments.ZIHF2.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.ZIHF2.dict_to_settings">
+<code class="descname">dict_to_settings</code><span class="sig-paren">(</span><em>dictionary</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#ZIHF2.dict_to_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.ZIHF2.dict_to_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>converts dictionary to list of  setting, which can then be passed to the zi controler
+:param dictionary = dictionary that contains the settings
+:return: settings = list of settings, which can then be passed to the zi controler</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.ZIHF2.parameters_default">
+<code class="descname">parameters_default</code><a class="headerlink" href="#src.core.instruments.ZIHF2.parameters_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the default parameter_list of the instrument
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.ZIHF2.poll">
+<code class="descname">poll</code><span class="sig-paren">(</span><em>pollTime</em>, <em>variable='R'</em>, <em>timeout=500</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#ZIHF2.poll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.ZIHF2.poll" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>variable</strong> &#8211; string or list of string, which varibale to poll (&#8216;R&#8217;, &#8216;x&#8217;, &#8216;y&#8217;)</li>
+<li><strong>pollTime</strong> &#8211; </li>
+<li><strong>timeout</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.ZIHF2.update_parameters">
+<code class="descname">update_parameters</code><span class="sig-paren">(</span><em>parameters_new</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#ZIHF2.update_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.ZIHF2.update_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.ZIHF2.utils">
+<code class="descname">utils</code><em class="property"> = &lt;module 'zhinst.utils' from 'C:\Anaconda\lib\site-packages\zhinst\utils.pyc'&gt;</em><a class="headerlink" href="#src.core.instruments.ZIHF2.utils" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="src.core.instruments.get_elemet">
+<code class="descclassname">src.core.instruments.</code><code class="descname">get_elemet</code><span class="sig-paren">(</span><em>name</em>, <em>element_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#get_elemet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.get_elemet" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the element with name &#8216;name&#8217;
+list should be a list of objects that have a property name, e.g. Instrument, Parameter, Script
+:param name:
+:param element_list:
+:return:</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="src.core.html"
+                        title="previous chapter">src.core package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="src.hardware_modules.html"
+                        title="next chapter">src.hardware_modules package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/src/src.core.instruments.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.html" title="src.hardware_modules package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="src.core.html" title="src.core package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.core.html" >src.core package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

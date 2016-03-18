@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.helper_functions.plotting module &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
+    <link rel="up" title="src.helper_functions package" href="src.helper_functions.html" />
+    <link rel="next" title="src.helper_functions.reading_writing module" href="src.helper_functions.reading_writing.html" />
+    <link rel="prev" title="src.helper_functions.Resonator_Conversion module" href="src.helper_functions.Resonator_Conversion.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.helper_functions.reading_writing.html" title="src.helper_functions.reading_writing module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="src.helper_functions.Resonator_Conversion.html" title="src.helper_functions.Resonator_Conversion module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.helper_functions.html" accesskey="U">src.helper_functions package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-src.helper_functions.plotting">
+<span id="src-helper-functions-plotting-module"></span><h1>src.helper_functions.plotting module<a class="headerlink" href="#module-src.helper_functions.plotting" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="src.helper_functions.plotting.plot_cont_img1_col_img2">
+<code class="descclassname">src.helper_functions.plotting.</code><code class="descname">plot_cont_img1_col_img2</code><span class="sig-paren">(</span><em>axes, image_data_1, image_data_2, region, threshold=[30, 40], title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.helper_functions.plotting.plot_cont_img1_col_img2" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>axes</strong> &#8211; </li>
+<li><strong>image_data_1</strong> &#8211; image data used for contour</li>
+<li><strong>image_data_2</strong> &#8211; image data used for color plot</li>
+<li><strong>region</strong> &#8211; </li>
+<li><strong>threshold</strong> &#8211; </li>
+<li><strong>title</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.helper_functions.plotting.plot_esr_data_and_pos">
+<code class="descclassname">src.helper_functions.plotting.</code><code class="descname">plot_esr_data_and_pos</code><span class="sig-paren">(</span><em>img_data_reflect</em>, <em>img_data_fluor</em>, <em>region</em>, <em>esr_freq</em>, <em>esr_data</em>, <em>pt</em>, <em>size=0.02</em><span class="sig-paren">)</span><a class="headerlink" href="#src.helper_functions.plotting.plot_esr_data_and_pos" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>img_data_reflect</strong> &#8211; fluoresence image  data to be plotted</li>
+<li><strong>img_data_fluor</strong> &#8211; reflection image data to be plotted</li>
+<li><strong>region</strong> &#8211; dictionary specifying extent of image</li>
+<li><strong>pt</strong> &#8211; point to be plotted on top of images to show the laser position</li>
+<li><strong>size</strong> &#8211; size of dot</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.helper_functions.plotting.plot_esr_plot">
+<code class="descclassname">src.helper_functions.plotting.</code><code class="descname">plot_esr_plot</code><span class="sig-paren">(</span><em>axes</em>, <em>esr_freq</em>, <em>esr_data</em>, <em>title='Image'</em><span class="sig-paren">)</span><a class="headerlink" href="#src.helper_functions.plotting.plot_esr_plot" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>axes</strong> &#8211; axes object where to plot</li>
+<li><strong>esr_freq</strong> &#8211; 1d array with frequenies</li>
+<li><strong>esr_data</strong> &#8211; 1d array with esr data</li>
+<li><strong>title</strong> &#8211; plot title</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.helper_functions.plotting.plot_scan_image">
+<code class="descclassname">src.helper_functions.plotting.</code><code class="descname">plot_scan_image</code><span class="sig-paren">(</span><em>axes</em>, <em>image_data</em>, <em>region</em>, <em>title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.helper_functions.plotting.plot_scan_image" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>axes</strong> &#8211; axes object where to plot</li>
+<li><strong>image_data</strong> &#8211; image data to be plotted</li>
+<li><strong>region</strong> &#8211; dictionary specifying extent of image</li>
+<li><strong>title</strong> &#8211; plot title</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="src.helper_functions.Resonator_Conversion.html"
+                        title="previous chapter">src.helper_functions.Resonator_Conversion module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="src.helper_functions.reading_writing.html"
+                        title="next chapter">src.helper_functions.reading_writing module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/src/src.helper_functions.plotting.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.helper_functions.reading_writing.html" title="src.helper_functions.reading_writing module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="src.helper_functions.Resonator_Conversion.html" title="src.helper_functions.Resonator_Conversion module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.helper_functions.html" >src.helper_functions package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

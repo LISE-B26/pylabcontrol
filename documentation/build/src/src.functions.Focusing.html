@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.functions.Focusing module &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
+    <link rel="up" title="src.functions package" href="src.functions.html" />
+    <link rel="next" title="src.functions.SaveScript module" href="src.functions.SaveScript.html" />
+    <link rel="prev" title="src.functions.test_units.test_ScanPhotodiode_DAQ module" href="src.functions.test_units.test_ScanPhotodiode_DAQ.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.functions.SaveScript.html" title="src.functions.SaveScript module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="src.functions.test_units.test_ScanPhotodiode_DAQ.html" title="src.functions.test_units.test_ScanPhotodiode_DAQ module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.functions.html" accesskey="U">src.functions package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-src.functions.Focusing">
+<span id="src-functions-focusing-module"></span><h1>src.functions.Focusing module<a class="headerlink" href="#module-src.functions.Focusing" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="src.functions.Focusing.Focus">
+<em class="property">class </em><code class="descclassname">src.functions.Focusing.</code><code class="descname">Focus</code><a class="reference internal" href="../_modules/src/functions/Focusing.html#Focus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.Focusing.Focus" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="src.functions.Focusing.Focus.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.functions.Focusing'</em><a class="headerlink" href="#src.functions.Focusing.Focus.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.functions.Focusing.Focus.fit">
+<em class="property">classmethod </em><code class="descname">fit</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/Focusing.html#Focus.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.Focusing.Focus.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.functions.Focusing.Focus.gaussian">
+<em class="property">static </em><code class="descname">gaussian</code><span class="sig-paren">(</span><em>x</em>, <em>a</em>, <em>x0</em>, <em>sigma</em>, <em>c</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/Focusing.html#Focus.gaussian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.Focusing.Focus.gaussian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.functions.Focusing.Focus.plotData">
+<em class="property">classmethod </em><code class="descname">plotData</code><span class="sig-paren">(</span><em>line</em>, <em>x</em>, <em>y</em>, <em>canvas</em>, <em>axes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/Focusing.html#Focus.plotData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.Focusing.Focus.plotData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.functions.Focusing.Focus.plotFit">
+<em class="property">classmethod </em><code class="descname">plotFit</code><span class="sig-paren">(</span><em>line</em>, <em>a</em>, <em>mean</em>, <em>sigma</em>, <em>c</em>, <em>minV</em>, <em>maxV</em>, <em>canvas</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/Focusing.html#Focus.plotFit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.Focusing.Focus.plotFit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.functions.Focusing.Focus.plotImg">
+<em class="property">classmethod </em><code class="descname">plotImg</code><span class="sig-paren">(</span><em>imadata</em>, <em>canvas</em>, <em>axes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/Focusing.html#Focus.plotImg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.Focusing.Focus.plotImg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.functions.Focusing.Focus.scan">
+<em class="property">classmethod </em><code class="descname">scan</code><span class="sig-paren">(</span><em>minV</em>, <em>maxV</em>, <em>numPts</em>, <em>piezoChannel</em>, <em>waitTime=5</em>, <em>canvas=None</em>, <em>APD=True</em>, <em>scan_range_roi=None</em>, <em>plotting=True</em>, <em>blocking=True</em>, <em>return_data=False</em>, <em>queue=None</em>, <em>std=True</em>, <em>timePerPt=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/Focusing.html#Focus.scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.Focusing.Focus.scan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.functions.Focusing.Focus.scan_attocube">
+<em class="property">classmethod </em><code class="descname">scan_attocube</code><span class="sig-paren">(</span><em>min_pos</em>, <em>max_pos</em>, <em>center_position</em>, <em>max_deviation</em>, <em>cont_voltage=25</em>, <em>step_voltage=30</em>, <em>atto_frequency=100</em>, <em>attoChannel=0</em>, <em>waitTime=0.1</em>, <em>canvas=None</em>, <em>APD=True</em>, <em>scan_range_roi=None</em>, <em>plotting=True</em>, <em>blocking=True</em>, <em>return_data=False</em>, <em>queue=None</em>, <em>std=True</em>, <em>timePerPt=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/Focusing.html#Focus.scan_attocube"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.Focusing.Focus.scan_attocube" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.functions.Focusing.Focus.setDaqPt">
+<em class="property">static </em><code class="descname">setDaqPt</code><span class="sig-paren">(</span><em>xVolt</em>, <em>yVolt</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/Focusing.html#Focus.setDaqPt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.Focusing.Focus.setDaqPt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.functions.Focusing.Focus.updatePlot">
+<em class="property">static </em><code class="descname">updatePlot</code><span class="sig-paren">(</span><em>canvas</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/Focusing.html#Focus.updatePlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.Focusing.Focus.updatePlot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="src.functions.test_units.test_ScanPhotodiode_DAQ.html"
+                        title="previous chapter">src.functions.test_units.test_ScanPhotodiode_DAQ module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="src.functions.SaveScript.html"
+                        title="next chapter">src.functions.SaveScript module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/src/src.functions.Focusing.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.functions.SaveScript.html" title="src.functions.SaveScript module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="src.functions.test_units.test_ScanPhotodiode_DAQ.html" title="src.functions.test_units.test_ScanPhotodiode_DAQ module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.functions.html" >src.functions package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

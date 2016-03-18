@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.functions.track_NVs_test &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.functions.track_NVs_test</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">listdir</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">join</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">hardware_modules</span> <span class="kn">import</span> <span class="n">GalvoMirrors</span> <span class="k">as</span> <span class="n">DaqOut</span>
+<span class="kn">from</span> <span class="nn">hardware_modules</span> <span class="kn">import</span> <span class="n">PiezoController</span> <span class="k">as</span> <span class="n">PC</span>
+
+<span class="kn">from</span> <span class="nn">src.functions</span> <span class="kn">import</span> <span class="n">Focusing</span> <span class="k">as</span> <span class="n">f</span>
+<span class="kn">from</span> <span class="nn">src.functions</span> <span class="kn">import</span> <span class="n">ScanAPD</span>
+<span class="kn">from</span> <span class="nn">src.functions</span> <span class="kn">import</span> <span class="n">track_NVs</span> <span class="k">as</span> <span class="n">track</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Tests track_NVs.py by getting a baseline image, then cycling through waiting, checking shift, refocusing, rechecking</span>
+<span class="sd">shift, then saving final image to later manually check how it has shifted relative to the initial image and see</span>
+<span class="sd">how well the correlations work</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">PATH</span> <span class="o">=</span> <span class="s">&#39;Z:</span><span class="se">\\</span><span class="s">Lab</span><span class="se">\\</span><span class="s">Cantilever</span><span class="se">\\</span><span class="s">Measurements</span><span class="se">\\</span><span class="s">150707_NV_Tracking_Test&#39;</span>
+<span class="n">TAG</span> <span class="o">=</span> <span class="s">&#39;TEST_OVERNIGHT&#39;</span>
+<span class="n">WAIT_TIME</span> <span class="o">=</span> <span class="mi">1800</span>
+<span class="n">FOCUS_DEVIATION</span> <span class="o">=</span> <span class="mi">5</span>
+
+<div class="viewcode-block" id="writeArray"><a class="viewcode-back" href="../../../src/src.functions.track_NVs_test.html#src.functions.track_NVs_test.writeArray">[docs]</a><span class="k">def</span> <span class="nf">writeArray</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">roi</span><span class="p">,</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">columns</span> <span class="o">==</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">_%H-%M-%S&quot;</span><span class="p">)</span>
+    <span class="n">filepathCSV</span> <span class="o">=</span> <span class="n">dirpath</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\\</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">start_time</span> <span class="o">+</span> <span class="s">&#39;_&#39;</span> <span class="o">+</span> <span class="n">tag</span> <span class="o">+</span> <span class="s">&#39;.csv&#39;</span>
+    <span class="n">filepathPNG</span> <span class="o">=</span> <span class="n">dirpath</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\\</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">start_time</span> <span class="o">+</span> <span class="s">&#39;_&#39;</span> <span class="o">+</span> <span class="n">tag</span> <span class="o">+</span> <span class="s">&#39;.png&#39;</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filepathCSV</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filepathPNG</span><span class="p">),</span> <span class="n">format</span> <span class="o">=</span> <span class="s">&#39;png&#39;</span><span class="p">)</span>
+
+    <span class="n">filepathROI</span> <span class="o">=</span> <span class="n">dirpath</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\\</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">start_time</span> <span class="o">+</span> <span class="s">&#39;_&#39;</span> <span class="o">+</span> <span class="n">tag</span> <span class="o">+</span> <span class="s">&#39;.roi&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepathROI</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="setDaqPt"><a class="viewcode-back" href="../../../src/src.functions.track_NVs_test.html#src.functions.track_NVs_test.setDaqPt">[docs]</a><span class="k">def</span> <span class="nf">setDaqPt</span><span class="p">(</span><span class="n">xVolt</span><span class="p">,</span><span class="n">yVolt</span><span class="p">):</span>
+    <span class="n">initPt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">xVolt</span><span class="p">,</span> <span class="n">yVolt</span><span class="p">)))</span>
+    <span class="n">initPt</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">initPt</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="c"># move galvo to first point in line</span>
+    <span class="n">pointthread</span> <span class="o">=</span> <span class="n">DaqOut</span><span class="o">.</span><span class="n">DaqOutputWave</span><span class="p">(</span><span class="n">initPt</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="o">.</span><span class="mo">001</span><span class="p">,</span> <span class="s">&quot;Dev1/ao0:1&quot;</span><span class="p">)</span>
+    <span class="n">pointthread</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="n">pointthread</span><span class="o">.</span><span class="n">waitToFinish</span><span class="p">()</span>
+    <span class="n">pointthread</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="run_test"><a class="viewcode-back" href="../../../src/src.functions.track_NVs_test.html#src.functions.track_NVs_test.run_test">[docs]</a><span class="k">def</span> <span class="nf">run_test</span><span class="p">():</span>
+    <span class="n">roi</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&quot;dx&quot;</span><span class="p">:</span> <span class="mf">0.10</span><span class="p">,</span>
+        <span class="s">&quot;dy&quot;</span><span class="p">:</span> <span class="mf">0.10</span><span class="p">,</span>
+        <span class="s">&quot;xPts&quot;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+        <span class="s">&quot;xo&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s">&quot;yPts&quot;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+        <span class="s">&quot;yo&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s">&quot;focus&quot;</span><span class="p">:</span> <span class="mf">36.5</span>
+    <span class="p">}</span>
+
+    <span class="n">focus_roi</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&quot;dx&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+        <span class="s">&quot;dy&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+        <span class="s">&quot;xPts&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="s">&quot;xo&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s">&quot;yPts&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="s">&quot;yo&quot;</span><span class="p">:</span> <span class="mf">0.0</span>
+    <span class="p">}</span>
+
+    <span class="n">scanner</span> <span class="o">=</span> <span class="n">ScanAPD</span><span class="o">.</span><span class="n">ScanNV</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s">&#39;xo&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xo&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xPts&#39;</span><span class="p">],</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yo&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yo&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yPts&#39;</span><span class="p">],</span> <span class="o">.</span><span class="mo">001</span><span class="p">)</span>
+    <span class="n">baseline_img</span> <span class="o">=</span> <span class="n">scanner</span><span class="o">.</span><span class="n">scan</span><span class="p">()</span>
+    <span class="n">setDaqPt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">writeArray</span><span class="p">(</span><span class="n">baseline_img</span><span class="p">,</span><span class="n">roi</span><span class="p">,</span> <span class="n">PATH</span><span class="p">,</span> <span class="n">TAG</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;waiting&quot;</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">WAIT_TIME</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;scanning&quot;</span><span class="p">)</span>
+        <span class="n">scanner</span> <span class="o">=</span> <span class="n">ScanAPD</span><span class="o">.</span><span class="n">ScanNV</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s">&#39;xo&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xo&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xPts&#39;</span><span class="p">],</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yo&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yo&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yPts&#39;</span><span class="p">],</span> <span class="o">.</span><span class="mo">001</span><span class="p">)</span>
+        <span class="n">new_img</span> <span class="o">=</span> <span class="n">scanner</span><span class="o">.</span><span class="n">scan</span><span class="p">()</span>
+        <span class="n">setDaqPt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;correlating&quot;</span><span class="p">)</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="n">track</span><span class="o">.</span><span class="n">corr_NVs</span><span class="p">(</span><span class="n">baseline_img</span><span class="p">,</span><span class="n">new_img</span><span class="p">)</span>
+        <span class="n">roi</span> <span class="o">=</span> <span class="n">track</span><span class="o">.</span><span class="n">update_roi</span><span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">shift</span><span class="p">)</span>
+        <span class="n">focus_roi</span> <span class="o">=</span> <span class="n">track</span><span class="o">.</span><span class="n">update_roi</span><span class="p">(</span><span class="n">focus_roi</span><span class="p">,</span> <span class="n">shift</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;focusing&quot;</span><span class="p">)</span>
+        <span class="n">zController</span> <span class="o">=</span> <span class="n">PC</span><span class="o">.</span><span class="n">MDT693A</span><span class="p">(</span><span class="s">&#39;Z&#39;</span><span class="p">)</span>
+        <span class="n">current_focus</span> <span class="o">=</span> <span class="n">zController</span><span class="o">.</span><span class="n">getVoltage</span><span class="p">()</span>
+        <span class="n">roi</span><span class="p">[</span><span class="s">&#39;focus&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">Focus</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">current_focus</span> <span class="o">-</span> <span class="n">FOCUS_DEVIATION</span><span class="p">,</span> <span class="n">current_focus</span> <span class="o">+</span> <span class="n">FOCUS_DEVIATION</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="n">scan_range_roi</span><span class="o">=</span><span class="n">focus_roi</span><span class="p">,</span> <span class="n">plotting</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;scanning2&quot;</span><span class="p">)</span>
+        <span class="n">scanner</span> <span class="o">=</span> <span class="n">ScanAPD</span><span class="o">.</span><span class="n">ScanNV</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s">&#39;xo&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xo&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xPts&#39;</span><span class="p">],</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yo&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yo&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yPts&#39;</span><span class="p">],</span> <span class="o">.</span><span class="mo">001</span><span class="p">)</span>
+        <span class="n">new_img2</span> <span class="o">=</span> <span class="n">scanner</span><span class="o">.</span><span class="n">scan</span><span class="p">()</span>
+        <span class="n">setDaqPt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="p">(</span><span class="s">&quot;correlating2&quot;</span><span class="p">)</span>
+        <span class="n">shift2</span> <span class="o">=</span> <span class="n">track</span><span class="o">.</span><span class="n">corr_NVs</span><span class="p">(</span><span class="n">baseline_img</span><span class="p">,</span> <span class="n">new_img2</span><span class="p">)</span>
+        <span class="n">roi</span> <span class="o">=</span> <span class="n">track</span><span class="o">.</span><span class="n">update_roi</span><span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">shift2</span><span class="p">)</span>
+        <span class="n">focus_roi</span> <span class="o">=</span> <span class="n">track</span><span class="o">.</span><span class="n">update_roi</span><span class="p">(</span><span class="n">focus_roi</span><span class="p">,</span> <span class="n">shift2</span><span class="p">)</span>
+
+        <span class="p">(</span><span class="s">&quot;scanning3&quot;</span><span class="p">)</span>
+        <span class="n">scanner</span> <span class="o">=</span> <span class="n">ScanAPD</span><span class="o">.</span><span class="n">ScanNV</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s">&#39;xo&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xo&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xPts&#39;</span><span class="p">],</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yo&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yo&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yPts&#39;</span><span class="p">],</span> <span class="o">.</span><span class="mo">001</span><span class="p">)</span>
+        <span class="n">shifted_img</span> <span class="o">=</span> <span class="n">scanner</span><span class="o">.</span><span class="n">scan</span><span class="p">()</span>
+        <span class="n">setDaqPt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">writeArray</span><span class="p">(</span><span class="n">shifted_img</span><span class="p">,</span> <span class="n">roi</span><span class="p">,</span> <span class="n">PATH</span><span class="p">,</span> <span class="n">TAG</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="process_results"><a class="viewcode-back" href="../../../src/src.functions.track_NVs_test.html#src.functions.track_NVs_test.process_results">[docs]</a><span class="k">def</span> <span class="nf">process_results</span><span class="p">():</span>
+    <span class="n">xarray</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">yarray</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.dat&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">PATH</span><span class="p">)</span> <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">PATH</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;TEST_OVERNIGHT.roi&#39;</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">PATH</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">f</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+            <span class="n">roi</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
+        <span class="n">xarray</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s">&#39;xo&#39;</span><span class="p">])</span>
+        <span class="n">yarray</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s">&#39;yo&#39;</span><span class="p">])</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">26</span><span class="o">*</span><span class="mi">22</span><span class="p">,</span><span class="mi">27</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">xarray</span><span class="p">,</span><span class="s">&#39;k&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&#39;x drift&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">yarray</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&#39;y drift&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="o">-.</span><span class="mo">03</span><span class="p">,</span><span class="o">.</span><span class="mo">001</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Drift over Time&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;time (s)&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;drift (V)&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span> <span class="o">=</span> <span class="s">&#39;right&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">process_results</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

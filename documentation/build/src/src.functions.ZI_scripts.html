@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.functions.ZI_scripts module &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
+    <link rel="up" title="src.functions package" href="src.functions.html" />
+    <link rel="next" title="src.functions.plot_save_AI module" href="src.functions.plot_save_AI.html" />
+    <link rel="prev" title="src.functions.ScanTest module" href="src.functions.ScanTest.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.functions.plot_save_AI.html" title="src.functions.plot_save_AI module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="src.functions.ScanTest.html" title="src.functions.ScanTest module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.functions.html" accesskey="U">src.functions package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-src.functions.ZI_scripts">
+<span id="src-functions-zi-scripts-module"></span><h1>src.functions.ZI_scripts module<a class="headerlink" href="#module-src.functions.ZI_scripts" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="src.functions.ZI_scripts.find_peak">
+<code class="descclassname">src.functions.ZI_scripts.</code><code class="descname">find_peak</code><span class="sig-paren">(</span><em>zi</em>, <em>f_min</em>, <em>f_max</em>, <em>df</em>, <em>samplesPerPt=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/ZI_scripts.html#find_peak"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.ZI_scripts.find_peak" title="Permalink to this definition">¶</a></dt>
+<dd><p>searches for a peak in the frequency range [f_min, f_max]
+:param zi ZIHF2 object
+:param f_min lower bound of frequency range
+:param f_max upper bound of frequency range
+:param df frequency step
+:param samplesPerPt number of samples to take at each point
+:return: fo the frequency of the max value in the specified range</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.functions.ZI_scripts.find_peak_and_measure">
+<code class="descclassname">src.functions.ZI_scripts.</code><code class="descname">find_peak_and_measure</code><span class="sig-paren">(</span><em>zi</em>, <em>f_min</em>, <em>f_max</em>, <em>df_coarse</em>, <em>df_fine</em>, <em>N_fine</em>, <em>samplesPerPt=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/ZI_scripts.html#find_peak_and_measure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.ZI_scripts.find_peak_and_measure" title="Permalink to this definition">¶</a></dt>
+<dd><p>searches for a peak in the frequency range [f_min, f_max] by performing a quick scan
+and subsequentially takes a high resolution scan of the peak
+:param zi ZIHF2 object
+:param f_min lower bound of frequency range
+:param f_max upper bound of frequency range
+:param df_coarse frequency step size for quick scan
+:param df_fine frequency step size for high resolution scan
+:param N_fine number of point for high resolution scan
+:param samplesPerPt number of samples to take at each point
+:return:</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="src.functions.ScanTest.html"
+                        title="previous chapter">src.functions.ScanTest module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="src.functions.plot_save_AI.html"
+                        title="next chapter">src.functions.plot_save_AI module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/src/src.functions.ZI_scripts.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.functions.plot_save_AI.html" title="src.functions.plot_save_AI module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="src.functions.ScanTest.html" title="src.functions.ScanTest module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.functions.html" >src.functions package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

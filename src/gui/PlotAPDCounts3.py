@@ -2,8 +2,8 @@ import json
 import os
 from collections import deque
 
-import helper_functions.reading_writing as ReadWriteCommands
-import helper_functions.test_types as test_types
+import src.helper_functions.reading_writing as ReadWriteCommands
+import src.helper_functions.test_types as test_types
 import matplotlib.pyplot as plt
 import numpy
 from PyQt4 import QtGui

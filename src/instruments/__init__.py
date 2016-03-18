@@ -4,8 +4,7 @@ from instruments_DAQ import DAQ
 from piezo_controller import PiezoController
 from zurich_instruments import ZIHF2
 from maestro import MaestroBeamBlock, MaestroController
-#from instruments_DAQ import DAQ
-#from instruments_piezocontroller import PiezoController
+from attocube import Attocube
 
 
 __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer']

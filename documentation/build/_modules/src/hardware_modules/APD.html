@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.hardware_modules.APD &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.hardware_modules.APD</h1><div class="highlight"><pre>
+<span class="c"># B26 Lab Code</span>
+<span class="c"># Last Update: 1/28/15</span>
+
+<span class="c"># External Connections: No external connection to counter 1 out (PFI13)</span>
+
+<span class="c"># import standard libraries</span>
+<span class="kn">import</span> <span class="nn">ctypes</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="c"># load any DLLs</span>
+<span class="n">nidaq</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">nicaiu</span> <span class="c"># load the DLL</span>
+<span class="c">##############################</span>
+<span class="c"># Setup some typedefs and constants</span>
+<span class="c"># to correspond with values in</span>
+<span class="c"># C:\Program Files\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include\</span>
+<span class="c">#                                                                     NIDAQmx.h</span>
+<span class="c"># the typedefs</span>
+<span class="n">int32</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_long</span>
+<span class="n">uInt32</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span>
+<span class="n">uInt64</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulonglong</span>
+<span class="n">float64</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span>
+<span class="n">TaskHandle</span> <span class="o">=</span> <span class="n">uInt32</span>
+<span class="c"># the constants</span>
+<span class="n">DAQmx_Val_Rising</span> <span class="o">=</span> <span class="mi">10280</span>
+<span class="n">DAQmx_Val_CountUp</span> <span class="o">=</span> <span class="mi">10128</span>
+<span class="n">DAQmx_Val_ContSamps</span> <span class="o">=</span><span class="mi">10123</span><span class="p">;</span> <span class="c">#continuous samples</span>
+<span class="n">DAQmx_Val_Hz</span> <span class="o">=</span> <span class="mi">10373</span><span class="p">;</span> <span class="c">#Hz</span>
+<span class="n">DAQmx_Val_Low</span> <span class="o">=</span><span class="mi">10214</span><span class="p">;</span> <span class="c">#Low</span>
+<span class="c"># the channels</span>
+<span class="n">COUNTER_OUT_PFI</span> <span class="o">=</span> <span class="s">&#39;/Dev1/PFI13&#39;</span> <span class="c"># Can be any PFI labeled as counter out that isn&#39;t being used (this should NOT be the</span>
+                                <span class="c"># same counter as the apd is on). COUNTER_OUT should then be this counter number.</span>
+<span class="n">COUNTER_OUT</span> <span class="o">=</span> <span class="s">&#39;Dev1/ctr1&#39;</span> <span class="c"># ctr channel correspomding to</span>
+
+
+<span class="c"># This class creates a thread to perform buffered reading from an APD</span>
+<div class="viewcode-block" id="ReadAPD"><a class="viewcode-back" href="../../../src/src.hardware_modules.APD.html#src.hardware_modules.APD.ReadAPD">[docs]</a><span class="k">class</span> <span class="nc">ReadAPD</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="c"># initializes values, counter, and clock, and starts clock</span>
+    <span class="c"># device: string with name of APD channel (usually Dev1/ctr0 or Dev1/ctr1). The apd should be attached to the source</span>
+    <span class="c">#   port for this counter channel</span>
+    <span class="c"># frequency: frequency at which to take data</span>
+    <span class="c"># sampleNum: number of samples to acquire in buffer</span>
+    <span class="c"># RETURN: a 1D array with sampleNum ctypes.c_double values taken at the</span>
+    <span class="c">#         desired frequency</span>
+<div class="viewcode-block" id="ReadAPD.__init__"><a class="viewcode-back" href="../../../src/src.hardware_modules.APD.html#src.hardware_modules.APD.ReadAPD.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">sampleNum</span><span class="p">,</span> <span class="n">overrideBufferSize</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">continuous_acquisition</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampleNum</span> <span class="o">=</span> <span class="n">sampleNum</span>
+        <span class="k">if</span> <span class="n">continuous_acquisition</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">numSampsPerChan</span> <span class="o">=</span> <span class="n">sampleNum</span>
+        <span class="k">elif</span> <span class="n">continuous_acquisition</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">numSampsPerChan</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">float64</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">frequency</span><span class="p">)</span> <span class="o">*</span> <span class="n">sampleNum</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">taskHandleCtr</span> <span class="o">=</span> <span class="n">TaskHandle</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">taskHandleClk</span> <span class="o">=</span> <span class="n">TaskHandle</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c"># set up clock</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DigPulseTrainCont</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">sampleNum</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CHK</span><span class="p">(</span><span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxStartTask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleClk</span><span class="p">))</span>
+        <span class="c"># set up counter using clock as reference</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CHK</span><span class="p">(</span><span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxCreateTask</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleCtr</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CHK</span><span class="p">(</span><span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxCreateCICountEdgesChan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleCtr</span><span class="p">,</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">DAQmx_Val_Rising</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">DAQmx_Val_CountUp</span><span class="p">))</span>
+        <span class="c"># PFI13 is standard output channel for ctr1 channel used for clock and</span>
+        <span class="c"># is internally looped back to ctr1 input to be read</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CHK</span><span class="p">(</span><span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxCfgSampClkTiming</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleCtr</span><span class="p">,</span> <span class="n">COUNTER_OUT_PFI</span><span class="p">,</span>
+                                          <span class="n">float64</span><span class="p">(</span><span class="n">frequency</span><span class="p">),</span> <span class="n">DAQmx_Val_Rising</span><span class="p">,</span>
+                                       <span class="n">DAQmx_Val_ContSamps</span><span class="p">,</span> <span class="n">uInt64</span><span class="p">(</span><span class="n">sampleNum</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">overrideBufferSize</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">CHK</span><span class="p">(</span><span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxCfgInputBuffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleCtr</span><span class="p">,</span> <span class="n">overrideBufferSize</span><span class="p">))</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="c"># start reading sampleNum values from counter into buffer</span></div>
+<div class="viewcode-block" id="ReadAPD.runCtr"><a class="viewcode-back" href="../../../src/src.hardware_modules.APD.html#src.hardware_modules.APD.ReadAPD.runCtr">[docs]</a>    <span class="k">def</span> <span class="nf">runCtr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CHK</span><span class="p">(</span><span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxStartTask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleCtr</span><span class="p">))</span>
+
+    <span class="c"># read sampleNum previously generated values from a buffer, and return the</span>
+    <span class="c"># corresponding 1D array of ctypes.c_double values</span></div>
+<div class="viewcode-block" id="ReadAPD.read"><a class="viewcode-back" href="../../../src/src.hardware_modules.APD.html#src.hardware_modules.APD.ReadAPD.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c">#initialize array and integer to pass as pointers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="n">float64</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampleNum</span><span class="p">)()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samplesPerChanRead</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CHK</span><span class="p">(</span><span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxReadCounterF64</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleCtr</span><span class="p">,</span>
+                 <span class="n">int32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numSampsPerChan</span><span class="p">),</span> <span class="n">float64</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+                 <span class="n">uInt32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampleNum</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samplesPerChanRead</span><span class="p">),</span>
+                 <span class="bp">None</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">samplesPerChanRead</span>
+
+    <span class="c"># stop and clean up clock</span></div>
+<div class="viewcode-block" id="ReadAPD.stopClk"><a class="viewcode-back" href="../../../src/src.hardware_modules.APD.html#src.hardware_modules.APD.ReadAPD.stopClk">[docs]</a>    <span class="k">def</span> <span class="nf">stopClk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxStopTask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleClk</span><span class="p">)</span>
+        <span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxClearTask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleClk</span><span class="p">)</span>
+
+    <span class="c"># stop and clean up counter</span></div>
+<div class="viewcode-block" id="ReadAPD.stopCtr"><a class="viewcode-back" href="../../../src/src.hardware_modules.APD.html#src.hardware_modules.APD.ReadAPD.stopCtr">[docs]</a>    <span class="k">def</span> <span class="nf">stopCtr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxStopTask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleCtr</span><span class="p">)</span>
+        <span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxClearTask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleCtr</span><span class="p">)</span>
+
+    <span class="c"># initialize reference clock output</span></div>
+<div class="viewcode-block" id="ReadAPD.DigPulseTrainCont"><a class="viewcode-back" href="../../../src/src.hardware_modules.APD.html#src.hardware_modules.APD.ReadAPD.DigPulseTrainCont">[docs]</a>    <span class="k">def</span> <span class="nf">DigPulseTrainCont</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Freq</span><span class="p">,</span> <span class="n">DutyCycle</span><span class="p">,</span> <span class="n">Samps</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CHK</span><span class="p">(</span><span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxCreateTask</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleClk</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CHK</span><span class="p">(</span><span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxCreateCOPulseChanFreq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleClk</span><span class="p">,</span>
+                 <span class="n">COUNTER_OUT</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">DAQmx_Val_Hz</span><span class="p">,</span> <span class="n">DAQmx_Val_Low</span><span class="p">,</span> <span class="n">float64</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span>
+                 <span class="n">float64</span><span class="p">(</span><span class="n">Freq</span><span class="p">),</span> <span class="n">float64</span><span class="p">(</span><span class="n">DutyCycle</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CHK</span><span class="p">(</span><span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxCfgImplicitTiming</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">taskHandleClk</span><span class="p">,</span>
+                 <span class="n">DAQmx_Val_ContSamps</span><span class="p">,</span> <span class="n">uInt64</span><span class="p">(</span><span class="n">Samps</span><span class="p">)))</span>
+
+    <span class="c"># error checking routine for nidaq commands. Input should be return value</span>
+    <span class="c"># from nidaq function</span>
+    <span class="c"># err: nidaq error code</span></div>
+<div class="viewcode-block" id="ReadAPD.CHK"><a class="viewcode-back" href="../../../src/src.hardware_modules.APD.html#src.hardware_modules.APD.ReadAPD.CHK">[docs]</a>    <span class="k">def</span> <span class="nf">CHK</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">err</span> <span class="p">):</span>
+        <span class="k">if</span> <span class="n">err</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">buf_size</span> <span class="o">=</span> <span class="mi">100</span>
+            <span class="n">buf</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">create_string_buffer</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\000</span><span class="s">&#39;</span> <span class="o">*</span> <span class="n">buf_size</span><span class="p">)</span>
+            <span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="n">buf_size</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&#39;nidaq call failed with error </span><span class="si">%d</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">err</span><span class="p">,</span><span class="nb">repr</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">value</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">err</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">buf_size</span> <span class="o">=</span> <span class="mi">100</span>
+            <span class="n">buf</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">create_string_buffer</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\000</span><span class="s">&#39;</span> <span class="o">*</span> <span class="n">buf_size</span><span class="p">)</span>
+            <span class="n">nidaq</span><span class="o">.</span><span class="n">DAQmxGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="n">buf_size</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&#39;nidaq generated warning </span><span class="si">%d</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">err</span><span class="p">,</span><span class="nb">repr</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">value</span><span class="p">)))</span>
+
+<span class="c"># Test code to do a single buffered read</span>
+
+<span class="c">#mythread = ReadAPD(&quot;Dev1/ctr0&quot;,100.0,100)</span>
+<span class="c">#mythread.run()</span>
+<span class="c">#time.sleep(2)</span>
+<span class="c">#data = mythread.read()</span>
+<span class="c">#mythread.stopCtr()</span>
+<span class="c">#mythread.stopClk()</span>
+<span class="c">#for i in data: print i</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

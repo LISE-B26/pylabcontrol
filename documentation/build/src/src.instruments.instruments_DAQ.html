@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.instruments.instruments_DAQ module &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
+    <link rel="up" title="src.instruments package" href="src.instruments.html" />
+    <link rel="next" title="src.instruments.microwave_generator module" href="src.instruments.microwave_generator.html" />
+    <link rel="prev" title="src.instruments.gauge_controller module" href="src.instruments.gauge_controller.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.instruments.microwave_generator.html" title="src.instruments.microwave_generator module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="src.instruments.gauge_controller.html" title="src.instruments.gauge_controller module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.instruments.html" accesskey="U">src.instruments package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-src.instruments.instruments_DAQ">
+<span id="src-instruments-instruments-daq-module"></span><h1>src.instruments.instruments_DAQ module<a class="headerlink" href="#module-src.instruments.instruments_DAQ" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="src.instruments.instruments_DAQ.DAQ">
+<em class="property">class </em><code class="descclassname">src.instruments.instruments_DAQ.</code><code class="descname">DAQ</code><span class="sig-paren">(</span><em>device</em>, <em>name=None</em>, <em>parameter_list=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.DAQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="src.core.instruments.html#src.core.instruments.Instrument" title="src.core.instruments.Instrument"><code class="xref py py-class docutils literal"><span class="pre">src.core.instruments.Instrument</span></code></a></p>
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.DAQ.CHK">
+<code class="descname">CHK</code><span class="sig-paren">(</span><em>err</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.DAQ.CHK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.DAQ.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>device</em>, <em>name=None</em>, <em>parameter_list=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.DAQ.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.instruments_DAQ.DAQ.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.instruments.instruments_DAQ'</em><a class="headerlink" href="#src.instruments.instruments_DAQ.DAQ.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.instruments_DAQ.DAQ.dll_detected">
+<code class="descname">dll_detected</code><em class="property"> = True</em><a class="headerlink" href="#src.instruments.instruments_DAQ.DAQ.dll_detected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.instruments_DAQ.DAQ.nidaq">
+<code class="descname">nidaq</code><em class="property"> = &lt;WinDLL 'C:\Windows\System32\nicaiu.dll', handle 19720000 at 1f423be0&gt;</em><a class="headerlink" href="#src.instruments.instruments_DAQ.DAQ.nidaq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.instruments_DAQ.DAQ.parameters_default">
+<code class="descname">parameters_default</code><a class="headerlink" href="#src.instruments.instruments_DAQ.DAQ.parameters_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the default parameter_list of the instrument
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.instruments.instruments_DAQ.DaqOutputWave">
+<em class="property">class </em><code class="descclassname">src.instruments.instruments_DAQ.</code><code class="descname">DaqOutputWave</code><span class="sig-paren">(</span><em>nidaq</em>, <em>device</em>, <em>waveform</em>, <em>sample_rate</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.DaqOutputWave" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">threading.Thread</span></code></p>
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.DaqOutputWave.CHK">
+<code class="descname">CHK</code><span class="sig-paren">(</span><em>err</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.DaqOutputWave.CHK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.DaqOutputWave.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>nidaq</em>, <em>device</em>, <em>waveform</em>, <em>sample_rate</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.DaqOutputWave.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.instruments_DAQ.DaqOutputWave.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.instruments.instruments_DAQ'</em><a class="headerlink" href="#src.instruments.instruments_DAQ.DaqOutputWave.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.DaqOutputWave.getOutputVoltages">
+<code class="descname">getOutputVoltages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.DaqOutputWave.getOutputVoltages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.DaqOutputWave.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.DaqOutputWave.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.DaqOutputWave.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.DaqOutputWave.stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.DaqOutputWave.waitToFinish">
+<code class="descname">waitToFinish</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.DaqOutputWave.waitToFinish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.instruments.instruments_DAQ.ReadAPD">
+<em class="property">class </em><code class="descclassname">src.instruments.instruments_DAQ.</code><code class="descname">ReadAPD</code><span class="sig-paren">(</span><em>nidaq</em>, <em>device</em>, <em>channel</em>, <em>sample_rate</em>, <em>sampleNum</em>, <em>clock_PFI_channel=13</em>, <em>clock_counter_channel=1</em>, <em>override_buffer_size=-1</em>, <em>continuous_acquisition=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.ReadAPD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">threading.Thread</span></code></p>
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.ReadAPD.CHK">
+<code class="descname">CHK</code><span class="sig-paren">(</span><em>err</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.ReadAPD.CHK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.ReadAPD.DigPulseTrainCont">
+<code class="descname">DigPulseTrainCont</code><span class="sig-paren">(</span><em>Freq</em>, <em>DutyCycle</em>, <em>Samps</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.ReadAPD.DigPulseTrainCont" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.ReadAPD.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>nidaq</em>, <em>device</em>, <em>channel</em>, <em>sample_rate</em>, <em>sampleNum</em>, <em>clock_PFI_channel=13</em>, <em>clock_counter_channel=1</em>, <em>override_buffer_size=-1</em>, <em>continuous_acquisition=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.ReadAPD.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.instruments_DAQ.ReadAPD.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.instruments.instruments_DAQ'</em><a class="headerlink" href="#src.instruments.instruments_DAQ.ReadAPD.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.ReadAPD.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.ReadAPD.read" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.ReadAPD.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.ReadAPD.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.ReadAPD.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.ReadAPD.stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.ReadAPD.stopClk">
+<code class="descname">stopClk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.ReadAPD.stopClk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.instruments_DAQ.ReadAPD.stopCtr">
+<code class="descname">stopCtr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.ReadAPD.stopCtr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.instruments.instruments_DAQ.SetGalvoPoint">
+<em class="property">class </em><code class="descclassname">src.instruments.instruments_DAQ.</code><code class="descname">SetGalvoPoint</code><span class="sig-paren">(</span><em>xVolt</em>, <em>yVolt</em>, <em>nidaq</em>, <em>device</em>, <em>sample_rate</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.SetGalvoPoint" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="src.instruments.instruments_DAQ.SetGalvoPoint.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>xVolt</em>, <em>yVolt</em>, <em>nidaq</em>, <em>device</em>, <em>sample_rate</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.instruments_DAQ.SetGalvoPoint.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.instruments_DAQ.SetGalvoPoint.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.instruments.instruments_DAQ'</em><a class="headerlink" href="#src.instruments.instruments_DAQ.SetGalvoPoint.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="src.instruments.gauge_controller.html"
+                        title="previous chapter">src.instruments.gauge_controller module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="src.instruments.microwave_generator.html"
+                        title="next chapter">src.instruments.microwave_generator module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/src/src.instruments.instruments_DAQ.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.instruments.microwave_generator.html" title="src.instruments.microwave_generator module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="src.instruments.gauge_controller.html" title="src.instruments.gauge_controller module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.instruments.html" >src.instruments package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

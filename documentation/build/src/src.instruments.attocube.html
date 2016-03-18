@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.instruments.attocube module &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
+    <link rel="up" title="src.instruments package" href="src.instruments.html" />
+    <link rel="next" title="src.instruments.dcservo_kinesis_dll module" href="src.instruments.dcservo_kinesis_dll.html" />
+    <link rel="prev" title="src.instruments package" href="src.instruments.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.instruments.dcservo_kinesis_dll.html" title="src.instruments.dcservo_kinesis_dll module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="src.instruments.html" title="src.instruments package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.instruments.html" accesskey="U">src.instruments package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-src.instruments.attocube">
+<span id="src-instruments-attocube-module"></span><h1>src.instruments.attocube module<a class="headerlink" href="#module-src.instruments.attocube" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="src.instruments.attocube.Attocube">
+<em class="property">class </em><code class="descclassname">src.instruments.attocube.</code><code class="descname">Attocube</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="src.core.instruments.html#src.core.instruments.Instrument" title="src.core.instruments.Instrument"><code class="xref py py-class docutils literal"><span class="pre">src.core.instruments.Instrument</span></code></a></p>
+<dl class="method">
+<dt id="src.instruments.attocube.Attocube.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.attocube.Attocube.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.instruments.attocube'</em><a class="headerlink" href="#src.instruments.attocube.Attocube.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.attocube.Attocube.cap_measure">
+<code class="descname">cap_measure</code><span class="sig-paren">(</span><em>axis</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.cap_measure" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axis</strong> &#8211; axis_x, axis_y, or axis_z</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Capacitance in uF</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.instruments.attocube.Attocube.check_error">
+<em class="property">static </em><code class="descname">check_error</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.check_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translates error codes to human readable message
+:param code: input error code (integer 0-8)
+:poststate: message printed to stdout</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.attocube.Attocube.get_frequency">
+<code class="descname">get_frequency</code><span class="sig-paren">(</span><em>axis</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.get_frequency" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axis</strong> &#8211; axis_x, axis_y, or axis_z</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">current frequency of axis in Hz</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.attocube.Attocube.get_position">
+<code class="descname">get_position</code><span class="sig-paren">(</span><em>axis</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.get_position" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axis</strong> &#8211; axis_x, axis_y, or axis_z</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">position of axis in um</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.attocube.Attocube.move_absolute">
+<code class="descname">move_absolute</code><span class="sig-paren">(</span><em>axis</em>, <em>position</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.move_absolute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precondition: Must set voltage and frequency sufficiently low that ANC&#8217;s internal feedback will be able to
+settle on the appropriate position (ex. 7V, 100Hz). Otherwise, fluctuates around target position and never stops
+:param axis: axis_x, axis_y, or axis_z
+:param position: position of axis to move to in um</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.attocube.Attocube.parameters_default">
+<code class="descname">parameters_default</code><a class="headerlink" href="#src.instruments.attocube.Attocube.parameters_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the default parameter_list of the instrument
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.attocube.Attocube.set_frequency">
+<code class="descname">set_frequency</code><span class="sig-paren">(</span><em>axis</em>, <em>freq</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.set_frequency" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>axis</strong> &#8211; axis_x, axis_y, or axis_z</li>
+<li><strong>freq</strong> &#8211; frequency to set in Hz</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.attocube.Attocube.toggle_axis">
+<code class="descname">toggle_axis</code><span class="sig-paren">(</span><em>axis</em>, <em>on</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.toggle_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn axis on or off
+:param axis: axis_x, axis_y, or axis_z
+:param on: True or False</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.instruments.attocube.PositionerInfo">
+<em class="property">class </em><code class="descclassname">src.instruments.attocube.</code><code class="descname">PositionerInfo</code><a class="headerlink" href="#src.instruments.attocube.PositionerInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">_ctypes.Structure</span></code></p>
+<dl class="attribute">
+<dt id="src.instruments.attocube.PositionerInfo.__dict__">
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.instruments.attocube', '_fields_': [('id', &lt;class 'ctypes.c_long'&gt;), ('locked', &lt;class 'ctypes.c_bool'&gt;)], 'locked': &lt;Field type=c_bool, ofs=4, size=1&gt;, 'id': &lt;Field type=c_long, ofs=0, size=4&gt;, '__dict__': &lt;attribute '__dict__' of 'PositionerInfo' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'PositionerInfo' objects&gt;, '__doc__': None})</em><a class="headerlink" href="#src.instruments.attocube.PositionerInfo.__dict__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.attocube.PositionerInfo.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.instruments.attocube'</em><a class="headerlink" href="#src.instruments.attocube.PositionerInfo.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.attocube.PositionerInfo.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#src.instruments.attocube.PositionerInfo.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.attocube.PositionerInfo.id">
+<code class="descname">id</code><a class="headerlink" href="#src.instruments.attocube.PositionerInfo.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.instruments.attocube.PositionerInfo.locked">
+<code class="descname">locked</code><a class="headerlink" href="#src.instruments.attocube.PositionerInfo.locked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="src.instruments.html"
+                        title="previous chapter">src.instruments package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="src.instruments.dcservo_kinesis_dll.html"
+                        title="next chapter">src.instruments.dcservo_kinesis_dll module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/src/src.instruments.attocube.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.instruments.dcservo_kinesis_dll.html" title="src.instruments.dcservo_kinesis_dll module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="src.instruments.html" title="src.instruments package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.instruments.html" >src.instruments package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

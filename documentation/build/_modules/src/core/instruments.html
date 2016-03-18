@@ -1,0 +1,1000 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.core.instruments &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.core.instruments</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">PyQt4</span> <span class="kn">import</span> <span class="n">QtCore</span>
+
+
+<span class="k">def</span> <span class="nf">get_elemet</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">element_list</span><span class="p">):</span>
+<div class="viewcode-block" id="get_elemet"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.get_elemet">[docs]</a>    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    get the element with name &#39;name&#39;</span>
+<span class="sd">    list should be a list of objects that have a property name, e.g. Instrument, Parameter, Script</span>
+<span class="sd">    :param name:</span>
+<span class="sd">    :param element_list:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">element_list</span><span class="p">]</span> <span class="c"># check that all elements have a property name</span>
+
+    <span class="n">element</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">element_list</span> <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">element</span>
+
+
+<span class="k">class</span> <span class="nc">Parameter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Parameter"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Parameter">[docs]</a>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">valid_values</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameter.__init__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Parameter.__init__">[docs]</a>        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Parameter(name (str), value (anything) )</span>
+<span class="sd">        Parameter(name (str), value (anything), valid_values (type, tuple of types, list), info (str) )</span>
+<span class="sd">        Parameter({name : value })</span>
+
+
+<span class="sd">        :param name: name of parameter,</span>
+<span class="sd">        :param value = None:</span>
+<span class="sd">        :param valid_values = None: if empty valid_values = type(value) otherwise can be a list of valid values, a type or a tuple of types</span>
+<span class="sd">        :param info = None: string describing the parameter</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+
+
+        <span class="c"># if input is only a dictionary we take the first key as name and the first value as value</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="c"># is the value is again a dict, we convert it into a parameter</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">valid_values</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QString</span><span class="p">):</span>
+                <span class="n">valid_values</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QString</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">valid_values</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="s">&#39;N/A&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valid_values</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QString</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span><span class="bp">None</span><span class="p">,</span> <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;valid_values&#39;</span><span class="p">:</span><span class="bp">None</span><span class="p">,</span> <span class="s">&#39;info&#39;</span><span class="p">:</span><span class="bp">None</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span> <span class="o">=</span> <span class="n">valid_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">info</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="s">&quot;value is not if valid type&quot;</span>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Parameter.__getitem__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Parameter.__getitem__">[docs]</a>        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;wrong parameter name {:s}, should be {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Parameter.__setitem__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Parameter.__setitem__">[docs]</a>        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;wrong parameter name {:s}, should be {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Parameter.__repr__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Parameter.__repr__">[docs]</a>        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">dict_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictonary</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Parameter.dict_to_str"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Parameter.dict_to_str">[docs]</a>        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        casts dict into a (nested) string name : value</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c"># todo: correct indentation</span>
+        <span class="n">return_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">dictonary</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">return_str</span> <span class="o">+=</span> <span class="s">&#39;{:s}:</span><span class="se">\n</span><span class="s">{:s}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_to_str</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">return_str</span> <span class="o">+=</span> <span class="s">&#39;{:s}:</span><span class="se">\t</span><span class="s"> {:s}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">return_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span><span class="s">&#39;</span><span class="se">\n\t</span><span class="s">&#39;</span><span class="p">)</span>
+    <span class="nd">@property</span></div>
+    <span class="k">def</span> <span class="nf">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+    <span class="nd">@name.setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;name&#39;</span> <span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">,</span> <span class="s">&#39;_&#39;</span><span class="p">)})</span> <span class="c"># replace spaces with underscores</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s">&#39;value&#39;</span><span class="p">]</span>
+    <span class="nd">@value.setter</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        update the internal dictionary if value not in valid_values try to cast into right type</span>
+<span class="sd">        this happends for instance when a value is returned from the GUI where it is a unicode or QString</span>
+<span class="sd">        :param value: new value</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">Parameter</span><span class="p">):</span>
+
+                <span class="c"># cast input into a list of parameters</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">Parameter</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">Parameter</span><span class="p">)</span> <span class="k">else</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="n">get_elemet</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">value</span>
+
+                <span class="c"># print(&#39;??&#39;, value, self.value)</span>
+                <span class="c"># pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;value&#39;</span><span class="p">:</span><span class="n">value</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast_to_valid_type</span><span class="p">(</span><span class="n">value</span><span class="p">)})</span>
+            <span class="c"># msg = &#39;Wrong type ({:s})! Type should be {:s}.&#39;.format(str(type(value)), str(self.valid_values))</span>
+            <span class="c"># raise TypeError(msg)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s">&#39;info&#39;</span><span class="p">]</span>
+    <span class="nd">@info.setter</span>
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;info&#39;</span> <span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">valid_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s">&#39;valid_values&#39;</span><span class="p">]</span>
+    <span class="nd">@valid_values.setter</span>
+    <span class="k">def</span> <span class="nf">valid_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        check if valid value is a valid input</span>
+<span class="sd">        :param value:</span>
+<span class="sd">        :return: True or False</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="k">if</span> <span class="n">valid</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;valid_values&#39;</span><span class="p">:</span><span class="n">value</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;wrong type for valid_values&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameter.as_dict"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Parameter.as_dict">[docs]</a>        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        casts parameter into a (nested) dictonary {name : value}</span>
+<span class="sd">        :return: dictionary of type {parameter.name: parameter.value}</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">return_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c"># if value is a list of parameters</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">Parameter</span><span class="p">):</span>
+            <span class="n">sub_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                <span class="n">sub_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
+            <span class="n">return_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="p">:</span> <span class="n">sub_dict</span><span class="p">})</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">):</span>
+            <span class="n">return_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">return_dict</span>
+
+    <span class="k">def</span> <span class="nf">cast_to_valid_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Parameter.cast_to_valid_type"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Parameter.cast_to_valid_type">[docs]</a>        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        takes a value and tried to cast it into the correct type, which is give by the valid_values of the parameter</span>
+<span class="sd">        if casting is not possible a TypeError is raised</span>
+<span class="sd">        :param value: value to be checked and cast into type that corresponds to valid_data type</span>
+<span class="sd">        :return: value cast into the correct data type</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c"># if isinstance(value, (unicode, QtCore.QString)):</span>
+        <span class="c">#     value =  unicode(value) # cast to unicode so we don&#39;t have to work with QStrings</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="n">cast_type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&lt;type </span><span class="se">\&#39;</span><span class="s">&#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\&#39;</span><span class="s">&gt;&#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="s">&#39;{:s}(value)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cast_type</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">Parameter</span><span class="p">)):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;value for {:s} not valid,  values are {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_value</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Parameter.is_valid"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Parameter.is_valid">[docs]</a>        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        checks if every value in value is a valid parameter value, i.e. if within values defined by valid_values</span>
+<span class="sd">        :param new_value: new value that is to be assigned to self.value</span>
+<span class="sd">        :return: True or False depending if value is valid</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="c"># if new value is a list then it hast to be a list of Parameters or a dictionary and valid values are type list</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="c"># if new value is a list, the valid values hast to be type([])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">([]):</span>
+                <span class="n">valid</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># now check that each new value is actually in the valid values</span>
+                <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">new_value</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">)):</span>
+                        <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">new_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span><span class="p">:</span>
+                    <span class="n">valid</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="p">(</span><span class="n">Parameter</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+                <span class="c"># if the new value is a parameter, then the current value hast to be a parameter with the same name</span>
+                <span class="c"># or it hast to be a list of parameters where one of them has the same name as the new parameter</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">):</span>
+                    <span class="c"># make sure that the old parameter is actually the same as the new one</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">new_value</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                            <span class="n">valid</span> <span class="o">=</span> <span class="bp">False</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">new_value</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                            <span class="n">valid</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="c"># make sure that the new parameter is in the list of the current parameters</span>
+                    <span class="n">valid</span> <span class="o">=</span> <span class="bp">False</span>
+                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">new_value</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                                <span class="n">valid</span> <span class="o">=</span> <span class="bp">True</span>
+                        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">new_value</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                                <span class="n">valid</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">new_value</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span><span class="p">:</span>
+                    <span class="n">valid</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="n">valid</span>
+
+
+    <span class="c"># def __eq__(self, other):</span>
+    <span class="c">#     &#39;&#39;&#39;</span>
+    <span class="c">#     checks if two parameters have the same name</span>
+    <span class="c">#     :param other:</span>
+    <span class="c">#     :return:</span>
+    <span class="c">#     &#39;&#39;&#39;</span>
+    <span class="c">#</span>
+    <span class="c">#     is_equal = True</span>
+    <span class="c">#     if self.name != other.name:</span>
+    <span class="c">#         is_equal = False</span>
+    <span class="c">#     # if self.valid_values != other.valid_values:</span>
+    <span class="c">#     #     is_equal = False</span>
+    <span class="c">#     return is_equal</span>
+    <span class="c">#</span>
+    <span class="c"># def update(self, name, ):</span>
+    <span class="c">#     &#39;&#39;&#39;</span>
+    <span class="c">#</span>
+    <span class="c">#     :param other:</span>
+    <span class="c">#     :return:</span>
+    <span class="c">#     &#39;&#39;&#39;</span>
+    <span class="c">#     if not isinstance(other, Parameter):</span>
+    <span class="c">#         other = Parameter(other)</span>
+    <span class="c">#</span>
+    <span class="c">#     if self == other:</span>
+    <span class="c">#         if isinstance(other.value, dict):</span>
+    <span class="c">#             self.value = Parameter(other.value)</span>
+    <span class="c">#         else:</span>
+    <span class="c">#             self.value = other.value</span>
+    <span class="c">#</span>
+    <span class="c">#         self.info = other.info</span>
+    <span class="c">#     else:</span>
+    <span class="c">#         raise TypeError(&#39;Parameters are not of the same type! \</span>
+    <span class="c">#                          They should have the same name and same valid values&#39;)</span>
+
+<span class="k">class</span> <span class="nc">Instrument</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span></div></div>
+<div class="viewcode-block" id="Instrument"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Instrument">[docs]</a>    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    generic instrument class</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">_is_connected</span> <span class="o">=</span> <span class="bp">False</span> <span class="c">#internal flag that indicated if instrument is actually connected</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">parameter_list</span> <span class="o">=</span> <span class="p">[]):</span>
+<div class="viewcode-block" id="Instrument.__init__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Instrument.__init__">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters_default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_parameters</span><span class="p">(</span><span class="n">parameter_list</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="c"># dynamically create attribute based on parameters,</span>
+        <span class="c"># i.e if there is a parameter called p it can be accessed via Instrument.p</span>
+        <span class="c"># try:</span>
+        <span class="c">#     for parameter in self.parameters:</span>
+        <span class="c">#         setattr(self, parameter.name, parameter.value)</span>
+        <span class="c"># except:</span>
+        <span class="c">#     pass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_connected</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="c"># do not override this, override get_values instead</span>
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Instrument.__getattr__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Instrument.__getattr__">[docs]</a>        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c">#restores standard behavior for missing keys</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&#39;class &#39;</span> <span class="o">+</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span> <span class="o">+</span><span class="s">&#39; has no attribute &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">get_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Instrument.get_values"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Instrument.get_values">[docs]</a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span>
+
+    <span class="c">#have derived classes throw an environment error when external hardware setting fails</span>
+    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Instrument.__setattr__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Instrument.__setattr__">[docs]</a>        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_parameters</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="c"># if key in self._parameters:</span>
+        <span class="c">#     self.update_parameters(Parameter(key, value))</span>
+        <span class="c"># else:</span>
+        <span class="c">#     object.__setattr__(self, key, value)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Instrument.__str__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Instrument.__str__">[docs]</a>
+        <span class="k">def</span> <span class="nf">parameter_to_string</span><span class="p">(</span><span class="n">parameter</span><span class="p">):</span>
+            <span class="n">return_string</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+            <span class="c"># if value is a list of parameters</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">Parameter</span><span class="p">):</span>
+                <span class="n">return_string</span> <span class="o">+=</span> <span class="s">&#39;{:s}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">parameter</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                    <span class="n">return_string</span> <span class="o">+=</span> <span class="n">parameter_to_string</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">):</span>
+                <span class="n">return_string</span> <span class="o">+=</span> <span class="s">&#39;</span><span class="se">\t</span><span class="s">{:s}:</span><span class="se">\t</span><span class="s"> {:s}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+
+            <span class="k">return</span> <span class="n">return_string</span>
+
+        <span class="n">output_string</span> <span class="o">=</span> <span class="s">&#39;{:s} (class type: {:s})</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+            <span class="c"># output_string += parameter_to_string(parameter)</span>
+            <span class="n">output_string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="k">return</span> <span class="n">output_string</span>
+
+    <span class="nd">@property</span></div>
+    <span class="k">def</span> <span class="nf">is_connected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        check if instrument is active and connected and return True in that case</span>
+<span class="sd">        :return: bool</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_connected</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+    <span class="nd">@name.setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Instrument.as_dict"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Instrument.as_dict">[docs]</a>        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the configuration of the instrument as a dictionary</span>
+<span class="sd">        :return: nested dictionary with entries name and value</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c"># build dictionary</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">config</span>
+
+    <span class="nd">@property</span></div>
+    <span class="k">def</span> <span class="nf">parameters_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the default parameter_list of the instrument this function should be over written in any subclass</span>
+<span class="sd">        :return: a list of parameter objects</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">parameter_list_default</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;test1&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&#39;test parameter (int)&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;test2&#39;</span> <span class="p">,</span>
+                      <span class="p">[</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;test2_1&#39;</span><span class="p">,</span> <span class="s">&#39;string&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="s">&#39;test parameter (str)&#39;</span><span class="p">),</span>
+                       <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;test2_2&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="s">&#39;test parameter (float)&#39;</span><span class="p">)</span>
+                       <span class="p">])</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">parameter_list_default</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span>
+
+    <span class="k">def</span> <span class="nf">update_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters_new</span><span class="p">):</span>
+<div class="viewcode-block" id="Instrument.update_parameters"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Instrument.update_parameters">[docs]</a>        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        updates the parameters if they exist</span>
+<span class="sd">        :param parameters_new: can be a</span>
+<span class="sd">            *   dictionary of type {&#39;param1&#39;:value1, &#39;param2&#39;:value2, etc.}</span>
+<span class="sd">            *   list of dictionaries of form [{&#39;param1&#39;:value1}, {&#39;param2&#39;:value2}, etc.]</span>
+<span class="sd">            *   list of parameters [param1, param2, etc.,  where param1, param2 are Parameter objects</span>
+<span class="sd">            *   a single parameter object</span>
+<span class="sd">        :returns: a dictionary of the form {&#39;param1&#39;:value1, &#39;param2&#39;:value2, etc.} of  parameters_new</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">convert_to_dict</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            :param parameters: can be a</span>
+<span class="sd">            - dictionary of type {&#39;param1&#39;:value1, &#39;param2&#39;:value2, etc.}</span>
+<span class="sd">            - list of dictionaries of form [{&#39;param1&#39;:value1}, {&#39;param2&#39;:value2}, etc.]</span>
+<span class="sd">            - list of parameters [param1, param2, etc.],  where param1, param2 are Parameter objects</span>
+<span class="sd">            - a single parameter object</span>
+<span class="sd">            :return a dictionary of type {&#39;param1&#39;:value1, &#39;param2&#39;:value2, etc.}</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">parameters_new</span> <span class="o">=</span> <span class="n">parameters</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="c"># if listelement is not a  dict cast it into a dict</span>
+                <span class="n">parameters_new</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                        <span class="n">parameters_new</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">):</span>
+                        <span class="n">parameters_new</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">value</span><span class="p">})</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;list of unknown type {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">p</span><span class="p">))))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">):</span>
+                <span class="n">parameters_new</span> <span class="o">=</span> <span class="p">{</span><span class="n">parameters</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">parameters</span><span class="o">.</span><span class="n">value</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;parameters should be a list, dictionary or Parameter! However it is {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">parameters</span><span class="p">))))</span>
+            <span class="k">return</span> <span class="n">parameters_new</span>
+
+        <span class="n">parameters_new</span> <span class="o">=</span> <span class="n">convert_to_dict</span><span class="p">(</span><span class="n">parameters_new</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">parameters_new</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="c"># get index of parameter in default list</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters_default</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Error: Dublicate parameter in default list&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Parameter {:s} not in default parameter list for {:s}!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">parameters_new</span>
+
+<span class="c"># =============== MAESTRO ==================================</span>
+<span class="c"># ==========================================================</span>
+
+<span class="k">class</span> <span class="nc">Maestro_Controller</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span></div></div>
+<div class="viewcode-block" id="Maestro_Controller"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller">[docs]</a>    <span class="c"># When connected via USB, the Maestro creates two virtual serial ports</span>
+    <span class="c"># /dev/ttyACM0 for commands and /dev/ttyACM1 for communications.</span>
+    <span class="c"># Be sure the Maestro is configured for &quot;USB Dual Port&quot; serial mode.</span>
+    <span class="c"># &quot;USB Chained Mode&quot; may work as well, but hasn&#39;t been tested.</span>
+    <span class="c">#</span>
+    <span class="c"># Pololu protocol allows for multiple Maestros to be connected to a single</span>
+    <span class="c"># communication channel. Each connected device is then indexed by number.</span>
+    <span class="c"># This device number defaults to 0x0C (or 12 in decimal), which this module</span>
+    <span class="c"># assumes.  If two or more controllers are connected to different serial</span>
+    <span class="c"># ports, then you can specify the port number when intiating a controller</span>
+    <span class="c"># object. Ports will typically start at 0 and count by twos.  So with two</span>
+    <span class="c"># controllers ports 0 and 2 would be used.</span>
+
+    <span class="kn">import</span> <span class="nn">serial</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">parameters</span> <span class="o">=</span> <span class="p">[]):</span>
+<div class="viewcode-block" id="Maestro_Controller.__init__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller.__init__">[docs]</a>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Maestro_Controller</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="c"># Open the command port</span>
+        <span class="c"># self.usb = self.serial.Serial(port)</span>
+        <span class="c"># Command lead-in and device 12 are sent for each Pololu serial commands.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PololuCmd</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="mh">0xaa</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mh">0xc</span><span class="p">)</span>
+        <span class="c"># Track target position for each servo. The function isMoving() will</span>
+        <span class="c"># use the Target vs Current servo position to determine if movement is</span>
+        <span class="c"># occuring.  Upto 24 servos on a Maestro, (0-23). Targets start at 0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Targets</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">24</span>
+        <span class="c"># Servo minimum and maximum targets can be restricted to protect components.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Mins</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">24</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Maxs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">24</span>
+
+    <span class="nd">@property</span></div>
+    <span class="k">def</span> <span class="nf">parameters_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the default parameter_list of the instrument</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">parameter_list_default</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;port&#39;</span><span class="p">,</span> <span class="s">&#39;COM5&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;COM5&#39;</span><span class="p">,</span> <span class="s">&#39;COM3&#39;</span><span class="p">],</span> <span class="s">&#39;com port to which maestro controler is connected&#39;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">parameter_list_default</span>
+
+    <span class="k">def</span> <span class="nf">update_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters_new</span><span class="p">):</span>
+<div class="viewcode-block" id="Maestro_Controller.update_parameters"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller.update_parameters">[docs]</a>        <span class="c"># call the update_parameter_list to update the parameter list</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Maestro_Controller</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">update_parameters</span><span class="p">(</span><span class="n">parameters_new</span><span class="p">)</span>
+        <span class="c"># now we actually apply these newsettings to the hardware</span>
+        <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters_new</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;port&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">usb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial</span><span class="o">.</span><span class="n">Serial</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="c"># Cleanup by closing USB serial port</span>
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Maestro_Controller.__del__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller.__del__">[docs]</a>        <span class="bp">self</span><span class="o">.</span><span class="n">usb</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c"># Set channels min and max value range.  Use this as a safety to protect</span>
+    <span class="c"># from accidentally moving outside known safe parameters. A setting of 0</span>
+    <span class="c"># allows unrestricted movement.</span>
+    <span class="c">#</span>
+    <span class="c"># ***Note that the Maestro itself is configured to limit the range of servo travel</span>
+    <span class="c"># which has precedence over these values.  Use the Maestro Control Center to configure</span>
+    <span class="c"># ranges that are saved to the controller.  Use setRange for software controllable ranges.</span>
+    <span class="k">def</span> <span class="nf">setRange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Maestro_Controller.setRange"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller.setRange">[docs]</a>        <span class="bp">self</span><span class="o">.</span><span class="n">Mins</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Maxs</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span>
+
+    <span class="c"># Return Minimum channel range value</span>
+    <span class="k">def</span> <span class="nf">getMin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Maestro_Controller.getMin"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller.getMin">[docs]</a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mins</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span>
+
+    <span class="c"># Return Minimum channel range value</span>
+    <span class="k">def</span> <span class="nf">getMax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Maestro_Controller.getMax"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller.getMax">[docs]</a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Maxs</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span>
+
+    <span class="c"># Set channel to a specified target value.  Servo will begin moving based</span>
+    <span class="c"># on Speed and Acceleration parameters previously set.</span>
+    <span class="c"># Target values will be constrained within Min and Max range, if set.</span>
+    <span class="c"># For servos, target represents the pulse width in of quarter-microseconds</span>
+    <span class="c"># Servo center is at 1500 microseconds, or 6000 quarter-microseconds</span>
+    <span class="c"># Typcially valid servo range is 3000 to 9000 quarter-microseconds</span>
+    <span class="c"># If channel is configured for digital output, values &lt; 6000 = Low ouput</span>
+    <span class="k">def</span> <span class="nf">setTarget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Maestro_Controller.setTarget"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller.setTarget">[docs]</a>        <span class="c"># if Min is defined and Target is below, force to Min</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mins</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">target</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mins</span><span class="p">[</span><span class="n">chan</span><span class="p">]:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mins</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span>
+        <span class="c"># if Max is defined and Target is above, force to Max</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Maxs</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">target</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Maxs</span><span class="p">[</span><span class="n">chan</span><span class="p">]:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Maxs</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span>
+        <span class="c">#</span>
+        <span class="n">lsb</span> <span class="o">=</span> <span class="n">target</span> <span class="o">&amp;</span> <span class="mh">0x7f</span> <span class="c">#7 bits for least significant byte</span>
+        <span class="n">msb</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span> <span class="o">&gt;&gt;</span> <span class="mi">7</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x7f</span> <span class="c">#shift 7 and take next 7 bits for msb</span>
+        <span class="c"># Send Pololu intro, device number, command, channel, and target lsb/msb</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PololuCmd</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mh">0x04</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">chan</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">lsb</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">msb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usb</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="c"># Record Target value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Targets</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">=</span> <span class="n">target</span>
+
+
+    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Maestro_Controller.disable"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller.disable">[docs]</a>
+        <span class="n">target</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c">#</span>
+        <span class="n">lsb</span> <span class="o">=</span> <span class="n">target</span> <span class="o">&amp;</span> <span class="mh">0x7f</span> <span class="c">#7 bits for least significant byte</span>
+        <span class="n">msb</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span> <span class="o">&gt;&gt;</span> <span class="mi">7</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x7f</span> <span class="c">#shift 7 and take next 7 bits for msb</span>
+        <span class="c"># Send Pololu intro, device number, command, channel, and target lsb/msb</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PololuCmd</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mh">0x04</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">chan</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">lsb</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">msb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usb</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="c"># Record Target value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Targets</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">=</span> <span class="n">target</span>
+
+    <span class="c"># Set speed of channel</span>
+    <span class="c"># Speed is measured as 0.25microseconds/10milliseconds</span>
+    <span class="c"># For the standard 1ms pulse width change to move a servo between extremes, a speed</span>
+    <span class="c"># of 1 will take 1 minute, and a speed of 60 would take 1 second.</span>
+    <span class="c"># Speed of 0 is unrestricted.</span>
+    <span class="k">def</span> <span class="nf">setSpeed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">,</span> <span class="n">speed</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Maestro_Controller.setSpeed"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller.setSpeed">[docs]</a>        <span class="n">lsb</span> <span class="o">=</span> <span class="n">speed</span> <span class="o">&amp;</span> <span class="mh">0x7f</span> <span class="c">#7 bits for least significant byte</span>
+        <span class="n">msb</span> <span class="o">=</span> <span class="p">(</span><span class="n">speed</span> <span class="o">&gt;&gt;</span> <span class="mi">7</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x7f</span> <span class="c">#shift 7 and take next 7 bits for msb</span>
+        <span class="c"># Send Pololu intro, device number, command, channel, speed lsb, speed msb</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PololuCmd</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mh">0x07</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">chan</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">lsb</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">msb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usb</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+    <span class="c"># Set acceleration of channel</span>
+    <span class="c"># This provide soft starts and finishes when servo moves to target position.</span>
+    <span class="c"># Valid values are from 0 to 255. 0=unrestricted, 1 is slowest start.</span>
+    <span class="c"># A value of 1 will take the servo about 3s to move between 1ms to 2ms range.</span>
+    <span class="k">def</span> <span class="nf">setAccel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">,</span> <span class="n">accel</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Maestro_Controller.setAccel"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller.setAccel">[docs]</a>        <span class="n">lsb</span> <span class="o">=</span> <span class="n">accel</span> <span class="o">&amp;</span> <span class="mh">0x7f</span> <span class="c">#7 bits for least significant byte</span>
+        <span class="n">msb</span> <span class="o">=</span> <span class="p">(</span><span class="n">accel</span> <span class="o">&gt;&gt;</span> <span class="mi">7</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x7f</span> <span class="c">#shift 7 and take next 7 bits for msb</span>
+        <span class="c"># Send Pololu intro, device number, command, channel, accel lsb, accel msb</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PololuCmd</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mh">0x09</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">chan</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">lsb</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">msb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usb</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+    <span class="c"># Get the current position of the device on the specified channel</span>
+    <span class="c"># The result is returned in a measure of quarter-microseconds, which mirrors</span>
+    <span class="c"># the Target parameter of setTarget.</span>
+    <span class="c"># This is not reading the true servo position, but the last target position sent</span>
+    <span class="c"># to the servo. If the Speed is set to below the top speed of the servo, then</span>
+    <span class="c"># the position result will align well with the acutal servo position, assuming</span>
+    <span class="c"># it is not stalled or slowed.</span>
+    <span class="k">def</span> <span class="nf">getPosition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Maestro_Controller.getPosition"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller.getPosition">[docs]</a>        <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PololuCmd</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mh">0x10</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">chan</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usb</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="n">lsb</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">usb</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="n">msb</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">usb</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">msb</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="n">lsb</span>
+
+    <span class="c"># # Test to see if a servo has reached its target position.  This only provides</span>
+    <span class="c"># # useful results if the Speed parameter is set slower than the maximum speed of</span>
+    <span class="c"># # the servo.</span>
+    <span class="c"># # ***Note if target position goes outside of Maestro&#39;s allowable range for the</span>
+    <span class="c"># # channel, then the target can never be reached, so it will appear to allows be</span>
+    <span class="c"># # moving to the target.  See setRange comment.</span>
+    <span class="c"># def isMoving(self, chan):</span>
+    <span class="c">#     if self.Targets[chan] &gt; 0:</span>
+    <span class="c">#         if self.getPosition(chan) &lt;&gt; self.Targets[chan]:</span>
+    <span class="c">#             return True</span>
+    <span class="c">#     return False</span>
+
+    <span class="c"># # Have all servo outputs reached their targets? This is useful only if Speed and/or</span>
+    <span class="c"># # Acceleration have been set on one or more of the channels. Returns True or False.</span>
+    <span class="c"># def getMovingState(self):</span>
+    <span class="c">#     cmd = self.PololuCmd + chr(0x13)</span>
+    <span class="c">#     self.usb.write(cmd)</span>
+    <span class="c">#     if self.usb.read() == chr(0):</span>
+    <span class="c">#         return False</span>
+    <span class="c">#     else:</span>
+    <span class="c">#         return True</span>
+
+    <span class="c"># # Run a Maestro Script subroutine in the currently active script. Scripts can</span>
+    <span class="c"># # have multiple subroutines, which get numbered sequentially from 0 on up. Code your</span>
+    <span class="c"># # Maestro subroutine to either infinitely loop, or just end (return is not valid).</span>
+    <span class="c"># def runScriptSub(self, subNumber):</span>
+    <span class="c">#     cmd = self.PololuCmd + chr(0x27) + chr(subNumber)</span>
+    <span class="c">#     # can pass a param with comman 0x28</span>
+    <span class="c">#     # cmd = self.PololuCmd + chr(0x28) + chr(subNumber) + chr(lsb) + chr(msb)</span>
+    <span class="c">#     self.usb.write(cmd)</span>
+    <span class="c">#</span>
+    <span class="c"># # Stop the current Maestro Script</span>
+    <span class="c"># def stopScript(self):</span>
+    <span class="c">#     cmd = self.PololuCmd + chr(0x24)</span>
+    <span class="c">#     self.usb.write(cmd)</span>
+
+    <span class="c"># Stop the current Maestro Script</span>
+    <span class="k">def</span> <span class="nf">goHome</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Maestro_Controller.goHome"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_Controller.goHome">[docs]</a>        <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PololuCmd</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mh">0x22</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usb</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Maestro_BeamBlock</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span></div></div>
+<div class="viewcode-block" id="Maestro_BeamBlock"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_BeamBlock">[docs]</a>    <span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maestro</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">parameters</span> <span class="o">=</span> <span class="p">[]):</span>
+<div class="viewcode-block" id="Maestro_BeamBlock.__init__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_BeamBlock.__init__">[docs]</a>        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param maestro: maestro servo controler to which motor is connected</span>
+<span class="sd">        :param channel: channel to which motor is connected</span>
+<span class="sd">        :param position_list: dictonary that contains the target positions, a factor 4 is needed to get the same values as in the maestro control center</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Maestro_BeamBlock</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_parameters</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maestro</span> <span class="o">=</span> <span class="n">maestro</span>
+
+    <span class="nd">@property</span></div>
+    <span class="k">def</span> <span class="nf">parameters_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the default parameter_list of the instrument</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">parameter_list_default</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;channel&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&#39;channel to which motor is connected&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;open&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="s">&#39;beam block open or closed&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;settle_time&#39;</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span><span class="s">&#39;settling time&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;position_open&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="o">*</span><span class="mi">1900</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span><span class="s">&#39;position corresponding to open&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;position_closed&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="o">*</span><span class="mi">950</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span><span class="s">&#39;position corresponding to closed&#39;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">parameter_list_default</span>
+
+    <span class="k">def</span> <span class="nf">update_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters_new</span><span class="p">):</span>
+<div class="viewcode-block" id="Maestro_BeamBlock.update_parameters"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_BeamBlock.update_parameters">[docs]</a>
+
+
+        <span class="c"># call the update_parameter_list to update the parameter list</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Maestro_BeamBlock</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">update_parameters</span><span class="p">(</span><span class="n">parameters_new</span><span class="p">)</span>
+
+        <span class="c"># parameters_new = convert_to_parameter_list(parameters_new)</span>
+
+        <span class="k">def</span> <span class="nf">convert_to_parameter_list</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            check if parameters is a list of parameters or a dictionary</span>
+<span class="sd">            if it is a dictionary we create a parameter list from it</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">parameters_new</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="n">parameters_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="c"># if listelement is not a  parameter cast it into a parameter</span>
+                <span class="n">parameters_new</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">)</span> <span class="k">else</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">):</span>
+                <span class="n">parameters_new</span> <span class="o">=</span> <span class="p">[</span><span class="n">parameters</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;parameters should be a list, dictionary or Parameter! However it is {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">parameters</span><span class="p">))))</span>
+            <span class="k">return</span> <span class="n">parameters_new</span>
+
+
+        <span class="c"># now we actually apply these newsettings to the hardware</span>
+        <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">convert_to_parameter_list</span><span class="p">(</span><span class="n">parameters_new</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;open&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+                    <span class="c"># todo: this work once we have the dynamically get/set functions of the super class</span>
+                    <span class="c"># self.goto(self.position_open)</span>
+                    <span class="c"># until then:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">goto</span><span class="p">(</span><span class="n">get_elemet</span><span class="p">(</span><span class="s">&#39;position_open&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c"># todo: this work once we have the dynamically get/set functions of the super class</span>
+                    <span class="c"># self.goto(self.position_closed)</span>
+                    <span class="c"># until then:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">goto</span><span class="p">(</span><span class="n">get_elemet</span><span class="p">(</span><span class="s">&#39;position_closed&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">goto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Maestro_BeamBlock.goto"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Maestro_BeamBlock.goto">[docs]</a>        <span class="bp">self</span><span class="o">.</span><span class="n">maestro</span><span class="o">.</span><span class="n">setTarget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
+        <span class="c"># todo: this work once we have the dynamically get/set functions of the super class</span>
+        <span class="c"># self.sleep(self.settle_time)</span>
+        <span class="c"># until then:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">get_elemet</span><span class="p">(</span><span class="s">&#39;settle_time&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maestro</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">)</span>
+    <span class="c"># todo: this should by taken care of in the dynamically get/set functions of the super class</span>
+    <span class="nd">@property</span></div>
+    <span class="k">def</span> <span class="nf">channel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">get_elemet</span><span class="p">(</span><span class="s">&#39;channel&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+<span class="c"># =============== ZURCIH INSTRUMENTS =======================</span>
+<span class="c"># ==========================================================</span>
+
+<span class="k">class</span> <span class="nc">ZIHF2</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span></div>
+<div class="viewcode-block" id="ZIHF2"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.ZIHF2">[docs]</a>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">zhinst.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
+        <span class="n">_status</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="c"># make a fake ZI instrument</span>
+        <span class="n">_status</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">raise</span>
+
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    instrument class to talk to Zurich instrument HF2 lock in ampifier</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">parameter_list</span> <span class="o">=</span> <span class="p">[]):</span>
+<div class="viewcode-block" id="ZIHF2.__init__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.ZIHF2.__init__">[docs]</a>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">daq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">autoConnect</span><span class="p">(</span><span class="mi">8005</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c"># connect to ZI, 8005 is the port number</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">autoDetect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daq</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">daq</span><span class="o">.</span><span class="n">getByte</span><span class="p">(</span><span class="s">&#39;/</span><span class="si">%s</span><span class="s">/features/options&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">daq</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">ZIHF2</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parameter_list</span><span class="p">)</span>
+
+    <span class="nd">@property</span></div>
+    <span class="k">def</span> <span class="nf">parameters_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the default parameter_list of the instrument</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">parameter_list_default</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;freq&#39;</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s">&#39;frequency of output channel&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;sigins&#39;</span><span class="p">,</span>
+                      <span class="p">[</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;channel&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;signal input channel&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;imp50&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;50Ohm impedance on (1) or off (0)&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;ac&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="s">&#39;ac coupling on (1) or off (0)&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;range&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="s">&#39;range of signal input&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;diff&#39;</span><span class="p">,</span>  <span class="bp">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="s">&#39;differential signal on (1) or off (0)&#39;</span><span class="p">)</span>
+                       <span class="p">]</span>
+                      <span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;sigouts&#39;</span><span class="p">,</span>
+                      <span class="p">[</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;channel&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;signal output channel&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;on&#39;</span><span class="p">,</span>  <span class="bp">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="s">&#39;output on (1) or off (0)&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;add&#39;</span><span class="p">,</span>  <span class="bp">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="s">&#39;add aux signal on (1) or off (0)&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;range&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="s">&#39;range of signal output&#39;</span><span class="p">)</span>
+                       <span class="p">]</span>
+                      <span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;demods&#39;</span><span class="p">,</span>
+                      <span class="p">[</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;channel&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;demodulation channel&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;order&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&#39;filter order&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;rate&#39;</span><span class="p">,</span> <span class="mf">10e3</span><span class="p">,</span> <span class="p">[</span><span class="mf">10e3</span><span class="p">],</span> <span class="s">&#39;rate&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;harmonic&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&#39;harmonic at which to demodulate&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;phaseshift&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s">&#39;phaseshift of demodulation&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;oscselect&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;oscillator for demodulation&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;adcselect&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&#39;adcselect&#39;</span><span class="p">)</span>
+                       <span class="p">]</span>
+                      <span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;aux&#39;</span><span class="p">,</span>
+                      <span class="p">[</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;channel&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;auxilary channel&#39;</span><span class="p">),</span>
+                          <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;offset&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s">&#39;offset in volts&#39;</span><span class="p">)</span>
+                       <span class="p">]</span>
+                      <span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">parameter_list_default</span>
+
+
+
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">harware_detected</span>
+    <span class="c"># Poll the value of input 1 for polltime seconds and return the magnitude of the average data. Timeout is in milisecond.</span>
+    <span class="k">def</span> <span class="nf">poll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">pollTime</span><span class="p">,</span> <span class="n">variable</span> <span class="o">=</span> <span class="s">&#39;R&#39;</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="mi">500</span><span class="p">):</span>
+<div class="viewcode-block" id="ZIHF2.poll"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.ZIHF2.poll">[docs]</a>        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param variable: string or list of string, which varibale to poll (&#39;R&#39;, &#39;x&#39;, &#39;y&#39;)</span>
+<span class="sd">        :param pollTime:</span>
+<span class="sd">        :param timeout:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">valid_variables</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;R&#39;</span><span class="p">,</span><span class="s">&#39;X&#39;</span><span class="p">,</span><span class="s">&#39;Y&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_connected</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;/</span><span class="si">%s</span><span class="s">/demods/</span><span class="si">%d</span><span class="s">/sample&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">demod_c</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">daq</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">flat_dictionary_key</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">data_poll</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">daq</span><span class="o">.</span><span class="n">poll</span><span class="p">(</span><span class="n">pollTime</span><span class="p">,</span><span class="n">timeout</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">flat_dictionary_key</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;X&#39;</span><span class="p">,</span><span class="s">&#39;Y&#39;</span><span class="p">]:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">var</span><span class="p">:</span> <span class="n">data_poll</span><span class="p">[</span><span class="n">path</span><span class="p">][</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()]})</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;R&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;x&#39;</span><span class="p">])</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;y&#39;</span><span class="p">]))})</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
+                <span class="n">variable</span> <span class="o">=</span> <span class="p">[</span><span class="n">variable</span><span class="p">]</span>
+            <span class="n">return_variable</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">variable</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">return_variable</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">return</span> <span class="n">return_variable</span>
+
+    <span class="k">def</span> <span class="nf">dict_to_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">):</span></div>
+<div class="viewcode-block" id="ZIHF2.dict_to_settings"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.ZIHF2.dict_to_settings">[docs]</a>        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        converts dictionary to list of  setting, which can then be passed to the zi controler</span>
+<span class="sd">        :param dictionary = dictionary that contains the settings</span>
+<span class="sd">        :return: settings = list of settings, which can then be passed to the zi controler</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c"># create list that is passed to the ZI controler</span>
+
+
+        <span class="n">settings</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">element</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;sigins&#39;</span><span class="p">,</span> <span class="s">&#39;sigouts&#39;</span><span class="p">,</span> <span class="s">&#39;demods&#39;</span><span class="p">]:</span>
+                <span class="c"># channel = element[&#39;channel&#39;]</span>
+                <span class="n">channel</span> <span class="o">=</span> <span class="n">get_elemet</span><span class="p">(</span><span class="s">&#39;sigouts&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s">&#39;sigouts&#39;</span><span class="p">][</span><span class="s">&#39;channel&#39;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">sub_key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">sub_key</span> <span class="o">==</span> <span class="s">&#39;channel&#39;</span><span class="p">:</span>
+                        <span class="n">settings</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s">&#39;/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%d</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">sub_key</span><span class="p">),</span> <span class="n">val</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;aux&#39;</span><span class="p">]:</span>
+                <span class="n">channel</span> <span class="o">=</span> <span class="n">get_elemet</span><span class="p">(</span><span class="s">&#39;aux&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s">&#39;aux&#39;</span><span class="p">][</span><span class="s">&#39;channel&#39;</span><span class="p">]</span>
+                <span class="n">settings</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s">&#39;/</span><span class="si">%s</span><span class="s">/AUXOUTS/</span><span class="si">%d</span><span class="s">/OFFSET&#39;</span><span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">channel</span><span class="p">),</span> <span class="n">element</span><span class="p">[</span><span class="s">&#39;offset&#39;</span><span class="p">]])</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;freq&#39;</span><span class="p">]:</span>
+                <span class="n">channel</span> <span class="o">=</span> <span class="n">get_elemet</span><span class="p">(</span><span class="s">&#39;sigouts&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s">&#39;sigouts&#39;</span><span class="p">][</span><span class="s">&#39;channel&#39;</span><span class="p">]</span>
+                <span class="n">settings</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s">&#39;/</span><span class="si">%s</span><span class="s">/oscs/</span><span class="si">%d</span><span class="s">/freq&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">channel</span><span class="p">),</span> <span class="n">dictionary</span><span class="p">[</span><span class="s">&#39;freq&#39;</span><span class="p">]])</span>
+                <span class="c"># settings.append([&#39;/%s/oscs/%d/freq&#39; % (self.device, dictionary[&#39;sigouts&#39;][&#39;channel&#39;]), dictionary[&#39;freq&#39;]])</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+                <span class="n">settings</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">key</span><span class="p">,</span> <span class="n">element</span><span class="p">])</span>
+
+
+        <span class="k">return</span> <span class="n">settings</span>
+
+    <span class="k">def</span> <span class="nf">update_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters_new</span><span class="p">):</span></div>
+<div class="viewcode-block" id="ZIHF2.update_parameters"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.ZIHF2.update_parameters">[docs]</a>        <span class="c"># call the update_parameter_list to update the parameter list</span>
+        <span class="n">parameters_new</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ZIHF2</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">update_parameters</span><span class="p">(</span><span class="n">parameters_new</span><span class="p">)</span>
+        <span class="c"># now we actually apply these newsettings to the hardware</span>
+
+        <span class="n">commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_to_settings</span><span class="p">(</span><span class="n">parameters_new</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_connected</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">daq</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span>
+
+
+
+<span class="k">class</span> <span class="nc">Instrument_Dummy</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span></div></div>
+<div class="viewcode-block" id="Instrument_Dummy"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Instrument_Dummy">[docs]</a>    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    dummy instrument class, just to see how the creation of a new instrument works</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">parameter_list</span> <span class="o">=</span> <span class="p">[]):</span>
+<div class="viewcode-block" id="Instrument_Dummy.__init__"><a class="viewcode-back" href="../../../src/src.core.instruments.html#src.core.instruments.Instrument_Dummy.__init__">[docs]</a>        <span class="nb">super</span><span class="p">(</span><span class="n">Instrument_Dummy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parameter_list</span><span class="p">)</span>
+
+    <span class="nd">@property</span></div>
+    <span class="k">def</span> <span class="nf">parameters_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the default parameter_list of the instrument</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">parameter_list_default</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;parameter1&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;parameter2&#39;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;parameter_string&#39;</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;parameter_string&#39;</span><span class="p">,</span> <span class="p">[</span>
+                <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;parameter_sub1&#39;</span><span class="p">,</span> <span class="s">&#39;a_1&#39;</span><span class="p">),</span>
+                <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;parameter_sub2&#39;</span><span class="p">,</span> <span class="s">&#39;a_1&#39;</span><span class="p">)</span>
+            <span class="p">])</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">parameter_list_default</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span></div>
+    <span class="n">inst</span> <span class="o">=</span> <span class="n">Instrument_Dummy</span><span class="p">(</span><span class="s">&#39;my dummny&#39;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

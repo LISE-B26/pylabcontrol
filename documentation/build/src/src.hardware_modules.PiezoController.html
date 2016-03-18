@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.hardware_modules.PiezoController module &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
+    <link rel="up" title="src.hardware_modules package" href="src.hardware_modules.html" />
+    <link rel="next" title="src.hardware_modules.PulseBlaster module" href="src.hardware_modules.PulseBlaster.html" />
+    <link rel="prev" title="src.hardware_modules.PI_Controler module" href="src.hardware_modules.PI_Controler.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.PulseBlaster.html" title="src.hardware_modules.PulseBlaster module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.PI_Controler.html" title="src.hardware_modules.PI_Controler module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.hardware_modules.html" accesskey="U">src.hardware_modules package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-src.hardware_modules.PiezoController">
+<span id="src-hardware-modules-piezocontroller-module"></span><h1>src.hardware_modules.PiezoController module<a class="headerlink" href="#module-src.hardware_modules.PiezoController" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="src.hardware_modules.PiezoController.MDT693A">
+<em class="property">class </em><code class="descclassname">src.hardware_modules.PiezoController.</code><code class="descname">MDT693A</code><span class="sig-paren">(</span><em>outputAxis</em>, <em>port='COM3'</em>, <em>baudrate=115200</em>, <em>timeout=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693A" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="src.hardware_modules.PiezoController.MDT693A.SYSTEM_OFFSET">
+<code class="descname">SYSTEM_OFFSET</code><em class="property"> = 0.6</em><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693A.SYSTEM_OFFSET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.PiezoController.MDT693A.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>outputAxis</em>, <em>port='COM3'</em>, <em>baudrate=115200</em>, <em>timeout=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693A.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.PiezoController.MDT693A.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.hardware_modules.PiezoController'</em><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693A.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.PiezoController.MDT693A.closeConnection">
+<code class="descname">closeConnection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693A.closeConnection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.PiezoController.MDT693A.getManualOffset">
+<code class="descname">getManualOffset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693A.getManualOffset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.PiezoController.MDT693A.getVoltage">
+<code class="descname">getVoltage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693A.getVoltage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.PiezoController.MDT693A.setSoftwareVoltage">
+<code class="descname">setSoftwareVoltage</code><span class="sig-paren">(</span><em>voltage</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693A.setSoftwareVoltage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.PiezoController.MDT693A.setVoltage">
+<code class="descname">setVoltage</code><span class="sig-paren">(</span><em>voltage</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693A.setVoltage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.hardware_modules.PiezoController.MDT693B">
+<em class="property">class </em><code class="descclassname">src.hardware_modules.PiezoController.</code><code class="descname">MDT693B</code><span class="sig-paren">(</span><em>outputAxis</em>, <em>port='COM17'</em>, <em>baudrate=115200</em>, <em>timeout=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693B" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="src.hardware_modules.PiezoController.MDT693B.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>outputAxis</em>, <em>port='COM17'</em>, <em>baudrate=115200</em>, <em>timeout=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693B.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.PiezoController.MDT693B.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.hardware_modules.PiezoController'</em><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693B.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.PiezoController.MDT693B.closeConnection">
+<code class="descname">closeConnection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693B.closeConnection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.PiezoController.MDT693B.getVoltage">
+<code class="descname">getVoltage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693B.getVoltage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.PiezoController.MDT693B.setVoltage">
+<code class="descname">setVoltage</code><span class="sig-paren">(</span><em>voltage</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.PiezoController.MDT693B.setVoltage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="src.hardware_modules.PI_Controler.html"
+                        title="previous chapter">src.hardware_modules.PI_Controler module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="src.hardware_modules.PulseBlaster.html"
+                        title="next chapter">src.hardware_modules.PulseBlaster module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/src/src.hardware_modules.PiezoController.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.PulseBlaster.html" title="src.hardware_modules.PulseBlaster module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.PI_Controler.html" title="src.hardware_modules.PI_Controler module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.hardware_modules.html" >src.hardware_modules package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

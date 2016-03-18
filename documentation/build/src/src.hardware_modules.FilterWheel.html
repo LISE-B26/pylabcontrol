@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.hardware_modules.FilterWheel module &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
+    <link rel="up" title="src.hardware_modules package" href="src.hardware_modules.html" />
+    <link rel="next" title="src.hardware_modules.FilterWheelSerial module" href="src.hardware_modules.FilterWheelSerial.html" />
+    <link rel="prev" title="src.hardware_modules.DCServo_Kinesis_dll module" href="src.hardware_modules.DCServo_Kinesis_dll.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.FilterWheelSerial.html" title="src.hardware_modules.FilterWheelSerial module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.DCServo_Kinesis_dll.html" title="src.hardware_modules.DCServo_Kinesis_dll module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.hardware_modules.html" accesskey="U">src.hardware_modules package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-src.hardware_modules.FilterWheel">
+<span id="src-hardware-modules-filterwheel-module"></span><h1>src.hardware_modules.FilterWheel module<a class="headerlink" href="#module-src.hardware_modules.FilterWheel" title="Permalink to this headline">¶</a></h1>
+<dl class="exception">
+<dt id="src.hardware_modules.FilterWheel.CommError">
+<em class="property">exception </em><code class="descclassname">src.hardware_modules.FilterWheel.</code><code class="descname">CommError</code><a class="headerlink" href="#src.hardware_modules.FilterWheel.CommError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dl class="attribute">
+<dt id="src.hardware_modules.FilterWheel.CommError.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.hardware_modules.FilterWheel'</em><a class="headerlink" href="#src.hardware_modules.FilterWheel.CommError.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.FilterWheel.CommError.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#src.hardware_modules.FilterWheel.CommError.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel">
+<em class="property">class </em><code class="descclassname">src.hardware_modules.FilterWheel.</code><code class="descname">FilterWheel</code><span class="sig-paren">(</span><em>portNumber=c_longlong(0L)</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class to control the Thor Labs FW102C filter wheel position</p>
+<dl class="attribute">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.__dict__">
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.hardware_modules.FilterWheel', 'setPositionCount': &lt;function setPositionCount at 0x000000001EADF748&gt;, 'getSpeedMode': &lt;function getSpeedMode at 0x000000001EADF978&gt;, 'setSensorMode': &lt;function setSensorMode at 0x000000001EADF9E8&gt;, 'saveSettings': &lt;function saveSettings at 0x000000001EADFAC8&gt;, 'getPositionCount': &lt;function getPositionCount at 0x000000001EADF7B8&gt;, 'getSensorMode': &lt;function getSensorMode at 0x000000001EADFA58&gt;, 'getTriggerMode': &lt;function getTriggerMode at 0x000000001EADF898&gt;, 'setSpeedMode': &lt;function setSpeedMode at 0x000000001EADF908&gt;, 'getPosition': &lt;function getPosition at 0x000000001EADF6D8&gt;, '__dict__': &lt;attribute '__dict__' of 'FilterWheel' objects&gt;, 'setPosition': &lt;function setPosition at 0x000000001EADF668&gt;, 'setTriggerMode': &lt;function setTriggerMode at 0x000000001EADF828&gt;, '__weakref__': &lt;attribute '__weakref__' of 'FilterWheel' objects&gt;, '__doc__': 'Class to control the Thor Labs FW102C filter wheel position', '__init__': &lt;function __init__ at 0x000000001EADF5F8&gt;})</em><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.__dict__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>portNumber=c_longlong(0L)</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.hardware_modules.FilterWheel'</em><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.getPosition">
+<code class="descname">getPosition</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.getPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get position, where position is an integer starting from 0</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.getPositionCount">
+<code class="descname">getPositionCount</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.getPositionCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get position count: it can either be 6 or 12</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.getSensorMode">
+<code class="descname">getSensorMode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.getSensorMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get sensor mode, with return value either: off when idle (0), or always on (1)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.getSpeedMode">
+<code class="descname">getSpeedMode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.getSpeedMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get speed mode, with return value either slow (0) or fast (1)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.getTriggerMode">
+<code class="descname">getTriggerMode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.getTriggerMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get external trigger mode, with return value either input (0) or output (1)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.saveSettings">
+<code class="descname">saveSettings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.saveSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save all settings to device non-volatile memory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.setPosition">
+<code class="descname">setPosition</code><span class="sig-paren">(</span><em>position</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.setPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set position, where position is an integer starting from 0</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.setPositionCount">
+<code class="descname">setPositionCount</code><span class="sig-paren">(</span><em>posCount</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.setPositionCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set position count: it can either be 6 or 12</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.setSensorMode">
+<code class="descname">setSensorMode</code><span class="sig-paren">(</span><em>mode</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.setSensorMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set sensor mode to either: off when idle (0), or always on (1)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.setSpeedMode">
+<code class="descname">setSpeedMode</code><span class="sig-paren">(</span><em>mode</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.setSpeedMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set speed mode to either slow (0) or fast (1)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.FilterWheel.setTriggerMode">
+<code class="descname">setTriggerMode</code><span class="sig-paren">(</span><em>mode</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.FilterWheel.setTriggerMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set external trigger mode to either input (0) or output (1)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="src.hardware_modules.FilterWheel.InvalidValueError">
+<em class="property">exception </em><code class="descclassname">src.hardware_modules.FilterWheel.</code><code class="descname">InvalidValueError</code><a class="headerlink" href="#src.hardware_modules.FilterWheel.InvalidValueError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dl class="attribute">
+<dt id="src.hardware_modules.FilterWheel.InvalidValueError.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.hardware_modules.FilterWheel'</em><a class="headerlink" href="#src.hardware_modules.FilterWheel.InvalidValueError.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.FilterWheel.InvalidValueError.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#src.hardware_modules.FilterWheel.InvalidValueError.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="src.hardware_modules.FilterWheel.LibraryError">
+<em class="property">exception </em><code class="descclassname">src.hardware_modules.FilterWheel.</code><code class="descname">LibraryError</code><a class="headerlink" href="#src.hardware_modules.FilterWheel.LibraryError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dl class="attribute">
+<dt id="src.hardware_modules.FilterWheel.LibraryError.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.hardware_modules.FilterWheel'</em><a class="headerlink" href="#src.hardware_modules.FilterWheel.LibraryError.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.FilterWheel.LibraryError.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#src.hardware_modules.FilterWheel.LibraryError.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.hardware_modules.FilterWheel.USBConnection">
+<em class="property">class </em><code class="descclassname">src.hardware_modules.FilterWheel.</code><code class="descname">USBConnection</code><span class="sig-paren">(</span><em>portNumber=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.USBConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Abstraction of the low level connection to USB bus so that destructor can be used without circular
+references as per <a class="reference external" href="http://eli.thegreenplace.net/2009/06/12/safely-using-destructors-in-python/">http://eli.thegreenplace.net/2009/06/12/safely-using-destructors-in-python/</a>.
+This class is essentially a wrapper for the Thor Labs USB Driver library uart_library.dll</p>
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.USBConnection.__del__">
+<code class="descname">__del__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.USBConnection.__del__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Destructor method unitializes the USB connection</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.FilterWheel.USBConnection.__dict__">
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.hardware_modules.FilterWheel', '__del__': &lt;function __del__ at 0x000000001EADFBA8&gt;, 'write': &lt;function write at 0x000000001EADFC18&gt;, 'read': &lt;function read at 0x000000001EADFC88&gt;, 'clearComQueue': &lt;function clearComQueue at 0x000000001EADFD68&gt;, '__dict__': &lt;attribute '__dict__' of 'USBConnection' objects&gt;, 'query': &lt;function query at 0x000000001EADFCF8&gt;, '__weakref__': &lt;attribute '__weakref__' of 'USBConnection' objects&gt;, '__doc__': ' Abstraction of the low level connection to USB bus so that destructor can be used without circular\n    references as per http://eli.thegreenplace.net/2009/06/12/safely-using-destructors-in-python/.\n    This class is essentially a wrapper for the Thor Labs USB Driver library uart_library.dll', '__init__': &lt;function __init__ at 0x000000001EADFB38&gt;})</em><a class="headerlink" href="#src.hardware_modules.FilterWheel.USBConnection.__dict__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.USBConnection.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>portNumber=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.USBConnection.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open the USB connection</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.FilterWheel.USBConnection.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.hardware_modules.FilterWheel'</em><a class="headerlink" href="#src.hardware_modules.FilterWheel.USBConnection.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hardware_modules.FilterWheel.USBConnection.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#src.hardware_modules.FilterWheel.USBConnection.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.USBConnection.clearComQueue">
+<code class="descname">clearComQueue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.USBConnection.clearComQueue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the communication queue in case communication was interrupted somehow. Probably not needed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.USBConnection.query">
+<code class="descname">query</code><span class="sig-paren">(</span><em>queryString</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.USBConnection.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>query the device with queryString and return the result</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.USBConnection.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.USBConnection.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the response from power meter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hardware_modules.FilterWheel.USBConnection.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>writeString</em><span class="sig-paren">)</span><a class="headerlink" href="#src.hardware_modules.FilterWheel.USBConnection.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a single command to the USB device</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="src.hardware_modules.DCServo_Kinesis_dll.html"
+                        title="previous chapter">src.hardware_modules.DCServo_Kinesis_dll module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="src.hardware_modules.FilterWheelSerial.html"
+                        title="next chapter">src.hardware_modules.FilterWheelSerial module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/src/src.hardware_modules.FilterWheel.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.FilterWheelSerial.html" title="src.hardware_modules.FilterWheelSerial module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="src.hardware_modules.DCServo_Kinesis_dll.html" title="src.hardware_modules.DCServo_Kinesis_dll module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.hardware_modules.html" >src.hardware_modules package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

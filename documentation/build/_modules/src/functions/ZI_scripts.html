@@ -1,0 +1,251 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.functions.ZI_scripts &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.functions.ZI_scripts</h1><div class="highlight"><pre>
+<span class="c"># Author: Jan Gieseler</span>
+<span class="c"># Date: 03/03/2016</span>
+<span class="c"># This is a collection of script that use the ZI HF2  Lock-in amplifier</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">helper_functions.reading_writing</span> <span class="kn">as</span> <span class="nn">rw</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">src</span> <span class="kn">import</span> <span class="n">hardware_modules</span> <span class="k">as</span> <span class="n">ZI</span>
+
+
+<div class="viewcode-block" id="find_peak_and_measure"><a class="viewcode-back" href="../../../src/src.functions.ZI_scripts.html#src.functions.ZI_scripts.find_peak_and_measure">[docs]</a><span class="k">def</span> <span class="nf">find_peak_and_measure</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">f_min</span><span class="p">,</span> <span class="n">f_max</span><span class="p">,</span> <span class="n">df_coarse</span><span class="p">,</span> <span class="n">df_fine</span><span class="p">,</span> <span class="n">N_fine</span><span class="p">,</span> <span class="n">samplesPerPt</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    searches for a peak in the frequency range [f_min, f_max] by performing a quick scan</span>
+<span class="sd">    and subsequentially takes a high resolution scan of the peak</span>
+<span class="sd">    :param zi ZIHF2 object</span>
+<span class="sd">    :param f_min lower bound of frequency range</span>
+<span class="sd">    :param f_max upper bound of frequency range</span>
+<span class="sd">    :param df_coarse frequency step size for quick scan</span>
+<span class="sd">    :param df_fine frequency step size for high resolution scan</span>
+<span class="sd">    :param N_fine number of point for high resolution scan</span>
+<span class="sd">    :param samplesPerPt number of samples to take at each point</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+
+    <span class="c"># perform fast sweep</span>
+    <span class="n">sampleNum</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">f_max</span><span class="o">-</span> <span class="n">f_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">df_coarse</span><span class="p">)</span>
+    <span class="n">zi</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="n">f_min</span><span class="p">,</span> <span class="n">f_max</span><span class="p">,</span> <span class="n">sampleNum</span><span class="p">,</span> <span class="n">samplesPerPt</span><span class="p">)</span>
+    <span class="c"># find maximum value</span>
+    <span class="n">data_coarse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">zi</span><span class="o">.</span><span class="n">dataFinal</span><span class="p">)</span>
+
+    <span class="c"># calculate range for high resolution scan</span>
+    <span class="n">f</span><span class="o">=</span> <span class="n">data_coarse</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">data_coarse</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">data_coarse</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">fo</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">r2</span><span class="p">)]</span>
+
+    <span class="n">f_min_high_res</span><span class="p">,</span> <span class="n">f_max_high_res</span> <span class="o">=</span> <span class="n">fo</span><span class="o">-</span> <span class="n">df_fine</span><span class="o">*</span><span class="n">N_fine</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">fo</span><span class="o">+</span> <span class="n">df_fine</span><span class="o">*</span><span class="n">N_fine</span><span class="o">/</span><span class="mi">2</span>
+    <span class="c"># perform high resolution sweep</span>
+    <span class="n">zi</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="n">f_min_high_res</span><span class="p">,</span> <span class="n">f_max_high_res</span><span class="p">,</span> <span class="n">N_fine</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">data_high_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">zi</span><span class="o">.</span><span class="n">dataFinal</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_coarse</span><span class="p">,</span> <span class="n">data_high_res</span>
+</div>
+<div class="viewcode-block" id="find_peak"><a class="viewcode-back" href="../../../src/src.functions.ZI_scripts.html#src.functions.ZI_scripts.find_peak">[docs]</a><span class="k">def</span> <span class="nf">find_peak</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">f_min</span><span class="p">,</span> <span class="n">f_max</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">samplesPerPt</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    searches for a peak in the frequency range [f_min, f_max]</span>
+<span class="sd">    :param zi ZIHF2 object</span>
+<span class="sd">    :param f_min lower bound of frequency range</span>
+<span class="sd">    :param f_max upper bound of frequency range</span>
+<span class="sd">    :param df frequency step</span>
+<span class="sd">    :param samplesPerPt number of samples to take at each point</span>
+<span class="sd">    :return: fo the frequency of the max value in the specified range</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+
+    <span class="c"># perform sweep</span>
+    <span class="n">sampleNum</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">f_max</span><span class="o">-</span> <span class="n">f_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">df</span><span class="p">)</span>
+    <span class="n">zi</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="n">f_min</span><span class="p">,</span> <span class="n">f_max</span><span class="p">,</span> <span class="n">sampleNum</span><span class="p">,</span> <span class="n">samplesPerPt</span><span class="p">)</span>
+    <span class="c"># find maximum value</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">zi</span><span class="o">.</span><span class="n">dataFinal</span><span class="p">)</span>
+
+    <span class="c"># calculate range for high resolution scan</span>
+    <span class="n">f</span><span class="o">=</span> <span class="n">data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">data</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">fo</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">r2</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">fo</span>
+
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="n">zi_settings</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;amplitude&#39;</span> <span class="p">:</span> <span class="mf">0.1e-3</span><span class="p">,</span>
+        <span class="s">&#39;offset&#39;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s">&#39;freq&#39;</span> <span class="p">:</span> <span class="mf">1.88e6</span><span class="p">,</span>
+        <span class="s">&#39;ACCoupling&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+        <span class="s">&#39;inChannel&#39;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s">&#39;outChannel&#39;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s">&#39;auxChannel&#39;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s">&#39;add&#39;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s">&#39;range&#39;</span> <span class="p">:</span> <span class="mf">10e-3</span>
+    <span class="p">}</span>
+
+
+    <span class="n">peak_search_settings</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;f_min&#39;</span><span class="p">:</span> <span class="mf">1875.0e3</span><span class="p">,</span>
+        <span class="s">&#39;f_max&#39;</span><span class="p">:</span> <span class="mf">1878.0e3</span><span class="p">,</span>
+        <span class="s">&#39;df_coarse&#39;</span> <span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s">&#39;df_fine&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s">&#39;N_fine&#39;</span><span class="p">:</span> <span class="mi">101</span><span class="p">,</span>
+        <span class="s">&#39;samplesPerPt&#39;</span> <span class="p">:</span> <span class="mi">1</span>
+    <span class="p">}</span>
+
+    <span class="n">find_peak_settings</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;f_min&#39;</span><span class="p">:</span> <span class="mf">1875.0e3</span><span class="p">,</span>
+        <span class="s">&#39;f_max&#39;</span><span class="p">:</span> <span class="mf">1878.0e3</span><span class="p">,</span>
+        <span class="s">&#39;df&#39;</span> <span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s">&#39;samplesPerPt&#39;</span> <span class="p">:</span> <span class="mi">1</span>
+    <span class="p">}</span>
+
+    <span class="c">## TEST SCRIPT TO Track Peak</span>
+
+    <span class="n">dirpath</span> <span class="o">=</span> <span class="s">&#39;Z:</span><span class="se">\\</span><span class="s">Lab</span><span class="se">\\</span><span class="s">Cantilever</span><span class="se">\\</span><span class="s">Measurements</span><span class="se">\\</span><span class="s">20160302_Resonator_2.2</span><span class="se">\\</span><span class="s">20160303_Cold_Resonator_2.2</span><span class="se">\\</span><span class="s">data_track_peak</span><span class="se">\\</span><span class="s">&#39;</span>
+    <span class="n">tag</span> <span class="o">=</span> <span class="s">&#39;resonator_2.2&#39;</span>
+
+
+    <span class="n">zi</span> <span class="o">=</span> <span class="n">ZI</span><span class="o">.</span><span class="n">ZIHF2</span><span class="p">(</span><span class="o">**</span><span class="n">zi_settings</span><span class="p">)</span>
+    <span class="n">max_frequencies</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">f_range</span> <span class="o">=</span> <span class="n">find_peak_settings</span><span class="p">[</span><span class="s">&#39;f_max&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">find_peak_settings</span><span class="p">[</span><span class="s">&#39;f_min&#39;</span><span class="p">]</span>
+    <span class="n">recording</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">recording</span><span class="p">:</span>
+        <span class="n">fo</span> <span class="o">=</span> <span class="n">find_peak</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="o">**</span><span class="n">find_peak_settings</span><span class="p">)</span>
+        <span class="n">max_frequencies</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">_%H-%M-%S&quot;</span><span class="p">),</span> <span class="n">fo</span><span class="p">])</span>
+        <span class="n">find_peak_settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;f_min&#39;</span><span class="p">:</span> <span class="n">fo</span><span class="o">-</span><span class="n">f_range</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;f_max&#39;</span> <span class="p">:</span> <span class="n">fo</span><span class="o">+</span><span class="n">f_range</span><span class="o">/</span><span class="mi">2</span><span class="p">})</span>
+        <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">:</span>
+            <span class="n">recording</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">fo</span><span class="p">)</span>
+
+
+    <span class="c"># save data</span>
+    <span class="n">rw</span><span class="o">.</span><span class="n">save_data</span><span class="p">(</span><span class="n">max_frequencies</span><span class="p">,</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">tag</span> <span class="o">+</span> <span class="s">&#39;_frequencies&#39;</span><span class="p">)</span>
+
+
+    <span class="n">rw</span><span class="o">.</span><span class="n">save_json</span><span class="p">(</span><span class="n">zi_settings</span><span class="p">,</span> <span class="n">dirpath</span> <span class="o">+</span> <span class="n">rw</span><span class="o">.</span><span class="n">date_prefix</span><span class="p">()</span> <span class="o">+</span> <span class="n">tag</span> <span class="o">+</span> <span class="s">&#39;_zi_settings.json&#39;</span><span class="p">)</span>
+    <span class="n">rw</span><span class="o">.</span><span class="n">save_json</span><span class="p">(</span><span class="n">find_peak_settings</span><span class="p">,</span> <span class="n">dirpath</span> <span class="o">+</span> <span class="n">rw</span><span class="o">.</span><span class="n">date_prefix</span><span class="p">()</span> <span class="o">+</span> <span class="n">tag</span> <span class="o">+</span> <span class="s">&#39;_peak_settings.json&#39;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="c">## ====================  TEST SCRIPT T FIND PEAK ========================</span>
+
+    <span class="c"># dirpath = &#39;Z:\\Lab\\Cantilever\\Measurements\\20160302_Resonator_2.2\\20160303_Cold_Resonator_2.2\\data\\&#39;</span>
+    <span class="c"># tag = &#39;resonator_2.2&#39;</span>
+    <span class="c">#</span>
+    <span class="c">#</span>
+    <span class="c"># zi = ZI.ZIHF2(**zi_settings)</span>
+    <span class="c">#</span>
+    <span class="c"># data_coarse, data_high_res = find_peak_and_measure(zi, **peak_search_settings)</span>
+    <span class="c">#</span>
+    <span class="c"># f= data_coarse[:,0]</span>
+    <span class="c"># r2 = data_coarse[:,1]**2 + data_coarse[:,2]**2</span>
+    <span class="c"># plt.plot(f, r2)</span>
+    <span class="c">#</span>
+    <span class="c"># f= data_high_res[:,0]</span>
+    <span class="c"># r2 = data_high_res[:,1]**2 + data_high_res[:,2]**2</span>
+    <span class="c"># plt.plot(f, r2)</span>
+    <span class="c">#</span>
+    <span class="c"># # save data</span>
+    <span class="c"># rw.save_data(data_coarse, dirpath, tag + &#39;_coarse&#39;)</span>
+    <span class="c"># rw.save_data(data_high_res, dirpath, tag + &#39;_high_res&#39;)</span>
+    <span class="c">#</span>
+    <span class="c">#</span>
+    <span class="c"># rw.save_json(zi_settings, dirpath + rw.date_prefix() + tag + &#39;_zi_settings.json&#39;)</span>
+    <span class="c"># rw.save_json(peak_search_settings, dirpath + rw.date_prefix() + tag + &#39;_search_settings.json&#39;)</span>
+    <span class="c">#</span>
+    <span class="c"># plt.show()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

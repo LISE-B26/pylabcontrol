@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.functions.plot_save_AI module &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
+    <link rel="up" title="src.functions package" href="src.functions.html" />
+    <link rel="next" title="src.functions.regions module" href="src.functions.regions.html" />
+    <link rel="prev" title="src.functions.ZI_scripts module" href="src.functions.ZI_scripts.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.functions.regions.html" title="src.functions.regions module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="src.functions.ZI_scripts.html" title="src.functions.ZI_scripts module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.functions.html" accesskey="U">src.functions package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-src.functions.plot_save_AI">
+<span id="src-functions-plot-save-ai-module"></span><h1>src.functions.plot_save_AI module<a class="headerlink" href="#module-src.functions.plot_save_AI" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="src.functions.plot_save_AI.plot_AI">
+<code class="descclassname">src.functions.plot_save_AI.</code><code class="descname">plot_AI</code><span class="sig-paren">(</span><em>device</em>, <em>freq</em>, <em>run_time</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/plot_save_AI.html#plot_AI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.plot_save_AI.plot_AI" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device</strong> &#8211; Device name in standard NI format ex. &#8216;Dev1/AI0&#8217;</li>
+<li><strong>freq</strong> &#8211; Sampling frequency (Hz). Greatly exceeding 100 kHz will result in data being written faster than it can be read and will crash program</li>
+<li><strong>run_time</strong> &#8211; Time for which to sample (s). Reading for more than a minute or so (depending on sampling rate) will overload matplotlib</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.functions.plot_save_AI.save_AI">
+<code class="descclassname">src.functions.plot_save_AI.</code><code class="descname">save_AI</code><span class="sig-paren">(</span><em>device</em>, <em>freq</em>, <em>run_time</em>, <em>dirpath</em>, <em>tag</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/plot_save_AI.html#save_AI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.plot_save_AI.save_AI" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device</strong> &#8211; Device name in standard NI format ex. &#8216;Dev1/AI0&#8217;</li>
+<li><strong>freq</strong> &#8211; Sampling frequency (Hz). Greatly exceeding 100 kHz will result in data being written faster than it can be read and will crash program</li>
+<li><strong>run_time</strong> &#8211; Time for which to sample (s). Reading for more than a minute or so (depending on sampling rate) will overload matplotlib</li>
+<li><strong>dirpath</strong> &#8211; Path in which to save data</li>
+<li><strong>tag</strong> &#8211; tag for file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.functions.plot_save_AI.save_AI_toRAM">
+<code class="descclassname">src.functions.plot_save_AI.</code><code class="descname">save_AI_toRAM</code><span class="sig-paren">(</span><em>device</em>, <em>freq</em>, <em>run_time</em>, <em>dirpath</em>, <em>tag</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/plot_save_AI.html#save_AI_toRAM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.plot_save_AI.save_AI_toRAM" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device</strong> &#8211; Device name in standard NI format ex. &#8216;Dev1/AI0&#8217;</li>
+<li><strong>freq</strong> &#8211; Sampling frequency (Hz). Greatly exceeding 100 kHz will result in data being written faster than it can be read and will crash program</li>
+<li><strong>run_time</strong> &#8211; Time for which to sample (s). Reading for more than a minute or so (depending on sampling rate) will overload matplotlib</li>
+<li><strong>dirpath</strong> &#8211; Path in which to save data</li>
+<li><strong>tag</strong> &#8211; tag for file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.functions.plot_save_AI.save_and_plot_AI">
+<code class="descclassname">src.functions.plot_save_AI.</code><code class="descname">save_and_plot_AI</code><span class="sig-paren">(</span><em>device</em>, <em>freq</em>, <em>run_time</em>, <em>dirpath</em>, <em>tag</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/plot_save_AI.html#save_and_plot_AI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.plot_save_AI.save_and_plot_AI" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device</strong> &#8211; Device name in standard NI format ex. &#8216;Dev1/AI0&#8217;</li>
+<li><strong>freq</strong> &#8211; Sampling frequency (Hz). Greatly exceeding 100 kHz will result in data being written faster than it can be read and will crash program</li>
+<li><strong>run_time</strong> &#8211; Time for which to sample (s). Reading for more than a minute or so (depending on sampling rate) will overload matplotlib</li>
+<li><strong>dirpath</strong> &#8211; Path in which to save data</li>
+<li><strong>tag</strong> &#8211; tag for file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="src.functions.ZI_scripts.html"
+                        title="previous chapter">src.functions.ZI_scripts module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="src.functions.regions.html"
+                        title="next chapter">src.functions.regions module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/src/src.functions.plot_save_AI.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.functions.regions.html" title="src.functions.regions module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="src.functions.ZI_scripts.html" title="src.functions.ZI_scripts module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.functions.html" >src.functions package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
