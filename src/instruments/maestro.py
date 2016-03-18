@@ -256,14 +256,17 @@ class MaestroBeamBlock(Instrument):
 
         if maestro is None:
             maestro = MaestroController()
+        assert isinstance(maestro, MaestroController)
+        self.maestro = maestro
+
         if  name is None:
             name = 'maestro_beam_block'
 
-        assert isinstance(maestro, MaestroController)
+
         assert isinstance(name, str)
         super(MaestroBeamBlock, self).__init__(name, parameters)
         self.update(self.parameters)
-        self.maestro = maestro
+
 
     @property
     def _parameters_default(self):
@@ -304,6 +307,22 @@ class MaestroBeamBlock(Instrument):
 
         '''
         return {}
+
+    def get_values(self, key):
+        '''
+        requestes value from the instrument and returns it
+        Args:
+            key: name of requested value
+
+        Returns: reads values from instrument
+
+        '''
+        # todo: replace getter functions with this function
+        assert key in self.values.keys()
+
+        value = None
+
+        return value
 
     @property
     def is_connected(self):

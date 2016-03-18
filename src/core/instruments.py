@@ -103,6 +103,7 @@ class Instrument(object):
             #restores standard behavior for missing keys
             raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
         except (AssertionError):
+            print(name)
             raise AttributeError()
     def __setattr__(self, key, value):
         try:

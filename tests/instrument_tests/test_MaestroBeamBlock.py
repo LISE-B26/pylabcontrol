@@ -7,3 +7,5 @@ class TestMaestroBeamBlock(TestCase):
         maestro = MaestroController()
         print(maestro)
         test = MaestroBeamBlock(maestro)
+
+        test.is_connected
