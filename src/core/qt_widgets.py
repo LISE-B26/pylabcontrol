@@ -23,9 +23,9 @@ class B26QTreeWidget(QtGui.QTreeWidget):
         self.parameters = parameters
         # assert that parent is a layout widget
 
-        # for parameter in self.parameters:
-
-            # B26QTreeItem( self, parameter, target=self.instrument, visible=True)
+        for key, value in parameters.iteritems():
+            print(key, value, parameters.valid_values[key], parameters.info[key])
+            B26QTreeItem(self, key, value, parameters.valid_values[key], parameters.info[key])
 
 
 class B26QTreeItem(QtGui.QTreeWidgetItem):
@@ -49,6 +49,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         """
 
         ## Init super class ( QtGui.QTreeWidgetItem )
+        print(parent)
         super( B26QTreeItem, self ).__init__( parent )
 
         self.name = name
@@ -66,16 +67,31 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 self.combobox.addItem(unicode(item))
             self.combobox.setCurrentIndex(self.combobox.findText(unicode(self.value)))
             self.treeWidget().setItemWidget( self, 1, self.combobox )
-            self.combobox.currentIndexChanged.connect(lambda: self.parent().emitDataChanged())
+            if self.parent() is not None:
+                self.combobox.currentIndexChanged.connect(lambda: self.parent().emitDataChanged())
+            else:
+                self.combobox.currentIndexChanged.connect(lambda: self.emitDataChanged())
+            # self.combobox.currentIndexChanged.connect(lambda: self.emitDataChanged(self.combobox))
 
         elif self.valid_values is bool:
             self.check = QtGui.QCheckBox()
             self.check.setChecked(self.value)
             self.treeWidget().setItemWidget( self, 1, self.check )
-            self.check.stateChanged.connect(lambda: self.parent().emitDataChanged())
+            if self.parent() is not None:
+                self.check.stateChanged.connect(lambda: self.parent().emitDataChanged())
+            else:
+                self.check.stateChanged.connect(lambda: self.emitDataChanged())
+            # self.check.stateChanged.connect(lambda: self.emitDataChanged(self.check))
 
         elif isinstance(self.value, Parameter):
-            B26QTreeItem(self, self, target=self.target, visible=self.visible)
+            for key, value in self.value.iteritems():
+                print('key: ', key,)
+                print('value: ', value)
+                print('self.valid_values[key]: ',self.valid_values[key])
+                print('self.info: ',  self.info)
+                print('self.info[key]: ',  self.info[key])
+                print('========')
+                B26QTreeItem(self, key, value, self.valid_values[key], self.info[key], target=self.target, visible=self.visible)
 
         # elif isinstance(self.value, list):
         #     for item in self.value:
@@ -83,7 +99,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         else:
             self.setText(1, unicode(self.value))
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-        self.setToolTip(1, unicode(self.info))
+        self.setToolTip(1, unicode(self.info  if isinstance(self.info, str) else ''))
 
     @property
     def value(self):
@@ -103,76 +119,3 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         assert isinstance(value, bool)
         self._visible = value
 
-
-
-if __name__ == '__main__':
-
-    import sys
-
-
-    class UI(QtGui.QMainWindow):
-
-        def __init__( self, parent=None ):
-
-            ## Init:
-            super(UI, self).__init__( parent )
-
-            # ----------------
-            # Create Simple UI with QTreeWidget
-            # ----------------
-            self.centralwidget = QtGui.QWidget(self)
-            self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
-            self.treeWidget = QtGui.QTreeWidget(self.centralwidget)
-            self.verticalLayout.addWidget(self.treeWidget)
-            self.setCentralWidget(self.centralwidget)
-
-            # ----------------
-            # Set TreeWidget Headers
-            # ----------------
-            HEADERS = ( "parameter", "value" )
-            self.treeWidget.setColumnCount( len(HEADERS) )
-            self.treeWidget.setHeaderLabels( HEADERS )
-
-            # ----------------
-            # Add Custom QTreeWidgetItem
-            # ----------------
-
-
-            # my_instruments = [
-            #     # Instrument_Dummy('inst dummy 1'),
-            #     # Maestro_Controller('maestro 6 channels'),
-            #     ZIHF2('Zurich instrument')
-            # ]
-            #
-            # for elem in my_instruments:
-            #     item = QTreeInstrument( self.treeWidget, elem )
-            #
-            # my_scripts = [
-            #     Script_Dummy('script dummy 1')
-            # ]
-            #
-            # for elem in my_scripts:
-            #     item = QTreeScript( self.treeWidget, elem )
-            #
-            # ## Set Columns Width to match content:
-            # for column in range( self.treeWidget.columnCount() ):
-            #     self.treeWidget.resizeColumnToContents( column )
-
-    # app = QtGui.QApplication(sys.argv)
-    # ex = UI()
-    # ex.show()
-    # sys.exit(app.exec_())
-
-    parameters = Parameter([
-        Parameter('test1', 0, int, 'test parameter (int)'),
-        Parameter('test2' ,
-                  [Parameter('test2_1', 'string', str, 'test parameter (str)'),
-                   Parameter('test2_2', 0.0, float, 'test parameter (float)')
-                   ])
-    ])
-
-
-    for key, value in parameters.iteritems():
-        print(key, value, parameters.valid_values[key], parameters.info)
-
-        # B26QTreeItem( self, parameter, target=self.instrument, visible=True)

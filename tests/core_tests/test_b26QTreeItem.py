@@ -25,5 +25,18 @@ class TestB26QTreeWidget(TestCase):
         gui = QtGui.QMainWindow()
         centralwidget = QtGui.QWidget(gui)
 
-        treeWidget = B26QTreeWidget(centralwidget, parameters)
+        parameters = Parameter([
+            Parameter('test1', 0, int, 'test parameter (int)'),
+            Parameter('test2' ,
+                      [Parameter('test2_1', 'string', str, 'test parameter (str)'),
+                       Parameter('test2_2', 0.0, float, 'test parameter (float)')
+                       ])
+        ])
+
+
+        # for key, value in parameters.iteritems():
+        #     print(key, value, parameters.valid_values[key], parameters.info[key])
+
+        # QtGui.QTreeWidget(centralwidget)
+        B26QTreeWidget(centralwidget, parameters)
 
