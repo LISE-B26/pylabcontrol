@@ -110,19 +110,19 @@ class ZIHF2(Instrument):
                 if isinstance(element, dict) and key in ['sigins', 'sigouts', 'demods']:
                     # channel = self.parameters['sigouts']['channel']
                     channel = element['channel']
-                    print('verify channel (sigins, sigouts, demods)', channel)
+                    # print('verify channel (sigins, sigouts, demods)', channel)
                     for sub_key, val in sorted(element.iteritems()):
                         if not sub_key == 'channel':
                             settings.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
                 elif isinstance(element, dict) and key in ['aux']:
                     # channel = get_elemet('aux', self.parameters).as_dict()['aux']['channel']
                     channel = element['channel']
-                    print('verify channel (aux)', channel)
+                    # print('verify channel (aux)', channel)
                     settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, channel), element['offset']])
                 elif key in ['freq']:
                     # channel = get_elemet('sigouts', self.parameters).as_dict()['sigouts']['channel']
                     channel = self.parameters['sigouts']['channel']
-                    print('verify channel (freq)', channel)
+                    # print('verify channel (freq)', channel)
                     settings.append(['/%s/oscs/%d/freq' % (self.device, channel), parameters['freq']])
                     # settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
                 elif isinstance(element, dict) == False:

@@ -2,34 +2,26 @@
 import sip
 sip.setapi('QVariant', 2)# set to version to so that the gui returns QString objects and not generic QVariants
 from PyQt4 import QtCore, QtGui
-from src.core import Parameter
+from src.core import Parameter, Instrument
 
 
-class B26QTreeWidget(QtGui.QTreeWidget):
-    def __init__(self, parent, parameters, target = None, visible = True):
-        """
+def fill_tree(tree, parameters):
+    """
+    fills a tree with nested parameters
+    Args:
+        tree: QtGui.QTreeWidget
+        parameters: dictionary or Parameter object
 
-        Args:
-            parent:
-            parameters:
-            target:
-            visible:
+    Returns:
 
-        Returns:
+    """
+    assert isinstance(parameters, (dict, Parameter))
 
-        """
-
-        ## Init super class ( QtGui.QTreeWidgetItem )
-        super( B26QTreeWidget, self ).__init__( parent )
-
-        assert isinstance(parameters, (dict, Parameter))
-        self.parameters = parameters
-
-        for key, value in parameters.iteritems():
-            if isinstance(parameters, Parameter):
-                B26QTreeItem(self, key, value, parameters.valid_values[key], parameters.info[key])
-            else:
-                B26QTreeItem(self, key, value, type(value), '')
+    for key, value in parameters.iteritems():
+        if isinstance(value, Parameter):
+            B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
+        else:
+            B26QTreeItem(tree, key, value, type(value), '')
 
 
 class B26QTreeItem(QtGui.QTreeWidgetItem):
@@ -37,7 +29,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
     Custom QTreeWidgetItem with Widgets
     '''
 
-    def __init__(self, parent, name, value, valid_values, info, target = None, visible = True):
+    def __init__(self, parent, name, value, valid_values, info, log = None, target = None, visible = True):
         """
         Args:
             parent:
@@ -45,6 +37,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             value:
             valid_values:
             info:
+            log: log function if not provided, output is send to standard print command
             target (optional):
             visible (optional):
 
@@ -62,6 +55,12 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         self.target = target
         self.visible = visible
 
+        # if no log function is provided define one
+        if log is None:
+            def log(txt):
+                print(txt)
+        self.log = log
+
         self.setData(0, 0, unicode(self.name))
         # self.setText(0, unicode(self.name))
 
@@ -72,26 +71,13 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 self.combobox.addItem(unicode(item))
             self.combobox.setCurrentIndex(self.combobox.findText(unicode(self.value)))
             self.treeWidget().setItemWidget( self, 1, self.combobox )
-            # if self.parent() is not None:
-            #     self.combobox.currentIndexChanged.connect(lambda: self.parent().emitDataChanged())
-            # else:
-            #     self.combobox.currentIndexChanged.connect(lambda: self.emitDataChanged())
-
-
             self.combobox.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combobox))
-            # self.combobox.currentIndexChanged.connect(lambda: self.emitDataChanged(self.combobox))
 
         elif self.valid_values is bool:
             self.check = QtGui.QCheckBox()
             self.check.setChecked(self.value)
             self.treeWidget().setItemWidget( self, 1, self.check )
             self.check.stateChanged.connect(lambda: self.setData(1, 2, self.check))
-
-            # if self.parent() is not None:
-            #     self.check.stateChanged.connect(lambda: self.parent().emitDataChanged())
-            # else:
-            #     self.check.stateChanged.connect(lambda: self.emitDataChanged())
-            # self.check.stateChanged.connect(lambda: self.emitDataChanged(self.check))
 
         elif isinstance(self.value, Parameter):
             for key, value in self.value.iteritems():
@@ -101,6 +87,9 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             for key, value in self.value.iteritems():
                 B26QTreeItem(self, key, value, type(value), '', target=self.target, visible=self.visible)
 
+        elif isinstance(self.value, Instrument):
+            for key, value in self.value.parameters.iteritems():
+                B26QTreeItem(self, key, value, self.value.parameters.valid_values[key], self.value.parameters.info[key], target=self.value, visible=self.visible)
         else:
             self.setText(1, unicode(self.value))
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
@@ -127,7 +116,8 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
     def setData(self, column, role, value):
         assert isinstance(column, int)
         assert isinstance(role, int)
-        # assert isinstance(value, QtCore.QString)
+
+        msg = None
 
         def cast_type(var, typ):
             """
@@ -157,19 +147,23 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                     value = cast_type(value, self.valid_values) # cast into same type as valid values
             elif isinstance(value, QtGui.QComboBox):
                 value =  value.currentText()
-
-                print('clombo', value)
             elif isinstance(value, QtGui.QCheckBox):
                 value =  value.checkState()
-                print('check', value)
 
         elif column == 0:
             # labels should not be changed so we set it back
             value = self.name
+            msg = 'labels can not be changed, label {:s} reset'.format(str(value))
 
+        if value == None:
+            value = self.value
+            msg = 'value not valid, reset to {:s}'.format(str(value))
 
+        # if msg is not None:
+        #     self.log(msg)
 
         super(B26QTreeItem, self).setData(column, role, value )
+
 
 
 
