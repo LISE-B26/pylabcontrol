@@ -512,7 +512,7 @@ class Script_Dummy(Script):
             Parameter('param', [Parameter('a', 0, [0,1]), Parameter('b', 2, [2,3])]),
             Parameter({'b':0.1}),
             Parameter({'b':True}),
-            Instrument_Dummy('dummy inst'),
+            # Instrument_Dummy('dummy inst'),
             Sub_Script_Dummy('sub_script')
         ]
         return settings_default
