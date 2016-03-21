@@ -1,3 +1,6 @@
+
+import sip
+sip.setapi('QVariant', 2)# set to version to so that the gui returns QString objects and not generic QVariants
 from PyQt4 import QtCore, QtGui
 from src.core import Parameter
 
@@ -26,7 +29,11 @@ class B26QTreeWidget(QtGui.QTreeWidget):
         for key, value in parameters.iteritems():
             print(key, value, parameters.valid_values[key], parameters.info[key])
             B26QTreeItem(self, key, value, parameters.valid_values[key], parameters.info[key])
-
+    #
+    # def itemChanged(self, int):
+    #     print('XX', int)
+    #     self.emitDataChanged()
+    #     # super(B26QTreeWidget, self ).__init__( self, int )
 
 class B26QTreeItem(QtGui.QTreeWidgetItem):
     '''
@@ -49,8 +56,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         """
 
         ## Init super class ( QtGui.QTreeWidgetItem )
-        print(parent)
-        super( B26QTreeItem, self ).__init__( parent )
+        super(B26QTreeItem, self ).__init__( parent )
 
         self.name = name
         self.valid_values = valid_values
@@ -59,7 +65,9 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         self.target = target
         self.visible = visible
 
-        self.setText(0, unicode(self.name))
+        self.setData(0, 0, unicode(self.name))
+        # self.setText(0, unicode(self.name))
+
 
         if isinstance(self.valid_values, list):
             self.combobox = QtGui.QComboBox()
@@ -85,12 +93,12 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
         elif isinstance(self.value, Parameter):
             for key, value in self.value.iteritems():
-                print('key: ', key,)
-                print('value: ', value)
-                print('self.valid_values[key]: ',self.valid_values[key])
-                print('self.info: ',  self.info)
-                print('self.info[key]: ',  self.info[key])
-                print('========')
+                # print('key: ', key,)
+                # print('value: ', value)
+                # print('self.valid_values[key]: ',self.valid_values[key])
+                # print('self.info: ',  self.info)
+                # print('self.info[key]: ',  self.info[key])
+                # print('========')
                 B26QTreeItem(self, key, value, self.valid_values[key], self.info[key], target=self.target, visible=self.visible)
 
         # elif isinstance(self.value, list):
@@ -118,4 +126,59 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
     def visible(self, value):
         assert isinstance(value, bool)
         self._visible = value
+
+    def setData(self, column, role, value):
+        assert isinstance(column, int)
+        assert isinstance(role, int)
+        # assert isinstance(value, QtCore.QString)
+
+        def cast_type(var, typ):
+            """
+            Args:
+                var:
+                typ:
+
+            Returns:
+
+            """
+            try:
+                if typ == int:
+                    var = int(var)
+                elif typ == float:
+                    var = float(var)
+                elif typ  == str:
+                    var = str(var)
+                else:
+                    var = None
+            except ValueError:
+                var = None
+            return var
+        # if role = 2 (editrole, value has been entered)
+        if role == 2 and column == 1:
+            if isinstance(value, QtCore.QString):
+                print('A', column, role, value, type(value))
+                if isinstance(self.valid_values, list):
+                    # if valid_values is a list, we cast into the same type (because we receive a unicode type from the GUI) and check if value is
+                    # contained in the list
+                    value = cast_type(value, type(self.valid_values[0])) # cast into same type as valid values
+                    if value in self.valid_values:
+                        value_new = value
+                    else:
+                        msg = '{:s} is wrong value. Should be {:s}'.format(str(value), str(self.valid_values))
+                        value_new = None
+
+                else:
+                    value = cast_type(value, self.valid_values) # cast into same type as valid values
+
+
+        elif column == 0:
+            # labels should not be changed so we set it back
+            value = self.name
+        else:
+            print('C', column, role, value, type(value))
+
+            
+        super(B26QTreeItem, self).setData(column, role, value )
+
+
 

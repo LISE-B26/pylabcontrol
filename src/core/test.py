@@ -1,4 +1,7 @@
 from unittest import TestCase
+
+import sip
+sip.setapi('QVariant', 2) # set to version to so that the gui returns QString objects and not generic QVariants
 from PyQt4 import QtCore, QtGui
 import sys
 from src.core.qt_widgets import B26QTreeItem,B26QTreeWidget
@@ -52,7 +55,7 @@ class UI(QtGui.QMainWindow):
 
     def update_parameters(self, tree, parameters):
 
-        print('sss', tree.currentItem().text(0))
+        print('sss', tree.currentItem().text(0), tree.currentItem().valid_values)
 
             # my_instruments = [
             #     # Instrument_Dummy('inst dummy 1'),
