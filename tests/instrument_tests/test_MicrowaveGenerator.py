@@ -5,9 +5,9 @@ class TestPiezoController(TestCase):
     def setUp(self):
         self.microwave = MG.MicrowaveGenerator('meep')
 
-    def test_getting_internal(self):
-        self.assertEqual()
+    def test_connected(self):
+        self.assertEqual(self.microwave.is_connected, True)
 
     def test_setting_and_getting(self):
-        self.microwave.Freq = 3000000000
-        self.assertEqual(self.microwave.Freq, 3000000000) # need to round, actually ~5.1
+        self.microwave.update({'FREQ': 2870000000.0})
+        self.assertEqual(self.microwave.FREQ, 2.87e9)
