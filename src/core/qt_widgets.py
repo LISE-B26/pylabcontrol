@@ -156,28 +156,15 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         # if role = 2 (editrole, value has been entered)
         if role == 2 and column == 1:
             if isinstance(value, QtCore.QString):
-                print('A', column, role, value, type(value))
-                if isinstance(self.valid_values, list):
-                    # if valid_values is a list, we cast into the same type (because we receive a unicode type from the GUI) and check if value is
-                    # contained in the list
-                    value = cast_type(value, type(self.valid_values[0])) # cast into same type as valid values
-                    if value in self.valid_values:
-                        value_new = value
-                    else:
-                        msg = '{:s} is wrong value. Should be {:s}'.format(str(value), str(self.valid_values))
-                        value_new = None
-
-                else:
+                if not isinstance(self.valid_values, list):
                     value = cast_type(value, self.valid_values) # cast into same type as valid values
-
 
         elif column == 0:
             # labels should not be changed so we set it back
             value = self.name
-        else:
-            print('C', column, role, value, type(value))
 
-            
+
+
         super(B26QTreeItem, self).setData(column, role, value )
 
 
