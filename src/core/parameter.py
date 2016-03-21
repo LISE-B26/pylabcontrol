@@ -25,6 +25,7 @@ class Parameter(dict):
 
             if valid_values is None:
                 valid_values = type(value)
+
             assert isinstance(valid_values, (type,list))
 
             if info is None:
@@ -96,6 +97,9 @@ class Parameter(dict):
         valid = False
 
         if isinstance(valid_values, type) and type(value) is valid_values:
+            valid = True
+        elif isinstance(valid_values, type) and valid_values == float and type(value) == int:
+            #special case to allow ints as float inputs
             valid = True
         elif isinstance(value, dict) and isinstance(valid_values, dict):
             # check that all values actually exist in valid_values

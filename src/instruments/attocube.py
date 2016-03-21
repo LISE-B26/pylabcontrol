@@ -1,8 +1,7 @@
 import ctypes
 import time
-import sys
 
-import src.core.instruments as inst
+from src.core.instruments import Instrument, Parameter
 
 int32 = ctypes.c_long
 uInt32 = ctypes.c_ulong
@@ -30,11 +29,9 @@ axis_z = int32(0)
 class PositionerInfo(ctypes.Structure):
     _fields_ = [(("id"), ctypes.c_int32), (("locked"), ctypes.c_bool)]
 
-class Attocube(inst.Instrument):
+class Attocube(Instrument):
     def __init__(self, name = None, parameters = []):
         super(Attocube, self).__init__(name, parameters)
-        self._is_connected = False
-        self.probes = ['capacitance']
         try:
             self.attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')
             dll_detected = True
@@ -52,38 +49,87 @@ class Attocube(inst.Instrument):
                 print('Attocube not detected. Check connection.')
 
     @property
-    def parameters_default(self):
+    def _parameters_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:
         '''
-        parameter_list_default = [
-            inst.Parameter('x',
+        parameter_list_default = Parameter([
+            Parameter('x',
                 [
-                    inst.Parameter('on', False, [True, False], 'x axis on'),
-                    inst.Parameter('pos', 0, (int, float), 'x axis position in um'),
-                    inst.Parameter('voltage', 30, (int, float), 'voltage on x axis'),
-                    inst.Parameter('freq', 1000, (int, float), 'x frequency in Hz')
+                    Parameter('on', False, [True, False], 'x axis on'),
+                    Parameter('pos', 0.0, float, 'x axis position in um'),
+                    Parameter('voltage', 30, float, 'voltage on x axis'),
+                    Parameter('freq', 1000, float, 'x frequency in Hz')
                 ]
                 ),
-            inst.Parameter('y',
+            Parameter('y',
                 [
-                    inst.Parameter('on', False, [True, False], 'y axis on'),
-                    inst.Parameter('pos', 0, (int, float), 'y axis position in um'),
-                    inst.Parameter('voltage', 30, (int, float), 'voltage on y axis'),
-                    inst.Parameter('freq', 1000, (int, float), 'y frequency in Hz')
+                    Parameter('on', False, [True, False], 'y axis on'),
+                    Parameter('pos', 0, float, 'y axis position in um'),
+                    Parameter('voltage', 30, float, 'voltage on y axis'),
+                    Parameter('freq', 1000, float, 'y frequency in Hz')
                 ]
                 ),
-            inst.Parameter('z',
+            Parameter('z',
                 [
-                    inst.Parameter('on', False, [True, False], 'z axis on'),
-                    inst.Parameter('pos', 0, (int, float), 'x axis position in um'),
-                    inst.Parameter('voltage', 30, (int, float), 'voltage on x axis'),
-                    inst.Parameter('freq', 1000, (int, float), 'x frequency in Hz')
+                    Parameter('on', False, [True, False], 'z axis on'),
+                    Parameter('pos', 0, float, 'x axis position in um'),
+                    Parameter('voltage', 30, float, 'voltage on x axis'),
+                    Parameter('freq', 1000, float, 'x frequency in Hz')
                 ]
-                ),
-        ]
+                )
+        ])
         return parameter_list_default
+
+    def update(self, parameters):
+        super(Attocube, self).update(parameters)
+        for key, value in parameters.iteritems():
+            if isinstance(value, dict) and key in ['x', 'y', 'z']:
+                for sub_key, sub_value in sorted(value.iteritems()):
+                    if sub_key == 'on':
+                        self.toggle_axis(self.convert_axis(key), sub_value)
+                    elif sub_key == 'pos':
+                        self.move_absolute(self.convert_axis(key), sub_value)
+                    elif sub_key == 'voltage':
+                        self.set_amplitude(self.convert_axis(key), sub_value)
+                    elif sub_key == 'freq':
+                        self.set_frequency(self.convert_axis(key), sub_value)
+                    else:
+                        raise ValueError('No such key')
+            else:
+                raise ValueError('No such key')
+
+
+    @property
+    def _probes(self):
+        return{
+            'x_pos': 'the position the x direction (with respect to the camera) in um',
+            'x_voltage': 'the voltage of the x direction (with respect to the camera)',
+            'x_freq': 'the frequency of the x direction (with respect to the camera)',
+            'x_cap': 'the capacitance of the piezo in the x direction (with respect to the camera)',
+            'y_pos': 'the position the y direction (with respect to the camera) in um',
+            'y_voltage': 'the voltage of the y direction (with respect to the camera)',
+            'y_freq': 'the frequency of the y direction (with respect to the camera)',
+            'y_cap': 'the capacitance of the piezo in the y direction (with respect to the camera)',
+            'z_pos': 'the position the z direction (with respect to the camera) in um',
+            'z_voltage': 'the voltage of the z direction (with respect to the camera)',
+            'z_freq': 'the frequency of the z direction (with respect to the camera)',
+            'z_cap': 'the capacitance of the piezo in the z direction (with respect to the camera)'
+        }
+
+    def read_probes(self, key):
+        assert key in self._probes.keys()
+        assert isinstance(key, str)
+
+        if key in ['x_pos', 'y_pos', 'z_pos']:
+            return self.get_position(self.convert_axis(key[0]))
+        elif key in ['x_voltage', 'y_voltage', 'z_voltage']:
+            return self.get_amplitude(self.convert_axis(key[0]))
+        elif key in ['x_freq', 'y_freq', 'z_freq']:
+            return self.get_frequency(self.convert_axis(key[0]))
+        elif key in ['x_cap', 'y_cap', 'z_cap']:
+            return self.cap_measure(self.convert_axis(key[0]))
 
     def toggle_axis(self, axis, on):
         '''
@@ -118,6 +164,30 @@ class Attocube(inst.Instrument):
         self.check_error(self.attocube.PositionerGetFrequency(device_handle, axis, ctypes.byref(freq)))
         self.check_error(self.attocube.PositionerClose(device_handle))
         return freq.value
+
+    def set_amplitude(self, axis, amplitude):
+        '''
+        :param axis: axis: axis_x, axis_y, or axis_z
+        :param amplitude: amplitude in V
+        '''
+        assert(amplitude <= 60)
+        device_handle = int32()
+        amplitude *= 1000
+        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        self.check_error(self.attocube.PositionerAmplitude(device_handle, axis, int32(int(amplitude))))
+        self.check_error(self.attocube.PositionerClose(device_handle))
+
+    def get_amplitude(self, axis):
+        '''
+        :param axis: axis_x, axis_y, or axis_z
+        :return: amplitude in V
+        '''
+        device_handle = int32()
+        amplitude = int32()
+        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        self.check_error(self.attocube.PositionerGetAmplitude(device_handle, axis, ctypes.byref(amplitude)))
+        self.check_error(self.attocube.PositionerClose(device_handle))
+        return (amplitude.value / 1000.0)
 
     def get_position(self, axis):
         '''
@@ -159,6 +229,15 @@ class Attocube(inst.Instrument):
         self.check_error(self.attocube.PositionerClose(device_handle))
 
 
+    def convert_axis(self, axis):
+        if axis == 'x':
+            return axis_x
+        elif axis == 'y':
+            return axis_y
+        elif axis == 'z':
+            return axis_z
+        else:
+            raise ValueError('No such axis')
 
     @staticmethod
     def check_error(code):

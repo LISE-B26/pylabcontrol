@@ -35,6 +35,14 @@ class PiezoController(Instrument):
 
         return parameters_default
 
+    def update(self, parameters):
+        super(PiezoController, self).update(parameters)
+        for key, value in parameters.iteritems():
+            if key == 'voltage':
+                self.set_voltage(value)
+            elif key == 'voltage_limit':
+                raise EnvironmentError('Voltage limit cannot be set in software. Change physical switch on back of device')
+
     @property
     def _probes(self):
         '''
@@ -47,18 +55,6 @@ class PiezoController(Instrument):
             'voltage': 'the voltage on the current channel',
             'voltage_limit': 'the maximum voltage that can be applied to the channel. must be physically switched on the back of the controller.',
         }
-
-    def __del__(self):
-        if self._is_connected:
-            self.ser.close()
-
-    def update(self, parameters):
-        super(PiezoController, self).update(parameters)
-        for key, value in parameters.iteritems():
-            if key == 'voltage':
-                self.set_voltage(value)
-            elif key == 'voltage_limit':
-                raise EnvironmentError('Voltage limit cannot be set in software. Change physical switch on back of device')
 
     def read_probes(self, key):
         '''
@@ -80,6 +76,18 @@ class PiezoController(Instrument):
             self.ser.write('vlimit?\r')
             vlimit = self.ser.readline()
             return vlimit[2:-3].strip()
+
+    @property
+    def is_connected(self):
+        try:
+            self.voltage
+            return True
+        except serial.serialutil.SerialTimeoutException:
+            return False
+
+    def __del__(self):
+        if self._is_connected:
+            self.ser.close()
 
     def set_voltage(self, voltage):
         self.ser.write(self.parameters['axis'] + 'voltage=' + str(voltage) + '\r')
