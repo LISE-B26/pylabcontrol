@@ -41,6 +41,10 @@ class UI(QtGui.QMainWindow):
         # ----------------
         self.treeWidget.itemChanged.connect(lambda: self.update_parameters(self.treeWidget, self.parameters))
 
+        # shot down
+        print('close')
+        self.close()
+
 class TestB26QTreeWidget(TestCase):
     def test_create_widget_parameters(self):
 
@@ -59,7 +63,7 @@ class TestB26QTreeWidget(TestCase):
 
         app = QtGui.QApplication(sys.argv)
         ex = UI(parameters)
-        sys.exit(app.exec_())
+        # sys.exit(app.exec_())
 
 
 
@@ -74,4 +78,4 @@ class TestB26QTreeWidget(TestCase):
 
         app = QtGui.QApplication(sys.argv)
         ex = UI(parameters)
-        sys.exit(app.exec_())
+        # sys.exit(app.exec_())
