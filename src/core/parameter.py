@@ -19,32 +19,35 @@ class Parameter(dict):
             info: description of parameter, if not provided => empty string
 
         """
-        if info is None:
-            info = ''
-        assert isinstance(info, str)
-        self.__doc__ = info
 
 
         if isinstance(name, str):
 
             if valid_values is None:
                 valid_values = type(value)
-
             assert isinstance(valid_values, (type,list))
+
+            if info is None:
+                info = ''
+            assert isinstance(info, str)
+
             assert self.is_valid(value, valid_values)
 
             if isinstance(value, list) and isinstance(value[0], Parameter):
-                # this should create a Parameter object and not a dict!
+                #todo: check if folloing statement is correct: this should create a Parameter object and not a dict!
                 self._valid_values = {name: {k: v for d in value for k, v in d.valid_values.iteritems()}}
                 self.update({name: {k: v for d in value for k, v in d.iteritems()}})
+                self._info = {name: {k: v for d in value for k, v in d.info.iteritems()}}
 
             else:
                 self._valid_values = {name: valid_values}
                 self.update({name: value})
+                self._info = {name: info}
 
         elif isinstance(name, (list, dict)) and value is None:
 
             self._valid_values = {}
+            self._info = {}
             if isinstance(name, dict):
                 for k, v in name.iteritems():
                     # convert to Parameter if value is a dict
@@ -52,6 +55,7 @@ class Parameter(dict):
                         v = Parameter(v)
                     self._valid_values.update({k: type(v)})
                     self.update({k: v})
+                    self._info.update({k: ''})
             elif isinstance(name, list) and isinstance(name[0], Parameter):
                 for p in name:
                     c= 0
@@ -59,6 +63,7 @@ class Parameter(dict):
                         c+=1
                         self._valid_values.update({k: p.valid_values[k]})
                         self.update(Parameter({k: v}))
+                        self._info.update({k: p.info[k]})
             else:
                 raise TypeError('unknown input: ', name)
 
@@ -84,7 +89,7 @@ class Parameter(dict):
 
     @property
     def info(self):
-        return self.__doc__
+        return self._info
 
     @staticmethod
     def is_valid(value, valid_values):
