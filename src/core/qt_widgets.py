@@ -119,36 +119,16 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
         msg = None
 
-        def cast_type(var, typ):
-            """
-            Args:
-                var:
-                typ:
 
-            Returns:
-
-            """
-            try:
-                if typ == int:
-                    var = int(var)
-                elif typ == float:
-                    var = float(var)
-                elif typ  == str:
-                    var = str(var)
-                else:
-                    var = None
-            except ValueError:
-                var = None
-            return var
         # if role = 2 (editrole, value has been entered)
         if role == 2 and column == 1:
             if isinstance(value, QtCore.QString):
                 if not isinstance(self.valid_values, list):
-                    value = cast_type(value, self.valid_values) # cast into same type as valid values
+                    value = self.cast_type(value) # cast into same type as valid values
             elif isinstance(value, QtGui.QComboBox):
-                value =  value.currentText()
+                value = value.currentText()
             elif isinstance(value, QtGui.QCheckBox):
-                value =  value.checkState()
+                value = value.checkState()
 
         elif column == 0:
             # labels should not be changed so we set it back
@@ -162,8 +142,56 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         # if msg is not None:
         #     self.log(msg)
 
-        super(B26QTreeItem, self).setData(column, role, value )
+        super(B26QTreeItem, self).setData(column, role, value)
+
+    def cast_type(self, var, typ = None):
+        """
+        cast the value into the type typ
+        if typ is not provided it is set to self.valid_values
+        Args:
+            var: variable to be cast
+            typ: target type
+
+        Returns: the variable var csat into type typ
+
+        """
+
+        if typ is None:
+            typ = self.valid_values
+
+        try:
+            if typ == int:
+                var = int(var)
+            elif typ == float:
+                var = float(var)
+            elif typ  == str:
+                var = str(var)
+            else:
+                var = None
+        except ValueError:
+            var = None
+        return var
 
 
+    def get_instrument(self):
+        """
+
+        Returns: the instrument and the path to the instrument to which this item belongs
+
+        """
+        # todo: test this function, if it works, we can remove the propertie self.target
+        parent = self.parent()
+
+        path_to_instrument = []
+        instrument = None
+        while parent is not None:
+            if isinstance(parent, Instrument):
+                parent = None
+                instrument = parent.value
+            else:
+                path_to_instrument.append(parent.name)
+                parent = parent.parent()
+
+        return instrument, path_to_instrument
 
 
