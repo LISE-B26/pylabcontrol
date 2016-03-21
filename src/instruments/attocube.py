@@ -30,7 +30,7 @@ class PositionerInfo(ctypes.Structure):
     _fields_ = [(("id"), ctypes.c_int32), (("locked"), ctypes.c_bool)]
 
 class Attocube(Instrument):
-    def __init__(self, name = None, parameters = []):
+    def __init__(self, name = None, parameters = None):
         super(Attocube, self).__init__(name, parameters)
         try:
             self.attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')
@@ -43,8 +43,8 @@ class Attocube(Instrument):
                 self.pi = PositionerInfo()
                 dev_count = self.attocube.PositionerCheck(ctypes.byref(self.pi))
                 device_handle = int32()
-                self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-                self.check_error(self.attocube.PositionerClose(device_handle))
+                self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
+                self._check_error(self.attocube.PositionerClose(device_handle))
             except Exception:
                 print('Attocube not detected. Check connection.')
 
@@ -54,7 +54,7 @@ class Attocube(Instrument):
         returns the default parameter_list of the instrument
         :return:
         '''
-        parameter_list_default = Parameter([
+        parameters_default = Parameter([
             Parameter('x',
                 [
                     Parameter('on', False, [True, False], 'x axis on'),
@@ -80,7 +80,7 @@ class Attocube(Instrument):
                 ]
                 )
         ])
-        return parameter_list_default
+        return parameters_default
 
     def update(self, parameters):
         super(Attocube, self).update(parameters)
@@ -88,13 +88,13 @@ class Attocube(Instrument):
             if isinstance(value, dict) and key in ['x', 'y', 'z']:
                 for sub_key, sub_value in sorted(value.iteritems()):
                     if sub_key == 'on':
-                        self.toggle_axis(self.convert_axis(key), sub_value)
+                        self._toggle_axis(self._convert_axis(key), sub_value)
                     elif sub_key == 'pos':
-                        self.move_absolute(self.convert_axis(key), sub_value)
+                        self._move_absolute(self._convert_axis(key), sub_value)
                     elif sub_key == 'voltage':
-                        self.set_amplitude(self.convert_axis(key), sub_value)
+                        self._set_amplitude(self._convert_axis(key), sub_value)
                     elif sub_key == 'freq':
-                        self.set_frequency(self.convert_axis(key), sub_value)
+                        self._set_frequency(self._convert_axis(key), sub_value)
                     else:
                         raise ValueError('No such key')
             else:
@@ -123,49 +123,59 @@ class Attocube(Instrument):
         assert isinstance(key, str)
 
         if key in ['x_pos', 'y_pos', 'z_pos']:
-            return self.get_position(self.convert_axis(key[0]))
+            return self._get_position(self._convert_axis(key[0]))
         elif key in ['x_voltage', 'y_voltage', 'z_voltage']:
-            return self.get_amplitude(self.convert_axis(key[0]))
+            return self._get_amplitude(self._convert_axis(key[0]))
         elif key in ['x_freq', 'y_freq', 'z_freq']:
-            return self.get_frequency(self.convert_axis(key[0]))
+            return self._get_frequency(self._convert_axis(key[0]))
         elif key in ['x_cap', 'y_cap', 'z_cap']:
-            return self.cap_measure(self.convert_axis(key[0]))
+            return self._cap_measure(self._convert_axis(key[0]))
 
-    def toggle_axis(self, axis, on):
+    @property
+    def is_connected(self):
+        try:
+            device_handle = int32()
+            self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
+            self._check_error(self.attocube.PositionerClose(device_handle))
+            return True
+        except Exception:
+            return False
+
+    def _toggle_axis(self, axis, on):
         '''
         Turn axis on or off
         :param axis: axis_x, axis_y, or axis_z
         :param on: True or False
         '''
         device_handle = int32()
-        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(self.attocube.PositionerSetOutput(device_handle, axis, ctypes.c_bool(on)))
-        self.check_error(self.attocube.PositionerClose(device_handle))
+        self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
+        self._check_error(self.attocube.PositionerSetOutput(device_handle, axis, ctypes.c_bool(on)))
+        self._check_error(self.attocube.PositionerClose(device_handle))
 
-    def set_frequency(self, axis, freq):
+    def _set_frequency(self, axis, freq):
         '''
         :param axis: axis_x, axis_y, or axis_z
         :param freq: frequency to set in Hz
         '''
         assert (freq <= 2000)
         device_handle = int32()
-        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(self.attocube.PositionerFrequency(device_handle, axis, int32(int(freq))))
-        self.check_error(self.attocube.PositionerClose(device_handle))
+        self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
+        self._check_error(self.attocube.PositionerFrequency(device_handle, axis, int32(int(freq))))
+        self._check_error(self.attocube.PositionerClose(device_handle))
 
-    def get_frequency(self, axis):
+    def _get_frequency(self, axis):
         '''
         :param axis: axis_x, axis_y, or axis_z
         :return: current frequency of axis in Hz
         '''
         device_handle = int32()
         freq = int32()
-        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(self.attocube.PositionerGetFrequency(device_handle, axis, ctypes.byref(freq)))
-        self.check_error(self.attocube.PositionerClose(device_handle))
+        self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
+        self._check_error(self.attocube.PositionerGetFrequency(device_handle, axis, ctypes.byref(freq)))
+        self._check_error(self.attocube.PositionerClose(device_handle))
         return freq.value
 
-    def set_amplitude(self, axis, amplitude):
+    def _set_amplitude(self, axis, amplitude):
         '''
         :param axis: axis: axis_x, axis_y, or axis_z
         :param amplitude: amplitude in V
@@ -173,50 +183,50 @@ class Attocube(Instrument):
         assert(amplitude <= 60)
         device_handle = int32()
         amplitude *= 1000
-        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(self.attocube.PositionerAmplitude(device_handle, axis, int32(int(amplitude))))
-        self.check_error(self.attocube.PositionerClose(device_handle))
+        self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
+        self._check_error(self.attocube.PositionerAmplitude(device_handle, axis, int32(int(amplitude))))
+        self._check_error(self.attocube.PositionerClose(device_handle))
 
-    def get_amplitude(self, axis):
+    def _get_amplitude(self, axis):
         '''
         :param axis: axis_x, axis_y, or axis_z
         :return: amplitude in V
         '''
         device_handle = int32()
         amplitude = int32()
-        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(self.attocube.PositionerGetAmplitude(device_handle, axis, ctypes.byref(amplitude)))
-        self.check_error(self.attocube.PositionerClose(device_handle))
+        self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
+        self._check_error(self.attocube.PositionerGetAmplitude(device_handle, axis, ctypes.byref(amplitude)))
+        self._check_error(self.attocube.PositionerClose(device_handle))
         return (amplitude.value / 1000.0)
 
-    def get_position(self, axis):
+    def _get_position(self, axis):
         '''
         :param axis: axis_x, axis_y, or axis_z
         :return: position of axis in um
         '''
         device_handle = int32()
         position = int32()
-        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
+        self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
         # wait command needed since polling rate of attocube is 20 Hz. Empirically determined that .2 is lowest value
         # that always works. No idea why no other function also needs this wait command
         time.sleep(.2)
-        self.check_error(self.attocube.PositionerGetPosition(device_handle, axis, ctypes.byref(position)))
-        self.check_error(self.attocube.PositionerClose(device_handle))
+        self._check_error(self.attocube.PositionerGetPosition(device_handle, axis, ctypes.byref(position)))
+        self._check_error(self.attocube.PositionerClose(device_handle))
         return position.value/1000.0
 
-    def cap_measure(self, axis):
+    def _cap_measure(self, axis):
         '''
         :param axis: axis_x, axis_y, or axis_z
         :return: Capacitance in uF
         '''
         device_handle = int32()
         capacitance = int32()
-        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(self.attocube.PositionerCapMeasure(device_handle, axis, ctypes.byref(capacitance)))
-        self.check_error(self.attocube.PositionerClose(device_handle))
+        self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
+        self._check_error(self.attocube.PositionerCapMeasure(device_handle, axis, ctypes.byref(capacitance)))
+        self._check_error(self.attocube.PositionerClose(device_handle))
         return capacitance.value
 
-    def move_absolute(self, axis, position):
+    def _move_absolute(self, axis, position):
         '''
         Precondition: Must set voltage and frequency sufficiently low that ANC's internal feedback will be able to
         settle on the appropriate position (ex. 7V, 100Hz). Otherwise, fluctuates around target position and never stops
@@ -224,12 +234,12 @@ class Attocube(Instrument):
         :param position: position of axis to move to in um
         '''
         device_handle = int32()
-        self.check_error(self.attocube.PositionerConnect(0,ctypes.byref(device_handle)))
-        self.check_error(self.attocube.PositionerMoveAbsolute(device_handle, axis, int32(int(position*1000.0))))
-        self.check_error(self.attocube.PositionerClose(device_handle))
+        self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
+        self._check_error(self.attocube.PositionerMoveAbsolute(device_handle, axis, int32(int(position * 1000.0))))
+        self._check_error(self.attocube.PositionerClose(device_handle))
 
 
-    def convert_axis(self, axis):
+    def _convert_axis(self, axis):
         if axis == 'x':
             return axis_x
         elif axis == 'y':
@@ -240,7 +250,7 @@ class Attocube(Instrument):
             raise ValueError('No such axis')
 
     @staticmethod
-    def check_error(code):
+    def _check_error(code):
         '''
         Translates error codes to human readable message
         :param code: input error code (integer 0-8)
@@ -281,3 +291,5 @@ class Attocube(Instrument):
 
 if __name__ == '__main__':
     a = Attocube()
+    a.update({'x': {'voltage': 20}})
+    print(a.is_connected)

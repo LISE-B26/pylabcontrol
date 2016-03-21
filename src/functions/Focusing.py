@@ -226,10 +226,10 @@ class Focus:
 
 
         attocube = Attocube.ANC350()
-        attocube.set_amplitude(attoChannel, cont_voltage)
-        attocube.set_frequency(attoChannel, atto_frequency)
-        attocube.move_absolute(attoChannel, min_pos)
-        attocube.set_amplitude(attoChannel, step_voltage)
+        attocube._set_amplitude(attoChannel, cont_voltage)
+        attocube._set_frequency(attoChannel, atto_frequency)
+        attocube._move_absolute(attoChannel, min_pos)
+        attocube._set_amplitude(attoChannel, step_voltage)
         time.sleep(5)
         # initializes pyplot figure if using pyplot plotting
         if canvas is None and plotting:
@@ -270,7 +270,7 @@ class Focus:
             if (not (queue is None) and not (queue.empty()) and (queue.get() == 'STOP')):
                 return current_pos, xdata, ydata
             attocube.step_piezo(attoChannel,ATTO_FORWARD)
-            current_pos = attocube.get_position(attoChannel)
+            current_pos = attocube._get_position(attoChannel)
             time.sleep(waitTime)
             xdata = numpy.append(xdata, current_pos)
             if(APD):
@@ -297,14 +297,14 @@ class Focus:
             cls.plotFit(fitline,a,mean,sigma,c,min_pos,max_pos, canvas)
         # checks if computed mean is outside of scan range and, if so, sets piezo to center of scan range to prevent a
         # poor fit from trying to move the piezo by a large amount and breaking the stripline
-        attocube.set_amplitude(attoChannel, cont_voltage)
+        attocube._set_amplitude(attoChannel, cont_voltage)
         if(mean > numpy.min(xdata) and mean < numpy.max(xdata) and a > 0):
             print(mean)
-            attocube.move_absolute(attoChannel, mean)
+            attocube._move_absolute(attoChannel, mean)
             print(mean)
         else:
             print(numpy.mean(xdata))
-            attocube.move_absolute(attoChannel, numpy.mean(xdata))
+            attocube._move_absolute(attoChannel, numpy.mean(xdata))
         if canvas is None and plotting and blocking:
             plt.show()
         elif canvas is None and plotting:

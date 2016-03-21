@@ -102,4 +102,3 @@ class PiezoController(Instrument):
 
 if __name__ == '__main__':
     a = PiezoController('hi')
-    print(a.parameters)

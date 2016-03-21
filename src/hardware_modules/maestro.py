@@ -255,7 +255,7 @@ class LinearActuator:
         '''
         set or get position of motor
         '''
-        self._position = self.servo.get_position(self.channel)
+        self._position = self.servo._get_position(self.channel)
         return self._position
 
     @position.setter

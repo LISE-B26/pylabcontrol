@@ -179,8 +179,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # =============================================================
 
             # link slider to functions
-            print(self.servo_polarization.get_position() * 100)
-            self.sliderPosition.setValue(int(self.servo_polarization.get_position() * 100))
+            print(self.servo_polarization._get_position() * 100)
+            self.sliderPosition.setValue(int(self.servo_polarization._get_position() * 100))
             self.sliderPosition.valueChanged.connect(lambda: self.set_position())
 
             # link buttons to functions
@@ -209,7 +209,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.cmb_filterwheel.addItems(self._settings['hardware']['parameters_filterwheel']['position_list'].keys())
             self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
 
-            print("servopos",self.servo_polarization.get_position())
+            print("servopos",self.servo_polarization._get_position())
             self.treeWidget.itemChanged.connect(lambda: self.update_parameters())
 
         super(ControlMainWindow, self).__init__()
@@ -895,7 +895,7 @@ class PolarizationControlThread(QtCore.QThread):
         while self._running:
             self._servo.move_servo(self.target_position)
             time.sleep(0.1)
-            actual_position = self._servo.get_position()
+            actual_position = self._servo._get_position()
             #Emit the signal so it can be received on the UI side.
             self.updateProgress.emit(actual_position)
             if abs(self.target_position - actual_position)<0.01:
