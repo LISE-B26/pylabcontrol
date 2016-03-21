@@ -1,10 +1,12 @@
 """
 New gui with new parameter and instrument class and GUI designed with QT designer
 """
-
+import sip
+sip.setapi('QVariant', 2)# set to version to so that the gui returns QString objects and not generic QVariants
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 from src.core import Parameter
+from src.core.qt_widgets import fill_tree
 
 # todo: try to complie .ui file if if doesn't exist or can't be compliled load precompiled .py file
 try:
@@ -71,11 +73,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
 
-
-            for script in self.scripts:
-                if isinstance(script, QtScript):
-                    print(script.name)
-                    script.updateProgress.connect(self.update_progress)
+            #
+            # for script in self.scripts:
+            #     if isinstance(script, QtScript):
+            #         print(script.name)
+            #         script.updateProgress.connect(self.update_progress)
 
         # define data container
         self.past_commands = deque() # history of executed commands
@@ -87,10 +89,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             'IR beam block': MaestroBeamBlock(maestro,'IR beam block')
         }
 
+        self.instruments = [
+            ZIHF2('ZiHF2'),
+            MaestroBeamBlock(maestro,'IR beam block')
+        ]
+        # self.instruments = Parameter({instrument.name: instrument  for instrument in self.instruments})
+        # print('=========')
+        # print(self.instruments)
+        # print('=========')
 
-        for instrument in self.instruments:
-
-
+        self.instruments = {instrument.name: instrument  for instrument in self.instruments}
+        fill_tree(self.tree_settings, self.instruments)
+        self.tree_settings.setColumnWidth(0,300)
 
 
 
@@ -191,7 +201,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     elif isinstance(parameter.value, list):
                         print('list')
                     else:
-                        print('asdasd')
                         new_value = treeWidget.currentItem().text(1)
                     # print('target',treeWidget.currentItem().target)
                     # print('parameter', treeWidget.currentItem().parameter)

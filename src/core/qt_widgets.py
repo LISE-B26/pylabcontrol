@@ -2,34 +2,26 @@
 import sip
 sip.setapi('QVariant', 2)# set to version to so that the gui returns QString objects and not generic QVariants
 from PyQt4 import QtCore, QtGui
-from src.core import Parameter
+from src.core import Parameter, Instrument
 
 
-class B26QTreeWidget(QtGui.QTreeWidget):
-    def __init__(self, parent, parameters, target = None, visible = True):
-        """
+def fill_tree(tree, parameters):
+    """
+    fills a tree with nested parameters
+    Args:
+        tree: QtGui.QTreeWidget
+        parameters: dictionary or Parameter object
 
-        Args:
-            parent:
-            parameters:
-            target:
-            visible:
+    Returns:
 
-        Returns:
+    """
+    assert isinstance(parameters, (dict, Parameter))
 
-        """
-
-        ## Init super class ( QtGui.QTreeWidgetItem )
-        super( B26QTreeWidget, self ).__init__( parent )
-
-        assert isinstance(parameters, (dict, Parameter))
-        self.parameters = parameters
-
-        for key, value in parameters.iteritems():
-            if isinstance(parameters, Parameter):
-                B26QTreeItem(self, key, value, parameters.valid_values[key], parameters.info[key])
-            else:
-                B26QTreeItem(self, key, value, type(value), '')
+    for key, value in parameters.iteritems():
+        if isinstance(value, Parameter):
+            B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
+        else:
+            B26QTreeItem(tree, key, value, type(value), '')
 
 
 class B26QTreeItem(QtGui.QTreeWidgetItem):
@@ -101,6 +93,14 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             for key, value in self.value.iteritems():
                 B26QTreeItem(self, key, value, type(value), '', target=self.target, visible=self.visible)
 
+        elif isinstance(self.value, Instrument):
+            for key, value in self.value.parameters.iteritems():
+                # B26QTreeItem(self, key, value, type(value), '', target=self.target, visible=self.visible)
+                print('SSDSDS',key, value, self.value.parameters.valid_values[key])
+                print(self.value.parameters)
+                print('kkkkkk')
+                print(self.value.parameters.valid_values)
+                B26QTreeItem(self, key, value, self.value.parameters.valid_values[key], self.value.parameters.info[key], target=self.value, visible=self.visible)
         else:
             self.setText(1, unicode(self.value))
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)

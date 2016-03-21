@@ -4,7 +4,7 @@ import sip
 sip.setapi('QVariant', 2)
 from PyQt4 import QtCore, QtGui
 import sys
-from src.core.qt_widgets import B26QTreeItem,B26QTreeWidget
+from src.core.qt_widgets import B26QTreeItem,fill_tree
 from src.core import Parameter
 
 class UI(QtGui.QMainWindow):
@@ -22,12 +22,12 @@ class UI(QtGui.QMainWindow):
 
         self.parameters = parameters
 
-        self.treeWidget = B26QTreeWidget(self.centralwidget, self.parameters)
 
-        # self.treeWidget = QtGui.QTreeWidget(self.centralwidget)
+
+        self.treeWidget = QtGui.QTreeWidget(self.centralwidget)
         self.verticalLayout.addWidget(self.treeWidget)
         self.setCentralWidget(self.centralwidget)
-
+        fill_tree(self.treeWidget, self.parameters)
         # ----------------
         # Set TreeWidget Headers
         # ----------------
