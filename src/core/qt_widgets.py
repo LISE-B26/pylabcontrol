@@ -182,15 +182,20 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         # todo: test this function, if it works, we can remove the propertie self.target
         parent = self.parent()
 
-        path_to_instrument = []
-        instrument = None
-        while parent is not None:
-            if isinstance(parent, Instrument):
-                parent = None
-                instrument = parent.value
-            else:
-                path_to_instrument.append(parent.name)
-                parent = parent.parent()
+        if isinstance(self.value, Instrument):
+            instrument = self.value
+            path_to_instrument = []
+        else:
+            instrument = None
+            path_to_instrument = [self.name]
+            while parent is not None:
+                print('hhh', parent.value)
+                if isinstance(parent.value, Instrument):
+                    instrument = parent.value
+                    parent = None
+                else:
+                    path_to_instrument.append(parent.name)
+                    parent = parent.parent()
 
         return instrument, path_to_instrument
 

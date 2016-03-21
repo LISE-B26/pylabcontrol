@@ -110,7 +110,7 @@ class Instrument(object):
 
     def __repr__(self):
 
-        output_string = '{:s} (class type: {:s})\n'.format(self.name, self.__class__.__name__)
+        output_string = '{:s} (class type: {:s})'.format(self.name, self.__class__.__name__)
 
         # for parameter in self.parameters:
         #     # output_string += parameter_to_string(parameter)

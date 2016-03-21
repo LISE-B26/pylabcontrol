@@ -4,7 +4,7 @@ import sip
 sip.setapi('QVariant', 2)
 from PyQt4 import QtCore, QtGui
 import sys
-from src.core.qt_widgets import B26QTreeItem,B26QTreeWidget
+from src.core.qt_widgets import B26QTreeItem, fill_tree
 from src.core import Parameter
 
 class UI(QtGui.QMainWindow):
@@ -20,13 +20,21 @@ class UI(QtGui.QMainWindow):
         self.centralwidget = QtGui.QWidget(self)
         self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
 
-        self.parameters = parameters
 
-        self.treeWidget = B26QTreeWidget(self.centralwidget, self.parameters)
+
+        self.parameters = parameters
+        self.treeWidget = QtGui.QTreeWidget(self.centralwidget)
+        fill_tree(self.treeWidget, self.parameters)
 
         # self.treeWidget = QtGui.QTreeWidget(self.centralwidget)
         self.verticalLayout.addWidget(self.treeWidget)
+
         self.setCentralWidget(self.centralwidget)
+
+        self.button = QtGui.QPushButton(self.centralwidget)
+        self.button.setText("press")
+        self.button.clicked.connect(lambda: self.clicked())
+        self.verticalLayout.addWidget(self.button)
 
         # ----------------
         # Set TreeWidget Headers
@@ -41,7 +49,9 @@ class UI(QtGui.QMainWindow):
         # ----------------
         self.treeWidget.itemChanged.connect(lambda: self.update_parameters(self.treeWidget, self.parameters))
 
-
+    def clicked(self):
+        print(self.treeWidget.currentItem().name)
+        print(self.treeWidget.currentItem().get_instrument())
 
     def update_parameters(self, tree, parameters):
 
@@ -69,7 +79,8 @@ class UI(QtGui.QMainWindow):
 
 if __name__ == '__main__':
 
-    # test with parameter objects
+
+    #======= test with parameter objects ===========
     parameters = Parameter([
         Parameter('test1', 0, int, 'test parameter (int)'),
         Parameter('test2' ,
@@ -81,14 +92,21 @@ if __name__ == '__main__':
         Parameter('test3', 'aa', ['aa', 'bb', 'cc'], 'test parameter (list)'),
         Parameter('test4', False, bool, 'test parameter (bool)')
     ])
-
+    #======= test with dict ========================
     parameters = {
         'test1':1,
         'test2':{'test2_1':'ss', 'test3':4},
         'test4':2
     }
 
-
+    #======= test with instrument objects ===========
+    from src.instruments import ZIHF2, MaestroController, MaestroBeamBlock
+    maestro = MaestroController('maestro 6 channels')
+    instruments = [
+        ZIHF2('ZiHF2')
+        # MaestroBeamBlock(maestro,'IR beam block')
+    ]
+    parameters = {instrument.name: instrument  for instrument in instruments}
 
 
     app = QtGui.QApplication(sys.argv)
