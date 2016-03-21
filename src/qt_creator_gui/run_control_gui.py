@@ -4,7 +4,7 @@ New gui with new parameter and instrument class and GUI designed with QT designe
 
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
-
+from src.core import Parameter
 
 # todo: try to complie .ui file if if doesn't exist or can't be compliled load precompiled .py file
 try:
@@ -81,12 +81,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.past_commands = deque() # history of executed commands
 
         # define instrument_tests
-        # maestro = MaestroController('maestro 6 channels')
-        # self.instruments = [
-        #     ZIHF2('ZiHF2'),
-        #     # Maestro_BeamBlock(maestro,'IR beam block', {'channel':4})
-        #     MaestroBeamBlock(maestro,'IR beam block')
-        # ]
+        maestro = MaestroController('maestro 6 channels')
+        self.instruments = {
+            'ZiHF2': ZIHF2('ZiHF2'),
+            'IR beam block': MaestroBeamBlock(maestro,'IR beam block')
+        }
+
+
+        for instrument in self.instruments:
+
+
+
+
+
+
+
         #
         # # define parameters to monitor
         # zi_inst = get_elemet('ZiHF2', self.instrument_tests)

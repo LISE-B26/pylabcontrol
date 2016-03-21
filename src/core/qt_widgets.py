@@ -22,7 +22,7 @@ class B26QTreeWidget(QtGui.QTreeWidget):
         ## Init super class ( QtGui.QTreeWidgetItem )
         super( B26QTreeWidget, self ).__init__( parent )
 
-        assert isinstance(parameters, Parameter)
+        assert isinstance(parameters, (dict, Parameter))
         self.parameters = parameters
 
         for key, value in parameters.iteritems():
