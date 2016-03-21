@@ -6,7 +6,7 @@
 import ctypes
 import time
 import sys
-
+import os
 int32 = ctypes.c_long
 uInt32 = ctypes.c_ulong
 uInt64 = ctypes.c_ulonglong
@@ -29,7 +29,7 @@ axis_x = int32(1)
 axis_y = int32(2)
 axis_z = int32(0)
 
-attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')
+
 #attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/Software_ANC350v2/DLL/Win64/lib/hvpositionerv2.dll')
 
 # c struct used as return type for some functions
@@ -37,6 +37,19 @@ class PositionerInfo(ctypes.Structure):
     _fields_ = [(("id"), ctypes.c_int32), (("locked"), ctypes.c_bool)]
 
 class ANC350:
+
+    try:
+        if os.name == 'nt':
+            attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')
+            dll_detected = True
+        else:
+            dll_detected = False
+    except WindowsError:
+        # make a fake DAQOut instrument
+        dll_detected = False
+    except:
+        raise
+
     def __init__(self):
         '''
         Initializes then closes a connection to the attocube to ensure that the connection is working properly

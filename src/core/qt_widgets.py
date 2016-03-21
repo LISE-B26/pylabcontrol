@@ -24,16 +24,11 @@ class B26QTreeWidget(QtGui.QTreeWidget):
 
         assert isinstance(parameters, Parameter)
         self.parameters = parameters
-        # assert that parent is a layout widget
 
         for key, value in parameters.iteritems():
             print(key, value, parameters.valid_values[key], parameters.info[key])
             B26QTreeItem(self, key, value, parameters.valid_values[key], parameters.info[key])
-    #
-    # def itemChanged(self, int):
-    #     print('XX', int)
-    #     self.emitDataChanged()
-    #     # super(B26QTreeWidget, self ).__init__( self, int )
+
 
 class B26QTreeItem(QtGui.QTreeWidgetItem):
     '''
@@ -75,35 +70,31 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 self.combobox.addItem(unicode(item))
             self.combobox.setCurrentIndex(self.combobox.findText(unicode(self.value)))
             self.treeWidget().setItemWidget( self, 1, self.combobox )
-            if self.parent() is not None:
-                self.combobox.currentIndexChanged.connect(lambda: self.parent().emitDataChanged())
-            else:
-                self.combobox.currentIndexChanged.connect(lambda: self.emitDataChanged())
+            # if self.parent() is not None:
+            #     self.combobox.currentIndexChanged.connect(lambda: self.parent().emitDataChanged())
+            # else:
+            #     self.combobox.currentIndexChanged.connect(lambda: self.emitDataChanged())
+
+
+            self.combobox.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combobox))
             # self.combobox.currentIndexChanged.connect(lambda: self.emitDataChanged(self.combobox))
 
         elif self.valid_values is bool:
             self.check = QtGui.QCheckBox()
             self.check.setChecked(self.value)
             self.treeWidget().setItemWidget( self, 1, self.check )
-            if self.parent() is not None:
-                self.check.stateChanged.connect(lambda: self.parent().emitDataChanged())
-            else:
-                self.check.stateChanged.connect(lambda: self.emitDataChanged())
+            self.check.stateChanged.connect(lambda: self.setData(1, 2, self.check))
+
+            # if self.parent() is not None:
+            #     self.check.stateChanged.connect(lambda: self.parent().emitDataChanged())
+            # else:
+            #     self.check.stateChanged.connect(lambda: self.emitDataChanged())
             # self.check.stateChanged.connect(lambda: self.emitDataChanged(self.check))
 
         elif isinstance(self.value, Parameter):
             for key, value in self.value.iteritems():
-                # print('key: ', key,)
-                # print('value: ', value)
-                # print('self.valid_values[key]: ',self.valid_values[key])
-                # print('self.info: ',  self.info)
-                # print('self.info[key]: ',  self.info[key])
-                # print('========')
                 B26QTreeItem(self, key, value, self.valid_values[key], self.info[key], target=self.target, visible=self.visible)
 
-        # elif isinstance(self.value, list):
-        #     for item in self.value:
-        #         B26QTreeItem(self, item, target=target, visible=visible)
         else:
             self.setText(1, unicode(self.value))
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
@@ -158,6 +149,13 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             if isinstance(value, QtCore.QString):
                 if not isinstance(self.valid_values, list):
                     value = cast_type(value, self.valid_values) # cast into same type as valid values
+            elif isinstance(value, QtGui.QComboBox):
+                value =  value.currentText()
+
+                print('clombo', value)
+            elif isinstance(value, QtGui.QCheckBox):
+                value =  value.checkState()
+                print('check', value)
 
         elif column == 0:
             # labels should not be changed so we set it back

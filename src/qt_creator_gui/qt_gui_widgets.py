@@ -137,25 +137,25 @@ if __name__ == '__main__':
             # ----------------
 
 
-            my_instruments = [
-                # Instrument_Dummy('inst dummy 1'),
-                # Maestro_Controller('maestro 6 channels'),
-                ZIHF2('Zurich instrument')
-            ]
-
-            for elem in my_instruments:
-                item = QTreeInstrument( self.treeWidget, elem )
-
-            my_scripts = [
-                Script_Dummy('script dummy 1')
-            ]
-
-            for elem in my_scripts:
-                item = QTreeScript( self.treeWidget, elem )
-
-            ## Set Columns Width to match content:
-            for column in range( self.treeWidget.columnCount() ):
-                self.treeWidget.resizeColumnToContents( column )
+            # my_instruments = [
+            #     # Instrument_Dummy('inst dummy 1'),
+            #     # Maestro_Controller('maestro 6 channels'),
+            #     ZIHF2('Zurich instrument')
+            # ]
+            #
+            # for elem in my_instruments:
+            #     item = QTreeInstrument( self.treeWidget, elem )
+            #
+            # my_scripts = [
+            #     Script_Dummy('script dummy 1')
+            # ]
+            #
+            # for elem in my_scripts:
+            #     item = QTreeScript( self.treeWidget, elem )
+            #
+            # ## Set Columns Width to match content:
+            # for column in range( self.treeWidget.columnCount() ):
+            #     self.treeWidget.resizeColumnToContents( column )
 
     app = QtGui.QApplication(sys.argv)
     ex = UI()

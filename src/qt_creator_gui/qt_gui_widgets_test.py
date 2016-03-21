@@ -1,17 +1,17 @@
-
+from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
 # from qt_creator_gui.zi_control import Ui_MainWindow
 
 
-from src.core.instruments import Maestro_Controller, ZIHF2, Maestro_BeamBlock
+from src.instruments import MaestroBeamBlock, MaestroController, ZIHF2
 
 from src.core.scripts import *
 
-from PyQt4 import QtGui
+
 import datetime
 from collections import deque
-from src.qt_creator_gui import QTreeInstrument, QTreeScript, QTreeParameter
+# from src.qt_creator_gui import QTreeInstrument, QTreeScript, QTreeParameter
 
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
@@ -71,11 +71,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.past_commands = deque() # history of executed commands
 
         # define instrument_tests
-        maestro = Maestro_Controller('maestro 6 channels')
+        maestro = MaestroController('maestro 6 channels')
         self.instruments = [
             ZIHF2('ZiHF2'),
             # Maestro_BeamBlock(maestro,'IR beam block', {'channel':4})
-            Maestro_BeamBlock(maestro,'IR beam block')
+            MaestroBeamBlock(maestro,'IR beam block')
         ]
         #
         # # define parameters to monitor

@@ -28,7 +28,7 @@ class UI(QtGui.QMainWindow):
                        Parameter('test2_3', 'a', ['a', 'b', 'c'], 'test parameter (list)'),
                        Parameter('test2_4', False, bool, 'test parameter (bool)')
                        ]),
-            Parameter('test3', 'a', ['a', 'b', 'c'], 'test parameter (list)'),
+            Parameter('test3', 'aa', ['aa', 'bb', 'cc'], 'test parameter (list)'),
             Parameter('test4', False, bool, 'test parameter (bool)')
         ])
 

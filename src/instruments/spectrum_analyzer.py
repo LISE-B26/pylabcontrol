@@ -1,4 +1,3 @@
-import visa
 from src.core import Instrument, Parameter
 
 
@@ -7,6 +6,16 @@ class SpectrumAnalyzer(Instrument):
     This class provides a python implementation of the Keysight N9320B 9kHz-3.0GHz spectrum analyzer
     with trigger generator.
     """
+    try:
+        import visa
+        _is_connected = True
+    except ImportError:
+        # make a fake ZI instrument
+        _is_connected = False
+    except:
+        raise
+
+
     INSTRUMENT_IDENTIFIER = 'Keysight Technologies,N9320B,CN0323B356,0B.03.58'
     # String returned by spectrum analyzer upon querying it with '*IDN?'
 
@@ -19,9 +28,12 @@ class SpectrumAnalyzer(Instrument):
 
         """
         super(SpectrumAnalyzer, self).__init__(name, parameter_list)
-        self.rm = visa.ResourceManager()
-        self.spec_anal = self.rm.open_resource(self.visa_resource)
-
+        if self._is_connected:
+            self.rm = visa.ResourceManager()
+            self.spec_anal = self.rm.open_resource(self.visa_resource)
+        else:
+            self.rm = None
+            self.spec_anal = None
     def parameters_default(self):
         """
         parameters_default lists the default Parameters used by the Spectrum Analyzer

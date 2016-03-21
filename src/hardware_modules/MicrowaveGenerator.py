@@ -1,8 +1,15 @@
-import visa
 from tendo import singleton
 import time
 
 class SG384():
+
+    try:
+        import visa
+        is_connected = True
+    except:
+        is_connected = False
+
+
     def __init__(self):
         s = singleton.SingleInstance()
         rm = visa.ResourceManager()
