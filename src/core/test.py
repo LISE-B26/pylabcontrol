@@ -9,7 +9,7 @@ from src.core import Parameter
 
 class UI(QtGui.QMainWindow):
 
-    def __init__(self, parent=None ):
+    def __init__(self, parameters,parent=None ):
 
         ## Init:
         super(UI, self).__init__( parent )
@@ -20,17 +20,7 @@ class UI(QtGui.QMainWindow):
         self.centralwidget = QtGui.QWidget(self)
         self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
 
-        self.parameters = Parameter([
-            Parameter('test1', 0, int, 'test parameter (int)'),
-            Parameter('test2' ,
-                      [Parameter('test2_1', 'string', str, 'test parameter (str)'),
-                       Parameter('test2_2', 0.0, float, 'test parameter (float)'),
-                       Parameter('test2_3', 'a', ['a', 'b', 'c'], 'test parameter (list)'),
-                       Parameter('test2_4', False, bool, 'test parameter (bool)')
-                       ]),
-            Parameter('test3', 'aa', ['aa', 'bb', 'cc'], 'test parameter (list)'),
-            Parameter('test4', False, bool, 'test parameter (bool)')
-        ])
+        self.parameters = parameters
 
         self.treeWidget = B26QTreeWidget(self.centralwidget, self.parameters)
 
@@ -79,9 +69,30 @@ class UI(QtGui.QMainWindow):
 
 if __name__ == '__main__':
 
+    # test with parameter objects
+    parameters = Parameter([
+        Parameter('test1', 0, int, 'test parameter (int)'),
+        Parameter('test2' ,
+                  [Parameter('test2_1', 'string', str, 'test parameter (str)'),
+                   Parameter('test2_2', 0.0, float, 'test parameter (float)'),
+                   Parameter('test2_3', 'a', ['a', 'b', 'c'], 'test parameter (list)'),
+                   Parameter('test2_4', False, bool, 'test parameter (bool)')
+                   ]),
+        Parameter('test3', 'aa', ['aa', 'bb', 'cc'], 'test parameter (list)'),
+        Parameter('test4', False, bool, 'test parameter (bool)')
+    ])
+
+    parameters = {
+        'test1':1,
+        'test2':{'test2_1':'ss', 'test3':4},
+        'test4':2
+    }
+
+
+
 
     app = QtGui.QApplication(sys.argv)
-    ex = UI()
+    ex = UI(parameters)
     ex.show()
     ex.raise_()
     sys.exit(app.exec_())

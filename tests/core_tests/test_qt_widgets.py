@@ -69,7 +69,7 @@ class TestB26QTreeWidget(TestCase):
         parameters = {
             'test1':0,
             'test2':{'test2_1':'ss', 'test3':4},
-            'test1':0
+            'test4':0
         }
 
         app = QtGui.QApplication(sys.argv)

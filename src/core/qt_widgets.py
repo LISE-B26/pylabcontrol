@@ -26,8 +26,10 @@ class B26QTreeWidget(QtGui.QTreeWidget):
         self.parameters = parameters
 
         for key, value in parameters.iteritems():
-            print(key, value, parameters.valid_values[key], parameters.info[key])
-            B26QTreeItem(self, key, value, parameters.valid_values[key], parameters.info[key])
+            if isinstance(parameters, Parameter):
+                B26QTreeItem(self, key, value, parameters.valid_values[key], parameters.info[key])
+            else:
+                B26QTreeItem(self, key, value, type(value), '')
 
 
 class B26QTreeItem(QtGui.QTreeWidgetItem):
@@ -94,6 +96,10 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         elif isinstance(self.value, Parameter):
             for key, value in self.value.iteritems():
                 B26QTreeItem(self, key, value, self.valid_values[key], self.info[key], target=self.target, visible=self.visible)
+
+        elif isinstance(self.value, dict):
+            for key, value in self.value.iteritems():
+                B26QTreeItem(self, key, value, type(value), '', target=self.target, visible=self.visible)
 
         else:
             self.setText(1, unicode(self.value))
