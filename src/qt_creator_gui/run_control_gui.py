@@ -5,7 +5,7 @@ import sip
 sip.setapi('QVariant', 2)# set to version to so that the gui returns QString objects and not generic QVariants
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
-from src.core import Parameter
+from src.core import Parameter, Instrument
 from src.core.qt_widgets import fill_tree
 
 # todo: try to complie .ui file if if doesn't exist or can't be compliled load precompiled .py file
@@ -82,28 +82,22 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # define data container
         self.past_commands = deque() # history of executed commands
 
-        # define instrument_tests
+        # ============ define instruments ==========================
         maestro = MaestroController('maestro 6 channels')
-        self.instruments = {
-            'ZiHF2': ZIHF2('ZiHF2'),
-            'IR beam block': MaestroBeamBlock(maestro,'IR beam block')
-        }
-
         self.instruments = [
             ZIHF2('ZiHF2'),
             MaestroBeamBlock(maestro,'IR beam block')
         ]
-        # self.instruments = Parameter({instrument.name: instrument  for instrument in self.instruments})
-        # print('=========')
-        # print(self.instruments)
-        # print('=========')
+
 
         self.instruments = {instrument.name: instrument  for instrument in self.instruments}
         fill_tree(self.tree_settings, self.instruments)
         self.tree_settings.setColumnWidth(0,300)
 
+        self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
+        # ============ define probes / monitor ========================
 
-
+        # ============ define scripts =================================
 
 
         #
@@ -131,11 +125,29 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # connect_controls()
 
+    def update_parameters(self, treeWidget):
 
-    def update_progress(self, current_progress):
-        self.progressBar.setValue(current_progress)
-        if current_progress == 100:
-            self.log('finished!!!')
+        if treeWidget == self.tree_settings:
+
+            item = treeWidget.currentItem()
+
+            current_item = item
+            xx = []
+            while not isinstance(current_item.value, Instrument):
+                print(xx)
+                xx.append(current_item.name)
+                current_item = current_item.parent()
+            print('ZZ', xx)
+
+            old_value = ''
+            new_value = item.value
+            if new_value is not old_value:
+                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value), item.target)
+            else:
+                msg = "did not change parameter {:s} on {:s}".format(item.name, item.target)
+
+            self.log(msg)
+            # print(treeWidget.currentItem(), treeWidget.currentItem().target)
 
     def get_time(self):
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
@@ -154,7 +166,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.list_history.setModel(model)
         self.list_history.show()
 
-    def btn_clicked(self):
+
+    def update_progress_old(self, current_progress):
+        self.progressBar.setValue(current_progress)
+        if current_progress == 100:
+            self.log('finished!!!')
+
+
+    def btn_clicked_old(self):
         sender = self.sender()
 
         script = self.tree_scripts.currentItem()
@@ -179,7 +198,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.log('No script selected. Select script and try again!')
 
 
-    def update_parameters(self, treeWidget):
+
+
+        # self.log("parameter {:s} changed from {:s} to {:s}!".format(parameter.name, str(old_value), str(new_value)), 1000)
+    def update_parameters_old(self, treeWidget):
 
         if not treeWidget.currentItem() == None:
             if treeWidget.currentColumn() == 0:
@@ -248,7 +270,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # else:
                 #     raise TypeError('Unknown item!!')
 
-    def fill_treewidget(self, treeWidget):
+    def fill_treewidget_old(self, treeWidget):
         if treeWidget == self.tree_scripts:
             for elem in self.scripts:
                 QTreeScript( self.tree_scripts, elem )
