@@ -1,25 +1,16 @@
 from src.core import Instrument, Parameter
+import visa
 
-#import visa
 class SpectrumAnalyzer(Instrument):
     """
     This class provides a python implementation of the Keysight N9320B 9kHz-3.0GHz spectrum analyzer
     with trigger generator.
     """
-    try:
-        import visa
-        _is_connected = True
-    except ImportError:
-        # make a fake ZI instrument
-        _is_connected = False
-    except:
-        raise
 
-
-    INSTRUMENT_IDENTIFIER = 'Keysight Technologies,N9320B,CN0323B356,0B.03.58'
+    INSTRUMENT_IDENTIFIER = u'Keysight Technologies,N9320B,CN0323B356,0B.03.58\n'
     # String returned by spectrum analyzer upon querying it with '*IDN?'
 
-    def __init__(self, name='SpectrumAnalyzer', parameter_list = None):
+    def __init__(self, name='SpectrumAnalyzer', parameter_list=None):
         """
 
         Args:
@@ -28,12 +19,8 @@ class SpectrumAnalyzer(Instrument):
 
         """
         super(SpectrumAnalyzer, self).__init__(name, parameter_list)
-        if self._is_connected:
-            rm = visa.ResourceManager()
-            self.spec_anal = rm.open_resource(self.parameters['visa_resource'])
-        else:
-            self.rm = None
-            self.spec_anal = None
+        rm = visa.ResourceManager()
+        self.spec_anal = rm.open_resource(self.parameters['visa_resource'])
 
     @property
     def _parameters_default(self):
@@ -52,6 +39,14 @@ class SpectrumAnalyzer(Instrument):
 
         return parameters_default
 
+    def update(self, parameters):
+        super(SpectrumAnalyzer, self).update(parameters)
+        for key, value in parameters.iteritems:
+            if key == 'start_frequency':
+                self.start_frequency(value)
+            else:
+                message = '{0} is not a parameter of {2}'.format(key, self.name)
+
     def is_connected(self):
         """
         Checks if the instrument is connected.
@@ -65,9 +60,8 @@ class SpectrumAnalyzer(Instrument):
     def start_frequency(self, start_freq):
         super(SpectrumAnalyzer, self).update({'start_frequency': start_freq})
         response = self.spec_anal.query('SENS:FREQ:START ' + str(start_freq))
-        print response
 
 if __name__ == '__main__':
     a = SpectrumAnalyzer()
-    # a['visa_resource']
+    print a.is_connected()
     print(a.parameters)

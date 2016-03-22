@@ -35,7 +35,7 @@ class PressureGauge(Instrument):
     ACK = chr(6)
     NAK = chr(21)
 
-    def __init__(self, name='PressureGauge', parameters={}):
+    def __init__(self, name='PressureGauge', parameters=None):
         """
         The serial connection should be setup with the following parameters:
         1 start bit, 8 data bits, No parity bit, 1 stop bit, no hardware
