@@ -13,6 +13,9 @@ from src.instruments import MaestroBeamBlock, MaestroController, ZIHF2
 
 # from src.core.scripts import *
 
+INSTRUMENTS = []
+
+
 
 import datetime
 from collections import deque

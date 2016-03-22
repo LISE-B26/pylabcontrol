@@ -1,10 +1,37 @@
-from gauge_controller import PressureGauge
-from spectrum_analyzer import SpectrumAnalyzer
-from instruments_DAQ import DAQ
-from piezo_controller import PiezoController
-from zurich_instruments import ZIHF2
-from maestro import MaestroBeamBlock, MaestroController
-# from attocube import Attocube
+try:
+    from gauge_controller import PressureGauge
+except:
+    pass
+
+try:
+    from spectrum_analyzer import SpectrumAnalyzer
+except:
+    pass
+
+try:
+    from instruments_DAQ import DAQ
+except:
+    pass
+
+try:
+    from piezo_controller import PiezoController
+except:
+    pass
+
+try:
+    from zurich_instruments import ZIHF2
+except:
+    pass
+
+try:
+    from maestro import MaestroBeamBlock, MaestroController
+except:
+    pass
+
+try:
+    from attocube import Attocube
+except:
+    pass
 
 
 # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']
