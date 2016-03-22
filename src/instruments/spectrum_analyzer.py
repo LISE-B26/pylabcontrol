@@ -1,6 +1,6 @@
 from src.core import Instrument, Parameter
 
-import visa
+#import visa
 class SpectrumAnalyzer(Instrument):
     """
     This class provides a python implementation of the Keysight N9320B 9kHz-3.0GHz spectrum analyzer

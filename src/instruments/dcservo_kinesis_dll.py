@@ -101,7 +101,8 @@ class TDC001(Instrument):
 
     @property
     def is_connected(self):
-        print(self.device.IsConnected)
+        DeviceManagerCLI.BuildDeviceList()
+        return(str(self._parameters['serial_number']) in DeviceManagerCLI.GetDeviceList(TCubeDCServo.DevicePrefix))
 
     def __del__(self):
         '''
@@ -127,9 +128,9 @@ class TDC001(Instrument):
         '''
         try:
             if(velocity != 0):
-                self.set_velocity(velocity)
+                self._set_velocity(velocity)
             # print("Moving Device to " + str(position))
-            self.device.MoveTo(self.Py_Decimal(position), 60000)
+            self.device.MoveTo(self._Py_Decimal(position), 60000)
         except Exception:
             print("Failed to move to position")
             raise
@@ -138,7 +139,7 @@ class TDC001(Instrument):
         '''
         :return: position of servo
         '''
-        return self.Undo_Decimal(self.device.Position)
+        return self._Undo_Decimal(self.device.Position)
 
     def _set_velocity(self, velocity):
         '''
@@ -179,6 +180,4 @@ class TDC001(Instrument):
 
 if __name__ == '__main__':
     a = TDC001()
-    print('here')
-    time.sleep(20)
     a.is_connected

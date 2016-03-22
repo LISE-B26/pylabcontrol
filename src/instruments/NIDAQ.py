@@ -3,7 +3,7 @@ import threading
 import os
 import numpy
 
-from src.core.instruments import *
+from src.core.instruments import Instrument, Parameter
 
 ##############################
 # Setup some typedefs and constants
@@ -48,18 +48,17 @@ class DAQ(Instrument):
     except:
         raise
 
-    def __init__(self, device, name = None, parameter_list = []):
+    def __init__(self, name = None, parameters = None):
         if self.dll_detected:
-            buf_size = 10
-            data = ctypes.create_string_buffer('\000' * buf_size)
-            try:
-                #Calls arbitrary function to check connection
-                self.CHK(self.nidaq.DAQmxGetDevProductType(device, ctypes.byref(data), buf_size))
-                self.hardware_detected = True
-            except RuntimeError:
-                self.hardware_detected = False
-            super(DAQ, self).__init__(name)
-            self.update_parameters(self._parameters_default)
+            # buf_size = 10
+            # data = ctypes.create_string_buffer('\000' * buf_size)
+            # try:
+            #     #Calls arbitrary function to check connection
+            #     self.CHK(self.nidaq.DAQmxGetDevProductType(device, ctypes.byref(data), buf_size))
+            #     self.hardware_detected = True
+            # except RuntimeError:
+            #     self.hardware_detected = False
+            super(DAQ, self).__init__(name, parameters)
 
     @property
     def _parameters_default(self):
@@ -67,23 +66,23 @@ class DAQ(Instrument):
         returns the default parameter_list of the instrument
         :return:
         '''
-        parameter_list_default = [
+        parameters_default = Parameter([
             Parameter('device', 'Dev1', (str), 'Name of DAQ device'),
             Parameter('override_buffer_size', -1, int, 'Buffer size for manual override (unused if -1)'),
             Parameter('output',
                       [
                           Parameter('channel', [0,1], [0,1,2,3], 'output channel(s)'),
-                          Parameter('sample_rate', 1000, (int, float), 'output sample rate'),
-                          Parameter('min_voltage', -10, (int, float), 'minimum output voltage'),
-                          Parameter('max_voltage', 10, (int, float), 'maximum output voltage')
+                          Parameter('sample_rate', 1000, float, 'output sample rate'),
+                          Parameter('min_voltage', -10, float, 'minimum output voltage'),
+                          Parameter('max_voltage', 10, float, 'maximum output voltage')
                        ]
                       ),
             Parameter('analog_input',
                       [
                           Parameter('channel', 0, range(0,32), 'input channel(s)'),
-                          Parameter('sample_rate', 1000, (int, float), 'input sample rate'),
-                          Parameter('min_voltage', -10, (int, float), 'minimum input voltage'),
-                          Parameter('max_voltage', 10, (int, float), 'maximum input voltage')
+                          Parameter('sample_rate', 1000, float, 'input sample rate'),
+                          Parameter('min_voltage', -10, float, 'minimum input voltage'),
+                          Parameter('max_voltage', 10, float, 'maximum input voltage')
                        ]
                       ),
             Parameter('digital_input',
@@ -91,12 +90,25 @@ class DAQ(Instrument):
                           Parameter('input_channel', 0, range(0,32), 'input channel(s)'),
                           Parameter('clock_PFI_channel', 13, range(0,32), 'PFI output clock channel'),
                           Parameter('clock_counter_channel', 1, [0,1], 'counter output clock channel'),
-                          Parameter('sample_rate', 1000, (int, float), 'input sample rate')
+                          Parameter('sample_rate', 1000, float, 'input sample rate')
                        ]
                       )
-        ]
-        return parameter_list_default
+        ])
+        return parameters_default
 
+    def update(self, parameters):
+        super(DAQ, self).update(parameters)
+        for key, value in parameters.iteritems():
+            if key == 'device':
+                if not(self.is_connected):
+                    raise EnvironmentError('Device invalid, cannot connect to DAQ')
+
+    @property
+    def _probes(self):
+        return None
+
+    def read_probes(self, key):
+        pass
 
 
     # error checking routine for nidaq commands. Input should be return value
