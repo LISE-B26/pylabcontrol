@@ -63,7 +63,6 @@ class MicrowaveGenerator(Instrument):
 
     def read_probes(self, key):
         assert key in self._probes.keys()
-        assert isinstance(key, str)
 
         #query always returns string, need to cast to proper return type
         if key in ['ENBR', 'MODL']:

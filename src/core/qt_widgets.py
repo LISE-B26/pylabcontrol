@@ -70,7 +70,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             for item in self.valid_values:
                 self.combobox.addItem(unicode(item))
             self.combobox.setCurrentIndex(self.combobox.findText(unicode(self.value)))
-            self.treeWidget().setItemWidget( self, 1, self.combobox )
+            self.treeWidget().setItemWidget( self, 1, self.combobox)
             self.combobox.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combobox))
 
         elif self.valid_values is bool:
@@ -123,10 +123,14 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         # if role = 2 (editrole, value has been entered)
         if role == 2 and column == 1:
             if isinstance(value, QtCore.QString):
-                if not isinstance(self.valid_values, list):
-                    value = self.cast_type(value) # cast into same type as valid values
+                value = self.cast_type(value) # cast into same type as valid values
+                # if not isinstance(self.valid_values, list):
+                #
+                # else:
+                #     value = self.cast_type(value.currentText()) # cast into same type as valid values
             elif isinstance(value, QtGui.QComboBox):
-                value = value.currentText()
+                value = self.cast_type(value.currentText())
+                print(value)
             elif isinstance(value, QtGui.QCheckBox):
                 value = int(value.checkState()) # this gives 2 (True) and 0 (False)
                 value = value == 2
@@ -144,8 +148,10 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
         # if msg is not None:
         #     self.log(msg)
-
-        super(B26QTreeItem, self).setData(column, role, value)
+        if not isinstance(value, bool):
+            super(B26QTreeItem, self).setData(column, role, value)
+        else:
+            self.emitDataChanged()
 
     def cast_type(self, var, typ = None):
         """
@@ -167,8 +173,12 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 var = int(var)
             elif typ == float:
                 var = float(var)
-            elif typ  == str:
+            elif typ == str:
                 var = str(var)
+            elif isinstance(typ, list):
+                # get index of element that corresponds to Qstring value
+                index = [str(element) for element in typ].index(str(var))
+                var = typ[index]
             else:
                 var = None
         except ValueError:
@@ -192,7 +202,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             instrument = None
             path_to_instrument = [self.name]
             while parent is not None:
-                print('hhh', parent.value)
                 if isinstance(parent.value, Instrument):
                     instrument = parent.value
                     parent = None

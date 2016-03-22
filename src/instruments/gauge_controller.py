@@ -28,16 +28,14 @@ class PressureGauge(Instrument):
     }
 
     # ASCII Characters used for controller communication
-    ETX = chr(3)  # \x03
+    ETX = chr(3)
     CR = chr(13)
     LF = chr(10)
-    ENQ = chr(5)  # \x05
-    ACK = chr(6)  # \x06
-    NAK = chr(21)  # \x15
+    ENQ = chr(5)
+    ACK = chr(6)
+    NAK = chr(21)
 
-    PROBES = ['pressure', 'units']
-
-    def __init__(self, name='PressureGauge', parameter_list=[]):
+    def __init__(self, name='PressureGauge', parameters=None):
         """
         The serial connection should be setup with the following parameters:
         1 start bit, 8 data bits, No parity bit, 1 stop bit, no hardware
@@ -45,11 +43,13 @@ class PressureGauge(Instrument):
         below
         """
 
-        super(PressureGauge, self).__init__(name, parameter_list)
-        self.ser = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
+        super(PressureGauge, self).__init__(name, parameters)
+        # TODO: ask Jan about accessing port, baudrate, and timeout
+        self.ser = serial.Serial(port=self.parameters['port'], baudrate=self.parameters['baudrate'],
+                                 timeout=self.parameters['timeout'])
 
     @property
-    def parameters_default(self):
+    def _parameters_default(self):
         """
         returns the default parameter_list of the instrument
         :return:
@@ -57,12 +57,51 @@ class PressureGauge(Instrument):
 
         possible_com_ports = ['COM' + str(i) for i in range(0, 256)]
         parameter_list_default = Parameter([
-            Parameter('port', 'COM4', possible_com_ports, 'com port to which the gauge controller is connected'),
-            Parameter('timeout', 1.0, float, 'amount of time to wait for a response from the gauge controller for each query'),
+            Parameter('port', 'COM5', possible_com_ports, 'com port to which the gauge controller is connected'),
+            Parameter('timeout', 1.0, float, 'amount of time to wait for a response '
+                                             'from the gauge controller for each query'),
             Parameter('baudrate', 9600, int, 'baudrate of serial communication with gauge')
         ])
 
         return parameter_list_default
+
+    @property
+    def _probes(self):
+        """
+
+        Returns: A dictionary of key-value string-string pairs. keys: probe names, values: probe descriptions
+
+        """
+        return {
+            'pressure': 'numerical pressure read from Pressure Gauge',
+            'units': 'Units used by pressure gauge',
+            'model': 'Model of the pressure gauge'
+        }
+
+    def update(self, parameters):
+        pass
+
+    def read_probes(self, probe_name):
+        """
+        Args:
+            probe_name: Name of the probe to get the value of from the Pressure Gauge (e.g., 'pressure')
+
+        Returns:
+            value of the probe from the Pressure Gauge
+        """
+
+        probe_name = probe_name.lower()  # catch stupid errors, making sure the probe is lowercase
+
+        if probe_name == 'pressure':
+            return self.pressure
+        elif probe_name == 'units':
+            return self.units
+        elif probe_name == 'model':
+            return self.model
+        else:
+            message = '\'{0}\' not found as a probe in the class. ' \
+                      'Expected either \'pressure\', \'units\', or \'model\''.format(probe_name)
+            raise AttributeError(message)
 
     def _check_acknowledgement(self, response):
         """
@@ -80,39 +119,6 @@ class PressureGauge(Instrument):
             message = 'Serial communication returned unknown response:\n{}' \
                 ''.format(repr(response))
             raise IOError(message)
-
-    @property
-    def _probes(self):
-        """
-
-        Returns: A dictionary of key-value string-string pairs. keys: probe names, values: probe descriptions
-
-        """
-
-        return {
-            'pressure': 'numerical pressure read from Pressure Gauge',
-            'units': 'Units used by pressure gauge',
-            'model': 'Model of the pressure gauge'
-        }
-
-    def read_probes(self, probe_name):
-        """
-
-        Args:
-            probe_name: Name of the probe to get the value of from the Pressure Gauge (e.g., 'pressure')
-
-        Returns:
-            value of the probe from the Pressure Gauge
-        """
-
-        if probe_name is 'pressure':
-            return self.pressure()
-        elif probe_name is 'units':
-            return self.units()
-        elif probe_name is 'model':
-            return self.model()
-        else:
-            raise AttributeError('{0} not found as a probe in the class. Expected either pressure, units, or model')
 
     @property
     def pressure(self):
@@ -189,7 +195,6 @@ class PressureGauge(Instrument):
 
     def __del__(self):
         """
-        Destructor, to close the serial connection when the instance is this class is garbage-collected
+        Destructor, to close the serial connection when the instance is this class is garbage collected
         """
         self.ser.close()
-

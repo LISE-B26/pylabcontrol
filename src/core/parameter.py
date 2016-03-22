@@ -71,7 +71,7 @@ class Parameter(dict):
 
     def __setitem__(self, key, value):
 
-        assert self.is_valid(value, self.valid_values[key])
+        assert self.is_valid(value, self.valid_values[key]), "{:s} is not in {:s}".format(str(value), str(self.valid_values[key]) )
 
         if isinstance(value, dict) and len(self)>0 and len(self) == len(self.valid_values):
             for k, v in value.iteritems():
@@ -109,10 +109,6 @@ class Parameter(dict):
             for k ,v in value.items():
                 if type(v) is not valid_values[k]:
                     valid = True
-
-#             print('aaaa', value, valid_values)
-#         elif isinstance(value, (unicode)):
-#             print('unico?de')
         elif isinstance(valid_values, list) and value in valid_values:
             valid = True
         return valid
