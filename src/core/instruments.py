@@ -21,7 +21,7 @@ class Instrument(object):
     # ======= Following functions have to be customized for each instrument subclass =========
     # ========================================================================================
 
-    def __init__(self, name = None, parameters = None):
+    def __init__(self, name=None, parameters=None):
 
         self._parameters = self._parameters_default
 
@@ -35,9 +35,9 @@ class Instrument(object):
 
     @property
     def _parameters_default(self):
-        '''
+        """
         returns the default parameter_list of the instrument this function should be over written in any subclass
-        '''
+        """
         parameters_default = Parameter([
             Parameter('test1', 0, int, 'test parameter (int)'),
             Parameter('test2' ,
@@ -69,14 +69,14 @@ class Instrument(object):
         return {'value1': 'this is some value from the instrument', 'value2': 'this is another'}
 
     def read_probes(self, key):
-        '''
+        """
         requestes value from the instrument and returns it
         Args:
             key: name of requested value
 
         Returns: reads values from instrument
 
-        '''
+        """
         assert key in self._probes.keys()
 
         value = None
