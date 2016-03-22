@@ -71,16 +71,23 @@ class UI(QtGui.QMainWindow):
 
 
 
-            param = instrument.parameters
+            old_value = instrument.parameters
             for level in path_to_instrument:
-                param = param[level]
-            old_value = param
+                old_value = old_value[level]
 
+            path_to_instrument.reverse()
             new_value = item.value
+            new_value_dict = new_value
+            for level in path_to_instrument:
+                new_value_dict = {level: new_value_dict}
+            print(new_value_dict)
 
 
 
+            instrument.parameters.update(new_value_dict)
             # todo: update .parameters
+
+
 
             if new_value is not old_value:
                 msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value), item.target)
