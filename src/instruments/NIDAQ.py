@@ -110,6 +110,16 @@ class DAQ(Instrument):
     def read_probes(self, key):
         pass
 
+    @property
+    def is_connected(self):
+        buf_size = 10
+        data = ctypes.create_string_buffer('\000' * buf_size)
+        try:
+            #Calls arbitrary function to check connection
+            self.CHK(self.nidaq.DAQmxGetDevProductType(self._parameters['device'], ctypes.byref(data), buf_size))
+            return True
+        except RuntimeError:
+            return False
 
     # error checking routine for nidaq commands. Input should be return value
     # from nidaq function
@@ -333,5 +343,4 @@ class SetGalvoPoint:
 
 
 if __name__ == '__main__':
-    a = DAQ('Dev1')
-    print(a.parameters)
+    a = DAQ()
