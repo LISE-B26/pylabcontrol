@@ -8,13 +8,6 @@ from PyQt4.uic import loadUiType
 from src.core import Parameter, Instrument
 from src.core.qt_widgets import fill_tree
 
-# todo: try to complie .ui file if if doesn't exist or can't be compliled load precompiled .py file
-try:
-    Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
-except:
-    raise
-# from src.qt_creator_gui.zi_control import Ui_MainWindow
-
 
 from src.instruments import MaestroBeamBlock, MaestroController, ZIHF2
 
@@ -24,6 +17,15 @@ from src.instruments import MaestroBeamBlock, MaestroController, ZIHF2
 import datetime
 from collections import deque
 # from src.qt_creator_gui import QTreeInstrument, QTreeScript, QTreeParameter
+
+
+# todo: try to complie .ui file if if doesn't exist or can't be compliled load precompiled .py file
+try:
+    Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
+except:
+    raise
+# from src.qt_creator_gui.zi_control import Ui_MainWindow
+
 
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):

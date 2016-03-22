@@ -1,6 +1,7 @@
 # clr is python for .net
 import clr # run pip install pythonnet
 import sys
+import time
 sys.path.insert(0,"C:\\Program Files\\Thorlabs\\Kinesis\\")
 
 from src.core.instruments import *
@@ -26,27 +27,26 @@ class TDC001(Instrument):
     Class to control the thorlabs TDC001 servo. Note that ALL DLL FUNCTIONS TAKING NUMERIC INPUT REQUIRE A SYSTEM.DECIMAL
     VALUE. Check help doc at C:\Program Files\Thorlabs\Kinesis\Thorlabs.MotionControl.DotNet_API for the DLL api
     '''
-    def __init__(self, name, parameters = []):
+    def __init__(self, name = None, parameters = None):
         super(TDC001, self).__init__(name, parameters)
-        self._is_connected = False
         try:
             DeviceManagerCLI.BuildDeviceList()
             serial_number_list = DeviceManagerCLI.GetDeviceList(TCubeDCServo.DevicePrefix)
         except (Exception):
             print("Exception raised by BuildDeviceList")
-        if not (str(self.serial_number) in serial_number_list):
-            print(str(self.serial_number) + " is not a valid serial number")
+        if not (str(self._parameters['serial_number']) in serial_number_list):
+            print(str(self._parameters['serial_number']) + " is not a valid serial number")
             raise
 
-        self.device = TCubeDCServo.CreateTCubeDCServo(str(self.serial_number))
+        self.device = TCubeDCServo.CreateTCubeDCServo(str(self._parameters['serial_number']))
         if(self.device == None):
-            print(self.serial_number + " is not a TCubeDCServo")
+            print(self._parameters['serial_number'] + " is not a TCubeDCServo")
             raise
 
         try:
-            self.device.Connect(str(self.serial_number))
+            self.device.Connect(str(self._parameters['serial_number']))
         except Exception:
-            print('Failed to open device ' + str(self.serial_number))
+            print('Failed to open device ' + str(self._parameters['serial_number']))
             raise
 
         if not self.device.IsSettingsInitialized():
@@ -57,10 +57,51 @@ class TDC001(Instrument):
                 raise
 
         self.device.StartPolling(250)
-        self._is_connected = True
 
-        motorSettings = self.device.GetMotorConfiguration(str(self.serial_number))
+        motorSettings = self.device.GetMotorConfiguration(str(self._parameters['serial_number']))
         currentDeviceSettings = self.device.MotorDeviceSettings
+
+    @property
+    def _parameters_default(self):
+        '''
+        returns the default parameter_list of the instrument
+        :return:
+        '''
+        parameters_default = Parameter([
+            Parameter('serial_number', 83832028, int, 'serial number written on device'),
+            Parameter('position', 0, float, 'servo position (from 0 to 6 in mm)'),
+            Parameter('velocity', 0, float, 'servo maximum velocity in mm/s')
+        ])
+        return parameters_default
+
+    def update(self, parameters):
+        super(TDC001, self).update(parameters)
+        for key, value in parameters.iteritems():
+            if key == 'position':
+                self._move_servo(value)
+            elif key == 'velocity':
+                self._set_velocity(value)
+
+    @property
+    def _probes(self):
+        return{
+            'position': 'servo position in mm',
+            'velocity': 'servo velocity in mm/s'
+        }
+
+    def read_probes(self, key):
+        assert key in self._probes.keys()
+        assert isinstance(key, str)
+
+        #query always returns string, need to cast to proper return type
+        if key in ['position']:
+            return self._get_position()
+        elif key in ['velocity']:
+            return self._get_velocity()
+
+    @property
+    def is_connected(self):
+        print(self.device.IsConnected)
 
     def __del__(self):
         '''
@@ -69,35 +110,6 @@ class TDC001(Instrument):
         '''
         self.device.StopPolling()
         self.device.Disconnect()
-
-    @property
-    def parameters_default(self):
-        '''
-        returns the default parameter_list of the instrument
-        :return:
-        '''
-        parameter_list_default = [
-            Parameter('serial_number', 83832028, (int), 'serial number written on device'),
-            Parameter('position', 0, (int, float), 'servo position (from 0 to 6 in mm)'),
-            Parameter('velocity', 0, (int, float), 'servo maximum velocity in mm/s')
-        ]
-        return parameter_list_default
-
-    def update_parameters(self, parameters_new):
-        parameters_new = super(TDC001, self).update_parameters(parameters_new)
-        for key, value in parameters_new.iteritems():
-            if key == 'position':
-                self._move_servo(value)
-            elif key == 'velocity':
-                self._set_velocity(value)
-
-    @property
-    def position(self):
-        return self._get_position()
-
-    @property
-    def velocity(self):
-        return self._get_velocity()
 
     def goto_home(self):
         try:
@@ -164,3 +176,9 @@ class TDC001(Instrument):
         :return: the input as a python float
         '''
         return float(str(value))
+
+if __name__ == '__main__':
+    a = TDC001()
+    print('here')
+    time.sleep(20)
+    a.is_connected
