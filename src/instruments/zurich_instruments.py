@@ -158,7 +158,8 @@ class ZIHF2(Instrument):
 
     def read_probes(self, key):
         '''
-        requestes value from the instrument and returns it
+
+        requests value from the instrument and returns it
         Args:
             key: name of requested value
 
@@ -166,7 +167,6 @@ class ZIHF2(Instrument):
 
         '''
         assert key in self._probes.keys()
-        assert isinstance(key, str)
 
         if key.upper() in ['X', 'Y', 'R']:
             # these values we actually request from the instrument

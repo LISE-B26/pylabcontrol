@@ -48,7 +48,6 @@ class PressureGauge(Instrument):
         super(PressureGauge, self).__init__(name, parameter_list)
         self.ser = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
 
-
     @property
     def parameters_default(self):
         """
@@ -57,11 +56,11 @@ class PressureGauge(Instrument):
         """
 
         possible_com_ports = ['COM' + str(i) for i in range(0, 256)]
-        parameter_list_default = [
+        parameter_list_default = Parameter([
             Parameter('port', 'COM4', possible_com_ports, 'com port to which the gauge controller is connected'),
             Parameter('timeout', 1.0, float, 'amount of time to wait for a response from the gauge controller for each query'),
             Parameter('baudrate', 9600, int, 'baudrate of serial communication with gauge')
-        ]
+        ])
 
         return parameter_list_default
 
@@ -81,6 +80,39 @@ class PressureGauge(Instrument):
             message = 'Serial communication returned unknown response:\n{}' \
                 ''.format(repr(response))
             raise IOError(message)
+
+    @property
+    def _probes(self):
+        """
+
+        Returns: A dictionary of key-value string-string pairs. keys: probe names, values: probe descriptions
+
+        """
+
+        return {
+            'pressure': 'numerical pressure read from Pressure Gauge',
+            'units': 'Units used by pressure gauge',
+            'model': 'Model of the pressure gauge'
+        }
+
+    def read_probes(self, probe_name):
+        """
+
+        Args:
+            probe_name: Name of the probe to get the value of from the Pressure Gauge (e.g., 'pressure')
+
+        Returns:
+            value of the probe from the Pressure Gauge
+        """
+
+        if probe_name is 'pressure':
+            return self.pressure()
+        elif probe_name is 'units':
+            return self.units()
+        elif probe_name is 'model':
+            return self.model()
+        else:
+            raise AttributeError('{0} not found as a probe in the class. Expected either pressure, units, or model')
 
     @property
     def pressure(self):
