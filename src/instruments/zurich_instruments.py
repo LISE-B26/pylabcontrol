@@ -51,7 +51,7 @@ class ZIHF2(Instrument):
                           Parameter('channel', 0, [0,1], 'signal input channel'),
                           Parameter('imp50', 1, [0,1], '50Ohm impedance on (1) or off (0)'),
                           Parameter('ac', False, bool, 'ac coupling on (1) or off (0)'),
-                          Parameter('range', 10, [0.01, 0.1, 1, 10], 'range of signal input'),
+                          Parameter('range', 10.0, [0.01, 0.1, 1.0, 10.0], 'range of signal input'),
                           Parameter('diff',  False, bool, 'differential signal on (1) or off (0)')
                        ]
                       ),

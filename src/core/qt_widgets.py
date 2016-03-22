@@ -123,19 +123,15 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         # if role = 2 (editrole, value has been entered)
         if role == 2 and column == 1:
             if isinstance(value, QtCore.QString):
-                print('QSTRING')
                 value = self.cast_type(value) # cast into same type as valid values
                 # if not isinstance(self.valid_values, list):
                 #
                 # else:
                 #     value = self.cast_type(value.currentText()) # cast into same type as valid values
             elif isinstance(value, QtGui.QComboBox):
-                print('QComboBox')
-                print('aa', value.currentText())
                 value = self.cast_type(value.currentText())
                 print(value)
             elif isinstance(value, QtGui.QCheckBox):
-                print('QCheckBox')
                 value = int(value.checkState()) # this gives 2 (True) and 0 (False)
                 value = value == 2
             # save value in internal variable
@@ -152,8 +148,10 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
         # if msg is not None:
         #     self.log(msg)
-
-        super(B26QTreeItem, self).setData(column, role, value)
+        if not isinstance(value, bool):
+            super(B26QTreeItem, self).setData(column, role, value)
+        else:
+            self.emitDataChanged()
 
     def cast_type(self, var, typ = None):
         """
@@ -204,7 +202,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             instrument = None
             path_to_instrument = [self.name]
             while parent is not None:
-                print('hhh', parent.value)
                 if isinstance(parent.value, Instrument):
                     instrument = parent.value
                     parent = None
