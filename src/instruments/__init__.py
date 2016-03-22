@@ -33,6 +33,11 @@ try:
 except:
     pass
 
+try:
+    from spectrum_analyzer import SpectrumAnalyzer
+except:
+    pass
+
 
 # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']
 # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']
