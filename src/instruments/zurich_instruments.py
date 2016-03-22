@@ -1,6 +1,7 @@
 from src.core import Instrument,Parameter
 import numpy as np
 
+
 # =============== ZURCIH INSTRUMENTS =======================
 # ==========================================================
 class ZIHF2(Instrument):
