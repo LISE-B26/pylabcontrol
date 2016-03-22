@@ -53,10 +53,46 @@ class UI(QtGui.QMainWindow):
         print(self.treeWidget.currentItem().name)
         print(self.treeWidget.currentItem().get_instrument())
 
-    def update_parameters(self, tree, parameters):
+    # def update_parameters(self, tree, parameters):
+    #
+    #     new_value
+    #     print('sss', tree.currentItem().text(0), tree.currentItem().valid_values)
+    #
+    #
+    def update_parameters(self, treeWidget, parameters):
 
-        print('sss', tree.currentItem().text(0), tree.currentItem().valid_values)
+        if treeWidget == self.treeWidget:
 
+            item = treeWidget.currentItem()
+
+            current_item = item
+            instrument, path_to_instrument = item.get_instrument()
+
+
+
+
+            param = instrument.parameters
+            for level in path_to_instrument:
+                param = param[level]
+            old_value = param
+
+            new_value = item.value
+
+
+
+            # todo: update .parameters
+
+            if new_value is not old_value:
+                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value), item.target)
+            else:
+                msg = "did not change parameter {:s} on {:s}".format(item.name, item.target)
+
+            print(msg)
+
+
+
+
+            # print(treeWidget.currentItem(), treeWidget.currentItem().target)
             # my_instruments = [
             #     # Instrument_Dummy('inst dummy 1'),
             #     # Maestro_Controller('maestro 6 channels'),

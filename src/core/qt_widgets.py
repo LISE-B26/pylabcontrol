@@ -128,7 +128,10 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             elif isinstance(value, QtGui.QComboBox):
                 value = value.currentText()
             elif isinstance(value, QtGui.QCheckBox):
-                value = value.checkState()
+                value = int(value.checkState()) # this gives 2 (True) and 0 (False)
+                value = value == 2
+            # save value in internal variable
+            self.value = value
 
         elif column == 0:
             # labels should not be changed so we set it back
@@ -197,6 +200,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                     path_to_instrument.append(parent.name)
                     parent = parent.parent()
 
+        path_to_instrument.reverse()
         return instrument, path_to_instrument
 
 
