@@ -119,6 +119,11 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
         msg = None
 
+        # make sure that the right row is selected, this is not always the case for checkboxes and
+        # comboboxes because they are items on top of the tree structure
+        if isinstance(value, (QtGui.QComboBox, QtGui.QCheckBox)):
+            self.treeWidget().setCurrentItem(self)
+
 
         # if role = 2 (editrole, value has been entered)
         if role == 2 and column == 1:
