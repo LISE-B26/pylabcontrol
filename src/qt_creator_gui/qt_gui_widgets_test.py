@@ -84,8 +84,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         #     {'target' : zi_inst, 'parameter' : get_elemet('freq', zi_inst.parameters)}
         # ]
 
-        # define scripts
-        # self.scripts = [
+        # define scripts_old
+        # self.scripts_old = [
         #     Script_Dummy('script dummy 1'),
         #     QtScript('threaded script')
         # ]

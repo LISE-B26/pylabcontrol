@@ -6,7 +6,7 @@ import numpy as np
 from  hardware_modules.GalvoMirrors import SetGalvoPoint
 
 from src.functions import Focusing
-from src.scripts import ESR
+from src.scripts_old import ESR
 
 
 def get_points_on_a_grid(pos_left_bottom, pos_right_top, xpts, ypts):

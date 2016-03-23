@@ -12,14 +12,14 @@ import matplotlib.patches as patches
 import numpy as np
 import pandas as pd
 import scipy.spatial
-import src.scripts.ESR_many_NVs as ESR
+import src.scripts_old.ESR_many_NVs as ESR
 from PyQt4 import QtGui
 from src.functions import track_NVs as track
 from src.hardware_modules import PiezoController as PC
-from src.scripts import ZiControl_many_pts as ZIControl
-from src.scripts import set_focus as f
+from src.scripts_old import ZiControl_many_pts as ZIControl
+from src.scripts_old import set_focus as f
 
-import src.scripts.auto_focus as AF
+import src.scripts_old.auto_focus as AF
 from src.gui import GuiDeviceTriggers as DeviceTriggers
 from src.gui import PlotAPDCounts3 as Cnts
 from src.gui import gui_custom_widgets as gui_cw
@@ -339,7 +339,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
     def add_execute(grid, row_start = 1, column_start =  1):
         '''
-        Adds widgets to grid relating to executiing scripts
+        Adds widgets to grid relating to executiing scripts_old
         :param grid: Overall ui grid containing regions of UI elements
         :param row_start: index of first row element
         :param column_start: index of first column element
@@ -347,7 +347,7 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
         ApplicationWindow.label_execute = QtGui.QLabel('execute', ApplicationWindow.main_widget)
         grid.addWidget(ApplicationWindow.label_execute,row_start,column_start)
         ApplicationWindow.cmb_execute = QtGui.QComboBox(ApplicationWindow.main_widget)
-        # Add new scripts to be executed here
+        # Add new scripts_old to be executed here
         ApplicationWindow.cmb_execute.addItems(['ESR (chosen NVs)', 'ESR (grid)', 'ESR (point)', 'AutoFocus', 'AutoFocus (attocube)', 'AutoFocus (mean)', 'AutoFocus (mean, grid)', 'Counter', 'Get Distance', 'ZI Frequency Sweep (point)', 'ZI Frequency Sweep (grid)', 'reset scan range'])
         ApplicationWindow.cmb_execute.activated.connect(lambda: change_script(ApplicationWindow))
         grid.addWidget(ApplicationWindow.cmb_execute,row_start+1,column_start)

@@ -14,7 +14,7 @@ class Script_new(object):
 
     def __init__(self, script_function, name = None, settings = None):
         """
-        executes scripts and stores script parameters and settings
+        executes scripts_old and stores script parameters and settings
         Args:
             script_function (required): script that
             name (optinal):  name of script, if not provided take name of function
@@ -293,7 +293,7 @@ class Script(object):
     def dict(self):
         '''
         returns the configuration of the script as a dictionary
-        that contains {'parameters': parameters, 'instrument_tests':instrument_tests, 'scripts': scripts}
+        that contains {'parameters': parameters, 'instrument_tests':instrument_tests, 'scripts_old': scripts_old}
         :return: nested dictionary with entries name and value
         '''
         # build dictionary

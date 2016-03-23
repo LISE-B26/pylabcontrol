@@ -11,7 +11,7 @@ from src.core.qt_widgets import fill_tree
 
 from src.instruments import MaestroBeamBlock, MaestroController, ZIHF2
 
-# from src.core.scripts import *
+# from src.core.scripts_old import *
 
 INSTRUMENTS = []
 
@@ -83,7 +83,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
 
             #
-            # for script in self.scripts:
+            # for script in self.scripts_old:
             #     if isinstance(script, QtScript):
             #         print(script.name)
             #         script.updateProgress.connect(self.update_progress)
@@ -106,7 +106,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
         # ============ define probes / monitor ========================
 
-        # ============ define scripts =================================
+        # ============ define scripts_old =================================
 
 
         #
@@ -116,8 +116,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         #     {'target' : zi_inst, 'parameter' : get_elemet('freq', zi_inst.parameters)}
         # ]
 
-        # define scripts
-        # self.scripts = [
+        # define scripts_old
+        # self.scripts_old = [
         #     Script_Dummy('script dummy 1'),
         #     QtScript('threaded script')
         # ]
