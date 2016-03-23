@@ -1,5 +1,5 @@
 """
-New gui with new parameter and instrument class and GUI designed with QT designer
+Basic gui class designed with QT designer
 """
 import sip
 sip.setapi('QVariant', 2)# set to version to so that the gui returns QString objects and not generic QVariants
@@ -10,33 +10,50 @@ from src.core.qt_b26_widgets import fill_tree
 
 
 from src.instruments import ZIHF2
-
-# from src.core.scripts_old import *
-
-INSTRUMENTS = []
-
-
-
 import datetime
 from collections import deque
-# from src.qt_creator_gui import QTreeInstrument, QTreeScript, QTreeParameter
 
 
-# todo: try to complie .ui file if if doesn't exist or can't be compliled load precompiled .py file
+# load the basic gui either from .ui file or from precompiled .py file
 try:
     # import external_modules.matplotlibwidget
     Ui_MainWindow, QMainWindow = loadUiType('basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
-except ImportError:
+except (ImportError, IOError):
     from src.core.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
-    print('DDD')
+    print('Warning: on the fly conversion of .ui file failed, loaded .py file instead!!')
 
-# from src.qt_creator_gui.zi_control import Ui_MainWindow
 
 
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self, ):
+    def __init__(self, *args):
+        """
+
+        ControlMainWindow(intruments, scripts, probes)
+            - intruments: depth 1 dictionary where keys are instrument names and keys are instrument classes
+            - scripts: depth 1 dictionary where keys are script names and keys are script classes
+            - probes: depth 1 dictionary where to be decided....?
+
+        ControlMainWindow(settings_file)
+            - settings_file is the path to a json file that contains all the settings for the gui
+
+        Returns:
+
+        """
+
+        print(args)
+        if len(args) == 1:
+            for element in args:
+                args = element
+            assert isinstance(args, str)
+
+        elif len(args) == 3:
+            print(args)
+
+        else:
+            raise TypeError("called ControlMainWindow with wrong arguments")
+
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
 
@@ -279,22 +296,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # else:
                 #     raise TypeError('Unknown item!!')
 
-    def fill_treewidget_old(self, treeWidget):
-        if treeWidget == self.tree_scripts:
-            for elem in self.scripts:
-                QTreeScript( self.tree_scripts, elem )
-
-        elif treeWidget == self.tree_settings:
-            for elem in self.instruments:
-                QTreeInstrument( self.tree_settings, elem )
-        elif treeWidget == self.tree_monitor:
-            for elem in self.monitor_parameters:
-                QTreeParameter( self.tree_monitor, elem['parameter'],  elem['target'])
 
 if __name__ == '__main__':
 
     import sys
+    from src.qt_creator_gui.instrument_loading import load_working_instruments
     app = QtGui.QApplication(sys.argv)
-    ex = ControlMainWindow()
+
+
+    instruments =
+
+    # ex = ControlMainWindow('path....')
+    ex = ControlMainWindow('path....')
     ex.show()
+    ex.raise_()
     sys.exit(app.exec_())

@@ -62,6 +62,9 @@ def load_working_instruments(instruments):
 
     return instrument_instances
 
-# test code
-example_instruments = {'ZIHF2': 'ZIHF2', 'Microwave Generator': 'MicrowaveGenerator'}
-instances = load_working_instruments(example_instruments)
+
+if __name__ == '__main__':
+    # test code
+    example_instruments = {'ZIHF2': 'ZIHF2', 'Microwave Generator': 'MicrowaveGenerator'}
+    instances = load_working_instruments(example_instruments)
+    print(instances)
