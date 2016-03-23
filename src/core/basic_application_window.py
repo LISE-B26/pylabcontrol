@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'zi_control.ui'
+# Form implementation generated from reading ui file 'basic_application_window.ui'
 #
 # Created: Wed Mar 23 12:47:45 2016
 #      by: PyQt4 UI code generator 4.10.4

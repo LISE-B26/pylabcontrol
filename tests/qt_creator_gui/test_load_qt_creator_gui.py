@@ -1,6 +1,6 @@
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
-Ui_MainWindow, QMainWindow = loadUiType('../../src/qt_creator_gui/zi_control.ui') # with this we don't have to convert the .ui file into a python file!
+Ui_MainWindow, QMainWindow = loadUiType('../../src/qt_creator_gui/basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
 
 import datetime
 from collections import deque
@@ -77,7 +77,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         #     {'target' : zi_inst, 'parameter' : get_elemet('freq', zi_inst.parameters)}
         # ]
 
-        # define scripts
+        # define scripts_old
         self.scripts = [
             Script_Dummy('script dummy 1'),
             QtScript('threaded script')

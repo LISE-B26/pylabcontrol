@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.scripts import ESR
+from src.scripts_old import ESR
 
 if __name__ == '__main__':
     RF_Power = -12

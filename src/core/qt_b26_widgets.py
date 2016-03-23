@@ -4,24 +4,6 @@ from PyQt4 import QtCore, QtGui
 from src.core import Parameter, Instrument
 
 
-def fill_tree(tree, parameters):
-    """
-    fills a tree with nested parameters
-    Args:
-        tree: QtGui.QTreeWidget
-        parameters: dictionary or Parameter object
-
-    Returns:
-
-    """
-    assert isinstance(parameters, (dict, Parameter))
-
-    for key, value in parameters.iteritems():
-        if isinstance(value, Parameter):
-            B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
-        else:
-            B26QTreeItem(tree, key, value, type(value), '')
-
 # ======== B26QTreeItem ==========
 class B26QTreeItem(QtGui.QTreeWidgetItem):
     '''

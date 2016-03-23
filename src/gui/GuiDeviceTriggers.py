@@ -5,7 +5,7 @@ from src.functions import ScanAPD
 from src.functions import ScanPhotodiode_DAQ as ScanPhotodiode
 from src.hardware_modules import GalvoMirrors as DaqOut
 from src.hardware_modules import ZiControl
-#from scripts.ESR import run_esr
+#from scripts_old.ESR import run_esr
 from PyQt4 import QtGui
 
 

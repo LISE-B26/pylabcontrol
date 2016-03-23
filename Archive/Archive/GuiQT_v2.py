@@ -31,7 +31,7 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import RectangleSelector
 
 from archive.Archive import PlotAPDCounts
-from src.scripts import ESR
+from src.scripts_old import ESR
 
 
 # Extends the matplotlib backend FigureCanvas. A canvas for matplotlib figures with a constructed axis that is

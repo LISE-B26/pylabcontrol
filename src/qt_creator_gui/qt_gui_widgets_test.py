@@ -1,6 +1,6 @@
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
-Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
+Ui_MainWindow, QMainWindow = loadUiType('basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
 # from qt_creator_gui.zi_control import Ui_MainWindow
 
 
@@ -84,8 +84,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         #     {'target' : zi_inst, 'parameter' : get_elemet('freq', zi_inst.parameters)}
         # ]
 
-        # define scripts
-        # self.scripts = [
+        # define scripts_old
+        # self.scripts_old = [
         #     Script_Dummy('script dummy 1'),
         #     QtScript('threaded script')
         # ]

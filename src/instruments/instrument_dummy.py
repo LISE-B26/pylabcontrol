@@ -1,0 +1,106 @@
+from src.core import Instrument, Parameter
+
+
+
+class DummyInstrument(Instrument):
+    def __init__(self, name =  None, parameters = None):
+        self._internal_state = None
+        super(DummyInstrument, self).__init__(name, parameters)
+
+    @property
+    def _parameters_default(self):
+        """
+        returns the default parameter_list of the instrument this function should be over written in any subclass
+        """
+        parameters_default = Parameter([
+            Parameter('test1', 0, int, 'some int parameter'),
+            Parameter('output probe2', 0, int, 'return value of probe 2 (int)'),
+            Parameter('test2',
+                      [Parameter('test2_1', 'string', str, 'test parameter (str)'),
+                       Parameter('test2_2', 0.0, float, 'test parameter (float)')
+                       ])
+        ])
+        return parameters_default
+
+    def update(self, parameters):
+        '''
+        updates the internal dictionary and sends changed values to instrument
+        Args:
+            parameters: parameters to be set
+        # mabe in the future:
+        # Returns: boolean that is true if update successful
+
+        '''
+        Instrument.update(self, parameters)
+
+        for key, value in parameters:
+            if key == 'test1':
+                self._internal_state = value
+
+    @property
+    def _probes(self):
+        """
+
+        Returns: a dictionary that contains the values that can be read from the instrument
+        the key is the name of the value and the value of the dictionary is an info
+
+        """
+        return {'value1': 'this is some value from the instrument',
+                'value2': 'this is another',
+                'internal' : 'gives the internal state variable'
+                }
+
+    def read_probes(self, key):
+        """
+        requestes value from the instrument and returns it
+        Args:
+            key: name of requested value
+
+        Returns: reads values from instrument
+
+        """
+        assert key in self._probes.keys()
+
+        import random
+        if key == 'value1':
+            value = random.random()
+        elif key == 'value2':
+            value = self.parameters['output probe2']
+        elif key == 'internal':
+            value = self._internal_state
+
+
+        return value
+
+    @property
+    def is_connected(self):
+        '''
+        check if instrument is active and connected and return True in that case
+        :return: bool
+        '''
+        return self._is_connected
+
+
+if __name__ == '__main__':
+
+
+    # test = Instrument()
+    test = DummyInstrument()
+
+
+    print(test.parameters)
+    print(test._probes)
+    print(test.value1)
+
+
+    print(test.internal)
+
+    test.internal = 'sss'
+
+    print(test.internal)
+
+    print(test._internal_state)
+
+    test._internal_state = 'ddd'
+
+    print(test.internal)

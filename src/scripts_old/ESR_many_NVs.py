@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.scripts import ESR
+from src.scripts_old import ESR
 from src.functions import track_NVs as track
 from src.functions import ScanAPD
 from src.hardware_modules import GalvoMirrors as DaqOut
@@ -18,7 +18,7 @@ from src.functions import Focusing as F
 from src.functions import ScanAPD
 from src.functions import regions
 from src.functions import track_NVs as track
-from src.scripts import ESR
+from src.scripts_old import ESR
 
 
 def setDaqPt(xVolt,yVolt):
