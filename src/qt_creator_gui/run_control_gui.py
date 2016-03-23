@@ -24,9 +24,13 @@ from collections import deque
 
 # todo: try to complie .ui file if if doesn't exist or can't be compliled load precompiled .py file
 try:
+    # import external_modules.matplotlibwidget
     Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
-except:
-    raise
+except ImportError:
+    from src.qt_creator_gui.zi_control import Ui_MainWindow
+    from PyQt4.QtGui import QMainWindow
+    print('DDD')
+
 # from src.qt_creator_gui.zi_control import Ui_MainWindow
 
 
