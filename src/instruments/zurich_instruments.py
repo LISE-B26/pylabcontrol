@@ -33,6 +33,40 @@ class ZIHF2(Instrument):
         # apply all settings to instrument
         self.update(self.parameters)
 
+    def _commands_from_parameters(self, parameters):
+        '''
+        converts dictionary to list of  setting, which can then be passed to the zi controler
+        :param parameters = dictionary that contains the settings
+        :return: settings = list of settings, which can then be passed to the zi controler
+        '''
+        # create list that is passed to the ZI controler
+
+
+        settings = []
+
+        for key, element in sorted(parameters.iteritems()):
+            if isinstance(element, dict) and key in ['sigins', 'sigouts', 'demods']:
+                # channel = self.parameters['sigouts']['channel']
+                channel = element['channel']
+                # print('verify channel (sigins, sigouts, demods)', channel)
+                for sub_key, val in sorted(element.iteritems()):
+                    if not sub_key == 'channel':
+                        settings.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
+            elif isinstance(element, dict) and key in ['aux']:
+                # channel = get_elemet('aux', self.parameters).as_dict()['aux']['channel']
+                channel = element['channel']
+                # print('verify channel (aux)', channel)
+                settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, channel), element['offset']])
+            elif key in ['freq']:
+                # channel = get_elemet('sigouts', self.parameters).as_dict()['sigouts']['channel']
+                channel = self.parameters['sigouts']['channel']
+                # print('verify channel (freq)', channel)
+                settings.append(['/%s/oscs/%d/freq' % (self.device, channel), parameters['freq']])
+                # settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
+            elif isinstance(element, dict) == False:
+                settings.append([key, element])
+
+        return settings
 
     # ========================================================================================
     # ======= overwrite functions from instrument superclass =================================
@@ -85,61 +119,22 @@ class ZIHF2(Instrument):
         return parameters_default
 
     def update(self, parameters):
-        '''
+        """
         updates the internal dictionary and sends changed values to instrument
         Args:
             parameters: parameters to be set
-        '''
+        """
         # call the update_parameter_list to update the parameter list
         super(ZIHF2, self).update(parameters)
 
-
-        def commands_from_parameters(parameters):
-            '''
-            converts dictionary to list of  setting, which can then be passed to the zi controler
-            :param parameters = dictionary that contains the settings
-            :return: settings = list of settings, which can then be passed to the zi controler
-            '''
-            # create list that is passed to the ZI controler
-
-
-            settings = []
-
-
-
-            for key, element in sorted(parameters.iteritems()):
-                if isinstance(element, dict) and key in ['sigins', 'sigouts', 'demods']:
-                    # channel = self.parameters['sigouts']['channel']
-                    channel = element['channel']
-                    # print('verify channel (sigins, sigouts, demods)', channel)
-                    for sub_key, val in sorted(element.iteritems()):
-                        if not sub_key == 'channel':
-                            settings.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
-                elif isinstance(element, dict) and key in ['aux']:
-                    # channel = get_elemet('aux', self.parameters).as_dict()['aux']['channel']
-                    channel = element['channel']
-                    # print('verify channel (aux)', channel)
-                    settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, channel), element['offset']])
-                elif key in ['freq']:
-                    # channel = get_elemet('sigouts', self.parameters).as_dict()['sigouts']['channel']
-                    channel = self.parameters['sigouts']['channel']
-                    # print('verify channel (freq)', channel)
-                    settings.append(['/%s/oscs/%d/freq' % (self.device, channel), parameters['freq']])
-                    # settings.append(['/%s/oscs/%d/freq' % (self.device, dictionary['sigouts']['channel']), dictionary['freq']])
-                elif isinstance(element, dict) == False:
-                    settings.append([key, element])
-
-
-            return settings
-
-
         # now we actually apply these newsettings to the hardware
-        commands = commands_from_parameters(parameters)
+        commands = self._commands_from_parameters(parameters)
         if self.is_connected:
             self.daq.set(commands)
         else:
             print('hardware is not connected, the command to be send is:')
             print(commands)
+
 
     @property
     def _probes(self):

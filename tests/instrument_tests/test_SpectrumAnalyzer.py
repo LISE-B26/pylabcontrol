@@ -10,6 +10,8 @@ class TestSpectrumAnalyzer(TestCase):
     def test_is_connected(self):
         self.assertTrue(self.spec_anal.is_connected())
 
-    def test_start_freq_setting(self):
-        self.spec_anal.start_frequency = 1e9
-
+    def test_start_freq_setting_and_getting(self):
+        freq = 10000
+        self.spec_anal.start_frequency = freq
+        print self.spec_anal.start_frequency
+        self.assertEqual(freq, self.spec_anal.start_frequency)

@@ -42,7 +42,7 @@ class MicrowaveGenerator(Instrument):
     def update(self, parameters):
         super(MicrowaveGenerator, self).update(parameters)
         for key, value in parameters.iteritems():
-            if not(key == 'port' or key == 'GPIB_num'):
+            if not (key == 'port' or key == 'GPIB_num'):
                 if type(self._parameters.valid_values[key]) == bool: #converts booleans, which are more natural to store for on/off, to
                     value = int(value)                #the integers used internally in the SRS
                 self.srs.write(key + ' ' + str(value))

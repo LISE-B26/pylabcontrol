@@ -21,6 +21,8 @@ class SpectrumAnalyzer(Instrument):
         super(SpectrumAnalyzer, self).__init__(name, parameter_list)
         rm = visa.ResourceManager()
         self.spec_anal = rm.open_resource(self.parameters['visa_resource'])
+        self.spec_anal.timeout = 10000
+        self.spec_anal.write('*RST\n')
 
     @property
     def _parameters_default(self):
@@ -41,11 +43,19 @@ class SpectrumAnalyzer(Instrument):
 
     def update(self, parameters):
         super(SpectrumAnalyzer, self).update(parameters)
+
         for key, value in parameters.iteritems:
             if key == 'start_frequency':
-                self.start_frequency(value)
+                self._start_frequency(value)
             else:
                 message = '{0} is not a parameter of {2}'.format(key, self.name)
+
+    def read_probes(self, probe_name):
+        if probe_name == 'start_frequency':
+            return self._get_start_frequency()
+
+    def _probes(self):
+        probes = {'start_frequency': 'the lower bound of the frequency sweep'}
 
     def is_connected(self):
         """
@@ -56,12 +66,18 @@ class SpectrumAnalyzer(Instrument):
         identification = self.spec_anal.query('*IDN?\n')
         return identification == self.INSTRUMENT_IDENTIFIER
 
-    @property
-    def start_frequency(self, start_freq):
-        super(SpectrumAnalyzer, self).update({'start_frequency': start_freq})
-        response = self.spec_anal.query('SENS:FREQ:START ' + str(start_freq))
+    def _set_start_frequency(self, start_freq):
+        self.spec_anal.write('SENS:FREQ:START ' + str(start_freq))
+
+    def _get_start_frequency(self):
+        return self.spec_anal.query('SENS:FREQ:START?\n')
 
 if __name__ == '__main__':
-    a = SpectrumAnalyzer()
-    print a.is_connected()
-    print(a.parameters)
+        spec_anal = SpectrumAnalyzer()
+        freq = 20000
+        print spec_anal.start_frequency
+        print freq
+        spec_anal.start_frequency = freq
+        print spec_anal.start_frequency
+        import time
+        time.sleep(10)
