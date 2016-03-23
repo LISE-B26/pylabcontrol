@@ -8,13 +8,13 @@ from src.core import Parameter, Instrument
 
 
 class Script(object):
-    __metaclass__ = ABCMeta
+    # __metaclass__ = ABCMeta
 
     # ========================================================================================
     # ======= Following functions have to be customized for each instrument subclass =========
     # ========================================================================================
 
-    @abstractproperty
+    # @abstractproperty
     def _settings_default(self):
         '''
         returns the default settings of the script
@@ -27,7 +27,7 @@ class Script(object):
             Parameter('instrument', Instrument())
         ])
         return settings_default
-    @abstractmethod
+    # @abstractmethod
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property
@@ -129,7 +129,7 @@ class Script(object):
 
         for setting in check_settings_list(settings_new):
             # get index of setting in default list
-            index = [i for i, s in enumerate(self.settings_default) if s == setting]
+            index = [i for i, s in enumerate(self._settings_default) if s == setting]
             if len(index)>1:
                 raise TypeError('Error: Dublicate setting in default list')
             elif len(index)==1:
@@ -399,52 +399,6 @@ class Script(object):
 #     #     self._abort = False
 
 
-# class QtScript_Dummy(QtScript):
-#     #This is the signal that will be emitted during the processing.
-#     #By including int as an argument, it lets the signal know to expect
-#     #an integer argument when emitting.
-#     updateProgress = QtCore.Signal(int)
-#
-#     def __init__(self, name, threading, settings):
-#         super(QtScript_Dummy, self).__init__(name, settings)
-#
-#     @property
-#     def settings_default(self):
-#         '''
-#         returns the default settings of the script
-#         settings contain Parameters, Instruments and Scripts
-#         :return:
-#         '''
-#         settings_default = [
-#             Parameter('a', 0, [0,1]),
-#             Parameter({'b':0.1}),
-#             Parameter({'threading':True}),
-#             Instrument_Dummy('dummy inst')
-#         ]
-#         return settings_default
-#     @property
-#     def a(self):
-#         return [element for element in self.settings if element.name == 'a'][0]
-#
-#     #A QThread is run by calling it's start() function, which calls this run()
-#     #function in it's own "thread".
-#     def run(self):
-#         import time
-#         import random
-#
-#         self.is_running = True
-#         self.time_start  = datetime.datetime.now()
-#         while self.is_running and self._abort == False:
-#             signal = random.random()
-#             # do something
-#             self.updateProgress.emit()
-#             print('a', signal)
-#             time.sleep(0.2)
-#
-#         self.time_end  = datetime.datetime.now()
-#
-#         success = self._abort == False
-#         return success
 
 # class QtScript_Dummy(QtScript):
 #     def __init__(self, name, settings = []):

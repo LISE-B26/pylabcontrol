@@ -5,9 +5,8 @@ import sip
 sip.setapi('QVariant', 2)# set to version to so that the gui returns QString objects and not generic QVariants
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
-from src.core import Parameter, Instrument
-from src.core.qt_b26_widgets import fill_tree
-
+from src.core import Parameter, Instrument, B26QTreeItem
+import os.path
 
 from src.instruments import ZIHF2
 import datetime
@@ -24,6 +23,88 @@ except (ImportError, IOError):
     print('Warning: on the fly conversion of .ui file failed, loaded .py file instead!!')
 
 
+
+# ====== these functions will be outsourced ========= start
+def load_scripts(scripts, instruments):
+    """
+    Creates instances of the scripts inputted;
+
+    Args:
+        scripts: scripts is a dictionary with (key,value) = (name of the script, script class name),
+        for example script = {'dummy script': 'ScriptDummy'}
+
+    Returns:
+        a dictionary with (key,value) = (name of script, instance of script class) for all of the scripts
+        passed to the function that were successfully imported and initialized. Otherwise, scripts are omitted
+        in the outputted list.
+
+    Examples:
+        In the following, script_1 loads correctly, but script_2 does not, so only an instance of script_1
+        is outputted.
+
+        >>> load_scripts({'script_1_name':'Script1Class', 'script_2_name':'Script2Class'})
+        {'script_1_name':Script1Class()}
+
+    """
+
+
+    scripts_instances = {}
+    print('instruments', instruments)
+    for script_name, value in scripts.iteritems():
+        print('====', script_name)
+        try:
+
+            if isinstance(value, dict):
+                assert 'script_class' in value
+                assert 'instruments' in value
+
+                script_class_name = value['script_class']
+                script_instruments = value['instruments']
+
+                script_instruments = {instrument_name: instruments[instrument_reference] for instrument_name, instrument_reference in script_instruments.iteritems()}
+
+            elif isinstance(value, str):
+                script_class_name = value
+                script_instruments = None
+
+            else:
+                TypeError("values of input not recognized!")
+
+
+            # try to import the script
+            module = __import__('src.scripts', fromlist=[script_class_name])
+            # this returns the name of the module that was imported.
+
+            class_of_script = getattr(module, script_class_name)
+            # this will take the module and look for the class of the script in it.
+            # This has the same name as the name for the module, because of our __init__.py file in the scripts
+            # folder. This raises an AttributeError if, in fact, we did not import the module
+
+            print(class_of_script, script_name)
+            # this creates an instance of the class
+            if script_instruments is None:
+                script_instance = class_of_script(name=script_name)
+            else:
+                script_instruments['name'] = script_name
+                script_instance = class_of_script(**script_instruments)
+
+            # adds the instance to our output dictionary
+            scripts_instances[script_name] = script_instance
+            print('script_name', script_name, scripts_instances)
+
+        except AttributeError:
+            # catches when we try to create a script of a class that doesn't exist!
+            # pass
+            raise
+
+    return scripts_instances
+
+
+def load_probes(probes, instruments):
+
+    return probes
+
+# ====== these functions will be outsourced ========= end
 
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
@@ -44,18 +125,43 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         print(args)
         if len(args) == 1:
-            for element in args:
-                args = element
-            assert isinstance(args, str)
-
+            instruments, scripts, probes = self.load_settings(args[0])
         elif len(args) == 3:
-            print(args)
+            instruments, scripts, probes = args
 
+            instruments = load_instruments(instruments)
+            print('created instruments')
+            print(instruments)
+            scripts = load_scripts(scripts, instruments)
+            print('created scripts')
+            print(scripts)
+            probes = load_probes(probes, instruments)
+            print('created probes')
+            print(probes)
         else:
             raise TypeError("called ControlMainWindow with wrong arguments")
 
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
+
+        self.instruments = instruments
+        self.scripts = scripts
+        self.probes = probes
+
+
+        # define data container
+        self.history = deque()  # history of executed commands
+
+
+        # fill the trees
+        self.fill_tree(self.tree_settings, self.instruments)
+        self.tree_settings.setColumnWidth(0, 300)
+
+        print('self.scripts', self.scripts)
+        self.fill_tree(self.tree_scripts, self.scripts)
+        self.tree_scripts.setColumnWidth(0, 300)
+
+        # ========= old stuff =========
 
         def connect_controls():
             # =============================================================
@@ -105,22 +211,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             #         print(script.name)
             #         script.updateProgress.connect(self.update_progress)
 
-        # define data container
-        self.past_commands = deque() # history of executed commands
 
-        # ============ define instruments ==========================
-        # maestro = MaestroController('maestro 6 channels')
-        self.instruments = [
-            ZIHF2('ZiHF2'),
-            # MaestroBeamBlock(maestro,'IR beam block')
-        ]
-
-
-        self.instruments = {instrument.name: instrument  for instrument in self.instruments}
-        fill_tree(self.tree_settings, self.instruments)
-        self.tree_settings.setColumnWidth(0,300)
-
-        self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
+        # self.instruments = {instrument.name: instrument  for instrument in self.instruments}
+        # fill_tree(self.tree_settings, self.instruments)
+        # self.tree_settings.setColumnWidth(0,300)
+        #
+        # self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
         # ============ define probes / monitor ========================
 
         # ============ define scripts_old =================================
@@ -297,17 +393,94 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 #     raise TypeError('Unknown item!!')
 
 
+    def load_settings(self, path_to_file):
+        """
+        loads a gui settings file (a json dictionary)
+        - path_to_file: path to file that contains the dictionary
+
+        Returns:
+            - instruments: depth 1 dictionary where keys are instrument names and values are instances of instruments
+            - scripts:  depth 1 dictionary where keys are script names and values are instances of scripts
+            - probes: depth 1 dictionary where to be decided....?
+        """
+        instruments = None
+        scripts = None
+        probes = None
+        # todo: implement load settings from json file
+        assert isinstance(path_to_file, str)
+
+        assert os.path.isfile(path_to_file)
+        print('loading from json file not supported yet!')
+        raise TypeError
+
+        return instruments, scripts, probes
+
+    def save_settings(self, path_to_file):
+        """
+        saves a gui settings file (to a json dictionary)
+        - path_to_file: path to file that will contain the dictionary
+        """
+
+        # todo: implement
+
+    def fill_tree(self, tree, parameters):
+        """
+        fills a tree with nested parameters
+        Args:
+            tree: QtGui.QTreeWidget
+            parameters: dictionary or Parameter object
+
+        Returns:
+
+        """
+        assert isinstance(parameters, (dict, Parameter))
+
+        for key, value in parameters.iteritems():
+            if isinstance(value, Parameter):
+                B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
+            else:
+                B26QTreeItem(tree, key, value, type(value), '')
+
 if __name__ == '__main__':
 
     import sys
-    from src.qt_creator_gui.instrument_loading import load_working_instruments
+    from src.qt_creator_gui.instrument_loading import load_instruments
     app = QtGui.QApplication(sys.argv)
 
 
-    instruments =
+
+    instruments = {'ZIHF2': 'ZIHF2', 'Microwave Generator': 'MicrowaveGenerator', 'inst1': 'INst1'}
+
+    scripts= {
+
+
+        'counter': 'ScriptDummy',
+
+
+        'zi sweeper': {
+            'script_class': 'ZI_Sweeper',
+            'instruments': {'zihf2': 'ZIHF2'}
+        }
+
+        # 'new_script': 'NewScript',
+
+        # 'new_script_with_inst': {
+        #     "script_class" :'NewScriptWithInst',
+        #     # "instruments": {"inst1": "Inst1", ..}
+        # }
+
+
+
+    }
+
+    # {"zihf2": "ZIHF2", "inst": 'INST'} => param = {"zihf2": &ZIHF2, 'inst': &sacbs;}
+
+    # Zi_Sweeper(*param)
+
+    probes = {'probe 1', 'something', 'probe 2', 'something else'}
 
     # ex = ControlMainWindow('path....')
-    ex = ControlMainWindow('path....')
+    ex = ControlMainWindow(instruments, scripts, probes)
     ex.show()
     ex.raise_()
     sys.exit(app.exec_())

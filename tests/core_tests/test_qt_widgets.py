@@ -4,7 +4,7 @@ import sip
 sip.setapi('QVariant', 2)
 from PyQt4 import QtCore, QtGui
 import sys
-from src.core.qt_b26_widgets import B26QTreeItem,fill_tree
+from src.core.qt_b26_widgets import B26QTreeItem
 from src.core import Parameter
 
 class UI(QtGui.QMainWindow):

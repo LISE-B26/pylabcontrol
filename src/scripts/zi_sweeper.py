@@ -1,5 +1,4 @@
-from src.core.scripts import Script
-
+from src.core import Script, Parameter
 from PyQt4 import QtCore
 
 
@@ -18,9 +17,10 @@ class ZI_Sweeper(QtCore.QThread, Script):
         self._recording = False
 
         QtCore.QThread.__init__(self)
-        super(ZI_Sweeper, self).__init__(name, settings)
+        # super(ZI_Sweeper, self).__init__(name, settings)
+        Script.__init__(self, name, settings)
 
-        self.update_parameters(self.parameters_default)
+        # self.update(self._settings_default())
 
 
     # @property
@@ -56,3 +56,4 @@ class ZI_Sweeper(QtCore.QThread, Script):
         for i in range(3):
             time.sleep(0.1)
             print(i)
+

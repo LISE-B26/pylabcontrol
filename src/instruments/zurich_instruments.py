@@ -31,6 +31,7 @@ class ZIHF2(Instrument):
 
         super(ZIHF2, self).__init__(name, parameters)
         # apply all settings to instrument
+        # todo: this shoud not be necesarry, test this!
         self.update(self.parameters)
 
 

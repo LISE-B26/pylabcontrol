@@ -1,4 +1,4 @@
-def load_working_instruments(instruments):
+def load_instruments(instruments):
     """
     Creates instances of the instruments inputted; in the case of the Maestro Beam Block and other motors, makes sure
     to use the same controller for all of them by creating a single controller instance for each maestro motor to be
@@ -17,7 +17,7 @@ def load_working_instruments(instruments):
         In the following, instrument_1 loads correctly, but instrument_2 does not, so only an instance of instrument_1
         is outputted.
 
-        >>> load_working_instruments({'instrument_1_name':'Instrument1Class', 'instrument_2_name':'Instrument2Class'})
+        >>> load_instruments({'instrument_1_name':'Instrument1Class', 'instrument_2_name':'Instrument2Class'})
         {'instrument_1_name':Instrument1Class()}
 
     """
@@ -66,5 +66,5 @@ def load_working_instruments(instruments):
 if __name__ == '__main__':
     # test code
     example_instruments = {'ZIHF2': 'ZIHF2', 'Microwave Generator': 'MicrowaveGenerator'}
-    instances = load_working_instruments(example_instruments)
+    instances = load_instruments(example_instruments)
     print(instances)
