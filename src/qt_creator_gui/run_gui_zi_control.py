@@ -27,7 +27,7 @@ from matplotlib.figure import Figure
 
 # from src import hardware_modules as ZI
 # option A
-Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
+Ui_MainWindow, QMainWindow = loadUiType('basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
 # option B
 # from qt_creator_gui.zi_control import Ui_MainWindow # with this we have to first compile (pyside-uic mainwindow.ui -o mainwindow.py)
 

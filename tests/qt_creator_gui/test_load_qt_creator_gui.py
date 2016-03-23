@@ -1,6 +1,6 @@
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
-Ui_MainWindow, QMainWindow = loadUiType('../../src/qt_creator_gui/zi_control.ui') # with this we don't have to convert the .ui file into a python file!
+Ui_MainWindow, QMainWindow = loadUiType('../../src/qt_creator_gui/basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
 
 import datetime
 from collections import deque

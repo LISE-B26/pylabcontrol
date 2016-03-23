@@ -6,10 +6,10 @@ sip.setapi('QVariant', 2)# set to version to so that the gui returns QString obj
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 from src.core import Parameter, Instrument
-from src.core.qt_widgets import fill_tree
+from src.core.qt_b26_widgets import fill_tree
 
 
-from src.instruments import MaestroBeamBlock, MaestroController, ZIHF2
+from src.instruments import ZIHF2
 
 # from src.core.scripts_old import *
 
@@ -25,9 +25,9 @@ from collections import deque
 # todo: try to complie .ui file if if doesn't exist or can't be compliled load precompiled .py file
 try:
     # import external_modules.matplotlibwidget
-    Ui_MainWindow, QMainWindow = loadUiType('zi_control.ui') # with this we don't have to convert the .ui file into a python file!
+    Ui_MainWindow, QMainWindow = loadUiType('basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
 except ImportError:
-    from src.qt_creator_gui.zi_control import Ui_MainWindow
+    from src.core.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
     print('DDD')
 
