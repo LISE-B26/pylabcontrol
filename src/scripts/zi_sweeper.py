@@ -3,7 +3,7 @@ from src.core.scripts import Script
 from PyQt4 import QtCore
 
 
-class ZI_Sweeper(QtCore.QThread,Script):
+class ZI_Sweeper(QtCore.QThread, Script):
     updateProgress = QtCore.pyqtSignal(int)
 
     def __init__(self, zihf2, name = None, settings = None):
@@ -23,16 +23,16 @@ class ZI_Sweeper(QtCore.QThread,Script):
         self.update_parameters(self.parameters_default)
 
 
-    @property
-    def parameters_default(self):
-        '''
-        returns the default parameter_list of the instrument
-        :return:
-        '''
+    # @property
+    def _settings_default(self):
+        """
 
-        parameter_list_default = [
-            Parameter('start', 1.8e6, (float, int), 'start value of sweep'),
-            Parameter('stop', 1.9e6, (float, int), 'end value of sweep'),
+        Returns:  the default setting of the script
+
+        """
+        settings_default = Parameter([
+            Parameter('start', 1.8e6, float, 'start value of sweep'),
+            Parameter('stop', 1.9e6, float, 'end value of sweep'),
             Parameter('samplecount', 101, int, 'number of data points'),
             Parameter('gridnode', 'oscs/0/freq', ['oscs/0/freq', 'oscs/1/freq'], 'start value of sweep'),
             Parameter('xmapping', 0, [0, 1], 'mapping 0 = linear, 1 = logarithmic'),
@@ -41,5 +41,18 @@ class ZI_Sweeper(QtCore.QThread,Script):
             Parameter('loopcount', 1, int, 'number of times it sweeps'),
             Parameter('averaging/sample', 1, int, 'number of samples to average over')
 
-        ]
-        return parameter_list_default
+        ])
+        return settings_default
+
+    def _function(self):
+        """
+        This is the actual function that will be executed. It uses only information that is provided in the settings property
+        will be overwritten in the __init__
+        """
+
+        # some generic function
+        import time
+        print('I am a test function counting to 3...')
+        for i in range(3):
+            time.sleep(0.1)
+            print(i)
