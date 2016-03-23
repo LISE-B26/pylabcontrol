@@ -109,7 +109,7 @@ class Instrument(object):
     def __setattr__(self, key, value):
         try:
             self.update(key, value)
-        except Exception:
+        except (AttributeError, KeyError):
             object.__setattr__(self, key, value)
 
     def __repr__(self):

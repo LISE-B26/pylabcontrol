@@ -13,5 +13,12 @@ class TestSpectrumAnalyzer(TestCase):
     def test_start_freq_setting_and_getting(self):
         freq = 10000
         self.spec_anal.start_frequency = freq
-        print self.spec_anal.start_frequency
         self.assertEqual(freq, self.spec_anal.start_frequency)
+
+    def test_stop_freq_setting_and_getting(self):
+        freq = 100000
+        self.spec_anal.stop_frequency = freq
+        self.assertEqual(freq, self.spec_anal.stop_frequency)
+
+    def get_trace(self):
+        print(self.spec_anal.trace)
