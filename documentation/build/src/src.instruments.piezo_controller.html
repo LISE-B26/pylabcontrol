@@ -60,8 +60,13 @@
 <span id="src-instruments-piezo-controller-module"></span><h1>src.instruments.piezo_controller module<a class="headerlink" href="#module-src.instruments.piezo_controller" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="src.instruments.piezo_controller.PiezoController">
-<em class="property">class </em><code class="descclassname">src.instruments.piezo_controller.</code><code class="descname">PiezoController</code><span class="sig-paren">(</span><em>name</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.instruments.piezo_controller.</code><code class="descname">PiezoController</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.core.instruments.html#src.core.instruments.Instrument" title="src.core.instruments.Instrument"><code class="xref py py-class docutils literal"><span class="pre">src.core.instruments.Instrument</span></code></a></p>
+<dl class="attribute">
+<dt id="src.instruments.piezo_controller.PiezoController.__abstractmethods__">
+<code class="descname">__abstractmethods__</code><em class="property"> = frozenset([])</em><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController.__abstractmethods__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="src.instruments.piezo_controller.PiezoController.__del__">
 <code class="descname">__del__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController.__del__" title="Permalink to this definition">¶</a></dt>
@@ -69,7 +74,7 @@
 
 <dl class="method">
 <dt id="src.instruments.piezo_controller.PiezoController.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -82,24 +87,27 @@
 <code class="descname">connect</code><span class="sig-paren">(</span><em>port</em>, <em>baudrate</em>, <em>timeout</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController.connect" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="src.instruments.piezo_controller.PiezoController.is_connected">
+<code class="descname">is_connected</code><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController.is_connected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.instruments.piezo_controller.PiezoController.read_probes">
+<code class="descname">read_probes</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController.read_probes" title="Permalink to this definition">¶</a></dt>
+<dd><p>requestes value from the instrument and returns it
+:param key: name of requested value</p>
+<p>Returns: reads values from instrument</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="src.instruments.piezo_controller.PiezoController.set_voltage">
 <code class="descname">set_voltage</code><span class="sig-paren">(</span><em>voltage</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController.set_voltage" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="src.instruments.piezo_controller.PiezoController.update_parameters">
-<code class="descname">update_parameters</code><span class="sig-paren">(</span><em>parameters_new</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController.update_parameters" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.instruments.piezo_controller.PiezoController.voltage">
-<code class="descname">voltage</code><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController.voltage" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.instruments.piezo_controller.PiezoController.voltage_limit">
-<code class="descname">voltage_limit</code><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController.voltage_limit" title="Permalink to this definition">¶</a></dt>
+<dt id="src.instruments.piezo_controller.PiezoController.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.piezo_controller.PiezoController.update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

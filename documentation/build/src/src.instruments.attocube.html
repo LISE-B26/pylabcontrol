@@ -60,11 +60,16 @@
 <span id="src-instruments-attocube-module"></span><h1>src.instruments.attocube module<a class="headerlink" href="#module-src.instruments.attocube" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="src.instruments.attocube.Attocube">
-<em class="property">class </em><code class="descclassname">src.instruments.attocube.</code><code class="descname">Attocube</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.instruments.attocube.</code><code class="descname">Attocube</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.core.instruments.html#src.core.instruments.Instrument" title="src.core.instruments.Instrument"><code class="xref py py-class docutils literal"><span class="pre">src.core.instruments.Instrument</span></code></a></p>
+<dl class="attribute">
+<dt id="src.instruments.attocube.Attocube.__abstractmethods__">
+<code class="descname">__abstractmethods__</code><em class="property"> = frozenset([])</em><a class="headerlink" href="#src.instruments.attocube.Attocube.__abstractmethods__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="src.instruments.attocube.Attocube.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -72,99 +77,20 @@
 <code class="descname">__module__</code><em class="property"> = 'src.instruments.attocube'</em><a class="headerlink" href="#src.instruments.attocube.Attocube.__module__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="src.instruments.attocube.Attocube.cap_measure">
-<code class="descname">cap_measure</code><span class="sig-paren">(</span><em>axis</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.cap_measure" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axis</strong> &#8211; axis_x, axis_y, or axis_z</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Capacitance in uF</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="src.instruments.attocube.Attocube.check_error">
-<em class="property">static </em><code class="descname">check_error</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.check_error" title="Permalink to this definition">¶</a></dt>
-<dd><p>Translates error codes to human readable message
-:param code: input error code (integer 0-8)
-:poststate: message printed to stdout</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.instruments.attocube.Attocube.get_frequency">
-<code class="descname">get_frequency</code><span class="sig-paren">(</span><em>axis</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.get_frequency" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axis</strong> &#8211; axis_x, axis_y, or axis_z</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">current frequency of axis in Hz</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.instruments.attocube.Attocube.get_position">
-<code class="descname">get_position</code><span class="sig-paren">(</span><em>axis</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.get_position" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axis</strong> &#8211; axis_x, axis_y, or axis_z</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">position of axis in um</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.instruments.attocube.Attocube.move_absolute">
-<code class="descname">move_absolute</code><span class="sig-paren">(</span><em>axis</em>, <em>position</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.move_absolute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Precondition: Must set voltage and frequency sufficiently low that ANC&#8217;s internal feedback will be able to
-settle on the appropriate position (ex. 7V, 100Hz). Otherwise, fluctuates around target position and never stops
-:param axis: axis_x, axis_y, or axis_z
-:param position: position of axis to move to in um</p>
-</dd></dl>
-
 <dl class="attribute">
-<dt id="src.instruments.attocube.Attocube.parameters_default">
-<code class="descname">parameters_default</code><a class="headerlink" href="#src.instruments.attocube.Attocube.parameters_default" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns the default parameter_list of the instrument
-:return:</p>
-</dd></dl>
+<dt id="src.instruments.attocube.Attocube.is_connected">
+<code class="descname">is_connected</code><a class="headerlink" href="#src.instruments.attocube.Attocube.is_connected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
-<dt id="src.instruments.attocube.Attocube.set_frequency">
-<code class="descname">set_frequency</code><span class="sig-paren">(</span><em>axis</em>, <em>freq</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.set_frequency" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>axis</strong> &#8211; axis_x, axis_y, or axis_z</li>
-<li><strong>freq</strong> &#8211; frequency to set in Hz</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
+<dt id="src.instruments.attocube.Attocube.read_probes">
+<code class="descname">read_probes</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.read_probes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
-<dt id="src.instruments.attocube.Attocube.toggle_axis">
-<code class="descname">toggle_axis</code><span class="sig-paren">(</span><em>axis</em>, <em>on</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.toggle_axis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn axis on or off
-:param axis: axis_x, axis_y, or axis_z
-:param on: True or False</p>
-</dd></dl>
+<dt id="src.instruments.attocube.Attocube.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.attocube.Attocube.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

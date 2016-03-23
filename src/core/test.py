@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
     #======= test with instrument objects ===========
     from src.instruments import ZIHF2, MaestroController, MaestroBeamBlock
-    maestro = MaestroController('maestro 6 channels')
+    # maestro = MaestroController('maestro 6 channels')
     instruments = [
         ZIHF2('ZiHF2')
         # MaestroBeamBlock(maestro,'IR beam block')

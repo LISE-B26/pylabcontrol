@@ -56,58 +56,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-src.scripts.ESR">
-<span id="src-scripts-esr-module"></span><h1>src.scripts.ESR module<a class="headerlink" href="#module-src.scripts.ESR" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="src.scripts.ESR.fit_esr">
-<code class="descclassname">src.scripts.ESR.</code><code class="descname">fit_esr</code><span class="sig-paren">(</span><em>freq_values</em>, <em>esr_data</em>, <em>fit_start_params=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ESR.fit_esr" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="src.scripts.ESR.init_mwgen">
-<code class="descclassname">src.scripts.ESR.</code><code class="descname">init_mwgen</code><span class="sig-paren">(</span><em>rf_power</em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ESR.init_mwgen" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="src.scripts.ESR.lorentzian">
-<code class="descclassname">src.scripts.ESR.</code><code class="descname">lorentzian</code><span class="sig-paren">(</span><em>x</em>, <em>amplitude</em>, <em>width</em>, <em>center</em>, <em>offset</em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ESR.lorentzian" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="src.scripts.ESR.move_to_NV">
-<code class="descclassname">src.scripts.ESR.</code><code class="descname">move_to_NV</code><span class="sig-paren">(</span><em>(nv_x</em>, <em>nv_y)</em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ESR.move_to_NV" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="src.scripts.ESR.plot_esr">
-<code class="descclassname">src.scripts.ESR.</code><code class="descname">plot_esr</code><span class="sig-paren">(</span><em>freq_values</em>, <em>esr_data</em>, <em>fit_data=None</em>, <em>converge_data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ESR.plot_esr" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="src.scripts.ESR.plot_esr_gui">
-<code class="descclassname">src.scripts.ESR.</code><code class="descname">plot_esr_gui</code><span class="sig-paren">(</span><em>canvas</em>, <em>freq_values</em>, <em>esr_data</em>, <em>fit_data=None</em>, <em>converge_data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ESR.plot_esr_gui" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="src.scripts.ESR.run_esr">
-<code class="descclassname">src.scripts.ESR.</code><code class="descname">run_esr</code><span class="sig-paren">(</span><em>rf_power</em>, <em>freq_values</em>, <em>(nv_x</em>, <em>nv_y)=(None</em>, <em>None)</em>, <em>num_avg=1</em>, <em>int_time=0.001</em>, <em>settle_time=0.0002</em>, <em>plotting=True</em>, <em>queue=None</em>, <em>canvas=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ESR.run_esr" title="Permalink to this definition">¶</a></dt>
-<dd><p>rf_power: Power (in dBm) of signal generator before amplification. Must not exceed 0 dBm. If none, uses current RF power.
-freq_values: array of frequency values (in Hz) to use for ESR. Usually generate outside of function using np.linspace.</p>
-<blockquote>
-<div>Must be between 2.025 GHz and 4.050 GHz.</div></blockquote>
-<p>(nv_x,nv_y): tuple of nv coordinates (in galvo voltages). If none given, use current galvo location.
-num_avg: number of times to scan across frequency values and average the results
-int_time: time spent integrating at each frequency. Must be an integer multiple of settle_time
-settle_time: time spent waiting after daq changes voltage, corresponding to frequency change
-dirpath: path of directory in which to save data
-canvas: matplotlib backends canvas for gui integration. If not passed in, use pyplot.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.scripts.ESR.save_esr">
-<code class="descclassname">src.scripts.ESR.</code><code class="descname">save_esr</code><span class="sig-paren">(</span><em>esr_data</em>, <em>fig</em>, <em>dirpath</em>, <em>tag=''</em>, <em>saveImage=True</em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ESR.save_esr" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+  <div class="section" id="src-scripts-esr-module">
+<h1>src.scripts.ESR module<a class="headerlink" href="#src-scripts-esr-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

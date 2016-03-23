@@ -56,73 +56,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-src.functions.track_NVs">
-<span id="src-functions-track-nvs-module"></span><h1>src.functions.track_NVs module<a class="headerlink" href="#module-src.functions.track_NVs" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="src.functions.track_NVs.corr_NVs">
-<code class="descclassname">src.functions.track_NVs.</code><code class="descname">corr_NVs</code><span class="sig-paren">(</span><em>baseline_image</em>, <em>new_image</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/track_NVs.html#corr_NVs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.track_NVs.corr_NVs" title="Permalink to this definition">¶</a></dt>
-<dd><p># Tracks drift by correlating new and old images, and returns shift in pixels
-:param baseline_image: original image
-:param new_image: new (drifted) image. Should be same size as baseline_image in pixels
-:return: shift from baseline image to new image in pixels</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.functions.track_NVs.corr_NVs_no_subset">
-<code class="descclassname">src.functions.track_NVs.</code><code class="descname">corr_NVs_no_subset</code><span class="sig-paren">(</span><em>baseline_image</em>, <em>new_image</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/track_NVs.html#corr_NVs_no_subset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.track_NVs.corr_NVs_no_subset" title="Permalink to this definition">¶</a></dt>
-<dd><p># Tracks drift by correlating new and old images, and returns shift in pixels
-:param baseline_image: original image
-:param new_image: new (drifted) image. Should be same size as baseline_image in pixels
-:return: shift from baseline image to new image in pixels</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.functions.track_NVs.locate_NVs">
-<code class="descclassname">src.functions.track_NVs.</code><code class="descname">locate_NVs</code><span class="sig-paren">(</span><em>image</em>, <em>voltage_range</em>, <em>numPts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/track_NVs.html#locate_NVs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.track_NVs.locate_NVs" title="Permalink to this definition">¶</a></dt>
-<dd><p># Locates NVs in an image by smoothing with a gaussian filter and finding intensity maxima. Returns coordinates of
-# NVs in pixels
-:param image: an intensity image
-:param voltage_range: size of image in volts so filter can be scaled
-:return: coordinates of NVs in pixels</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.functions.track_NVs.locate_shifted_NVs">
-<code class="descclassname">src.functions.track_NVs.</code><code class="descname">locate_shifted_NVs</code><span class="sig-paren">(</span><em>image</em>, <em>shifted_coordinates</em>, <em>new_roi</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/track_NVs.html#locate_shifted_NVs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.track_NVs.locate_shifted_NVs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="src.functions.track_NVs.pixel_to_voltage">
-<code class="descclassname">src.functions.track_NVs.</code><code class="descname">pixel_to_voltage</code><span class="sig-paren">(</span><em>points</em>, <em>image</em>, <em>roi</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/track_NVs.html#pixel_to_voltage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.track_NVs.pixel_to_voltage" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="src.functions.track_NVs.shift_points">
-<code class="descclassname">src.functions.track_NVs.</code><code class="descname">shift_points</code><span class="sig-paren">(</span><em>points</em>, <em>(x_shift</em>, <em>y_shift)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/track_NVs.html#shift_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.track_NVs.shift_points" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shifts a point or array of points by the input shift values, all in pixels
-:param points: input point or array of points
-:param shift: tuple of x and y shift of images in pixels
-:return: shifted point(s) in pixels</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.functions.track_NVs.shift_points_v">
-<code class="descclassname">src.functions.track_NVs.</code><code class="descname">shift_points_v</code><span class="sig-paren">(</span><em>points</em>, <em>roi</em>, <em>(x_shift</em>, <em>y_shift)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/track_NVs.html#shift_points_v"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.track_NVs.shift_points_v" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shifts a point or array of points by the input shift values, with the point input and output in volts
-:param points: input point or array of points in volts
-:param shift: tuple of x and y shift of images in pixels
-:return: shifted point(s) in volts</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.functions.track_NVs.update_roi">
-<code class="descclassname">src.functions.track_NVs.</code><code class="descname">update_roi</code><span class="sig-paren">(</span><em>roi</em>, <em>(x_shift</em>, <em>y_shift)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/functions/track_NVs.html#update_roi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.functions.track_NVs.update_roi" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates region of interest dict to account for drift
-:param roi: input region of interest
-:param shift: tuple of x and y shift of images in pixels
-:return: updated (shifted) region of interest</p>
-</dd></dl>
-
+  <div class="section" id="src-functions-track-nvs-module">
+<h1>src.functions.track_NVs module<a class="headerlink" href="#src-functions-track-nvs-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

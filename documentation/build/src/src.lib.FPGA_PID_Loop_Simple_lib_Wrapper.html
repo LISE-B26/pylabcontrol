@@ -56,8 +56,275 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="src-lib-fpga-pid-loop-simple-lib-wrapper-module">
-<h1>src.lib.FPGA_PID_Loop_Simple_lib_Wrapper module<a class="headerlink" href="#src-lib-fpga-pid-loop-simple-lib-wrapper-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-src.lib.FPGA_PID_Loop_Simple_lib_Wrapper">
+<span id="src-lib-fpga-pid-loop-simple-lib-wrapper-module"></span><h1>src.lib.FPGA_PID_Loop_Simple_lib_Wrapper module<a class="headerlink" href="#module-src.lib.FPGA_PID_Loop_Simple_lib_Wrapper" title="Permalink to this headline">¶</a></h1>
+<p>Created on Wed Oct 22 17:46:08 2014</p>
+<p>&#64;author: Jan Gieseler</p>
+<p>Wrapper for c-compiled FPGA_PID_Loop_Simple.vi (complied into FPGA_PID_lib.dll)
+here we wrap the c-functions that can are then accessed by the higher level
+FPGA_PID_Loop_Simple.py which defines the higher level Python objects that are then used to interact with the NI FPGA</p>
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.buffersize_to_time">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">buffersize_to_time</code><span class="sig-paren">(</span><em>size</em>, <em>ticks=56</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.buffersize_to_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.configure_FIFO_AI">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">configure_FIFO_AI</code><span class="sig-paren">(</span><em>requestedDepth</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.configure_FIFO_AI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.int_to_voltage">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">int_to_voltage</code><span class="sig-paren">(</span><em>integer</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.int_to_voltage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_AI1">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_AI1</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_AI1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_AI1_Filtered">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_AI1_Filtered</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_AI1_Filtered" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_AI2">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_AI2</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_AI2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_AcqTime">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_AcqTime</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_AcqTime" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_AcquireData">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_AcquireData</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_AcquireData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_DMATimeOut">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_DMATimeOut</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_DMATimeOut" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_DeviceTemperature">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_DeviceTemperature</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_DeviceTemperature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_ElementsWritten">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_ElementsWritten</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_ElementsWritten" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_FIFO_AI">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_FIFO_AI</code><span class="sig-paren">(</span><em>size</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_FIFO_AI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_FIFO_conv">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_FIFO_conv</code><span class="sig-paren">(</span><em>size</em>, <em>session</em>, <em>status</em>, <em>ticks=56</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_FIFO_conv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a block of elements from the FPGA FIFO and determines the time
+array corresponding to them.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_FPGARunning">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_FPGARunning</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_FPGARunning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_LoopRateLimitAcq">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_LoopRateLimitAcq</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_LoopRateLimitAcq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_LoopRateLimitPID">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_LoopRateLimitPID</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_LoopRateLimitPID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_LoopTicksAcq">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_LoopTicksAcq</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_LoopTicksAcq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_LoopTicksPID">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_LoopTicksPID</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_LoopTicksPID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_LowPassActive">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_LowPassActive</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_LowPassActive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_Max">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_Max</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_Max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_Mean">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_Mean</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_Mean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_Min">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_Min</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_Min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_OutputSine">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_OutputSine</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_OutputSine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_PIDActive">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_PIDActive</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_PIDActive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_PiezoOut">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_PiezoOut</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_PiezoOut" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_SamplePeriodsAcq">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_SamplePeriodsAcq</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_SamplePeriodsAcq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_SamplePeriodsPID">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_SamplePeriodsPID</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_SamplePeriodsPID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_StdDev">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_StdDev</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_StdDev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_TimeOutAcq">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">read_TimeOutAcq</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.read_TimeOutAcq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_AcquireData">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_AcquireData</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_AcquireData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_AmplitudeScaleCoefficient">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_AmplitudeScaleCoefficient</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_AmplitudeScaleCoefficient" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_ElementsToWrite">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_ElementsToWrite</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_ElementsToWrite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_LowPassActive">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_LowPassActive</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_LowPassActive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_OutputSine">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_OutputSine</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_OutputSine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_PIDActive">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_PIDActive</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_PIDActive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_PI_gain_int">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_PI_gain_int</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_PI_gain_int" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_PI_gain_prop">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_PI_gain_prop</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_PI_gain_prop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_PiezoOut">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_PiezoOut</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_PiezoOut" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_SamplePeriodsAcq">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_SamplePeriodsAcq</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_SamplePeriodsAcq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_SamplePeriodsPID">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_SamplePeriodsPID</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_SamplePeriodsPID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_ScaledCoefficient_1">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_ScaledCoefficient_1</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_ScaledCoefficient_1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_ScaledCoefficient_2">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_ScaledCoefficient_2</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_ScaledCoefficient_2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_ScaledCoefficient_3">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_ScaledCoefficient_3</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_ScaledCoefficient_3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_Setpoint">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_Setpoint</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_Setpoint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_Stop">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_Stop</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_Stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_TimeoutBuffer">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">set_TimeoutBuffer</code><span class="sig-paren">(</span><em>value</em>, <em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.set_TimeoutBuffer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.start_FIFO_AI">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">start_FIFO_AI</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.start_FIFO_AI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.start_fpga">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">start_fpga</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.start_fpga" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.stop_FIFO_AI">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">stop_FIFO_AI</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.stop_FIFO_AI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.stop_fpga">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">stop_fpga</code><span class="sig-paren">(</span><em>session</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.stop_fpga" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.time_to_buffersize">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">time_to_buffersize</code><span class="sig-paren">(</span><em>time</em>, <em>ticks=56</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.time_to_buffersize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.voltage_to_int">
+<code class="descclassname">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.</code><code class="descname">voltage_to_int</code><span class="sig-paren">(</span><em>voltage</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.voltage_to_int" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 

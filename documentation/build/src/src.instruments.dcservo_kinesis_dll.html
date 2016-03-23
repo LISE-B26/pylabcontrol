@@ -60,10 +60,15 @@
 <span id="src-instruments-dcservo-kinesis-dll-module"></span><h1>src.instruments.dcservo_kinesis_dll module<a class="headerlink" href="#module-src.instruments.dcservo_kinesis_dll" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="src.instruments.dcservo_kinesis_dll.TDC001">
-<em class="property">class </em><code class="descclassname">src.instruments.dcservo_kinesis_dll.</code><code class="descname">TDC001</code><span class="sig-paren">(</span><em>name</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.instruments.dcservo_kinesis_dll.</code><code class="descname">TDC001</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.core.instruments.html#src.core.instruments.Instrument" title="src.core.instruments.Instrument"><code class="xref py py-class docutils literal"><span class="pre">src.core.instruments.Instrument</span></code></a></p>
 <p>Class to control the thorlabs TDC001 servo. Note that ALL DLL FUNCTIONS TAKING NUMERIC INPUT REQUIRE A SYSTEM.DECIMAL
 VALUE. Check help doc at C:Program FilesThorlabsKinesisThorlabs.MotionControl.DotNet_API for the DLL api</p>
+<dl class="attribute">
+<dt id="src.instruments.dcservo_kinesis_dll.TDC001.__abstractmethods__">
+<code class="descname">__abstractmethods__</code><em class="property"> = frozenset([])</em><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001.__abstractmethods__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="src.instruments.dcservo_kinesis_dll.TDC001.__del__">
 <code class="descname">__del__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001.__del__" title="Permalink to this definition">¶</a></dt>
@@ -73,7 +78,7 @@ VALUE. Check help doc at C:Program FilesThorlabsKinesisThorlabs.MotionControl.Do
 
 <dl class="method">
 <dt id="src.instruments.dcservo_kinesis_dll.TDC001.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -87,25 +92,18 @@ VALUE. Check help doc at C:Program FilesThorlabsKinesisThorlabs.MotionControl.Do
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="src.instruments.dcservo_kinesis_dll.TDC001.parameters_default">
-<code class="descname">parameters_default</code><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001.parameters_default" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns the default parameter_list of the instrument
-:return:</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.instruments.dcservo_kinesis_dll.TDC001.position">
-<code class="descname">position</code><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001.position" title="Permalink to this definition">¶</a></dt>
+<dt id="src.instruments.dcservo_kinesis_dll.TDC001.is_connected">
+<code class="descname">is_connected</code><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001.is_connected" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="src.instruments.dcservo_kinesis_dll.TDC001.update_parameters">
-<code class="descname">update_parameters</code><span class="sig-paren">(</span><em>parameters_new</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001.update_parameters" title="Permalink to this definition">¶</a></dt>
+<dt id="src.instruments.dcservo_kinesis_dll.TDC001.read_probes">
+<code class="descname">read_probes</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001.read_probes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="src.instruments.dcservo_kinesis_dll.TDC001.velocity">
-<code class="descname">velocity</code><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001.velocity" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="src.instruments.dcservo_kinesis_dll.TDC001.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#src.instruments.dcservo_kinesis_dll.TDC001.update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

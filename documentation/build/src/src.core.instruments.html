@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
     <link rel="up" title="src.core package" href="src.core.html" />
-    <link rel="next" title="src.hardware_modules package" href="src.hardware_modules.html" />
+    <link rel="next" title="src.core.parameter module" href="src.core.parameter.html" />
     <link rel="prev" title="src.core package" href="src.core.html" /> 
   </head>
   <body role="document">
@@ -40,7 +40,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="src.hardware_modules.html" title="src.hardware_modules package"
+          <a href="src.core.parameter.html" title="src.core.parameter module"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="src.core.html" title="src.core package"
@@ -75,8 +75,13 @@
 </dd>
 </dl>
 <dl class="attribute">
+<dt id="src.core.instruments.Instrument.__abstractmethods__">
+<code class="descname">__abstractmethods__</code><em class="property"> = frozenset(['_probes', 'is_connected', 'read_probes', '_parameters_default', 'update'])</em><a class="headerlink" href="#src.core.instruments.Instrument.__abstractmethods__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="src.core.instruments.Instrument.__dict__">
-<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.core.instruments', 'name': &lt;property object at 0x000000000BE7C548&gt;, 'parameters': &lt;property object at 0x000000000BE7C4F8&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Instrument' objects&gt;, '_is_connected': False, 'update': &lt;function update at 0x000000000BE80198&gt;, '__getattr__': &lt;function __getattr__ at 0x000000000BE80358&gt;, '_probes': &lt;property object at 0x000000000BE7C458&gt;, '__dict__': &lt;attribute '__dict__' of 'Instrument' objects&gt;, '__init__': &lt;function __init__ at 0x000000000BE800B8&gt;, '__setattr__': &lt;function __setattr__ at 0x000000000BE803C8&gt;, 'read_probes': &lt;function read_probes at 0x000000000BE80278&gt;, 'is_connected': &lt;property object at 0x000000000BE7C4A8&gt;, '__doc__': '\n    generic instrument class\n\n    for subclass overwrite following functions / properties:\n        - _parameters_default =&gt; parameter object, that is a list of parameters that can be set to configure the instrument\n        - update =&gt; function that sends parameter changes to the instrument\n        - values =&gt; dictionary that contains all the values that can be read from the instrument\n        - get_values =&gt; function that actually requests the values from the instrument\n        - is_connected =&gt; property that checks if instrument is actually connected\n    ', '_parameters_default': &lt;property object at 0x000000000BE7C408&gt;, '__repr__': &lt;function __repr__ at 0x000000000BE80438&gt;})</em><a class="headerlink" href="#src.core.instruments.Instrument.__dict__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.core.instruments', '__metaclass__': &lt;class 'abc.ABCMeta'&gt;, '_abc_negative_cache': &lt;_weakrefset.WeakSet object at 0x000000000452CF60&gt;, 'read_probes': &lt;function read_probes at 0x000000000466E978&gt;, '__dict__': &lt;attribute '__dict__' of 'Instrument' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Instrument' objects&gt;, '__init__': &lt;function __init__ at 0x000000000466E7B8&gt;, '_abc_cache': &lt;_weakrefset.WeakSet object at 0x000000000452CEF0&gt;, '__setattr__': &lt;function __setattr__ at 0x000000000466EAC8&gt;, 'parameters': &lt;property object at 0x00000000046F6868&gt;, '__abstractmethods__': frozenset(['_probes', 'is_connected', 'read_probes', '_parameters_default', 'update']), '_probes': &lt;abc.abstractproperty object at 0x0000000004691588&gt;, '__getattr__': &lt;function __getattr__ at 0x000000000466EA58&gt;, '__doc__': '\n    generic instrument class\n\n    for subclass overwrite following functions / properties:\n        - _parameters_default =&gt; parameter object, that is a list of parameters that can be set to configure the instrument\n        - update =&gt; function that sends parameter changes to the instrument\n        - values =&gt; dictionary that contains all the values that can be read from the instrument\n        - get_values =&gt; function that actually requests the values from the instrument\n        - is_connected =&gt; property that checks if instrument is actually connected\n    ', '_parameters_default': &lt;abc.abstractproperty object at 0x0000000004691528&gt;, '_is_connected': False, 'update': &lt;function update at 0x000000000466E898&gt;, 'name': &lt;property object at 0x00000000046F68B8&gt;, 'is_connected': &lt;abc.abstractproperty object at 0x00000000046915E8&gt;, '_abc_negative_cache_version': 24, '__repr__': &lt;function __repr__ at 0x000000000466EB38&gt;, '_abc_registry': &lt;_weakrefset.WeakSet object at 0x000000000452CE80&gt;})</em><a class="headerlink" href="#src.core.instruments.Instrument.__dict__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -88,6 +93,12 @@
 <dt id="src.core.instruments.Instrument.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Instrument.__metaclass__">
+<code class="descname">__metaclass__</code><a class="headerlink" href="#src.core.instruments.Instrument.__metaclass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">ABCMeta</span></code></p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="src.core.instruments.Instrument.__module__">
@@ -158,8 +169,8 @@
   <p class="topless"><a href="src.core.html"
                         title="previous chapter">src.core package</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="src.hardware_modules.html"
-                        title="next chapter">src.hardware_modules package</a></p>
+  <p class="topless"><a href="src.core.parameter.html"
+                        title="next chapter">src.core.parameter module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -194,7 +205,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="src.hardware_modules.html" title="src.hardware_modules package"
+          <a href="src.core.parameter.html" title="src.core.parameter module"
              >next</a> |</li>
         <li class="right" >
           <a href="src.core.html" title="src.core package"

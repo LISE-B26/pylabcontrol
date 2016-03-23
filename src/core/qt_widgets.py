@@ -1,4 +1,3 @@
-
 import sip
 sip.setapi('QVariant', 2)# set to version to so that the gui returns QString objects and not generic QVariants
 from PyQt4 import QtCore, QtGui
@@ -23,7 +22,7 @@ def fill_tree(tree, parameters):
         else:
             B26QTreeItem(tree, key, value, type(value), '')
 
-
+# ======== B26QTreeItem ==========
 class B26QTreeItem(QtGui.QTreeWidgetItem):
     '''
     Custom QTreeWidgetItem with Widgets
