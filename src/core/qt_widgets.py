@@ -29,7 +29,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
     Custom QTreeWidgetItem with Widgets
     '''
 
-    def __init__(self, parent, name, value, valid_values, info, log = None, target = None, visible = True):
+    def __init__(self, parent, name, value, valid_values, info, log = None, visible = True):
         """
         Args:
             parent:
@@ -38,7 +38,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             valid_values:
             info:
             log: log function if not provided, output is send to standard print command
-            target (optional):
             visible (optional):
 
         Returns:
@@ -52,7 +51,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         self.valid_values = valid_values
         self.value = value
         self.info = info
-        self.target = target
         self.visible = visible
 
         # if no log function is provided define one
@@ -81,15 +79,15 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
         elif isinstance(self.value, Parameter):
             for key, value in self.value.iteritems():
-                B26QTreeItem(self, key, value, self.valid_values[key], self.info[key], target=self.target, visible=self.visible)
+                B26QTreeItem(self, key, value, self.valid_values[key], self.info[key], visible=self.visible)
 
         elif isinstance(self.value, dict):
             for key, value in self.value.iteritems():
-                B26QTreeItem(self, key, value, type(value), '', target=self.target, visible=self.visible)
+                B26QTreeItem(self, key, value, type(value), '',visible=self.visible)
 
         elif isinstance(self.value, Instrument):
             for key, value in self.value.parameters.iteritems():
-                B26QTreeItem(self, key, value, self.value.parameters.valid_values[key], self.value.parameters.info[key], target=self.value, visible=self.visible)
+                B26QTreeItem(self, key, value, self.value.parameters.valid_values[key], self.value.parameters.info[key], visible=self.visible)
         else:
             self.setText(1, unicode(self.value))
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
@@ -197,7 +195,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         Returns: the instrument and the path to the instrument to which this item belongs
 
         """
-        # todo: test this function, if it works, we can remove the propertie self.target
         parent = self.parent()
 
         if isinstance(self.value, Instrument):

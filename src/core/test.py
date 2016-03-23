@@ -90,7 +90,7 @@ class UI(QtGui.QMainWindow):
 
 
             if new_value is not old_value:
-                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value), item.target)
+                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value), 'target')
             else:
                 msg = "did not change parameter {:s} on {:s}".format(item.name, item.target)
 
