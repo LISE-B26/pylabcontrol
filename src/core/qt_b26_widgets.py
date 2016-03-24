@@ -200,3 +200,26 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         return instrument, path_to_instrument
 
 
+    def get_script(self):
+        """
+
+        Returns: the script and the path to the script to which this item belongs
+
+        """
+        parent = self.parent()
+
+        if isinstance(self.value, Script):
+            script = self.value
+            path_to_script = []
+        else:
+            script = None
+            path_to_script = [self.name]
+            while parent is not None:
+                if isinstance(parent.value, Script):
+                    script = parent.value
+                    parent = None
+                else:
+                    path_to_script.append(parent.name)
+                    parent = parent.parent()
+
+        return script, path_to_script
