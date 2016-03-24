@@ -156,8 +156,7 @@ def load_probes(probes, instruments):
 
     probe_instances = {}
     print('instruments', instruments)
-    for probe_name, sub_dict in probes.iteritems():
-        print('====', probe_name)
+    for name, sub_dict in probes.iteritems():
         try:
             assert isinstance(sub_dict, dict)
             assert "probe_name" in sub_dict
@@ -169,7 +168,7 @@ def load_probes(probes, instruments):
             assert instrument_name in instruments
             assert probe_name in instruments[instrument_name]._probes
 
-            probe_instances.update({probe_name: getattr(instruments[instrument_name], probe_name)})
+            probe_instances.update({name: getattr(instruments[instrument_name], probe_name)})
 
         except:
             # catches when we try to create a script of a class that doesn't exist!
@@ -194,6 +193,10 @@ if __name__ == '__main__':
     probes = load_probes(probes, instruments)
 
     print(probes)
-    print(probes)
+
+
+    # print(probes)
+
+    print(probes['random'])
 
 
