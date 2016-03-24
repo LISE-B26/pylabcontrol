@@ -8,6 +8,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+from external_modules.matplotlibwidget import MatplotlibWidget
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -156,4 +157,4 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_settings), _translate("MainWindow", "Settings", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_history), _translate("MainWindow", "History", None))
 
-from matplotlibwidget import MatplotlibWidget
+
