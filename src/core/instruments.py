@@ -98,7 +98,6 @@ class Instrument(object):
     # do not override this, override get_values instead
     def __getattr__(self, name):
         try:
-            print(name)
             return self.read_probes(name)
         except (KeyError):
             #restores standard behavior for missing keys
