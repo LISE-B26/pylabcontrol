@@ -17,6 +17,8 @@ class TestInstrument(TestCase):
         test = DummyInstrument('test inst', {'test1':2020})
         self.assertEqual(test.settings, {'test1': 2020, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
         test = DummyInstrument('test inst', { 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
+
+        print(test.settings)
         self.assertEqual(test.settings, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}, 'output probe2': 0})
         test = DummyInstrument('test inst', { 'test2': {'test2_1': 'new string'}})
         self.assertEqual(test.settings, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.0}, 'output probe2': 0})

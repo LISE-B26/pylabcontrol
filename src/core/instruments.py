@@ -1,7 +1,7 @@
 
 from PyQt4 import QtCore
 from abc import ABCMeta, abstractmethod, abstractproperty
-
+from copy import deepcopy
 
 from src.core import Parameter
 
@@ -24,8 +24,9 @@ class Instrument(object):
     # ========================================================================================
 
     def __init__(self, name=None, settings=None):
-
-        self._settings = self._DEFAULT_SETTINGS
+        # make a deepcopy of the default settings 
+        # because _DEFAULT_SETTINGS is a class variable and thus shared among the instances
+        self._settings = deepcopy(self._DEFAULT_SETTINGS)
 
         if settings is not None:
             self.update(settings)
