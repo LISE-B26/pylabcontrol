@@ -8,11 +8,11 @@ class DummyInstrument(Instrument):
         super(DummyInstrument, self).__init__(name, settings)
 
     @property
-    def _settings_default(self):
+    def DEFAULT_SETTINGS(self):
         """
         returns the default parameter_list of the instrument this function should be over written in any subclass
         """
-        parameters_default = Parameter([
+        settings_default = Parameter([
             Parameter('test1', 0, int, 'some int parameter'),
             Parameter('output probe2', 0, int, 'return value of probe 2 (int)'),
             Parameter('test2',
@@ -20,7 +20,7 @@ class DummyInstrument(Instrument):
                        Parameter('test2_2', 0.0, float, 'test parameter (float)')
                        ])
         ])
-        return parameters_default
+        return settings_default
 
     def update(self, settings):
         '''

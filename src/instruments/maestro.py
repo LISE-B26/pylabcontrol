@@ -40,7 +40,7 @@ class MaestroController(Instrument):
     # ======= Following functions have to be customized for each instrument subclass =========
     # ========================================================================================
     @property
-    def _settings_default(self):
+    def DEFAULT_SETTINGS(self):
         '''
         returns the default parameter_list of the instrument
         :return:
@@ -269,7 +269,7 @@ class MaestroBeamBlock(Instrument):
 
 
     @property
-    def _settings_default(self):
+    def DEFAULT_SETTINGS(self):
         '''
         returns the default parameter_list of the instrument
         :return:

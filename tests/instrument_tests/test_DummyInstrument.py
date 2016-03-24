@@ -1,6 +1,5 @@
 from unittest import TestCase
 
-from src.core import Parameter
 from src.instruments import DummyInstrument
 
 
@@ -67,16 +66,9 @@ class TestInstrument(TestCase):
         test._internal_state = 11
         self.assertEqual(11, test.internal)
 
-        # following tests are still failing to update internal state
+
         test.update({'test1':8})
         self.assertEqual(test.settings, {'test1': 8, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
         self.assertEqual(8, test._internal_state)
         print(test._internal_state)
 
-        test._internal_state = 111
-        print('fff',test.settings)
-
-        # test.parameters['test1'] = 10
-        # self.assertEqual(test.parameters, {'test1': 10, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
-        # print(test.parameters)
-        # self.assertEqual(10, test._internal_state)

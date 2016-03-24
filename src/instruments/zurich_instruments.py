@@ -39,7 +39,7 @@ class ZIHF2(Instrument):
     # ======= overwrite functions from instrument superclass =================================
     # ========================================================================================
     @property
-    def _settings_default(self):
+    def DEFAULT_SETTINGS(self):
         '''
         returns the default parameter_list of the instrument
         :return:

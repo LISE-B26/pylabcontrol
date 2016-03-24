@@ -20,7 +20,7 @@ class PiezoController(Instrument):
             self._is_connected = True
 
     @property
-    def _settings_default(self):
+    def DEFAULT_SETTINGS(self):
         '''
         returns the default parameter_list of the instrument
         :return:

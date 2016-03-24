@@ -25,7 +25,7 @@ class Instrument(object):
 
     def __init__(self, name=None, settings=None):
 
-        self._settings = self._settings_default
+        self._settings = self.DEFAULT_SETTINGS
 
         if settings is not None:
             self.update(settings)
@@ -35,19 +35,12 @@ class Instrument(object):
 
         self.name = name
 
-    @abstractproperty
-    def _settings_default(self):
+    @property
+    def DEFAULT_SETTINGS(self):
         """
         returns the default parameter_list of the instrument this function should be over written in any subclass
         """
-        settings_default = Parameter([
-            Parameter('test1', 0, int, 'test parameter (int)'),
-            Parameter('test2' ,
-                      [Parameter('test2_1', 'string', str, 'test parameter (str)'),
-                       Parameter('test2_2', 0.0, float, 'test parameter (float)')
-                       ])
-        ])
-        return settings_default
+        raise NotImplementedError("Subclass did not implement DEFAULT_SETTINGS")
 
     @abstractmethod
     def update(self, settings):

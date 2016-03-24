@@ -28,7 +28,7 @@ class SpectrumAnalyzer(Instrument):
         self.spec_anal.write('*RST\n')
 
     @property
-    def _settings_default(self):
+    def DEFAULT_SETTINGS(self):
         """
         parameters_default lists the default Parameters used by the Spectrum Analyzer
 
