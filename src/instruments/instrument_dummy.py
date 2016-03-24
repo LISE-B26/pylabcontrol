@@ -104,3 +104,10 @@ if __name__ == '__main__':
     test._internal_state = 'ddd'
 
     print(test.internal)
+
+
+    test.parameters['internal'] = 'AA'
+
+    print(test._internal_state )
+
+

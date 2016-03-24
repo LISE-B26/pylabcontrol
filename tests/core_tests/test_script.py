@@ -11,7 +11,7 @@ class TestInstrument(TestCase):
         '''
 
 
-        test = Script_new()
+        test = Script()
 
         print(test)
 

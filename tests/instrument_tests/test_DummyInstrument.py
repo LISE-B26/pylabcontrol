@@ -59,9 +59,21 @@ class TestInstrument(TestCase):
         a = test.value1
         self.assertIsInstance(a, float)
 
-        test.internal = 'sss'
-        self.assertEqual('sss', test._internal_state)
+        # test1 parameter sets the internal state variable
+        test.test1 = 9
+        self.assertEqual(9, test._internal_state)
 
 
-        test._internal_state = 'sDDss'
-        self.assertEqual('sDDss', test.internal)
+        test._internal_state = 11
+        self.assertEqual(11, test.internal)
+
+        # following tests are still failing to update internal state
+        test.parameters.update({'test1':8})
+        self.assertEqual(test.parameters, {'test1': 8, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
+        self.assertEqual(8, test._internal_state)
+        print(test._internal_state)
+
+        test.parameters['test1'] = 10
+        self.assertEqual(test.parameters, {'test1': 10, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
+        print(test.parameters)
+        self.assertEqual(10, test._internal_state)
