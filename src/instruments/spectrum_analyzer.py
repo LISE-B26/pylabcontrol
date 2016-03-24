@@ -23,12 +23,12 @@ class SpectrumAnalyzer(Instrument):
         """
         super(SpectrumAnalyzer, self).__init__(name, parameter_list)
         rm = visa.ResourceManager()
-        self.spec_anal = rm.open_resource(self.parameters['visa_resource'])
+        self.spec_anal = rm.open_resource(self.settings['visa_resource'])
         self.spec_anal.timeout = 1000
         self.spec_anal.write('*RST\n')
 
     @property
-    def _parameters_default(self):
+    def _settings_default(self):
         """
         parameters_default lists the default Parameters used by the Spectrum Analyzer
 
@@ -47,10 +47,10 @@ class SpectrumAnalyzer(Instrument):
 
         return parameters_default
 
-    def update(self, parameters):
-        super(SpectrumAnalyzer, self).update(parameters)
+    def update(self, settings):
+        super(SpectrumAnalyzer, self).update(settings)
 
-        for key, value in parameters.iteritems():
+        for key, value in settings.iteritems():
             if key == 'start_frequency':
                 self._set_start_frequency(value)
                 print 'hi'
@@ -138,16 +138,16 @@ if __name__ == '__main__':
 
         print spec_anal._get_start_frequency()
         print spec_anal.start_frequency
-        print spec_anal.parameters['start_frequency']
+        print spec_anal.settings['start_frequency']
 
-        spec_anal.parameters['start_frequency'] = 200222
+        spec_anal.settings['start_frequency'] = 200222
         print('======')
         print spec_anal._get_start_frequency()
         print spec_anal.start_frequency
-        print spec_anal.parameters['start_frequency']
+        print spec_anal.settings['start_frequency']
 
         spec_anal.update({'start_frequency': 200222})
         print('======')
         print spec_anal._get_start_frequency()
         print spec_anal.start_frequency
-        print spec_anal.parameters['start_frequency']
+        print spec_anal.settings['start_frequency']

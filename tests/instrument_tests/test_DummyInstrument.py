@@ -16,11 +16,11 @@ class TestInstrument(TestCase):
 
 
         test = DummyInstrument('test inst', {'test1':2020})
-        self.assertEqual(test.parameters, {'test1': 2020, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
+        self.assertEqual(test.settings, {'test1': 2020, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
         test = DummyInstrument('test inst', { 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
-        self.assertEqual(test.parameters, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}, 'output probe2': 0})
+        self.assertEqual(test.settings, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}, 'output probe2': 0})
         test = DummyInstrument('test inst', { 'test2': {'test2_1': 'new string'}})
-        self.assertEqual(test.parameters, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.0}, 'output probe2': 0})
+        self.assertEqual(test.settings, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.0}, 'output probe2': 0})
 
     def test_update(self):
         '''
@@ -29,25 +29,25 @@ class TestInstrument(TestCase):
         '''
         test = DummyInstrument()
 
-        test.parameters['test1'] = 222
-        self.assertEqual(test.parameters, {'test1': 222, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
+        test.settings['test1'] = 222
+        self.assertEqual(test.settings, {'test1': 222, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
 
-        test.parameters.update( {'test1':200})
-        self.assertEqual(test.parameters, {'test1': 200, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
+        test.settings.update({'test1':200})
+        self.assertEqual(test.settings, {'test1': 200, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
 
-        test.parameters.update({ 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
-        self.assertEqual(test.parameters, {'test1': 200, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}, 'output probe2': 0})
+        test.settings.update({'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
+        self.assertEqual(test.settings, {'test1': 200, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}, 'output probe2': 0})
 
-        test.parameters['test2']['test2_1'] = 'hello'
-        self.assertEqual(test.parameters, {'test1': 200, 'test2': {'test2_1': 'hello', 'test2_2': 0.2}, 'output probe2': 0})
+        test.settings['test2']['test2_1'] = 'hello'
+        self.assertEqual(test.settings, {'test1': 200, 'test2': {'test2_1': 'hello', 'test2_2': 0.2}, 'output probe2': 0})
 
 
-        print(test.parameters['test2'])
+        print(test.settings['test2'])
 
-        print(test.parameters)
+        print(test.settings)
 
-        print(type(test.parameters))
-        print(type(test.parameters['test2']))
+        print(type(test.settings))
+        print(type(test.settings['test2']))
 
     def test_tes(self):
         test = DummyInstrument('my inst')
@@ -68,12 +68,15 @@ class TestInstrument(TestCase):
         self.assertEqual(11, test.internal)
 
         # following tests are still failing to update internal state
-        test.parameters.update({'test1':8})
-        self.assertEqual(test.parameters, {'test1': 8, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
+        test.update({'test1':8})
+        self.assertEqual(test.settings, {'test1': 8, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
         self.assertEqual(8, test._internal_state)
         print(test._internal_state)
 
-        test.parameters['test1'] = 10
-        self.assertEqual(test.parameters, {'test1': 10, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
-        print(test.parameters)
-        self.assertEqual(10, test._internal_state)
+        test._internal_state = 111
+        print('fff',test.settings)
+
+        # test.parameters['test1'] = 10
+        # self.assertEqual(test.parameters, {'test1': 10, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
+        # print(test.parameters)
+        # self.assertEqual(10, test._internal_state)

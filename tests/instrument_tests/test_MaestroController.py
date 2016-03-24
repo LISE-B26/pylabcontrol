@@ -6,7 +6,7 @@ class TestMaestroController(TestCase):
     def test_init(self):
         test = MaestroController()
 
-        print(test.parameters)
+        print(test.settings)
 
 
         print(test)

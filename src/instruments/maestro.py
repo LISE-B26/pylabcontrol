@@ -18,11 +18,11 @@ class MaestroController(Instrument):
 
     import serial
 
-    def __init__(self, name = None, parameters = None):
+    def __init__(self, name = None, settings = None):
 
         self.usb = None
-        super(MaestroController, self).__init__(name, parameters)
-        self.update(self.parameters)
+        super(MaestroController, self).__init__(name, settings)
+        self.update(self.settings)
         # Open the command port
         # self.usb = self.serial.Serial(port)
         # Command lead-in and device 12 are sent for each Pololu serial commands.
@@ -40,7 +40,7 @@ class MaestroController(Instrument):
     # ======= Following functions have to be customized for each instrument subclass =========
     # ========================================================================================
     @property
-    def _parameters_default(self):
+    def _settings_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:
@@ -50,11 +50,11 @@ class MaestroController(Instrument):
         ])
         return parameters_default
 
-    def update(self, parameters):
+    def update(self, settings):
         # call the update_parameter_list to update the parameter list
-        super(MaestroController, self).update(parameters)
+        super(MaestroController, self).update(settings)
         # now we actually apply these newsettings to the hardware
-        for key, value in parameters.iteritems():
+        for key, value in settings.iteritems():
             if key == 'port':
                 try:
                     self.usb = self.serial.Serial(value)
@@ -246,7 +246,7 @@ class MaestroController(Instrument):
 
 class MaestroBeamBlock(Instrument):
     from time import sleep
-    def __init__(self, maestro = None, name = None, parameters = None):
+    def __init__(self, maestro = None, name = None, settings = None):
         '''
         :param maestro: maestro servo controler to which motor is connected
         :param channel: channel to which motor is connected
@@ -264,12 +264,12 @@ class MaestroBeamBlock(Instrument):
 
 
         assert isinstance(name, str)
-        super(MaestroBeamBlock, self).__init__(name, parameters)
-        self.update(self.parameters)
+        super(MaestroBeamBlock, self).__init__(name, settings)
+        self.update(self.settings)
 
 
     @property
-    def _parameters_default(self):
+    def _settings_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:
@@ -283,20 +283,20 @@ class MaestroBeamBlock(Instrument):
         ])
         return parameters_default
 
-    def update(self, parameters):
+    def update(self, settings):
 
         # call the update_parameter_list to update the parameter list
-        super(MaestroBeamBlock, self).update(parameters)
+        super(MaestroBeamBlock, self).update(settings)
 
         # now we actually apply these newsettings to the hardware
-        for key, value in parameters.iteritems():
+        for key, value in settings.iteritems():
             if key == 'open':
                 print('aaa', key, value)
-                print(self.parameters)
+                print(self.settings)
                 if value is True:
-                    self.goto(self.parameters['position_open'])
+                    self.goto(self.settings['position_open'])
                 else:
-                    self.goto(self.parameters['position_closed'])
+                    self.goto(self.settings['position_closed'])
 
     @property
     def _probes(self):
@@ -333,6 +333,6 @@ class MaestroBeamBlock(Instrument):
         return self.maestro._is_connected
 
     def goto(self, position):
-        self.maestro.set_target(self.parameters['channel'], position)
-        self.sleep(self.parameters['settle_time'])
-        self.maestro.disable(self.parameters['channel']) # diconnect to avoid piezo from going crazy
+        self.maestro.set_target(self.settings['channel'], position)
+        self.sleep(self.settings['settle_time'])
+        self.maestro.disable(self.settings['channel']) # diconnect to avoid piezo from going crazy

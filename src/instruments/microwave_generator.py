@@ -5,8 +5,8 @@ from src.core.instruments import *
 
 
 class MicrowaveGenerator(Instrument):
-    def __init__(self, name = None, parameters = None):
-        super(MicrowaveGenerator, self).__init__(name, parameters)
+    def __init__(self, name = None, settings = None):
+        super(MicrowaveGenerator, self).__init__(name, settings)
         try:
             rm = visa.ResourceManager()
             self.srs = rm.open_resource(u'GPIB' + str(self._parameters['GPIB_num']) + '::' + str(self._parameters['port']) + '::INSTR')
@@ -19,7 +19,7 @@ class MicrowaveGenerator(Instrument):
     #     self.srs.close()
 
     @property
-    def _parameters_default(self):
+    def _settings_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:
@@ -39,9 +39,9 @@ class MicrowaveGenerator(Instrument):
         ])
         return parameters_default
 
-    def update(self, parameters):
-        super(MicrowaveGenerator, self).update(parameters)
-        for key, value in parameters.iteritems():
+    def update(self, settings):
+        super(MicrowaveGenerator, self).update(settings)
+        for key, value in settings.iteritems():
             if not (key == 'port' or key == 'GPIB_num'):
                 if type(self._parameters.valid_values[key]) == bool: #converts booleans, which are more natural to store for on/off, to
                     value = int(value)                #the integers used internally in the SRS

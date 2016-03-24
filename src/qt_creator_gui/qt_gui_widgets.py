@@ -74,7 +74,7 @@ class QTreeInstrument(QtGui.QTreeWidgetItem):
         super( QTreeInstrument, self ).__init__( parent )
         self.setText(0, unicode(instrument.name))
 
-        for parameter in self.instrument.parameters:
+        for parameter in self.instrument.settings:
             QTreeParameter( self, parameter, target=self.instrument, visible=True)
 
 class QTreeScript(QtGui.QTreeWidgetItem):

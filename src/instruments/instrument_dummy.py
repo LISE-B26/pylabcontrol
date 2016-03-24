@@ -3,12 +3,12 @@ from src.core import Instrument, Parameter
 
 
 class DummyInstrument(Instrument):
-    def __init__(self, name =  None, parameters = None):
+    def __init__(self, name =  None, settings = None):
         self._internal_state = None
-        super(DummyInstrument, self).__init__(name, parameters)
+        super(DummyInstrument, self).__init__(name, settings)
 
     @property
-    def _parameters_default(self):
+    def _settings_default(self):
         """
         returns the default parameter_list of the instrument this function should be over written in any subclass
         """
@@ -22,18 +22,18 @@ class DummyInstrument(Instrument):
         ])
         return parameters_default
 
-    def update(self, parameters):
+    def update(self, settings):
         '''
         updates the internal dictionary and sends changed values to instrument
         Args:
-            parameters: parameters to be set
+            settings: parameters to be set
         # mabe in the future:
         # Returns: boolean that is true if update successful
 
         '''
-        Instrument.update(self, parameters)
+        Instrument.update(self, settings)
 
-        for key, value in parameters.iteritems():
+        for key, value in settings.iteritems():
             if key == 'test1':
                 self._internal_state = value
 
@@ -65,7 +65,7 @@ class DummyInstrument(Instrument):
         if key == 'value1':
             value = random.random()
         elif key == 'value2':
-            value = self.parameters['output probe2']
+            value = self.settings['output probe2']
         elif key == 'internal':
             value = self._internal_state
 
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     test = DummyInstrument()
 
 
-    print(test.parameters)
+    print(test.settings)
     print(test._probes)
     print(test.value1)
 
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     print(test.internal)
 
 
-    test.parameters['internal'] = 'AA'
+    test.settings['internal'] = 'AA'
 
     print(test._internal_state )
 

@@ -30,8 +30,8 @@ class PositionerInfo(ctypes.Structure):
     _fields_ = [(("id"), ctypes.c_int32), (("locked"), ctypes.c_bool)]
 
 class Attocube(Instrument):
-    def __init__(self, name = None, parameters = None):
-        super(Attocube, self).__init__(name, parameters)
+    def __init__(self, name = None, settings = None):
+        super(Attocube, self).__init__(name, settings)
         try:
             self.attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')
             dll_detected = True
@@ -49,7 +49,7 @@ class Attocube(Instrument):
                 print('Attocube not detected. Check connection.')
 
     @property
-    def _parameters_default(self):
+    def _settings_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:
@@ -82,9 +82,9 @@ class Attocube(Instrument):
         ])
         return parameters_default
 
-    def update(self, parameters):
-        super(Attocube, self).update(parameters)
-        for key, value in parameters.iteritems():
+    def update(self, settings):
+        super(Attocube, self).update(settings)
+        for key, value in settings.iteritems():
             if isinstance(value, dict) and key in ['x', 'y', 'z']:
                 for sub_key, sub_value in sorted(value.iteritems()):
                     if sub_key == 'on':

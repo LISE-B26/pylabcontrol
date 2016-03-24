@@ -48,7 +48,7 @@ class DAQ(Instrument):
     except:
         raise
 
-    def __init__(self, name = None, parameters = None):
+    def __init__(self, name = None, settings = None):
         if self.dll_detected:
             # buf_size = 10
             # data = ctypes.create_string_buffer('\000' * buf_size)
@@ -58,10 +58,10 @@ class DAQ(Instrument):
             #     self.hardware_detected = True
             # except RuntimeError:
             #     self.hardware_detected = False
-            super(DAQ, self).__init__(name, parameters)
+            super(DAQ, self).__init__(name, settings)
 
     @property
-    def _parameters_default(self):
+    def _settings_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:
@@ -96,9 +96,9 @@ class DAQ(Instrument):
         ])
         return parameters_default
 
-    def update(self, parameters):
-        super(DAQ, self).update(parameters)
-        for key, value in parameters.iteritems():
+    def update(self, settings):
+        super(DAQ, self).update(settings)
+        for key, value in settings.iteritems():
             if key == 'device':
                 if not(self.is_connected):
                     raise EnvironmentError('Device invalid, cannot connect to DAQ')

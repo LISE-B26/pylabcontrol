@@ -27,8 +27,8 @@ class TDC001(Instrument):
     Class to control the thorlabs TDC001 servo. Note that ALL DLL FUNCTIONS TAKING NUMERIC INPUT REQUIRE A SYSTEM.DECIMAL
     VALUE. Check help doc at C:\Program Files\Thorlabs\Kinesis\Thorlabs.MotionControl.DotNet_API for the DLL api
     '''
-    def __init__(self, name = None, parameters = None):
-        super(TDC001, self).__init__(name, parameters)
+    def __init__(self, name = None, settings = None):
+        super(TDC001, self).__init__(name, settings)
         try:
             DeviceManagerCLI.BuildDeviceList()
             serial_number_list = DeviceManagerCLI.GetDeviceList(TCubeDCServo.DevicePrefix)
@@ -62,7 +62,7 @@ class TDC001(Instrument):
         currentDeviceSettings = self.device.MotorDeviceSettings
 
     @property
-    def _parameters_default(self):
+    def _settings_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:
@@ -74,9 +74,9 @@ class TDC001(Instrument):
         ])
         return parameters_default
 
-    def update(self, parameters):
-        super(TDC001, self).update(parameters)
-        for key, value in parameters.iteritems():
+    def update(self, settings):
+        super(TDC001, self).update(settings)
+        for key, value in settings.iteritems():
             if key == 'position':
                 self._move_servo(value)
             elif key == 'velocity':

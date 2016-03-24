@@ -15,11 +15,11 @@ class TestInstrument(TestCase):
 
 
         test = Instrument('test inst', {'test1':2020})
-        self.assertEqual(test.parameters, {'test1': 2020, 'test2': {'test2_1': 'string', 'test2_2': 0.0}})
+        self.assertEqual(test.settings, {'test1': 2020, 'test2': {'test2_1': 'string', 'test2_2': 0.0}})
         test = Instrument('test inst', { 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
-        self.assertEqual(test.parameters, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
+        self.assertEqual(test.settings, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
         test = Instrument('test inst', { 'test2': {'test2_1': 'new string'}})
-        self.assertEqual(test.parameters, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.0}})
+        self.assertEqual(test.settings, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.0}})
 
     def test_update(self):
         '''
@@ -28,25 +28,25 @@ class TestInstrument(TestCase):
         '''
         test = Instrument()
 
-        test.parameters['test1'] = 222
-        self.assertEqual(test.parameters, {'test1': 222, 'test2': {'test2_1': 'string', 'test2_2': 0.0}})
+        test.settings['test1'] = 222
+        self.assertEqual(test.settings, {'test1': 222, 'test2': {'test2_1': 'string', 'test2_2': 0.0}})
 
-        test.parameters.update( {'test1':200})
-        self.assertEqual(test.parameters, {'test1': 200, 'test2': {'test2_1': 'string', 'test2_2': 0.0}})
+        test.settings.update({'test1':200})
+        self.assertEqual(test.settings, {'test1': 200, 'test2': {'test2_1': 'string', 'test2_2': 0.0}})
 
-        test.parameters.update({ 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
-        self.assertEqual(test.parameters, {'test1': 200, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
+        test.settings.update({'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
+        self.assertEqual(test.settings, {'test1': 200, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
 
-        test.parameters['test2']['test2_1'] = 'hello'
-        self.assertEqual(test.parameters, {'test1': 200, 'test2': {'test2_1': 'hello', 'test2_2': 0.2}})
+        test.settings['test2']['test2_1'] = 'hello'
+        self.assertEqual(test.settings, {'test1': 200, 'test2': {'test2_1': 'hello', 'test2_2': 0.2}})
 
 
-        print(test.parameters['test2'])
+        print(test.settings['test2'])
 
-        print(test.parameters)
+        print(test.settings)
 
-        print(type(test.parameters))
-        print(type(test.parameters['test2']))
+        print(type(test.settings))
+        print(type(test.settings['test2']))
 
     def test_tes(self):
         test = Instrument('my inst')
@@ -73,7 +73,7 @@ class TestInstrument(TestCase):
         new_val = 30
         #test.test1 = 30
         test.update_parameters(Parameter('test1', 30))
-        if get_elemet('test1', test.parameters).value != test.test1:
+        if get_elemet('test1', test.settings).value != test.test1:
             #print(test.parameters)
             self.fail('setter function doesn\'t work')
 

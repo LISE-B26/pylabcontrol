@@ -457,9 +457,9 @@ if __name__ == '__main__':
         'counter': 'ScriptDummy',
 
 
-        'zi sweeper': {
-            'script_class': 'ZI_Sweeper',
-            'instruments': {'zihf2': 'ZIHF2'}
+        'dummy script with inst': {
+            'script_class': 'ScriptDummyWithInstrument',
+            'instruments': {'inst_dummy': 'DummyInstrument'}
         }
 
         # 'new_script': 'NewScript',

@@ -10,7 +10,7 @@ class Instrument(object):
     generic instrument class
 
     for subclass overwrite following functions / properties:
-        - _parameters_default => parameter object, that is a list of parameters that can be set to configure the instrument
+        - _settings_default => parameter object, that is a list of parameters that can be set to configure the instrument
         - update => function that sends parameter changes to the instrument
         - values => dictionary that contains all the values that can be read from the instrument
         - get_values => function that actually requests the values from the instrument
@@ -23,12 +23,12 @@ class Instrument(object):
     # ======= Following functions have to be customized for each instrument subclass =========
     # ========================================================================================
 
-    def __init__(self, name=None, parameters=None):
+    def __init__(self, name=None, settings=None):
 
-        self._parameters = self._parameters_default
+        self._settings = self._settings_default
 
-        if parameters is not None:
-            self.update(parameters)
+        if settings is not None:
+            self.update(settings)
 
         if name is None:
             name = self.__class__.__name__
@@ -36,30 +36,30 @@ class Instrument(object):
         self.name = name
 
     @abstractproperty
-    def _parameters_default(self):
+    def _settings_default(self):
         """
         returns the default parameter_list of the instrument this function should be over written in any subclass
         """
-        parameters_default = Parameter([
+        settings_default = Parameter([
             Parameter('test1', 0, int, 'test parameter (int)'),
             Parameter('test2' ,
                       [Parameter('test2_1', 'string', str, 'test parameter (str)'),
                        Parameter('test2_2', 0.0, float, 'test parameter (float)')
                        ])
         ])
-        return parameters_default
+        return settings_default
 
     @abstractmethod
-    def update(self, parameters):
+    def update(self, settings):
         '''
         updates the internal dictionary and sends changed values to instrument
         Args:
-            parameters: parameters to be set
+            settings: parameters to be set
         # mabe in the future:
         # Returns: boolean that is true if update successful
 
         '''
-        self._parameters.update(parameters)
+        self._settings.update(settings)
 
     @abstractproperty
     def _probes(self):
@@ -116,9 +116,6 @@ class Instrument(object):
 
         output_string = '{:s} (class type: {:s})'.format(self.name, self.__class__.__name__)
 
-        # for parameter in self.parameters:
-        #     # output_string += parameter_to_string(parameter)
-        #     output_string += str(parameter)+'\n'
         return output_string
 
     @property
@@ -130,5 +127,5 @@ class Instrument(object):
         self._name = value
 
     @property
-    def parameters(self):
-        return self._parameters
+    def settings(self):
+        return self._settings

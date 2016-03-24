@@ -18,18 +18,18 @@ class TestZIHF2(TestCase):
                                      'channel': 0}
                                 })
 
-        self.assertEqual(test.parameters['sigins'], {'diff': False,
+        self.assertEqual(test.settings['sigins'], {'diff': False,
                                      'ac': True,
                                      'imp50': 1,
                                      'range': 10,
                                      'channel': 0}
-                                )
+                         )
 
 
         test.update({'freq':  100.})
         self.assertEqual(test.freq, 100.)
 
 
-        test.parameters['freq'] = 101.
+        test.settings['freq'] = 101.
 
         self.assertEqual(test.freq, 101.)

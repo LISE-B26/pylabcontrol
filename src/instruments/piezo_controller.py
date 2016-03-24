@@ -4,11 +4,11 @@ from src.core.instruments import Instrument, Parameter
 
 
 class PiezoController(Instrument):
-    def __init__(self, name = None, parameters = None):
-        super(PiezoController, self).__init__(name, parameters)
+    def __init__(self, name = None, settings = None):
+        super(PiezoController, self).__init__(name, settings)
         self._is_connected = False
         try:
-            self.connect(port = self.parameters['port'], baudrate = self.parameters['baudrate'], timeout = self.parameters['timeout'])
+            self.connect(port = self.settings['port'], baudrate = self.settings['baudrate'], timeout = self.settings['timeout'])
         except Exception:
             print('No Piezo Controller Detected')
             raise
@@ -20,7 +20,7 @@ class PiezoController(Instrument):
             self._is_connected = True
 
     @property
-    def _parameters_default(self):
+    def _settings_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:
@@ -35,9 +35,9 @@ class PiezoController(Instrument):
 
         return parameters_default
 
-    def update(self, parameters):
-        super(PiezoController, self).update(parameters)
-        for key, value in parameters.iteritems():
+    def update(self, settings):
+        super(PiezoController, self).update(settings)
+        for key, value in settings.iteritems():
             if key == 'voltage':
                 self.set_voltage(value)
             elif key == 'voltage_limit':
@@ -69,7 +69,7 @@ class PiezoController(Instrument):
         assert isinstance(key, str)
 
         if key in ['voltage']:
-            self.ser.write(self.parameters['axis'] + 'voltage?\r')
+            self.ser.write(self.settings['axis'] + 'voltage?\r')
             xVoltage = self.ser.readline()
             return(float(xVoltage[2:-2].strip()))
         elif key in ['voltage_limit']:
@@ -90,7 +90,7 @@ class PiezoController(Instrument):
             self.ser.close()
 
     def set_voltage(self, voltage):
-        self.ser.write(self.parameters['axis'] + 'voltage=' + str(voltage) + '\r')
+        self.ser.write(self.settings['axis'] + 'voltage=' + str(voltage) + '\r')
         successCheck = self.ser.readlines()
         # print(successCheck)
         # * and ! are values returned by controller on success or failure respectively

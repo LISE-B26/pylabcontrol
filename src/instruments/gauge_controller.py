@@ -35,7 +35,7 @@ class PressureGauge(Instrument):
     ACK = chr(6)
     NAK = chr(21)
 
-    def __init__(self, name='PressureGauge', parameters=None):
+    def __init__(self, name='PressureGauge', settings=None):
         """
         The serial connection should be setup with the following parameters:
         1 start bit, 8 data bits, No parity bit, 1 stop bit, no hardware
@@ -43,13 +43,13 @@ class PressureGauge(Instrument):
         below
         """
 
-        super(PressureGauge, self).__init__(name, parameters)
+        super(PressureGauge, self).__init__(name, settings)
         # TODO: ask Jan about accessing port, baudrate, and timeout
-        self.ser = serial.Serial(port=self.parameters['port'], baudrate=self.parameters['baudrate'],
-                                 timeout=self.parameters['timeout'])
+        self.ser = serial.Serial(port=self.settings['port'], baudrate=self.settings['baudrate'],
+                                 timeout=self.settings['timeout'])
 
     @property
-    def _parameters_default(self):
+    def _settings_default(self):
         """
         returns the default parameter_list of the instrument
         :return:
@@ -78,7 +78,7 @@ class PressureGauge(Instrument):
             'model': 'Model of the pressure gauge'
         }
 
-    def update(self, parameters):
+    def update(self, settings):
         pass
 
     def read_probes(self, probe_name):

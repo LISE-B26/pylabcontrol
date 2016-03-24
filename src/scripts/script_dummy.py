@@ -1,5 +1,6 @@
 from src.core import Parameter, Script
 from PyQt4 import QtCore
+from src.instruments import DummyInstrument
 
 class ScriptDummy(Script):
     #This is the signal that will be emitted during the processing.
@@ -50,6 +51,9 @@ class ScriptDummyWithInstrument(Script):
     updateProgress = QtCore.Signal(int)
 
     def __init__(self, dummy_instrument,  name = None, settings = None):
+
+        assert isinstance(dummy_instrument, DummyInstrument)
+
         self._instrument = dummy_instrument
         super(ScriptDummy, self).__init__(name, settings)
 
@@ -80,7 +84,12 @@ class ScriptDummyWithInstrument(Script):
         name = self.settings['name']
         wait_time = self.settings['wait_time']
 
+
+
         print('I am a test function counting to {:i}...'.format(count))
         for i in range(count):
+            self._instrument.
+            'output probe2'
+
             time.sleep(wait_time)
             print(i)

@@ -67,8 +67,8 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 B26QTreeItem(self, key, value, type(value), '',visible=self.visible)
 
         elif isinstance(self.value, Instrument):
-            for key, value in self.value.parameters.iteritems():
-                B26QTreeItem(self, key, value, self.value.parameters.valid_values[key], self.value.parameters.info[key], visible=self.visible)
+            for key, value in self.value.settings.iteritems():
+                B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
         else:
             self.setText(1, unicode(self.value))
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)

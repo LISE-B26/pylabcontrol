@@ -89,4 +89,4 @@ class DAQ(Instrument):
 
 if __name__ == '__main__':
     a = DAQ('Dev1')
-    print(a.parameters)
+    print(a.settings)

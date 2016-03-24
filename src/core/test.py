@@ -71,7 +71,7 @@ class UI(QtGui.QMainWindow):
 
 
 
-            old_value = instrument.parameters
+            old_value = instrument.settings
             for level in path_to_instrument:
                 old_value = old_value[level]
 
@@ -84,7 +84,7 @@ class UI(QtGui.QMainWindow):
 
 
 
-            instrument.parameters.update(new_value_dict)
+            instrument.settings.update(new_value_dict)
             # todo: update .parameters
 
 

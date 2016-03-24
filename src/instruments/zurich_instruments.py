@@ -18,7 +18,7 @@ class ZIHF2(Instrument):
     '''
     instrument class to talk to Zurich instrument HF2 lock in ampifier
     '''
-    def __init__(self, name = None, parameters = None):
+    def __init__(self, name = None, settings = None):
 
         if self._is_connected:
             self.daq = self.utils.autoConnect(8005,1) # connect to ZI, 8005 is the port number
@@ -29,17 +29,17 @@ class ZIHF2(Instrument):
             self.device = None
             self.options = None
 
-        super(ZIHF2, self).__init__(name, parameters)
+        super(ZIHF2, self).__init__(name, settings)
         # apply all settings to instrument
         # todo: this shoud not be necesarry, test this!
-        self.update(self.parameters)
+        self.update(self.settings)
 
 
     # ========================================================================================
     # ======= overwrite functions from instrument superclass =================================
     # ========================================================================================
     @property
-    def _parameters_default(self):
+    def _settings_default(self):
         '''
         returns the default parameter_list of the instrument
         :return:
@@ -85,14 +85,14 @@ class ZIHF2(Instrument):
 
         return parameters_default
 
-    def update(self, parameters):
+    def update(self, settings):
         '''
         updates the internal dictionary and sends changed values to instrument
         Args:
-            parameters: parameters to be set
+            settings: parameters to be set
         '''
         # call the update_parameter_list to update the parameter list
-        super(ZIHF2, self).update(parameters)
+        super(ZIHF2, self).update(settings)
 
 
         def commands_from_parameters(parameters):
@@ -119,7 +119,7 @@ class ZIHF2(Instrument):
                     channel = element['channel']
                     settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, channel), element['offset']])
                 elif key in ['freq']:
-                    channel = self.parameters['sigouts']['channel']
+                    channel = self.settings['sigouts']['channel']
                     settings.append(['/%s/oscs/%d/freq' % (self.device, channel), parameters['freq']])
                 elif isinstance(element, dict) == False:
                     settings.append([key, element])
@@ -129,7 +129,7 @@ class ZIHF2(Instrument):
 
 
         # now we actually apply these newsettings to the hardware
-        commands = commands_from_parameters(parameters)
+        commands = commands_from_parameters(settings)
         if self.is_connected:
             self.daq.set(commands)
         else:
@@ -170,7 +170,7 @@ class ZIHF2(Instrument):
             data = data[key]
         elif key in ['freq']:
             # these values just look up in the parameter settings
-            data = self.parameters['freq']
+            data = self.settings['freq']
 
         return data
 
