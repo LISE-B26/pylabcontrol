@@ -18,6 +18,7 @@ class Instrument(object):
     '''
     __metaclass__ = ABCMeta
     _is_connected = False #internal flag that indicated if instrument is actually connected
+    _initialized = False
 
     # ========================================================================================
     # ======= Following functions have to be customized for each instrument subclass =========
@@ -36,12 +37,14 @@ class Instrument(object):
 
         self.name = name
 
-    @property
+        self._initialized = True
+
+    @abstractproperty
     def _DEFAULT_SETTINGS(self):
         """
         returns the default parameter_list of the instrument this function should be over written in any subclass
         """
-        raise NotImplementedError("Subclass did not implement _DEFAULT_SETTINGS")
+        pass
 
     @abstractmethod
     def update(self, settings):
@@ -95,6 +98,7 @@ class Instrument(object):
     # do not override this, override get_values instead
     def __getattr__(self, name):
         try:
+            print(name)
             return self.read_probes(name)
         except (KeyError):
             #restores standard behavior for missing keys
@@ -102,8 +106,11 @@ class Instrument(object):
 
     def __setattr__(self, key, value):
         try:
-            self.update({key: value})
-        except (AssertionError, AttributeError, KeyError):
+            if not self._initialized:
+                object.__setattr__(self, key, value)
+            else:
+                self.update({key: value})
+        except (AttributeError, KeyError):
             object.__setattr__(self, key, value)
 
     def __repr__(self):

@@ -71,7 +71,7 @@ class Parameter(dict):
 
     def __setitem__(self, key, value):
 
-        assert self.is_valid(value, self.valid_values[key]), "{:s} is not in {:s}".format(str(value), str(self.valid_values[key]) )
+        assert self.is_valid(value, self.valid_values[key]), "{:s} is not in {:s}".format(str(value), str(self.valid_values[key]))
 
         if isinstance(value, dict) and len(self)>0 and len(self) == len(self.valid_values):
             for k, v in value.iteritems():

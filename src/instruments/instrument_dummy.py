@@ -14,9 +14,9 @@ class DummyInstrument(Instrument):
     ])
 
     def __init__(self, name =  None, settings = None):
+        super(DummyInstrument, self).__init__(name, settings)
         self._internal_state = None
         self._internal_state_deep = None
-        super(DummyInstrument, self).__init__(name, settings)
 
 
     def update(self, settings):
@@ -87,12 +87,16 @@ if __name__ == '__main__':
 
 
     # test = Instrument()
+    #
+    # test = DummyInstrument()
+    # print(test.settings)
+    # test = DummyInstrument('test inst', {'test1': 2020})
+    # print(test.settings)
+    # test = DummyInstrument()
+    #
+    # print(test.settings)
 
     test = DummyInstrument()
-    print(test.settings)
-    test = DummyInstrument('test inst', {'test1': 2020})
-    print(test.settings)
-    test = DummyInstrument()
-
-    print(test.settings)
-
+    test.test1 = 'hi'
+    print(test.test1)
+    print(test._settings)

@@ -2,14 +2,10 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Wed Mar 23 12:47:45 2016
+# Created: Thu Mar 24 13:29:01 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
-
-# ==== added manually ======== start
-from external_modules.matplotlibwidget import MatplotlibWidget
-# ==== added manually ======== end
 
 from PyQt4 import QtCore, QtGui
 
@@ -30,7 +26,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(1138, 859)
+        MainWindow.resize(1138, 718)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.list_records = QtGui.QListView(self.centralwidget)
@@ -39,7 +35,7 @@ class Ui_MainWindow(object):
         self.list_records.setModelColumn(0)
         self.list_records.setObjectName(_fromUtf8("list_records"))
         self.layoutWidget = QtGui.QWidget(self.centralwidget)
-        self.layoutWidget.setGeometry(QtCore.QRect(730, 500, 411, 25))
+        self.layoutWidget.setGeometry(QtCore.QRect(740, 450, 411, 25))
         self.layoutWidget.setObjectName(_fromUtf8("layoutWidget"))
         self.horizontalLayout_2 = QtGui.QHBoxLayout(self.layoutWidget)
         self.horizontalLayout_2.setMargin(0)
@@ -54,7 +50,7 @@ class Ui_MainWindow(object):
         self.btn_save_record_to_disk.setObjectName(_fromUtf8("btn_save_record_to_disk"))
         self.horizontalLayout_2.addWidget(self.btn_save_record_to_disk)
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(10, 340, 721, 471))
+        self.tabWidget.setGeometry(QtCore.QRect(10, 200, 721, 471))
         self.tabWidget.setTabShape(QtGui.QTabWidget.Rounded)
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.tab_scripts = QtGui.QWidget()
@@ -124,10 +120,10 @@ class Ui_MainWindow(object):
         self.tab_history.setObjectName(_fromUtf8("tab_history"))
         self.tabWidget.addTab(self.tab_history, _fromUtf8(""))
         self.matplotlibwidget = MatplotlibWidget(self.centralwidget)
-        self.matplotlibwidget.setGeometry(QtCore.QRect(30, 20, 400, 300))
+        self.matplotlibwidget.setGeometry(QtCore.QRect(10, 0, 321, 191))
         self.matplotlibwidget.setObjectName(_fromUtf8("matplotlibwidget"))
         self.list_history = QtGui.QListView(self.centralwidget)
-        self.list_history.setGeometry(QtCore.QRect(470, 10, 631, 211))
+        self.list_history.setGeometry(QtCore.QRect(340, 0, 631, 191))
         self.list_history.setObjectName(_fromUtf8("list_history"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
@@ -160,3 +156,4 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_settings), _translate("MainWindow", "Settings", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_history), _translate("MainWindow", "History", None))
 
+from matplotlibwidget import MatplotlibWidget
