@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1138</width>
-    <height>859</height>
+    <height>718</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,8 +33,8 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>730</x>
-      <y>500</y>
+      <x>740</x>
+      <y>450</y>
       <width>411</width>
       <height>25</height>
      </rect>
@@ -67,7 +67,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>340</y>
+      <y>200</y>
       <width>721</width>
       <height>471</height>
      </rect>
@@ -280,20 +280,20 @@
    <widget class="MatplotlibWidget" name="matplotlibwidget">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>20</y>
-      <width>400</width>
-      <height>300</height>
+      <x>10</x>
+      <y>0</y>
+      <width>321</width>
+      <height>191</height>
      </rect>
     </property>
    </widget>
    <widget class="QListView" name="list_history">
     <property name="geometry">
      <rect>
-      <x>470</x>
-      <y>10</y>
+      <x>340</x>
+      <y>0</y>
       <width>631</width>
-      <height>211</height>
+      <height>191</height>
      </rect>
     </property>
    </widget>

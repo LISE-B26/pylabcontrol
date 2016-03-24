@@ -20,6 +20,7 @@ try:
     # import external_modules.matplotlibwidget
     Ui_MainWindow, QMainWindow = loadUiType('basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
+    # load precompiled gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
     from src.core.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
     print('Warning: on the fly conversion of .ui file failed, loaded .py file instead!!')
