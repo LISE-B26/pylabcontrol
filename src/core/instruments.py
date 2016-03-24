@@ -24,7 +24,7 @@ class Instrument(object):
     # ========================================================================================
 
     def __init__(self, name=None, settings=None):
-        # make a deepcopy of the default settings 
+        # make a deepcopy of the default settings
         # because _DEFAULT_SETTINGS is a class variable and thus shared among the instances
         self._settings = deepcopy(self._DEFAULT_SETTINGS)
 

@@ -15,6 +15,7 @@ class DummyInstrument(Instrument):
 
     def __init__(self, name =  None, settings = None):
         self._internal_state = None
+        self._internal_state_deep = None
         super(DummyInstrument, self).__init__(name, settings)
 
 
@@ -32,6 +33,9 @@ class DummyInstrument(Instrument):
         for key, value in settings.iteritems():
             if key == 'test1':
                 self._internal_state = value
+            elif key == 'test2' and 'test2_1' in settings['test2']:
+                self._internal_state_deep = settings['test2']['test2_1']
+
 
     @property
     def _probes(self):
@@ -43,7 +47,8 @@ class DummyInstrument(Instrument):
         """
         return {'value1': 'this is some value from the instrument',
                 'value2': 'this is another',
-                'internal' : 'gives the internal state variable'
+                'internal' : 'gives the internal state variable',
+                'deep_internal' : 'gives another internal state variable'
                 }
 
     def read_probes(self, key):
@@ -64,7 +69,8 @@ class DummyInstrument(Instrument):
             value = self.settings['output probe2']
         elif key == 'internal':
             value = self._internal_state
-
+        elif key == 'deep_internal':
+            value = self._internal_state_deep
 
         return value
 
