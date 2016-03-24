@@ -163,12 +163,39 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             new_value = item.value
             if new_value is not old_value:
-                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value), instrument)
+                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value), instrument.name)
             else:
-                msg = "did not change parameter {:s} on {:s}".format(item.name, instrument)
+                msg = "did not change parameter {:s} on {:s}".format(item.name, instrument.name)
 
             self.log(msg)
-            # print(treeWidget.currentItem(), treeWidget.currentItem().target)
+        elif treeWidget == self.tree_scripts:
+
+            item = treeWidget.currentItem()
+
+            script, path_to_script = item.get_script()
+
+            # build nested dictionary to update instrument
+            dictator = item.value
+            for element in path_to_script:
+                dictator = {element: dictator}
+
+            # get old value from instrument
+            old_value = script.settings
+            path_to_script.reverse()
+            for element in path_to_script:
+                old_value = old_value[element]
+
+            # send new value from tree to script
+            script.update(dictator)
+
+            new_value = item.value
+            if new_value is not old_value:
+                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value),
+                                                                                script.name)
+            else:
+                msg = "did not change parameter {:s} on {:s}".format(item.name, script.name)
+
+            self.log(msg)
 
     def get_time(self):
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
@@ -188,40 +215,28 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.list_history.show()
 
 
+    def btn_clicked(self):
+        sender = self.sender()
+
+        print(sender)
+
+        if sender is self.btn_start_script:
+            item = self.tree_scripts.currentItem()
+            script, path_to_script= item.get_script()
+
+            if item is not None:
+                    self.log('start {:s}'.format(script.name))
+                    script.run()
+            else:
+                self.log('No script selected. Select script and try again!')
+
     def update_progress_old(self, current_progress):
         self.progressBar.setValue(current_progress)
         if current_progress == 100:
             self.log('finished!!!')
 
 
-    def btn_clicked_old(self):
-        sender = self.sender()
 
-        script = self.tree_scripts.currentItem()
-
-        if script is not None:
-            while isinstance(script, QTreeScript) == False:
-                script = script.parent()
-            script = script.script
-            # self.statusBar().showMessage(sender.objectName() + ' was pressed')
-            if sender.objectName() == "btn_start_script":
-                # self._thread_acq.start()
-                self.log('start {:s}'.format(script.name))
-                script.run()
-                if isinstance(script, Script):
-                    self.log('finished')
-            elif sender.objectName() == "btn_stop_script":
-                self.log('stop {:s}'.format(script.name))
-                script.stop()
-            else:
-                print('unknown sender: ', sender.objectName())
-        else:
-            self.log('No script selected. Select script and try again!')
-
-
-
-
-        # self.log("parameter {:s} changed from {:s} to {:s}!".format(parameter.name, str(old_value), str(new_value)), 1000)
     def update_parameters_old(self, treeWidget):
 
         if not treeWidget.currentItem() == None:

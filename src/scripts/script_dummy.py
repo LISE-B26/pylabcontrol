@@ -124,7 +124,7 @@ class ScriptDummyWithInstrument(Script):
 
 
 
-        print('I am a test function counting to {:i}...'.format(count))
+        print('I am a test function counting to {:d}...'.format(count))
         for i in range(count):
 
             print('signal from dummy instrument {:s}: {:0.3f}'.format(name, self._instrument.value1))
