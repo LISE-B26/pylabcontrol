@@ -2,7 +2,6 @@ from src.core import Instrument, Parameter
 import visa
 import numpy as np
 import time
-import matplotlib.pyplot as plt
 
 
 class SpectrumAnalyzer(Instrument):
@@ -14,11 +13,13 @@ class SpectrumAnalyzer(Instrument):
     _INSTRUMENT_IDENTIFIER = u'Keysight Technologies,N9320B,CN0323B356,0B.03.58\n'
     # String returned by spectrum analyzer upon querying it with '*IDN?'
 
-    _DEFAULT_SETTINGS = \
-        Parameter([
+    _DEFAULT_SETTINGS = Parameter([
             Parameter('visa_resource', 'USB0::0x0957::0xFFEF::CN0323B356::INSTR', (str),
                       'pyVisa instrument identifier, to make a connection using the pyVisa package.'),
             Parameter('start_frequency', 0.0, float, 'start frequency of spectrum analyzer frequency range'),
+            Parameter('mode', 'SpectrumAnalyzer', ['SpectrumAnalyzer', 'TrackingGenerator'],
+                      'switches between normal spectrum analyzer mode or spectrum analyzer PLUS output, '
+                      'i.e., tracking generator'),
             Parameter('stop_frequency', 3e9, float, 'stop frequency of spectrum analyzer frequency range'),
             Parameter('output_on', True, bool, 'toggles the tracking generator'),
             Parameter('connection_timeout', 1000, int, 'the time to wait for a response '
@@ -26,7 +27,7 @@ class SpectrumAnalyzer(Instrument):
             Parameter('output_power', 10.0, float, 'the output power (in dBm) of the tracking generator')
         ])
 
-    def __init__(self, name='SpectrumAnalyzer', settings=None):
+    def __init__(self, name='SpectrumAnalyzer', settings={}):
         """
 
         Args:
@@ -35,10 +36,12 @@ class SpectrumAnalyzer(Instrument):
 
         """
         super(SpectrumAnalyzer, self).__init__(name, settings)
+
         rm = visa.ResourceManager()
         self.spec_anal = rm.open_resource(self.settings['visa_resource'])
         self.spec_anal.timeout = self.settings['connection_timeout']
         self.spec_anal.write('*RST\n')
+        self._set_mode('SpectrumAnalyzer')
 
     def update(self, settings):
         super(SpectrumAnalyzer, self).update(settings)
@@ -46,15 +49,16 @@ class SpectrumAnalyzer(Instrument):
         for key, value in settings.iteritems():
             if key == 'start_frequency':
                 self._set_start_frequency(value)
-                print 'hi'
             elif key == 'stop_frequency':
                 self._set_stop_frequency(value)
-            elif key == 'tracking_generator':
-                self._set_tracking_generator(value)
+            elif key == 'output_on':
+                self._toggle_output(value)
             elif key == 'output_power':
                 self._set_output_power(value)
+            elif key == 'mode':
+                self._set_mode(value)
             else:
-                message = '{0} is not a parameter of {2}'.format(key, self.name)
+                message = '{0} is not a parameter of {1}'.format(key, self.name)
 
     @property
     def _probes(self):
@@ -63,7 +67,8 @@ class SpectrumAnalyzer(Instrument):
                   'trace': 'the frequency sweep of the inputted signal',
                   'tracking_generator': 'checks if the tracking generator is on',
                   'bandwidth': 'the curent bandwidth of the spectrum analyzer',
-                  'output_power': 'the power of the tracking generator'}
+                  'output_power': 'the power of the tracking generator',
+                  'mode': 'Spectrum Analyzer Mode or Tracking Generator Mode'}
 
     def read_probes(self, probe_name):
         if probe_name == 'start_frequency':
@@ -72,12 +77,14 @@ class SpectrumAnalyzer(Instrument):
             return self._get_stop_frequency()
         elif probe_name == 'trace':
             return self._get_trace()
-        elif probe_name == 'tracking_generator':
-            return self._get_tracking_generator()
+        elif probe_name == 'output_on':
+            return self._is_output_on()
         elif probe_name == 'bandwidth':
             return self._get_bandwidth()
         elif probe_name == 'output_power':
             return self._get_output_power()
+        elif probe_name == 'mode':
+            return self._get_mode()
         else:
             message = 'no probe with that name exists!'
             raise AttributeError(message)
@@ -103,11 +110,34 @@ class SpectrumAnalyzer(Instrument):
     def _get_stop_frequency(self):
         return float(self.spec_anal.query('SENS:FREQ:STOP?\n'))
 
-    def _set_output(self, state):
-        self.spec_anal.write('OUTPUT ON') if state else self.spec_anal.write('OUTPUT OFF')
+    def _toggle_output(self, state):
+        if state:
+            self.spec_anal.write('OUTPUT 1')
+        elif not state:
+            self.spec_anal.write('OUTPUT 0')
 
-    def _get_output(self):
-        return bool(self.spec_anal.query('OUTPUT?'))
+    def _is_output_on(self):
+        if self.mode == 'SpectrumAnalyzer':
+            return False
+        elif self.mode == 'TrackingGenerator':
+            return bool(int(self.spec_anal.query('OUTPUT:STATE?')))
+
+    def _get_mode(self):
+        mode_response = str(self.spec_anal.query('CONFIGURE?')).strip()
+        if mode_response == 'SAN':
+            return 'SpectrumAnalyzer'
+        elif mode_response == 'TGEN':
+            return 'TrackingGenerator'
+
+    def _set_mode(self, mode):
+        #time.sleep(5)  # Empirically, the spectrum analyzer takes 5 seconds after initialization to change mode
+
+        if mode == 'TrackingGenerator':
+            self.spec_anal.write('CONFIGURE:TGENERATOR')
+        elif mode == 'SpectrumAnalyzer':
+            self.spec_anal.write('CONFIGURE:SANALYZER')
+
+        #time.sleep(5)  # Empirically, the spectrum analyzer takes 5 seconds to load the module
 
     def _get_trace(self):
         amplitudes = [float(i) for i in str(self.spec_anal.query('TRACE:DATA? TRACE1')).split(',')]
@@ -125,26 +155,16 @@ class SpectrumAnalyzer(Instrument):
     def set_output_power(self, power):
         return self.spec_anal.write('SOURCE:POWER ' + str(power))
 
-
+    def __del__(self):
+        self._set_mode('SpectrumAnalyzer')
+        self.spec_anal.close()
 
 if __name__ == '__main__':
 
         spec_anal = SpectrumAnalyzer()
+        print spec_anal.is_connected()
+        spec_anal.mode = 'TrackingGenerator'
+        print spec_anal.output_on
+        spec_anal.output_on = True
+        print spec_anal.output_on
 
-        spec_anal.start_frequency = 200001
-
-        print spec_anal._get_start_frequency()
-        print spec_anal.start_frequency
-        print spec_anal.settings['start_frequency']
-
-        spec_anal.settings['start_frequency'] = 200222
-        print('======')
-        print spec_anal._get_start_frequency()
-        print spec_anal.start_frequency
-        print spec_anal.settings['start_frequency']
-
-        spec_anal.update({'start_frequency': 200222})
-        print('======')
-        print spec_anal._get_start_frequency()
-        print spec_anal.start_frequency
-        print spec_anal.settings['start_frequency']

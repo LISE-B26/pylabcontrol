@@ -20,5 +20,17 @@ class TestSpectrumAnalyzer(TestCase):
         self.spec_anal.stop_frequency = freq
         self.assertEqual(freq, self.spec_anal.stop_frequency)
 
+    def test_output(self):
+        self.spec_anal.mode = 'TrackingGenerator'
+
+        self.spec_anal.output_on = False
+        self.assertTrue(not self.spec_anal.output_on)
+
+        self.spec_anal.output_on = True
+        self.assertTrue(self.spec_anal.output_on)
+
+        self.spec_anal.output_power = 1.0
+        self.assertEqual(self.spec_anal.output_power, 1.0)
+
     def get_trace(self):
         print(self.spec_anal.trace)
