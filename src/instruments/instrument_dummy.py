@@ -33,8 +33,6 @@ class DummyInstrument(Instrument):
         for key, value in settings.iteritems():
             if key == 'test1':
                 self._internal_state = value
-            elif key == 'test2' and 'test2_1' in settings['test2']:
-                self._internal_state_deep = settings['test2']['test2_1']
 
 
     @property
@@ -97,6 +95,6 @@ if __name__ == '__main__':
     # print(test.settings)
 
     test = DummyInstrument()
-    test.test1 = 'hi'
+    test['test1'] = 1
     print(test.test1)
     print(test._settings)
