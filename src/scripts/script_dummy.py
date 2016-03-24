@@ -41,7 +41,7 @@ class ScriptDummy(Script):
 class ScriptDummyWithQtSignal(Script, QThread):
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('count', 0, int),
+        Parameter('count', 10, int),
         Parameter('name', 'this is a counter'),
         Parameter('wait_time', 0.1, float)
     ])

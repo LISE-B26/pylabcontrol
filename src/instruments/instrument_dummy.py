@@ -84,16 +84,6 @@ class DummyInstrument(Instrument):
 if __name__ == '__main__':
 
 
-    # test = Instrument()
-    #
-    # test = DummyInstrument()
-    # print(test.settings)
-    # test = DummyInstrument('test inst', {'test1': 2020})
-    # print(test.settings)
-    # test = DummyInstrument()
-    #
-    # print(test.settings)
-
     test = DummyInstrument()
     test['test1'] = 1
     print(test.test1)

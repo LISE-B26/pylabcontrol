@@ -10,7 +10,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
     Custom QTreeWidgetItem with Widgets
     '''
 
-    def __init__(self, parent, name, value, valid_values, info, log = None, visible = True):
+    def __init__(self, parent, name, value, valid_values, info, visible = True):
         """
         Args:
             parent:
@@ -18,7 +18,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             value:
             valid_values:
             info:
-            log: log function if not provided, output is send to standard print command
             visible (optional):
 
         Returns:
@@ -34,11 +33,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         self.info = info
         self.visible = visible
 
-        # if no log function is provided define one
-        if log is None:
-            def log(txt):
-                print(txt)
-        self.log = log
 
         self.setData(0, 0, unicode(self.name))
         # self.setText(0, unicode(self.name))
@@ -67,7 +61,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 B26QTreeItem(self, key, value, type(value), '',visible=self.visible)
 
         elif isinstance(self.value, (Instrument, Script)):
-            print('HHHHHH', value)
             for key, value in self.value.settings.iteritems():
                 B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
         # elif isinstance(self.value, Script):
@@ -118,7 +111,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 #     value = self.cast_type(value.currentText()) # cast into same type as valid values
             elif isinstance(value, QtGui.QComboBox):
                 value = self.cast_type(value.currentText())
-                print(value)
             elif isinstance(value, QtGui.QCheckBox):
                 value = int(value.checkState()) # this gives 2 (True) and 0 (False)
                 value = value == 2
@@ -134,8 +126,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             value = self.value
             msg = 'value not valid, reset to {:s}'.format(str(value))
 
-        # if msg is not None:
-        #     self.log(msg)
         if not isinstance(value, bool):
             super(B26QTreeItem, self).setData(column, role, value)
         else:

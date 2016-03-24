@@ -96,18 +96,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
 
-            #
-            # for script in self.scripts_old:
-            #     if isinstance(script, QtScript):
-            #         print(script.name)
-            #         script.updateProgress.connect(self.update_progress)
-
         connect_controls()
-        # ========= old stuff =========
-        # self.instruments = {instrument.name: instrument  for instrument in self.instruments}
-        # fill_tree(self.tree_settings, self.instruments)
-        # self.tree_settings.setColumnWidth(0,300)
-        #
 
 
     def update_parameters(self, treeWidget):
@@ -193,12 +182,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         if sender is self.btn_start_script:
             item = self.tree_scripts.currentItem()
-            script, path_to_script= item.get_script()
 
             if item is not None:
+                script, path_to_script = item.get_script()
                 # is the script is a QThread object we connect its signals to the update_status function
                 if isinstance(script, QThread):
-                    print('---------')
                     script.updateProgress.connect(self.update_status)
                 self.log('start {:s}'.format(script.name))
                 script.run()
@@ -244,7 +232,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def update_status(self, progress):
         self.progressBar.setValue(progress)
-        print('FFFFFF', progress)
         if progress == 100:
             pass
 
@@ -302,10 +289,3 @@ if __name__ == '__main__':
     ex.show()
     ex.raise_()
     sys.exit(app.exec_())
-
-    # instruments = load_instruments(instruments)
-    # print('created instruments')
-    # print(instruments)
-    # scripts = load_scripts(scripts, instruments)
-    # print('created scripts')
-    # print(scripts['counter'].settings)
