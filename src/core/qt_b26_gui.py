@@ -14,6 +14,7 @@ from src.scripts import ScriptDummy
 import datetime
 from collections import deque
 
+from src.core import load_probes, load_scripts, load_instruments
 
 # load the basic gui either from .ui file or from precompiled .py file
 try:
@@ -25,89 +26,6 @@ except (ImportError, IOError):
     from PyQt4.QtGui import QMainWindow
     print('Warning: on the fly conversion of .ui file failed, loaded .py file instead!!')
 
-
-
-# ====== these functions will be outsourced ========= start
-def load_scripts(scripts, instruments):
-    """
-    Creates instances of the scripts inputted;
-
-    Args:
-        scripts: scripts is a dictionary with (key,value) = (name of the script, script class name),
-        for example script = {'dummy script': 'ScriptDummy'}
-
-    Returns:
-        a dictionary with (key,value) = (name of script, instance of script class) for all of the scripts
-        passed to the function that were successfully imported and initialized. Otherwise, scripts are omitted
-        in the outputted list.
-
-    Examples:
-        In the following, script_1 loads correctly, but script_2 does not, so only an instance of script_1
-        is outputted.
-
-        >>> load_scripts({'script_1_name':'Script1Class', 'script_2_name':'Script2Class'})
-        {'script_1_name':Script1Class()}
-
-    """
-
-
-    scripts_instances = {}
-    print('instruments', instruments)
-    for script_name, value in scripts.iteritems():
-        print('====', script_name)
-        try:
-
-            if isinstance(value, dict):
-                assert 'script_class' in value
-                assert 'instruments' in value
-
-                script_class_name = value['script_class']
-                script_instruments = value['instruments']
-
-                script_instruments = {instrument_name: instruments[instrument_reference] for instrument_name, instrument_reference in script_instruments.iteritems()}
-
-            elif isinstance(value, str):
-                script_class_name = value
-                script_instruments = None
-
-            else:
-                TypeError("values of input not recognized!")
-
-
-            # try to import the script
-            module = __import__('src.scripts', fromlist=[script_class_name])
-            # this returns the name of the module that was imported.
-
-            class_of_script = getattr(module, script_class_name)
-            # this will take the module and look for the class of the script in it.
-            # This has the same name as the name for the module, because of our __init__.py file in the scripts
-            # folder. This raises an AttributeError if, in fact, we did not import the module
-
-            print(class_of_script, script_name)
-            # this creates an instance of the class
-            if script_instruments is None:
-                script_instance = class_of_script(name=script_name)
-            else:
-                script_instruments['name'] = script_name
-                script_instance = class_of_script(**script_instruments)
-
-            # adds the instance to our output dictionary
-            scripts_instances[script_name] = script_instance
-            print('script_name', script_name, scripts_instances)
-
-        except AttributeError:
-            # catches when we try to create a script of a class that doesn't exist!
-            # pass
-            raise
-
-    return scripts_instances
-
-
-def load_probes(probes, instruments):
-
-    return probes
-
-# ====== these functions will be outsourced ========= end
 
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
@@ -133,14 +51,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             instruments, scripts, probes = args
 
             instruments = load_instruments(instruments)
-            print('created instruments')
-            print(instruments)
             scripts = load_scripts(scripts, instruments)
-            print('created scripts')
-            print(scripts)
             probes = load_probes(probes, instruments)
-            print('created probes')
-            print(probes)
         else:
             raise TypeError("called ControlMainWindow with wrong arguments")
 
@@ -160,12 +72,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.fill_tree(self.tree_settings, self.instruments)
         self.tree_settings.setColumnWidth(0, 300)
 
-        print('self.scripts', self.scripts)
-
         self.fill_tree(self.tree_scripts, self.scripts)
         self.tree_scripts.setColumnWidth(0, 300)
-
-        # ========= old stuff =========
 
         def connect_controls():
             # =============================================================
@@ -183,28 +91,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # link buttons to functions
             self.btn_start_script.clicked.connect(lambda: self.btn_clicked())
             self.btn_stop_script.clicked.connect(lambda: self.btn_clicked())
-            # self.btn_clear_record.clicked.connect(lambda: self.btn_clicked())
-            # self.btn_start_record_fpga.clicked.connect(lambda: self.btn_clicked())
-            # self.btn_clear_record_fpga.clicked.connect(lambda: self.btn_clicked())
-            # self.btn_save_to_disk.clicked.connect(lambda: self.btn_clicked())
-            #
-            # self.btn_plus.clicked.connect(lambda: self.set_position())
-            # self.btn_minus.clicked.connect(lambda: self.set_position())
-            # self.btn_center.clicked.connect(lambda: self.set_position())
-            # self.btn_to_zero.clicked.connect(lambda: self.set_position())
-
-
-
-            # link checkboxes to functions
-            # self.checkIRon.stateChanged.connect(lambda: self.control_light())
-            # self.checkGreenon.stateChanged.connect(lambda: self.control_light())
-            # self.checkWhiteLighton.stateChanged.connect(lambda: self.control_light())
-            # self.checkCameraon.stateChanged.connect(lambda: self.control_light())
-            # self.checkPIActive.stateChanged.connect(lambda: self.switch_PI_loop())
-
-            # link combo box
-            # self.cmb_filterwheel.addItems(self._settings['hardware']['parameters_filterwheel']['position_list'].keys())
-            # self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
 
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
@@ -215,7 +101,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             #         print(script.name)
             #         script.updateProgress.connect(self.update_progress)
 
-
+        connect_controls()
+        # ========= old stuff =========
         # self.instruments = {instrument.name: instrument  for instrument in self.instruments}
         # fill_tree(self.tree_settings, self.instruments)
         # self.tree_settings.setColumnWidth(0,300)
@@ -257,20 +144,28 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             item = treeWidget.currentItem()
 
-            current_item = item
-            xx = []
-            while not isinstance(current_item.value, Instrument):
-                print(xx)
-                xx.append(current_item.name)
-                current_item = current_item.parent()
-            print('ZZ', xx)
+            instrument, path_to_instrument = item.get_instrument()
 
-            old_value = ''
+            # build nested dictionary to update instrument
+            dictator = item.value
+            for element in path_to_instrument:
+                dictator = {element: dictator}
+
+            # get old value from instrument
+            old_value = instrument.settings
+            path_to_instrument.reverse()
+            for element in path_to_instrument:
+                old_value = old_value[element]
+
+            # send new value from tree to instrument
+            instrument.update(dictator)
+
+
             new_value = item.value
             if new_value is not old_value:
-                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value), item.target)
+                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value), instrument)
             else:
-                msg = "did not change parameter {:s} on {:s}".format(item.name, item.target)
+                msg = "did not change parameter {:s} on {:s}".format(item.name, instrument)
 
             self.log(msg)
             # print(treeWidget.currentItem(), treeWidget.currentItem().target)
@@ -281,12 +176,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.statusbar.showMessage(msg, wait_time)
         time = self.get_time()
-        self.past_commands.append("{:s}\t {:s}".format(time, msg))
-        if len(self.past_commands) > 10:
-            self.past_commands.popleft()
+        self.history.append("{:s}\t {:s}".format(time, msg))
+        if len(self.history) > 10:
+            self.history.popleft()
 
         model = QtGui.QStandardItemModel(self.list_history)
-        for item in self.past_commands:
+        for item in self.history:
             model.insertRow(0,QtGui.QStandardItem(item))
 
         self.list_history.setModel(model)
@@ -415,7 +310,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         assert os.path.isfile(path_to_file)
         print('loading from json file not supported yet!')
-        raise TypeError
+        raise NotImplementedError
 
         return instruments, scripts, probes
 
@@ -424,8 +319,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         saves a gui settings file (to a json dictionary)
         - path_to_file: path to file that will contain the dictionary
         """
-
         # todo: implement
+        raise NotImplementedError
+
 
     def fill_tree(self, tree, parameters):
         """
@@ -448,7 +344,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 if __name__ == '__main__':
 
     import sys
-    from src.qt_creator_gui.instrument_loading import load_instruments
+
     app = QtGui.QApplication(sys.argv)
 
 

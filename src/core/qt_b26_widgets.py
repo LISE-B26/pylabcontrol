@@ -196,7 +196,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                     path_to_instrument.append(parent.name)
                     parent = parent.parent()
 
-        path_to_instrument.reverse()
+        # path_to_instrument.reverse()
         return instrument, path_to_instrument
 
 
