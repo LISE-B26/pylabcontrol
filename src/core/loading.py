@@ -168,7 +168,9 @@ def load_probes(probes, instruments):
             assert instrument_name in instruments
             assert probe_name in instruments[instrument_name]._probes
 
-            probe_instances.update({name: getattr(instruments[instrument_name], probe_name)})
+            probe_instances.update({name: lambda: getattr(instruments[instrument_name], probe_name)})
+
+
 
         except:
             # catches when we try to create a script of a class that doesn't exist!
@@ -197,6 +199,7 @@ if __name__ == '__main__':
 
     # print(probes)
 
-    print(probes['random'])
+    print(probes['random']())
+    print(probes['value2']())
 
 
