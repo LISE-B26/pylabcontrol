@@ -51,14 +51,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             instruments, scripts, probes = args
 
             instruments = load_instruments(instruments)
-            print('created instruments')
-            print(instruments)
             scripts = load_scripts(scripts, instruments)
-            print('created scripts')
-            print(scripts)
             probes = load_probes(probes, instruments)
-            print('created probes')
-            print(probes)
         else:
             raise TypeError("called ControlMainWindow with wrong arguments")
 
@@ -78,12 +72,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.fill_tree(self.tree_settings, self.instruments)
         self.tree_settings.setColumnWidth(0, 300)
 
-        print('self.scripts', self.scripts)
-
         self.fill_tree(self.tree_scripts, self.scripts)
         self.tree_scripts.setColumnWidth(0, 300)
-
-        # ========= old stuff =========
 
         def connect_controls():
             # =============================================================
@@ -101,28 +91,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # link buttons to functions
             self.btn_start_script.clicked.connect(lambda: self.btn_clicked())
             self.btn_stop_script.clicked.connect(lambda: self.btn_clicked())
-            # self.btn_clear_record.clicked.connect(lambda: self.btn_clicked())
-            # self.btn_start_record_fpga.clicked.connect(lambda: self.btn_clicked())
-            # self.btn_clear_record_fpga.clicked.connect(lambda: self.btn_clicked())
-            # self.btn_save_to_disk.clicked.connect(lambda: self.btn_clicked())
-            #
-            # self.btn_plus.clicked.connect(lambda: self.set_position())
-            # self.btn_minus.clicked.connect(lambda: self.set_position())
-            # self.btn_center.clicked.connect(lambda: self.set_position())
-            # self.btn_to_zero.clicked.connect(lambda: self.set_position())
-
-
-
-            # link checkboxes to functions
-            # self.checkIRon.stateChanged.connect(lambda: self.control_light())
-            # self.checkGreenon.stateChanged.connect(lambda: self.control_light())
-            # self.checkWhiteLighton.stateChanged.connect(lambda: self.control_light())
-            # self.checkCameraon.stateChanged.connect(lambda: self.control_light())
-            # self.checkPIActive.stateChanged.connect(lambda: self.switch_PI_loop())
-
-            # link combo box
-            # self.cmb_filterwheel.addItems(self._settings['hardware']['parameters_filterwheel']['position_list'].keys())
-            # self.cmb_filterwheel.currentIndexChanged.connect(lambda: self.control_light())
 
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
@@ -133,7 +101,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             #         print(script.name)
             #         script.updateProgress.connect(self.update_progress)
 
-
+        connect_controls()
+        # ========= old stuff =========
         # self.instruments = {instrument.name: instrument  for instrument in self.instruments}
         # fill_tree(self.tree_settings, self.instruments)
         # self.tree_settings.setColumnWidth(0,300)
@@ -175,20 +144,28 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             item = treeWidget.currentItem()
 
-            current_item = item
-            xx = []
-            while not isinstance(current_item.value, Instrument):
-                print(xx)
-                xx.append(current_item.name)
-                current_item = current_item.parent()
-            print('ZZ', xx)
+            instrument, path_to_instrument = item.get_instrument()
 
-            old_value = ''
+            # build nested dictionary to update instrument
+            dictator = item.value
+            for element in path_to_instrument:
+                dictator = {element: dictator}
+
+            # get old value from instrument
+            old_value = instrument.settings
+            path_to_instrument.reverse()
+            for element in path_to_instrument:
+                old_value = old_value[element]
+
+            # send new value from tree to instrument
+            instrument.update(dictator)
+
+
             new_value = item.value
             if new_value is not old_value:
-                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value), item.target)
+                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value), instrument)
             else:
-                msg = "did not change parameter {:s} on {:s}".format(item.name, item.target)
+                msg = "did not change parameter {:s} on {:s}".format(item.name, instrument)
 
             self.log(msg)
             # print(treeWidget.currentItem(), treeWidget.currentItem().target)
@@ -199,12 +176,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.statusbar.showMessage(msg, wait_time)
         time = self.get_time()
-        self.past_commands.append("{:s}\t {:s}".format(time, msg))
-        if len(self.past_commands) > 10:
-            self.past_commands.popleft()
+        self.history.append("{:s}\t {:s}".format(time, msg))
+        if len(self.history) > 10:
+            self.history.popleft()
 
         model = QtGui.QStandardItemModel(self.list_history)
-        for item in self.past_commands:
+        for item in self.history:
             model.insertRow(0,QtGui.QStandardItem(item))
 
         self.list_history.setModel(model)
@@ -333,7 +310,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         assert os.path.isfile(path_to_file)
         print('loading from json file not supported yet!')
-        raise TypeError
+        raise NotImplementedError
 
         return instruments, scripts, probes
 
@@ -342,8 +319,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         saves a gui settings file (to a json dictionary)
         - path_to_file: path to file that will contain the dictionary
         """
-
         # todo: implement
+        raise NotImplementedError
+
 
     def fill_tree(self, tree, parameters):
         """
