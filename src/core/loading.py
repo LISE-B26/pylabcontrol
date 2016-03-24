@@ -89,9 +89,8 @@ def load_scripts(scripts, instruments):
 
 
     scripts_instances = {}
-    print('instruments', instruments)
+
     for script_name, value in scripts.iteritems():
-        print('====', script_name)
         try:
 
             if isinstance(value, dict):
@@ -120,7 +119,6 @@ def load_scripts(scripts, instruments):
             # This has the same name as the name for the module, because of our __init__.py file in the scripts
             # folder. This raises an AttributeError if, in fact, we did not import the module
 
-            print(class_of_script, script_name)
             # this creates an instance of the class
             if script_instruments is None:
                 script_instance = class_of_script(name=script_name)
@@ -130,7 +128,6 @@ def load_scripts(scripts, instruments):
 
             # adds the instance to our output dictionary
             scripts_instances[script_name] = script_instance
-            print('script_name', script_name, scripts_instances)
 
         except AttributeError:
             # catches when we try to create a script of a class that doesn't exist!
@@ -141,5 +138,62 @@ def load_scripts(scripts, instruments):
 
 
 def load_probes(probes, instruments):
+    """
+     Creates instances of the probes inputed;
 
-    return probes
+     Args:
+         probes: probes is a nested dictionary with
+            (key, sub_dict ) = (name of the probe, {'probe_name': value_probe, 'instrument_name': value_inst}),
+            where value_probe is a valid name of a probe in intrument with name value_inst
+         for example script = {'detector signal': {'probe_name': "AI0", 'instrument_name': "my_DAQ"}}
+
+     Returns:
+         a dictionary with (key,sub_dict) = (name of probe, reference to probe) for all of the probes
+         passed to the function that were successfully imported and initialized. Otherwise, probes are omitted
+         in the outputted list.
+
+     """
+
+    probe_instances = {}
+    print('instruments', instruments)
+    for probe_name, sub_dict in probes.iteritems():
+        print('====', probe_name)
+        try:
+            assert isinstance(sub_dict, dict)
+            assert "probe_name" in sub_dict
+            assert "instrument_name" in sub_dict
+
+            probe_name = sub_dict['probe_name']
+            instrument_name = sub_dict['instrument_name']
+
+            assert instrument_name in instruments
+            assert probe_name in instruments[instrument_name]._probes
+
+            probe_instances.update({probe_name: getattr(instruments[instrument_name], probe_name)})
+
+        except:
+            # catches when we try to create a script of a class that doesn't exist!
+            # pass
+            raise
+
+    return probe_instances
+
+
+
+if __name__ == '__main__':
+
+    instruments = {'inst_dummy': 'DummyInstrument'}
+
+    instruments = load_instruments(instruments)
+    print(instruments)
+    probes = {
+        'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
+        'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
+              }
+
+    probes = load_probes(probes, instruments)
+
+    print(probes)
+    print(probes)
+
+

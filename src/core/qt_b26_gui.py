@@ -76,6 +76,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.fill_tree(self.tree_scripts, self.scripts)
         self.tree_scripts.setColumnWidth(0, 300)
 
+
+        self.fill_tree(self.tree_monitor, self.probes)
+        self.tree_monitor.setColumnWidth(0, 300)
+
         def connect_controls():
             # =============================================================
             # ===== LINK WIDGETS TO FUNCTIONS =============================
@@ -282,7 +286,10 @@ if __name__ == '__main__':
 
     # Zi_Sweeper(*param)
 
-    probes = {'probe 1', 'something', 'probe 2', 'something else'}
+    probes = {
+        'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
+        'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
+              }
 
     # ex = ControlMainWindow('path....')
     ex = ControlMainWindow(instruments, scripts, probes)
