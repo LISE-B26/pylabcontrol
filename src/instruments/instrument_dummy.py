@@ -3,24 +3,20 @@ from src.core import Instrument, Parameter
 
 
 class DummyInstrument(Instrument):
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('test1', 0, int, 'some int parameter'),
+        Parameter('output probe2', 0, int, 'return value of probe 2 (int)'),
+        Parameter('test2',
+                  [Parameter('test2_1', 'string', str, 'test parameter (str)'),
+                   Parameter('test2_2', 0.0, float, 'test parameter (float)')
+                   ])
+    ])
+
     def __init__(self, name =  None, settings = None):
         self._internal_state = None
         super(DummyInstrument, self).__init__(name, settings)
 
-    @property
-    def DEFAULT_SETTINGS(self):
-        """
-        returns the default parameter_list of the instrument this function should be over written in any subclass
-        """
-        settings_default = Parameter([
-            Parameter('test1', 0, int, 'some int parameter'),
-            Parameter('output probe2', 0, int, 'return value of probe 2 (int)'),
-            Parameter('test2',
-                      [Parameter('test2_1', 'string', str, 'test parameter (str)'),
-                       Parameter('test2_2', 0.0, float, 'test parameter (float)')
-                       ])
-        ])
-        return settings_default
 
     def update(self, settings):
         '''
@@ -86,28 +82,4 @@ if __name__ == '__main__':
 
     # test = Instrument()
     test = DummyInstrument()
-
-
-    print(test.settings)
-    print(test._probes)
-    print(test.value1)
-
-
-    print(test.internal)
-
-    test.internal = 'sss'
-
-    print(test.internal)
-
-    print(test._internal_state)
-
-    test._internal_state = 'ddd'
-
-    print(test.internal)
-
-
-    test.settings['internal'] = 'AA'
-
-    print(test._internal_state )
-
 
