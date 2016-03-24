@@ -2,6 +2,8 @@ from src.core import Parameter, Script
 from PyQt4 import QtCore
 from src.instruments import DummyInstrument
 
+from PySide.QtCore import Signal, QThread
+
 class ScriptDummy(Script):
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
@@ -36,32 +38,23 @@ class ScriptDummy(Script):
             time.sleep(wait_time)
             print(i)
 
-class ScriptDummyWithQtSignal(Script):
+class ScriptDummyWithQtSignal(Script, QThread):
 
-    # todo: NOT IMPLEMENTED YET!!!!!
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('count', 0, int),
+        Parameter('name', 'this is a counter'),
+        Parameter('wait_time', 0.1, float)
+    ])
 
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
-    # updateProgress = QtCore.Signal(int)
+    updateProgress = Signal(int)
 
     def __init__(self, name = None, settings = None):
-        raise NotImplementedError
-        super(ScriptDummy, self).__init__(name, settings)
+        Script.__init__(self, name, settings)
+        QThread.__init__(self)
 
-    @property
-    def _settings_default(self):
-        '''
-        returns the default settings of the script
-        settings contain Parameters, Instruments and Scripts
-        :return:
-        '''
-        settings_default = Parameter([
-            Parameter('count', 0, int),
-            Parameter('name', 'this is a counter'),
-            Parameter('wait_time', 0.1, float)
-        ])
-        return settings_default
 
     def _function(self):
         """
@@ -76,10 +69,16 @@ class ScriptDummyWithQtSignal(Script):
         name = self.settings['name']
         wait_time = self.settings['wait_time']
 
-        print('I am a test function counting to {:i}...'.format(count))
+        print('I am a test function counting to {:d}...'.format(count))
+
+
+
         for i in range(count):
             time.sleep(wait_time)
-            print(i)
+            progress = int(100* (i+1) / count)
+            self.updateProgress.emit(progress)
+
+            print('progress', progress)
 
 class ScriptDummyWithInstrument(Script):
 

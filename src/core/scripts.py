@@ -7,7 +7,7 @@ from PyQt4 import QtCore
 
 
 class Script(object):
-    __metaclass__ = ABCMeta
+    # __metaclass__ = ABCMeta
 
     # ========================================================================================
     # ======= Following functions have to be customized for each instrument subclass =========
@@ -51,7 +51,7 @@ class Script(object):
         self._abort = False
 
 
-    @abstractmethod
+    # @abstractmethod
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property

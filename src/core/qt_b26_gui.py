@@ -8,8 +8,11 @@ from PyQt4.uic import loadUiType
 from src.core import Parameter, Instrument, B26QTreeItem
 import os.path
 
+
+from PySide.QtCore import QThread
+
 from src.instruments import DummyInstrument
-from src.scripts import ScriptDummy
+from src.scripts import ScriptDummy, ScriptDummyWithQtSignal
 
 import datetime
 from collections import deque
@@ -43,8 +46,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns:
 
         """
-
-        print(args)
         if len(args) == 1:
             instruments, scripts, probes = self.load_settings(args[0])
         elif len(args) == 3:
@@ -107,36 +108,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # fill_tree(self.tree_settings, self.instruments)
         # self.tree_settings.setColumnWidth(0,300)
         #
-        # self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
-        # ============ define probes / monitor ========================
 
-        # ============ define scripts_old =================================
-
-
-        #
-        # # define parameters to monitor
-        # zi_inst = get_elemet('ZiHF2', self.instrument_tests)
-        # self.monitor_parameters = [
-        #     {'target' : zi_inst, 'parameter' : get_elemet('freq', zi_inst.parameters)}
-        # ]
-
-        # define scripts_old
-        # self.scripts_old = [
-        #     Script_Dummy('script dummy 1'),
-        #     QtScript('threaded script')
-        # ]
-
-        # # fill the trees
-        # self.fill_treewidget(self.tree_scripts)
-        # self.tree_scripts.setColumnWidth(0,200)
-        #
-        # self.fill_treewidget(self.tree_settings)
-        # self.tree_settings.setColumnWidth(0,200)
-
-        # self.fill_treewidget(self.tree_monitor)
-        # self.tree_monitor.setColumnWidth(0,200)
-
-        # connect_controls()
 
     def update_parameters(self, treeWidget):
 
@@ -218,15 +190,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def btn_clicked(self):
         sender = self.sender()
 
-        print(sender)
 
         if sender is self.btn_start_script:
             item = self.tree_scripts.currentItem()
             script, path_to_script= item.get_script()
 
             if item is not None:
-                    self.log('start {:s}'.format(script.name))
-                    script.run()
+                # is the script is a QThread object we connect its signals to the update_status function
+                if isinstance(script, QThread):
+                    print('---------')
+                    script.updateProgress.connect(self.update_status)
+                self.log('start {:s}'.format(script.name))
+                script.run()
             else:
                 self.log('No script selected. Select script and try again!')
 
@@ -234,77 +209,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.progressBar.setValue(current_progress)
         if current_progress == 100:
             self.log('finished!!!')
-
-
-
-    def update_parameters_old(self, treeWidget):
-
-        if not treeWidget.currentItem() == None:
-            if treeWidget.currentColumn() == 0:
-                self.log("Tried to edit parameter name. This is not allowed!!", 1000)
-                # todo: following line is wrong: fix!
-                self.fill_treeWidget(treeWidget, parameter_dict) # set tree back to status before it was edited by user
-            else:
-                if isinstance(treeWidget.currentItem(), QTreeParameter):
-                    parameter = treeWidget.currentItem().parameter
-
-                    if isinstance(parameter.valid_values, list):
-                        new_value = treeWidget.currentItem().combobox.currentText()
-                    elif parameter.valid_values is bool:
-                        new_value = treeWidget.currentItem().check.checkState()
-                        if new_value == int(2):
-                            new_value = True
-                        elif new_value == int(0):
-                            new_value = False
-                    elif isinstance(parameter.value, list):
-                        print('list')
-                    else:
-                        new_value = treeWidget.currentItem().text(1)
-                    # print('target',treeWidget.currentItem().target)
-                    # print('parameter', treeWidget.currentItem().parameter)
-
-
-                    # old_value = deepcopy(parameter.value)
-                    old_value = parameter.value
-
-                    # todo = this asignment doesn't work yet!!!
-                    # parameter.value = new_value
-                    # instead we have to use the following syntax
-                    # if parameter belongs to an instrument, we update it
-                    if isinstance(treeWidget.currentItem().target, Instrument):
-                        # treeWidget.currentItem().target.update_parameters(Parameter(parameter.name, new_value))
-                        print('xxxxx')
-                        print(parameter.valid_values)
-                        print(parameter.value)
-                        print({parameter.name: new_value})
-                        treeWidget.currentItem().target.update({parameter.name: new_value})
-                        print( 'parameter ins' , parameter)
-                    elif isinstance(treeWidget.currentItem().target, Script):
-                        print( 'parameter script' , parameter)
-
-                        print('xxxxx')
-                        print(parameter.valid_values)
-                        print(parameter.value)
-                        print({parameter.name: new_value})
-
-                        p = Parameter(parameter.name, new_value)
-                        print(p)
-
-                        treeWidget.currentItem().target.update(Parameter(parameter.name, new_value))
-
-                    # read the new value back from the actual parameter
-                    new_value = parameter.value
-
-                    # new_value = str(treeWidget.currentItem().text(1))
-
-                    # self.log("Updated {:s} from {:s} to {:s}!!".format(element, str(value_old), str(value)), 1000)
-                    self.log("parameter {:s} changed from {:s} to {:s}!".format(parameter.name, str(old_value), str(new_value)), 1000)
-                # elif isinstance(treeWidget.currentItem(), QTreeScript):
-                #     self.log("script .. changed!", 1000)
-                # elif isinstance(treeWidget.currentItem(), QTreeInstrument):
-                #     self.log("instrument .. changed!", 1000)
-                # else:
-                #     raise TypeError('Unknown item!!')
 
 
     def load_settings(self, path_to_file):
@@ -337,6 +241,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # todo: implement
         raise NotImplementedError
 
+
+    def update_status(self, progress):
+        self.progressBar.setValue(progress)
+        print('FFFFFF', progress)
+        if progress == 100:
+            pass
 
     def fill_tree(self, tree, parameters):
         """
@@ -375,16 +285,9 @@ if __name__ == '__main__':
         'dummy script with inst': {
             'script_class': 'ScriptDummyWithInstrument',
             'instruments': {'dummy_instrument': 'inst_dummy'}
-        }
+        },
 
-        # 'new_script': 'NewScript',
-
-        # 'new_script_with_inst': {
-        #     "script_class" :'NewScriptWithInst',
-        #     # "instruments": {"inst1": "Inst1", ..}
-        # }
-
-
+        'QT counter' : 'ScriptDummyWithQtSignal'
 
     }
 

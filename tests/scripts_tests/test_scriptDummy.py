@@ -8,7 +8,6 @@ class TestScriptDummy(TestCase):
         self.script = ScriptDummy()
 
     def test_init(self):
-        # print(self.script.settings)
         self.script.run()
 
 
