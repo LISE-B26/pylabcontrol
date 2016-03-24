@@ -73,7 +73,3 @@ class TestInstrument(TestCase):
         self.assertEqual(8, test._internal_state)
         print(test._internal_state)
 
-        test['test2']['test2_1'] = 'hello'
-        self.assertEqual('hello', test.deep_internal)
-
-
