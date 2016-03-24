@@ -16,11 +16,11 @@ class TestInstrument(TestCase):
 
 
         test = DummyInstrument('test inst', {'test1':2020})
-        self.assertEqual(test.parameters, {'test1': 2020, 'test2': {'test2_1': 'string', 'test2_2': 0.0}})
+        self.assertEqual(test.parameters, {'test1': 2020, 'test2': {'test2_1': 'string', 'test2_2': 0.0}, 'output probe2': 0})
         test = DummyInstrument('test inst', { 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
-        self.assertEqual(test.parameters, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
+        self.assertEqual(test.parameters, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}, 'output probe2': 0})
         test = DummyInstrument('test inst', { 'test2': {'test2_1': 'new string'}})
-        self.assertEqual(test.parameters, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.0}})
+        self.assertEqual(test.parameters, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.0}, 'output probe2': 0})
 
     def test_update(self):
         '''
@@ -65,5 +65,3 @@ class TestInstrument(TestCase):
 
         test._internal_state = 'sDDss'
         self.assertEqual('sDDss', test.internal)
-
-

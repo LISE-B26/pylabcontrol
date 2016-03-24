@@ -33,7 +33,7 @@ class DummyInstrument(Instrument):
         '''
         Instrument.update(self, parameters)
 
-        for key, value in parameters:
+        for key, value in parameters.iteritems():
             if key == 'test1':
                 self._internal_state = value
 
