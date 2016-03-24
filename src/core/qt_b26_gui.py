@@ -8,7 +8,9 @@ from PyQt4.uic import loadUiType
 from src.core import Parameter, Instrument, B26QTreeItem
 import os.path
 
-from src.instruments import ZIHF2
+from src.instruments import DummyInstrument
+from src.scripts import ScriptDummy
+
 import datetime
 from collections import deque
 
@@ -158,6 +160,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.tree_settings.setColumnWidth(0, 300)
 
         print('self.scripts', self.scripts)
+
         self.fill_tree(self.tree_scripts, self.scripts)
         self.tree_scripts.setColumnWidth(0, 300)
 
@@ -449,7 +452,7 @@ if __name__ == '__main__':
 
 
 
-    instruments = {'ZIHF2': 'ZIHF2', 'Microwave Generator': 'MicrowaveGenerator', 'inst1': 'INst1'}
+    instruments = {'inst_dummy': 'DummyInstrument'}
 
     scripts= {
 
@@ -459,7 +462,7 @@ if __name__ == '__main__':
 
         'dummy script with inst': {
             'script_class': 'ScriptDummyWithInstrument',
-            'instruments': {'inst_dummy': 'DummyInstrument'}
+            'instruments': {'dummy_instrument': 'inst_dummy'}
         }
 
         # 'new_script': 'NewScript',
@@ -484,3 +487,10 @@ if __name__ == '__main__':
     ex.show()
     ex.raise_()
     sys.exit(app.exec_())
+
+    # instruments = load_instruments(instruments)
+    # print('created instruments')
+    # print(instruments)
+    # scripts = load_scripts(scripts, instruments)
+    # print('created scripts')
+    # print(scripts['counter'].settings)

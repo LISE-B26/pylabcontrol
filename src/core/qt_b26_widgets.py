@@ -1,7 +1,7 @@
 import sip
 sip.setapi('QVariant', 2)# set to version to so that the gui returns QString objects and not generic QVariants
 from PyQt4 import QtCore, QtGui
-from src.core import Parameter, Instrument
+from src.core import Parameter, Instrument, Script
 
 
 # ======== B26QTreeItem ==========
@@ -66,9 +66,13 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             for key, value in self.value.iteritems():
                 B26QTreeItem(self, key, value, type(value), '',visible=self.visible)
 
-        elif isinstance(self.value, Instrument):
+        elif isinstance(self.value, (Instrument, Script)):
+            print('HHHHHH', value)
             for key, value in self.value.settings.iteritems():
                 B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
+        # elif isinstance(self.value, Script):
+        #     for key, value in self.value.settings.iteritems():
+        #         B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key],visible=self.visible)
         else:
             self.setText(1, unicode(self.value))
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)

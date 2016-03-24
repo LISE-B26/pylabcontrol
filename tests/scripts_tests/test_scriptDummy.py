@@ -3,6 +3,10 @@ from src.scripts import ScriptDummy
 
 class TestScriptDummy(TestCase):
 
-    def test_init(self):
-    # def setUp(self):
+
+    def setUp(self):
         self.script = ScriptDummy()
+
+    def test_init(self):
+        # print(self.script.settings)
+        self.script.run()

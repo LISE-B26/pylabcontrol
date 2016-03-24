@@ -1,6 +1,6 @@
 import datetime
 from abc import ABCMeta, abstractmethod, abstractproperty
-
+from copy import deepcopy
 
 from PyQt4 import QtCore
 
@@ -14,19 +14,16 @@ class Script(object):
     # ======= Following functions have to be customized for each instrument subclass =========
     # ========================================================================================
 
-    # @abstractproperty
-    def _settings_default(self):
-        '''
-        returns the default settings of the script
-        settings contain Parameters, Instruments and Scripts
-        :return:
-        '''
-        settings_default = Parameter([
-            Parameter('parameter', 1),
-            Parameter('file_path', './some/path'),
-            Parameter('instrument', Instrument())
-        ])
-        return settings_default
+    # '''
+    # returns the default settings of the script
+    # settings contain Parameters, Instruments and Scripts
+    # :return:
+    # '''
+    # _DEFAULT_SETTINGS = Parameter([
+    #     Parameter('parameter', 1),
+    #     Parameter('file_path', './some/path')
+    # ])
+    #
     # @abstractmethod
     def _function(self):
         """
@@ -55,7 +52,7 @@ class Script(object):
         """
 
         if name is None:
-            name = script_function.__class__.__name__
+            name = self.__class__.__name__
         assert isinstance(name, str)
         self.name = name
 
@@ -63,8 +60,18 @@ class Script(object):
         self.start_time = datetime.datetime.now()
         self.end_time = self.start_time - datetime.timedelta(seconds=1)
 
-        self._settings = settings
+        self._settings = deepcopy(self._DEFAULT_SETTINGS)
+        if settings is not None:
+            self.update(settings)
         self._abort = False
+
+
+    @property
+    def _DEFAULT_SETTINGS(self):
+        """
+        returns the default parameter_list of the script this function should be over written in any subclass
+        """
+        raise NotImplementedError("Subclass did not implement _DEFAULT_SETTINGS")
 
     def __str__(self):
         pass
