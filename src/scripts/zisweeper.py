@@ -2,8 +2,9 @@ from src.core import Script, Parameter
 from PyQt4 import QtCore
 from PySide.QtCore import Signal, QThread
 import time
+from collections import deque
 
-class ZI_Sweeper(QThread, Script):
+class ZISweeper(Script, QThread):
     updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
@@ -19,16 +20,18 @@ class ZI_Sweeper(QThread, Script):
 
     ])
 
-
-
-    def __init__(self, zihf2, name = None, settings = None):
+    def __init__(self, zihf2, name = None, settings = None, timeout = 1000000000):
         self.zihf2 = zihf2
         self._recording = False
+        self._timeout = timeout
 
         Script.__init__(self, name, settings)
         QThread.__init__(self)
+        self.sweeper = self.zihf2.daq.sweep(self._timeout)
+        self.sweeper.set('sweep/device', self.zihf2.device)
+        self.sweep_data = deque()
 
-        self.sweeper = self.daq.sweep(timeout)
+        self._sweep_values =  {'frequency' : [], 'x' : [], 'y' : [], 'phase': [], 'r':[]}.keys()
 
 
     def settings_to_commands(self, settings):
@@ -53,11 +56,12 @@ class ZI_Sweeper(QThread, Script):
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
+
         commands = self.settings_to_commands(self.settings)
 
         self.sweeper.set(commands)
 
-        path = '/%s/demods/%d/sample' % (self.zihf2.device, self.settings['demod_channel'])
+        path = '/%s/demods/%d/sample' % (self.zihf2.device, self.zihf2.settings['demods']['channel'])
         self.sweeper.subscribe(path)
         self.sweeper.execute()
 
@@ -74,7 +78,8 @@ class ZI_Sweeper(QThread, Script):
             data = data[path][0][0] # the data is nested, we remove the outer brackets with [0][0]
             # now we only want a subset of the data porvided by ZI
             data = {k : data[k] for k in self._sweep_values}
-            print('data', data)
+
+            start = time.time()
             self.sweep_data.append(data)
 
             if (time.time() - start) > self._timeout:
@@ -85,8 +90,30 @@ class ZI_Sweeper(QThread, Script):
                 self._recording = False
 
             print("Individual sweep %.2f%% complete. \n" % (progress))
+            print(data)
             self.updateProgress.emit(progress)
 
         if self.sweeper.finished():
             self._recording = False
             progress = 100 # make sure that progess is set 1o 100 because we check that in the old_gui
+
+if __name__ == '__main__':
+    from src.instruments import ZIHF2
+    import time
+
+    zihf2 = ZIHF2()
+
+    sweep = ZISweeper(zihf2)
+
+    sweep.start()
+
+    time.sleep(0.3)
+
+    print(sweep.sweeper.progress())
+
+    time.sleep(0.3)
+
+    sweep.stop()
+
+
+

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy
 from PyQt4 import QtGui
 
-from src.hardware_modules import APD as APDIn
+from src.old_hardware_modules import APD as APDIn
 
 
 # This function continuously plots the output of the APD. Note that it restarts the APD every point for ease of coding,
@@ -116,7 +116,7 @@ class PlotAPD():
 
 def counter_load_param(filename_or_json):
     '''
-    loads counter parameter from json file into gui_old
+    loads counter parameter from json file into old_gui
     '''
     filename_or_json = str(filename_or_json)
 

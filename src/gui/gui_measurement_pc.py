@@ -10,7 +10,7 @@ app = QtGui.QApplication(sys.argv)
 
 
 
-instruments = {'inst_dummy': 'DummyInstrument', 'zihf2':'ZIHF2'}
+instruments = {'inst_dummy': 'DummyInstrument', 'zihf2':'ZIHF2', 'pressure gauge': 'PressureGauge'}
 
 scripts= {
 
@@ -23,7 +23,12 @@ scripts= {
         'instruments': {'dummy_instrument': 'inst_dummy'}
     },
 
-    'QT counter' : 'ScriptDummyWithQtSignal'
+    'QT counter' : 'ScriptDummyWithQtSignal',
+
+    'ZI sweep' : {
+        'script_class': 'ZISweeper',
+        'instruments': {'zihf2': 'zihf2'}
+    }
 
 }
 
@@ -35,7 +40,8 @@ probes = {
     'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
     'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
     'ZI(R)': {'probe_name': 'R', 'instrument_name': 'zihf2'},
-    'ZI(X)': {'probe_name': 'X', 'instrument_name': 'zihf2'}
+    'ZI(X)': {'probe_name': 'X', 'instrument_name': 'zihf2'},
+    'Chamber Pressure' : { 'probe_name': 'pressure', 'instrument_name': 'pressure gauge'}
           }
 
 # ex = ControlMainWindow('path....')

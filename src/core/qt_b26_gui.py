@@ -107,12 +107,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def start_stop_probes(self):
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
-        print(current_tab)
         if current_tab == 'Monitor':
-            print('start')
             self.read_probes.start()
         else:
-            print('stop')
             self.read_probes.stop()
 
     def update_parameters(self, treeWidget):
@@ -206,6 +203,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     script.updateProgress.connect(self.update_status)
                 self.log('start {:s}'.format(script.name))
                 script.start()
+
             else:
                 self.log('No script selected. Select script and try again!')
 

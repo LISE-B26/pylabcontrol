@@ -46,6 +46,7 @@ class Script(object):
         self.end_time = self.start_time - datetime.timedelta(seconds=1)
 
         self._settings = deepcopy(self._DEFAULT_SETTINGS)
+
         if settings is not None:
             self.update(settings)
         self._abort = False

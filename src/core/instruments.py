@@ -28,7 +28,9 @@ class Instrument(object):
         # make a deepcopy of the default settings
         # because _DEFAULT_SETTINGS is a class variable and thus shared among the instances
         self._settings = deepcopy(self._DEFAULT_SETTINGS)
-
+        # todo: check why the following two lines give an error
+        # apply settings to instrument
+        # self.update(self._settings)
         if settings is not None:
             self.update(settings)
 

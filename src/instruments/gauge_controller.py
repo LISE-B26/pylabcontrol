@@ -44,6 +44,8 @@ class PressureGauge(Instrument):
             Parameter('baudrate', 9600, int, 'baudrate of serial communication with gauge')
         ])
 
+    #serial_connection = serial.Serial(port=_DEFAULT_SETTINGS['port'], baudrate=_DEFAULT_SETTINGS['baudrate'],
+    #                                           timeout=_DEFAULT_SETTINGS['timeout'])
     def __init__(self, name='PressureGauge', settings=None):
         """
         The serial connection should be setup with the following parameters:
@@ -55,6 +57,8 @@ class PressureGauge(Instrument):
         super(PressureGauge, self).__init__(name, settings)
         self.serial_connection = serial.Serial(port=self.settings['port'], baudrate=self.settings['baudrate'],
                                                timeout=self.settings['timeout'])
+
+        print (self.serial_connection)
 
     @property
     def _probes(self):
@@ -70,7 +74,7 @@ class PressureGauge(Instrument):
         }
 
     def update(self, settings):
-        pass
+        super(Instrument, self).update(settings)
 
     def read_probes(self, probe_name):
         """
