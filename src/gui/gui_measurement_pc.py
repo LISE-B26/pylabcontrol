@@ -34,6 +34,8 @@ scripts= {
 probes = {
     'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
     'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
+    'ZI(R)': {'probe_name': 'R', 'instrument_name': 'zihf2'},
+    'ZI(X)': {'probe_name': 'X', 'instrument_name': 'zihf2'}
           }
 
 # ex = ControlMainWindow('path....')

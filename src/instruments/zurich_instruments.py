@@ -150,12 +150,13 @@ class ZIHF2(Instrument):
         Returns: reads values from instrument
 
         '''
-        assert key in self._probes.keys()
+        assert key in self._probes.keys(), "key assertion failed {:s}".format(str(key))
 
         if key.upper() in ['X', 'Y', 'R']:
             # these values we actually request from the instrument
             data = self.poll(key)
             data = data[key]
+
         elif key in ['freq']:
             # these values just look up in the parameter settings
             data = self.settings['freq']
@@ -172,19 +173,24 @@ class ZIHF2(Instrument):
 
 
     # Poll the value of input 1 for polltime seconds and return the magnitude of the average data. Timeout is in milisecond.
-    def poll(self,  variable = 'R', pollTime = 0.1, timeout = 500):
-        '''
-        :param variable: string or list of strings, which varibale to poll ('R', 'x', 'y')
-        :param pollTime: set to
-        :param timeout: 0.1s could be varibale in the future
-        :return:
-        '''
+    def poll(self,  variable = 'R', demod_c = 0, pollTime = 0.1, timeout = 500):
+        """
 
-        print('warning! polling from ZI, pollTime and timeout still hardcoded')
+        Args:
+            variable: string or list of strings, which varibale to poll ('R', 'x', 'y')
+            demod_c:
+            pollTime: integration time
+            timeout: 0.1s could be varibale in the future
+
+        Returns: requested value from instrument as a dictionary {varible: array of values}
+
+        """
+
+        # print('warning! polling from ZI, pollTime and timeout still hardcoded')
         valid_variables = ['R','X','Y']
 
         if self.is_connected:
-            path = '/%s/demods/%d/sample' % (self.device, self.demod_c)
+            path = '/%s/demods/%d/sample' % (self.device, demod_c)
             self.daq.subscribe(path)
             flat_dictionary_key = True
             data_poll = self.daq.poll(pollTime,timeout,1,flat_dictionary_key)
@@ -195,7 +201,9 @@ class ZIHF2(Instrument):
 
             if isinstance(variable,str):
                 variable = [variable]
-            return_variable = {k: data[k.upper()] for k in variable}
+
+            # poll gives an array of values read from the instrument, here we are only instersted in the mean
+            return_variable = {k: np.mean(data[k.upper()]) for k in variable}
         else:
             return_variable = None
 
