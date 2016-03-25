@@ -260,42 +260,4 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 B26QTreeItem(tree, key, value, type(value), '')
 
-if __name__ == '__main__':
 
-    import sys
-
-    app = QtGui.QApplication(sys.argv)
-
-
-
-    instruments = {'inst_dummy': 'DummyInstrument'}
-
-    scripts= {
-
-
-        'counter': 'ScriptDummy',
-
-
-        'dummy script with inst': {
-            'script_class': 'ScriptDummyWithInstrument',
-            'instruments': {'dummy_instrument': 'inst_dummy'}
-        },
-
-        'QT counter' : 'ScriptDummyWithQtSignal'
-
-    }
-
-    # {"zihf2": "ZIHF2", "inst": 'INST'} => param = {"zihf2": &ZIHF2, 'inst': &sacbs;}
-
-    # Zi_Sweeper(*param)
-
-    probes = {
-        'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
-        'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
-              }
-
-    # ex = ControlMainWindow('path....')
-    ex = ControlMainWindow(instruments, scripts, probes)
-    ex.show()
-    ex.raise_()
-    sys.exit(app.exec_())
