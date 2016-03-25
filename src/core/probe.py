@@ -3,7 +3,7 @@ from src.core import Instrument
 class Probe(object):
 
 
-    def __init__(self, instrument, probe_name, name = None):
+    def __init__(self, instrument, probe_name, name = None, info = None):
         """
         creates a probe...
         Args:
@@ -21,7 +21,13 @@ class Probe(object):
         if name is None:
             name = probe_name
         assert isinstance(name, str)
+
+        if info is None:
+            info = ''
+        assert isinstance(info, str)
+
         self.name = name
+        self.info = info
         self.instrument = instrument
         self.probe_name = probe_name
 

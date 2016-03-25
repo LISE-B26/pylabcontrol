@@ -1,4 +1,4 @@
-
+from src.core import Probe
 
 def load_instruments(instruments):
     """
@@ -155,27 +155,23 @@ def load_probes(probes, instruments):
      """
 
     probe_instances = {}
-    print('instruments', instruments)
     for name, sub_dict in probes.iteritems():
-        try:
-            assert isinstance(sub_dict, dict)
-            assert "probe_name" in sub_dict
-            assert "instrument_name" in sub_dict
+        assert isinstance(sub_dict, dict)
+        assert "probe_name" in sub_dict
+        assert "instrument_name" in sub_dict
 
-            probe_name = sub_dict['probe_name']
-            instrument_name = sub_dict['instrument_name']
+        probe_name = sub_dict['probe_name']
+        instrument_name = sub_dict['instrument_name']
 
-            assert instrument_name in instruments
-            assert probe_name in instruments[instrument_name]._probes
+        if "probe_info" in sub_dict:
+            probe_info = sub_dict['probe_info']
+        else:
+            probe_info = ''
 
-            probe_instances.update({name: lambda: getattr(instruments[instrument_name], probe_name)})
+        assert instrument_name in instruments
+        assert probe_name in instruments[instrument_name]._probes
 
-
-
-        except:
-            # catches when we try to create a script of a class that doesn't exist!
-            # pass
-            raise
+        probe_instances.update({name: Probe(instruments[instrument_name], probe_name, name, probe_info)})
 
     return probe_instances
 
@@ -199,7 +195,7 @@ if __name__ == '__main__':
 
     # print(probes)
 
-    print(probes['random']())
-    print(probes['value2']())
+    print(probes['random'])
+    print(probes['value2'])
 
 
