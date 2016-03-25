@@ -35,6 +35,15 @@ class PressureGauge(Instrument):
     ACK = chr(6)
     NAK = chr(21)
 
+    _possible_com_ports = ['COM' + str(i) for i in range(0, 256)]
+
+    _DEFAULT_SETTINGS = Parameter([
+            Parameter('port', 'COM5', _possible_com_ports, 'com port to which the gauge controller is connected'),
+            Parameter('timeout', 1.0, float, 'amount of time to wait for a response '
+                                             'from the gauge controller for each query'),
+            Parameter('baudrate', 9600, int, 'baudrate of serial communication with gauge')
+        ])
+
     def __init__(self, name='PressureGauge', settings=None):
         """
         The serial connection should be setup with the following parameters:
@@ -44,26 +53,8 @@ class PressureGauge(Instrument):
         """
 
         super(PressureGauge, self).__init__(name, settings)
-        # TODO: ask Jan about accessing port, baudrate, and timeout
-        self.ser = serial.Serial(port=self.settings['port'], baudrate=self.settings['baudrate'],
-                                 timeout=self.settings['timeout'])
-
-    @property
-    def DEFAULT_SETTINGS(self):
-        """
-        returns the default parameter_list of the instrument
-        :return:
-        """
-
-        possible_com_ports = ['COM' + str(i) for i in range(0, 256)]
-        parameter_list_default = Parameter([
-            Parameter('port', 'COM5', possible_com_ports, 'com port to which the gauge controller is connected'),
-            Parameter('timeout', 1.0, float, 'amount of time to wait for a response '
-                                             'from the gauge controller for each query'),
-            Parameter('baudrate', 9600, int, 'baudrate of serial communication with gauge')
-        ])
-
-        return parameter_list_default
+        self.serial_connection = serial.Serial(port=self.settings['port'], baudrate=self.settings['baudrate'],
+                                               timeout=self.settings['timeout'])
 
     @property
     def _probes(self):
@@ -93,11 +84,11 @@ class PressureGauge(Instrument):
         probe_name = probe_name.lower()  # catch stupid errors, making sure the probe is lowercase
 
         if probe_name == 'pressure':
-            return self.pressure
+            return self._get_pressure()
         elif probe_name == 'units':
-            return self.units
+            return self._get_units()
         elif probe_name == 'model':
-            return self.model
+            return self._get_model()
         else:
             message = '\'{0}\' not found as a probe in the class. ' \
                       'Expected either \'pressure\', \'units\', or \'model\''.format(probe_name)
@@ -118,23 +109,22 @@ class PressureGauge(Instrument):
         elif response != self.ACK + self.CR + self.LF:
             message = 'Serial communication returned unknown response:\n{}' \
                 ''.format(repr(response))
-            raise IOError(message)
+            raise AssertionError(message)
 
-    @property
-    def pressure(self):
+    def _get_pressure(self):
         """
         Returns the pressure currently read by the guage controller.
 
         :return: pressure
         """
-        assert self.ser.isOpen()
+        assert self.serial_connection.isOpen()
 
-        self.ser.write('PR1' + self.CR + self.LF)
-        acknowledgement = self.ser.readline()
+        self.serial_connection.write('PR1' + self.CR + self.LF)
+        acknowledgement = self.serial_connection.readline()
         self._check_acknowledgement(acknowledgement)
 
-        self.ser.write(self.ENQ)
-        err_msg_and_pressure = self.ser.readline().rstrip(self.LF).rstrip(self.CR)
+        self.serial_connection.write(self.ENQ)
+        err_msg_and_pressure = self.serial_connection.readline().rstrip(self.LF).rstrip(self.CR)
 
         err_msg = err_msg_and_pressure[0]
         pressure = float(err_msg_and_pressure[3:])
@@ -143,45 +133,43 @@ class PressureGauge(Instrument):
             message = 'Pressure query resulted in an error: ' + self.MEASUREMENT_STATUS[err_msg]
             raise IOError(message)
 
-        self.ser.write(self.CR + self.LF)
+        self.serial_connection.write(self.CR + self.LF)
         return pressure
 
-    @property
-    def model(self):
+    def _get_model(self):
         """
         Returns the model of the connected gauge controller.
         :return: model name
         """
-        assert self.ser.isOpen()
+        assert self.serial_connection.isOpen()
 
-        self.ser.write('TID' + self.CR + self.LF)
-        acknowledgement = self.ser.readline(25)
+        self.serial_connection.write('TID' + self.CR + self.LF)
+        acknowledgement = self.serial_connection.readline(25)
         self._check_acknowledgement(acknowledgement)
 
-        self.ser.write(self.ENQ)
-        model = self.ser.readline().rstrip(self.LF).rstrip(self.CR)
+        self.serial_connection.write(self.ENQ)
+        model = self.serial_connection.readline().rstrip(self.LF).rstrip(self.CR)
 
-        self.ser.write(self.CR + self.LF)
+        self.serial_connection.write(self.CR + self.LF)
 
         return model
 
-    @property
-    def units(self):
+    def _get_units(self):
         """
         Returns the units that are in use by the guage controller.
 
         :return: gauge units (either bar, Torr, Pascal, or Micron)
         """
-        assert self.ser.isOpen()
+        #assert self.ser.isOpen()
 
-        self.ser.write('UNI' + self.CR + self.LF)
-        acknowledgement = self.ser.readline()
+        self.serial_connection.write('UNI' + self.CR + self.LF)
+        acknowledgement = self.serial_connection.readline()
         self._check_acknowledgement(acknowledgement)
 
-        self.ser.write(self.ENQ)
-        unit = self.MEASUREMENT_UNITS[self.ser.readline().rstrip(self.LF).rstrip(self.CR)]
+        self.serial_connection.write(self.ENQ)
+        unit = self.MEASUREMENT_UNITS[self.serial_connection.readline().rstrip(self.LF).rstrip(self.CR)]
 
-        self.ser.write(self.CR + self.LF)
+        self.serial_connection.write(self.CR + self.LF)
 
         return unit
 
@@ -191,10 +179,10 @@ class PressureGauge(Instrument):
 
         :return: boolean connection status
         """
-        return self.ser.isOpen()
+        return self.serial_connection.isOpen()
 
     def __del__(self):
         """
         Destructor, to close the serial connection when the instance is this class is garbage collected
         """
-        self.ser.close()
+        self.serial_connection.close()

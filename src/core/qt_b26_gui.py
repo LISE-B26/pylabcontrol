@@ -101,9 +101,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
+            self.tabWidget.currentChanged.connect(lambda : self.start_stop_probes())
 
         connect_controls()
-        self.read_probes.start()
+
+    def start_stop_probes(self):
+        current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
+        print(current_tab)
+        if current_tab == 'Monitor':
+            print('start')
+            self.read_probes.start()
+        else:
+            print('stop')
+            self.read_probes.stop()
 
     def update_parameters(self, treeWidget):
 
