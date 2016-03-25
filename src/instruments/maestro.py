@@ -37,7 +37,7 @@ class MaestroController(Instrument):
 
 
     # ========================================================================================
-    # ======= Following functions have to be customized for each instrument subclass =========
+    # ======= Following old_functions have to be customized for each instrument subclass =========
     # ========================================================================================
     @property
     def DEFAULT_SETTINGS(self):
@@ -82,7 +82,7 @@ class MaestroController(Instrument):
         Returns: reads values from instrument
 
         '''
-        # todo: replace getter functions with this function
+        # todo: replace getter old_functions with this function
         assert key in self._probes.keys()
 
         value = None
@@ -317,7 +317,7 @@ class MaestroBeamBlock(Instrument):
         Returns: reads values from instrument
 
         '''
-        # todo: replace getter functions with this function
+        # todo: replace getter old_functions with this function
         assert key in self._probes.keys()
 
         value = None

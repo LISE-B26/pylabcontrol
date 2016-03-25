@@ -1,7 +1,7 @@
 from src.instruments import microwave_generator
 from src.core.scripts import Script
 
-from src.hardware_modules import APD as APDIn
+from src.old_hardware_modules import APD as APDIn
 
 # import standard libraries
 import numpy as np

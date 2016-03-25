@@ -70,7 +70,7 @@ class ZIHF2(Instrument):
 
 
     # ========================================================================================
-    # ======= overwrite functions from instrument superclass =================================
+    # ======= overwrite old_functions from instrument superclass =================================
     # ========================================================================================
 
     def update(self, settings):

@@ -11,7 +11,7 @@ class interferometer():
     # Pts: number of x points to scan
 
     # timePerPt: time to stay at each scan point
-    # canvas: send matplotlib.backends canvas from PyQt4 gui_old if being used, otherwise plots with pyplot
+    # canvas: send matplotlib.backends canvas from PyQt4 old_gui if being used, otherwise plots with pyplot
 
     def __init__(self, Vmin, Vmax, Pts, timePerPt, canvas = None):
 

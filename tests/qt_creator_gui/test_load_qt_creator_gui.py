@@ -1,10 +1,10 @@
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
-Ui_MainWindow, QMainWindow = loadUiType('../../src/qt_creator_gui/basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
+Ui_MainWindow, QMainWindow = loadUiType('../../src/old_qt_creator_gui/basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
 
 import datetime
 from collections import deque
-# from src.qt_creator_gui import QTreeInstrument, QTreeScript, QTreeParameter
+# from src.old_qt_creator_gui import QTreeInstrument, QTreeScript, QTreeParameter
 
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
@@ -17,7 +17,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # ===== LINK WIDGETS TO FUNCTIONS =============================
             # =============================================================
 
-            # link slider to functions
+            # link slider to old_functions
             #
             # self.sliderPosition.setValue(int(self.servo_polarization.get_position() * 100))
             # self.sliderPosition.valueChanged.connect(lambda: self.set_position())
@@ -25,7 +25,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
 
-            # link buttons to functions
+            # link buttons to old_functions
             self.btn_start_script.clicked.connect(lambda: self.btn_clicked())
             self.btn_stop_script.clicked.connect(lambda: self.btn_clicked())
             # self.btn_clear_record.clicked.connect(lambda: self.btn_clicked())
@@ -40,7 +40,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
 
-            # link checkboxes to functions
+            # link checkboxes to old_functions
             # self.checkIRon.stateChanged.connect(lambda: self.control_light())
             # self.checkGreenon.stateChanged.connect(lambda: self.control_light())
             # self.checkWhiteLighton.stateChanged.connect(lambda: self.control_light())
@@ -77,7 +77,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         #     {'target' : zi_inst, 'parameter' : get_elemet('freq', zi_inst.parameters)}
         # ]
 
-        # define scripts_old
+        # define old_scripts
         self.scripts = [
             Script_Dummy('script dummy 1'),
             QtScript('threaded script')

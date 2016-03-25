@@ -10,7 +10,7 @@ class Script(object):
     # __metaclass__ = ABCMeta
 
     # ========================================================================================
-    # ======= Following functions have to be customized for each instrument subclass =========
+    # ======= Following old_functions have to be customized for each instrument subclass =========
     # ========================================================================================
 
     # '''
@@ -25,7 +25,7 @@ class Script(object):
     #
 
     # ========================================================================================
-    # ======= Following functions are generic ================================================
+    # ======= Following old_functions are generic ================================================
     # ========================================================================================
 
     def __init__(self, name = None, settings = None):

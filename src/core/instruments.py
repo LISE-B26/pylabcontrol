@@ -9,7 +9,7 @@ class Instrument(object):
     '''
     generic instrument class
 
-    for subclass overwrite following functions / properties:
+    for subclass overwrite following old_functions / properties:
         - _settings_default => parameter object, that is a list of parameters that can be set to configure the instrument
         - update => function that sends parameter changes to the instrument
         - values => dictionary that contains all the values that can be read from the instrument
@@ -21,7 +21,7 @@ class Instrument(object):
     _initialized = False
 
     # ========================================================================================
-    # ======= Following functions have to be customized for each instrument subclass =========
+    # ======= Following old_functions have to be customized for each instrument subclass =========
     # ========================================================================================
 
     def __init__(self, name=None, settings=None):
@@ -93,7 +93,7 @@ class Instrument(object):
         return self._is_connected
 
     # ========================================================================================
-    # ======= Following functions are generic ================================================
+    # ======= Following old_functions are generic ================================================
     # ========================================================================================
     # do not override this, override get_values instead
     def __getattr__(self, name):

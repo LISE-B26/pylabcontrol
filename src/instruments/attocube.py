@@ -25,7 +25,7 @@ axis_x = int32(1)
 axis_y = int32(2)
 axis_z = int32(0)
 
-# c struct used as return type for some functions
+# c struct used as return type for some old_functions
 class PositionerInfo(ctypes.Structure):
     _fields_ = [(("id"), ctypes.c_int32), (("locked"), ctypes.c_bool)]
 
