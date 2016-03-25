@@ -15,19 +15,53 @@ class ZIHF2(Instrument):
     except:
         raise
 
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('freq', 1e6, float, 'frequency of output channel'),
+        Parameter('sigins',
+                  [
+                      Parameter('channel', 0, [0,1], 'signal input channel'),
+                      Parameter('imp50', 1, [0,1], '50Ohm impedance on (1) or off (0)'),
+                      Parameter('ac', False, bool, 'ac coupling on (1) or off (0)'),
+                      Parameter('range', 10.0, [0.01, 0.1, 1.0, 10.0], 'range of signal input'),
+                      Parameter('diff',  False, bool, 'differential signal on (1) or off (0)')
+                   ]
+                  ),
+        Parameter('sigouts',
+                  [
+                      Parameter('channel', 0, [0,1], 'signal output channel'),
+                      Parameter('on',  False, bool, 'output on (1) or off (0)'),
+                      Parameter('add',  False, bool, 'add aux signal on (1) or off (0)'),
+                      Parameter('range', 10, [0.01, 0.1, 1, 10], 'range of signal output')
+                   ]
+                  ),
+        Parameter('demods',
+                  [
+                      Parameter('channel', 0, [0,1], 'demodulation channel'),
+                      Parameter('order', 4, int, 'filter order'),
+                      Parameter('rate', 10e3, [10e3], 'rate'),
+                      Parameter('harmonic', 1, int, 'harmonic at which to demodulate'),
+                      Parameter('phaseshift', 0.0, float, 'phaseshift of demodulation'),
+                      Parameter('oscselect', 0, [0,1], 'oscillator for demodulation'),
+                      Parameter('adcselect', 0, int, 'adcselect')
+                   ]
+                  ),
+        Parameter('aux',
+                  [
+                      Parameter('channel', 0, [0,1], 'auxilary channel'),
+                      Parameter('offset', 1.0, float, 'offset in volts')
+                   ]
+                  )
+    ])
+
+
     '''
     instrument class to talk to Zurich instrument HF2 lock in ampifier
     '''
     def __init__(self, name = None, settings = None):
 
-        if self._is_connected:
-            self.daq = self.utils.autoConnect(8005,1) # connect to ZI, 8005 is the port number
-            self.device = self.utils.autoDetect(self.daq)
-            self.options = self.daq.getByte('/%s/features/options' % self.device)
-        else:
-            self.daq = None
-            self.device = None
-            self.options = None
+        self.daq = self.utils.autoConnect(8005,1) # connect to ZI, 8005 is the port number
+        self.device = self.utils.autoDetect(self.daq)
+        self.options = self.daq.getByte('/%s/features/options' % self.device)
 
         super(ZIHF2, self).__init__(name, settings)
         # apply all settings to instrument
@@ -38,98 +72,52 @@ class ZIHF2(Instrument):
     # ========================================================================================
     # ======= overwrite functions from instrument superclass =================================
     # ========================================================================================
-    @property
-    def DEFAULT_SETTINGS(self):
-        '''
-        returns the default parameter_list of the instrument
-        :return:
-        '''
-
-        parameters_default = Parameter([
-            Parameter('freq', 1e6, float, 'frequency of output channel'),
-            Parameter('sigins',
-                      [
-                          Parameter('channel', 0, [0,1], 'signal input channel'),
-                          Parameter('imp50', 1, [0,1], '50Ohm impedance on (1) or off (0)'),
-                          Parameter('ac', False, bool, 'ac coupling on (1) or off (0)'),
-                          Parameter('range', 10.0, [0.01, 0.1, 1.0, 10.0], 'range of signal input'),
-                          Parameter('diff',  False, bool, 'differential signal on (1) or off (0)')
-                       ]
-                      ),
-            Parameter('sigouts',
-                      [
-                          Parameter('channel', 0, [0,1], 'signal output channel'),
-                          Parameter('on',  False, bool, 'output on (1) or off (0)'),
-                          Parameter('add',  False, bool, 'add aux signal on (1) or off (0)'),
-                          Parameter('range', 10, [0.01, 0.1, 1, 10], 'range of signal output')
-                       ]
-                      ),
-            Parameter('demods',
-                      [
-                          Parameter('channel', 0, [0,1], 'demodulation channel'),
-                          Parameter('order', 4, int, 'filter order'),
-                          Parameter('rate', 10e3, [10e3], 'rate'),
-                          Parameter('harmonic', 1, int, 'harmonic at which to demodulate'),
-                          Parameter('phaseshift', 0.0, float, 'phaseshift of demodulation'),
-                          Parameter('oscselect', 0, [0,1], 'oscillator for demodulation'),
-                          Parameter('adcselect', 0, int, 'adcselect')
-                       ]
-                      ),
-            Parameter('aux',
-                      [
-                          Parameter('channel', 0, [0,1], 'auxilary channel'),
-                          Parameter('offset', 1.0, float, 'offset in volts')
-                       ]
-                      )
-        ])
-
-        return parameters_default
 
     def update(self, settings):
         '''
         updates the internal dictionary and sends changed values to instrument
         Args:
-            settings: parameters to be set
+            commands: parameters to be set
         '''
         # call the update_parameter_list to update the parameter list
         super(ZIHF2, self).update(settings)
 
 
-        def commands_from_parameters(parameters):
+        def commands_from_settings(settings):
             '''
             converts dictionary to list of  setting, which can then be passed to the zi controler
-            :param parameters = dictionary that contains the settings
-            :return: settings = list of settings, which can then be passed to the zi controler
+            :param settings = dictionary that contains the commands
+            :return: commands = list of commands, which can then be passed to the zi controler
             '''
             # create list that is passed to the ZI controler
 
 
-            settings = []
+            commands = []
 
 
 
-            for key, element in sorted(parameters.iteritems()):
+            for key, element in sorted(settings.iteritems()):
                 if isinstance(element, dict) and key in ['sigins', 'sigouts', 'demods']:
                     # channel = self.parameters['sigouts']['channel']
                     channel = element['channel']
                     for sub_key, val in sorted(element.iteritems()):
                         if not sub_key == 'channel':
-                            settings.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
+                            commands.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
                 elif isinstance(element, dict) and key in ['aux']:
                     channel = element['channel']
-                    settings.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, channel), element['offset']])
+                    commands.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, channel), element['offset']])
                 elif key in ['freq']:
                     channel = self.settings['sigouts']['channel']
-                    settings.append(['/%s/oscs/%d/freq' % (self.device, channel), parameters['freq']])
+                    commands.append(['/%s/oscs/%d/freq' % (self.device, channel), settings['freq']])
                 elif isinstance(element, dict) == False:
-                    settings.append([key, element])
+                    commands.append([key, element])
 
 
-            return settings
+            return commands
 
 
         # now we actually apply these newsettings to the hardware
-        commands = commands_from_parameters(settings)
+        commands = commands_from_settings(settings)
         if self.is_connected:
             self.daq.set(commands)
         else:

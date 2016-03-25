@@ -10,7 +10,7 @@ app = QtGui.QApplication(sys.argv)
 
 
 
-instruments = {'inst_dummy': 'DummyInstrument'}
+instruments = {'inst_dummy': 'DummyInstrument', 'zihf2':'ZIHF2'}
 
 scripts= {
 
