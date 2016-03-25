@@ -236,7 +236,7 @@ def locate_shifted_NVs(image, shifted_coordinates, new_roi):
 
 
     '''
-    #More old test code, this part run from within gui
+    #More old test code, this part run from within gui_old
     def start_esr_sequence(self):
         if self.esr_running == True:
             self.imPlot.mpl_disconnect(self.chooseNVsConnect)

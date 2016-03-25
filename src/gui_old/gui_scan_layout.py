@@ -20,12 +20,12 @@ from src.scripts_old import ZiControl_many_pts as ZIControl
 from src.scripts_old import set_focus as f
 
 import src.scripts_old.auto_focus as AF
-from src.gui import GuiDeviceTriggers as DeviceTriggers
-from src.gui import PlotAPDCounts3 as Cnts
-from src.gui import gui_custom_widgets as gui_cw
+from src.gui_old import GuiDeviceTriggers as DeviceTriggers
+from src.gui_old import PlotAPDCounts3 as Cnts
+from src.gui_old import gui_custom_widgets as gui_cw
 
 
-# This function should be called from the PYQT main loop. It implements all of the widgets in the gui
+# This function should be called from the PYQT main loop. It implements all of the widgets in the gui_old
 def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
 
 

@@ -28,7 +28,7 @@ class ScanNV():
     # yVmax: maximum y voltage for scan
     # yPts: number of y points to scan
     # timePerPt: time to stay at each scan point
-    # canvas: send matplotlib.backends canvas from PyQt4 gui if being used, otherwise plots with pyplot
+    # canvas: send matplotlib.backends canvas from PyQt4 gui_old if being used, otherwise plots with pyplot
     # settleTime: galvo settling time, excluded from scan
     # dist_volt_conversion: conversion factor of number of microns per galvo volt
     def __init__(self, xVmin, xVmax, xPts, yVmin, yVmax, yPts, timePerPt, canvas = None, settleTime = .0002, dist_volt_conversion = None):

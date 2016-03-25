@@ -1,5 +1,5 @@
 import sip
-sip.setapi('QVariant', 2)# set to version to so that the gui returns QString objects and not generic QVariants
+sip.setapi('QVariant', 2)# set to version to so that the gui_old returns QString objects and not generic QVariants
 from PyQt4 import QtCore, QtGui
 from src.core import Parameter, Instrument, Script
 

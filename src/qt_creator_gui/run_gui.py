@@ -40,7 +40,7 @@ import time
 # ============= GENERAL SETTING ====================================
 # ==================================================================
 
-# todo: asign data containers to thread objects and read those datacontainers in gui where it is written to the guis data container
+# todo: asign data containers to thread objects and read those datacontainers in gui_old where it is written to the guis data container
 # todo: at startup execute the settings or set the controls such that they match the actual situation of the experiment
 # todo: actually turn the servos after position has reached. Now the servo is trying to adjust the position and one can hear a little noise
 # this is a example for the settings. do not delete. The type is the variables defined here is used to cast the parameters into the right format
@@ -313,10 +313,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     self.log("warning path {:s} is not valid!!!".format(value_new))
                     updated_success = False
             elif parameter in {'detector_threshold', 'record_length'}:
-                # these parameters are no settings actually just change some visualizations in the gui
+                # these parameters are no settings actually just change some visualizations in the gui_old
                 pass
             elif parameter in SETTINGS_DICT['live_data_ids'].keys():
-                # these parameters are no settings actually just change some visualizations in the gui
+                # these parameters are no settings actually just change some visualizations in the gui_old
                 pass
             elif parameter in (SETTINGS_DICT['hardware'].keys()
                                    + SETTINGS_DICT['hardware']['parameters_filterwheel'].keys()
@@ -806,7 +806,7 @@ class AcquisitionThreadNew(QtCore.QThread):
                 # todo: this error should be caught and raise an exeption that the requested data doesn't exist
                 print("Unexpected error:", sys.exc_info()[0])
                 raise
-            # just emit any signal to trigger an action in the gui
+            # just emit any signal to trigger an action in the gui_old
             self.updateProgress.emit(1)
             time.sleep(0.2)
 

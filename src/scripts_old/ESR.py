@@ -39,7 +39,7 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
     int_time: time spent integrating at each frequency. Must be an integer multiple of settle_time
     settle_time: time spent waiting after daq changes voltage, corresponding to frequency change
     dirpath: path of directory in which to save data
-    canvas: matplotlib backends canvas for gui integration. If not passed in, use pyplot.
+    canvas: matplotlib backends canvas for gui_old integration. If not passed in, use pyplot.
     '''
     if(max(freq_values) > RANGE_MAX or min(freq_values) < RANGE_MIN):
         raise ValueError("Invalid frequency. All frequencies must be between 2.025 GHz and 4.050 GHz.")

@@ -507,7 +507,7 @@ class ZIHF2_v2(QtCore.QThread):
 
                 if self.sweeper.finished():
                     self._recording = False
-                    progress = 100 # make sure that progess is set 1o 100 because we check that in the gui
+                    progress = 100 # make sure that progess is set 1o 100 because we check that in the gui_old
 
             else:
                 # todo: raise error

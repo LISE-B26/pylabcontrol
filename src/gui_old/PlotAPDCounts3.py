@@ -113,7 +113,7 @@ class PlotAPD():
 
 def counter_load_param(filename_or_json):
     '''
-    loads counter parameter from json file into gui
+    loads counter parameter from json file into gui_old
     '''
     filename_or_json = str(filename_or_json)
 

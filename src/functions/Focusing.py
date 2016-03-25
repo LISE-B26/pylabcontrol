@@ -37,7 +37,7 @@ class Focus:
     # piezoChannel: name of channel on piezocontroller for piezo ('X' for low temp, 'Z' for room temp)
     # waitTime: wait time (in seconds) between each point. If this is set too low for an oil-immersion lens, the oil
     #   won't have time to settle between points and the results will be poor
-    # canvas: Pass in a backends canvas to plot to the gui, otherwise plots using pyplot
+    # canvas: Pass in a backends canvas to plot to the gui_old, otherwise plots using pyplot
     # return: returns voltage to set it to
     @classmethod
     def scan(cls, minV, maxV, numPts, piezoChannel, waitTime = 5, canvas = None, APD = True, scan_range_roi = None, plotting = True, blocking=True, return_data = False, queue = None, std = True, timePerPt = .001):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Core of gui based on example:
+# Core of gui_old based on example:
 # embedding_in_qt4.py --- Simple Qt4 application embedding matplotlib canvases
 #
 # Copyright (C) 2005 Florent Rougon
@@ -17,14 +17,14 @@ sys.path.append('.')
 
 from PyQt4 import QtGui, QtCore
 
-from src.gui import gui_scan_layout
+from src.gui_old import gui_scan_layout
 
 
 # Class corresponding to window in which all widgets (objects used to display things) are placed. Extends QtGui.QMainWindow
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
         '''
-        Initializes the gui window
+        Initializes the gui_old window
         '''
         QtGui.QMainWindow.__init__(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -52,7 +52,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.plotBox = QtGui.QHBoxLayout()
         self.vbox.addLayout(self.plotBox)
 
-        # changes windows focus to the gui on launch
+        # changes windows focus to the gui_old on launch
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
 

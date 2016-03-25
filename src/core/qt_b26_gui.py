@@ -2,7 +2,7 @@
 Basic gui class designed with QT designer
 """
 import sip
-sip.setapi('QVariant', 2)# set to version to so that the gui returns QString objects and not generic QVariants
+sip.setapi('QVariant', 2)# set to version to so that the gui_old returns QString objects and not generic QVariants
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 from src.core import Parameter, Instrument, B26QTreeItem, ReadProbes
@@ -19,12 +19,12 @@ from collections import deque
 
 from src.core import load_probes, load_scripts, load_instruments
 
-# load the basic gui either from .ui file or from precompiled .py file
+# load the basic gui_old either from .ui file or from precompiled .py file
 try:
     # import external_modules.matplotlibwidget
     Ui_MainWindow, QMainWindow = loadUiType('basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
-    # load precompiled gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
+    # load precompiled gui_old, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
     from src.core.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
     print('Warning: on the fly conversion of .ui file failed, loaded .py file instead!!')
@@ -41,7 +41,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             - probes: depth 1 dictionary where to be decided....?
 
         ControlMainWindow(settings_file)
-            - settings_file is the path to a json file that contains all the settings for the gui
+            - settings_file is the path to a json file that contains all the settings for the gui_old
 
         Returns:
 
@@ -201,7 +201,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def load_settings(self, path_to_file):
         """
-        loads a gui settings file (a json dictionary)
+        loads a gui_old settings file (a json dictionary)
         - path_to_file: path to file that contains the dictionary
 
         Returns:
@@ -223,7 +223,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def save_settings(self, path_to_file):
         """
-        saves a gui settings file (to a json dictionary)
+        saves a gui_old settings file (to a json dictionary)
         - path_to_file: path to file that will contain the dictionary
         """
         # todo: implement

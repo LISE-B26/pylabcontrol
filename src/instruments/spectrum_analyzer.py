@@ -10,7 +10,7 @@ class SpectrumAnalyzer(Instrument):
     with trigger generator.
     """
 
-    _INSTRUMENT_IDENTIFIER = u'Keysight Technologies,N9320B,CN0323B356,0B.03.58\n'
+    _INSTRUMENT_IDENTIFIER = u'Keysight Technologies,N9320B,CN0323B356,0B.03.58'
     # String returned by spectrum analyzer upon querying it with '*IDN?'
 
     _DEFAULT_SETTINGS = Parameter([
@@ -39,9 +39,13 @@ class SpectrumAnalyzer(Instrument):
 
         rm = visa.ResourceManager()
         self.spec_anal = rm.open_resource(self.settings['visa_resource'])
+        self.spec_anal.read_termination = '\n'
         self.spec_anal.timeout = self.settings['connection_timeout']
-        self.spec_anal.write('*RST\n')
+        self.spec_anal.write('*RST;*OPC?;*CLS')
+        time.sleep(5)
         self._set_mode('SpectrumAnalyzer')
+        time.sleep(5)
+        print 'hi'
 
     def update(self, settings):
         super(SpectrumAnalyzer, self).update(settings)
@@ -95,68 +99,65 @@ class SpectrumAnalyzer(Instrument):
         Returns: True if connected, False otherwise.
 
         """
-        identification = self.spec_anal.query('*IDN?\n')
+        identification = self.spec_anal.query('*IDN?\n'+ ';*OPC?')
+        print identification
         return identification == self._INSTRUMENT_IDENTIFIER
 
     def _set_start_frequency(self, start_freq):
-        self.spec_anal.write('SENS:FREQ:START ' + str(start_freq))
+        self.spec_anal.write('SENS:FREQ:START ' + str(start_freq) + ';*OPC?')
 
     def _get_start_frequency(self):
-        return float(self.spec_anal.query('SENS:FREQ:START?\n'))
+        return float(self.spec_anal.query('SENS:FREQ:START?\n' + ';*OPC?'))
 
     def _set_stop_frequency(self, stop_freq):
-        self.spec_anal.write('SENS:FREQ:STOP ' + str(stop_freq))
+        self.spec_anal.write('SENS:FREQ:STOP ' + str(stop_freq)+ ';*OPC?')
 
     def _get_stop_frequency(self):
-        return float(self.spec_anal.query('SENS:FREQ:STOP?\n'))
+        return float(self.spec_anal.query('SENS:FREQ:STOP?\n' + ';*OPC?'))
 
     def _toggle_output(self, state):
         if state:
-            self.spec_anal.write('OUTPUT 1')
+            self.spec_anal.write('OUTPUT 1' + ';*OPC?')
         elif not state:
-            self.spec_anal.write('OUTPUT 0')
+            self.spec_anal.write('OUTPUT 0' + ';*OPC?')
 
     def _is_output_on(self):
         if self.mode == 'SpectrumAnalyzer':
             return False
         elif self.mode == 'TrackingGenerator':
-            return bool(int(self.spec_anal.query('OUTPUT:STATE?')))
+            return bool(int(self.spec_anal.query('OUTPUT:STATE?' + ';*OPC?')))
 
     def _get_mode(self):
-        mode_response = str(self.spec_anal.query('CONFIGURE?')).strip()
+        mode_response = str(self.spec_anal.query('CONFIGURE?' + ';*OPC?')).strip()
         if mode_response == 'SAN':
             return 'SpectrumAnalyzer'
         elif mode_response == 'TGEN':
             return 'TrackingGenerator'
 
     def _set_mode(self, mode):
-        #time.sleep(5)  # Empirically, the spectrum analyzer takes 5 seconds after initialization to change mode
-
         if mode == 'TrackingGenerator':
-            self.spec_anal.write('CONFIGURE:TGENERATOR')
+            self.spec_anal.write('CONFIGURE:TGENERATOR' + ';*OPC?')
         elif mode == 'SpectrumAnalyzer':
-            self.spec_anal.write('CONFIGURE:SANALYZER')
-
-        #time.sleep(5)  # Empirically, the spectrum analyzer takes 5 seconds to load the module
+            self.spec_anal.write('CONFIGURE:SANALYZER' + ';*OPC?')
 
     def _get_trace(self):
-        amplitudes = [float(i) for i in str(self.spec_anal.query('TRACE:DATA? TRACE1')).split(',')]
+        amplitudes = [float(i) for i in str(self.spec_anal.query('TRACE:DATA? TRACE1'+ ';*OPC?')).split(',')]
         num_points = len(amplitudes)
         frequencies = np.linspace(start=self.start_frequency, stop=self.stop_frequency,
                                   num=num_points)
         return np.array([(frequencies[i], amplitudes[i])for i in range(num_points)])
 
     def _get_bandwidth(self):
-        return float(self.spec_anal.query('BANDWIDTH?'))
+        return float(self.spec_anal.query('BANDWIDTH?' + ';*OPC?'))
 
     def _get_output_power(self):
-        return self.spec_anal.query('SOURCE:POWER?')
+        return self.spec_anal.query('SOURCE:POWER?' + ';*OPC?')
 
     def set_output_power(self, power):
-        return self.spec_anal.write('SOURCE:POWER ' + str(power))
+        return self.spec_anal.write('SOURCE:POWER ' + str(power) + ';*OPC?')
 
     def __del__(self):
-        self._set_mode('SpectrumAnalyzer')
+        self._set_mode('SpectrumAnalyzer' + ';*OPC?')
         self.spec_anal.close()
 
 if __name__ == '__main__':
