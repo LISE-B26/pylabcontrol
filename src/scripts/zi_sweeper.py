@@ -1,48 +1,33 @@
 from src.core import Script, Parameter
 from PyQt4 import QtCore
+from PySide.QtCore import Signal, QThread
+import time
+
+class ZI_Sweeper(QThread, Script):
+    updateProgress = Signal(int)
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('start', 1.8e6, float, 'start value of sweep'),
+        Parameter('stop', 1.9e6, float, 'end value of sweep'),
+        Parameter('samplecount', 101, int, 'number of data points'),
+        Parameter('gridnode', 'oscs/0/freq', ['oscs/0/freq', 'oscs/1/freq'], 'start value of sweep'),
+        Parameter('xmapping', 0, [0, 1], 'mapping 0 = linear, 1 = logarithmic'),
+        Parameter('bandwidthcontrol', 2, [2], '2 = automatic bandwidth control'),
+        Parameter('scan', 0, [0, 1, 2], 'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)'),
+        Parameter('loopcount', 1, int, 'number of times it sweeps'),
+        Parameter('averaging/sample', 1, int, 'number of samples to average over')
+
+    ])
 
 
-class ZI_Sweeper(QtCore.QThread, Script):
-    updateProgress = QtCore.pyqtSignal(int)
 
     def __init__(self, zihf2, name = None, settings = None):
-        '''
-
-        :param zihf2: ZIHF2 instrument object
-        :param name:
-        :param parameter_list:
-        :return:
-        '''
         self.zihf2 = zihf2
         self._recording = False
 
-        QtCore.QThread.__init__(self)
-        # super(ZI_Sweeper, self).__init__(name, settings)
         Script.__init__(self, name, settings)
+        QThread.__init__(self)
 
-        # self.update(self._settings_default())
-
-
-    # @property
-    def _settings_default(self):
-        """
-
-        Returns:  the default setting of the script
-
-        """
-        settings_default = Parameter([
-            Parameter('start', 1.8e6, float, 'start value of sweep'),
-            Parameter('stop', 1.9e6, float, 'end value of sweep'),
-            Parameter('samplecount', 101, int, 'number of data points'),
-            Parameter('gridnode', 'oscs/0/freq', ['oscs/0/freq', 'oscs/1/freq'], 'start value of sweep'),
-            Parameter('xmapping', 0, [0, 1], 'mapping 0 = linear, 1 = logarithmic'),
-            Parameter('bandwidthcontrol', 2, [2], '2 = automatic bandwidth control'),
-            Parameter('scan', 0, [0, 1, 2], 'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)'),
-            Parameter('loopcount', 1, int, 'number of times it sweeps'),
-            Parameter('averaging/sample', 1, int, 'number of samples to average over')
-
-        ])
-        return settings_default
 
     def _function(self):
         """
@@ -50,10 +35,36 @@ class ZI_Sweeper(QtCore.QThread, Script):
         will be overwritten in the __init__
         """
 
-        # some generic function
-        import time
-        print('I am a test function counting to 3...')
-        for i in range(3):
-            time.sleep(0.1)
-            print(i)
+        path = '/%s/demods/%d/sample' % (self.zihf2.device, self.general_settings['demods']['channel'])
+        self.sweeper.subscribe(path)
+        self.sweeper.execute()
+        start = time.time()
+        while not self.sweeper.finished():
+            time.sleep(1)
+            progress = int(100*self.sweeper.progress())
+            print('progress', progress)
+            data = self.sweeper.read(True)# True: flattened dictionary
 
+            #  ensures that first point has completed before attempting to read data
+            if path not in data:
+                continue
+
+            data = data[path][0][0] # the data is nested, we remove the outer brackets with [0][0]
+            # now we only want a subset of the data porvided by ZI
+            data = {k : data[k] for k in self._sweep_values}
+            print('data', data)
+            self.sweep_data.append(data)
+
+            if (time.time() - start) > self._timeout:
+                # If for some reason the sweep is blocking, force the end of the
+                # measurement
+                print("\nSweep still not finished, forcing finish...")
+                self.sweeper.finish()
+                self._recording = False
+
+            print("Individual sweep %.2f%% complete. \n" % (progress))
+            self.updateProgress.emit(progress)
+
+        if self.sweeper.finished():
+            self._recording = False
+            progress = 100 # make sure that progess is set 1o 100 because we check that in the old_gui

@@ -20,7 +20,7 @@ class ZIHF2(Instrument):
         Parameter('sigins',
                   [
                       Parameter('channel', 0, [0,1], 'signal input channel'),
-                      Parameter('imp50', 1, [0,1], '50Ohm impedance on (1) or off (0)'),
+                      Parameter('imp50',False, bool, '50Ohm impedance on (1) or off (0)'),
                       Parameter('ac', False, bool, 'ac coupling on (1) or off (0)'),
                       Parameter('range', 10.0, [0.01, 0.1, 1.0, 10.0], 'range of signal input'),
                       Parameter('diff',  False, bool, 'differential signal on (1) or off (0)')
@@ -31,7 +31,7 @@ class ZIHF2(Instrument):
                       Parameter('channel', 0, [0,1], 'signal output channel'),
                       Parameter('on',  False, bool, 'output on (1) or off (0)'),
                       Parameter('add',  False, bool, 'add aux signal on (1) or off (0)'),
-                      Parameter('range', 10, [0.01, 0.1, 1, 10], 'range of signal output')
+                      Parameter('range', 10.0, [0.01, 0.1, 1.0, 10.0], 'range of signal output')
                    ]
                   ),
         Parameter('demods',
@@ -42,7 +42,7 @@ class ZIHF2(Instrument):
                       Parameter('harmonic', 1, int, 'harmonic at which to demodulate'),
                       Parameter('phaseshift', 0.0, float, 'phaseshift of demodulation'),
                       Parameter('oscselect', 0, [0,1], 'oscillator for demodulation'),
-                      Parameter('adcselect', 0, int, 'adcselect')
+                      Parameter('adcselect', 0, int, 'adcselect not sure what that is!?')
                    ]
                   ),
         Parameter('aux',
@@ -98,14 +98,24 @@ class ZIHF2(Instrument):
 
             for key, element in sorted(settings.iteritems()):
                 if isinstance(element, dict) and key in ['sigins', 'sigouts', 'demods']:
-                    # channel = self.parameters['sigouts']['channel']
-                    channel = element['channel']
+                    if 'channel' in element:
+                        channel = element['channel']
+                    else:
+                        channel = self.settings[key]['channel']
                     for sub_key, val in sorted(element.iteritems()):
                         if not sub_key == 'channel':
                             commands.append(['/%s/%s/%d/%s'%(self.device, key, channel, sub_key), val])
                 elif isinstance(element, dict) and key in ['aux']:
-                    channel = element['channel']
-                    commands.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, channel), element['offset']])
+                    if 'channel' in element:
+                        channel = element['channel']
+                    else:
+                        channel = self.settings['aux']['channel']
+                    if 'offset' in element:
+                        offset = element['offset']
+                    else:
+                        offset = self.settings['aux']['offset']
+                        print('offset', offset)
+                    commands.append(['/%s/AUXOUTS/%d/OFFSET'% (self.device, channel),offset ])
                 elif key in ['freq']:
                     channel = self.settings['sigouts']['channel']
                     commands.append(['/%s/oscs/%d/freq' % (self.device, channel), settings['freq']])
@@ -119,7 +129,10 @@ class ZIHF2(Instrument):
         # now we actually apply these newsettings to the hardware
         commands = commands_from_settings(settings)
         if self.is_connected:
-            self.daq.set(commands)
+            try:
+                self.daq.set(commands)
+            except RuntimeError:
+                print('runtime error. commands\n{:s}'.format(commands))
         else:
             print('hardware is not connected, the command to be send is:')
             print(commands)

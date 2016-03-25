@@ -1,7 +1,7 @@
 from src.core import Parameter, Script
-from PyQt4 import QtCore
+# from PyQt4 import QtCore
 from src.instruments import DummyInstrument
-
+# from PyQt4 import QtCore
 from PySide.QtCore import Signal, QThread
 
 class ScriptDummy(Script):
@@ -38,6 +38,7 @@ class ScriptDummy(Script):
             time.sleep(wait_time)
             print(i)
 
+# class ScriptDummyWithQtSignal(Script, QtCore.QThread):
 class ScriptDummyWithQtSignal(Script, QThread):
 
     _DEFAULT_SETTINGS = Parameter([
@@ -50,9 +51,10 @@ class ScriptDummyWithQtSignal(Script, QThread):
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
     updateProgress = Signal(int)
-
+    # updateProgress = QtCore.pyqtSignal(int)
     def __init__(self, name = None, settings = None):
         Script.__init__(self, name, settings)
+        # QtCore.QThread.__init__(self)
         QThread.__init__(self)
 
 
