@@ -10,7 +10,7 @@ class ZI_Sweeper(QThread, Script):
         Parameter('start', 1.8e6, float, 'start value of sweep'),
         Parameter('stop', 1.9e6, float, 'end value of sweep'),
         Parameter('samplecount', 101, int, 'number of data points'),
-        Parameter('gridnode', 'oscs/0/freq', ['oscs/0/freq', 'oscs/1/freq'], 'start value of sweep'),
+        Parameter('gridnode', 'oscs/0/freq', ['oscs/0/freq', 'oscs/1/freq'], 'output channel =not 100% sure, double check='),
         Parameter('xmapping', 0, [0, 1], 'mapping 0 = linear, 1 = logarithmic'),
         Parameter('bandwidthcontrol', 2, [2], '2 = automatic bandwidth control'),
         Parameter('scan', 0, [0, 1, 2], 'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)'),
@@ -28,17 +28,39 @@ class ZI_Sweeper(QThread, Script):
         Script.__init__(self, name, settings)
         QThread.__init__(self)
 
+        self.sweeper = self.daq.sweep(timeout)
+
+
+    def settings_to_commands(self, settings):
+        '''
+        converts dictionary to list of  setting, which can then be passed to the zi controler
+        :param dictionary = dictionary that contains the commands
+        :return: commands = list of commands, which can then be passed to the zi controler
+        '''
+        # create list that is passed to the ZI controler
+
+        commands = []
+        for key, val in settings.iteritems():
+            if isinstance(val, dict) and 'value' in val:
+                commands.append(['sweep/%s' % (key), val['value']])
+            else:
+                commands.append(['sweep/%s' % (key), val])
+        return commands
+
 
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
+        commands = self.settings_to_commands(self.settings)
 
-        path = '/%s/demods/%d/sample' % (self.zihf2.device, self.general_settings['demods']['channel'])
+        self.sweeper.set(commands)
+
+        path = '/%s/demods/%d/sample' % (self.zihf2.device, self.settings['demod_channel'])
         self.sweeper.subscribe(path)
         self.sweeper.execute()
-        start = time.time()
+
         while not self.sweeper.finished():
             time.sleep(1)
             progress = int(100*self.sweeper.progress())
