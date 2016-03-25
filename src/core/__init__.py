@@ -7,6 +7,7 @@ from scripts import Script
 from probe import Probe
 from loading import load_probes, load_scripts, load_instruments
 from qt_b26_widgets import B26QTreeItem
+from read_probes import ReadProbes
 __all__ = ['Instrument', 'Parameter']
 
 

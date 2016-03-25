@@ -5,7 +5,7 @@ import sip
 sip.setapi('QVariant', 2)# set to version to so that the gui returns QString objects and not generic QVariants
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
-from src.core import Parameter, Instrument, B26QTreeItem
+from src.core import Parameter, Instrument, B26QTreeItem, ReadProbes
 import os.path
 
 
@@ -64,6 +64,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.scripts = scripts
         self.probes = probes
 
+        self.read_probes = ReadProbes(self.probes)
+        self.read_probes.updateProgress.connect(self.update_probes)
 
         # define data container
         self.history = deque()  # history of executed commands
@@ -77,7 +79,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.tree_scripts.setColumnWidth(0, 300)
 
 
-        self.fill_tree(self.tree_monitor, self.probes)
+        # self.fill_tree(self.tree_monitor, self.probes)
         self.tree_monitor.setColumnWidth(0, 300)
 
         def connect_controls():
@@ -101,7 +103,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
 
         connect_controls()
-
+        self.read_probes.start()
 
     def update_parameters(self, treeWidget):
 
@@ -197,12 +199,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.log('No script selected. Select script and try again!')
 
-    def update_progress_old(self, current_progress):
-        self.progressBar.setValue(current_progress)
-        if current_progress == 100:
-            self.log('finished!!!')
-
-
     def load_settings(self, path_to_file):
         """
         loads a gui settings file (a json dictionary)
@@ -239,6 +235,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if progress == 100:
             pass
 
+
+    def update_probes(self, progress):
+        self.fill_tree(self.tree_monitor, self.read_probes.probes_values)
+
+
     def fill_tree(self, tree, parameters):
         """
         fills a tree with nested parameters
@@ -249,6 +250,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns:
 
         """
+
+        tree.clear()
         assert isinstance(parameters, (dict, Parameter))
 
         for key, value in parameters.iteritems():

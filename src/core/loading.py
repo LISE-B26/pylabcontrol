@@ -195,7 +195,8 @@ if __name__ == '__main__':
 
     # print(probes)
 
-    print(probes['random'])
-    print(probes['value2'])
+    print(probes['random'].value)
+    print(probes['value2'].value)
+    print(probes['random'].value)
 
 
