@@ -195,7 +195,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 if isinstance(script, QThread):
                     script.updateProgress.connect(self.update_status)
                 self.log('start {:s}'.format(script.name))
-                script.run()
+                script.start()
             else:
                 self.log('No script selected. Select script and try again!')
 
