@@ -31,6 +31,7 @@ class ZISweeper(Script, QThread):
         self.sweeper.set('sweep/device', self.zihf2.device)
         self.sweep_data = deque()
 
+        # todo: clean this up! and plot data in gui!
         self._sweep_values =  {'frequency' : [], 'x' : [], 'y' : [], 'phase': [], 'r':[]}.keys()
 
 

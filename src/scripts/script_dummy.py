@@ -40,7 +40,7 @@ class ScriptDummy(Script):
 
 # class ScriptDummyWithQtSignal(Script, QtCore.QThread):
 class ScriptDummyWithQtSignal(Script, QThread):
-
+    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('count', 10, int),
         Parameter('name', 'this is a counter'),
