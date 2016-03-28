@@ -61,8 +61,19 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 B26QTreeItem(self, key, value, type(value), '',visible=self.visible)
 
         elif isinstance(self.value, (Instrument, Script)):
+
             for key, value in self.value.settings.iteritems():
                 B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
+
+            try:
+                print(self.value._instrument.name, self.value._instrument.settings)
+                item = B26QTreeItem(self, self.value._instrument.name, self.value._instrument,  type(self.value._instrument), '', visible = True)
+                print('item.isDisabled()', item.isDisabled())
+
+                item.setDisabled(True)
+            except (AssertionError, AttributeError):
+                pass
+                # B26QTreeItem(self, key, value, valid_values[key], self.value.settings.info[key], visible=self.visible)
         # elif isinstance(self.value, Script):
         #     for key, value in self.value.settings.iteritems():
         #         B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key],visible=self.visible)

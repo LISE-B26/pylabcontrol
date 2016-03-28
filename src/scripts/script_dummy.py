@@ -106,8 +106,15 @@ class ScriptDummyWithInstrument(Script):
 
         # check if we get the right instrument
         assert isinstance(dummy_instrument, DummyInstrument)
+
+
+
+
         # save reference to instrument
         self._instrument = dummy_instrument
+
+
+
         # call init of superclass
         Script.__init__(self, name, settings)
 

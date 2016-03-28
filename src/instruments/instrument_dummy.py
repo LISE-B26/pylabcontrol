@@ -85,6 +85,5 @@ if __name__ == '__main__':
 
 
     test = DummyInstrument()
-    test['test1'] = 1
     print(test.test1)
     print(test._settings)
