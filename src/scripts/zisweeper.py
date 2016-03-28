@@ -29,7 +29,7 @@ class ZISweeper(Script, QThread):
         QThread.__init__(self)
         self.sweeper = self.zihf2.daq.sweep(self._timeout)
         self.sweeper.set('sweep/device', self.zihf2.device)
-        self.sweep_data = deque()
+        self.data = deque()
 
         # todo: clean this up! and plot data in gui!
         self._sweep_values =  {'frequency' : [], 'x' : [], 'y' : [], 'phase': [], 'r':[]}.keys()
@@ -81,7 +81,7 @@ class ZISweeper(Script, QThread):
             data = {k : data[k] for k in self._sweep_values}
 
             start = time.time()
-            self.sweep_data.append(data)
+            self.data.append(data)
 
             if (time.time() - start) > self._timeout:
                 # If for some reason the sweep is blocking, force the end of the
@@ -91,7 +91,7 @@ class ZISweeper(Script, QThread):
                 self._recording = False
 
             print("Individual sweep %.2f%% complete. \n" % (progress))
-            print(data)
+
             self.updateProgress.emit(progress)
 
         if self.sweeper.finished():

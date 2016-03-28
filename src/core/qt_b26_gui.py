@@ -7,7 +7,7 @@ from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 from src.core import Parameter, Instrument, B26QTreeItem, ReadProbes
 import os.path
-
+import numpy as np
 
 from PySide.QtCore import QThread
 
@@ -18,6 +18,10 @@ import datetime
 from collections import deque
 
 from src.core import load_probes, load_scripts, load_instruments
+
+from src.scripts import ZISweeper
+from src.core.plotting import plot_psd
+
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
@@ -81,6 +85,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # self.fill_tree(self.tree_monitor, self.probes)
         self.tree_monitor.setColumnWidth(0, 300)
+
+
+        self.current_script = None
 
         def connect_controls():
             # =============================================================
@@ -201,6 +208,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # is the script is a QThread object we connect its signals to the update_status function
                 if isinstance(script, QThread):
                     script.updateProgress.connect(self.update_status)
+                    self.current_script = script
                 self.log('start {:s}'.format(script.name))
                 script.start()
 
@@ -239,9 +247,28 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     def update_status(self, progress):
+        """
+        waits for a signal emitted from a thread and updates the gui
+        Args:
+            progress:
+
+        Returns:
+
+        """
         self.progressBar.setValue(progress)
         if progress == 100:
             pass
+        script = self.current_script
+
+        if isinstance(script, ZISweeper):
+            if script.data:
+                r = script.data[0]['r']
+                freq = script.data[0]['frequency']
+                freq = freq[np.isfinite(r)]
+                r = r[np.isfinite(r)]
+                script.data.popleft() # remove from queue
+                plot_psd(freq, r, self.matplotlibwidget.axes)
+                self.matplotlibwidget.draw()
 
 
     def update_probes(self, progress):
