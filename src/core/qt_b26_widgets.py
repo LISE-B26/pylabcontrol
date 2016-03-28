@@ -60,23 +60,19 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             for key, value in self.value.iteritems():
                 B26QTreeItem(self, key, value, type(value), '',visible=self.visible)
 
-        elif isinstance(self.value, (Instrument, Script)):
+        elif isinstance(self.value, Instrument):
 
             for key, value in self.value.settings.iteritems():
                 B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
 
-            try:
-                print(self.value._instrument.name, self.value._instrument.settings)
-                item = B26QTreeItem(self, self.value._instrument.name, self.value._instrument,  type(self.value._instrument), '', visible = True)
-                print('item.isDisabled()', item.isDisabled())
+        elif isinstance(self.value, Script):
 
+            for key, value in self.value.settings.iteritems():
+                B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
+
+            for key, value in self.value.instruments.iteritems():
+                item = B26QTreeItem(self, key, self.value.instruments[key],  type(self.value.instruments[key]), '', visible = True)
                 item.setDisabled(True)
-            except (AssertionError, AttributeError):
-                pass
-                # B26QTreeItem(self, key, value, valid_values[key], self.value.settings.info[key], visible=self.visible)
-        # elif isinstance(self.value, Script):
-        #     for key, value in self.value.settings.iteritems():
-        #         B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key],visible=self.visible)
         else:
             self.setText(1, unicode(self.value))
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)

@@ -16,6 +16,8 @@ class ScriptDummy(Script):
         Parameter('wait_time', 0.1, float)
     ])
 
+    _INSTRUMENTS = {}
+
     def __init__(self, name=None, settings=None):
         Script.__init__(self, name, settings)
 
@@ -46,6 +48,8 @@ class ScriptDummyWithQtSignal(Script, QThread):
         Parameter('name', 'this is a counter'),
         Parameter('wait_time', 0.1, float)
     ])
+
+    _INSTRUMENTS = {}
 
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
@@ -90,6 +94,9 @@ class ScriptDummyWithInstrument(Script):
         Parameter('wait_time', 0.1, float)
     ])
 
+    _INSTRUMENTS = {
+        'dummy_instrument' : DummyInstrument
+    }
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
@@ -110,13 +117,13 @@ class ScriptDummyWithInstrument(Script):
 
 
 
-        # save reference to instrument
-        self._instrument = dummy_instrument
-
+        # # save reference to instrument
+        # self.instrument = {'dummy_instrument' : dummy_instrument}
+        #
 
 
         # call init of superclass
-        Script.__init__(self, name, settings)
+        Script.__init__(self, name, settings, {'dummy_instrument' : dummy_instrument})
 
     def _function(self):
         """
@@ -135,5 +142,5 @@ class ScriptDummyWithInstrument(Script):
         print('I am a test function counting to {:d}...'.format(count))
         for i in range(count):
 
-            print('signal from dummy instrument {:s}: {:0.3f}'.format(name, self._instrument.value1))
+            print('signal from dummy instrument {:s}: {:0.3f}'.format(name, self.instruments['dummy_instrument'].value1))
             time.sleep(wait_time)

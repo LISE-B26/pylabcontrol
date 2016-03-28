@@ -21,14 +21,14 @@ class ZISweeper(Script, QThread):
     ])
 
     def __init__(self, zihf2, name = None, settings = None, timeout = 1000000000):
-        self.zihf2 = zihf2
+        self._instrument = zihf2
         self._recording = False
         self._timeout = timeout
 
         Script.__init__(self, name, settings)
         QThread.__init__(self)
-        self.sweeper = self.zihf2.daq.sweep(self._timeout)
-        self.sweeper.set('sweep/device', self.zihf2.device)
+        self.sweeper = self._instrument.daq.sweep(self._timeout)
+        self.sweeper.set('sweep/device', self._instrument.device)
         self.data = deque()
 
         # todo: clean this up! and plot data in gui!
@@ -62,7 +62,7 @@ class ZISweeper(Script, QThread):
 
         self.sweeper.set(commands)
 
-        path = '/%s/demods/%d/sample' % (self.zihf2.device, self.zihf2.settings['demods']['channel'])
+        path = '/%s/demods/%d/sample' % (self._instrument.device, self._instrument.settings['demods']['channel'])
         self.sweeper.subscribe(path)
         self.sweeper.execute()
 

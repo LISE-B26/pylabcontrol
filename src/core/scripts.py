@@ -28,7 +28,7 @@ class Script(object):
     # ======= Following old_functions are generic ================================================
     # ========================================================================================
 
-    def __init__(self, name = None, settings = None):
+    def __init__(self, name = None, settings = None, instruments = None):
         """
         executes scripts and stores script parameters and settings
         Args:
@@ -40,6 +40,13 @@ class Script(object):
             name = self.__class__.__name__
         assert isinstance(name, str)
         self.name = name
+
+        self._instruments = {}
+        if instruments is None:
+            instruments = {}
+        self.instruments = instruments
+
+
 
         # set end time to be before start time if script hasn't been excecuted this tells us
         self.start_time = datetime.datetime.now()
@@ -67,23 +74,20 @@ class Script(object):
         returns the default parameter_list of the script this function should be over written in any subclass
         """
         raise NotImplementedError("Subclass did not implement _DEFAULT_SETTINGS")
+    @property
+    def _INSTRUMENTS(self):
+        """
+
+        Returns: a dictionary of the instruments, were key is the instrument name and value is the instrument class
+        if there is not instrument it should return an empty dict
+
+        """
+        print(self.name)
+        # raise NotImplementedError("Subclass {:s} did not implement _INSTRUMETS".format(str(self)))
+        raise NotImplementedError("Subclass did not implement _INSTRUMENTS")
 
     def __str__(self):
-        pass
-        #todo: finsish implementation
-        # def parameter_to_string(parameter):
-        #     # print('parameter', parameter)
-        #     return_string = ''
-        #     # if value is a list of parameters
-        #     if isinstance(parameter.value, list) and isinstance(parameter.value[0],Parameter):
-        #         return_string += '{:s}\n'.format(parameter.name)
-        #         for element in parameter.value:
-        #             return_string += parameter_to_string(element)
-        #     elif isinstance(parameter, Parameter):
-        #         return_string += '\t{:s}:\t {:s}\n'.format(parameter.name, str(parameter.value))
-        #
-        #     return return_string
-        #
+
         output_string = '{:s} (class type: {:s})\n'.format(self.name, self.__class__.__name__)
 
         output_string += 'settings:\n'
@@ -97,6 +101,19 @@ class Script(object):
     def name(self, value):
         assert isinstance(value, str)
         self._name = value
+
+    @property
+    def instrumets(self):
+        return self._instruments
+    @instrumets.setter
+    def instruments(self, instrument_dict):
+        print('instrument_dict', instrument_dict)
+        assert isinstance(instrument_dict, dict)
+        assert instrument_dict.keys() == self._INSTRUMENTS.keys(), "keys in{:s}\nkeys expected{:s}".format(str(instrument_dict.keys()), str( self._INSTRUMENTS.keys()))
+
+        for key, value in self._INSTRUMENTS.iteritems():
+            assert isinstance(instrument_dict[key], self._INSTRUMENTS[key])
+            self._instruments.update({key: instrument_dict[key]})
 
     @property
     def settings(self):
