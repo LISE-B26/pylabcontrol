@@ -83,8 +83,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.tree_scripts.setColumnWidth(0, 300)
 
 
+
         # self.fill_tree(self.tree_monitor, self.probes)
         self.tree_monitor.setColumnWidth(0, 300)
+        self.tree_monitor.setDisabled(True)
 
 
         self.current_script = None

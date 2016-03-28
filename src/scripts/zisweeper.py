@@ -3,6 +3,7 @@ from PyQt4 import QtCore
 from PySide.QtCore import Signal, QThread
 import time
 from collections import deque
+from src.instruments import ZIHF2
 
 class ZISweeper(Script, QThread):
     updateProgress = Signal(int)
@@ -20,15 +21,21 @@ class ZISweeper(Script, QThread):
 
     ])
 
+    _INSTRUMENTS = {'zihf2' : ZIHF2}
+
     def __init__(self, zihf2, name = None, settings = None, timeout = 1000000000):
-        self._instrument = zihf2
+        # self._instrument = zihf2
         self._recording = False
         self._timeout = timeout
 
-        Script.__init__(self, name, settings)
+        Script.__init__(self, name, settings, {'zihf2' : zihf2})
         QThread.__init__(self)
-        self.sweeper = self._instrument.daq.sweep(self._timeout)
-        self.sweeper.set('sweep/device', self._instrument.device)
+        # self.sweeper = self._instrument.daq.sweep(self._timeout)
+        # self.sweeper.set('sweep/device', self._instrument.device)
+
+        self.sweeper = self.instruments['zihf2'].daq.sweep(self._timeout)
+        self.sweeper.set('sweep/device', self.instruments['zihf2'].device)
+
         self.data = deque()
 
         # todo: clean this up! and plot data in gui!
@@ -62,7 +69,7 @@ class ZISweeper(Script, QThread):
 
         self.sweeper.set(commands)
 
-        path = '/%s/demods/%d/sample' % (self._instrument.device, self._instrument.settings['demods']['channel'])
+        path = '/%s/demods/%d/sample' % (self.instruments['zihf2'].device, self.instruments['zihf2'].settings['demods']['channel'])
         self.sweeper.subscribe(path)
         self.sweeper.execute()
 
