@@ -26,6 +26,8 @@ class ZISweeper(Script, QThread):
 
     _INSTRUMENTS = {'zihf2' : ZIHF2}
 
+    _SCRIPTS = {}
+
     def __init__(self, zihf2, name = None, settings = None, timeout = 1000000000):
         # self._instrument = zihf2
         self._recording = False
@@ -111,25 +113,7 @@ class ZISweeper(Script, QThread):
 
             if self.settings['save']:
                 self.save()
-class ZISweeperAndSave(Script, QThread):
-    updateProgress = Signal(int)
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('start', 1.8e6, float, 'start value of sweep'),
-        Parameter('stop', 1.9e6, float, 'end value of sweep'),
-        Parameter('samplecount', 101, int, 'number of data points'),
-        Parameter('gridnode', 'oscs/0/freq', ['oscs/0/freq', 'oscs/1/freq'], 'output channel =not 100% sure, double check='),
-        Parameter('xmapping', 0, [0, 1], 'mapping 0 = linear, 1 = logarithmic'),
-        Parameter('bandwidthcontrol', 2, [2], '2 = automatic bandwidth control'),
-        Parameter('scan', 0, [0, 1, 2], 'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)'),
-        Parameter('loopcount', 1, int, 'number of times it sweeps'),
-        Parameter('averaging/sample', 1, int, 'number of samples to average over')
-
-    ])
-
-    _INSTRUMENTS = {'zihf2' : ZIHF2}
 if __name__ == '__main__':
     from src.instruments import ZIHF2
     import time

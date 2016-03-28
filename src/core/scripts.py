@@ -32,7 +32,7 @@ class Script(object):
     # ======= Following old_functions are generic ================================================
     # ========================================================================================
 
-    def __init__(self, name = None, settings = None, instruments = None):
+    def __init__(self, name = None, settings = None, instruments = None, scripts = None):
         """
         executes scripts and stores script parameters and settings
         Args:
@@ -50,7 +50,10 @@ class Script(object):
             instruments = {}
         self.instruments = instruments
 
-
+        self._scripts = {}
+        if scripts is None:
+            scripts = {}
+        self.scripts = scripts
 
         # set end time to be before start time if script hasn't been excecuted this tells us
         self.start_time = datetime.datetime.now()
@@ -86,9 +89,16 @@ class Script(object):
         if there is not instrument it should return an empty dict
 
         """
-        print(self.name)
-        # raise NotImplementedError("Subclass {:s} did not implement _INSTRUMETS".format(str(self)))
         raise NotImplementedError("Subclass did not implement _INSTRUMENTS")
+    @property
+    def _SCRIPTS(self):
+        """
+
+        Returns: a dictionary of the instruments, were key is the instrument name and value is the instrument class
+        if there is not instrument it should return an empty dict
+
+        """
+        raise NotImplementedError("Subclass did not implement _SCRIPTS")
 
     def __str__(self):
 
@@ -111,13 +121,24 @@ class Script(object):
         return self._instruments
     @instrumets.setter
     def instruments(self, instrument_dict):
-        print('instrument_dict', instrument_dict)
         assert isinstance(instrument_dict, dict)
         assert instrument_dict.keys() == self._INSTRUMENTS.keys(), "keys in{:s}\nkeys expected{:s}".format(str(instrument_dict.keys()), str( self._INSTRUMENTS.keys()))
 
         for key, value in self._INSTRUMENTS.iteritems():
             assert isinstance(instrument_dict[key], self._INSTRUMENTS[key])
             self._instruments.update({key: instrument_dict[key]})
+
+    @property
+    def scripts(self):
+        return self._scripts
+    @scripts.setter
+    def scripts(self, script_dict):
+        assert isinstance(script_dict, dict)
+        assert script_dict.keys() == self._SCRIPTS.keys(), "keys in{:s}\nkeys expected{:s}".format(str(script_dict.keys()), str( self._SCRIPTS.keys()))
+
+        for key, value in self._SCRIPTS.iteritems():
+            assert isinstance(script_dict[key], self._SCRIPTS[key])
+            self._scripts.update({key: script_dict[key]})
 
     @property
     def settings(self):

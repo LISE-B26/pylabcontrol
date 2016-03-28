@@ -87,6 +87,31 @@ def load_scripts(scripts, instruments):
 
     """
 
+    def create_script_instance(script_name, script_class_name, script_instruments = None):
+
+
+        if isinstance(script_class_name, dict):
+            script_instruments = script_class_name['instruments']
+            script_class_name = script_class_name['script_class']
+
+        # try to import the script
+        module = __import__('src.scripts', fromlist=[script_class_name])
+        # this returns the name of the module that was imported.
+
+        class_of_script = getattr(module, script_class_name)
+        # this will take the module and look for the class of the script in it.
+        # This has the same name as the name for the module, because of our __init__.py file in the scripts
+        # folder. This raises an AttributeError if, in fact, we did not import the module
+
+        # this creates an instance of the class
+        if script_instruments is None:
+            script_instance = class_of_script(name=script_name)
+        else:
+            script_instruments['name'] = script_name
+            script_instance = class_of_script(**script_instruments)
+
+
+        return script_instance
 
     scripts_instances = {}
 
@@ -95,12 +120,22 @@ def load_scripts(scripts, instruments):
 
             if isinstance(value, dict):
                 assert 'script_class' in value
-                assert 'instruments' in value
+                assert 'instruments' in value or 'scripts' in value
 
                 script_class_name = value['script_class']
-                script_instruments = value['instruments']
+                if 'instruments' in value:
+                    script_instruments = value['instruments']
+                    script_instruments = {
+                        instrument_name: instruments[instrument_reference]
+                        for instrument_name, instrument_reference in script_instruments.iteritems()
+                        }
 
-                script_instruments = {instrument_name: instruments[instrument_reference] for instrument_name, instrument_reference in script_instruments.iteritems()}
+                if 'scripts' in value:
+                    script_scripts = value['scripts']
+                    script_scripts = {
+                        script_name: create_script_instance(script_name, script_class_name, script_instruments)
+                        for script_name, script_class_name in script_scripts.iteritems()
+                        }
 
             elif isinstance(value, str):
                 script_class_name = value
@@ -109,25 +144,26 @@ def load_scripts(scripts, instruments):
             else:
                 TypeError("values of input not recognized!")
 
+            scripts_instances[script_name] = create_script_instance(script_name, script_class_name, script_instruments)
 
-            # try to import the script
-            module = __import__('src.scripts', fromlist=[script_class_name])
-            # this returns the name of the module that was imported.
-
-            class_of_script = getattr(module, script_class_name)
-            # this will take the module and look for the class of the script in it.
-            # This has the same name as the name for the module, because of our __init__.py file in the scripts
-            # folder. This raises an AttributeError if, in fact, we did not import the module
-
-            # this creates an instance of the class
-            if script_instruments is None:
-                script_instance = class_of_script(name=script_name)
-            else:
-                script_instruments['name'] = script_name
-                script_instance = class_of_script(**script_instruments)
-
-            # adds the instance to our output dictionary
-            scripts_instances[script_name] = script_instance
+            # # try to import the script
+            # module = __import__('src.scripts', fromlist=[script_class_name])
+            # # this returns the name of the module that was imported.
+            #
+            # class_of_script = getattr(module, script_class_name)
+            # # this will take the module and look for the class of the script in it.
+            # # This has the same name as the name for the module, because of our __init__.py file in the scripts
+            # # folder. This raises an AttributeError if, in fact, we did not import the module
+            #
+            # # this creates an instance of the class
+            # if script_instruments is None:
+            #     script_instance = class_of_script(name=script_name)
+            # else:
+            #     script_instruments['name'] = script_name
+            #     script_instance = class_of_script(**script_instruments)
+            #
+            # # adds the instance to our output dictionary
+            # scripts_instances[script_name] = script_instance
 
         except AttributeError:
             # catches when we try to create a script of a class that doesn't exist!

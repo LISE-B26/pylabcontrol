@@ -1,2 +1,2 @@
 from script_dummy import ScriptDummy, ScriptDummyWithInstrument, ScriptDummyWithQtSignal
-from zisweeper import ZISweeper
+from zi_sweeper import ZISweeper

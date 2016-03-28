@@ -24,6 +24,15 @@ scripts= {
 
     'QT counter' : 'ScriptDummyWithQtSignal'
 
+    # 'dummy script with sub script': {
+    #     'script_class': 'ScriptDummyWithInstrument',
+    #     'scripts': {'sub_script': 'ScriptDummy'}
+    #                     # {
+    #                     #     'script_class': 'ScriptDummy',
+    #                     #     'instruments': {'dummy_instrument': 'inst_dummy'}
+    #                     # }
+    # }
+
 }
 
 # {"zihf2": "ZIHF2", "inst": 'INST'} => param = {"zihf2": &ZIHF2, 'inst': &sacbs;}

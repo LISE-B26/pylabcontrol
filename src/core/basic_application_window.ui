@@ -76,7 +76,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_scripts">
      <attribute name="title">
@@ -292,7 +292,17 @@
      <rect>
       <x>340</x>
       <y>0</y>
-      <width>631</width>
+      <width>611</width>
+      <height>191</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="MatplotlibWidget" name="matplotlibwidget_2">
+    <property name="geometry">
+     <rect>
+      <x>770</x>
+      <y>480</y>
+      <width>321</width>
       <height>191</height>
      </rect>
     </property>
@@ -302,6 +312,7 @@
    <zorder>tabWidget</zorder>
    <zorder>matplotlibwidget</zorder>
    <zorder>list_history</zorder>
+   <zorder>matplotlibwidget_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
