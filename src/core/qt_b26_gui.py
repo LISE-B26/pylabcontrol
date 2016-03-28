@@ -108,16 +108,25 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
-            self.tabWidget.currentChanged.connect(lambda : self.start_stop_probes())
+            self.tabWidget.currentChanged.connect(lambda : self.switch_tab())
 
         connect_controls()
 
-    def start_stop_probes(self):
+    def switch_tab(self):
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
         if current_tab == 'Monitor':
             self.read_probes.start()
         else:
             self.read_probes.stop()
+
+        if current_tab == 'Scripts':
+            # rebuild script- tree because intruments might have changed
+            self.tree_scripts.itemChanged.disconnect()
+            self.fill_tree(self.tree_scripts, self.scripts)
+            self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+
+
+
 
     def update_parameters(self, treeWidget):
 
