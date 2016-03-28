@@ -4,6 +4,10 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 from copy import deepcopy
 from src.core import Parameter, Instrument
 from PyQt4 import QtCore
+from collections import deque
+import os
+import pandas as pd
+import json as json
 
 
 class Script(object):
@@ -186,6 +190,87 @@ class Script(object):
     def stop(self):
         self._abort == True
 
+
+
+    def save(self):
+        """
+        saves self.data
+        requires that the script has
+         - a self.data dictionary that holds the data
+         - a 'path' parameter
+         - a 'tag' parameter
+        """
+
+        path = self.settings['path']
+        tag = self.settings['tag']
+
+        # if deque object, take the last dataset, which is the most recent
+        if isinstance(self.data, deque):
+            data = self.data[-1]
+        elif isinstance(self.data, dict):
+            data = self.data
+        else:
+            raise TypeError("unknown datatype!")
+
+        if os.path.exists(path) == False:
+            os.makedirs(path)
+
+        # ======= save self.data ==============================
+        if len(set([len(v) for k, v in data.iteritems()]))==1:
+            # if all entries of the dictionary are the same length we can write the data into a single file
+            file_path = "{:s}\\{:s}_{:s}.{:s}".format(
+                path,
+                self.end_time.strftime('%y%m%d-%H_%M_%S'),
+                tag,
+                'dat'
+            )
+
+            df = pd.DataFrame(data)
+            df.to_csv(file_path)
+
+        else:
+            # otherwise, we write each entry into a separate file into a subfolder data
+
+            path = "{:s}\\data\\".format(path)
+            if os.path.exists(path) == False:
+                os.makedirs(path)
+            for key, value in self.data.iteritems():
+
+
+                file_path = "{:s}\\{:s}_{:s}.{:s}".format(
+                    path,
+                    self.end_time.strftime('%y%m%d-%H_%M_%S'),
+                    tag,
+                    key
+                )
+
+                df = pd.DataFrame(value)
+                df.to_csv(file_path)
+
+        # ======= save self.settings ==============================
+        file_path = "{:s}\\{:s}_{:s}.{:s}".format(
+                        path,
+                        self.end_time.strftime('%y%m%d-%H_%M_%S'),
+                        tag,
+                        'set'
+                    )
+        with open(file_path, 'w') as outfile:
+            tmp = json.dump(self.settings, outfile, indent=4)
+
+
+        # ======= save self.instruments ==============================
+
+        if self.instruments is not {}:
+
+            file_path = "{:s}\\{:s}_{:s}.{:s}".format(
+                            path,
+                            self.end_time.strftime('%y%m%d-%H_%M_%S'),
+                            tag,
+                            'inst'
+                        )
+            inst_dict = {k : v.settings for k, v in self.instruments.iteritems()}
+            with open(file_path, 'w') as outfile:
+                tmp = json.dump(inst_dict, outfile, indent=4)
 
 if __name__ == '__main__':
     pass

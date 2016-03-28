@@ -2,6 +2,7 @@
 # this gui only loads dummy scripts and instruments
 
 import sys
+
 from src.core import qt_b26_gui
 
 from PyQt4 import QtGui

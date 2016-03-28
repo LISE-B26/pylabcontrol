@@ -220,8 +220,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 if isinstance(script, QThread):
                     script.updateProgress.connect(self.update_status)
                     self.current_script = script
+                    script.start()
+                else:
+                    # non QThread script don't have a start function so we call .run() directly
+                    script.run()
                 self.log('start {:s}'.format(script.name))
-                script.start()
+
 
             else:
                 self.log('No script selected. Select script and try again!')
@@ -277,7 +281,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 freq = script.data[0]['frequency']
                 freq = freq[np.isfinite(r)]
                 r = r[np.isfinite(r)]
-                script.data.popleft() # remove from queue
+                # script.data.popleft() # remove from queue
                 plot_psd(freq, r, self.matplotlibwidget.axes)
                 self.matplotlibwidget.draw()
 

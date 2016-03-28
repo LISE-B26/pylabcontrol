@@ -9,6 +9,9 @@ class ZISweeper(Script, QThread):
     updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
+        Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
+        Parameter('tag', 'some_name'),
+        Parameter('save', True, bool,'check to automatically save data'),
         Parameter('start', 1.8e6, float, 'start value of sweep'),
         Parameter('stop', 1.9e6, float, 'end value of sweep'),
         Parameter('samplecount', 101, int, 'number of data points'),
@@ -54,7 +57,8 @@ class ZISweeper(Script, QThread):
         for key, val in settings.iteritems():
             if isinstance(val, dict) and 'value' in val:
                 commands.append(['sweep/%s' % (key), val['value']])
-            else:
+            elif key in ('start', 'stop', 'samplecount', 'gridnode', 'xmapping',
+                         'bandwidthcontrol', 'scan', 'loopcount', 'averaging/sample'):
                 commands.append(['sweep/%s' % (key), val])
         return commands
 
@@ -105,6 +109,27 @@ class ZISweeper(Script, QThread):
             self._recording = False
             progress = 100 # make sure that progess is set 1o 100 because we check that in the old_gui
 
+            if self.settings['save']:
+                self.save()
+class ZISweeperAndSave(Script, QThread):
+    updateProgress = Signal(int)
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
+        Parameter('tag', 'some_name'),
+        Parameter('start', 1.8e6, float, 'start value of sweep'),
+        Parameter('stop', 1.9e6, float, 'end value of sweep'),
+        Parameter('samplecount', 101, int, 'number of data points'),
+        Parameter('gridnode', 'oscs/0/freq', ['oscs/0/freq', 'oscs/1/freq'], 'output channel =not 100% sure, double check='),
+        Parameter('xmapping', 0, [0, 1], 'mapping 0 = linear, 1 = logarithmic'),
+        Parameter('bandwidthcontrol', 2, [2], '2 = automatic bandwidth control'),
+        Parameter('scan', 0, [0, 1, 2], 'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)'),
+        Parameter('loopcount', 1, int, 'number of times it sweeps'),
+        Parameter('averaging/sample', 1, int, 'number of samples to average over')
+
+    ])
+
+    _INSTRUMENTS = {'zihf2' : ZIHF2}
 if __name__ == '__main__':
     from src.instruments import ZIHF2
     import time
