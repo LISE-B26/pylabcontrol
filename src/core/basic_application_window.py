@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Thu Mar 24 13:29:01 2016
+# Created: Tue Mar 29 19:28:43 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -126,6 +126,9 @@ class Ui_MainWindow(object):
         self.list_history = QtGui.QListView(self.centralwidget)
         self.list_history.setGeometry(QtCore.QRect(340, 0, 631, 191))
         self.list_history.setObjectName(_fromUtf8("list_history"))
+        self.matplotlibwidget_2 = MatplotlibWidget(self.centralwidget)
+        self.matplotlibwidget_2.setGeometry(QtCore.QRect(670, 480, 321, 191))
+        self.matplotlibwidget_2.setObjectName(_fromUtf8("matplotlibwidget_2"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1138, 21))
@@ -136,7 +139,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -157,4 +160,4 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_settings), _translate("MainWindow", "Settings", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_history), _translate("MainWindow", "History", None))
 
-
+from matplotlibwidget import MatplotlibWidget
