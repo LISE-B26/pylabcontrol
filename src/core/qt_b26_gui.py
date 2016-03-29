@@ -19,7 +19,7 @@ from collections import deque
 
 from src.core import load_probes, load_scripts, load_instruments
 
-from src.scripts import ZISweeper
+from src.scripts import ZISweeper, ZISweeperHighResolution
 from src.core.plotting import plot_psd
 
 
@@ -277,12 +277,29 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         if isinstance(script, ZISweeper):
             if script.data:
-                r = script.data[0]['r']
-                freq = script.data[0]['frequency']
+                r = script.data[-1]['r']
+                freq = script.data[-1]['frequency']
                 freq = freq[np.isfinite(r)]
                 r = r[np.isfinite(r)]
                 # script.data.popleft() # remove from queue
                 plot_psd(freq, r, self.matplotlibwidget.axes)
+                self.matplotlibwidget.draw()
+        elif isinstance(script, ZISweeperHighResolution):
+            if script.current_subscript == 'quick scan' and script.scripts['zi sweep'].data:
+                r = script.scripts['zi sweep'].data[-1]['r']
+                freq = script.scripts['zi sweep'].data[-1]['frequency']
+                freq = freq[np.isfinite(r)]
+                r = r[np.isfinite(r)]
+                # script.data.popleft() # remove from queue
+                plot_psd(freq, r, self.matplotlibwidget.axes)
+                self.matplotlibwidget.draw()
+            elif script.current_subscript in ('high res scan', None) and script.data:
+                r = script.data['r']
+                freq = script.data['frequency']
+                freq = freq[np.isfinite(r)]
+                r = r[np.isfinite(r)]
+                # script.data.popleft() # remove from queue
+                plot_psd(freq, r, self.matplotlibwidget.axes, False)
                 self.matplotlibwidget.draw()
 
 

@@ -200,15 +200,13 @@ class Script(object):
         '''
         self.is_running = True
         self.start_time  = datetime.datetime.now()
-        print('starting script at {:s} on {:s}'.format(self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
+        print('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
         self._function()
 
         self.end_time  = datetime.datetime.now()
-        print('script finished at {:s} on {:s}'.format(self.end_time.strftime('%H:%M:%S'),self.end_time.strftime('%d/%m/%y')))
+        print('script {:s} finished at {:s} on {:s}'.format(self.name, self.end_time.strftime('%H:%M:%S'),self.end_time.strftime('%d/%m/%y')))
         success = self._abort == False
-        return success
-
-
+        self.is_running = False
         return success
 
     def stop(self):

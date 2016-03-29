@@ -70,7 +70,7 @@ class ZISweeper(Script, QThread):
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-
+        self.data.clear() # clear data queue
         commands = self.settings_to_commands(self.settings)
 
         self.sweeper.set(commands)
@@ -78,7 +78,7 @@ class ZISweeper(Script, QThread):
         path = '/%s/demods/%d/sample' % (self.instruments['zihf2'].device, self.instruments['zihf2'].settings['demods']['channel'])
         self.sweeper.subscribe(path)
         self.sweeper.execute()
-
+        print('=>> SWEEPER SETTINGS', self.settings)
         while not self.sweeper.finished():
             time.sleep(1)
             progress = int(100*self.sweeper.progress())
@@ -106,7 +106,7 @@ class ZISweeper(Script, QThread):
             print("Individual sweep %.2f%% complete. \n" % (progress))
 
             self.updateProgress.emit(progress)
-
+            print('len data: ',len(self.data))
         if self.sweeper.finished():
             self._recording = False
             progress = 100 # make sure that progess is set 1o 100 because we check that in the old_gui
