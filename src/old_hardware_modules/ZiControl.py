@@ -449,7 +449,7 @@ class ZIHF2_v2(QtCore.QThread):
 
         self.sweeper.set('sweep/device', self.device)
         #
-        self.sweep_data = deque()
+        self.data = deque()
         QtCore.QThread.__init__(self)
 
     def __del__(self):
@@ -493,7 +493,7 @@ class ZIHF2_v2(QtCore.QThread):
                     # now we only want a subset of the data porvided by ZI
                     data = {k : data[k] for k in self._sweep_values}
                     print('data', data)
-                    self.sweep_data.append(data)
+                    self.data.append(data)
 
                     if (time.time() - start) > self._timeout:
                         # If for some reason the sweep is blocking, force the end of the

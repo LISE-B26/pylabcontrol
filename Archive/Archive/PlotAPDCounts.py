@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy
 from PyQt4 import QtGui
 
-from src.hardware_modules import APD as APDIn
+from src.old_hardware_modules import APD as APDIn
 
 sampleRate = 1000
 timePerPt = .25

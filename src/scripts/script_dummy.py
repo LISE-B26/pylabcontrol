@@ -16,7 +16,16 @@ class ScriptDummy(Script):
         Parameter('wait_time', 0.1, float)
     ])
 
+    _INSTRUMENTS = {}
+    _SCRIPTS = {}
+
     def __init__(self, name=None, settings=None):
+        """
+        Example of a script
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
         Script.__init__(self, name, settings)
 
 
@@ -40,19 +49,27 @@ class ScriptDummy(Script):
 
 # class ScriptDummyWithQtSignal(Script, QtCore.QThread):
 class ScriptDummyWithQtSignal(Script, QThread):
-
+    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('count', 10, int),
         Parameter('name', 'this is a counter'),
         Parameter('wait_time', 0.1, float)
     ])
 
+    _INSTRUMENTS = {}
+    _SCRIPTS = {}
+
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
     updateProgress = Signal(int)
-    # updateProgress = QtCore.pyqtSignal(int)
     def __init__(self, name = None, settings = None):
+        """
+        Example of a script that emits a QT signal for the gui
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
         Script.__init__(self, name, settings)
         # QtCore.QThread.__init__(self)
         QThread.__init__(self)
@@ -90,26 +107,22 @@ class ScriptDummyWithInstrument(Script):
         Parameter('wait_time', 0.1, float)
     ])
 
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    # updateProgress = QtCore.Signal(int)
+    _INSTRUMENTS = {
+        'dummy_instrument' : DummyInstrument
+    }
+    _SCRIPTS = {}
 
-    def __init__(self, dummy_instrument,  name = None, settings = None):
+    def __init__(self, instruments,  name = None, settings = None):
         """
         Example of a script that makes use of an instrument
         Args:
-            dummy_instrument:
-            name:
-            settings:
+            instruments: instruments the script will make use of
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
         """
 
-        # check if we get the right instrument
-        assert isinstance(dummy_instrument, DummyInstrument)
-        # save reference to instrument
-        self._instrument = dummy_instrument
         # call init of superclass
-        Script.__init__(self, name, settings)
+        Script.__init__(self, name, settings, instruments)
 
     def _function(self):
         """
@@ -124,9 +137,48 @@ class ScriptDummyWithInstrument(Script):
         wait_time = self.settings['wait_time']
 
 
-
         print('I am a test function counting to {:d}...'.format(count))
         for i in range(count):
 
-            print('signal from dummy instrument {:s}: {:0.3f}'.format(name, self._instrument.value1))
+            print('signal from dummy instrument {:s}: {:0.3f}'.format(name, self.instruments['dummy_instrument'].value1))
             time.sleep(wait_time)
+
+
+
+class ScriptDummyWithSubScript(Script):
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('repetitions', 0, int, 'times the subscript will be executed')
+    ])
+
+    _INSTRUMENTS = {}
+    _SCRIPTS = {'sub_script':ScriptDummy}
+
+    def __init__(self, scripts,  name = None, settings = None):
+        """
+        Example of a script that makes use of an instrument
+        Args:
+            scripts: suscript that will be excecuted by this script
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+
+        # call init of superclass
+        Script.__init__(self, name, settings, scripts = scripts)
+
+    def _function(self):
+        """
+        This is the actual function that will be executed. It uses only information that is provided in _DEFAULT_SETTINGS
+        for this dummy example we just implement a counter
+        """
+
+        import time
+
+        script = self.scripts['sub_script']
+
+        N = self.settings['repetitions']
+
+        print('I am a test function runnning suscript {:s} {:d} times'.format(script.name, N))
+        for i in range(N):
+            print('run number {:d} / {:d}'.format(i+1, N))
+            script.run()

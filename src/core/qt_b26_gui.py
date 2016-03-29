@@ -7,7 +7,7 @@ from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 from src.core import Parameter, Instrument, B26QTreeItem, ReadProbes
 import os.path
-
+import numpy as np
 
 from PySide.QtCore import QThread
 
@@ -18,6 +18,10 @@ import datetime
 from collections import deque
 
 from src.core import load_probes, load_scripts, load_instruments
+
+from src.scripts import ZISweeper, ZISweeperHighResolution
+from src.core.plotting import plot_psd
+
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
@@ -79,8 +83,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.tree_scripts.setColumnWidth(0, 300)
 
 
+
         # self.fill_tree(self.tree_monitor, self.probes)
         self.tree_monitor.setColumnWidth(0, 300)
+        self.tree_monitor.setDisabled(True)
+
+
+        self.current_script = None
 
         def connect_controls():
             # =============================================================
@@ -101,19 +110,25 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
-            self.tabWidget.currentChanged.connect(lambda : self.start_stop_probes())
+            self.tabWidget.currentChanged.connect(lambda : self.switch_tab())
 
         connect_controls()
 
-    def start_stop_probes(self):
+    def switch_tab(self):
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
-        print(current_tab)
         if current_tab == 'Monitor':
-            print('start')
             self.read_probes.start()
         else:
-            print('stop')
             self.read_probes.stop()
+
+        if current_tab == 'Scripts':
+            # rebuild script- tree because intruments might have changed
+            self.tree_scripts.itemChanged.disconnect()
+            self.fill_tree(self.tree_scripts, self.scripts)
+            self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+
+
+
 
     def update_parameters(self, treeWidget):
 
@@ -204,8 +219,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # is the script is a QThread object we connect its signals to the update_status function
                 if isinstance(script, QThread):
                     script.updateProgress.connect(self.update_status)
+                    self.current_script = script
+                    script.start()
+                else:
+                    # non QThread script don't have a start function so we call .run() directly
+                    script.run()
                 self.log('start {:s}'.format(script.name))
-                script.start()
+
+
             else:
                 self.log('No script selected. Select script and try again!')
 
@@ -241,10 +262,23 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     def update_status(self, progress):
+        """
+        waits for a signal emitted from a thread and updates the gui
+        Args:
+            progress:
+
+        Returns:
+
+        """
         self.progressBar.setValue(progress)
         if progress == 100:
             pass
+        script = self.current_script
 
+        if isinstance(script, (ZISweeper, ZISweeperHighResolution)):
+            if script.data:
+                script.plot(self.matplotlibwidget.axes)
+                self.matplotlibwidget.draw()
 
     def update_probes(self, progress):
         self.fill_tree(self.tree_monitor, self.read_probes.probes_values)
