@@ -24,7 +24,7 @@ class TestSpectrumAnalyzer(TestCase):
         self.spec_anal.mode = 'TrackingGenerator'
 
         self.spec_anal.output_on = False
-        self.assertTrue(not self.spec_anal.output_on)
+        self.assertFalse(self.spec_anal.output_on)
 
         self.spec_anal.output_on = True
         self.assertTrue(self.spec_anal.output_on)

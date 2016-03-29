@@ -45,7 +45,6 @@ probes = {
     # 'Chamber Pressure' : { 'probe_name': 'pressure', 'instrument_name': 'pressure gauge'}
           }
 
-# ex = ControlMainWindow('path....')
 ex = qt_b26_gui.ControlMainWindow(instruments, scripts, probes)
 ex.show()
 ex.raise_()

@@ -48,6 +48,9 @@ class Script(object):
         self._instruments = {}
         if instruments is None:
             instruments = {}
+        else:
+            assert isinstance(instruments, dict)
+            assert instruments.keys() == self._INSTRUMENTS.keys()
         self.instruments = instruments
 
         self._scripts = {}

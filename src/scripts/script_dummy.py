@@ -106,7 +106,7 @@ class ScriptDummyWithInstrument(Script):
     # updateProgress = QtCore.Signal(int)
 
 
-    def __init__(self, dummy_instrument,  name = None, settings = None):
+    def __init__(self, instruments,  name = None, settings = None):
         """
         Example of a script that makes use of an instrument
         Args:
@@ -115,19 +115,8 @@ class ScriptDummyWithInstrument(Script):
             settings:
         """
 
-        # check if we get the right instrument
-        assert isinstance(dummy_instrument, DummyInstrument)
-
-
-
-
-        # # save reference to instrument
-        # self.instrument = {'dummy_instrument' : dummy_instrument}
-        #
-
-
         # call init of superclass
-        Script.__init__(self, name, settings, {'dummy_instrument' : dummy_instrument})
+        Script.__init__(self, name, settings, instruments)
 
     def _function(self):
         """
@@ -154,9 +143,7 @@ class ScriptDummyWithInstrument(Script):
 class ScriptDummyWithSubScript(Script):
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('count', 0, int),
-        Parameter('name', 'this is a counter'),
-        Parameter('wait_time', 0.1, float)
+        Parameter('repetitions', 0, int, 'times the subscript will be executed')
     ])
 
     _INSTRUMENTS = {}
@@ -167,7 +154,7 @@ class ScriptDummyWithSubScript(Script):
     # updateProgress = QtCore.Signal(int)
 
 
-    def __init__(self, dummy_instrument,  name = None, settings = None):
+    def __init__(self, scripts,  name = None, settings = None):
         """
         Example of a script that makes use of an instrument
         Args:
@@ -176,19 +163,8 @@ class ScriptDummyWithSubScript(Script):
             settings:
         """
 
-        # check if we get the right instrument
-        assert isinstance(dummy_instrument, DummyInstrument)
-
-
-
-
-        # # save reference to instrument
-        # self.instrument = {'dummy_instrument' : dummy_instrument}
-        #
-
-
         # call init of superclass
-        Script.__init__(self, name, settings, {'dummy_instrument' : dummy_instrument})
+        Script.__init__(self, name, settings, scripts = scripts)
 
     def _function(self):
         """
@@ -198,14 +174,12 @@ class ScriptDummyWithSubScript(Script):
 
         import time
 
-        count = self.settings['count']
-        name = self.settings['name']
-        wait_time = self.settings['wait_time']
+        script = self.scripts['sub_script']
+
+        N = self.settings['repetitions']
 
 
-
-        print('I am a test function counting to {:d}...'.format(count))
-        for i in range(count):
-
-            print('signal from dummy instrument {:s}: {:0.3f}'.format(name, self.instruments['dummy_instrument'].value1))
-            time.sleep(wait_time)
+        print('I am a test function runnning suscript {:s} {:d} times'.format(script.name, N))
+        for i in range(N):
+            print('run number {:d} / {:d}'.format(i+1, N))
+            script.run()
