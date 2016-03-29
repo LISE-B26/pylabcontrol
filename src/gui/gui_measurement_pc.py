@@ -11,24 +11,37 @@ app = QtGui.QApplication(sys.argv)
 
 
 
-instruments = {'inst_dummy': 'DummyInstrument', 'zihf2':'ZIHF2', 'pressure gauge': 'PressureGauge'}
+instruments = {
+    # 'inst_dummy': 'DummyInstrument',
+    'zihf2':'ZIHF2',
+    'pressure gauge': 'PressureGauge'}
 
 scripts= {
 
 
-    'counter': 'ScriptDummy',
-
-
-    'dummy script with inst': {
-        'script_class': 'ScriptDummyWithInstrument',
-        'instruments': {'dummy_instrument': 'inst_dummy'}
-    },
-
-    'QT counter' : 'ScriptDummyWithQtSignal',
+    # 'counter': 'ScriptDummy',
+    #
+    #
+    # 'dummy script with inst': {
+    #     'script_class': 'ScriptDummyWithInstrument',
+    #     'instruments': {'dummy_instrument': 'inst_dummy'}
+    # },
+    #
+    # 'QT counter' : 'ScriptDummyWithQtSignal',
 
     'ZI sweep' : {
         'script_class': 'ZISweeper',
         'instruments': {'zihf2': 'zihf2'}
+    },
+
+    'High res scan' : {
+        'script_class': 'ZISweeperHighResolution',
+        'scripts': {
+            'zi sweep' : {
+                'script_class': 'ZISweeper',
+                'instruments': {'zihf2': 'zihf2'}
+            }
+        }
     }
 
 }
@@ -38,8 +51,8 @@ scripts= {
 # Zi_Sweeper(*param)
 
 probes = {
-    'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
-    'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
+    # 'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
+    # 'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
     'ZI(R)': {'probe_name': 'R', 'instrument_name': 'zihf2'},
     'ZI(X)': {'probe_name': 'X', 'instrument_name': 'zihf2'}
     # 'Chamber Pressure' : { 'probe_name': 'pressure', 'instrument_name': 'pressure gauge'}

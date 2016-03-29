@@ -200,7 +200,7 @@ def load_probes(probes, instruments):
         else:
             probe_info = ''
 
-        assert instrument_name in instruments
+        assert instrument_name in instruments, "{:s} not in {:s}".format(instrument_name, instruments.keys())
         assert probe_name in instruments[instrument_name]._probes
 
         probe_instances.update({name: Probe(instruments[instrument_name], probe_name, name, probe_info)})
