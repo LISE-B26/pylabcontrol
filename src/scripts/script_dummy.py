@@ -20,6 +20,12 @@ class ScriptDummy(Script):
     _SCRIPTS = {}
 
     def __init__(self, name=None, settings=None):
+        """
+        Example of a script
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
         Script.__init__(self, name, settings)
 
 
@@ -57,8 +63,13 @@ class ScriptDummyWithQtSignal(Script, QThread):
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
     updateProgress = Signal(int)
-    # updateProgress = QtCore.pyqtSignal(int)
     def __init__(self, name = None, settings = None):
+        """
+        Example of a script that emits a QT signal for the gui
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
         Script.__init__(self, name, settings)
         # QtCore.QThread.__init__(self)
         QThread.__init__(self)
@@ -100,19 +111,14 @@ class ScriptDummyWithInstrument(Script):
         'dummy_instrument' : DummyInstrument
     }
     _SCRIPTS = {}
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    # updateProgress = QtCore.Signal(int)
-
 
     def __init__(self, instruments,  name = None, settings = None):
         """
         Example of a script that makes use of an instrument
         Args:
-            dummy_instrument:
-            name:
-            settings:
+            instruments: instruments the script will make use of
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
         """
 
         # call init of superclass
@@ -131,7 +137,6 @@ class ScriptDummyWithInstrument(Script):
         wait_time = self.settings['wait_time']
 
 
-
         print('I am a test function counting to {:d}...'.format(count))
         for i in range(count):
 
@@ -148,19 +153,14 @@ class ScriptDummyWithSubScript(Script):
 
     _INSTRUMENTS = {}
     _SCRIPTS = {'sub_script':ScriptDummy}
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    # updateProgress = QtCore.Signal(int)
-
 
     def __init__(self, scripts,  name = None, settings = None):
         """
         Example of a script that makes use of an instrument
         Args:
-            dummy_instrument:
-            name:
-            settings:
+            scripts: suscript that will be excecuted by this script
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
         """
 
         # call init of superclass
@@ -177,7 +177,6 @@ class ScriptDummyWithSubScript(Script):
         script = self.scripts['sub_script']
 
         N = self.settings['repetitions']
-
 
         print('I am a test function runnning suscript {:s} {:d} times'.format(script.name, N))
         for i in range(N):
