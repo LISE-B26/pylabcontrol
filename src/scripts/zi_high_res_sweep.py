@@ -1,9 +1,10 @@
 from src.scripts import ZISweeper
 import time
-from src.core import Script, Parameter
+from src.core import Script, Parameter, plotting
 from PySide.QtCore import Signal, QThread
 from collections import deque
 import numpy as np
+from copy import deepcopy
 
 class ZISweeperHighResolution(Script, QThread):
     updateProgress = Signal(int)
@@ -40,12 +41,14 @@ class ZISweeperHighResolution(Script, QThread):
             progress = int(self.weights['quick scan'] * progess_sub_script)
         elif self.current_subscript == 'high res scan':
             progress = int(self.weights['quick scan']*100 + self.weights['high res scan'] * progess_sub_script)
-
+        else:
+            progress = None
         # if calculated progress is 100 force it to 99, because we still have to save before script is finished
         if progress>= 100:
             progress = 99
 
-        self.updateProgress.emit(progress)
+        if progress is not None:
+            self.updateProgress.emit(progress)
 
         if progess_sub_script == 100:
             self.current_subscript = None
@@ -122,6 +125,8 @@ class ZISweeperHighResolution(Script, QThread):
 
 
         sweeper_script = self.scripts['zi sweep']
+        #save initial settings, so that we can rest at the end of the script
+        initial_settings = deepcopy(sweeper_script.settings)
         self.weights = calculate_weights()
 
         # take the signal from the subscript and route it to a function that takes care of it
@@ -149,7 +154,7 @@ class ZISweeperHighResolution(Script, QThread):
 
         run_scan('high res scan')
 
-
+        sweeper_script.updateProgress.disconnect()
         self.data = sweeper_script.data[-1]
 
         self._recording = False
@@ -157,5 +162,19 @@ class ZISweeperHighResolution(Script, QThread):
         if self.settings['save']:
             self.save()
 
+        # set the sweeper script back to initial settings
+        sweeper_script.update(initial_settings)
         # make sure that progess is set 1o 100 because we check that in the old_gui
         self.updateProgress.emit(100)
+
+
+    def plot(self, axes):
+        if self.current_subscript == 'quick scan' and self.scripts['zi sweep'].data:
+            self.scripts['zi sweep'].plot(axes)
+        elif self.current_subscript in ('high res scan', None) and self.data:
+            r = self.data['r']
+            freq = self.data['frequency']
+            freq = freq[np.isfinite(r)]
+            r = r[np.isfinite(r)]
+            plotting.plot_psd(freq, r, axes, False)
+

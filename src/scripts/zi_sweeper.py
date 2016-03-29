@@ -4,6 +4,9 @@ from PySide.QtCore import Signal, QThread
 import time
 from collections import deque
 from src.instruments import ZIHF2
+import numpy as np
+from src.core import plotting
+
 
 class ZISweeper(Script, QThread):
     updateProgress = Signal(int)
@@ -113,6 +116,15 @@ class ZISweeper(Script, QThread):
 
             if self.settings['save']:
                 self.save()
+
+
+    def plot(self, axes):
+
+        r = self.data[-1]['r']
+        freq = self.data[-1]['frequency']
+        freq = freq[np.isfinite(r)]
+        r = r[np.isfinite(r)]
+        plotting.plot_psd(freq, r,axes)
 
 if __name__ == '__main__':
     from src.instruments import ZIHF2

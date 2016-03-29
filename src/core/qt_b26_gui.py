@@ -275,33 +275,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             pass
         script = self.current_script
 
-        if isinstance(script, ZISweeper):
+        if isinstance(script, (ZISweeper, ZISweeperHighResolution)):
             if script.data:
-                r = script.data[-1]['r']
-                freq = script.data[-1]['frequency']
-                freq = freq[np.isfinite(r)]
-                r = r[np.isfinite(r)]
-                # script.data.popleft() # remove from queue
-                plot_psd(freq, r, self.matplotlibwidget.axes)
+                script.plot(self.matplotlibwidget.axes)
                 self.matplotlibwidget.draw()
-        elif isinstance(script, ZISweeperHighResolution):
-            if script.current_subscript == 'quick scan' and script.scripts['zi sweep'].data:
-                r = script.scripts['zi sweep'].data[-1]['r']
-                freq = script.scripts['zi sweep'].data[-1]['frequency']
-                freq = freq[np.isfinite(r)]
-                r = r[np.isfinite(r)]
-                # script.data.popleft() # remove from queue
-                plot_psd(freq, r, self.matplotlibwidget.axes)
-                self.matplotlibwidget.draw()
-            elif script.current_subscript in ('high res scan', None) and script.data:
-                r = script.data['r']
-                freq = script.data['frequency']
-                freq = freq[np.isfinite(r)]
-                r = r[np.isfinite(r)]
-                # script.data.popleft() # remove from queue
-                plot_psd(freq, r, self.matplotlibwidget.axes, False)
-                self.matplotlibwidget.draw()
-
 
     def update_probes(self, progress):
         self.fill_tree(self.tree_monitor, self.read_probes.probes_values)
