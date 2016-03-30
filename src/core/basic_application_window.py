@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Wed Mar 30 12:12:54 2016
+# Created: Wed Mar 30 12:25:54 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -154,7 +154,7 @@ class Ui_MainWindow(object):
         self.tree_scripts.headerItem().setText(1, _translate("MainWindow", "Value", None))
         self.btn_stop_script.setText(_translate("MainWindow", "stop", None))
         self.btn_start_script.setText(_translate("MainWindow", "start", None))
-        self.btn_plot_script.setText(_translate("MainWindow", "stop", None))
+        self.btn_plot_script.setText(_translate("MainWindow", "plot script", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_scripts), _translate("MainWindow", "Scripts", None))
         self.tree_monitor.headerItem().setText(0, _translate("MainWindow", "Parameter", None))
         self.tree_monitor.headerItem().setText(1, _translate("MainWindow", "Value", None))
@@ -164,4 +164,3 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_settings), _translate("MainWindow", "Settings", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_history), _translate("MainWindow", "History", None))
 
-from matplotlibwidget import MatplotlibWidget

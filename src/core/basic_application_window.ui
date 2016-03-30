@@ -188,7 +188,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>stop</string>
+       <string>plot script</string>
       </property>
      </widget>
     </widget>
