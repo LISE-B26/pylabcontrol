@@ -107,6 +107,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # link buttons to old_functions
             self.btn_start_script.clicked.connect(lambda: self.btn_clicked())
             self.btn_stop_script.clicked.connect(lambda: self.btn_clicked())
+            self.btn_plot_script.clicked.connect(lambda: self.btn_clicked())
 
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
@@ -209,6 +210,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def btn_clicked(self):
         sender = self.sender()
+        print(sender)
 
 
         if sender is self.btn_start_script:
@@ -229,7 +231,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             else:
                 self.log('No script selected. Select script and try again!')
+        elif sender is self.btn_plot_script:
+            item = self.tree_scripts.currentItem()
 
+            if item is not None:
+                script, path_to_script = item.get_script()
+                # is the script is a QThread object we connect its signals to the update_status function
+                script.plot(self.matplotlibwidget.axes)
+                self.matplotlibwidget.draw()
+
+
+            else:
+                self.log('Can\'t plot, No script selected. Select script and try again!')
     def load_settings(self, path_to_file):
         """
         loads a old_gui settings file (a json dictionary)
