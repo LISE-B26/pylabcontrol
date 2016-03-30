@@ -140,11 +140,11 @@ class SpectrumAnalyzer(Instrument):
             self.spec_anal.write('CONFIGURE:SANALYZER')
 
     def _get_trace(self):
-        amplitudes = [float(i) for i in str(self.spec_anal.query('TRACE:DATA? TRACE1'+ ';*OPC?')).split(',')]
+        amplitudes = [float(i) for i in str(self.spec_anal.query('TRACE:DATA? TRACE1'+ ';*OPC?')).rstrip(';1').split(',')]
         num_points = len(amplitudes)
         frequencies = np.linspace(start=self.start_frequency, stop=self.stop_frequency,
-                                  num=num_points)
-        return np.array([(frequencies[i], amplitudes[i])for i in range(num_points)])
+                                  num=num_points).tolist()
+        return [(frequencies[i], amplitudes[i])for i in range(num_points)]
 
     def _get_bandwidth(self):
         return float(self.spec_anal.query('BANDWIDTH?'))
@@ -152,7 +152,7 @@ class SpectrumAnalyzer(Instrument):
     def _get_output_power(self):
         return self.spec_anal.query('SOURCE:POWER?')
 
-    def set_output_power(self, power):
+    def _set_output_power(self, power):
         return self.spec_anal.write('SOURCE:POWER ' + str(power))
 
     def __del__(self):

@@ -121,7 +121,7 @@ class TemperatureData:
             print(filepath)
         else:
             filepath = 'C:/Cryostation/Temperature Data/MI_DiagnosticsDataLog ' + date + '.csv'
-        mat = pd.read_csv(filepath)._probes
+        mat = pd.read_csv(filepath).values
         times = [x.split(':') for x in mat[:,1]]
         times = [[float(x[0])*3600+float(x[1])*60+float(x[2])][0] for x in times]
         if initial_time == 0:
@@ -132,9 +132,17 @@ class TemperatureData:
         data = np.column_stack((times,temps))
         return data
 
+    @staticmethod
+    def get_current_temps():
 
-#if __name__ == '__main__':
-#    a = Cryostation('10.243.34.189', 7773)
-#    print a.get_platform_temp()
+        filepath = 'C:/Cryostation/Temperature Data/MI_DiagnosticsDataLog ' + time.strftime('%m_%d_%Y') + '.csv'
+        #filepath = 'C:/Cryostation/Temperature Data/MI_DiagnosticsDataLog 03_25_2016.csv'
+        mat = pd.read_csv(filepath).values
+        return(mat[-1, [3,5,6]])
 
-#print(TemperatureData.get_temp_data(date = '01_13_2016', initial_time=0))
+
+
+if __name__ == '__main__':
+    print(TemperatureData.get_current_temps())
+
+    #print(TemperatureData.get_temp_data(date = '01_13_2016', initial_time=0))
