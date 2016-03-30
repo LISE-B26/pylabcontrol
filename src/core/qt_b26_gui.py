@@ -124,9 +124,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.read_probes.start()
             self.read_probes.updateProgress.connect(self.update_probes)
         else:
-            self.read_probes.updateProgress.disconnect()
-            self.read_probes.stop()
-
+            try:
+                self.read_probes.updateProgress.disconnect()
+                self.read_probes.stop()
+            except RuntimeError:
+                pass
         if current_tab == 'Scripts':
             # rebuild script- tree because intruments might have changed
             self.tree_scripts.itemChanged.disconnect()
