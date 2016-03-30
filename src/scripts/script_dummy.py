@@ -102,6 +102,7 @@ class ScriptDummyWithQtSignal(Script, QThread):
 
         # some generic function
         import time
+        import random
 
         count = self.settings['count']
         name = self.settings['name']
@@ -110,13 +111,15 @@ class ScriptDummyWithQtSignal(Script, QThread):
         print('I am a test function counting to {:d}...'.format(count))
 
 
-
+        data = []
         for i in range(count):
             time.sleep(wait_time)
             progress = int(100* (i+1) / count)
             self.updateProgress.emit(progress)
 
-            print('progress', progress)
+            data.append(random.random())
+
+        self.data = {'random data': data}
 
 class ScriptDummyWithInstrument(Script):
 

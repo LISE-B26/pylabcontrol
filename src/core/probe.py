@@ -1,9 +1,9 @@
 from src.core import Instrument
-
+from collections import deque
 class Probe(object):
 
 
-    def __init__(self, instrument, probe_name, name = None, info = None):
+    def __init__(self, instrument, probe_name, name = None, info = None, buffer_length = 100):
         """
         creates a probe...
         Args:
@@ -31,6 +31,8 @@ class Probe(object):
         self.instrument = instrument
         self.probe_name = probe_name
 
+        self.buffer = deque(maxlen = buffer_length)
+
 
     @property
     def value(self):
@@ -39,6 +41,7 @@ class Probe(object):
         """
 
         value = getattr(self.instrument, self.probe_name)
+        self.buffer.append(value)
 
         return value
 

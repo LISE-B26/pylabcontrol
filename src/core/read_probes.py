@@ -56,7 +56,6 @@ if __name__ == '__main__':
 
     probes = load_probes(probes, instruments)
 
-    print(probes)
 
     r = ReadProbes(probes)
     r.run()

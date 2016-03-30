@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1138</width>
+    <width>1144</width>
     <height>718</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>740</x>
-      <y>290</y>
+      <y>220</y>
       <width>391</width>
       <height>141</height>
      </rect>
@@ -34,8 +34,8 @@
     <property name="geometry">
      <rect>
       <x>740</x>
-      <y>450</y>
-      <width>411</width>
+      <y>370</y>
+      <width>391</width>
       <height>25</height>
      </rect>
     </property>
@@ -89,9 +89,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>10</y>
+        <y>30</y>
         <width>711</width>
-        <height>291</height>
+        <height>311</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -127,7 +127,7 @@
       <property name="geometry">
        <rect>
         <x>230</x>
-        <y>410</y>
+        <y>420</y>
         <width>471</width>
         <height>23</height>
        </rect>
@@ -140,7 +140,7 @@
       <property name="geometry">
        <rect>
         <x>120</x>
-        <y>410</y>
+        <y>420</y>
         <width>101</width>
         <height>23</height>
        </rect>
@@ -153,7 +153,7 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>410</y>
+        <y>420</y>
         <width>101</width>
         <height>23</height>
        </rect>
@@ -166,7 +166,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>320</y>
+        <y>350</y>
         <width>711</width>
         <height>61</height>
        </rect>
@@ -181,14 +181,14 @@
      <widget class="QPushButton" name="btn_plot_script">
       <property name="geometry">
        <rect>
-        <x>530</x>
-        <y>380</y>
+        <x>0</x>
+        <y>2</y>
         <width>101</width>
         <height>23</height>
        </rect>
       </property>
       <property name="text">
-       <string>plot script</string>
+       <string>plot script  ↑</string>
       </property>
      </widget>
     </widget>
@@ -203,7 +203,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>10</y>
+        <y>30</y>
         <width>711</width>
         <height>431</height>
        </rect>
@@ -236,6 +236,19 @@
         <string>Value</string>
        </property>
       </column>
+     </widget>
+     <widget class="QPushButton" name="btn_plot_probe">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>2</y>
+        <width>101</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>plot probe  ↑</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_settings">
@@ -288,6 +301,16 @@
      <attribute name="title">
       <string>History</string>
      </attribute>
+     <widget class="QListView" name="list_history">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>711</width>
+        <height>421</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="MatplotlibWidget" name="matplotlibwidget">
@@ -300,23 +323,13 @@
      </rect>
     </property>
    </widget>
-   <widget class="QListView" name="list_history">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>0</y>
-      <width>631</width>
-      <height>191</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="MatplotlibWidget" name="matplotlibwidget_2">
     <property name="geometry">
      <rect>
-      <x>800</x>
-      <y>480</y>
-      <width>321</width>
-      <height>191</height>
+      <x>740</x>
+      <y>0</y>
+      <width>391</width>
+      <height>211</height>
      </rect>
     </property>
    </widget>
@@ -324,7 +337,6 @@
    <zorder>list_records</zorder>
    <zorder>tabWidget</zorder>
    <zorder>matplotlibwidget</zorder>
-   <zorder>list_history</zorder>
    <zorder>matplotlibwidget_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -332,7 +344,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1138</width>
+     <width>1144</width>
      <height>21</height>
     </rect>
    </property>

@@ -69,7 +69,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.probes = probes
 
         self.read_probes = ReadProbes(self.probes)
-        self.read_probes.updateProgress.connect(self.update_probes)
+        # self.read_probes.updateProgress.connect(self.update_probes)
 
         # define data container
         self.history = deque()  # history of executed commands
@@ -86,10 +86,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # self.fill_tree(self.tree_monitor, self.probes)
         self.tree_monitor.setColumnWidth(0, 300)
-        self.tree_monitor.setDisabled(True)
+        self.tree_monitor.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        # self.tree_monitor.setDisabled(True)
 
 
         self.current_script = None
+        self.probe_to_plot = None
 
         def connect_controls():
             # =============================================================
@@ -108,6 +110,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_start_script.clicked.connect(lambda: self.btn_clicked())
             self.btn_stop_script.clicked.connect(lambda: self.btn_clicked())
             self.btn_plot_script.clicked.connect(lambda: self.btn_clicked())
+            self.btn_plot_probe.clicked.connect(lambda: self.btn_clicked())
 
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
@@ -119,7 +122,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
         if current_tab == 'Monitor':
             self.read_probes.start()
+            self.read_probes.updateProgress.connect(self.update_probes)
         else:
+            self.read_probes.updateProgress.disconnect()
             self.read_probes.stop()
 
         if current_tab == 'Scripts':
@@ -210,8 +215,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def btn_clicked(self):
         sender = self.sender()
-        print(sender)
-
+        self.probe_to_plot = None
 
         if sender is self.btn_start_script:
             item = self.tree_scripts.currentItem()
@@ -239,10 +243,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # is the script is a QThread object we connect its signals to the update_status function
                 script.plot(self.matplotlibwidget.axes)
                 self.matplotlibwidget.draw()
+        elif sender is self.btn_plot_probe:
+            item = self.tree_monitor.currentItem()
 
-
+            if item is not None:
+                self.probe_to_plot = item
             else:
-                self.log('Can\'t plot, No script selected. Select script and try again!')
+                self.log('Can\'t plot, No probe selected. Select probe and try again!')
     def load_settings(self, path_to_file):
         """
         loads a old_gui settings file (a json dictionary)
@@ -294,7 +301,25 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.matplotlibwidget.draw()
 
     def update_probes(self, progress):
-        self.fill_tree(self.tree_monitor, self.read_probes.probes_values)
+        """
+        update the probe monitor tree
+        """
+
+        new_values = self.read_probes.probes_values
+        probe_count = len(self.read_probes.probes)
+
+        if probe_count > self.tree_monitor.topLevelItemCount():
+            # when run for the first time, there are no probes in the tree, so we have to fill it first
+            self.fill_tree(self.tree_monitor, self.read_probes.probes_values)
+        else:
+            for x in range(0 , probe_count):
+                topLvlItem = self.tree_monitor.topLevelItem(x)
+                topLvlItem.value = new_values[topLvlItem.name]
+                print('topLvlItem.value', topLvlItem.value)
+                topLvlItem.setText(1, unicode(topLvlItem.value))
+                # topLvlItem.setDisabled(True)
+                # topLvlItem.setEditable(False)
+
 
 
     def fill_tree(self, tree, parameters):
@@ -309,6 +334,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
 
         tree.clear()
+        print("AAA {:s}", type(parameters), parameters)
         assert isinstance(parameters, (dict, Parameter))
 
         for key, value in parameters.iteritems():
