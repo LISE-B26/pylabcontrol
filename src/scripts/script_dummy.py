@@ -37,15 +37,34 @@ class ScriptDummy(Script):
 
         # some generic function
         import time
+        import random
 
         count = self.settings['count']
         name = self.settings['name']
         wait_time = self.settings['wait_time']
 
-        print('I am a test function counting to {:d}...'.format(count))
+        data = []
+        print('I am a test function counting to {:d} and creating random values'.format(count))
         for i in range(count):
             time.sleep(wait_time)
             print(i)
+            data.append(random.random())
+
+        self.data = {'random data':data}
+
+
+    # def plot(self, axes):
+    #
+    #
+    #     if data == {}:
+    #         print("warning, not data found that can be plotted")
+    #     else:
+    #         for key, value in data.iteritems():
+    #             axes.plot(value)
+    #     data = self.data['random data']
+    #
+    #     axes.plot(data)
+
 
 # class ScriptDummyWithQtSignal(Script, QtCore.QThread):
 class ScriptDummyWithQtSignal(Script, QThread):
@@ -83,6 +102,7 @@ class ScriptDummyWithQtSignal(Script, QThread):
 
         # some generic function
         import time
+        import random
 
         count = self.settings['count']
         name = self.settings['name']
@@ -91,13 +111,15 @@ class ScriptDummyWithQtSignal(Script, QThread):
         print('I am a test function counting to {:d}...'.format(count))
 
 
-
+        data = []
         for i in range(count):
             time.sleep(wait_time)
             progress = int(100* (i+1) / count)
             self.updateProgress.emit(progress)
 
-            print('progress', progress)
+            data.append(random.random())
+
+        self.data = {'random data': data}
 
 class ScriptDummyWithInstrument(Script):
 
