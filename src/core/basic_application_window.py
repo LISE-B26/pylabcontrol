@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Tue Mar 29 19:28:43 2016
+# Created: Wed Mar 30 12:10:00 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -84,6 +84,9 @@ class Ui_MainWindow(object):
         self.list_scripts.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
         self.list_scripts.setModelColumn(0)
         self.list_scripts.setObjectName(_fromUtf8("list_scripts"))
+        self.btn_stop_script_2 = QtGui.QPushButton(self.tab_scripts)
+        self.btn_stop_script_2.setGeometry(QtCore.QRect(530, 380, 101, 23))
+        self.btn_stop_script_2.setObjectName(_fromUtf8("btn_stop_script_2"))
         self.tabWidget.addTab(self.tab_scripts, _fromUtf8(""))
         self.tab_monitor = QtGui.QWidget()
         self.tab_monitor.setObjectName(_fromUtf8("tab_monitor"))
@@ -127,7 +130,7 @@ class Ui_MainWindow(object):
         self.list_history.setGeometry(QtCore.QRect(340, 0, 631, 191))
         self.list_history.setObjectName(_fromUtf8("list_history"))
         self.matplotlibwidget_2 = MatplotlibWidget(self.centralwidget)
-        self.matplotlibwidget_2.setGeometry(QtCore.QRect(670, 480, 321, 191))
+        self.matplotlibwidget_2.setGeometry(QtCore.QRect(800, 480, 321, 191))
         self.matplotlibwidget_2.setObjectName(_fromUtf8("matplotlibwidget_2"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
@@ -139,7 +142,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -151,6 +154,7 @@ class Ui_MainWindow(object):
         self.tree_scripts.headerItem().setText(1, _translate("MainWindow", "Value", None))
         self.btn_stop_script.setText(_translate("MainWindow", "stop", None))
         self.btn_start_script.setText(_translate("MainWindow", "start", None))
+        self.btn_stop_script_2.setText(_translate("MainWindow", "stop", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_scripts), _translate("MainWindow", "Scripts", None))
         self.tree_monitor.headerItem().setText(0, _translate("MainWindow", "Parameter", None))
         self.tree_monitor.headerItem().setText(1, _translate("MainWindow", "Value", None))
