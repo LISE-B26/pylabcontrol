@@ -38,6 +38,9 @@ try:
 except:
     pass
 
-from instrument_dummy import DummyInstrument
+try:
+    from instrument_dummy import DummyInstrument
+except:
+    pass
 # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']
 # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']
