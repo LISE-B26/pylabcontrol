@@ -56,6 +56,8 @@ class Probe(object):
         assert isinstance(value, str)
         self._name = value
 
+    def plot(self, axes):
+        axes.plot(self.buffer)
 
 if __name__ == '__main__':
     from src.core import load_instruments

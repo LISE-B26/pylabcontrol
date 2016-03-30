@@ -247,7 +247,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             item = self.tree_monitor.currentItem()
 
             if item is not None:
-                self.probe_to_plot = item
+                self.probe_to_plot = self.probes[item.name]
+                print(self.probe_to_plot, item.name)
             else:
                 self.log('Can\'t plot, No probe selected. Select probe and try again!')
     def load_settings(self, path_to_file):
@@ -317,8 +318,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 topLvlItem.value = new_values[topLvlItem.name]
                 print('topLvlItem.value', topLvlItem.value)
                 topLvlItem.setText(1, unicode(topLvlItem.value))
-                # topLvlItem.setDisabled(True)
-                # topLvlItem.setEditable(False)
+        if self.probe_to_plot is not None:
+            self.probe_to_plot.plot(self.matplotlibwidget.axes)
+            self.matplotlibwidget.draw()
 
 
 
