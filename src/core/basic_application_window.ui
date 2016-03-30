@@ -178,7 +178,7 @@
        <number>0</number>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_stop_script_2">
+     <widget class="QPushButton" name="btn_plot_script">
       <property name="geometry">
        <rect>
         <x>530</x>
