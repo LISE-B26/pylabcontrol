@@ -324,6 +324,12 @@ class QThreadWrapper(QThread):
     updateProgress = Signal(int)
 
     def __init__(self, script):
+        """
+        This is a wrapper for scripts that are not QThread, to execute them on a different thread than the gui
+        Args:
+            script: script to be executed 
+
+        """
         self.script = script
         QThread.__init__(self)
 
