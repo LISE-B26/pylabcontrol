@@ -332,6 +332,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.matplotlibwidget.draw()
 
 
+        if self.chk_probe_log.isChecked():
+            file_name  = str(self.txt_probe_log_path.text())
+            if os.path.isfile(file_name) == False:
+                outfile = open(file_name, 'w')
+                outfile.write("{:s}\n".format(",".join(new_values.keys())))
+            else:
+                outfile = open(file_name, 'a')
+            outfile.write("{:s}\n".format(",".join(map(str, new_values.values()))))
+
+
+
 
     def fill_tree(self, tree, parameters):
         """
