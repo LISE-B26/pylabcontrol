@@ -5,7 +5,7 @@ import sip
 sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
-from src.core import Parameter, Instrument, B26QTreeItem, ReadProbes
+from src.core import Parameter, Instrument, B26QTreeItem, ReadProbes, QThreadWrapper
 import os.path
 import numpy as np
 
@@ -233,23 +233,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 #     # non QThread script don't have a start function so we call .run() directly
                 #     script.run()
 
+                self.log('start {:s}'.format(script.name))
                 # is the script is not a QThread object we use the wrapper QtSCript
                 # to but it on a separate thread such that the gui remains responsive
                 if not isinstance(script, QThread):
-
-
-                    script.updateProgress.connect(self.update_status)
-                    self.current_script = script
-                    script.start()
-                else:
-                    # non QThread script don't have a start function so we call .run() directly
-                    script.run()
+                    script = QThreadWrapper(script)
 
                 script.updateProgress.connect(self.update_status)
                 self.current_script = script
                 script.start()
-
-                self.log('start {:s}'.format(script.name))
 
 
             else:
