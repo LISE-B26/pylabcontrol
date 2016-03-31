@@ -14,7 +14,9 @@ app = QtGui.QApplication(sys.argv)
 instruments = {
     # 'inst_dummy': 'DummyInstrument',
     'zihf2':'ZIHF2',
-    'pressure gauge': 'PressureGauge'}
+    'pressure gauge': 'PressureGauge',
+    'cryo station': 'CryoStation',
+}
 
 scripts= {
 
@@ -53,8 +55,11 @@ scripts= {
 probes = {
     # 'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
     # 'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
-    'ZI(R)': {'probe_name': 'R', 'instrument_name': 'zihf2'},
-    'ZI(X)': {'probe_name': 'X', 'instrument_name': 'zihf2'}
+    'ZI (R)': {'probe_name': 'R', 'instrument_name': 'zihf2'},
+    'ZI (X)': {'probe_name': 'X', 'instrument_name': 'zihf2'},
+    'T (platform)': {'probe_name': 'platform_temp', 'instrument_name': 'cryo station'},
+    'T (stage 1)': {'probe_name': 'stage_1_temp', 'instrument_name': 'cryo station'},
+    'T (stage 2)': {'probe_name': 'stage_2_temp', 'instrument_name': 'cryo station'}
     # 'Chamber Pressure' : { 'probe_name': 'pressure', 'instrument_name': 'pressure gauge'}
           }
 

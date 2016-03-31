@@ -38,6 +38,7 @@ class Cryostation:
         size = int(cryostat_response[0:2])
         return cryostat_response[2:2+size]
 
+
     def query_cryostat(self, command):
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:

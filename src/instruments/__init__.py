@@ -42,5 +42,7 @@ try:
     from instrument_dummy import DummyInstrument
 except:
     pass
+
+from montana import CryoStation
 # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']
 # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']

@@ -237,7 +237,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # to but it on a separate thread such that the gui remains responsive
                 if not isinstance(script, QThread):
 
-                    script =
 
                     script.updateProgress.connect(self.update_status)
                     self.current_script = script
