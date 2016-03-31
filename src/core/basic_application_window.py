@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Wed Mar 30 12:54:19 2016
+# Created: Thu Mar 31 19:20:01 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -106,6 +106,21 @@ class Ui_MainWindow(object):
         self.btn_plot_probe = QtGui.QPushButton(self.tab_monitor)
         self.btn_plot_probe.setGeometry(QtCore.QRect(0, 2, 101, 23))
         self.btn_plot_probe.setObjectName(_fromUtf8("btn_plot_probe"))
+        self.horizontalLayoutWidget = QtGui.QWidget(self.tab_monitor)
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(110, 0, 591, 31))
+        self.horizontalLayoutWidget.setObjectName(_fromUtf8("horizontalLayoutWidget"))
+        self.horizontalLayout = QtGui.QHBoxLayout(self.horizontalLayoutWidget)
+        self.horizontalLayout.setMargin(0)
+        self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
+        self.lbl_probe_log_path = QtGui.QLabel(self.horizontalLayoutWidget)
+        self.lbl_probe_log_path.setObjectName(_fromUtf8("lbl_probe_log_path"))
+        self.horizontalLayout.addWidget(self.lbl_probe_log_path)
+        self.txt_probe_log_path = QtGui.QLineEdit(self.horizontalLayoutWidget)
+        self.txt_probe_log_path.setObjectName(_fromUtf8("txt_probe_log_path"))
+        self.horizontalLayout.addWidget(self.txt_probe_log_path)
+        self.chk_probe_log = QtGui.QCheckBox(self.horizontalLayoutWidget)
+        self.chk_probe_log.setObjectName(_fromUtf8("chk_probe_log"))
+        self.horizontalLayout.addWidget(self.chk_probe_log)
         self.tabWidget.addTab(self.tab_monitor, _fromUtf8(""))
         self.tab_settings = QtGui.QWidget()
         self.tab_settings.setObjectName(_fromUtf8("tab_settings"))
@@ -145,7 +160,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -162,6 +177,8 @@ class Ui_MainWindow(object):
         self.tree_monitor.headerItem().setText(0, _translate("MainWindow", "Parameter", None))
         self.tree_monitor.headerItem().setText(1, _translate("MainWindow", "Value", None))
         self.btn_plot_probe.setText(_translate("MainWindow", "plot probe  ↑", None))
+        self.lbl_probe_log_path.setText(_translate("MainWindow", "Path", None))
+        self.chk_probe_log.setText(_translate("MainWindow", "logging on", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_monitor), _translate("MainWindow", "Monitor", None))
         self.tree_settings.headerItem().setText(0, _translate("MainWindow", "Instrument", None))
         self.tree_settings.headerItem().setText(1, _translate("MainWindow", "Value", None))
