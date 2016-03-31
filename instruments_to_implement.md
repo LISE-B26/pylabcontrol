@@ -28,3 +28,14 @@ spectrum_analyzer
 zurich_intruments
  - [x] implemented as Instrument
  - [ ] testfunction
+montana
+ - [x] implemented as Instrument
+ - [x] testfunction
+ ------------- not in instrument folder and needed --------
+ 
+ APD 
+ GalvoMirrors
+ PiezoControler
+ PulseBlaster
+ 
+ 
