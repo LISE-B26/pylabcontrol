@@ -75,7 +75,7 @@ class Script(object):
         self.data = {}
 
         # a log for status outputs
-        self.log_data = deque
+        self.log_data = deque()
         # this can be overwritten
         self.log_output = log_output
 
@@ -299,13 +299,19 @@ class Script(object):
                         tag,
                         'set'
                     )
+
+        # save settings
         with open(file_path, 'w') as outfile:
             tmp = json.dump(self.settings, outfile, indent=4)
-
+        # ======= save self.log_data ==============================
+        # save logfile
+        with open(file_path.replace('.set', '.log'), 'w') as outfile:
+            for item in self.log_data:
+              outfile.write("%s\n" % item)
 
         # ======= save self.instruments ==============================
 
-        if self.instruments is not {}:
+        if self.instruments != {}:
 
             file_path = "{:s}\\{:s}_{:s}.{:s}".format(
                             path,

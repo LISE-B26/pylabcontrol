@@ -11,6 +11,9 @@ class ScriptDummy(Script):
     # updateProgress = QtCore.Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
+        Parameter('path', 'C:\Users\Experiment\Desktop\\tmp_data', str, 'path for data'),
+        Parameter('tag', 'dummy_tag', str, 'tag for data'),
+        Parameter('save', True, bool, 'save data on/off'),
         Parameter('count', 0, int),
         Parameter('name', 'this is a counter'),
         Parameter('wait_time', 0.1, float)
@@ -19,14 +22,14 @@ class ScriptDummy(Script):
     _INSTRUMENTS = {}
     _SCRIPTS = {}
 
-    def __init__(self, name=None, settings=None):
+    def __init__(self, name=None, settings=None, log_output = None):
         """
         Example of a script
         Args:
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        Script.__init__(self, name, settings)
+        Script.__init__(self, name, settings, log_output = log_output)
 
 
     def _function(self):
@@ -44,27 +47,16 @@ class ScriptDummy(Script):
         wait_time = self.settings['wait_time']
 
         data = []
-        print('I am a test function counting to {:d} and creating random values'.format(count))
+        self.log('I am a test function counting to {:d} and creating random values'.format(count))
         for i in range(count):
             time.sleep(wait_time)
-            print(i)
+            self.log('count {:02d}'.format(i))
             data.append(random.random())
 
         self.data = {'random data':data}
 
-
-    # def plot(self, axes):
-    #
-    #
-    #     if data == {}:
-    #         print("warning, not data found that can be plotted")
-    #     else:
-    #         for key, value in data.iteritems():
-    #             axes.plot(value)
-    #     data = self.data['random data']
-    #
-    #     axes.plot(data)
-
+        if self.settings['save']:
+            self.save()
 
 # class ScriptDummyWithQtSignal(Script, QtCore.QThread):
 class ScriptDummyWithQtSignal(Script, QThread):
@@ -82,14 +74,14 @@ class ScriptDummyWithQtSignal(Script, QThread):
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
     updateProgress = Signal(int)
-    def __init__(self, name = None, settings = None):
+    def __init__(self, name = None, settings = None, log_output = None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        Script.__init__(self, name, settings)
+        Script.__init__(self, name, settings, log_output = log_output)
         # QtCore.QThread.__init__(self)
         QThread.__init__(self)
 
@@ -108,7 +100,7 @@ class ScriptDummyWithQtSignal(Script, QThread):
         name = self.settings['name']
         wait_time = self.settings['wait_time']
 
-        print('I am a test function counting to {:d}...'.format(count))
+        self.log('I am a test function counting to {:d}...'.format(count))
 
 
         data = []
@@ -134,7 +126,7 @@ class ScriptDummyWithInstrument(Script):
     }
     _SCRIPTS = {}
 
-    def __init__(self, instruments,  name = None, settings = None):
+    def __init__(self, instruments,  name = None, settings = None, log_output = None):
         """
         Example of a script that makes use of an instrument
         Args:
@@ -144,7 +136,7 @@ class ScriptDummyWithInstrument(Script):
         """
 
         # call init of superclass
-        Script.__init__(self, name, settings, instruments)
+        Script.__init__(self, name, settings, instruments, log_output = log_output)
 
     def _function(self):
         """
@@ -159,10 +151,10 @@ class ScriptDummyWithInstrument(Script):
         wait_time = self.settings['wait_time']
 
 
-        print('I am a test function counting to {:d}...'.format(count))
+        self.log('I am a test function counting to {:d}...'.format(count))
         for i in range(count):
 
-            print('signal from dummy instrument {:s}: {:0.3f}'.format(name, self.instruments['dummy_instrument'].value1))
+            self.log('signal from dummy instrument {:s}: {:0.3f}'.format(name, self.instruments['dummy_instrument'].value1))
             time.sleep(wait_time)
 
 
@@ -176,7 +168,7 @@ class ScriptDummyWithSubScript(Script):
     _INSTRUMENTS = {}
     _SCRIPTS = {'sub_script':ScriptDummy}
 
-    def __init__(self, scripts,  name = None, settings = None):
+    def __init__(self, scripts,  name = None, settings = None, log_output = None):
         """
         Example of a script that makes use of an instrument
         Args:
@@ -186,7 +178,7 @@ class ScriptDummyWithSubScript(Script):
         """
 
         # call init of superclass
-        Script.__init__(self, name, settings, scripts = scripts)
+        Script.__init__(self, name, settings, scripts = scripts, log_output = log_output)
 
     def _function(self):
         """
@@ -200,7 +192,7 @@ class ScriptDummyWithSubScript(Script):
 
         N = self.settings['repetitions']
 
-        print('I am a test function runnning suscript {:s} {:d} times'.format(script.name, N))
+        self.log('I am a test function runnning suscript {:s} {:d} times'.format(script.name, N))
         for i in range(N):
-            print('run number {:d} / {:d}'.format(i+1, N))
+            self.log('run number {:d} / {:d}'.format(i+1, N))
             script.run()

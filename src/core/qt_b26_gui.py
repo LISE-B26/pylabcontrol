@@ -54,9 +54,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             instruments, scripts, probes = self.load_settings(args[0])
         elif len(args) == 3:
             instruments, scripts, probes = args
-
             instruments = load_instruments(instruments)
-            scripts = load_scripts(scripts, instruments)
+            scripts = load_scripts(scripts, instruments, log_function= lambda x: self.log(x, target = 'script'))
             probes = load_probes(probes, instruments)
         else:
             raise TypeError("called ControlMainWindow with wrong arguments")
@@ -72,7 +71,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # self.read_probes.updateProgress.connect(self.update_probes)
 
         # define data container
-        self.history = deque()  # history of executed commands
+        self.history = deque(maxlen=500)  # history of executed commands
+        self.history_model = QtGui.QStandardItemModel(self.list_history)
+        self.list_history.setModel(self.history_model)
+        self.list_history.show()
+
+        self.script_model = QtGui.QStandardItemModel(self.list_scripts)
+        self.list_scripts.setModel(self.script_model)
+        self.list_scripts.show()
 
 
         # fill the trees
@@ -135,9 +141,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.fill_tree(self.tree_scripts, self.scripts)
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
 
-
-
-
     def update_parameters(self, treeWidget):
 
         if treeWidget == self.tree_settings:
@@ -199,20 +202,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def get_time(self):
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
-    def log(self, msg, wait_time = 5000):
+    def log(self, msg, target = 'hist'):
 
-        self.statusbar.showMessage(msg, wait_time)
         time = self.get_time()
-        self.history.append("{:s}\t {:s}".format(time, msg))
-        if len(self.history) > 10:
-            self.history.popleft()
 
-        model = QtGui.QStandardItemModel(self.list_history)
-        for item in self.history:
-            model.insertRow(0,QtGui.QStandardItem(item))
+        msg = "{:s}\t {:s}".format(time, msg)
 
-        self.list_history.setModel(model)
-        self.list_history.show()
+        if target == 'script':
+            self.script_model.insertRow(0,QtGui.QStandardItem(msg))
+
+        self.history.append(msg)
+        self.history_model.insertRow(0,QtGui.QStandardItem(msg))
 
 
     def btn_clicked(self):
@@ -259,7 +259,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if item is not None:
                 self.probe_to_plot = self.probes[item.name]
-                print(self.probe_to_plot, item.name)
             else:
                 self.log('Can\'t plot, No probe selected. Select probe and try again!')
     def load_settings(self, path_to_file):
@@ -327,7 +326,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             for x in range(0 , probe_count):
                 topLvlItem = self.tree_monitor.topLevelItem(x)
                 topLvlItem.value = new_values[topLvlItem.name]
-                print('topLvlItem.value', topLvlItem.value)
                 topLvlItem.setText(1, unicode(topLvlItem.value))
         if self.probe_to_plot is not None:
             self.probe_to_plot.plot(self.matplotlibwidget.axes)
@@ -347,7 +345,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
 
         tree.clear()
-        print("AAA {:s}", type(parameters), parameters)
         assert isinstance(parameters, (dict, Parameter))
 
         for key, value in parameters.iteritems():

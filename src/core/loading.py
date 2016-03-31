@@ -65,14 +65,14 @@ def load_instruments(instruments):
     return instrument_instances
 
 
-def load_scripts(scripts, instruments):
+def load_scripts(scripts, instruments, log_function = None):
     """
     Creates instances of the scripts inputted;
 
     Args:
         scripts: scripts is a dictionary with (key,value) = (name of the script, script class name),
         for example script = {'dummy script': 'ScriptDummy'}
-
+        log_function (optional): log_function where script outputs text
     Returns:
         a dictionary with (key,value) = (name of script, instance of script class) for all of the scripts
         passed to the function that were successfully imported and initialized. Otherwise, scripts are omitted
@@ -131,27 +131,26 @@ def load_scripts(scripts, instruments):
         try:
 
             if script_instruments is None and script_scripts is None:
-                script_instance = class_of_script(name=script_name)
+                script_instance = class_of_script(name=script_name, log_output = log_function)
             elif script_instruments is not None and script_scripts is None:
                 script_instance = class_of_script(name=script_name,
-                                                  instruments = script_instruments)
+                                                  instruments = script_instruments,
+                                                  log_output = log_function)
             elif script_instruments is None and script_scripts is not None:
                 script_instance = class_of_script(name=script_name,
-                                                  scripts = script_scripts)
+                                                  scripts = script_scripts,
+                                                  log_output = log_function)
             elif script_instruments is not None and script_scripts is not None:
                 script_instance = class_of_script(name=script_name,
                                                   instruments = script_instruments,
-                                                  scripts = script_scripts)
+                                                  scripts = script_scripts,
+                                                  log_output = log_function)
             else:
-                raise AssertionError('asdasdad')
+                raise AssertionError
         except:
-            print(module)
-            print('FAIL',script_name, script_class, script_instruments, script_scripts)
             raise
 
         if script_instance is None:
-            print('SS ( script_name, value)', script_name, value)
-            print('AA', script_instruments, script_scripts)
             raise AttributeError
         return script_instance
 
