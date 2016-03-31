@@ -8,7 +8,7 @@ from collections import deque
 import os
 import pandas as pd
 import json as json
-
+from PySide.QtCore import Signal, QThread
 
 class Script(object):
     # __metaclass__ = ABCMeta
@@ -316,6 +316,25 @@ class Script(object):
         else:
             for key, value in data.iteritems():
                 axes.plot(value)
+
+
+class QThreadWrapper(QThread):
+
+
+    updateProgress = Signal(int)
+
+    def __init__(self, script):
+        self.script = script
+        QThread.__init__(self)
+
+    def run(self):
+
+        self._running = True
+        self.updateProgress.emit(1)
+        self.script.run()
+        self.updateProgress.emit(100)
+
+
 
 if __name__ == '__main__':
     pass

@@ -224,14 +224,32 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if item is not None:
                 script, path_to_script = item.get_script()
-                # is the script is a QThread object we connect its signals to the update_status function
-                if isinstance(script, QThread):
+                # # is the script is a QThread object we connect its signals to the update_status function
+                # if isinstance(script, QThread):
+                #     script.updateProgress.connect(self.update_status)
+                #     self.current_script = script
+                #     script.start()
+                # else:
+                #     # non QThread script don't have a start function so we call .run() directly
+                #     script.run()
+
+                # is the script is not a QThread object we use the wrapper QtSCript
+                # to but it on a separate thread such that the gui remains responsive
+                if not isinstance(script, QThread):
+
+                    script =
+
                     script.updateProgress.connect(self.update_status)
                     self.current_script = script
                     script.start()
                 else:
                     # non QThread script don't have a start function so we call .run() directly
                     script.run()
+
+                script.updateProgress.connect(self.update_status)
+                self.current_script = script
+                script.start()
+
                 self.log('start {:s}'.format(script.name))
 
 
