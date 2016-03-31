@@ -13,14 +13,14 @@ class TestZIHF2(TestCase):
         test.update({'sigins':
                                     {'diff': False,
                                      'ac': True,
-                                     'imp50': 1,
+                                     'imp50': False,
                                      'range': 10,
                                      'channel': 0}
                                 })
 
         self.assertEqual(test.settings['sigins'], {'diff': False,
                                      'ac': True,
-                                     'imp50': 1,
+                                     'imp50': False,
                                      'range': 10,
                                      'channel': 0}
                          )

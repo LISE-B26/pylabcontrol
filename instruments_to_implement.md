@@ -1,16 +1,19 @@
 attocube
- - [ ] implemented as Instrument
+ - [x] implemented as Instrument
  - [ ] testfunction
 dcservo_kinesis
  - [ ] implemented as Instrument
  - [ ] testfunction
 gauge_controler
- - [ ] implemented as Instrument
- - [ ] testfunction
+ - [x] implemented as Instrument
+ - [x] testfunction
 instrument_dummy
  - [x] implemented as Instrument
  - [x] testfunction
-maestro
+maestro controler
+ - [ ] implemented as Instrument
+ - [ ] testfunction
+maestro beam block
  - [ ] implemented as Instrument
  - [ ] testfunction
 microwave_generator
@@ -27,7 +30,7 @@ spectrum_analyzer
  - [ ] testfunction
 zurich_intruments
  - [x] implemented as Instrument
- - [ ] testfunction
+ - [x] testfunction
 montana
  - [x] implemented as Instrument
  - [x] testfunction

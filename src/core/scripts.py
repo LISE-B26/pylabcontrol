@@ -32,12 +32,15 @@ class Script(object):
     # ======= Following old_functions are generic ================================================
     # ========================================================================================
 
-    def __init__(self, name = None, settings = None, instruments = None, scripts = None):
+    def __init__(self, name = None, settings = None, instruments = None, scripts = None, log_output = None):
         """
         executes scripts and stores script parameters and settings
         Args:
             name (optinal):  name of script, if not provided take name of function
             settings (optinal): a Parameter object that contains all the information needed in the script
+            instruments (optinal): instruments used in the script
+            scripts (optinal):  sub_scripts used in the script
+            log_output(optinal): function reference that takes a string
         """
 
         if name is None:
@@ -71,6 +74,11 @@ class Script(object):
         # this should either be a dictionary or a deque of dictionaries
         self.data = {}
 
+        # a log for status outputs
+        self.log_data = deque
+        # this can be overwritten
+        self.log_output = log_output
+
 
     # @abstractmethod
     def _function(self):
@@ -80,6 +88,20 @@ class Script(object):
         """
         # some generic function
         raise NotImplementedError
+
+    def log(self, string):
+        """
+        appends input string to log file and sends it to log function (self.log_output)
+        Returns:
+
+        """
+
+        self.log_data.append(string)
+        if self.log_output is None:
+            print(string)
+        else:
+            self.log_output(string)
+
 
     @property
     def _DEFAULT_SETTINGS(self):
@@ -203,11 +225,11 @@ class Script(object):
         '''
         self.is_running = True
         self.start_time  = datetime.datetime.now()
-        print('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
+        self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
         self._function()
 
         self.end_time  = datetime.datetime.now()
-        print('script {:s} finished at {:s} on {:s}'.format(self.name, self.end_time.strftime('%H:%M:%S'),self.end_time.strftime('%d/%m/%y')))
+        self.log('script {:s} finished at {:s} on {:s}'.format(self.name, self.end_time.strftime('%H:%M:%S'),self.end_time.strftime('%d/%m/%y')))
         success = self._abort == False
         self.is_running = False
         return success
@@ -312,7 +334,7 @@ class Script(object):
         assert isinstance(data, dict)
 
         if data == {}:
-            print("warning, not data found that can be plotted")
+            self.log("warning, not data found that can be plotted")
         else:
             for key, value in data.iteritems():
                 axes.plot(value)
@@ -327,7 +349,7 @@ class QThreadWrapper(QThread):
         """
         This is a wrapper for scripts that are not QThread, to execute them on a different thread than the gui
         Args:
-            script: script to be executed 
+            script: script to be executed
 
         """
         self.script = script
