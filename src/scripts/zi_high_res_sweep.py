@@ -21,11 +21,11 @@ class ZISweeperHighResolution(Script, QThread):
 
     _SCRIPTS = {'zi sweep' : ZISweeper}
 
-    def __init__(self, scripts, name = None, settings = None, timeout = 1000000000):
+    def __init__(self, scripts, name = None, settings = None, log_output = None, timeout = 1000000000):
         self._recording = False
         self._timeout = timeout
 
-        Script.__init__(self, name, settings, scripts = scripts)
+        Script.__init__(self, name, settings, scripts = scripts, log_output = log_output)
         QThread.__init__(self)
 
         self.data = deque()

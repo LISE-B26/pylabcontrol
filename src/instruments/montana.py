@@ -1,7 +1,7 @@
 from src.core import Instrument, Parameter
-import time
+import time, datetime
 import pandas as pd
-
+import os
 class CryoStation(Instrument):
 
     _DEFAULT_SETTINGS = Parameter(
@@ -78,7 +78,15 @@ class CryoStation(Instrument):
         '''
         assert key in self._probes.keys(), "key assertion failed {:s}".format(str(key))
 
-        filepath = "{:s}/MI_DiagnosticsDataLog {:s}.csv".format(self.settings['path'], time.strftime('%m_%d_%Y'))
+
+
+        # catch change of date
+        time_tag = datetime.datetime.now()
+        filepath = "{:s}/MI_DiagnosticsDataLog {:s}.csv".format(self.settings['path'],time_tag.strftime('%m_%d_%Y'))
+        while os.path.exists(filepath) == False:
+            time_tag -= datetime.timedelta(hours=1)
+            filepath = "{:s}/MI_DiagnosticsDataLog {:s}.csv".format(self.settings['path'],time_tag.strftime('%m_%d_%Y'))
+
         data = pd.read_csv(filepath)
 
         # create dictionary with last row as values
