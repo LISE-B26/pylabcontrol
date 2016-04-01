@@ -112,11 +112,18 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         if isinstance(value, (QtGui.QComboBox, QtGui.QCheckBox)):
             self.treeWidget().setCurrentItem(self)
 
-
         # if role = 2 (editrole, value has been entered)
         if role == 2 and column == 1:
+
             if isinstance(value, QtCore.QString):
-                value = self.cast_type(value) # cast into same type as valid values
+                print( str(value),self.valid_values, tuple, self.valid_values == tuple)
+                # if we expect a tupple then we now alwats assume it's a tuple of two float, i.e. a point
+                if self.valid_values == tuple:
+                    string = str(value)
+                    value = tuple([float(elem) for elem in string.replace('(','').replace(')','').split(',')])
+                else:
+                    value = self.cast_type(value) # cast into same type as valid values
+
                 # if not isinstance(self.valid_values, list):
                 #
                 # else:
@@ -126,6 +133,8 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             elif isinstance(value, QtGui.QCheckBox):
                 value = int(value.checkState()) # this gives 2 (True) and 0 (False)
                 value = value == 2
+
+
             # save value in internal variable
             self.value = value
 

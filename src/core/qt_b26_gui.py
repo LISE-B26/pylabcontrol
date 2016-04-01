@@ -118,9 +118,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_plot_script.clicked.connect(lambda: self.btn_clicked())
             self.btn_plot_probe.clicked.connect(lambda: self.btn_clicked())
 
+            # tree structures
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
             self.tabWidget.currentChanged.connect(lambda : self.switch_tab())
+
+            # plots
+            self.matplotlibwidget.mpl_connect('button_press_event',  self.plot_clicked)
 
         connect_controls()
 
@@ -140,6 +144,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_scripts.itemChanged.disconnect()
             self.fill_tree(self.tree_scripts, self.scripts)
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+
+    def plot_clicked(self, mouse_event):
+        item = self.tree_scripts.currentItem()
+
+        if item is not None:
+            print('FFF', mouse_event, item.name)
+
+            # for c in
+            print(item.childCount())
+
 
     def update_parameters(self, treeWidget):
 
