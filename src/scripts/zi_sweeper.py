@@ -81,7 +81,7 @@ class ZISweeper(Script, QThread):
         path = '/%s/demods/%d/sample' % (self.instruments['zihf2'].device, self.instruments['zihf2'].settings['demods']['channel'])
         self.sweeper.subscribe(path)
         self.sweeper.execute()
-        print('=>> SWEEPER SETTINGS', self.settings)
+
         while not self.sweeper.finished():
             time.sleep(1)
             progress = int(100*self.sweeper.progress())

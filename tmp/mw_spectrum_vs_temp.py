@@ -21,6 +21,7 @@ if __name__ == '__main__':
 
     init_time = time.strftime('%H_%M_%S')
 
+
     data = {'time': [], 'stage1_temp': [], 'stage2_temp': [], 'platform_temp': [], 'trace': []}
     with open(ABSOLUTE_PATH_TO_SAVE + 'data' + init_time + '.json', 'a') as fp:
         json.dump(data, fp)
