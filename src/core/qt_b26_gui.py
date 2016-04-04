@@ -9,6 +9,7 @@ from src.core import Parameter, Instrument, B26QTreeItem, ReadProbes, QThreadWra
 import os.path
 import numpy as np
 import json as json
+import yaml # we use this to load json files, yaml doesn't cast everything to unicode
 from PySide.QtCore import QThread
 
 from src.instruments import DummyInstrument
@@ -51,14 +52,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         """
         if len(args) == 1:
+            print('XX')
             instruments, scripts, probes = self.load_settings(args[0])
         elif len(args) == 3:
             instruments, scripts, probes = args
-            instruments = load_instruments(instruments)
-            scripts = load_scripts(scripts, instruments, log_function= lambda x: self.log(x, target = 'script'))
-            probes = load_probes(probes, instruments)
         else:
             raise TypeError("called ControlMainWindow with wrong arguments")
+
+        instruments = load_instruments(instruments)
+        scripts = load_scripts(scripts, instruments, log_function= lambda x: self.log(x, target = 'script'))
+        probes = load_probes(probes, instruments)
 
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
@@ -108,9 +111,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             #
             # self.sliderPosition.setValue(int(self.servo_polarization.get_position() * 100))
             # self.sliderPosition.valueChanged.connect(lambda: self.set_position())
-
-
-            self.btn_clear_record.clicked.connect(lambda: self.tmp())
 
             # link buttons to old_functions
             self.btn_start_script.clicked.connect(lambda: self.btn_clicked())
@@ -323,23 +323,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             - scripts:  depth 1 dictionary where keys are script names and values are instances of scripts
             - probes: depth 1 dictionary where to be decided....?
         """
-        instruments = None
-        scripts = None
-        probes = None
-        print(in_file_name)
+
         assert os.path.isfile(in_file_name)
 
         with open(in_file_name, 'r') as infile:
-            in_data = json.load(infile)
+            in_data = yaml.safe_load(infile)
 
         instruments = in_data['instruments']
         scripts = in_data['scripts']
         probes = in_data['probes']
-
-
-        print('instruments', instruments)
-        print('scripts', scripts)
-        print('probes', probes)
 
         return instruments, scripts, probes
 
@@ -355,6 +347,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         out_data = {'instruments':{}, 'scripts':{}, 'probes':{}}
 
         for instrument in self.instruments.itervalues():
+
             out_data['instruments'].update(instrument.to_dict())
 
         for script in self.scripts.itervalues():
@@ -366,12 +359,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         with open(out_file_name, 'w') as outfile:
             tmp = json.dump(out_data, outfile, indent=4)
 
-    def tmp(self):
-        print(self.tree_monitor.topLevelItemCount())
-        for i in range(self.tree_monitor.topLevelItemCount()):
-            probe = self.tree_monitor.topLevelItem(i).value
-            print('DD', probe)
-            print(probe.to_dict())
 
     def update_status(self, progress):
         """

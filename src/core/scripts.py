@@ -42,10 +42,8 @@ class Script(object):
             scripts (optinal):  sub_scripts used in the script
             log_output(optinal): function reference that takes a string
         """
-
         if name is None:
             name = self.__class__.__name__
-        assert isinstance(name, str)
         self.name = name
 
         self._instruments = {}
@@ -141,6 +139,8 @@ class Script(object):
         return self._name
     @name.setter
     def name(self, value):
+        if isinstance(value, unicode):
+            value = str(value)
         assert isinstance(value, str)
         self._name = value
 
@@ -358,12 +358,14 @@ class Script(object):
         if self.scripts != {}:
             dictator[self.name].update({'scripts': {} })
             for subscript_name, subscript in self.scripts.iteritems():
-                dictator[self.name]['scripts'].update({ subscript_name: subscript.to_dict() })
+                dictator[self.name]['scripts'].update(subscript.to_dict() )
 
         if self.instruments != {}:
             dictator[self.name].update({'instruments': {} })
             for instrument_name, instrument in self.instruments.iteritems():
-                dictator[self.name]['instruments'].update({ instrument_name: instrument.to_dict() })
+                # dictator[self.name]['instruments'].update(instrument.to_dict() )
+                # dictator[self.name]['instruments'].update({instrument.name: instrument.__class__.__name__ })
+                dictator[self.name]['instruments'].update({instrument_name: instrument.name})
 
         dictator[self.name]['settings'] = self.settings
 

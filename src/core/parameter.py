@@ -70,7 +70,6 @@ class Parameter(dict):
 
 
     def __setitem__(self, key, value):
-
         assert self.is_valid(value, self.valid_values[key]), "{:s}(type {:s}) is not in {:s}".format(str(value), type(value), str(self.valid_values[key]))
 
         if isinstance(value, dict) and len(self)>0 and len(self) == len(self.valid_values):
