@@ -14,9 +14,14 @@ class ScriptDummy(Script):
         Parameter('path', 'C:\Users\Experiment\Desktop\\tmp_data', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', True, bool, 'save data on/off'),
-        Parameter('count', 0, int),
+        Parameter('count', 3, int),
         Parameter('name', 'this is a counter'),
-        Parameter('wait_time', 0.1, float)
+        Parameter('wait_time', 0.1, float),
+        Parameter('point', (0.1, 0.2), tuple, 'a point'),
+        Parameter('point2',
+                  [Parameter('x', 0.1, float, 'x-coordinate'),
+                  Parameter('y', 0.1, float, 'y-coordinate')
+                  ])
     ])
 
     _INSTRUMENTS = {}

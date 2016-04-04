@@ -118,9 +118,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_plot_script.clicked.connect(lambda: self.btn_clicked())
             self.btn_plot_probe.clicked.connect(lambda: self.btn_clicked())
 
+            # tree structures
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
             self.tabWidget.currentChanged.connect(lambda : self.switch_tab())
+
+            # plots
+            self.matplotlibwidget.mpl_connect('button_press_event',  self.plot_clicked)
+            self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_clicked)
 
         connect_controls()
 
@@ -140,6 +145,35 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_scripts.itemChanged.disconnect()
             self.fill_tree(self.tree_scripts, self.scripts)
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+
+    def plot_clicked(self, mouse_event):
+        item = self.tree_scripts.currentItem()
+
+        if item is not None:
+
+            if item.is_point():
+                item_x = item.child(1)
+                if mouse_event.xdata is not None:
+                    self.tree_scripts.setCurrentItem(item_x)
+                    item_x.value = float(mouse_event.xdata)
+                    item_x.setText(1, '{:0.3f}'.format(float(mouse_event.xdata)))
+                item_y = item.child(0)
+                if mouse_event.ydata is not None:
+                    self.tree_scripts.setCurrentItem(item_y)
+                    item_y.value = float(mouse_event.ydata)
+                    item_y.setText(1, '{:0.3f}'.format(float(mouse_event.ydata)))
+
+                # focus back on item
+                self.tree_scripts.setCurrentItem(item)
+            else:
+                if item.parent() is not None:
+                    if item.parent().is_point():
+                        if item == item.parent().child(1):
+                            if mouse_event.xdata is not None:
+                                item.setData(1, 2, float(mouse_event.xdata))
+                        if item == item.parent().child(0):
+                            if mouse_event.ydata is not None:
+                                item.setData(1, 2, float(mouse_event.ydata))
 
     def update_parameters(self, treeWidget):
 
@@ -190,7 +224,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             # send new value from tree to script
             script.update(dictator)
-
+            print('FSAD -Aada', item.value)
+            print('FSAD -dictator', dictator)
             new_value = item.value
             if new_value is not old_value:
                 msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value),
