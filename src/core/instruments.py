@@ -131,3 +131,17 @@ class Instrument(object):
     @property
     def settings(self):
         return self._settings
+
+
+
+    def to_dict(self):
+        """
+
+        Returns: itself as a dictionary
+
+        """
+
+        dictator = {self.name: {'instrument_class': self.__class__.__name__, 'settings': self.settings}}
+
+        return dictator
+

@@ -7,8 +7,15 @@ def load_instruments(instruments):
     initialized with.
 
     Args:
-        instruments: instruments is a dictionary with (key,value) = (name of the instrument, instrument class name),
+        instruments:
+        instruments is a dictionary with
+        (key,value) = (name of the instrument, instrument class name),
         for example instruments = {'Chamber Pressure Gauge': 'PressureGauge'}
+
+        or
+
+        (key,value) = (name of the instrument, {'instrument_class' : instrument class name, "settings", dict with settings}),
+
 
     Returns:
         a dictionary with (key,value) = (name of instrument, instance of instrument class) for all of the instruments
@@ -18,9 +25,6 @@ def load_instruments(instruments):
     Examples:
         In the following, instrument_1 loads correctly, but instrument_2 does not, so only an instance of instrument_1
         is outputted.
-
-        >>> load_instruments({'instrument_1_name':'Instrument1Class', 'instrument_2_name':'Instrument2Class'})
-        {'instrument_1_name':Instrument1Class()}
 
     """
 
@@ -70,8 +74,15 @@ def load_scripts(scripts, instruments, log_function = None):
     Creates instances of the scripts inputted;
 
     Args:
-        scripts: scripts is a dictionary with (key,value) = (name of the script, script class name),
+        scripts: scripts is a dictionary with
+        (key,value) = (name of the script, script class name),
         for example script = {'dummy script': 'ScriptDummy'}
+
+        or
+
+        scripts is a dictionary with
+        (key,value) = (name of the script, {"script_class": script class name, "settings": settings, "instruments": instrument, "subscripts": subscripts}),
+
         log_function (optional): log_function where script outputs text
     Returns:
         a dictionary with (key,value) = (name of script, instance of script class) for all of the scripts
@@ -82,7 +93,7 @@ def load_scripts(scripts, instruments, log_function = None):
         In the following, script_1 loads correctly, but script_2 does not, so only an instance of script_1
         is outputted.
 
-        >>> load_scripts({'script_1_name':'Script1Class', 'script_2_name':'Script2Class'})
+        load_scripts({'script_1_name':'Script1Class', 'script_2_name':'Script2Class'})
         {'script_1_name':Script1Class()}
 
     """
@@ -92,7 +103,7 @@ def load_scripts(scripts, instruments, log_function = None):
         script_instruments = None
         script_scripts = None
         if isinstance(value, dict):
-            # print('==>')
+
             assert 'script_class' in value
             assert 'instruments' in value or 'scripts' in value
 

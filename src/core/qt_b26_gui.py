@@ -8,7 +8,7 @@ from PyQt4.uic import loadUiType
 from src.core import Parameter, Instrument, B26QTreeItem, ReadProbes, QThreadWrapper
 import os.path
 import numpy as np
-
+import json as json
 from PySide.QtCore import QThread
 
 from src.instruments import DummyInstrument
@@ -110,13 +110,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # self.sliderPosition.valueChanged.connect(lambda: self.set_position())
 
 
-
+            self.btn_clear_record.clicked.connect(lambda: self.tmp())
 
             # link buttons to old_functions
             self.btn_start_script.clicked.connect(lambda: self.btn_clicked())
             self.btn_stop_script.clicked.connect(lambda: self.btn_clicked())
             self.btn_plot_script.clicked.connect(lambda: self.btn_clicked())
             self.btn_plot_probe.clicked.connect(lambda: self.btn_clicked())
+
+            self.btn_save_gui.clicked.connect(lambda: self.btn_clicked())
+            self.btn_load_gui.clicked.connect(lambda: self.btn_clicked())
 
             # tree structures
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
@@ -145,6 +148,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_scripts.itemChanged.disconnect()
             self.fill_tree(self.tree_scripts, self.scripts)
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+
+
 
     def plot_clicked(self, mouse_event):
         item = self.tree_scripts.currentItem()
@@ -296,7 +301,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.probe_to_plot = self.probes[item.name]
             else:
                 self.log('Can\'t plot, No probe selected. Select probe and try again!')
-    def load_settings(self, path_to_file):
+
+        elif sender is self.btn_save_gui:
+
+            # get filename
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save gui settings to file', 'Z:\\Lab\\Cantilever\\Measurements')# filter = '.b26gui'
+            self.save_settings(fname)
+        elif sender is self.btn_load_gui:
+
+            # get filename
+            fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file', 'Z:\\Lab\\Cantilever\\Measurements')
+            self.load_settings(fname)
+
+    def load_settings(self, in_file_name):
         """
         loads a old_gui settings file (a json dictionary)
         - path_to_file: path to file that contains the dictionary
@@ -309,23 +326,52 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         instruments = None
         scripts = None
         probes = None
-        # todo: implement load settings from json file
-        assert isinstance(path_to_file, str)
+        print(in_file_name)
+        assert os.path.isfile(in_file_name)
 
-        assert os.path.isfile(path_to_file)
-        print('loading from json file not supported yet!')
-        raise NotImplementedError
+        with open(in_file_name, 'r') as infile:
+            in_data = json.load(infile)
+
+        instruments = in_data['instruments']
+        scripts = in_data['scripts']
+        probes = in_data['probes']
+
+
+        print('instruments', instruments)
+        print('scripts', scripts)
+        print('probes', probes)
 
         return instruments, scripts, probes
 
-    def save_settings(self, path_to_file):
+    def save_settings(self, out_file_name):
         """
         saves a old_gui settings file (to a json dictionary)
         - path_to_file: path to file that will contain the dictionary
         """
-        # todo: implement
-        raise NotImplementedError
 
+
+        print('saving', out_file_name)
+
+        out_data = {'instruments':{}, 'scripts':{}, 'probes':{}}
+
+        for instrument in self.instruments.itervalues():
+            out_data['instruments'].update(instrument.to_dict())
+
+        for script in self.scripts.itervalues():
+            out_data['scripts'].update(script.to_dict())
+
+        for probe in self.probes.itervalues():
+            out_data['probes'].update(probe.to_dict())
+
+        with open(out_file_name, 'w') as outfile:
+            tmp = json.dump(out_data, outfile, indent=4)
+
+    def tmp(self):
+        print(self.tree_monitor.topLevelItemCount())
+        for i in range(self.tree_monitor.topLevelItemCount()):
+            probe = self.tree_monitor.topLevelItem(i).value
+            print('DD', probe)
+            print(probe.to_dict())
 
     def update_status(self, progress):
         """

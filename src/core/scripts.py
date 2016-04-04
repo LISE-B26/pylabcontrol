@@ -346,6 +346,31 @@ class Script(object):
                 axes.plot(value)
 
 
+    def to_dict(self):
+        """
+
+        Returns: itself as a dictionary
+
+        """
+
+        dictator = {self.name: {'script_class' : self.__class__.__name__}}
+
+        if self.scripts != {}:
+            dictator[self.name].update({'scripts': {} })
+            for subscript_name, subscript in self.scripts.iteritems():
+                dictator[self.name]['scripts'].update({ subscript_name: subscript.to_dict() })
+
+        if self.instruments != {}:
+            dictator[self.name].update({'instruments': {} })
+            for instrument_name, instrument in self.instruments.iteritems():
+                dictator[self.name]['instruments'].update({ instrument_name: instrument.to_dict() })
+
+        dictator[self.name]['settings'] = self.settings
+
+        return dictator
+
+
+
 class QThreadWrapper(QThread):
 
 

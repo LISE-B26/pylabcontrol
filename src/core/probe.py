@@ -59,6 +59,33 @@ class Probe(object):
     def plot(self, axes):
         axes.plot(self.buffer)
 
+
+
+    def to_dict(self):
+        """
+
+        Returns: itself as a dictionary
+
+        """
+
+        dictator = {self.name: {'probe_name': self.probe_name, 'instrument_name': self.instrument.name}}
+
+        return dictator
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     from src.core import load_instruments
     instruments = {'inst_dummy': 'DummyInstrument'}
