@@ -76,7 +76,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_scripts">
      <attribute name="title">
@@ -268,7 +268,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="txt_probe_log_path"/>
+        <widget class="QLineEdit" name="txt_probe_log_path">
+         <property name="text">
+          <string>Z:\Lab\Cantilever\Measurements</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="chk_probe_log">
@@ -362,11 +366,39 @@
      </rect>
     </property>
    </widget>
+   <widget class="QPushButton" name="btn_save_gui">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>580</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_load_gui">
+    <property name="geometry">
+     <rect>
+      <x>940</x>
+      <y>580</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load</string>
+    </property>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>list_records</zorder>
    <zorder>tabWidget</zorder>
    <zorder>matplotlibwidget</zorder>
    <zorder>matplotlibwidget_2</zorder>
+   <zorder>btn_save_gui</zorder>
+   <zorder>btn_load_gui</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

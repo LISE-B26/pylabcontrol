@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Thu Mar 31 19:20:01 2016
+# Created: Mon Apr 04 15:20:24 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -150,6 +150,12 @@ class Ui_MainWindow(object):
         self.matplotlibwidget_2 = MatplotlibWidget(self.centralwidget)
         self.matplotlibwidget_2.setGeometry(QtCore.QRect(740, 0, 391, 211))
         self.matplotlibwidget_2.setObjectName(_fromUtf8("matplotlibwidget_2"))
+        self.btn_save_gui = QtGui.QPushButton(self.centralwidget)
+        self.btn_save_gui.setGeometry(QtCore.QRect(1020, 580, 75, 23))
+        self.btn_save_gui.setObjectName(_fromUtf8("btn_save_gui"))
+        self.btn_load_gui = QtGui.QPushButton(self.centralwidget)
+        self.btn_load_gui.setGeometry(QtCore.QRect(940, 580, 75, 23))
+        self.btn_load_gui.setObjectName(_fromUtf8("btn_load_gui"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1144, 21))
@@ -160,7 +166,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -178,10 +184,13 @@ class Ui_MainWindow(object):
         self.tree_monitor.headerItem().setText(1, _translate("MainWindow", "Value", None))
         self.btn_plot_probe.setText(_translate("MainWindow", "plot probe  ↑", None))
         self.lbl_probe_log_path.setText(_translate("MainWindow", "Path", None))
+        self.txt_probe_log_path.setText(_translate("MainWindow", "Z:\\Lab\\Cantilever\\Measurements", None))
         self.chk_probe_log.setText(_translate("MainWindow", "logging on", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_monitor), _translate("MainWindow", "Monitor", None))
         self.tree_settings.headerItem().setText(0, _translate("MainWindow", "Instrument", None))
         self.tree_settings.headerItem().setText(1, _translate("MainWindow", "Value", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_settings), _translate("MainWindow", "Settings", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_history), _translate("MainWindow", "History", None))
+        self.btn_save_gui.setText(_translate("MainWindow", "Save", None))
+        self.btn_load_gui.setText(_translate("MainWindow", "Load", None))
 
