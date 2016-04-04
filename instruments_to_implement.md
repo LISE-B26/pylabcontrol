@@ -34,11 +34,14 @@ zurich_intruments
 montana
  - [x] implemented as Instrument
  - [x] testfunction
+piezo_ controler
+ - [ ] implemented as Instrument
+ - [ ] testfunction
+
  ------------- not in instrument folder and needed --------
  
- APD 
- GalvoMirrors
- PiezoControler
+ # APD => script
+ # GalvoMirrors => script
  PulseBlaster
  
  

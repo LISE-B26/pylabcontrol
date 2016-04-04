@@ -149,11 +149,24 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         item = self.tree_scripts.currentItem()
 
         if item is not None:
-            print('FFF', mouse_event, item.name)
 
-            # for c in
-            print(item.childCount())
-
+            if item.is_point():
+                print('mouse_event.xdata',mouse_event.xdata)
+                item_x = item.child(1)
+                if mouse_event.xdata is not None:
+                    item_x.setData(1, 2, float(mouse_event.xdata))
+                item_y = item.child(0)
+                if mouse_event.ydata is not None:
+                    item_y.setData(1, 2, float(mouse_event.ydata))
+            else:
+                if item.parent() is not None:
+                    if item.parent().is_point():
+                        if item == item.parent().child(1):
+                            if mouse_event.xdata is not None:
+                                item.setData(1, 2, float(mouse_event.xdata))
+                        if item == item.parent().child(0):
+                            if mouse_event.ydata is not None:
+                                item.setData(1, 2, float(mouse_event.ydata))
 
     def update_parameters(self, treeWidget):
 

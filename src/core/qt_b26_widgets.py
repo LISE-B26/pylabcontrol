@@ -210,7 +210,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         # path_to_instrument.reverse()
         return instrument, path_to_instrument
 
-
     def get_script(self):
         """
 
@@ -234,3 +233,24 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                     parent = parent.parent()
 
         return script, path_to_script
+
+    # @staticmethod
+    def is_point(self):
+        """
+        figures out if item is a point, that is if it has two subelements of type float
+        Args:
+            self:
+
+        Returns: if item is a point (True) or not (False)
+
+        """
+
+        is_point = True
+        if self.childCount() == 2:
+            for i in range(self.childCount()):
+                if self.child(i).valid_values != float:
+                    is_point = False
+        else:
+            is_point = False
+        return is_point
+

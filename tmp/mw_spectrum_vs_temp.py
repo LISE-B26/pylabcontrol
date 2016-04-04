@@ -19,17 +19,16 @@ if __name__ == '__main__':
     spec_anal.start_frequency = 1e6  # arbitrary, can't set to 0 because of spectrum analyzer limitations
     spec_anal.end_frequency = 3e9
 
-    init_time = time.strftime('%H_%M_%S')
-
+    init_time = time.strftime('%Y_%m_%d_%H_%M_%S')
 
     data = {'time': [], 'stage1_temp': [], 'stage2_temp': [], 'platform_temp': [], 'trace': []}
-    with open(ABSOLUTE_PATH_TO_SAVE + 'data' + init_time + '.json', 'a') as fp:
+    with open(ABSOLUTE_PATH_TO_SAVE + init_time + '_spectrum_vs_temp' + '.json', 'a') as fp:
         json.dump(data, fp)
 
     while True:
-        with open(ABSOLUTE_PATH_TO_SAVE + 'data' + init_time + '.json', 'r+') as fp:
+        with open(ABSOLUTE_PATH_TO_SAVE + init_time + '_spectrum_vs_temp' + '.json', 'r+') as fp:
             data = json.load(fp)
-            cur_time = time.strftime('%H_%M_%S')
+            cur_time = time.strftime('%Y_%m_%d_%H_%M_%S')
             data['time'].append(cur_time)
             temps = TemperatureData.get_current_temps()
             data['stage1_temp'].append(float(temps[1]))
@@ -38,7 +37,7 @@ if __name__ == '__main__':
             data['trace'].append(spec_anal.trace)
             print('wrote to file!')
 
-        with open(ABSOLUTE_PATH_TO_SAVE + 'data' + init_time + '.json', 'w+') as fp:
+        with open(ABSOLUTE_PATH_TO_SAVE + init_time + '_spectrum_vs_temp' + '.json', 'w+') as fp:
             fp.write(json.dumps(data))
 
         #trace.to_csv(ABSOLUTE_PATH_TO_SAVE + 'trace' + cur_time + '.csv', index = False, header = None)
