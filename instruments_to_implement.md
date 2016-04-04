@@ -1,9 +1,9 @@
 attocube
- - [x] implemented as Instrument
- - [ ] testfunction
+ - [D] implemented as Instrument
+ - [D] testfunction
 dcservo_kinesis
- - [ ] implemented as Instrument
- - [ ] testfunction
+ - [x] implemented as Instrument
+ - [x] testfunction
 gauge_controler
  - [x] implemented as Instrument
  - [x] testfunction
@@ -17,26 +17,23 @@ maestro beam block
  - [ ] implemented as Instrument
  - [ ] testfunction
 microwave_generator
- - [ ] implemented as Instrument
- - [ ] testfunction
+ - [D] implemented as Instrument
+ - [D] testfunction
 NIDAQ
- - [ ] implemented as Instrument
+ - [D] implemented as Instrument
  - [ ] testfunction
 piezo_controller
- - [ ] implemented as Instrument
- - [ ] testfunction
+ - [D] implemented as Instrument
+ - [D] testfunction
 spectrum_analyzer
- - [ ] implemented as Instrument
- - [ ] testfunction
+ - [D] implemented as Instrument
+ - [D] testfunction
 zurich_intruments
  - [x] implemented as Instrument
  - [x] testfunction
 montana
  - [x] implemented as Instrument
  - [x] testfunction
-piezo_ controler
- - [ ] implemented as Instrument
- - [ ] testfunction
 
  ------------- not in instrument folder and needed --------
  

@@ -30,6 +30,34 @@ class PositionerInfo(ctypes.Structure):
     _fields_ = [(("id"), ctypes.c_int32), (("locked"), ctypes.c_bool)]
 
 class Attocube(Instrument):
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('x',
+                  [
+                      Parameter('on', False, [True, False], 'x axis on'),
+                      Parameter('pos', 0.0, float, 'x axis position in um'),
+                      Parameter('voltage', 30, float, 'voltage on x axis'),
+                      Parameter('freq', 1000, float, 'x frequency in Hz')
+                  ]
+                  ),
+        Parameter('y',
+                  [
+                      Parameter('on', False, [True, False], 'y axis on'),
+                      Parameter('pos', 0, float, 'y axis position in um'),
+                      Parameter('voltage', 30, float, 'voltage on y axis'),
+                      Parameter('freq', 1000, float, 'y frequency in Hz')
+                  ]
+                  ),
+        Parameter('z',
+                  [
+                      Parameter('on', False, [True, False], 'z axis on'),
+                      Parameter('pos', 0, float, 'x axis position in um'),
+                      Parameter('voltage', 30, float, 'voltage on x axis'),
+                      Parameter('freq', 1000, float, 'x frequency in Hz')
+                  ]
+                  )
+    ])
+
     def __init__(self, name = None, settings = None):
         super(Attocube, self).__init__(name, settings)
         try:
@@ -47,40 +75,6 @@ class Attocube(Instrument):
                 self._check_error(self.attocube.PositionerClose(device_handle))
             except Exception:
                 print('Attocube not detected. Check connection.')
-
-    @property
-    def DEFAULT_SETTINGS(self):
-        '''
-        returns the default parameter_list of the instrument
-        :return:
-        '''
-        parameters_default = Parameter([
-            Parameter('x',
-                [
-                    Parameter('on', False, [True, False], 'x axis on'),
-                    Parameter('pos', 0.0, float, 'x axis position in um'),
-                    Parameter('voltage', 30, float, 'voltage on x axis'),
-                    Parameter('freq', 1000, float, 'x frequency in Hz')
-                ]
-                ),
-            Parameter('y',
-                [
-                    Parameter('on', False, [True, False], 'y axis on'),
-                    Parameter('pos', 0, float, 'y axis position in um'),
-                    Parameter('voltage', 30, float, 'voltage on y axis'),
-                    Parameter('freq', 1000, float, 'y frequency in Hz')
-                ]
-                ),
-            Parameter('z',
-                [
-                    Parameter('on', False, [True, False], 'z axis on'),
-                    Parameter('pos', 0, float, 'x axis position in um'),
-                    Parameter('voltage', 30, float, 'voltage on x axis'),
-                    Parameter('freq', 1000, float, 'x frequency in Hz')
-                ]
-                )
-        ])
-        return parameters_default
 
     def update(self, settings):
         super(Attocube, self).update(settings)

@@ -27,6 +27,13 @@ class TDC001(Instrument):
     Class to control the thorlabs TDC001 servo. Note that ALL DLL FUNCTIONS TAKING NUMERIC INPUT REQUIRE A SYSTEM.DECIMAL
     VALUE. Check help doc at C:\Program Files\Thorlabs\Kinesis\Thorlabs.MotionControl.DotNet_API for the DLL api
     '''
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('serial_number', 83832028, int, 'serial number written on device'),
+        Parameter('position', 0, float, 'servo position (from 0 to 6 in mm)'),
+        Parameter('velocity', 0, float, 'servo maximum velocity in mm/s')
+    ])
+
     def __init__(self, name = None, settings = None):
         super(TDC001, self).__init__(name, settings)
         try:
@@ -34,19 +41,19 @@ class TDC001(Instrument):
             serial_number_list = DeviceManagerCLI.GetDeviceList(TCubeDCServo.DevicePrefix)
         except (Exception):
             print("Exception raised by BuildDeviceList")
-        if not (str(self._parameters['serial_number']) in serial_number_list):
-            print(str(self._parameters['serial_number']) + " is not a valid serial number")
+        if not (str(self.settings['serial_number']) in serial_number_list):
+            print(str(self.settings['serial_number']) + " is not a valid serial number")
             raise
 
-        self.device = TCubeDCServo.CreateTCubeDCServo(str(self._parameters['serial_number']))
+        self.device = TCubeDCServo.CreateTCubeDCServo(str(self.settings['serial_number']))
         if(self.device == None):
-            print(self._parameters['serial_number'] + " is not a TCubeDCServo")
+            print(self.settings['serial_number'] + " is not a TCubeDCServo")
             raise
 
         try:
-            self.device.Connect(str(self._parameters['serial_number']))
+            self.device.Connect(str(self.settings['serial_number']))
         except Exception:
-            print('Failed to open device ' + str(self._parameters['serial_number']))
+            print('Failed to open device ' + str(self.settings['serial_number']))
             raise
 
         if not self.device.IsSettingsInitialized():
@@ -58,21 +65,8 @@ class TDC001(Instrument):
 
         self.device.StartPolling(250)
 
-        motorSettings = self.device.GetMotorConfiguration(str(self._parameters['serial_number']))
+        motorSettings = self.device.GetMotorConfiguration(str(self.settings['serial_number']))
         currentDeviceSettings = self.device.MotorDeviceSettings
-
-    @property
-    def DEFAULT_SETTINGS(self):
-        '''
-        returns the default parameter_list of the instrument
-        :return:
-        '''
-        parameters_default = Parameter([
-            Parameter('serial_number', 83832028, int, 'serial number written on device'),
-            Parameter('position', 0, float, 'servo position (from 0 to 6 in mm)'),
-            Parameter('velocity', 0, float, 'servo maximum velocity in mm/s')
-        ])
-        return parameters_default
 
     def update(self, settings):
         super(TDC001, self).update(settings)
@@ -102,7 +96,7 @@ class TDC001(Instrument):
     @property
     def is_connected(self):
         DeviceManagerCLI.BuildDeviceList()
-        return(str(self._parameters['serial_number']) in DeviceManagerCLI.GetDeviceList(TCubeDCServo.DevicePrefix))
+        return(str(self.settings['serial_number']) in DeviceManagerCLI.GetDeviceList(TCubeDCServo.DevicePrefix))
 
     def __del__(self):
         '''

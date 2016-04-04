@@ -13,4 +13,4 @@ from PyQt4 import QtGui
 
 
 class ESR(Script):
-    pass
+    raise NotImplementedError

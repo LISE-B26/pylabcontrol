@@ -48,6 +48,35 @@ class DAQ(Instrument):
     except:
         raise
 
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('device', 'Dev1', (str), 'Name of DAQ device'),
+        Parameter('override_buffer_size', -1, int, 'Buffer size for manual override (unused if -1)'),
+        Parameter('output',
+                  [
+                      Parameter('channel', [0, 1], [0, 1, 2, 3], 'output channel(s)'),
+                      Parameter('sample_rate', 1000, float, 'output sample rate'),
+                      Parameter('min_voltage', -10, float, 'minimum output voltage'),
+                      Parameter('max_voltage', 10, float, 'maximum output voltage')
+                  ]
+                  ),
+        Parameter('analog_input',
+                  [
+                      Parameter('channel', 0, range(0, 32), 'input channel(s)'),
+                      Parameter('sample_rate', 1000, float, 'input sample rate'),
+                      Parameter('min_voltage', -10, float, 'minimum input voltage'),
+                      Parameter('max_voltage', 10, float, 'maximum input voltage')
+                  ]
+                  ),
+        Parameter('digital_input',
+                  [
+                      Parameter('input_channel', 0, range(0, 32), 'input channel(s)'),
+                      Parameter('clock_PFI_channel', 13, range(0, 32), 'PFI output clock channel'),
+                      Parameter('clock_counter_channel', 1, [0, 1], 'counter output clock channel'),
+                      Parameter('sample_rate', 1000, float, 'input sample rate')
+                  ]
+                  )
+    ])
+
     def __init__(self, name = None, settings = None):
         if self.dll_detected:
             # buf_size = 10
@@ -66,34 +95,7 @@ class DAQ(Instrument):
         returns the default parameter_list of the instrument
         :return:
         '''
-        parameters_default = Parameter([
-            Parameter('device', 'Dev1', (str), 'Name of DAQ device'),
-            Parameter('override_buffer_size', -1, int, 'Buffer size for manual override (unused if -1)'),
-            Parameter('output',
-                      [
-                          Parameter('channel', [0,1], [0,1,2,3], 'output channel(s)'),
-                          Parameter('sample_rate', 1000, float, 'output sample rate'),
-                          Parameter('min_voltage', -10, float, 'minimum output voltage'),
-                          Parameter('max_voltage', 10, float, 'maximum output voltage')
-                       ]
-                      ),
-            Parameter('analog_input',
-                      [
-                          Parameter('channel', 0, range(0,32), 'input channel(s)'),
-                          Parameter('sample_rate', 1000, float, 'input sample rate'),
-                          Parameter('min_voltage', -10, float, 'minimum input voltage'),
-                          Parameter('max_voltage', 10, float, 'maximum input voltage')
-                       ]
-                      ),
-            Parameter('digital_input',
-                      [
-                          Parameter('input_channel', 0, range(0,32), 'input channel(s)'),
-                          Parameter('clock_PFI_channel', 13, range(0,32), 'PFI output clock channel'),
-                          Parameter('clock_counter_channel', 1, [0,1], 'counter output clock channel'),
-                          Parameter('sample_rate', 1000, float, 'input sample rate')
-                       ]
-                      )
-        ])
+
         return parameters_default
 
     def update(self, settings):
