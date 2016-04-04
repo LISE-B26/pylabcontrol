@@ -125,6 +125,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             # plots
             self.matplotlibwidget.mpl_connect('button_press_event',  self.plot_clicked)
+            self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_clicked)
 
         connect_controls()
 
@@ -151,13 +152,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if item is not None:
 
             if item.is_point():
-                print('mouse_event.xdata',mouse_event.xdata)
                 item_x = item.child(1)
                 if mouse_event.xdata is not None:
-                    item_x.setData(1, 2, float(mouse_event.xdata))
+                    self.tree_scripts.setCurrentItem(item_x)
+                    item_x.value = float(mouse_event.xdata)
+                    item_x.setText(1, '{:0.3f}'.format(float(mouse_event.xdata)))
                 item_y = item.child(0)
                 if mouse_event.ydata is not None:
-                    item_y.setData(1, 2, float(mouse_event.ydata))
+                    self.tree_scripts.setCurrentItem(item_y)
+                    item_y.value = float(mouse_event.ydata)
+                    item_y.setText(1, '{:0.3f}'.format(float(mouse_event.ydata)))
+
+                # focus back on item
+                self.tree_scripts.setCurrentItem(item)
             else:
                 if item.parent() is not None:
                     if item.parent().is_point():
@@ -217,7 +224,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             # send new value from tree to script
             script.update(dictator)
-
+            print('FSAD -Aada', item.value)
+            print('FSAD -dictator', dictator)
             new_value = item.value
             if new_value is not old_value:
                 msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value),
