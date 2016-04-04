@@ -1,5 +1,5 @@
 from src.core import Probe
-
+import json
 def load_instruments(instruments):
     """
     Creates instances of the instruments inputted; in the case of the Maestro Beam Block and other motors, makes sure
@@ -32,13 +32,18 @@ def load_instruments(instruments):
     controller_instance = None
 
     for instrument_name, instrument_class_name in instruments.iteritems():
-
+        if isinstance(instrument_class_name, dict):
+            instrument_settings = instrument_class_name['settings']
+            instrument_class_name = str(instrument_class_name['instrument_class'])
+        else:
+            instrument_settings = None
         try:
+
             # try to import the instrument
             module = __import__('src.instruments', fromlist=[instrument_class_name])
             # this returns the name of the module that was imported.
-
             class_of_instrument = getattr(module, instrument_class_name)
+
             # this will take the module and look for the class of the instrument in it.
             # This has the same name as the name for the module, because of our __init__.py file in the instruments
             # folder. This raises an AttributeError if, in fact, we did not import the module
@@ -56,8 +61,11 @@ def load_instruments(instruments):
                 instrument_instance = class_of_instrument(maestro = controller_instance, name = instrument_name)
 
             else:
-                # this creates an instance of the class
-                instrument_instance = class_of_instrument(name=instrument_name)
+                if instrument_settings is None:
+                    # this creates an instance of the class
+                    instrument_instance = class_of_instrument(name=instrument_name)
+                else:
+                    instrument_instance = class_of_instrument(name=instrument_name, settings = instrument_settings)
 
             # adds the instance to our output ditionary
             instrument_instances[instrument_name] = instrument_instance
@@ -102,12 +110,12 @@ def load_scripts(scripts, instruments, log_function = None):
         script_instance = None
         script_instruments = None
         script_scripts = None
+        script_settings =  None
         if isinstance(value, dict):
-
             assert 'script_class' in value
-            assert 'instruments' in value or 'scripts' in value
+            assert 'instruments' in value or 'scripts' in value or 'settings' in value
 
-            script_class = value['script_class']
+            script_class = str(value['script_class'])
             if 'instruments' in value:
                 script_instruments = value['instruments']
                 script_instruments = {
@@ -121,6 +129,8 @@ def load_scripts(scripts, instruments, log_function = None):
                     script_name: create_script_instance(script_name, val)
                     for script_name, val in script_scripts.iteritems()
                     }
+            if 'settings' in value:
+                script_settings = value['settings']
 
         elif isinstance(value, str):
             script_class = value
@@ -141,23 +151,37 @@ def load_scripts(scripts, instruments, log_function = None):
         # this creates an instance of the class
         try:
 
-            if script_instruments is None and script_scripts is None:
-                script_instance = class_of_script(name=script_name, log_output = log_function)
-            elif script_instruments is not None and script_scripts is None:
-                script_instance = class_of_script(name=script_name,
-                                                  instruments = script_instruments,
-                                                  log_output = log_function)
-            elif script_instruments is None and script_scripts is not None:
-                script_instance = class_of_script(name=script_name,
-                                                  scripts = script_scripts,
-                                                  log_output = log_function)
-            elif script_instruments is not None and script_scripts is not None:
-                script_instance = class_of_script(name=script_name,
-                                                  instruments = script_instruments,
-                                                  scripts = script_scripts,
-                                                  log_output = log_function)
-            else:
-                raise AssertionError
+            class_creation_string = ''
+            if script_instruments is not None:
+                class_creation_string += ', instruments = script_instruments'
+            if script_scripts is not None:
+                class_creation_string += ', scripts = script_scripts'
+            if script_settings is not None:
+                class_creation_string += ', settings = script_settings'
+            if log_function is not None:
+                class_creation_string += ', log_output = log_function'
+            class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
+
+
+            script_instance = eval(class_creation_string)
+            # if script_instruments is None and script_scripts is None:
+            #     script_instance = class_of_script(name=script_name,
+            #                                       log_output = log_function)
+            # elif script_instruments is not None and script_scripts is None:
+            #     script_instance = class_of_script(name=script_name,
+            #                                       instruments = script_instruments,
+            #                                       log_output = log_function)
+            # elif script_instruments is None and script_scripts is not None:
+            #     script_instance = class_of_script(name=script_name,
+            #                                       scripts = script_scripts,
+            #                                       log_output = log_function)
+            # elif script_instruments is not None and script_scripts is not None:
+            #     script_instance = class_of_script(name=script_name,
+            #                                       instruments = script_instruments,
+            #                                       scripts = script_scripts,
+            #                                       log_output = log_function)
+            # else:
+            #     raise AssertionError
         except:
             raise
 
@@ -221,24 +245,22 @@ def load_probes(probes, instruments):
 
 if __name__ == '__main__':
 
-    instruments = {'inst_dummy': 'DummyInstrument'}
+    import yaml
+    in_file_name = "Z:\Lab\Cantilever\Measurements\\tmp_\\a"
+    with open(in_file_name, 'r') as infile:
+        in_data = yaml.safe_load(infile)
 
-    instruments = load_instruments(instruments)
-    print(instruments)
-    probes = {
-        'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
-        'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
-              }
-
-    probes = load_probes(probes, instruments)
-
-    print(probes)
+    instruments = in_data['instruments']
+    scripts = in_data['scripts']
+    probes = in_data['probes']
 
 
-    # print(probes)
 
-    print(probes['random'].value)
-    print(probes['value2'].value)
-    print(probes['random'].value)
+    inst = load_instruments(instruments)
+
+    sc = load_scripts(scripts, inst)
+
+    pr = load_probes(probes, inst)
+
 
 

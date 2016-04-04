@@ -44,8 +44,10 @@ probes = {
     'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
           }
 
-# ex = ControlMainWindow('path....')
-ex = qt_b26_gui.ControlMainWindow(instruments, scripts, probes)
+settings_file = "Z:\Lab\Cantilever\Measurements\\tmp_\\a"
+
+ex = qt_b26_gui.ControlMainWindow(settings_file)
+# ex = qt_b26_gui.ControlMainWindow(instruments, scripts, probes)
 ex.show()
 ex.raise_()
 sys.exit(app.exec_())

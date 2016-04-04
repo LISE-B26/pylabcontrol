@@ -125,7 +125,9 @@ class Instrument(object):
         return self._name
     @name.setter
     def name(self, value):
-        assert isinstance(value, str)
+        if isinstance(value, unicode):
+            value = str(value)
+        assert isinstance(value, str), "{:s}".format(str(value))
         self._name = value
 
     @property

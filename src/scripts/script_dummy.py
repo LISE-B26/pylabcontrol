@@ -17,7 +17,6 @@ class ScriptDummy(Script):
         Parameter('count', 3, int),
         Parameter('name', 'this is a counter'),
         Parameter('wait_time', 0.1, float),
-        Parameter('point', (0.1, 0.2), tuple, 'a point'),
         Parameter('point2',
                   [Parameter('x', 0.1, float, 'x-coordinate'),
                   Parameter('y', 0.1, float, 'y-coordinate')
