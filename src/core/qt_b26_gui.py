@@ -52,7 +52,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         """
         if len(args) == 1:
-            print('XX')
+
             instruments, scripts, probes = self.load_settings(args[0])
         elif len(args) == 3:
             instruments, scripts, probes = args
@@ -229,8 +229,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             # send new value from tree to script
             script.update(dictator)
-            print('FSAD -Aada', item.value)
-            print('FSAD -dictator', dictator)
+
             new_value = item.value
             if new_value is not old_value:
                 msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value),
