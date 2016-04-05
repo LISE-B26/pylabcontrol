@@ -59,19 +59,26 @@ class KeysightSpectrumVsPower(Script, QThread):
 
         spectrum_analyzer = self.scripts['get_spectrum'].instruments['spectrum_analyzer']
 
+        initial_power = spectrum_analyzer.settings['output_power']
+        print('initial_power', initial_power)
+
         self.save(save_data=False, save_instrumets=True, save_log=False, save_settings=True)
 
         for power in power_values:
 
-            spectrum_analyzer.output_power = power
-            time.sleep(self.settings['wait_time'])  #since the spectrum analyzer takes a full second =)
-
+            self.log('current u-wave power : {:0.2f} dBm'.format(power))
             uwave_power.append(power)
             times.append(time.strftime('%Y_%m_%d_%H_%M_%S'))
             stage_1_temp.append(self.instruments['cryo_station'].platform_temp)
             stage_2_temp.append(self.instruments['cryo_station'].stage_1_temp)
             platform_temp.append(self.instruments['cryo_station'].stage_2_temp)
 
+            # set power and wait to thermalized
+            spectrum_analyzer.mode = 'TrackingGenerator'
+            spectrum_analyzer.output_power = power
+            time.sleep(self.settings['wait_time'])  #since the spectrum analyzer takes a full second =)
+
+            self.scripts['get_spectrum'].update({'output_power': power})
             self.scripts['get_spectrum'].run()
 
             freq = self.scripts['get_spectrum'].data['frequency']
@@ -95,12 +102,13 @@ class KeysightSpectrumVsPower(Script, QThread):
 
             progress = calc_progress(power)
             self.updateProgress.emit(progress)
-            self.log('current u-wave power : {:0.2f} dBm'.format(power))
+
 
         self.save(save_data=False, save_instrumets=False, save_log=True, save_settings=False)
 
-        spectrum_analyzer.output_power = -60.0
-
+        spectrum_analyzer.output_power = initial_power
+        # send 100 to signal that script is finished
+        self.updateProgress.emit(100)
 
 
     def plot(self, axes):

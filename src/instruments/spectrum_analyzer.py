@@ -21,10 +21,10 @@ class SpectrumAnalyzer(Instrument):
                       'switches between normal spectrum analyzer mode or spectrum analyzer PLUS output, '
                       'i.e., tracking generator'),
             Parameter('stop_frequency', 3e9, float, 'stop frequency of spectrum analyzer frequency range'),
-            Parameter('output_on', True, bool, 'toggles the tracking generator'),
+            Parameter('output_on', False, bool, 'toggles the tracking generator'),
             Parameter('connection_timeout', 1000, int, 'the time to wait for a response '
                                                        'from the spectrum analyzer with each query'),
-            Parameter('output_power', 10.0, float, 'the output power (in dBm) of the tracking generator')
+            Parameter('output_power', -20.0, float, 'the output power (in dBm) of the tracking generator')
         ])
 
     def __init__(self, name='SpectrumAnalyzer', settings={}):
@@ -115,7 +115,9 @@ class SpectrumAnalyzer(Instrument):
         return float(self.spec_anal.query('SENS:FREQ:STOP?\n'))
 
     def _toggle_output(self, state):
+
         if state:
+            assert self._get_mode() == 'TrackingGenerator', "output can't be on while in SpectrumAnalyzer mode"
             self.spec_anal.write('OUTPUT 1')
         elif not state:
             self.spec_anal.write('OUTPUT 0')
@@ -137,6 +139,7 @@ class SpectrumAnalyzer(Instrument):
         if mode == 'TrackingGenerator':
             self.spec_anal.write('CONFIGURE:TGENERATOR')
         elif mode == 'SpectrumAnalyzer':
+            self.output_on = False
             self.spec_anal.write('CONFIGURE:SANALYZER')
 
     def _get_trace(self):
@@ -150,9 +153,11 @@ class SpectrumAnalyzer(Instrument):
         return float(self.spec_anal.query('BANDWIDTH?'))
 
     def _get_output_power(self):
-        return self.spec_anal.query('SOURCE:POWER?')
+        return float(self.spec_anal.query('SOURCE:POWER?'))
 
     def _set_output_power(self, power):
+        assert self.mode == 'TrackingGenerator', "mode need to be 'TrackingGenerator' to change power"
+
         return self.spec_anal.write('SOURCE:POWER ' + str(power))
 
     def __del__(self):

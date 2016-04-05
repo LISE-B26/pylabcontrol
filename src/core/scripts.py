@@ -308,6 +308,7 @@ class Script(object):
                 tmp = json.dump(self.settings, outfile, indent=4)
         # ======= save self.log_data ==============================
         # save logfile
+        if save_log:
             file_path = "{:s}\\{:s}_{:s}.{:s}".format(
                             path,
                             self.end_time.strftime('%y%m%d-%H_%M_%S'),
@@ -315,7 +316,7 @@ class Script(object):
                             'log'
                         )
 
-        if save_log:
+
             with open(file_path, 'w') as outfile:
                 for item in self.log_data:
                   outfile.write("%s\n" % item)
@@ -381,6 +382,18 @@ class Script(object):
         dictator[self.name]['settings'] = self.settings
 
         return dictator
+
+    @staticmethod
+    def load_data(path, time_tag = None):
+        """
+        loads the data that has been save with Script.save
+        Args:
+            path: path to data
+            time_tag: (optional) time tag of data if None, returns all data sets that have been found
+        Returns:
+            a dictionary with the data
+        """
+
 
 
 

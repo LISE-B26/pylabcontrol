@@ -40,6 +40,7 @@ class KeysightGetSpectrum(Script):
         """
 
         def setup_instrument():
+            print('self.settings',self.settings)
             inst = self.instruments['spectrum_analyzer']
             if inst.settings['start_frequency'] != self.settings['start_frequency']:
                 inst.start_frequency = self.settings['start_frequency']
@@ -48,7 +49,7 @@ class KeysightGetSpectrum(Script):
                 inst.stop_frequency = self.settings['stop_frequency']
 
             if self.settings['output_on']:
-                if inst.settings['output_on'] != self.settings['output_on']:
+                if inst.settings['mode'] != 'TrackingGenerator':
                     inst.mode = 'TrackingGenerator'
                 if inst.settings['output_power'] != self.settings['output_power']:
                     inst.output_power = self.settings['output_power']
