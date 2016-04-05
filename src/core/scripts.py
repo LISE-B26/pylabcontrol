@@ -237,91 +237,102 @@ class Script(object):
     def stop(self):
         self._abort == True
 
-    def save(self):
+    def save(self, save_data = True, save_settings = True, save_instrumets = True, save_log = True):
         """
         saves self.data
         requires that the script has
          - a self.data dictionary that holds the data
          - a 'path' parameter
          - a 'tag' parameter
+
         """
 
         path = self.settings['path']
         tag = self.settings['tag']
 
-        # if deque object, take the last dataset, which is the most recent
-        if isinstance(self.data, deque):
-            data = self.data[-1]
-        elif isinstance(self.data, dict):
-            data = self.data
-        else:
-            raise TypeError("unknown datatype!")
-
         if os.path.exists(path) == False:
             os.makedirs(path)
 
         # ======= save self.data ==============================
-        if len(set([len(v) for k, v in data.iteritems()]))==1:
-            # if all entries of the dictionary are the same length we can write the data into a single file
-            file_path = "{:s}\\{:s}_{:s}.{:s}".format(
-                path,
-                self.end_time.strftime('%y%m%d-%H_%M_%S'),
-                tag,
-                'dat'
-            )
+        if save_data:
+            # if deque object, take the last dataset, which is the most recent
+            if isinstance(self.data, deque):
+                data = self.data[-1]
+            elif isinstance(self.data, dict):
+                data = self.data
+            else:
+                raise TypeError("unknown datatype!")
 
-            df = pd.DataFrame(data)
-            df.to_csv(file_path)
-
-        else:
-            # otherwise, we write each entry into a separate file into a subfolder data
-
-            path = "{:s}\\data\\".format(path)
-            if os.path.exists(path) == False:
-                os.makedirs(path)
-            for key, value in self.data.iteritems():
-
-
+            if len(set([len(v) for k, v in data.iteritems()]))==1:
+                # if all entries of the dictionary are the same length we can write the data into a single file
                 file_path = "{:s}\\{:s}_{:s}.{:s}".format(
                     path,
                     self.end_time.strftime('%y%m%d-%H_%M_%S'),
                     tag,
-                    key
+                    'dat'
                 )
 
-                df = pd.DataFrame(value)
+                df = pd.DataFrame(data)
                 df.to_csv(file_path)
 
-        # ======= save self.settings ==============================
-        file_path = "{:s}\\{:s}_{:s}.{:s}".format(
+            else:
+                # otherwise, we write each entry into a separate file into a subfolder data
+
+                path = "{:s}\\data\\".format(path)
+                if os.path.exists(path) == False:
+                    os.makedirs(path)
+                for key, value in self.data.iteritems():
+
+
+                    file_path = "{:s}\\{:s}_{:s}.{:s}".format(
                         path,
                         self.end_time.strftime('%y%m%d-%H_%M_%S'),
                         tag,
-                        'set'
+                        key
                     )
 
-        # save settings
-        with open(file_path, 'w') as outfile:
-            tmp = json.dump(self.settings, outfile, indent=4)
-        # ======= save self.log_data ==============================
-        # save logfile
-        with open(file_path.replace('.set', '.log'), 'w') as outfile:
-            for item in self.log_data:
-              outfile.write("%s\n" % item)
+                    df = pd.DataFrame(value)
+                    df.to_csv(file_path)
 
-        # ======= save self.instruments ==============================
-
-        if self.instruments != {}:
-
+        # ======= save self.settings ==============================
+        if save_settings:
             file_path = "{:s}\\{:s}_{:s}.{:s}".format(
                             path,
                             self.end_time.strftime('%y%m%d-%H_%M_%S'),
                             tag,
-                            'inst'
+                            'set'
                         )
-            inst_dict = {k : v.settings for k, v in self.instruments.iteritems()}
+
+            # save settings
             with open(file_path, 'w') as outfile:
-                tmp = json.dump(inst_dict, outfile, indent=4)
+                tmp = json.dump(self.settings, outfile, indent=4)
+        # ======= save self.log_data ==============================
+        # save logfile
+            file_path = "{:s}\\{:s}_{:s}.{:s}".format(
+                            path,
+                            self.end_time.strftime('%y%m%d-%H_%M_%S'),
+                            tag,
+                            'log'
+                        )
+
+        if save_log:
+            with open(file_path, 'w') as outfile:
+                for item in self.log_data:
+                  outfile.write("%s\n" % item)
+
+        # ======= save self.instruments ==============================
+        if save_instrumets:
+            if self.instruments != {}:
+
+                file_path = "{:s}\\{:s}_{:s}.{:s}".format(
+                                path,
+                                self.end_time.strftime('%y%m%d-%H_%M_%S'),
+                                tag,
+                                'inst'
+                            )
+                inst_dict = {k : v.settings for k, v in self.instruments.iteritems()}
+                with open(file_path, 'w') as outfile:
+                    tmp = json.dump(inst_dict, outfile, indent=4)
 
     def plot(self, axes):
         """

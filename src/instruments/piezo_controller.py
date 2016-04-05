@@ -4,6 +4,15 @@ from src.core.instruments import Instrument, Parameter
 
 
 class PiezoController(Instrument):
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('axis', 'x', ['x', 'y', 'z'], '"x", "y", or "z" axis'),
+        Parameter('port', 'COM17', str, 'serial port on which to connect'),
+        Parameter('baudrate', 115200, int, 'baudrate of connection'),
+        Parameter('timeout', .1, float, 'connection timeout'),
+        Parameter('voltage', 0.0, float, 'current voltage')
+    ])
+
     def __init__(self, name = None, settings = None):
         super(PiezoController, self).__init__(name, settings)
         self._is_connected = False
@@ -18,22 +27,6 @@ class PiezoController(Instrument):
             self.ser.write('echo=0\r') #disables repetition of input commands in output
             self.ser.readlines()
             self._is_connected = True
-
-    @property
-    def _DEFAULT_SETTINGS(self):
-        '''
-        returns the default parameter_list of the instrument
-        :return:
-        '''
-        parameters_default = Parameter([
-            Parameter('axis', 'x', ['x', 'y', 'z'], '"x", "y", or "z" axis'),
-            Parameter('port', 'COM17', str, 'serial port on which to connect'),
-            Parameter('baudrate', 115200, int, 'baudrate of connection'),
-            Parameter('timeout', .1, float, 'connection timeout'),
-            Parameter('voltage', 0.0, float, 'current voltage')
-        ])
-
-        return parameters_default
 
     def update(self, settings):
         super(PiezoController, self).update(settings)

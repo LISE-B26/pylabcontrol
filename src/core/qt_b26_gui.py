@@ -20,7 +20,7 @@ from collections import deque
 
 from src.core import load_probes, load_scripts, load_instruments
 
-from src.scripts import ZISweeper, ZISweeperHighResolution
+from src.scripts import ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower
 from src.core.plotting import plot_psd
 
 
@@ -373,7 +373,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             pass
         script = self.current_script
 
-        if isinstance(script, (ZISweeper, ZISweeperHighResolution)):
+        if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower)):
             if script.data:
                 script.plot(self.matplotlibwidget.axes)
                 self.matplotlibwidget.draw()

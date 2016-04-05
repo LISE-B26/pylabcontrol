@@ -43,6 +43,11 @@ try:
 except:
     pass
 
+try:
+    from microwave_generator import MicrowaveGenerator
+except:
+    pass
+
 from montana import CryoStation
 # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']
 # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']

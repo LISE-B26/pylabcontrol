@@ -16,20 +16,40 @@ instruments = {
     'zihf2':'ZIHF2',
     'pressure gauge': 'PressureGauge',
     'cryo station': 'CryoStation',
+    'spectrum analyzer': 'SpectrumAnalyzer',
+    'microwave generator': 'MicrowaveGenerator'
 }
 
 scripts= {
 
 
-    # 'counter': 'ScriptDummy',
-    #
-    #
-    # 'dummy script with inst': {
-    #     'script_class': 'ScriptDummyWithInstrument',
-    #     'instruments': {'dummy_instrument': 'inst_dummy'}
+    'u-wave spectra': {
+        'script_class': 'KeysightGetSpectrum',
+        'instruments':{
+        'spectrum_analyzer' : 'spectrum analyzer'
+        }
+    },
+
+    'u-wave spectra vs power': {
+        'script_class': 'KeysightSpectrumVsPower',
+        'instruments':{'cryo_station' : 'cryo station'},
+        'scripts': {'get_spectrum': {
+            'script_class': 'KeysightGetSpectrum',
+            'instruments':{'spectrum_analyzer' : 'spectrum analyzer'}
+            }
+        }
+    },
+
+
+
+    # 'u-wave spectra vs power': {
+    #     'script_class': 'MWSpectraVsPower',
+    #     'instruments':{
+    #     'microwave_generator' : 'microwave generator',
+    #     'cryo_station' : 'cryo station',
+    #     'spectrum_analyzer' : 'spectrum analyzer'
+    #     }
     # },
-    #
-    # 'QT counter' : 'ScriptDummyWithQtSignal',
 
     'ZI sweep' : {
         'script_class': 'ZISweeper',
@@ -62,6 +82,8 @@ probes = {
     'T (stage 2)': {'probe_name': 'stage_2_temp', 'instrument_name': 'cryo station'}
     # 'Chamber Pressure' : { 'probe_name': 'pressure', 'instrument_name': 'pressure gauge'}
           }
+
+
 
 ex = qt_b26_gui.ControlMainWindow(instruments, scripts, probes)
 ex.show()

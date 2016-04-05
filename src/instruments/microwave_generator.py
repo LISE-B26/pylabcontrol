@@ -26,7 +26,7 @@ class MicrowaveGenerator(Instrument):
         super(MicrowaveGenerator, self).__init__(name, settings)
         try:
             rm = visa.ResourceManager()
-            self.srs = rm.open_resource(u'GPIB' + str(self._parameters['GPIB_num']) + '::' + str(self._parameters['port']) + '::INSTR')
+            self.srs = rm.open_resource(u'GPIB' + str(self.settings['GPIB_num']) + '::' + str(self.settings['port']) + '::INSTR')
             self.srs.query('*IDN?') # simple call to check connection
         except pyvisa.errors.VisaIOError:
             print('No Piezo Controller Detected')
@@ -39,7 +39,7 @@ class MicrowaveGenerator(Instrument):
         super(MicrowaveGenerator, self).update(settings)
         for key, value in settings.iteritems():
             if not (key == 'port' or key == 'GPIB_num'):
-                if type(self._parameters.valid_values[key]) == bool: #converts booleans, which are more natural to store for on/off, to
+                if type(self.settings.valid_values[key]) == bool: #converts booleans, which are more natural to store for on/off, to
                     value = int(value)                #the integers used internally in the SRS
                 self.srs.write(key + ' ' + str(value))
 
