@@ -293,7 +293,7 @@ class Script(object):
                     )
 
                     df = pd.DataFrame(value)
-                    df.to_csv(file_path)
+                    df.to_csv(file_path, index = False)
 
         # ======= save self.settings ==============================
         if save_settings:
@@ -385,34 +385,37 @@ class Script(object):
         return dictator
 
     @staticmethod
-    def load_data(path, time_tag = None):
+    def load_data(path, time_tag_in = None):
         """
         loads the data that has been save with Script.save
         Args:
             path: path to data
             time_tag: (optional) time tag of data if None, returns all data sets that have been found
         Returns:
-            a dictionary with the data
+            a dictionary with the data of form
+            data = {time_tag:data_set}
+            with
+            data_set = {'varible1':data, 'variable2' : data, etc.}
+
+            if there is only a single time tag, return data_set
         """
-
+        data = {}
         if 'data' in os.listdir(path):
-            # NOT FINISHED!!
             data_files = os.listdir(path + '\data')
-
             data_names = set([f.split('.')[1] for f  in  data_files])
             time_tags = set(['_'.join(f.split('_')[0:3]) for f  in  data_files])
 
+
             for time_tag in time_tags:
-                data = {}
+                sub_data = {}
                 for data_name in data_names:
-                    file_path = "{:s}\\data\\{:s}*.{:s}".format(path, time_tag, data_name)
-                    print(glob.glob(file_path))
-                    data.update({data_name:glob.glob(file_path)[0]})
+                    file_path = "{:s}\\data\\{:s}*.{:s}".format(DIR, time_tag, data_name)
+                    df = pd.read_csv(glob.glob(file_path)[0])
+                    sub_data.update({data_name:list(df[list(df)[0]])})
+                data.update({time_tag: sub_data})
 
         else:
             data_files = glob.glob(path + '*.dat')
-
-            data = {}
 
             for data_file in data_files:
                 time_tag = '_'.join(data_file.split('\\')[-1].split('_')[0:3])
@@ -421,6 +424,14 @@ class Script(object):
                 data.update({time_tag:
                             {data_name:list(df[data_name]) for data_name in data_names}
                             })
+
+
+        if time_tag_in != None:
+            # if user specifies a time_tag we only return that specific data set
+            data = data[time_tag_in]
+        elif len(data) == 1:
+            # if there is only one data_set, we strip of the time_tag level
+            data = data[data.keys()[0]]
 
         return data
 
