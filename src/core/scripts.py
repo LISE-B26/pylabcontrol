@@ -7,6 +7,7 @@ from PyQt4 import QtCore
 from collections import deque
 import os
 import pandas as pd
+import glob
 import json as json
 from PySide.QtCore import Signal, QThread
 
@@ -273,7 +274,7 @@ class Script(object):
                 )
 
                 df = pd.DataFrame(data)
-                df.to_csv(file_path)
+                df.to_csv(file_path, index = False)
 
             else:
                 # otherwise, we write each entry into a separate file into a subfolder data
@@ -394,6 +395,34 @@ class Script(object):
             a dictionary with the data
         """
 
+        if 'data' in os.listdir(path):
+            # NOT FINISHED!!
+            data_files = os.listdir(path + '\data')
+
+            data_names = set([f.split('.')[1] for f  in  data_files])
+            time_tags = set(['_'.join(f.split('_')[0:3]) for f  in  data_files])
+
+            for time_tag in time_tags:
+                data = {}
+                for data_name in data_names:
+                    file_path = "{:s}\\data\\{:s}*.{:s}".format(path, time_tag, data_name)
+                    print(glob.glob(file_path))
+                    data.update({data_name:glob.glob(file_path)[0]})
+
+        else:
+            data_files = glob.glob(path + '*.dat')
+
+            data = {}
+
+            for data_file in data_files:
+                time_tag = '_'.join(data_file.split('\\')[-1].split('_')[0:3])
+                df = pd.read_csv(data_file)
+                data_names = list(df)
+                data.update({time_tag:
+                            {data_name:list(df[data_name]) for data_name in data_names}
+                            })
+
+        return data
 
 
 
