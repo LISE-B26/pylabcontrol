@@ -18,6 +18,10 @@ class MaestroController(Instrument):
 
     import serial
 
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected')
+    ])
+
     def __init__(self, name = None, settings = None):
 
         self.usb = None
@@ -35,20 +39,6 @@ class MaestroController(Instrument):
         self.Mins = [0] * 24
         self.Maxs = [0] * 24
 
-
-    # ========================================================================================
-    # ======= Following old_functions have to be customized for each instrument subclass =========
-    # ========================================================================================
-    @property
-    def DEFAULT_SETTINGS(self):
-        '''
-        returns the default parameter_list of the instrument
-        :return:
-        '''
-        parameters_default = Parameter([
-            Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected')
-        ])
-        return parameters_default
 
     def update(self, settings):
         # call the update_parameter_list to update the parameter list
@@ -245,6 +235,16 @@ class MaestroController(Instrument):
 
 
 class MaestroBeamBlock(Instrument):
+
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('channel', 0, int, 'channel to which motor is connected'),
+        Parameter('open', True, bool, 'beam block open or closed'),
+        Parameter('settle_time', 0.2, float, 'settling time'),
+        Parameter('position_open', 4 * 1900, int, 'position corresponding to open'),
+        Parameter('position_closed', 4 * 950, int, 'position corresponding to closed')
+    ])
+
     from time import sleep
     def __init__(self, maestro = None, name = None, settings = None):
         '''
@@ -256,6 +256,7 @@ class MaestroBeamBlock(Instrument):
 
         if maestro is None:
             maestro = MaestroController()
+        print('asdasd',maestro)
         assert isinstance(maestro, MaestroController)
         self.maestro = maestro
 
@@ -266,22 +267,6 @@ class MaestroBeamBlock(Instrument):
         assert isinstance(name, str)
         super(MaestroBeamBlock, self).__init__(name, settings)
         self.update(self.settings)
-
-
-    @property
-    def DEFAULT_SETTINGS(self):
-        '''
-        returns the default parameter_list of the instrument
-        :return:
-        '''
-        parameters_default = Parameter([
-            Parameter('channel', 0, int, 'channel to which motor is connected'),
-            Parameter('open', True, bool, 'beam block open or closed'),
-            Parameter('settle_time', 0.2, float,'settling time'),
-            Parameter('position_open', 4*1900, int,'position corresponding to open'),
-            Parameter('position_closed', 4*950, int,'position corresponding to closed')
-        ])
-        return parameters_default
 
     def update(self, settings):
 

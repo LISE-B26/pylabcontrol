@@ -52,10 +52,11 @@ def load_instruments(instruments):
             if instrument_class_name is 'MaestroBeamBlock':
                 if not controller_instance:
                     # Need to create a controller first, and use that instance for all Maestro Motors.
-
-                    module = __import__('src.instruments', fromlist=[instrument_class_name])
-                    class_of_controller = getattr(module, instrument_class_name)
-                    controller_instance = class_of_controller()
+                    # module = __import__('src.instruments', fromlist=[instrument_class_name])
+                    # class_of_controller = getattr(module, instrument_class_name)
+                    # controller_instance = class_of_controller()
+                    from src.instruments.maestro import MaestroController
+                    controller_instance = MaestroController()
 
                 # create the instrument_instance
                 instrument_instance = class_of_instrument(maestro = controller_instance, name = instrument_name)
