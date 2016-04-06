@@ -83,9 +83,12 @@ probes = {
     # 'Chamber Pressure' : { 'probe_name': 'pressure', 'instrument_name': 'pressure gauge'}
           }
 
+path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26gui'
 
-
-ex = qt_b26_gui.ControlMainWindow(instruments, scripts, probes)
+try:
+    ex = qt_b26_gui.ControlMainWindow(path_to_default)
+except AssertionError:
+    ex = qt_b26_gui.ControlMainWindow(instruments, scripts, probes)
 ex.show()
 ex.raise_()
 sys.exit(app.exec_())
