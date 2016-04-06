@@ -1,0 +1,1 @@
+C:\Anaconda\python.exe C:\Anaconda\Lib\site-packages\PyQt4\uic\pyuic.py %*
