@@ -49,7 +49,7 @@ def load_instruments(instruments):
             # folder. This raises an AttributeError if, in fact, we did not import the module
 
             #special case of the Maestro Beam Block initialization:
-            if instrument_class_name is 'MaestroBeamBlock':
+            if instrument_class_name in ['MaestroBeamBlock', 'MaestroFilterWheel']:
                 if not controller_instance:
                     # Need to create a controller first, and use that instance for all Maestro Motors.
                     # module = __import__('src.instruments', fromlist=[instrument_class_name])
@@ -57,7 +57,7 @@ def load_instruments(instruments):
                     # controller_instance = class_of_controller()
                     from src.instruments.maestro import MaestroController
                     controller_instance = MaestroController()
-
+                print('FFFFF', class_of_instrument)
                 # create the instrument_instance
                 instrument_instance = class_of_instrument(maestro = controller_instance, name = instrument_name)
 
@@ -72,8 +72,9 @@ def load_instruments(instruments):
             instrument_instances[instrument_name] = instrument_instance
 
         except AttributeError:
+            print('{:s} did not load'.format(instrument_name))
             # catches when we try to create an instrument of a class that doesn't exist!
-            pass
+            raise AttributeError
 
     return instrument_instances
 

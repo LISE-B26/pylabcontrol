@@ -97,8 +97,9 @@ app = QtGui.QApplication(sys.argv)
 # 0 - flip mount
 instruments = {
     # 'inst_dummy': 'DummyInstrument',
-    'IR block':'MaestroBeamBlock',
-    'Green block': 'MaestroBeamBlock'
+    'IR block': 'MaestroBeamBlock',
+    'Green block': 'MaestroBeamBlock',
+    'filter wheel': 'MaestroFilterWheel'
 }
 
 scripts = {}

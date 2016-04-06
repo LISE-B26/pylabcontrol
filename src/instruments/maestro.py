@@ -1,4 +1,5 @@
 from src.core import Instrument,Parameter
+from time import sleep
 # =============== MAESTRO ==================================
 # ==========================================================
 
@@ -245,7 +246,6 @@ class MaestroBeamBlock(Instrument):
         Parameter('position_closed', 4 * 950, int, 'position corresponding to closed')
     ])
 
-    from time import sleep
     def __init__(self, maestro = None, name = None, settings = None):
         '''
         :param maestro: maestro servo controler to which motor is connected
@@ -256,15 +256,9 @@ class MaestroBeamBlock(Instrument):
 
         if maestro is None:
             maestro = MaestroController()
-        print('asdasd',maestro)
         assert isinstance(maestro, MaestroController)
         self.maestro = maestro
 
-        if  name is None:
-            name = 'maestro_beam_block'
-
-
-        assert isinstance(name, str)
         super(MaestroBeamBlock, self).__init__(name, settings)
         self.update(self.settings)
 
@@ -276,8 +270,6 @@ class MaestroBeamBlock(Instrument):
         # now we actually apply these newsettings to the hardware
         for key, value in settings.iteritems():
             if key == 'open':
-                print('aaa', key, value)
-                print(self.settings)
                 if value is True:
                     self.goto(self.settings['position_open'])
                 else:
@@ -302,7 +294,6 @@ class MaestroBeamBlock(Instrument):
         Returns: reads values from instrument
 
         '''
-        # todo: replace getter old_functions with this function
         assert key in self._probes.keys()
 
         value = None
@@ -319,5 +310,93 @@ class MaestroBeamBlock(Instrument):
 
     def goto(self, position):
         self.maestro.set_target(self.settings['channel'], position)
-        self.sleep(self.settings['settle_time'])
+        sleep(self.settings['settle_time'])
         self.maestro.disable(self.settings['channel']) # diconnect to avoid piezo from going crazy
+
+
+class MaestroFilterWheel(Instrument):
+
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('channel', 0, int, 'channel to which motor is connected'),
+        Parameter('settle_time', 0.8, float, 'settling time'),
+        Parameter('position_1', 4 * 600, int, 'position corresponding to position 1'),
+        Parameter('position_2', 4 * 1550, int, 'position corresponding to position 2'),
+        Parameter('position_3', 4 * 2500, int, 'position corresponding to position 3'),
+        Parameter('current_position', 'position_1', ['position_1', 'position_2', 'position_3'], 'current position of filter wheel')
+
+    ])
+
+
+    def __init__(self, maestro = None, name = None, settings = None):
+        '''
+        :param maestro: maestro servo controler to which motor is connected
+        :param channel: channel to which motor is connected
+        :param position_list: dictonary that contains the target positions, a factor 4 is needed to get the same values as in the maestro control center
+        :return:
+        '''
+
+
+        if maestro is None:
+            maestro = MaestroController()
+        assert isinstance(maestro, MaestroController)
+        self.maestro = maestro
+
+        super(MaestroFilterWheel, self).__init__(name, settings)
+        self.update(self.settings)
+
+
+    def update(self, settings):
+        # call the update_parameter_list to update the parameter list
+        super(MaestroFilterWheel, self).update(settings)
+
+        # now we actually apply these newsettings to the hardware
+        for key, value in settings.iteritems():
+            if key == 'current_position':
+                print('DDDDADS', key, value)
+                print('DDDDADS-->', self.settings)
+                print('asdas',self.settings[value])
+                self.goto(self.settings[value])
+
+
+    @property
+    def _probes(self):
+        '''
+
+        Returns: a dictionary that contains the values that can be read from the instrument
+        the key is the name of the value and the value of the dictionary is an info
+
+        '''
+        return {}
+
+
+    def read_probes(self, key):
+        '''
+        requestes value from the instrument and returns it
+        Args:
+            key: name of requested value
+
+        Returns: reads values from instrument
+
+        '''
+        print('SSS',key, self._probes.keys())
+        assert key in self._probes.keys()
+
+        value = None
+
+        return value
+
+
+    @property
+    def is_connected(self):
+        """
+        check if instrument is active and connected and return True in that case
+        :return: bool
+        """
+        return self.maestro._is_connected
+
+
+    def goto(self, position):
+        self.maestro.set_target(self.settings['channel'], position)
+        sleep(self.settings['settle_time'])
+        self.maestro.disable(self.settings['channel'])  # diconnect to avoid piezo from going crazy

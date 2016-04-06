@@ -24,7 +24,7 @@ except:
     pass
 
 try:
-    from maestro import MaestroBeamBlock, MaestroController
+    from maestro import MaestroBeamBlock, MaestroController, MaestroFilterWheel
 except:
     pass
 
