@@ -10,7 +10,7 @@ FPGA_PID_Loop_Simple.py which defines the higher level Python objects that are t
 
 """
 
-# TODO: set path for .lvbitx file in .c file dynamically (now it's hard coded to /lib/
+# TODO: set path for .lvbitx file in .c file dynamically (now it's hard coded to /labview_fpga_lib/
 # TODO: reading of analog input gives only positive values (as if cast into unsigned integer, try to figure out why that is
 
 from ctypes import *

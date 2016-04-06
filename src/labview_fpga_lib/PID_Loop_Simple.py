@@ -14,7 +14,7 @@ import helper_functions.sgl2int as sgl2int
 import numpy as np
 from PySide import QtCore
 
-import src.old_lib.FPGA_PID_Loop_Simple_lib_Wrapper as FPGAlib
+import src.labview_fpga_lib.FPGA_PID_Loop_Simple_lib_Wrapper as FPGAlib
 
 
 class NI7845R(object):

@@ -30,7 +30,7 @@ axis_y = int32(2)
 axis_z = int32(0)
 
 
-#attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/Software_ANC350v2/DLL/Win64/lib/hvpositionerv2.dll')
+#attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/Software_ANC350v2/DLL/Win64/labview_fpga_lib/hvpositionerv2.dll')
 
 # c struct used as return type for some functions
 class PositionerInfo(ctypes.Structure):

@@ -33,6 +33,7 @@ def load_instruments(instruments):
 
     for instrument_name, instrument_class_name in instruments.iteritems():
         if isinstance(instrument_class_name, dict):
+            print('LLLL', instrument_class_name)
             instrument_settings = instrument_class_name['settings']
             instrument_class_name = str(instrument_class_name['instrument_class'])
         else:
@@ -57,9 +58,8 @@ def load_instruments(instruments):
                     # controller_instance = class_of_controller()
                     from src.instruments.maestro import MaestroController
                     controller_instance = MaestroController()
-                print('FFFFF', class_of_instrument)
                 # create the instrument_instance
-                instrument_instance = class_of_instrument(maestro = controller_instance, name = instrument_name)
+                instrument_instance = class_of_instrument(maestro = controller_instance, name = instrument_name, settings = instrument_settings)
 
             else:
                 if instrument_settings is None:

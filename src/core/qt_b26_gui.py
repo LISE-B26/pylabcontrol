@@ -52,7 +52,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         """
         if len(args) == 1:
-
+            print('loading from file {:s}'.format(args[0]))
             instruments, scripts, probes = self.load_settings(args[0])
         elif len(args) == 3:
             instruments, scripts, probes = args
@@ -152,7 +152,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
 
     def refresh_instruments(self):
-
+        """
+        if self.tree_settings has been expanded, ask instruments for their actual values
+        """
         def update(item):
             if item.isExpanded():
                 for index in range(item.childCount()):

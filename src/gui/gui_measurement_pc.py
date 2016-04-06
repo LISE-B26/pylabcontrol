@@ -96,17 +96,17 @@ app = QtGui.QApplication(sys.argv)
 # 1 - filter wheel
 # 0 - flip mount
 instruments = {
-    # 'inst_dummy': 'DummyInstrument',
     'IR block': 'MaestroBeamBlock',
     'Green block': 'MaestroBeamBlock',
-    'filter wheel': 'MaestroFilterWheel'
+    'filter wheel': 'MaestroFilterWheel',
+    'white light': 'MaestroBeamBlock'
 }
 
 scripts = {}
 
 probes = {}
 
-path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26gui'
+path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26guixc'
 
 try:
     ex = qt_b26_gui.ControlMainWindow(path_to_default)

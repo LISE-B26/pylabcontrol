@@ -19,7 +19,6 @@ import hardware_modules.maestro as maestro
 import pandas as pd
 from PyQt4 import QtCore
 from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 from PyQt4.uic import loadUiType
 from helper_functions.reading_writing import save_json
 from matplotlib.backends.backend_qt4agg import (
