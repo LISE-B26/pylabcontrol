@@ -126,6 +126,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
             self.tabWidget.currentChanged.connect(lambda : self.switch_tab())
 
+            self.tree_settings.itemExpanded.connect(lambda: self.refresh_instruments())
+
             # plots
             self.matplotlibwidget.mpl_connect('button_press_event',  self.plot_clicked)
             self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_clicked)
@@ -149,8 +151,28 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.fill_tree(self.tree_scripts, self.scripts)
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
 
+    def refresh_instruments(self):
+
+        def update(item):
+            if item.isExpanded():
+                for index in range(item.childCount()):
+                    child = item.child(index)
+
+                    if child.childCount() == 0:
+                        instrument, path_to_instrument = child.get_instrument()
+                        path_to_instrument.reverse()
+                        value = instrument.settings
+                        for elem in path_to_instrument:
+                            value = value[elem]
+                        print('{:s}:\t {:s} |\t {:s}'.format(child.name, str(child.value), str(value)))
+                    else:
+                        update(child)
 
 
+        print('---- updating instruments (compare values from instr to values in tree) ----')
+        for index in range(self.tree_settings.topLevelItemCount()):
+            instrument = self.tree_settings.topLevelItem(index)
+            update(instrument)
     def plot_clicked(self, mouse_event):
         item = self.tree_scripts.currentItem()
 
@@ -179,65 +201,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         if item == item.parent().child(0):
                             if mouse_event.ydata is not None:
                                 item.setData(1, 2, float(mouse_event.ydata))
-
-    def update_parameters(self, treeWidget):
-
-        if treeWidget == self.tree_settings:
-
-            item = treeWidget.currentItem()
-
-            instrument, path_to_instrument = item.get_instrument()
-
-            # build nested dictionary to update instrument
-            dictator = item.value
-            for element in path_to_instrument:
-                dictator = {element: dictator}
-
-            # get old value from instrument
-            old_value = instrument.settings
-            path_to_instrument.reverse()
-            for element in path_to_instrument:
-                old_value = old_value[element]
-
-            # send new value from tree to instrument
-            instrument.update(dictator)
-
-
-            new_value = item.value
-            if new_value is not old_value:
-                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value), instrument.name)
-            else:
-                msg = "did not change parameter {:s} on {:s}".format(item.name, instrument.name)
-
-            self.log(msg)
-        elif treeWidget == self.tree_scripts:
-
-            item = treeWidget.currentItem()
-
-            script, path_to_script = item.get_script()
-
-            # build nested dictionary to update instrument
-            dictator = item.value
-            for element in path_to_script:
-                dictator = {element: dictator}
-
-            # get old value from instrument
-            old_value = script.settings
-            path_to_script.reverse()
-            for element in path_to_script:
-                old_value = old_value[element]
-
-            # send new value from tree to script
-            script.update(dictator)
-
-            new_value = item.value
-            if new_value is not old_value:
-                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value), str(new_value),
-                                                                                script.name)
-            else:
-                msg = "did not change parameter {:s} on {:s}".format(item.name, script.name)
-
-            self.log(msg)
 
     def get_time(self):
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
@@ -358,6 +321,65 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         with open(out_file_name, 'w') as outfile:
             tmp = json.dump(out_data, outfile, indent=4)
 
+    def update_parameters(self, treeWidget):
+
+        if treeWidget == self.tree_settings:
+
+            item = treeWidget.currentItem()
+
+            instrument, path_to_instrument = item.get_instrument()
+
+            # build nested dictionary to update instrument
+            dictator = item.value
+            for element in path_to_instrument:
+                dictator = {element: dictator}
+
+            # get old value from instrument
+            old_value = instrument.settings
+            path_to_instrument.reverse()
+            for element in path_to_instrument:
+                old_value = old_value[element]
+
+            # send new value from tree to instrument
+            instrument.update(dictator)
+
+            new_value = item.value
+            if new_value is not old_value:
+                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value),
+                                                                                str(new_value), instrument.name)
+            else:
+                msg = "did not change parameter {:s} on {:s}".format(item.name, instrument.name)
+
+            self.log(msg)
+        elif treeWidget == self.tree_scripts:
+
+            item = treeWidget.currentItem()
+
+            script, path_to_script = item.get_script()
+
+            # build nested dictionary to update instrument
+            dictator = item.value
+            for element in path_to_script:
+                dictator = {element: dictator}
+
+            # get old value from instrument
+            old_value = script.settings
+            path_to_script.reverse()
+            for element in path_to_script:
+                old_value = old_value[element]
+
+            # send new value from tree to script
+            script.update(dictator)
+
+            new_value = item.value
+            if new_value is not old_value:
+                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value),
+                                                                                str(new_value),
+                                                                                script.name)
+            else:
+                msg = "did not change parameter {:s} on {:s}".format(item.name, script.name)
+
+            self.log(msg)
 
     def update_status(self, progress):
         """

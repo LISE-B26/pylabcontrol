@@ -65,7 +65,8 @@ class KeysightGetSpectrum(Script):
             'frequency' : [item[0] for item in trace]
         }
 
-        self.save()
+        if self.settings['save']:
+            self.save()
 
 
 
