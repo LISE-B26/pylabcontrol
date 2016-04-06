@@ -353,9 +353,6 @@ class MaestroFilterWheel(Instrument):
         # now we actually apply these newsettings to the hardware
         for key, value in settings.iteritems():
             if key == 'current_position':
-                print('DDDDADS', key, value)
-                print('DDDDADS-->', self.settings)
-                print('asdas',self.settings[value])
                 self.goto(self.settings[value])
 
 
@@ -379,7 +376,6 @@ class MaestroFilterWheel(Instrument):
         Returns: reads values from instrument
 
         '''
-        print('SSS',key, self._probes.keys())
         assert key in self._probes.keys()
 
         value = None
