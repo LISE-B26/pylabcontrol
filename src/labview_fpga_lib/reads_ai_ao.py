@@ -55,3 +55,5 @@ class AnalogOutput(object):
         return getattr(FPGAlib, 'set_AO%0d' % self._channel_number) \
             (value, self._fpga.session,
              self._fpga.is_connected)
+
+i

@@ -86,7 +86,8 @@ class Instrument(object):
 
         return value
 
-    @abstractproperty
+    # @abstractproperty
+    @property
     def is_connected(self):
         '''
         check if instrument is active and connected and return True in that case

@@ -105,8 +105,9 @@ probes = {
 # scripts = {}
 #
 # probes = {}
+path_to_default = ''
 
-path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26guixc'
+path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26guix'
 
 try:
     ex = qt_b26_gui.ControlMainWindow(path_to_default)
