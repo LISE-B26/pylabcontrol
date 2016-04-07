@@ -19,8 +19,6 @@ if __name__ == '__main__':
     spec_anal.start_frequency = 1e6  # arbitrary, can't set to 0 because of spectrum analyzer limitations
     spec_anal.end_frequency = 3e9
 
-
-    MicrowaveGenerator()
     init_time = time.strftime('%Y_%m_%d_%H_%M_%S')
 
     data = {'time': [], 'stage1_temp': [], 'stage2_temp': [], 'platform_temp': [], 'trace': []}
