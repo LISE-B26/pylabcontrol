@@ -2,12 +2,12 @@ import json
 import os.path
 import time
 
-import helper_functions.reading_writing as ReadWriteCommands
-import helper_functions.test_types as test_types
+import src.old_helper_functions.reading_writing as ReadWriteCommands
+import src.old_helper_functions.test_types as test_types
 import matplotlib.pyplot as plt
 import pandas as pd
-from hardware_modules import PiezoController as PC
-from hardware_modules import ZiControl as ZC
+from src.old_hardware_modules import PiezoController as PC
+from src.old_hardware_modules import ZiControl as ZC
 
 from src.old_functions import Focusing as F
 from src.old_functions import ScanAPD

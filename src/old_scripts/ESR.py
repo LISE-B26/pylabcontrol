@@ -8,8 +8,8 @@
 #                       No external connection to counter 1 out (PFI13)
 #                       GPIB connection to SRS SG384
 
-import hardware_modules.GalvoMirrors as DaqOut
-from hardware_modules import MicrowaveGenerator
+import src.old_hardware_modules.GalvoMirrors as DaqOut
+from src.old_hardware_modules import MicrowaveGenerator
 
 from src.old_hardware_modules import APD as APDIn
 # import standard libraries

@@ -11,7 +11,7 @@ import numpy
 import scipy.ndimage
 import scipy.optimize
 from PyQt4 import QtGui
-from hardware_modules import GalvoMirrors as DaqOut, PiezoController, Attocube
+from src.old_hardware_modules import GalvoMirrors as DaqOut, PiezoController, Attocube
 
 from src.old_functions import ScanAPD as GalvoScanAPD
 from src.old_functions import ScanPhotodiode_DAQ as GalvoScanPD

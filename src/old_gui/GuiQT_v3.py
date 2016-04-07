@@ -11,7 +11,8 @@
 # may be distributed without limitation.
 
 from __future__ import unicode_literals
-
+import sip
+sip.setapi('QVariant', 2)
 import sys
 sys.path.append('.')
 

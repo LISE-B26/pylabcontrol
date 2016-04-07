@@ -2,8 +2,8 @@ import json
 import os.path
 import time
 
-import helper_functions.reading_writing as ReadWriteCommands
-import helper_functions.test_types as test_types
+import src.old_helper_functions.reading_writing as ReadWriteCommands
+import src.old_helper_functions.test_types as test_types
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

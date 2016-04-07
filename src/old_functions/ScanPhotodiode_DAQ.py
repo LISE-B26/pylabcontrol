@@ -8,7 +8,7 @@
 
 
 # import external files
-from hardware_modules import GalvoMirrors as DaqOut
+from src.old_hardware_modules import GalvoMirrors as DaqOut
 
 import src.old_hardware_modules.ReadDaqAI as PDIn
 # import standard libraries

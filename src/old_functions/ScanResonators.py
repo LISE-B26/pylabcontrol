@@ -8,8 +8,8 @@
 
 
 # import external files
-import hardware_modules.ZiControl as ZI
-from hardware_modules import GalvoMirrors as DaqOut
+import src.old_hardware_modules.ZiControl as ZI
+from src.old_hardware_modules import GalvoMirrors as DaqOut
 
 # import standard libraries
 import numpy
