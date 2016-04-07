@@ -49,7 +49,7 @@ class CryoStation(Instrument):
         return self._is_connected
 
     @property
-    def _probes(self):
+    def _PROBES(self):
         '''
 
         Returns: a dictionary that contains the values that can be read from the instrument
@@ -76,7 +76,7 @@ class CryoStation(Instrument):
         Returns: reads values from instrument
 
         '''
-        assert key in self._probes.keys(), "key assertion failed {:s}".format(str(key))
+        assert key in self._PROBES.keys(), "key assertion failed {:s}".format(str(key))
 
 
 

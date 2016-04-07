@@ -77,14 +77,14 @@ class TDC001(Instrument):
                 self._set_velocity(value)
 
     @property
-    def _probes(self):
+    def _PROBES(self):
         return{
             'position': 'servo position in mm',
             'velocity': 'servo velocity in mm/s'
         }
 
     def read_probes(self, key):
-        assert key in self._probes.keys()
+        assert key in self._PROBES.keys()
         assert isinstance(key, str)
 
         #query always returns string, need to cast to proper return type

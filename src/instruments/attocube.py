@@ -96,7 +96,7 @@ class Attocube(Instrument):
 
 
     @property
-    def _probes(self):
+    def _PROBES(self):
         return{
             'x_pos': 'the position the x direction (with respect to the camera) in um',
             'x_voltage': 'the voltage of the x direction (with respect to the camera)',
@@ -113,7 +113,7 @@ class Attocube(Instrument):
         }
 
     def read_probes(self, key):
-        assert key in self._probes.keys()
+        assert key in self._PROBES.keys()
         assert isinstance(key, str)
 
         if key in ['x_pos', 'y_pos', 'z_pos']:

@@ -2,7 +2,7 @@ from ctypes import *
 # TODO: find a way to call lib from a folder which doesn't contrain the bitfile of the FPGA (now it has to be place in the same directory as the python file to work
 
 
-_libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/old_lib/FPGAlib.dll')
+_libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/src/labview_fpga_lib/reads_ai_ao/reads_ai_ao.dll')
 
 _libfpga.start_fpga.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
 _libfpga.start_fpga.restype = None

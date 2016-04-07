@@ -106,7 +106,7 @@ class DAQ(Instrument):
                     raise EnvironmentError('Device invalid, cannot connect to DAQ')
 
     @property
-    def _probes(self):
+    def _PROBES(self):
         return None
 
     def read_probes(self, key):

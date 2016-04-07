@@ -44,7 +44,7 @@ class MicrowaveGenerator(Instrument):
                 self.srs.write(key + ' ' + str(value))
 
     @property
-    def _probes(self):
+    def _PROBES(self):
         return{
             'ENBR': 'if type-N output is enabled',
             'FREQ': 'frequency of output in Hz',
@@ -58,7 +58,7 @@ class MicrowaveGenerator(Instrument):
         }
 
     def read_probes(self, key):
-        assert key in self._probes.keys()
+        assert key in self._PROBES.keys()
 
         #query always returns string, need to cast to proper return type
         if key in ['ENBR', 'MODL']:

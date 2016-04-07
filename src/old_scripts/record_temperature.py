@@ -35,7 +35,7 @@ def record_temp():
 
 def plot_temp():
     df = pd.read_csv('C:/Users/Experiment/Desktop/20150915_Cooldown/temperature_data_shield_3_warmup.csv')
-    data = df._probes
+    data = df._PROBES
     cryo = data[:,2]
     sample = data[:,5]
     time = np.linspace(0,15*len(data),num=len(data))

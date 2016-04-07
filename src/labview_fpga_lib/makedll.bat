@@ -3,7 +3,7 @@ cls
 
 set folder=%1
 set wrapper_file=%folder%_wrapper
-set lib_file=%folder%_lib.dll
+set lib_file=%folder%.dll
 
 REM ==== find the files we need for compilation =====
 for /R .\%folder% %%F IN (NiFpg*.c) do set NiFpga_file=%%~nF

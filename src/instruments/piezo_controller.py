@@ -37,7 +37,7 @@ class PiezoController(Instrument):
                 raise EnvironmentError('Voltage limit cannot be set in software. Change physical switch on back of device')
 
     @property
-    def _probes(self):
+    def _PROBES(self):
         '''
 
         Returns: a dictionary that contains the values that can be read from the instrument
@@ -58,7 +58,7 @@ class PiezoController(Instrument):
         Returns: reads values from instrument
 
         '''
-        assert key in self._probes.keys()
+        assert key in self._PROBES.keys()
         assert isinstance(key, str)
 
         if key in ['voltage']:

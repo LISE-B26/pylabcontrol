@@ -61,7 +61,7 @@ class PressureGauge(Instrument):
         print (self.serial_connection)
 
     @property
-    def _probes(self):
+    def _PROBES(self):
         """
 
         Returns: A dictionary of key-value string-string pairs. keys: probe names, values: probe descriptions

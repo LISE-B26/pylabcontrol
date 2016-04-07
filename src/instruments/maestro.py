@@ -54,7 +54,7 @@ class MaestroController(Instrument):
 
 
     @property
-    def _probes(self):
+    def _PROBES(self):
         '''
 
         Returns: a dictionary that contains the values that can be read from the instrument
@@ -74,7 +74,7 @@ class MaestroController(Instrument):
 
         '''
         # todo: replace getter old_functions with this function
-        assert key in self._probes.keys()
+        assert key in self._PROBES.keys()
 
         value = None
 
@@ -276,7 +276,7 @@ class MaestroBeamBlock(Instrument):
                     self.goto(self.settings['position_closed'])
 
     @property
-    def _probes(self):
+    def _PROBES(self):
         '''
 
         Returns: a dictionary that contains the values that can be read from the instrument
@@ -294,7 +294,7 @@ class MaestroBeamBlock(Instrument):
         Returns: reads values from instrument
 
         '''
-        assert key in self._probes.keys()
+        assert key in self._PROBES.keys()
 
         value = None
 
@@ -357,7 +357,7 @@ class MaestroFilterWheel(Instrument):
 
 
     @property
-    def _probes(self):
+    def _PROBES(self):
         '''
 
         Returns: a dictionary that contains the values that can be read from the instrument
@@ -376,7 +376,7 @@ class MaestroFilterWheel(Instrument):
         Returns: reads values from instrument
 
         '''
-        assert key in self._probes.keys()
+        assert key in self._PROBES.keys()
 
         value = None
 

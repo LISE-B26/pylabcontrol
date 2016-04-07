@@ -64,7 +64,7 @@ class SpectrumAnalyzer(Instrument):
                 message = '{0} is not a parameter of {1}'.format(key, self.name)
 
     @property
-    def _probes(self):
+    def _PROBES(self):
         probes = {'start_frequency': 'the lower bound of the frequency sweep',
                   'stop_frequency': 'the upper bound of the frequency sweep',
                   'trace': 'the frequency sweep of the inputted signal',

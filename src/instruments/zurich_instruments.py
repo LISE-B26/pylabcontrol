@@ -53,6 +53,13 @@ class ZIHF2(Instrument):
                   )
     ])
 
+    _PROBES = {
+            'input1': 'this is the input from channel 1',
+            'R': 'the amplitude of the demodulation signal',
+            'X': 'the X-quadrature of the demodulation signal',
+            'Y': 'the Y-quadrature of the demodulation signal',
+            'freq': 'the frequency of the output channel'
+        }
 
     '''
     instrument class to talk to Zurich instrument HF2 lock in ampifier
@@ -136,22 +143,6 @@ class ZIHF2(Instrument):
             print('hardware is not connected, the command to be send is:')
             print(commands)
 
-    @property
-    def _probes(self):
-        '''
-
-        Returns: a dictionary that contains the values that can be read from the instrument
-        the key is the name of the value and the value of the dictionary is an info
-
-        '''
-        return {
-            'input1': 'this is the input from channel 1',
-            'R': 'the amplitude of the demodulation signal',
-            'X': 'the X-quadrature of the demodulation signal',
-            'Y': 'the Y-quadrature of the demodulation signal',
-            'freq': 'the frequency of the output channel'
-        }
-
     def read_probes(self, key):
         '''
 
@@ -162,7 +153,7 @@ class ZIHF2(Instrument):
         Returns: reads values from instrument
 
         '''
-        assert key in self._probes.keys(), "key assertion failed {:s}".format(str(key))
+        assert key in self._PROBES.keys(), "key assertion failed {:s}".format(str(key))
 
         if key.upper() in ['X', 'Y', 'R']:
             # these values we actually request from the instrument

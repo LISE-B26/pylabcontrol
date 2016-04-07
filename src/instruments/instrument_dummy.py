@@ -36,7 +36,7 @@ class DummyInstrument(Instrument):
 
 
     @property
-    def _probes(self):
+    def _PROBES(self):
         """
 
         Returns: a dictionary that contains the values that can be read from the instrument
@@ -58,7 +58,7 @@ class DummyInstrument(Instrument):
         Returns: reads values from instrument
 
         """
-        assert key in self._probes.keys()
+        assert key in self._PROBES.keys()
 
         import random
         if key == 'value1':

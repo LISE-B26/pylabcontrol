@@ -61,14 +61,14 @@ class Instrument(object):
         self._settings.update(settings)
 
     @abstractproperty
-    def _probes(self):
+    def _PROBES(self):
         """
 
         Returns: a dictionary that contains the values that can be read from the instrument
         the key is the name of the value and the value of the dictionary is an info
 
         """
-        return {'value1': 'this is some value from the instrument', 'value2': 'this is another'}
+        pass
 
     @abstractmethod
     def read_probes(self, key):
@@ -80,7 +80,7 @@ class Instrument(object):
         Returns: reads values from instrument
 
         """
-        assert key in self._probes.keys()
+        assert key in self._PROBES.keys()
 
         value = None
 

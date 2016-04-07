@@ -15,7 +15,7 @@ class Probe(object):
 
         assert isinstance(instrument, Instrument)
         assert isinstance(probe_name, str)
-        assert probe_name in instrument._probes
+        assert probe_name in instrument._PROBES
 
 
         if name is None:
