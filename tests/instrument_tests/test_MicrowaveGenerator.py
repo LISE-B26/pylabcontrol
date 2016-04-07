@@ -11,5 +11,5 @@ class TestMicrowaveGenerator(TestCase):
 
     def test_setting_and_getting(self):
         freq = float(random.randint(2e9, 3e9))
-        self.microwave.update({'FREQ': freq})
-        self.assertEqual(self.microwave.FREQ, freq)
+        self.microwave.update({'frequency': freq})
+        self.assertEqual(self.microwave.frequency, freq)
