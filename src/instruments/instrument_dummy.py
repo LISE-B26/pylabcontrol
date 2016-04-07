@@ -13,6 +13,12 @@ class DummyInstrument(Instrument):
                    ])
     ])
 
+    _PROBES = {'value1': 'this is some value from the instrument',
+               'value2': 'this is another',
+               'internal': 'gives the internal state variable',
+               'deep_internal': 'gives another internal state variable'
+               }
+
     def __init__(self, name =  None, settings = None):
         super(DummyInstrument, self).__init__(name, settings)
         self._internal_state = None
@@ -35,19 +41,6 @@ class DummyInstrument(Instrument):
                 self._internal_state = value
 
 
-    @property
-    def _PROBES(self):
-        """
-
-        Returns: a dictionary that contains the values that can be read from the instrument
-        the key is the name of the value and the value of the dictionary is an info
-
-        """
-        return {'value1': 'this is some value from the instrument',
-                'value2': 'this is another',
-                'internal' : 'gives the internal state variable',
-                'deep_internal' : 'gives another internal state variable'
-                }
 
     def read_probes(self, key):
         """

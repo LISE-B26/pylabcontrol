@@ -23,6 +23,7 @@ class MaestroController(Instrument):
         Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected')
     ])
 
+    _PROBES = {}
     def __init__(self, name = None, settings = None):
 
         self.usb = None
@@ -52,17 +53,6 @@ class MaestroController(Instrument):
                 except OSError:
                     print('Couln\'t connect to maestro controler at port {:s}'.format(value))
 
-
-    @property
-    def _PROBES(self):
-        '''
-
-        Returns: a dictionary that contains the values that can be read from the instrument
-        the key is the name of the value and the value of the dictionary is an info
-
-        '''
-        # todo: implement values
-        return {'value1': 'this is some value from the instrument', 'value2': 'this is another'}
 
     def read_probes(self, key):
         '''
@@ -245,7 +235,7 @@ class MaestroBeamBlock(Instrument):
         Parameter('position_open', 4 * 1900, int, 'position corresponding to open'),
         Parameter('position_closed', 4 * 950, int, 'position corresponding to closed')
     ])
-
+    _PROBES = {}
     def __init__(self, maestro = None, name = None, settings = None):
         '''
         :param maestro: maestro servo controler to which motor is connected
@@ -275,15 +265,6 @@ class MaestroBeamBlock(Instrument):
                 else:
                     self.goto(self.settings['position_closed'])
 
-    @property
-    def _PROBES(self):
-        '''
-
-        Returns: a dictionary that contains the values that can be read from the instrument
-        the key is the name of the value and the value of the dictionary is an info
-
-        '''
-        return {}
 
     def read_probes(self, key):
         '''
@@ -327,7 +308,7 @@ class MaestroFilterWheel(Instrument):
 
     ])
 
-
+    _PROBES = {}
     def __init__(self, maestro = None, name = None, settings = None):
         '''
         :param maestro: maestro servo controler to which motor is connected
@@ -355,16 +336,6 @@ class MaestroFilterWheel(Instrument):
             if key == 'current_position':
                 self.goto(self.settings[value])
 
-
-    @property
-    def _PROBES(self):
-        '''
-
-        Returns: a dictionary that contains the values that can be read from the instrument
-        the key is the name of the value and the value of the dictionary is an info
-
-        '''
-        return {}
 
 
     def read_probes(self, key):
