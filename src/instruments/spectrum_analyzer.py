@@ -27,6 +27,14 @@ class SpectrumAnalyzer(Instrument):
             Parameter('output_power', -20.0, float, 'the output power (in dBm) of the tracking generator')
         ])
 
+    _PROBES = {'start_frequency': 'the lower bound of the frequency sweep',
+               'stop_frequency': 'the upper bound of the frequency sweep',
+               'trace': 'the frequency sweep of the inputted signal',
+               'tracking_generator': 'checks if the tracking generator is on',
+               'bandwidth': 'the curent bandwidth of the spectrum analyzer',
+               'output_power': 'the power of the tracking generator',
+               'mode': 'Spectrum Analyzer Mode or Tracking Generator Mode'}
+
     def __init__(self, name='SpectrumAnalyzer', settings={}):
         """
 
@@ -62,16 +70,6 @@ class SpectrumAnalyzer(Instrument):
                 self._set_mode(value)
             else:
                 message = '{0} is not a parameter of {1}'.format(key, self.name)
-
-    @property
-    def _PROBES(self):
-        probes = {'start_frequency': 'the lower bound of the frequency sweep',
-                  'stop_frequency': 'the upper bound of the frequency sweep',
-                  'trace': 'the frequency sweep of the inputted signal',
-                  'tracking_generator': 'checks if the tracking generator is on',
-                  'bandwidth': 'the curent bandwidth of the spectrum analyzer',
-                  'output_power': 'the power of the tracking generator',
-                  'mode': 'Spectrum Analyzer Mode or Tracking Generator Mode'}
 
     def read_probes(self, probe_name):
         time.sleep(1)

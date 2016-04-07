@@ -455,4 +455,3 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 B26QTreeItem(tree, key, value, type(value), '')
 
-
