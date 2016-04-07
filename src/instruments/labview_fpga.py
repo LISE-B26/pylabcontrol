@@ -3,10 +3,8 @@ from ctypes import c_uint32, c_int32
 
 
 
-class NI7845R(Instrument):
-    import src.labview_fpga_lib.reads_ai_ao.reads_ai_ao as FPGAlib
-    session = c_uint32()
-    status = c_int32()
+class NI7845RReadAnalogIO(Instrument):
+    import src.labview_fpga_lib.read_ai_ao.read_ai_ao as FPGAlib
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('AO0', 0.0, float, 'analog output channel 0'),
@@ -30,23 +28,16 @@ class NI7845R(Instrument):
         'AI7': 'analog input channel 7'
     }
     def __init__(self, name = None, settings = None):
-        super(NI7845R, self).__init__(name, settings)
+        super(NI7845RReadAnalogIO, self).__init__(name, settings)
 
-        print(self.start())
+        # start fpga
+        self.fpga = self.FPGAlib.NI7845R()
+        self.fpga.start()
 
         self.update(self.settings)
 
     def __del__(self):
-        self.stop()
-
-    def start(self):
-        self.FPGAlib.start_fpga(self.session, self.status)
-        return self.status
-
-    def stop(self):
-        self.FPGAlib.stop_fpga(self.session, self.status)
-
-
+        self.fpga.stop()
 
     def read_probes(self, key):
         assert key in self._PROBES.keys(), "key assertion failed %s" % str(key)
@@ -57,15 +48,22 @@ class NI7845R(Instrument):
 
 
     def update(self, settings):
-        super(NI7845R, self).update(settings)
+        super(NI7845RReadAnalogIO, self).update(settings)
 
         # for key, value in settings.iteritems():
         #     if key in ['AO0', 'AO1', 'AO2', 'AO3', 'AO4', 'AO5', 'AO6', 'AO7']:
         #         getattr(self.FPGAlib, 'set_{:s}'.format(key))(value, self.session, self.status)
 
 if __name__ == '__main__':
+    # import src.labview_fpga_lib.read_ai_ao.read_ai_ao as FPGAlib
+    # print('a')
+    # fpga = FPGAlib.NI7845R()
+    # fpga.start()
+    # print('b')
+    # fpga.stop()
+    # # print(fpga.settings)
 
-    fpga = NI7845R()
 
-    print(fpga.settings)
+    fpga = NI7845RReadAnalogIO()
 
+    

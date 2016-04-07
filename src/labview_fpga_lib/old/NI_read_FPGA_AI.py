@@ -10,7 +10,7 @@ Wrapper for c-compiled FPGA_read_inputs.vi
 
 from ctypes import c_uint32, c_int32
 
-import src.labview_fpga_lib.reads_ai_ao.FPGAlib as FPGAlib
+import src.labview_fpga_lib.read_ai_ao.FPGAlib as FPGAlib
 
 
 class NI7845R(object):
