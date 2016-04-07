@@ -8,7 +8,7 @@
 
 
 # import external files
-import hardware_modules.GalvoMirrors as DaqOut
+import src.old_hardware_modules.GalvoMirrors as DaqOut
 
 from src.old_hardware_modules import APD as APDIn
 # import standard libraries

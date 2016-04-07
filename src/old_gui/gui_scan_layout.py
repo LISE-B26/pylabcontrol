@@ -1194,8 +1194,9 @@ def add_scan_layout(ApplicationWindow, vbox_main, plotBox):
     ApplicationWindow.esrPlot = gui_cw.MyMplCanvas(ApplicationWindow.main_widget, width=5, height=4, dpi=100)
     plotBox.addWidget(ApplicationWindow.esrPlot)
 
-    #ApplicationWindow.imageData = None
-    ApplicationWindow.imageData = np.array(Image.open('C:\\Users\\Experiment\\Desktop\\GuiIcons\\beaker.jpg'))
+    ApplicationWindow.imageData = None
+    # ApplicationWindow.imageData = np.array(Image.open('C:\\Users\\Experiment\\Desktop\\GuiIcons\\beaker.jpg'))
+    ApplicationWindow.imageData = np.array([[0,0],[0,0]])
     ApplicationWindow.imPlot.axes.imshow(ApplicationWindow.imageData)
     ApplicationWindow.imPlot.draw()
 
