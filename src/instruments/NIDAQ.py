@@ -89,15 +89,6 @@ class DAQ(Instrument):
             #     self.hardware_detected = False
             super(DAQ, self).__init__(name, settings)
 
-    @property
-    def DEFAULT_SETTINGS(self):
-        '''
-        returns the default parameter_list of the instrument
-        :return:
-        '''
-
-        return parameters_default
-
     def update(self, settings):
         super(DAQ, self).update(settings)
         for key, value in settings.iteritems():

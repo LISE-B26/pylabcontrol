@@ -16,7 +16,7 @@ instruments = {
     'zihf2':'ZIHF2',
     'pressure gauge': 'PressureGauge',
     'cryo station': 'CryoStation',
-    'spectrum analyzer': 'SpectrumAnalyzer',
+    #'spectrum analyzer': 'SpectrumAnalyzer',
     'microwave generator': 'MicrowaveGenerator'
 }
 
