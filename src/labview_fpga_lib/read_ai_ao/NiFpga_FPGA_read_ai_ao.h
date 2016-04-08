@@ -20,7 +20,8 @@
  *    static const char* const Bitfile = "C:\\" NiFpga_FPGA_read_ai_ao_Bitfile;
  */
 // #define NiFpga_FPGA_read_ai_ao_Bitfile "NiFpga_FPGA_read_ai_ao.lvbitx"
-#define NiFpga_FPGA_read_ai_ao_Bitfile "../labview_fpga_lib/read_ai_ao/NiFpga_FPGA_read_ai_ao.lvbitx" 
+
+#define NiFpga_FPGA_read_ai_ao_Bitfile "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\src\\labview_fpga_lib\\read_ai_ao\\NiFpga_FPGA_read_ai_ao.lvbitx" 
 /**
  * The signature of the FPGA bitfile.
  */

@@ -16,7 +16,7 @@ Date: Feb 29th 2016
 2.) convert into .h with C API generator (right click in FPGA .vi in the project explorer)
     .creates NiFpga.c, NiFpga.h, NiFpga_PID.c and copies NiFpga_PID.lvbitx to target folder
     .choose subfolder as target (e.g. src/labview_fpga_lib/read_ai_ao)
-    .in NiFpga_XXX.h change "#define NiFpga_XXX.lvbitx" to "#define ../labview_fpga_lib/read_ai_ao/NiFpga_XXX.lvbitx" where XXX is the name of the labview file
+    .in NiFpga_XXX.h change "#define NiFpga_XXX.lvbitx" to "#define PATH_TO_SRC/labview_fpga_lib/read_ai_ao/NiFpga_XXX.lvbitx" where XXX is the name of the labview file
 3.) create/ modify wrapper .c file (e.g. read_ai_ao_wrapper.c and read_ai_ao_wrapper.h)
     .watch out for varialbe names in .c file which contain the folder name such as NiFpga_FPGA_read_ai_ao_IndicatorI16_Connector1AI0
 4.) run batch file makedll.bat *folder_name*, e.g. makedll.bat read_ai_ao

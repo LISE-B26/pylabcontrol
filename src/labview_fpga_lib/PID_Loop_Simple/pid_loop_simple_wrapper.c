@@ -21,8 +21,13 @@ void start_fpga(NiFpga_Session* session, NiFpga_Status* status)
 {
 	// must be called before any other calls 
 	*status = NiFpga_Initialize();
-	printf("initializing FPGA \n");
-
+	printf("initializing FPGAc \n");
+	
+	char cwd[2048];
+    getcwd(cwd, sizeof(cwd));
+	printf("Current working dir: %s\n", cwd)
+    //printf("Current working dir: %s\n", strcat(cwd, '../labview_fpga_lib/read_ai_ao/'));
+	
 	if (NiFpga_IsNotError(*status))
 	{
 		// opens a session, downloads the bitstream, and runs the FPGA 

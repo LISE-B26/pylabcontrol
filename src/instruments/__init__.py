@@ -48,6 +48,13 @@ try:
 except:
     pass
 
+
+try:
+    from labview_fpga import NI7845RReadAnalogIO
+except:
+    pass
+
+
 from montana import CryoStation
 # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']
 # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']

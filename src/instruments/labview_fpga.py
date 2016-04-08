@@ -1,9 +1,24 @@
 from src.core import Instrument, Parameter
-from ctypes import c_uint32, c_int32
 
+def volt_2_bit(volt):
+    """
+    converts a voltage value into a bit value
+    Args:
+        volt:
+
+    Returns:
+
+
+
+    """
+
+    bit = int(volt / 10. * 32768.)
+
+    return bit
 
 
 class NI7845RReadAnalogIO(Instrument):
+
     import src.labview_fpga_lib.read_ai_ao.read_ai_ao as FPGAlib
 
     _DEFAULT_SETTINGS = Parameter([
@@ -33,7 +48,6 @@ class NI7845RReadAnalogIO(Instrument):
         # start fpga
         self.fpga = self.FPGAlib.NI7845R()
         self.fpga.start()
-
         self.update(self.settings)
 
     def __del__(self):
@@ -41,29 +55,40 @@ class NI7845RReadAnalogIO(Instrument):
 
     def read_probes(self, key):
         assert key in self._PROBES.keys(), "key assertion failed %s" % str(key)
-        print('self.is_connected', self.is_connected)
-        # value = getattr(self.FPGAlib, 'read_{:s}'.format(key))(self.session, self.status)
-        value = 0
+        value = getattr(self.FPGAlib, 'read_{:s}'.format(key))(self.fpga.session, self.fpga.status)
         return value
 
 
     def update(self, settings):
+        print('GG', settings)
         super(NI7845RReadAnalogIO, self).update(settings)
 
-        # for key, value in settings.iteritems():
-        #     if key in ['AO0', 'AO1', 'AO2', 'AO3', 'AO4', 'AO5', 'AO6', 'AO7']:
-        #         getattr(self.FPGAlib, 'set_{:s}'.format(key))(value, self.session, self.status)
+        for key, value in settings.iteritems():
+            if key in ['AO0', 'AO1', 'AO2', 'AO3', 'AO4', 'AO5', 'AO6', 'AO7']:
+                print('SGL_to_U32(value)', volt_2_bit(value))
+                getattr(self.FPGAlib, 'set_{:s}'.format(key))(volt_2_bit(value), self.fpga.session, self.fpga.status)
 
 if __name__ == '__main__':
-    # import src.labview_fpga_lib.read_ai_ao.read_ai_ao as FPGAlib
-    # print('a')
-    # fpga = FPGAlib.NI7845R()
-    # fpga.start()
-    # print('b')
-    # fpga.stop()
-    # # print(fpga.settings)
+    import time
 
 
     fpga = NI7845RReadAnalogIO()
 
-    
+    print(fpga.settings)
+
+    print(fpga.AI0)
+    print(fpga.AI1)
+    print(fpga.AI2)
+    print(fpga.AI3)
+
+
+
+    print('a', fpga.AI7)
+    fpga.update({'AO4':-2.0})
+    time.sleep(0.3)
+    print('b', fpga.AI7)
+    fpga.update({'AO4': -1.0})
+    time.sleep(0.3)
+    print('c', fpga.AI7)
+
+
