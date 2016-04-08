@@ -8,31 +8,29 @@
  *       Start>>All Programs>>National Instruments>>FPGA Interface C API.
  */
  
-#include "NiFpga_PID_Loop_Simple.h"
+#include "NiFpga_FPGA_PID_Loop_Simple.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
 // overwrite the definition of the header file created by Labview because FPGA bitcode will be located in the subdir lib
-// #define "NiFpga_PID_Loop_Simple.lvbitx" 
+// #define "NiFpga_FPGA_PID_Loop_Simple.lvbitx" 
 
 
 void start_fpga(NiFpga_Session* session, NiFpga_Status* status)
 {
 	// must be called before any other calls 
 	*status = NiFpga_Initialize();
-	printf("initializing FPGAc \n");
-	
-	char cwd[2048];
-    getcwd(cwd, sizeof(cwd));
-	printf("Current working dir: %s\n", cwd)
-    //printf("Current working dir: %s\n", strcat(cwd, '../labview_fpga_lib/read_ai_ao/'));
+	printf("initializing FPGA PID Simple Loop \n");
+	printf("bitfile expected at:\n");
+	printf(NiFpga_FPGA_PID_Loop_Simple_Bitfile);
+	printf("\n");
 	
 	if (NiFpga_IsNotError(*status))
 	{
 		// opens a session, downloads the bitstream, and runs the FPGA 
-		NiFpga_MergeStatus(status, NiFpga_Open(NiFpga_PID_Loop_Simple_Bitfile,
-												NiFpga_PID_Loop_Simple_Signature,
+		NiFpga_MergeStatus(status, NiFpga_Open(NiFpga_FPGA_PID_Loop_Simple_Bitfile,
+												NiFpga_FPGA_PID_Loop_Simple_Signature,
 												"RIO0",
 												NiFpga_OpenAttribute_NoRun,
 												session));
@@ -68,7 +66,7 @@ uint32_t read_LoopTicksPID(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int32_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadU32(*session,NiFpga_PID_Loop_Simple_IndicatorU32_looptimePIDticks,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadU32(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorU32_looptimePIDticks,&value));
 	return value;
 }
 
@@ -76,7 +74,7 @@ uint32_t read_LoopTicksAcq(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int32_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadU32(*session,NiFpga_PID_Loop_Simple_IndicatorU32_looptimeacqticks,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadU32(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorU32_looptimeacqticks,&value));
 	return value;
 }
 
@@ -85,7 +83,7 @@ uint32_t read_LoopTicksAcq(NiFpga_Session* session, NiFpga_Status* status)
 _Bool read_LoopRateLimitPID(NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_Bool state;
-	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_PID_Loop_Simple_IndicatorBool_loopratelimitPID,&state));
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorBool_loopratelimitPID,&state));
 	return state;
 }
 
@@ -93,149 +91,149 @@ _Bool read_LoopRateLimitPID(NiFpga_Session* session, NiFpga_Status* status)
 _Bool read_LoopRateLimitAcq(NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_Bool state;
-	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_PID_Loop_Simple_IndicatorBool_loopratelimitacquisition,&state));
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorBool_loopratelimitacquisition,&state));
 	return state;
 }
 
 _Bool read_TimeOutAcq(NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_Bool state;
-	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_PID_Loop_Simple_IndicatorBool_TimedOutacquisition,&state));
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorBool_TimedOutacquisition,&state));
 	return state;
 }
 
 _Bool read_AcquireData(NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_Bool state;
-	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_PID_Loop_Simple_ControlBool_acquiredata,&state));
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_PID_Loop_Simple_ControlBool_acquiredata,&state));
 	return state;
 }
 
 _Bool read_LowPassActive(NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_Bool state;
-	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_PID_Loop_Simple_ControlBool_Lowpassactive,&state));
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_PID_Loop_Simple_ControlBool_Lowpassactive,&state));
 	return state;
 }
 
 _Bool read_PIDActive(NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_Bool state;
-	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_PID_Loop_Simple_ControlBool_PIDactive,&state));
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_PID_Loop_Simple_ControlBool_PIDactive,&state));
 	return state;
 }
 
 _Bool read_OutputSine(NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_Bool state;
-	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_PID_Loop_Simple_ControlBool_output10kHzSine,&state));
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_PID_Loop_Simple_ControlBool_output10kHzSine,&state));
 	return state;
 }
 
 _Bool read_FPGARunning(NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_Bool state;
-	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_PID_Loop_Simple_IndicatorBool_FPGArunning,&state));
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorBool_FPGArunning,&state));
 	return state;
 }
 
 _Bool read_DMATimeOut(NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_Bool state;
-	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_PID_Loop_Simple_IndicatorBool_DMAtimeout,&state));
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorBool_DMAtimeout,&state));
 	return state;
 }
 
 // ============ set logical values ==================
 void set_LowPassActive(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_PID_Loop_Simple_ControlBool_Lowpassactive, state));
+	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_FPGA_PID_Loop_Simple_ControlBool_Lowpassactive, state));
 }
 
 void set_PIDActive(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_PID_Loop_Simple_ControlBool_PIDactive, state));
+	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_FPGA_PID_Loop_Simple_ControlBool_PIDactive, state));
 }
 
 void set_AcquireData(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_PID_Loop_Simple_ControlBool_acquiredata, state));
+	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_FPGA_PID_Loop_Simple_ControlBool_acquiredata, state));
 }
 
 void set_Stop(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_PID_Loop_Simple_ControlBool_stop, state));
+	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_FPGA_PID_Loop_Simple_ControlBool_stop, state));
 }
 
 void set_OutputSine(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_PID_Loop_Simple_ControlBool_output10kHzSine, state));
+	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_FPGA_PID_Loop_Simple_ControlBool_output10kHzSine, state));
 }
 
 
 // ============ set parameters ==================
 void set_SamplePeriodsPID(uint32_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_PID_Loop_Simple_ControlU32_sampleperiodticksPID,value));
+	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_FPGA_PID_Loop_Simple_ControlU32_sampleperiodticksPID,value));
 }
 
 void set_SamplePeriodsAcq(uint32_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_PID_Loop_Simple_ControlU32_sampleperiodacquisitionticks,value));
+	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_FPGA_PID_Loop_Simple_ControlU32_sampleperiodacquisitionticks,value));
 }
 
 void set_ElementsToWrite(int32_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteI32(*session,NiFpga_PID_Loop_Simple_ControlI32_elementstowriteAcq, value));
+	NiFpga_MergeStatus(status, NiFpga_WriteI32(*session,NiFpga_FPGA_PID_Loop_Simple_ControlI32_elementstowriteAcq, value));
 }
 
 void set_ScaledCoefficient_1(int32_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteI32(*session,NiFpga_PID_Loop_Simple_ControlI32_scaledcoefficient1, value));
+	NiFpga_MergeStatus(status, NiFpga_WriteI32(*session,NiFpga_FPGA_PID_Loop_Simple_ControlI32_scaledcoefficient1, value));
 }
 
 void set_ScaledCoefficient_2(int32_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteI32(*session,NiFpga_PID_Loop_Simple_ControlI32_scaledcoefficient2, value));
+	NiFpga_MergeStatus(status, NiFpga_WriteI32(*session,NiFpga_FPGA_PID_Loop_Simple_ControlI32_scaledcoefficient2, value));
 }
 
 void set_ScaledCoefficient_3(int32_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteI32(*session,NiFpga_PID_Loop_Simple_ControlI32_scaledcoefficient3, value));
+	NiFpga_MergeStatus(status, NiFpga_WriteI32(*session,NiFpga_FPGA_PID_Loop_Simple_ControlI32_scaledcoefficient3, value));
 }
 
 
 void set_PI_gains(uint32_t value_prop, uint32_t value_int, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_PID_Loop_Simple_ControlU32_integralgain,value_int));
-	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_PID_Loop_Simple_ControlU32_proportionalgain,value_prop));
+	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_FPGA_PID_Loop_Simple_ControlU32_integralgain,value_int));
+	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_FPGA_PID_Loop_Simple_ControlU32_proportionalgain,value_prop));
 }
 
 void set_PI_gain_int(uint32_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_PID_Loop_Simple_ControlU32_integralgain,value));
+	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_FPGA_PID_Loop_Simple_ControlU32_integralgain,value));
 
 }
 
 void set_PI_gain_prop(uint32_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_PID_Loop_Simple_ControlU32_proportionalgain,value));
+	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_FPGA_PID_Loop_Simple_ControlU32_proportionalgain,value));
 }
 	
 
 void set_Setpoint(int16_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_PID_Loop_Simple_ControlI16_Setpoint, value));
+	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_FPGA_PID_Loop_Simple_ControlI16_Setpoint, value));
 }
 
 void set_TimeoutBuffer(int32_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteI32(*session,NiFpga_PID_Loop_Simple_ControlI32_TimeoutBuffer, value));
+	NiFpga_MergeStatus(status, NiFpga_WriteI32(*session,NiFpga_FPGA_PID_Loop_Simple_ControlI32_TimeoutBuffer, value));
 }
 
 void set_AmplitudeScaleCoefficient(int16_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_PID_Loop_Simple_ControlI16_amplitudescalecoefficient, value));
+	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_FPGA_PID_Loop_Simple_ControlI16_amplitudescalecoefficient, value));
 }
 
 
@@ -245,7 +243,7 @@ int32_t read_ElementsWritten(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int32_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadI32(*session,NiFpga_PID_Loop_Simple_IndicatorI32_elementswrittenAcq,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadI32(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorI32_elementswrittenAcq,&value));
 	return value;
 }
 
@@ -253,7 +251,7 @@ uint32_t read_AcqTime(NiFpga_Session* session, NiFpga_Status* status)
 {
 	uint32_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadU32(*session,NiFpga_PID_Loop_Simple_IndicatorU32_acqtimeticks,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadU32(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorU32_acqtimeticks,&value));
 	return value;
 }
 
@@ -264,28 +262,28 @@ int16_t read_Min(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int16_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_PID_Loop_Simple_IndicatorI16_minxy,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorI16_minxy,&value));
 	return value;
 }
 int16_t read_Max(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int16_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_PID_Loop_Simple_IndicatorI16_maxxy,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorI16_maxxy,&value));
 	return value;
 }
 uint16_t read_StdDev(NiFpga_Session* session, NiFpga_Status* status)
 {
 	uint16_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_PID_Loop_Simple_IndicatorU16_standarddeviation,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorU16_standarddeviation,&value));
 	return value;
 }
 int16_t read_Mean(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int16_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_PID_Loop_Simple_IndicatorI16_mean,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorI16_mean,&value));
 	return value;
 }
 
@@ -294,7 +292,7 @@ int16_t read_AI1(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int16_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_PID_Loop_Simple_IndicatorI16_AI1raw,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorI16_AI1raw,&value));
 	return value;
 }
 
@@ -302,7 +300,7 @@ int16_t read_AI1_Filtered(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int16_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_PID_Loop_Simple_IndicatorI16_AI1_filtered,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorI16_AI1_filtered,&value));
 	return value;
 }
 
@@ -310,7 +308,7 @@ int16_t read_AI2(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int16_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_PID_Loop_Simple_IndicatorI16_AI2raw,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorI16_AI2raw,&value));
 	return value;
 }
 
@@ -318,7 +316,7 @@ int16_t read_DeviceTemperature(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int16_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_PID_Loop_Simple_IndicatorI16_DeviceTemperature,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_FPGA_PID_Loop_Simple_IndicatorI16_DeviceTemperature,&value));
 	return value;
 }
 
@@ -326,7 +324,7 @@ int16_t read_PiezoOut(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int16_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_PID_Loop_Simple_ControlI16_PiezoOutAO0,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_FPGA_PID_Loop_Simple_ControlI16_PiezoOutAO0,&value));
 	return value;
 }
 
@@ -334,7 +332,7 @@ int16_t read_PiezoOut(NiFpga_Session* session, NiFpga_Status* status)
 // ============ set analog outputs ==================
 void set_PiezoOut(int16_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_PID_Loop_Simple_ControlI16_PiezoOutAO0,value));
+	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_FPGA_PID_Loop_Simple_ControlI16_PiezoOutAO0,value));
 }
 
 // =========================================================
@@ -343,18 +341,18 @@ void set_PiezoOut(int16_t value, NiFpga_Session* session, NiFpga_Status* status)
 size_t configure_FIFO_AI(size_t requestedDepth, NiFpga_Session* session, NiFpga_Status* status)
 {
 	size_t actualDepth;
-	NiFpga_MergeStatus(status, NiFpga_ConfigureFifo2(*session, NiFpga_PID_Loop_Simple_TargetToHostFifoU32_DMA, requestedDepth, &actualDepth));
+	NiFpga_MergeStatus(status, NiFpga_ConfigureFifo2(*session, NiFpga_FPGA_PID_Loop_Simple_TargetToHostFifoU32_DMA, requestedDepth, &actualDepth));
 	return actualDepth;
 }
 
 void start_FIFO_AI(NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_StartFifo(*session, NiFpga_PID_Loop_Simple_TargetToHostFifoU32_DMA));
+	NiFpga_MergeStatus(status, NiFpga_StartFifo(*session, NiFpga_FPGA_PID_Loop_Simple_TargetToHostFifoU32_DMA));
 }
 
 void stop_FIFO_AI(NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_StopFifo(*session, NiFpga_PID_Loop_Simple_TargetToHostFifoU32_DMA));
+	NiFpga_MergeStatus(status, NiFpga_StopFifo(*session, NiFpga_FPGA_PID_Loop_Simple_TargetToHostFifoU32_DMA));
 }
 
 void read_FIFO_AI(uint32_t* input, size_t size, NiFpga_Session* session, NiFpga_Status* status,size_t* elementsRemaining)
@@ -362,7 +360,7 @@ void read_FIFO_AI(uint32_t* input, size_t size, NiFpga_Session* session, NiFpga_
 	/* copy FIFO data from the FPGA */
 	NiFpga_MergeStatus(status,
 					   NiFpga_ReadFifoU32(*session,
-							   	   	   	  NiFpga_PID_Loop_Simple_TargetToHostFifoU32_DMA,
+							   	   	   	  NiFpga_FPGA_PID_Loop_Simple_TargetToHostFifoU32_DMA,
 										  input,
 										  size,
 										  NiFpga_InfiniteTimeout,
