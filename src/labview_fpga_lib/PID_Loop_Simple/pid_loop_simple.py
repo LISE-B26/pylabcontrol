@@ -10,7 +10,6 @@ FPGA_PID_Loop_Simple.py which defines the higher level Python objects that are t
 
 """
 
-# TODO: set path for .lvbitx file in .c file dynamically (now it's hard coded to /labview_fpga_lib/
 # TODO: reading of analog input gives only positive values (as if cast into unsigned integer, try to figure out why that is
 
 from ctypes import *
@@ -18,8 +17,7 @@ from ctypes import *
 # =========================================================================
 # ======= LOAD DLL ========================================================
 # =========================================================================
-_libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/old_lib/FPGA_PID_lib.dll')
-
+_libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/src/labview_fpga_lib/pid_loop_simple/pid_loop_simple.dll')
 # =========================================================================
 # ======= DEFINE SETTER FUNCTIONS =========================================
 # =========================================================================
