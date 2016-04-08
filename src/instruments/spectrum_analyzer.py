@@ -60,10 +60,12 @@ class SpectrumAnalyzer(Instrument):
         self._wait_for_spec_anal()
         for key, value in settings.iteritems():
             if key == 'start_frequency':
-                assert 0.0 < value < 3e9, "start frequency must be between 0 and 3e9!"
+                assert 0.0 < value < 3e9, \
+                    "start frequency must be between 0 and 3e9, you tried to set it to {0}!".format(value)
                 self._set_start_frequency(value)
             elif key == 'stop_frequency':
-                assert 0.0 < value < 3e9, "stop frequency must be between 0 and 3e9!"
+                assert 0.0 < value < 3e9, \
+                    "stop frequency must be between 0 and 3e9, you tried to set it to {0}!".format(value)
                 self._set_stop_frequency(value)
             elif key == 'output_on':
                 self._toggle_output(value)
