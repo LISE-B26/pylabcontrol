@@ -80,7 +80,14 @@ class NI7845RPidSimpleLoop(Instrument):
     _DEFAULT_SETTINGS = Parameter([
         Parameter('ElementsToWrite', 500, int, 'elements to write to buffer'),
         Parameter('PiezoOut', 0.0, float, 'piezo output in volt'),
-        Parameter('Setpoint', 0.0, float, 'set point for PID loop in volt')
+        Parameter('Setpoint', 0.0, float, 'set point for PID loop in volt'),
+        Parameter('SamplePeriodsPID', int(4e5), int, 'sample period of PID loop in ticks (40 MHz)'),
+        Parameter('SamplePeriodsAcq', 200, int, 'sample period of acquisition loop in ticks (40 MHz)'),
+        Parameter('gains', [
+            Parameter('proportional', 0, int, 'proportional gain of PID loop in ??'),
+            Parameter('integral', 0, int, 'integral gain of PID loop in ??'),
+        ]),
+        Parameter('PI_on', False, bool, 'turn PID loop on/off')
     ])
 
     _PROBES = {
@@ -110,12 +117,22 @@ class NI7845RPidSimpleLoop(Instrument):
         super(NI7845RPidSimpleLoop, self).update(settings)
 
         for key, value in settings.iteritems():
-            if key in ['PiezoOut', 'Setpoint']:
+            if key in ['PiezoOut']:
+                if self.settings['PI_on'] == True:
+                    print('PI is active, manual piezo control not active!')
+                else:
+                    getattr(self.FPGAlib, 'set_{:s}'.format(key))(volt_2_bit(value), self.fpga.session, self.fpga.status)
+            elif key in ['Setpoint']:
                 getattr(self.FPGAlib, 'set_{:s}'.format(key))(volt_2_bit(value), self.fpga.session, self.fpga.status)
-            elif key in ['ElementsToWrite']:
+            if key in ['PI_on']:
+                getattr(self.FPGAlib, 'set_PIDActive')(volt_2_bit(value), self.fpga.session, self.fpga.status)
+            elif key in ['gains']:
+                if 'proportional' in value:
+                    getattr(self.FPGAlib, 'set_PI_gain_prop')(value['proportional'], self.fpga.session, self.fpga.status)
+                if 'integral' in value:
+                    getattr(self.FPGAlib, 'set_PI_gain_int')(value['integral'], self.fpga.session, self.fpga.status)
+            elif key in ['ElementsToWrite', 'sample_period_PI', 'SamplePeriodsAcq', 'PI_on']:
                 getattr(self.FPGAlib, 'set_{:s}'.format(key))(value, self.fpga.session, self.fpga.status)
-
-
 
 if __name__ == '__main__':
     import time
