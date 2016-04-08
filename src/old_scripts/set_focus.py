@@ -1,6 +1,6 @@
 __author__ = 'Experiment'
 
-from src import old_hardware_modules as pc
+from src.old_hardware_modules import PiezoController as pc
 
 
 def set_focus(channel, voltage):

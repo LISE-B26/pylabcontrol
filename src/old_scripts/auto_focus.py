@@ -7,6 +7,7 @@ import time
 import src.old_hardware_modules.GalvoMirrors as DaqOut
 import src.old_helper_functions.reading_writing as ReadWriteCommands
 import src.old_helper_functions.test_types as test_types
+import src.old_functions.Focusing as Focusing
 import numpy as np
 import pandas as pd
 
