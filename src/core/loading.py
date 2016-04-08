@@ -72,7 +72,7 @@ def load_instruments(instruments):
             instrument_instances[instrument_name] = instrument_instance
 
         except AttributeError:
-            print('{:s} did not load'.format(instrument_name))
+            print('{:s} ({:s}) did not load'.format(instrument_name, class_of_instrument))
             # catches when we try to create an instrument of a class that doesn't exist!
             raise AttributeError
 

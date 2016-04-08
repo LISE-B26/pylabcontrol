@@ -96,21 +96,26 @@ probes = {
 # # 1 - filter wheel
 # # 0 - flip mount
 instruments = {
-    'FPGA': 'NI7845RReadAnalogIO'
+    'FPGA': 'NI7845RPidSimpleLoop'
     # 'IR block': 'MaestroBeamBlock',
     # 'Green block': 'MaestroBeamBlock',
     # 'filter wheel': 'MaestroFilterWheel',
     # 'white light': 'MaestroBeamBlock'
 }
 #
-scripts = {}
+scripts = {
+    'timetrace' : {
+        'script_class': 'LabviewFpgaTimetrace',
+        'instruments': {'fpga' : 'FPGA'},
+    },
+}
 #
 probes = {
-    'AI7': {'probe_name': 'AI7', 'instrument_name': 'FPGA'}
+    'AI1': {'probe_name': 'AI1', 'instrument_name': 'FPGA'}
 }
 path_to_default = ''
 
-path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26gui'
+path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26guic'
 
 try:
     ex = qt_b26_gui.ControlMainWindow(path_to_default)

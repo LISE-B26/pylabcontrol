@@ -10,14 +10,16 @@ FPGA_PID_Loop_Simple.py which defines the higher level Python objects that are t
 
 """
 
+# TODO: set path for .lvbitx file in .c file dynamically (now it's hard coded to /labview_fpga_lib/
 # TODO: reading of analog input gives only positive values (as if cast into unsigned integer, try to figure out why that is
 
 from ctypes import *
-import numpy as np
+
 # =========================================================================
 # ======= LOAD DLL ========================================================
 # =========================================================================
-_libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/src/labview_fpga_lib/pid_loop_simple/pid_loop_simple.dll')
+_libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/old_lib/FPGA_PID_lib.dll')
+
 # =========================================================================
 # ======= DEFINE SETTER FUNCTIONS =========================================
 # =========================================================================
@@ -129,12 +131,7 @@ def read_FIFO_AI(size, session, status):
     elements_remaining = c_int32()
 
     _libfpga.read_FIFO_AI_unpack(AI1, AI2, size, byref(session), byref(status), byref(elements_remaining))
-
-    print(status, type(status))
-    if str(status) =='61072':
-        print('FPGA ERROR 61072: ')
-
-    return {'AI1': np.array(AI1), 'AI2': np.array(AI2), 'elements_remaining': elements_remaining.value}
+    return [AI1, AI2, elements_remaining.value]
 
 
 
@@ -144,55 +141,34 @@ def read_FIFO_AI(size, session, status):
 # _libfpga.read_FIFO_AI_unpack.restype = None
 
 #
-# def read_FIFO_conv(size, session, status, ticks=56):
-#     """Reads a block of elements from the FPGA FIFO and determines the time
-#     array corresponding to them.
-#     """
-#     set_LoopTicks(ticks, session, status)
-#
-#     [ai1, ai2, elements_remaining] = read_FIFO_AI(size, session, status)
-#
-#     if elements_remaining == size:
-#         print("Warning: FIFO full and elements might get lost.")
-#
-#     # ai0 = int_to_voltage(array(list(ai0)))
-#     # ai1 = int_to_voltage(array(list(ai1)))
-#     # ai2 = int_to_voltage(array(list(ai2)))
-#
-#     # times = cumsum(array(list(ticks))) * 25e-9
-#
-#     return ai0, ai1, ai2, times
+def read_FIFO_conv(size, session, status, ticks=56):
+    """Reads a block of elements from the FPGA FIFO and determines the time
+    array corresponding to them.
+    """
+    set_LoopTicks(ticks, session, status)
 
+    [ai1, ai2, elements_remaining] = read_FIFO_AI(size, session, status)
 
+    if elements_remaining == size:
+        print("Warning: FIFO full and elements might get lost.")
 
+    # ai0 = int_to_voltage(array(list(ai0)))
+    # ai1 = int_to_voltage(array(list(ai1)))
+    # ai2 = int_to_voltage(array(list(ai2)))
 
+    # times = cumsum(array(list(ticks))) * 25e-9
 
-class NI7845R(object):
-    session = c_uint32()
-    status = c_int32()
+    return ai0, ai1, ai2, times
 
-    def __init__(self):
-        """
-        object to establish communication with the NI FPGA
-        note this has to be implemented for each bitfile (i.e. labview fpga program)
-        because the extual implementation of start in the .c code calls a different bitfile
-        """
-        pass
+def int_to_voltage(integer):
+    return (10*integer)/32767.
 
+def voltage_to_int(voltage):
+    # TODO: make it work for arrays and lists
+    return int((voltage * 32767)/10)
 
-    def start(self):
-        start_fpga(self.session, self.status)
-        # print(self.status.value)
-        if self.status.value != 0:
-            if int(self.status.value) ==  -63101:
-                print("ERROR 63101: Bitfile not found")
-            else:
-                print('ERROR IN STARTING FPGA  (ERROR CODE: ', self.status.value, ')')
-        return self.status
+def time_to_buffersize(time, ticks=56):
+    return int(time / (ticks*0.000000025))
 
-    def stop(self):
-        stop_fpga(self.session, self.status)
-
-    # @property
-    # def device_temperature(self):
-    #     read_DeviceTemperature(self.session, self.status)
+def buffersize_to_time(size, ticks=56):
+    return size * (ticks*0.000000025)

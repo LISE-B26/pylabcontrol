@@ -1,63 +1,73 @@
 try:
     from gauge_controller import PressureGauge
 except:
-    pass
+    print("./src/instrument/__init__ warning! PressureGauge did not load")
 
 try:
     from spectrum_analyzer import SpectrumAnalyzer
 except:
-    pass
+    print("./src/instrument/__init__ warning! SpectrumAnalyzer did not load")
 
 try:
     from instruments_DAQ import DAQ
 except:
-    pass
+    print("./src/instrument/__init__ warning! DAQ did not load")
 
 try:
     from piezo_controller import PiezoController
 except:
-    pass
+    print("./src/instrument/__init__ warning! PiezoController did not load")
 
 try:
     from zurich_instruments import ZIHF2
 except:
-    pass
+    print("./src/instrument/__init__ warning! ZIHF2 did not load")
 
 try:
-    from maestro import MaestroBeamBlock, MaestroController, MaestroFilterWheel
+    from maestro import MaestroBeamBlock
 except:
-    pass
+    print("./src/instrument/__init__ warning! MaestroBeamBlock did not load")
+
+try:
+    from maestro import MaestroController
+except:
+    print("./src/instrument/__init__ warning! MaestroController did not load")
+
+try:
+    from maestro import MaestroFilterWheel
+except:
+    print("./src/instrument/__init__ warning! MaestroFilterWheel did not load")
 
 try:
     from attocube import Attocube
 except:
-    pass
+    print("./src/instrument/__init__ warning! Attocube did not load")
 
 try:
     from spectrum_analyzer import SpectrumAnalyzer
 except:
-    pass
+    print("./src/instrument/__init__ warning! SpectrumAnalyzer did not load")
 
 try:
     from instrument_dummy import DummyInstrument
 except:
-    pass
+    print("./src/instrument/__init__ warning! DummyInstrument did not load")
 
 try:
     from microwave_generator import MicrowaveGenerator
 except:
-    pass
+    print("./src/instrument/__init__ warning! MicrowaveGenerator did not load")
 
 
 try:
     from labview_fpga import NI7845RReadAnalogIO
 except:
-    pass
+    print("./src/instrument/__init__ warning! NI7845RReadAnalogIO did not load")
 
 try:
     from labview_fpga import NI7845RPidSimpleLoop
 except:
-    pass
+    print("./src/instrument/__init__ warning! NI7845RPidSimpleLoop did not load")
 
 from montana import CryoStation
 # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']

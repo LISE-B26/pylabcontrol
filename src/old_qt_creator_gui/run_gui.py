@@ -8,7 +8,8 @@ Created on Feb 2 2016
 # To get the resulting .py file use the batch (pyside-uic.bat) file that contains C:\Anaconda\python.exe C:\Anaconda\Lib\site-packages\PySide\scripts\uic.py %*
 # This converts the .ui file into .py file (e.g. mainwindow.py) by executing pyside-uic mainwindow.ui -o mainwindow.py
 """
-
+import sip
+sip.setapi('QVariant', 2)
 # from qt_creator_gui.mainwindow import Ui_MainWindow
 # todo: resolve issue with namespace (get rid of from PySide.QtCore import * and from PySide.QtGui import *)
 import os
@@ -33,7 +34,7 @@ Ui_MainWindow, QMainWindow = loadUiType('mainwindow.ui') # with this we don't ha
 
 import datetime
 from collections import deque
-from src import old_lib as NI
+from src.old_lib import FPGA_PID_Loop_Simple as NI
 import time
 
 # ============= GENERAL SETTING ====================================
@@ -152,13 +153,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         def connect_hardware():
             # create connections to hardware
             hardware_settings = self._settings['hardware']
-            self._servo = maestro.Controller(hardware_settings['serial_port_maestro'])
-            self.beam_block_IR = maestro.BeamBlock(self._servo, hardware_settings['channel_beam_block_IR'])
-            self.beam_block_Green = maestro.BeamBlock(self._servo, hardware_settings['channel_beam_block_Green'])
-            self.filterwheel = maestro.FilterWheel(self._servo, **hardware_settings['parameters_filterwheel'])
-            self.whitelight = maestro.FilterWheel(self._servo, **hardware_settings['parameters_whitelight'])
-            self.camera = maestro.FilterWheel(self._servo, **hardware_settings['parameters_camera'])
-            self.servo_polarization = DCServo_Kinesis.TDC001(hardware_settings["kinesis_serial_number"])
+            # self._servo = maestro.Controller(hardware_settings['serial_port_maestro'])
+            # self.beam_block_IR = maestro.BeamBlock(self._servo, hardware_settings['channel_beam_block_IR'])
+            # self.beam_block_Green = maestro.BeamBlock(self._servo, hardware_settings['channel_beam_block_Green'])
+            # self.filterwheel = maestro.FilterWheel(self._servo, **hardware_settings['parameters_filterwheel'])
+            # self.whitelight = maestro.FilterWheel(self._servo, **hardware_settings['parameters_whitelight'])
+            # self.camera = maestro.FilterWheel(self._servo, **hardware_settings['parameters_camera'])
+            # self.servo_polarization = DCServo_Kinesis.TDC001(hardware_settings["kinesis_serial_number"])
 
             # =============================================================
             # ===== NI FPGA ===============================================

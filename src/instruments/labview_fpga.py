@@ -1,5 +1,5 @@
 from src.core import Instrument, Parameter
-
+from src.labview_fpga_lib.labview_fpga_error_codes import LabviewFPGAException
 def volt_2_bit(volt):
     """
     converts a voltage value into a bit value
@@ -89,14 +89,16 @@ class NI7845RPidSimpleLoop(Instrument):
         ]),
         Parameter('PI_on', False, bool, 'turn PID loop on/off'),
         Parameter('Acquire', False, bool, 'data acquisition on/off'),
-        Parameter('fifo_size', False, int, 'size of fifo for data acquisition')
+        Parameter('fifo_size', 0, int, 'size of fifo for data acquisition'),
+        Parameter('TimeoutBuffer', 0, int, 'time after which buffer times out in clock ticks (40MHz)')
     ])
 
     _PROBES = {
         'AI1': 'analog input channel 1',
         'AI1_filtered': 'analog input channel 1',
         'AI2': 'analog input channel 2',
-        'DeviceTemperature': 'device temperature of fpga'
+        'DeviceTemperature': 'device temperature of fpga',
+        'ElementsWritten' : 'elements written to DMA'
     }
     def __init__(self, name = None, settings = None):
         super(NI7845RPidSimpleLoop, self).__init__(name, settings)
@@ -107,6 +109,7 @@ class NI7845RPidSimpleLoop(Instrument):
         self.update(self.settings)
 
     def __del__(self):
+        print('stopping fpga NI7845RPidSimpleLoop')
         self.fpga.stop()
 
     def read_probes(self, key):
@@ -152,8 +155,13 @@ class NI7845RPidSimpleLoop(Instrument):
         read a block of data from the FIFO
         :return: data from channels AI1 and AI2 and the elements remaining in the FIFO
         '''
-        ai1, ai2, elements_remaining = self.FPGAlib.read_FIFO_AI(block_size, self.fpga.session, self.fpga.status)
-        return ai1, ai2, elements_remaining
+
+        fifo_data = self.FPGAlib.read_FIFO_AI(block_size, self.fpga.session, self.fpga.status)
+
+        if str(self.fpga.status) != 0:
+            raise LabviewFPGAException(self.fpga.status)
+
+        return fifo_data
 
 if __name__ == '__main__':
     import time
