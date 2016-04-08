@@ -95,16 +95,19 @@ probes = {
 # # 2
 # # 1 - filter wheel
 # # 0 - flip mount
-# instruments = {
-#     'IR block': 'MaestroBeamBlock',
-#     'Green block': 'MaestroBeamBlock',
-#     'filter wheel': 'MaestroFilterWheel',
-#     'white light': 'MaestroBeamBlock'
-# }
+instruments = {
+    'FPGA': 'NI7845RReadAnalogIO'
+    # 'IR block': 'MaestroBeamBlock',
+    # 'Green block': 'MaestroBeamBlock',
+    # 'filter wheel': 'MaestroFilterWheel',
+    # 'white light': 'MaestroBeamBlock'
+}
 #
-# scripts = {}
+scripts = {}
 #
-# probes = {}
+probes = {
+    'AI7': {'probe_name': 'AI7', 'instrument_name': 'FPGA'}
+}
 path_to_default = ''
 
 path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26guix'
