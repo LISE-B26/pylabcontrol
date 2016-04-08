@@ -50,17 +50,22 @@ class SpectrumAnalyzer(Instrument):
         self.spec_anal.read_termination = '\n'
         self.spec_anal.timeout = self.settings['connection_timeout']
         self.spec_anal.write('*RST')
-        time.sleep(1)
+        self._last_update_time = time.time()
+        self._wait_for_spec_anal()
         self.update({'mode':'SpectrumAnalyzer'})
 
     def update(self, settings):
         super(SpectrumAnalyzer, self).update(settings)
 
-        time.sleep(1)
+        self._wait_for_spec_anal()
         for key, value in settings.iteritems():
             if key == 'start_frequency':
+                assert 0.0 < value < 3e9, \
+                    "start frequency must be between 0 and 3e9, you tried to set it to {0}!".format(value)
                 self._set_start_frequency(value)
             elif key == 'stop_frequency':
+                assert 0.0 < value < 3e9, \
+                    "stop frequency must be between 0 and 3e9, you tried to set it to {0}!".format(value)
                 self._set_stop_frequency(value)
             elif key == 'output_on':
                 self._toggle_output(value)
@@ -72,7 +77,8 @@ class SpectrumAnalyzer(Instrument):
                 message = '{0} is not a parameter of {1}'.format(key, self.name)
 
     def read_probes(self, probe_name):
-        time.sleep(1)
+        self._wait_for_spec_anal()
+
         if probe_name == 'start_frequency':
             return self._get_start_frequency()
         elif probe_name == 'stop_frequency':
@@ -159,9 +165,16 @@ class SpectrumAnalyzer(Instrument):
         return self.spec_anal.write('SOURCE:POWER ' + str(power))
 
     def __del__(self):
-        time.sleep(1)
+        self.wait_for_spec_anal()
         self._set_mode('SpectrumAnalyzer')
         self.spec_anal.close()
+
+    def _wait_for_spec_anal(self):
+        if self._last_update_time - time.time() < 1.0:
+            time.sleep(1)
+
+        self._last_update_time = time.time()
+
 
 if __name__ == '__main__':
 
