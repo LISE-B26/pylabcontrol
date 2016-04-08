@@ -31,7 +31,7 @@ void start_fpga(NiFpga_Session* session, NiFpga_Status* status)
 {
 	// must be called before any other calls 
 	*status = NiFpga_Initialize();
-	printf("initializing FPGA \n");
+	printf("initializing FPGA read AI AO\n");
 	printf("bitfile expected at:\n");
 	printf(NiFpga_FPGA_read_ai_ao_Bitfile);
 	printf("\n");

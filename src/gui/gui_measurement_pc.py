@@ -110,7 +110,7 @@ probes = {
 }
 path_to_default = ''
 
-path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26guix'
+path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26gui'
 
 try:
     ex = qt_b26_gui.ControlMainWindow(path_to_default)

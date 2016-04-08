@@ -6,7 +6,7 @@ set wrapper_file=%folder%_wrapper
 set lib_file=%folder%.dll
 
 REM ==== find the files we need for compilation =====
-for /R .\%folder% %%F IN (NiFpg*.c) do set NiFpga_file=%%~nF
+for /R .\%folder% %%F IN (NiFpg_FPGA*.c) do set NiFpga_file=%%~nF
 
 echo ---- starting conversion ---
 echo    NiFpga file: %NiFpga_file%.c
