@@ -78,7 +78,7 @@ class NI7845RPidSimpleLoop(Instrument):
     import src.labview_fpga_lib.pid_loop_simple.pid_loop_simple as FPGAlib
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('ElementsToWrite', 500, int, 'elements to write to buffer'),
+        Parameter('ElementsToWrite', 500, int, 'total elements to write to buffer'),
         Parameter('PiezoOut', 0.0, float, 'piezo output in volt'),
         Parameter('Setpoint', 0.0, float, 'set point for PID loop in volt'),
         Parameter('SamplePeriodsPID', int(4e5), int, 'sample period of PID loop in ticks (40 MHz)'),
@@ -87,7 +87,9 @@ class NI7845RPidSimpleLoop(Instrument):
             Parameter('proportional', 0, int, 'proportional gain of PID loop in ??'),
             Parameter('integral', 0, int, 'integral gain of PID loop in ??'),
         ]),
-        Parameter('PI_on', False, bool, 'turn PID loop on/off')
+        Parameter('PI_on', False, bool, 'turn PID loop on/off'),
+        Parameter('Acquire', False, bool, 'data acquisition on/off'),
+        Parameter('fifo_size', False, int, 'size of fifo for data acquisition')
     ])
 
     _PROBES = {
@@ -124,8 +126,10 @@ class NI7845RPidSimpleLoop(Instrument):
                     getattr(self.FPGAlib, 'set_{:s}'.format(key))(volt_2_bit(value), self.fpga.session, self.fpga.status)
             elif key in ['Setpoint']:
                 getattr(self.FPGAlib, 'set_{:s}'.format(key))(volt_2_bit(value), self.fpga.session, self.fpga.status)
-            if key in ['PI_on']:
-                getattr(self.FPGAlib, 'set_PIDActive')(volt_2_bit(value), self.fpga.session, self.fpga.status)
+            elif key in ['PI_on']:
+                getattr(self.FPGAlib, 'set_PIDActive')(value, self.fpga.session, self.fpga.status)
+            elif key in ['Acquire']:
+                getattr(self.FPGAlib, 'set_AcquireData')(value, self.fpga.session, self.fpga.status)
             elif key in ['gains']:
                 if 'proportional' in value:
                     getattr(self.FPGAlib, 'set_PI_gain_prop')(value['proportional'], self.fpga.session, self.fpga.status)
@@ -133,6 +137,23 @@ class NI7845RPidSimpleLoop(Instrument):
                     getattr(self.FPGAlib, 'set_PI_gain_int')(value['integral'], self.fpga.session, self.fpga.status)
             elif key in ['ElementsToWrite', 'sample_period_PI', 'SamplePeriodsAcq', 'PI_on']:
                 getattr(self.FPGAlib, 'set_{:s}'.format(key))(value, self.fpga.session, self.fpga.status)
+            elif key in ['fifo_size']:
+                self.FPGAlib.configure_FIFO_AI(value, self.fpga.session, self.fpga.status)
+
+    def start_fifo(self):
+        self.FPGAlib.start_FIFO_AI(self.fpga.session, self.fpga.status)
+
+    def stop_fifo(self):
+        self.FPGAlib.stop_FIFO_AI(self.fpga.session, self.fpga.status)
+
+
+    def read_fifo(self, block_size):
+        '''
+        read a block of data from the FIFO
+        :return: data from channels AI1 and AI2 and the elements remaining in the FIFO
+        '''
+        ai1, ai2, elements_remaining = self.FPGAlib.read_FIFO_AI(block_size, self.fpga.session, self.fpga.status)
+        return ai1, ai2, elements_remaining
 
 if __name__ == '__main__':
     import time
