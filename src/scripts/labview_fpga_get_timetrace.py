@@ -5,6 +5,7 @@ import numpy as np
 from src.instruments import NI7845RPidSimpleLoop
 import time
 from copy import deepcopy
+from src.labview_fpga_lib.labview_fpga_error_codes import LabviewFPGAException
 
 class LabviewFpgaTimetrace(Script, QThread):
     updateProgress = Signal(int)
@@ -48,7 +49,7 @@ class LabviewFpgaTimetrace(Script, QThread):
 
         # reset FIFO
         block_size = self.settings['BlockSize']
-        self.instruments['fpga'].update({'fifo_size' :block_size * 2})
+        # self.instruments['fpga'].update({'fifo_size' :block_size * 2})
         time.sleep(0.1)
         self.instruments['fpga'].start_fifo()
         time.sleep(0.1)
@@ -77,9 +78,14 @@ class LabviewFpgaTimetrace(Script, QThread):
 
         ai1 = np.zeros(N_actual)
         for i in range(number_of_reads):
-            data = self.instruments['fpga'].read_fifo(block_size)
-            print(i, 'ddd', data)
-            print('block_size', block_size)
+
+            try:
+                data = self.instruments['fpga'].read_fifo(block_size)
+            except LabviewFPGAException as e:
+                print "LabviewFPGAException:",e.code, e.message
+                if e.code == str(-61072):
+                    print("requested block size:", block_size)
+
             ai1[i* block_size:(i+1)*block_size] = deepcopy(data['AI1'])
             # append data to queue
             self.data.append({
@@ -110,14 +116,19 @@ if __name__ == '__main__':
     fpga = NI7845RPidSimpleLoop()
 
         # reset FIFO
-    block_size = 100
+    block_size = 2**8
 
-    N= 400
+    N= 2*block_size
     dt = 2000
 
 
-    fpga.update({'fifo_size': block_size * 2})
+
     time.sleep(0.1)
+    print('----stop-----')
+    fpga.stop_fifo()
+    print('----config-----')
+    fpga.update({'fifo_size': block_size * 2})
+    print('----start-----')
     fpga.start_fifo()
     time.sleep(0.1)
     number_of_reads = int(np.ceil(1.0 * N / block_size))

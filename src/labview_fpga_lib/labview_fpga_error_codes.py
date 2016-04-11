@@ -1,4 +1,4 @@
-
+from ctypes import c_long
 
 error_codes = {
 '-61460':'Control and indicator names with newline characters are only supported when the VI execution mode is set to Execute VI on Development Computer with Simulated I/O and the FPGA VI reference is configured for Dynamic mode.',
@@ -56,19 +56,26 @@ error_codes = {
 
 class LabviewFPGAException(Exception):
     def __init__(self, error_code):
-        if str(error_code) in  error_codes:
+        if isinstance(error_code, c_long):
+            error_code = str(error_code.value)
+        if str(error_code) in error_codes:
             message = error_codes[str(error_code)]
         else:
             message = "unknown error code {:s}:".format(str(error_code))
-        self.code = message
+        self.message = message
+        self.code = error_code
 
     def __str__(self):
-        return repr(self.code)
+        return repr(self.message)
 
 if __name__ =='__main__':
 
     try:
         raise LabviewFPGAException(61211)
     except LabviewFPGAException as e:
-        print "Received error with code:", e.code
+        print "Received error with code:", e.message, e.code
 
+    try:
+        raise LabviewFPGAException(-61015)
+    except LabviewFPGAException as e:
+        print "Received error with code:", e.message, e.code

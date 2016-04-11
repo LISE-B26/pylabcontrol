@@ -89,7 +89,7 @@ class NI7845RPidSimpleLoop(Instrument):
         ]),
         Parameter('PI_on', False, bool, 'turn PID loop on/off'),
         Parameter('Acquire', False, bool, 'data acquisition on/off'),
-        Parameter('fifo_size', 0, int, 'size of fifo for data acquisition'),
+        Parameter('fifo_size', int(2**12), int, 'size of fifo for data acquisition'),
         Parameter('TimeoutBuffer', 0, int, 'time after which buffer times out in clock ticks (40MHz)')
     ])
 
@@ -105,7 +105,10 @@ class NI7845RPidSimpleLoop(Instrument):
 
         # start fpga
         self.fpga = self.FPGAlib.NI7845R()
+        print('===== start fpga =======')
         self.fpga.start()
+        print('===== update fpga =======')
+        print(self.settings)
         self.update(self.settings)
 
     def __del__(self):
@@ -141,7 +144,9 @@ class NI7845RPidSimpleLoop(Instrument):
             elif key in ['ElementsToWrite', 'sample_period_PI', 'SamplePeriodsAcq', 'PI_on']:
                 getattr(self.FPGAlib, 'set_{:s}'.format(key))(value, self.fpga.session, self.fpga.status)
             elif key in ['fifo_size']:
-                self.FPGAlib.configure_FIFO_AI(value, self.fpga.session, self.fpga.status)
+                actual_fifo_size = self.FPGAlib.configure_FIFO_AI(value, self.fpga.session, self.fpga.status)
+                print('requested ', value )
+                print('actual_fifo_size ', actual_fifo_size)
 
     def start_fifo(self):
         self.FPGAlib.start_FIFO_AI(self.fpga.session, self.fpga.status)
@@ -163,14 +168,148 @@ class NI7845RPidSimpleLoop(Instrument):
 
         return fifo_data
 
+
+
+# ==================================================================================
+# simple fpga program that reads data fromt the FPGA FIFO
+# ==================================================================================
+class NI7845RReadFifo(Instrument):
+
+    import src.labview_fpga_lib.pid_loop_simple.pid_loop_simple as FPGAlib
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('ElementsToWrite', 500, int, 'total elements to write to buffer'),
+        Parameter('SamplePeriodsAcq', 200, int, 'sample period of acquisition loop in ticks (40 MHz)'),        Parameter('PI_on', False, bool, 'turn PID loop on/off'),
+        Parameter('Acquire', False, bool, 'data acquisition on/off'),
+        Parameter('fifo_size', int(2**12), int, 'size of fifo for data acquisition')
+    ])
+
+    _PROBES = {
+        'AI1': 'analog input channel 1',
+        'AI2': 'analog input channel 2',
+        'ElementsWritten' : 'elements written to DMA'
+    }
+    def __init__(self, name = None, settings = None):
+        super(NI7845RReadFifo, self).__init__(name, settings)
+
+        # start fpga
+        self.fpga = self.FPGAlib.NI7845R()
+        print('===== start fpga =======')
+        self.fpga.start()
+        print('===== update fpga =======')
+        print(self.settings)
+        self.update(self.settings)
+
+    def __del__(self):
+        print('stopping fpga NI7845RPidSimpleLoop')
+        self.fpga.stop()
+
+    def read_probes(self, key):
+        assert key in self._PROBES.keys(), "key assertion failed %s" % str(key)
+        value = getattr(self.FPGAlib, 'read_{:s}'.format(key))(self.fpga.session, self.fpga.status)
+        return value
+
+
+    def update(self, settings):
+        super(NI7845RReadFifo, self).update(settings)
+
+        for key, value in settings.iteritems():
+            if key in ['Acquire']:
+                getattr(self.FPGAlib, 'set_AcquireData')(value, self.fpga.session, self.fpga.status)
+            elif key in ['ElementsToWrite', 'SamplePeriodsAcq']:
+                getattr(self.FPGAlib, 'set_{:s}'.format(key))(value, self.fpga.session, self.fpga.status)
+            elif key in ['fifo_size']:
+                actual_fifo_size = self.FPGAlib.configure_FIFO_AI(value, self.fpga.session, self.fpga.status)
+                print('requested ', value )
+                print('actual_fifo_size ', actual_fifo_size)
+
+    def start_fifo(self):
+        self.FPGAlib.start_FIFO_AI(self.fpga.session, self.fpga.status)
+
+    def stop_fifo(self):
+        self.FPGAlib.stop_FIFO_AI(self.fpga.session, self.fpga.status)
+
+
+    def read_fifo(self, block_size):
+        '''
+        read a block of data from the FIFO
+        :return: data from channels AI1 and AI2 and the elements remaining in the FIFO
+        '''
+
+        fifo_data = self.FPGAlib.read_FIFO_AI(block_size, self.fpga.session, self.fpga.status)
+        print(str(self.fpga.status.value))
+        if str(self.fpga.status.value) != '0':
+            raise LabviewFPGAException(self.fpga.status)
+
+        return fifo_data
+
 if __name__ == '__main__':
     import time
+    import numpy as np
+    from copy import deepcopy
+
+    fpga = NI7845RReadFifo()
+
+    print(fpga.settings)
+
+        # reset FIFO
+    block_size = 2**8
+
+    N= 2*block_size
+    dt = 2000
 
 
-    fpga = NI7845RPidSimpleLoop()
 
+    time.sleep(0.1)
+    print('----stop-----')
+    fpga.stop_fifo()
+    print('----config-----')
+    fpga.update({'fifo_size': block_size * 2})
+    print('----start-----')
+    fpga.start_fifo()
+    time.sleep(0.1)
+    number_of_reads = int(np.ceil(1.0 * N / block_size))
+    print('number_of_reads', number_of_reads)
+    N_actual = number_of_reads * block_size
+
+    # apply settings to instrument
+    instr_settings = {
+        'SamplePeriodsAcq': dt,
+        'ElementsToWrite': N
+
+    }
+    fpga.update(instr_settings)
+    time.sleep(0.1)
+
+    print('----------')
+    print(fpga.settings)
+    print('----------')
+
+    print('ElementsWritten: ', fpga.ElementsWritten)
+    fpga.update({'Acquire': True})
+
+    # time.sleep(1)
     print(fpga.settings)
 
 
 
+
+    ai1 = np.zeros(N_actual)
+    ai2 = np.zeros(N_actual)
+    i = 0
+    while i < number_of_reads:
+        elem_written = fpga.ElementsWritten
+        if elem_written>=block_size:
+            data = fpga.read_fifo(block_size)
+            # print(i, 'AI1', data['AI1'])
+            print(i, 'elements_remaining', data['elements_remaining'])
+            ai1[i * block_size:(i + 1) * block_size] = deepcopy(data['AI1'])
+            ai2[i * block_size:(i + 1) * block_size] = deepcopy(data['AI2'])
+            i += 1
+
+        print('-----', i, '------', 'elem_written', elem_written)
+
+    print(ai1)
+    print('------------------------------------------------')
+    print(ai2)
 

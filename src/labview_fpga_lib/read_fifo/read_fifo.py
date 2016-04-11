@@ -17,7 +17,7 @@ import numpy as np
 # =========================================================================
 # ======= LOAD DLL ========================================================
 # =========================================================================
-_libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/src/labview_fpga_lib/pid_loop_simple/pid_loop_simple.dll')
+_libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/src/labview_fpga_lib/read_fifo/read_fifo.dll')
 # =========================================================================
 # ======= DEFINE SETTER FUNCTIONS =========================================
 # =========================================================================
@@ -25,23 +25,10 @@ _libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/src/labview_fpg
 # value of the dictionary entry is the data type that is passed to the function
 
 setter_functions = {
-    "set_PiezoOut": c_int16,
-    "set_Setpoint": c_int16,
-    "set_AmplitudeScaleCoefficient": c_int16,
-    "set_ScaledCoefficient_1": c_int32,
-    "set_ScaledCoefficient_2": c_int32,
-    "set_ScaledCoefficient_3": c_int32,
     "set_ElementsToWrite": c_int32,
-    "set_TimeoutBuffer": c_int32,
-    "set_SamplePeriodsPID": c_uint32,
     "set_SamplePeriodsAcq": c_uint32,
-    "set_PI_gain_prop": c_uint32,
-    "set_PI_gain_int": c_uint32,
-    "set_LowPassActive": c_bool,
-    "set_PIDActive": c_bool,
     "set_AcquireData": c_bool,
-    "set_Stop": c_bool,
-    "set_OutputSine" : c_bool
+    "set_Stop": c_bool
 }
 
 for fun_name in setter_functions:
@@ -58,30 +45,16 @@ for fun_name in setter_functions:
 getter_functions = {
     "start_fpga": None,
     "stop_fpga": None,
+    "read_AI0": c_int16,
     "read_AI1": c_int16,
-    "read_AI1_Filtered": c_int16,
-    "read_AI2": c_int16,
-    "read_DeviceTemperature": c_int16,
-    "read_PiezoOut": c_int16,
-    "read_Min": c_int16,
-    "read_Max": c_int16,
-    "read_Mean": c_int16,
-    "read_StdDev": c_uint16,
     "read_ElementsWritten": c_int32,
-    "read_SamplePeriodsPID": c_uint32,
     "read_SamplePeriodsAcq": c_uint32,
-    "read_LoopTicksPID": c_uint32,
     "read_LoopTicksAcq": c_uint32,
-    "read_AcqTime": c_uint32,
-    "read_LoopRateLimitPID": c_bool,
     "read_LoopRateLimitAcq": c_bool,
     "read_TimeOutAcq": c_bool,
-    "read_LowPassActive": c_bool,
-    "read_PIDActive": c_bool,
     "read_FPGARunning": c_bool,
     "read_DMATimeOut": c_bool,
-    "read_AcquireData": c_bool,
-    "read_OutputSine": c_bool
+    "read_AcquireData": c_bool
 }
 
 for fun_name in getter_functions:
@@ -123,6 +96,7 @@ _libfpga.read_FIFO_AI.argtypes = [POINTER(c_uint32), c_int32,
                                   POINTER(c_uint32), POINTER(c_int32),
                                   POINTER(c_int32)]
 _libfpga.read_FIFO_AI.restype = None
+
 def read_FIFO_AI(size, session, status):
     AI1 = (c_int16*size)()
     AI2 = (c_int16*size)()
@@ -179,7 +153,6 @@ class NI7845R(object):
 
     def start(self):
         start_fpga(self.session, self.status)
-        # print(self.status.value)
         if self.status.value != 0:
             if int(self.status.value) ==  -63101:
                 print("ERROR 63101: Bitfile not found")
