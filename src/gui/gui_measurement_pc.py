@@ -96,11 +96,11 @@ probes = {
 # # 1 - filter wheel
 # # 0 - flip mount
 instruments = {
-    'FPGA': 'NI7845RPidSimpleLoop',
-    'IR block': 'MaestroBeamBlock',
-    'Green block': 'MaestroBeamBlock',
-    'filter wheel': 'MaestroFilterWheel',
-    'white light': 'MaestroBeamBlock'
+    'FPGA': 'NI7845RReadFifo'
+    # 'IR block': 'MaestroBeamBlock',
+    # 'Green block': 'MaestroBeamBlock',
+    # 'filter wheel': 'MaestroFilterWheel',
+    # 'white light': 'MaestroBeamBlock'
 }
 #
 scripts = {

@@ -74,7 +74,7 @@ class NI7845RReadAnalogIO(Instrument):
 # simple fpga program that implements a PID loop and can read data quickly into a buffer
 # ==================================================================================
 class NI7845RPidSimpleLoop(Instrument):
-
+    # NOT WORKING!!!
     import src.labview_fpga_lib.pid_loop_simple.pid_loop_simple as FPGAlib
 
     _DEFAULT_SETTINGS = Parameter([
@@ -175,7 +175,7 @@ class NI7845RPidSimpleLoop(Instrument):
 # ==================================================================================
 class NI7845RReadFifo(Instrument):
 
-    import src.labview_fpga_lib.pid_loop_simple.pid_loop_simple as FPGAlib
+    import src.labview_fpga_lib.read_fifo.read_fifo as FPGAlib
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('ElementsToWrite', 500, int, 'total elements to write to buffer'),
@@ -201,7 +201,7 @@ class NI7845RReadFifo(Instrument):
         self.update(self.settings)
 
     def __del__(self):
-        print('stopping fpga NI7845RPidSimpleLoop')
+        print('stopping fpga {:s}'.format(self.name))
         self.fpga.stop()
 
     def read_probes(self, key):
