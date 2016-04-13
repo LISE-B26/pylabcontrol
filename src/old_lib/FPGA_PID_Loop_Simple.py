@@ -14,7 +14,7 @@ import helper_functions.sgl2int as sgl2int
 import numpy as np
 from PySide import QtCore
 
-import src.labview_fpga_lib.FPGA_PID_Loop_Simple_lib_Wrapper as FPGAlib
+import src.old_lib.FPGA_PID_Loop_Simple_lib_Wrapper as FPGAlib
 
 
 class NI7845R(object):
@@ -307,8 +307,7 @@ class NI_FPGA_READ_FIFO(QtCore.QThread):
         :return: data from channels AI1 and AI2 and the elements remaining in the FIFO
         '''
         ai1, ai2, elements_remaining = FPGAlib.read_FIFO_AI(self.block_size, self._fpga.session, self._fpga.is_connected)
-
-        return {'AI1': ai1, 'AI2': ai2, 'elements_remaining': elements_remaining}
+        return ai1, ai2, elements_remaining
 
     def run(self):
         '''

@@ -13,6 +13,8 @@
 #ifndef FPGA_H_
 #define FPGA_H_
 
+
+
 void start_fpga(NiFpga_Session* session, NiFpga_Status* status);
 void stop_fpga(NiFpga_Session* session, NiFpga_Status* status);
 

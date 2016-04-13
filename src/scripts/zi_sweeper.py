@@ -38,8 +38,6 @@ class ZISweeper(Script, QThread):
 
         Script.__init__(self, name, settings, instruments, log_output = log_output)
         QThread.__init__(self)
-        # self.sweeper = self._instrument.daq.sweep(self._timeout)
-        # self.sweeper.set('sweep/device', self._instrument.device)
 
         self.sweeper = self.instruments['zihf2'].daq.sweep(self._timeout)
         self.sweeper.set('sweep/device', self.instruments['zihf2'].device)

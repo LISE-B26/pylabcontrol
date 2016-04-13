@@ -17,7 +17,7 @@
 # print(session, status)
 # #
 
-from src.labview_fpga_lib.old import old_lib as NI
+from src import old_lib as NI
 
 if __name__ == '__main__':
     fpga = NI.NI7845R()

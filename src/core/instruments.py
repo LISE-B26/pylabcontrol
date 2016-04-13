@@ -86,7 +86,8 @@ class Instrument(object):
 
         return value
 
-    @abstractproperty
+    # @abstractproperty
+    @property
     def is_connected(self):
         '''
         check if instrument is active and connected and return True in that case
@@ -99,20 +100,20 @@ class Instrument(object):
     # ========================================================================================
     # do not override this, override get_values instead
     def __getattr__(self, name):
-        # # === OLD JG =========== start
-        # not sure if keyerror is the right thing to catch
-        try:
-            return self.read_probes(name)
-        except (KeyError):
-            #restores standard behavior for missing keys
-            raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
-        # # === OLD JG =========== end
-
+        # # # === OLD JG =========== start
+        # # not sure if keyerror is the right thing to catch
         # try:
         #     return self.read_probes(name)
-        # except:
-        #     # restores standard behavior for missing keys
-        #     raise AttributeError('class ' + type(self).__name__ + ' has no attribute ' + str(name))
+        # except (KeyError):
+        #     #restores standard behavior for missing keys
+        #     raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
+        # # === OLD JG =========== end
+
+        try:
+            return self.read_probes(name)
+        except:
+            # restores standard behavior for missing keys
+            raise AttributeError('class ' + type(self).__name__ + ' has no attribute ' + str(name))
 
 
     def __setattr__(self, key, value):
