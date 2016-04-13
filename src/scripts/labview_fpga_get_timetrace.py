@@ -15,7 +15,7 @@ class LabviewFpgaTimetrace(Script, QThread):
         Parameter('tag', 'some_name'),
         Parameter('save', False, bool,'check to automatically save data'),
         Parameter('dt', 200, int, 'sample period of acquisition loop in ticks (40 MHz)'),
-        Parameter('N', 2000, int, 'numer of samples'),
+        Parameter('N', 10000, int, 'numer of samples'),
         # Parameter('TimeoutBuffer', 0, int, 'time after which buffer times out in clock ticks (40MHz)'),
         Parameter('BlockSize', 1000, int, 'block size of chunks that are read from FPGA'),
     ])
@@ -81,8 +81,7 @@ class LabviewFpgaTimetrace(Script, QThread):
             elem_written = self.instruments['fpga'].ElementsWritten
             if elem_written >= block_size:
                 data = self.instruments['fpga'].read_fifo(block_size)
-                # print(i, 'AI1', data['AI1'])
-                print(i, 'elements_remaining', data['elements_remaining'])
+
                 ai1[i * block_size:(i + 1) * block_size] = deepcopy(data['AI1'])
                 ai2[i * block_size:(i + 1) * block_size] = deepcopy(data['AI2'])
                 i += 1
@@ -110,19 +109,19 @@ class LabviewFpgaTimetrace(Script, QThread):
         dt = self.settings['dt']/40e6
 
         time = dt * np.arange(len(r))
-        if max(time)<1e-6:
+        if max(time)<1e-3:
             time *= 1e6
             xlabel = 'time (us)'
-        elif max(time)<1e-3:
+        elif max(time)<1e0:
             time *= 1e3
             xlabel = 'time (ms)'
-        elif max(time)<0:
-            xlabel = 'time (s)'
         elif max(time)<1e3:
+            xlabel = 'time (s)'
+        elif max(time)<1e6:
             time *= 1e-3
             xlabel = 'time (ks)'
-        axes.plot(r)
-
+        axes.plot(time, r)
+        axes.set_xlabel(xlabel)
 
 
 if __name__ == '__main__':

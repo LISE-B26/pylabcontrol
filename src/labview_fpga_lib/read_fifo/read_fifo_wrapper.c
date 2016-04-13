@@ -28,8 +28,10 @@ void start_fpga(NiFpga_Session* session, NiFpga_Status* status)
 	
 	if (NiFpga_IsNotError(*status))
 	{
-		NiFpga_MergeStatus(status, NiFpga_Reset(*session));
-		
+		// start =  additinal stuff - still testing
+		//NiFpga_MergeStatus(status, NiFpga_Reset(*session));
+		//NiFpga_MergeStatus(status, NiFpga_Close(*session));
+		// end   =  additinal stuff - still testing
 	
 		// opens a session, downloads the bitstream, and runs the FPGA 
 		NiFpga_MergeStatus(status, NiFpga_Open(NiFpga_FPGA_read_fifo_Bitfile,

@@ -1,0 +1,53 @@
+from src.core import Script, Parameter
+from src.instruments import MaestroFilterWheel, MaestroBeamBlock
+
+
+class CameraOn(Script):
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('On', True, bool, '')
+    ])
+
+    _INSTRUMENTS = {
+        'filter_wheel' : MaestroFilterWheel,
+        'block_ir': MaestroBeamBlock,
+        'block_green': MaestroBeamBlock,
+        'white_light': MaestroBeamBlock
+    }
+    _SCRIPTS = {}
+
+    def __init__(self, instruments,  name = None, settings = None, log_output = None):
+        """
+        Example of a script that makes use of an instrument
+        Args:
+            instruments: instruments the script will make use of
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+
+        # call init of superclass
+        Script.__init__(self, name, settings, instruments, log_output = log_output)
+
+    def _function(self):
+        """
+        This is the actual function that will be executed. It uses only information that is provided in _DEFAULT_SETTINGS
+        for this dummy example we just implement a counter
+        """
+
+        if self.settings['On'] == True:
+            # high ND
+            self.instruments['filter_wheel'].update({'current_position': 'position_3'})
+            self.instruments['block_ir'].update({'open': False})
+            self.instruments['block_green'].update({'open': False})
+            self.instruments['white_light'].update({'open': True})
+
+            self.log('camera on')
+        else:
+            # high ND
+            self.instruments['white_light'].update({'open': False})
+            self.instruments['filter_wheel'].update({'current_position': 'position_2'})
+            self.instruments['block_ir'].update({'open': True})
+            self.instruments['block_green'].update({'open': True})
+
+
+            self.log('camera off')

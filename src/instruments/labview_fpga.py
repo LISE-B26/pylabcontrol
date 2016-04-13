@@ -237,7 +237,6 @@ class NI7845RReadFifo(Instrument):
         '''
 
         fifo_data = self.FPGAlib.read_FIFO_AI(block_size, self.fpga.session, self.fpga.status)
-        print(str(self.fpga.status.value))
         if str(self.fpga.status.value) != '0':
             raise LabviewFPGAException(self.fpga.status)
 

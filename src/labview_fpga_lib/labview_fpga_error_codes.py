@@ -49,8 +49,10 @@ error_codes = {
 '-61015':'No bitfile was found for download. You must compile the VI for this target.',
 '61003':'The FPGA VI specified by the Invoke Method function with the Run method is already running. The interaction of the FPGA VI and the host VI might produce unexpected results. For example, executing this host VI may modify front panel values on the running FPGA VI. User interaction with the front panel of the FPGA VI may affect the execution of the host VI. Terminating either the FPGA VI or the host VI may terminate the other.',
 '61060':'The Wait on IRQ method timed out before the specified interrupt was received.',
-'61211':'Multiple resources with the same name are present in this VI. The Dynamic Mode of the FPGA Interface can only access a single resource of a given name.'
+'61211':'Multiple resources with the same name are present in this VI. The Dynamic Mode of the FPGA Interface can only access a single resource of a given name.',
+'-63195':'NI-RIO FPGA Communications Framework: (Hex 0xFFF0925) The handle for device communication is invalid.'
 }
+
 
 
 
