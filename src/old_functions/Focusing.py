@@ -12,6 +12,7 @@ import scipy.ndimage
 import scipy.optimize
 from PyQt4 import QtGui
 from src.old_hardware_modules import GalvoMirrors as DaqOut, PiezoController, Attocube
+import regions
 
 from src.old_functions import ScanAPD as GalvoScanAPD
 from src.old_functions import ScanPhotodiode_DAQ as GalvoScanPD
@@ -53,9 +54,9 @@ class Focus:
                 "yo": 0.0
             }
 
-        assert_is_roi
+        regions.assert_is_roi(scan_range_roi)
 
-        roi_crop(scan_range_roi)
+        regions.roi_crop(scan_range_roi)
 
         voltRange = numpy.linspace(minV, maxV, numPts)
         xdata = []
@@ -81,7 +82,7 @@ class Focus:
 
 
 
-        xMin, xMax, yMin, yMax = roi_to_min_max(scan_range_roi)
+        xMin, xMax, yMin, yMax = regions.roi_to_min_max(scan_range_roi)
 
         xPts = scan_range_roi['xPts']
         yPts = scan_range_roi['yPts']
@@ -188,9 +189,9 @@ class Focus:
                 "yo": 0.0
             }
 
-        assert_is_roi
+        regions.assert_is_roi(scan_range_roi)
 
-        roi_crop(scan_range_roi)
+        regions.roi_crop(scan_range_roi)
 
         current_pos = min_pos
         xdata = numpy.array([])

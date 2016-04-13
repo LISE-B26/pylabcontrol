@@ -93,7 +93,7 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
             writethread.waitToFinish()
             writethread.stop()
 
-            raw_data = readthread.read()
+            raw_data,_ = readthread.read()
 
             #raw_data = sweep_mw_and_count_APD(freq_voltage_array, dt)
             # counter counts continiously so we take the difference to get the counts per time interval

@@ -1,5 +1,6 @@
 from tendo import singleton
 import time
+import visa
 
 class SG384():
 

@@ -112,7 +112,7 @@ class Script(object):
     def _INSTRUMENTS(self):
         """
 
-        Returns: a dictionary of the instruments, were key is the instrument name and value is the instrument class
+        Returns: a dictionary of the instruments, where key is the instrument name and value is the instrument class
         if there is not instrument it should return an empty dict
 
         """
