@@ -133,7 +133,7 @@ class DAQ(Instrument):
                   ),
         Parameter('digital_input',
                   [
-                      Parameter('DI0',
+                      Parameter('ctr0',
                                 [
                                     Parameter('input_channel', 0, range(0, 32), 'input channel(s)'),
                                     Parameter('clock_PFI_channel', 13, range(0, 32), 'PFI output clock channel'),
@@ -258,7 +258,10 @@ class DAQ(Instrument):
         for c in channels:
             if not c in self.settings['analog_output'].keys():
                 raise KeyError('This is not a valid analog output channel')
-        #todo: check for all same sample rate
+        sample_rate = self.settings['analog_output'][channels[0]]['sample_rate']
+        for c in channels:
+            if not self.settings['analog_output'][c]['sample_rate'] == sample_rate:
+                raise ValueError('All sample rates must be the same')
         self.running = True
         #todo: probably all 1D conversion code bugged, need to test
         # special case 1D waveform since length(waveform[0]) is undefined
@@ -314,101 +317,48 @@ class DAQ(Instrument):
     def AO_waitToFinish(self):
         self.CHK(self.nidaq.DAQmxWaitUntilTaskDone(self.AO_taskHandle,
                                                    float64(self.periodLength / self.sampleRate * 2)))
-
     # stop output and clean up
     def AO_stop(self):
         self.running = False
         self.nidaq.DAQmxStopTask(self.AO_taskHandle)
         self.nidaq.DAQmxClearTask(self.AO_taskHandle)
-    # error checking routine for nidaq commands. Input should be return value
-    # from nidaq function
-    # err: nidaq error code
-    def CHK(self, err):
-        if err < 0:
-            buf_size = 100
-            buf = ctypes.create_string_buffer('\000' * buf_size)
-            self.nidaq.DAQmxGetErrorString(err,ctypes.byref(buf),buf_size)
-            raise RuntimeError('nidaq call failed with error %d: %s'%(err,repr(buf.value)))
-        if err > 0:
-            buf_size = 100
-            buf = ctypes.create_string_buffer('\000' * buf_size)
-            self.nidaq.DAQmxGetErrorString(err,ctypes.byref(buf),buf_size)
-            raise RuntimeError('nidaq generated warning %d: %s'%(err,repr(buf.value)))
+
+    # def AO_set_pt(self, xVolt, yVolt):
+    #     pt = numpy.transpose(numpy.column_stack((xVolt,yVolt)))
+    #     pt = (numpy.repeat(pt, 2, axis=1))
+    #     # prefacing string with b should do nothing in python 2, but otherwise this doesn't work
+    #     pointthread = DaqOutputWave(nidaq, device, pt, pt, sample_rate)
+    #     pointthread.run()
+    #     pointthread.waitToFinish()
+    #     pointthread.stop()
 
 
-#Outputs arbitrary waveform to any number of channels from a DAQ
-class DaqOutputWave(threading.Thread):
-    # initializes values and sets up output channel
-    # waveform: takes a number of channels X number of samples to output
-    #           matrix, which each channels row contains the waveform to output
-    #           on that channel
-    # sampleRate: sets rate in Hz for waveform output
-    # device: list of channels to output to, in same order as in waveform
-    def __init__(self, nidaq, device, waveform, sample_rate):
-        self.nidaq = nidaq
-        self.running = True
-        self.sampleRate = sample_rate
-        # special case 1D waveform since length(waveform[0]) is undefined
-        if(len(numpy.shape(waveform))==2):
-            self.numChannels = len(waveform)
-            self.periodLength = len(waveform[0])
-        else:
-            self.periodLength = len(waveform)
-            self.numChannels = 1
-        self.taskHandle = TaskHandle(0)
-        # special case 1D waveform since length(waveform[0]) is undefined
-        # converts python array to ctypes array
-        if(len(numpy.shape(waveform))==2):
-            self.data = numpy.zeros((self.numChannels, self.periodLength),
-                                     dtype=numpy.float64)
-            for i in range(self.numChannels):
-                for j in range(self.periodLength):
-                    self.data[i, j] = waveform[i, j]
-        else:
-            self.data = numpy.zeros((self.periodLength), dtype=numpy.float64)
-            for i in range(self.periodLength):
-                self.data[i] = waveform[i]
-        self.CHK(nidaq.DAQmxCreateTask("",
-                          ctypes.byref(self.taskHandle)))
-        self.CHK(nidaq.DAQmxCreateAOVoltageChan(self.taskHandle,
-                                   device,
-                                   "",
-                                   float64(-10.0),
-                                   float64(10.0),
-                                   DAQmx_Val_Volts,
-                                   None))
-        self.CHK(nidaq.DAQmxCfgSampClkTiming(self.taskHandle,
-                                "",
-                                float64(self.sampleRate),
-                                DAQmx_Val_Rising,
-                                DAQmx_Val_FiniteSamps,
-                                uInt64(self.periodLength)))
-        self.CHK(nidaq.DAQmxWriteAnalogF64(self.taskHandle,
-                              int32(self.periodLength),
-                              0,
-                              float64(-1),
-                              DAQmx_Val_GroupByChannel,
-                              self.data.ctypes.data_as(ctypes.POINTER(ctypes.c_longlong)),
-                              None,
-                              None))
-        threading.Thread.__init__(self)
+    def AI_init(self, channel, num_samples_to_acquire):
+        self.AI_taskHandle = TaskHandle(0)
+        self.AI_numSamples = num_samples_to_acquire
+        self.data = numpy.zeros((self.AI_numSamples,), dtype=numpy.float64)
+        # now, on with the program
+        self.CHK(self.nidaq.DAQmxCreateTask("", ctypes.byref(self.AI_taskHandle)))
+        self.CHK(self.nidaq.DAQmxCreateAIVoltageChan(self.AI_taskHandle, self.settings['device'], "",
+                                                DAQmx_Val_Cfg_Default,
+                                                float64(-10.0), float64(10.0),
+                                                DAQmx_Val_Volts, None))
+        self.CHK(self.nidaq.DAQmxCfgSampClkTiming(self.AI_taskHandle, "", float64(self.settings['analog_input'][channel]['sample_rate']),
+                                             DAQmx_Val_Rising, DAQmx_Val_FiniteSamps,
+                                             uInt64(self.AI_numSamples)))
 
-
-    # begin outputting waveforms
-    # todo: AK - does this actually need to be threaded like in example code? Is it blocking?
-    def run(self):
+    def AI_run(self):
         self.CHK(self.nidaq.DAQmxStartTask(self.taskHandle))
 
-    # wait until waveform output has finished
-    def waitToFinish(self):
-        self.CHK(self.nidaq.DAQmxWaitUntilTaskDone(self.taskHandle,
-                 float64(self.periodLength / self.sampleRate * 2)))
-
-    # stop output and clean up
-    def stop(self):
-        self.running = False
-        self.nidaq.DAQmxStopTask(self.taskHandle)
-        self.nidaq.DAQmxClearTask(self.taskHandle)
+    def AI_read(self):
+        read = int32()
+        self.CHK(self.nidaq.DAQmxReadAnalogF64(self.AI_taskHandle, self.AI_numSamples, float64(10.0),
+                                          DAQmx_Val_GroupByChannel, self.data.ctypes.data,
+                                          self.AI_numSamples, ctypes.byref(read), None))
+        if self.taskHandle.value != 0:
+            self.nidaq.DAQmxStopTask(self.AI_taskHandle)
+            self.nidaq.DAQmxClearTask(self.AI_taskHandle)
+        return self.data
 
     # error checking routine for nidaq commands. Input should be return value
     # from nidaq function
@@ -424,29 +374,6 @@ class DaqOutputWave(threading.Thread):
             buf = ctypes.create_string_buffer('\000' * buf_size)
             self.nidaq.DAQmxGetErrorString(err,ctypes.byref(buf),buf_size)
             raise RuntimeError('nidaq generated warning %d: %s'%(err,repr(buf.value)))
-
-    # Gets voltages currently output on all four channels, and returns them as a tuple.
-    def getOutputVoltages(self):
-        device = ('Dev1/_ao0_vs_aognd, Dev1/_ao1_vs_aognd, Dev1/_ao2_vs_aognd, Dev1/_ao3_vs_aognd')
-        data = (float64 * 4)()
-        taskHandle = TaskHandle(0)
-        self.CHK(self.nidaq.DAQmxCreateTask("",
-                    ctypes.byref(taskHandle)))
-        self.CHK(self.nidaq.DAQmxCreateAIVoltageChan(taskHandle, device, "", DAQmx_Val_Cfg_Default, float64(-10), float64(10), DAQmx_Val_Volts, None))
-        self.CHK(self.nidaq.DAQmxReadAnalogF64(taskHandle, int32(1), float64(10), DAQmx_Val_GroupByChannel, ctypes.byref(data), uInt32(4), None, None))
-        self.CHK(self.nidaq.DAQmxClearTask(taskHandle))
-        return data[0:4]
-
-class SetGalvoPoint:
-    def __init__(self,xVolt,yVolt, nidaq, device, sample_rate):
-        pt = numpy.transpose(numpy.column_stack((xVolt,yVolt)))
-        pt = (numpy.repeat(pt, 2, axis=1))
-        # prefacing string with b should do nothing in python 2, but otherwise this doesn't work
-        pointthread = DaqOutputWave(nidaq, device, pt, pt, sample_rate)
-        pointthread.run()
-        pointthread.waitToFinish()
-        pointthread.stop()
-
 
 if __name__ == '__main__':
     a = DAQ()
