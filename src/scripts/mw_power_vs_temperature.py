@@ -71,7 +71,7 @@ class MWSpectraVsPower(Script, QThread):
         spectrum = []
         uwave_power = []
 
-
+        self.instruments['microwave_generator'].update({'enable_output': True})
         for power in power_values:
             # set u-wave power
             self.instruments['microwave_generator'].update({'amplitude' : power})
@@ -112,7 +112,9 @@ class MWSpectraVsPower(Script, QThread):
 
         self.instruments['microwave_generator'].AMPR = -60
 
+        self.instruments['microwave_generator'].update({'enable_output': False})
 
+        self.updateProgress.emit(100)
     def plot(self, axes):
 
         spectrum = self.data[-1]['spectrum']
