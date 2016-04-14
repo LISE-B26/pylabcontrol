@@ -12,9 +12,8 @@ class MWSpectraVsPower(Script, QThread):
         Parameter('path', 'Z:/Lab/Cantilever/Measurements/', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', True, bool, 'save data on/off'),
-        Parameter('start_frequency', 2.7e9, float, 'start frequency of spectrum'),
-        Parameter('end_frequency', 3e9, float, 'end frequency of spectrum'),
-        Parameter('microwave_frequency', 3e9, float, 'frequency of microwave'),
+        # Parameter('start_frequency', 2.7e9, float, 'start frequency of spectrum'),
+        # Parameter('end_frequency', 3e9, float, 'end frequency of spectrum'),
         Parameter('uwave_power_min', -45.0, float, 'microwave power min (dBm)'),
         Parameter('uwave_power_max', -12.0, float,'microwave power max (dBm)'),
         Parameter('uwave_power_step', 2.0, float,'microwave power step (dBm)'),
@@ -54,15 +53,11 @@ class MWSpectraVsPower(Script, QThread):
         def calc_progress(power):
             min, max =self.settings['uwave_power_min'], self.settings['uwave_power_max']
 
-            progress = power-min / (max-min) *100
+            progress = (power-min )/ (max-min) *100
 
             return progress
 
         # set up instruments
-        # todo: FINISH IMPLEMENTATIUON
-        self.instruments['microwave_generator'].FREQ = self.settings['microwave_frequency']
-
-
 
         self.save(save_data=False, save_instrumets=True, save_log=False, save_settings=True)
 
@@ -78,9 +73,8 @@ class MWSpectraVsPower(Script, QThread):
 
 
         for power in power_values:
-        # for power in range(self.settings['uwave_power_min'], self.settings['uwave_power_max'], self.settings['uwave_power_step']):
             # set u-wave power
-            self.instruments['microwave_generator'].AMPR = power
+            self.instruments['microwave_generator'].update({'amplitude' : power})
             time.sleep(self.settings['wait_time'])  #since the spectrum analyzer takes a full second =)
 
             uwave_power.append(power)
@@ -88,7 +82,6 @@ class MWSpectraVsPower(Script, QThread):
             stage_1_temp.append(self.instruments['cryo_station'].platform_temp)
             stage_2_temp.append(self.instruments['cryo_station'].stage_1_temp)
             platform_temp.append(self.instruments['cryo_station'].stage_2_temp)
-
 
             trace = self.instruments['spectrum_analyzer'].trace
             freq = [item[0] for item in trace]

@@ -52,7 +52,7 @@ class Script(object):
             instruments = {}
         else:
             assert isinstance(instruments, dict)
-            assert instruments.keys() == self._INSTRUMENTS.keys()
+            assert set(instruments.keys()) == set(self._INSTRUMENTS.keys())
         self.instruments = instruments
 
         self._scripts = {}
@@ -151,7 +151,7 @@ class Script(object):
     @instrumets.setter
     def instruments(self, instrument_dict):
         assert isinstance(instrument_dict, dict)
-        assert instrument_dict.keys() == self._INSTRUMENTS.keys(), "keys in{:s}\nkeys expected{:s}".format(str(instrument_dict.keys()), str( self._INSTRUMENTS.keys()))
+        assert set(instrument_dict.keys()) == set(self._INSTRUMENTS.keys()), "keys in{:s}\nkeys expected{:s}".format(str(instrument_dict.keys()), str( self._INSTRUMENTS.keys()))
 
         for key, value in self._INSTRUMENTS.iteritems():
             assert isinstance(instrument_dict[key], self._INSTRUMENTS[key])

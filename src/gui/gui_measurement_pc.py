@@ -31,12 +31,11 @@ scripts= {
     },
 
     'u-wave spectra vs power': {
-        'script_class': 'KeysightSpectrumVsPower',
-        'instruments':{'cryo_station' : 'cryo station'},
-        'scripts': {'get_spectrum': {
-            'script_class': 'KeysightGetSpectrum',
-            'instruments':{'spectrum_analyzer' : 'spectrum analyzer'}
-            }
+        'script_class' : 'MWSpectraVsPower',
+        'instruments' : {
+            'cryo_station' : 'cryo station',
+            'spectrum_analyzer' : 'spectrum analyzer',
+            'microwave_generator': 'microwave generator'
         }
     },
 
