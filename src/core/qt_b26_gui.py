@@ -12,8 +12,8 @@ import json as json
 import yaml # we use this to load json files, yaml doesn't cast everything to unicode
 from PySide.QtCore import QThread
 
-from src.instruments import DummyInstrument
-from src.scripts import ScriptDummy, ScriptDummyWithQtSignal
+# from src.instruments import DummyInstrument
+# from src.scripts import ScriptDummy, ScriptDummyWithQtSignal
 
 import datetime
 from collections import deque

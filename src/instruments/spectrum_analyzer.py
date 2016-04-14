@@ -43,6 +43,10 @@ class SpectrumAnalyzer(Instrument):
             settings (list): list of other values to initialize class with
 
         """
+
+        self._last_update_time = time.time()
+
+
         super(SpectrumAnalyzer, self).__init__(name, settings)
 
         rm = visa.ResourceManager()
@@ -50,7 +54,6 @@ class SpectrumAnalyzer(Instrument):
         self.spec_anal.read_termination = '\n'
         self.spec_anal.timeout = self.settings['connection_timeout']
         self.spec_anal.write('*RST')
-        self._last_update_time = time.time()
         self._wait_for_spec_anal()
         self.update({'mode':'SpectrumAnalyzer'})
 
@@ -165,11 +168,14 @@ class SpectrumAnalyzer(Instrument):
         return self.spec_anal.write('SOURCE:POWER ' + str(power))
 
     def __del__(self):
-        self.wait_for_spec_anal()
+        self._wait_for_spec_anal()
         self._set_mode('SpectrumAnalyzer')
         self.spec_anal.close()
 
     def _wait_for_spec_anal(self):
+
+
+
         if self._last_update_time - time.time() < 1.0:
             time.sleep(1)
 

@@ -71,8 +71,9 @@ def load_instruments(instruments):
             # adds the instance to our output ditionary
             instrument_instances[instrument_name] = instrument_instance
 
-        except AttributeError:
+        except AttributeError as e:
             print('{:s} ({:s}) did not load'.format(instrument_name, class_of_instrument))
+            print(e.message)
             # catches when we try to create an instrument of a class that doesn't exist!
             raise AttributeError
 

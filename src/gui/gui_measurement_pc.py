@@ -83,48 +83,48 @@ probes = {
 
 
 
-
-# #  =========== for left PC =================================
 #
-#
-#
-# #maestro
-# # 5 - green
-# # 4 - ir
-# # 3
-# # 2
-# # 1 - filter wheel
-# # 0 - flip mount
-instruments = {
-    # 'FPGA': 'NI7845RReadFifo'
-    'IR block': 'MaestroBeamBlock',
-    'Green block': 'MaestroBeamBlock',
-    'filter wheel': 'MaestroFilterWheel',
-    'white light': 'MaestroBeamBlock'
-}
-#
-scripts = {
-    # 'timetrace' : {
-    #     'script_class': 'LabviewFpgaTimetrace',
-    #     'instruments': {'fpga' : 'FPGA'},
-    # },
-    'camera_on' : {
-        'script_class': 'CameraOn',
-        'instruments': {
-            'filter_wheel': 'filter wheel',
-            'block_ir': 'IR block',
-            'block_green': 'Green block',
-            'white_light': 'white light'
-        },
-    }
-}
-#
-probes = {
-    # 'AI1': {'probe_name': 'AI1', 'instrument_name': 'FPGA'}
-}
+# # #  =========== for left PC =================================
+# #
+# #
+# #
+# # #maestro
+# # # 5 - green
+# # # 4 - ir
+# # # 3
+# # # 2
+# # # 1 - filter wheel
+# # # 0 - flip mount
+# instruments = {
+#     # 'FPGA': 'NI7845RReadFifo'
+#     'IR block': 'MaestroBeamBlock',
+#     'Green block': 'MaestroBeamBlock',
+#     'filter wheel': 'MaestroFilterWheel',
+#     'white light': 'MaestroBeamBlock'
+# }
+# #
+# scripts = {
+#     # 'timetrace' : {
+#     #     'script_class': 'LabviewFpgaTimetrace',
+#     #     'instruments': {'fpga' : 'FPGA'},
+#     # },
+#     'camera_on' : {
+#         'script_class': 'CameraOn',
+#         'instruments': {
+#             'filter_wheel': 'filter wheel',
+#             'block_ir': 'IR block',
+#             'block_green': 'Green block',
+#             'white_light': 'white light'
+#         },
+#     }
+# }
+# #
+# probes = {
+#     # 'AI1': {'probe_name': 'AI1', 'instrument_name': 'FPGA'}
+# }
 path_to_default = ''
 
-path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26gui'
+path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26guic'
 
 try:
     ex = qt_b26_gui.ControlMainWindow(path_to_default)
