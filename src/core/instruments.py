@@ -2,8 +2,9 @@
 from PyQt4 import QtCore
 from abc import ABCMeta, abstractmethod, abstractproperty
 from copy import deepcopy
-
+import yaml
 from src.core import Parameter
+from src.core.read_write_functions import save_b26_file
 
 class Instrument(object):
     '''
@@ -158,3 +159,182 @@ class Instrument(object):
 
         return dictator
 
+
+    def save(self, filename):
+        """
+        save the instrument to path as a .b26 file
+
+        Args:
+            file_path:
+
+        Returns:
+
+        """
+        # inst_dict = {name: {'instrument_class': str(type(instrument)).split('\'')[1], 'settings': instrument.settings}
+        #              for name, instrument in instruments.iteritems()}
+        # instrument_class = str(type(self)).split('\'')[1].split('src.instruments.')[1]
+        instrument_class = self.__class__.__name__
+        inst_dict = {self.name: {'instrument_class': instrument_class, 'settings': self.settings}}
+        # with open(filename, 'w') as outfile:
+        #     tmp = json.dump(inst_dict, outfile, indent=4)
+
+        save_b26_file(filename, instruments = inst_dict)
+
+    @staticmethod
+    def load(input, instrument_instances = {}):
+        """
+        load instrument from input
+
+
+        Args:
+            input:  (1) a path to a file, that contains a valid dictionary with instrument settings
+                    (2) a valid dictionary with instrument settings
+
+        Returns:
+
+        Args:
+            instruments:
+            instruments is a dictionary with
+            (key,value) = (name of the instrument, instrument class name),
+            for example instruments = {'Chamber Pressure Gauge': 'PressureGauge'}
+
+            or
+
+            (key,value) = (name of the instrument, {'instrument_class' : instrument class name, "settings", dict with settings}),
+
+
+        Returns:
+            a dictionary with (key,value) = (name of instrument, instance of instrument class) for all of the instruments
+            passed to the function that were successfully imported and initialized. Otherwise, instruments are omitted
+            in the outputted list.
+
+        Examples:
+            In the following, instrument_1 loads correctly, but instrument_2 does not, so only an instance of instrument_1
+            is outputted.
+
+        """
+
+
+        if isinstance(input, str):
+            # try to load file
+            with open(input, 'r') as infile:
+                instrument_dict = yaml.safe_load(infile)
+        else:
+            assert isinstance(input, dict)
+            instrument_dict = input
+
+
+        for instrument_name, instrument_class_name in instrument_dict.iteritems():
+            if isinstance(instrument_class_name, dict):
+                instrument_settings = instrument_class_name['settings']
+                instrument_class_name = str(instrument_class_name['instrument_class'])
+            else:
+                instrument_settings = None
+
+            if len(instrument_class_name.split('.')) == 1:
+                module_path = 'src.instruments'
+            else:
+                module_path = 'src.instruments.' + '.'.join(instrument_class_name.split('.')[0:-1])
+                instrument_class_name = instrument_class_name.split('.')[-1]
+
+            # check if instrument already exists
+
+            if instrument_name in instrument_instances.keys():
+                print('WARNING: instrument {:s} already exists. Did not load!'.format(instrument_name))
+            else:
+
+                # ==== import module =======
+                try:
+                    # try to import the instrument
+                    module = __import__(module_path, fromlist=[instrument_class_name])
+
+                    # this returns the name of the module that was imported.
+                    class_of_instrument = getattr(module, instrument_class_name)
+                except AttributeError as e:
+                    print(e.message)
+                    # catches when we try to create an instrument of a class that doesn't exist!
+                    raise AttributeError
+
+                if instrument_settings is None:
+                    # this creates an instance of the class with default settings
+                    instrument_instance = class_of_instrument(name=instrument_name)
+                else:
+                    # this creates an instance of the class with custom settings
+                    instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
+
+                # adds the instance to our output ditionary
+                instrument_instances[instrument_name] = instrument_instance
+
+        return instrument_instances
+
+
+
+if __name__ == '__main__':
+
+    # path to instrument classes
+    # path_to_instrument = 'C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\src\\instruments'
+    #
+    # # path to a instrument file
+    # intrument_filename = 'Z:\\Lab\\Cantilever\\Measurements\\160414_MW_transmission_vs_Power\\160414-18_59_33_test.inst'
+    #
+
+    filename = 'C:\\Users\\Experiment\\Desktop\\Jan\\test.inst'
+
+
+    instruments = Instrument.load(filename)
+
+    print(instruments)
+    filename = 'C:\\Users\\Experiment\\Desktop\\Jan\\test2.inst'
+    instruments = Instrument.load(filename, instruments)
+
+    print(instruments)
+
+
+    # with open(filename, 'r') as infile:
+    #     instrument_dict2 = yaml.safe_load(infile)
+    #
+    # print(instrument_dict2)
+    #
+    # instruments2 = load_instruments(instrument_dict2)
+    #
+    # print(instruments2, instruments2['inst_dummy'].settings)
+    #
+    # instruments2['inst_dummy'].save('C:\\Users\\Experiment\\Desktop\\Jan\\test2.inst')
+
+
+
+
+
+    # instrument_dict = {
+    #     'inst_dummy':{
+    #         'instrument_class' : 'DummyInstrument',
+    #         'settings': {
+    #             'test1' : 5,
+    #             'output probe2':23
+    #         }
+    #     }
+    # }
+    #
+    #
+    # # instrument_dict = {
+    # #     'inst_dummy': 'DummyInstrument'
+    # # }
+    #
+    # instruments = load_instruments(instrument_dict)
+    #
+    # str(type(instruments['inst_dummy'])).split('\'')[1]
+    # inst_dict = {name: {'instrument_class' : str(type(instrument)).split('\'')[1],'settings': instrument.settings} for name, instrument in instruments.iteritems()}
+    # print(inst_dict)
+    #
+    # filename = 'C:\\Users\\Experiment\\Desktop\\Jan\\test.inst'
+    #
+    # instruments['inst_dummy'].save(filename)
+    #
+    #
+    #
+
+    #
+    #
+    #
+    #
+    #

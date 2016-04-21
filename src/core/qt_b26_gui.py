@@ -18,7 +18,7 @@ from PySide.QtCore import QThread
 import datetime
 from collections import deque
 
-from src.core import load_probes, load_scripts, load_instruments
+from src.core import instantiate_probes, instantiate_scripts, instantiate_instruments
 
 from src.scripts import ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan
 from src.core.plotting import plot_psd
@@ -59,9 +59,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         else:
             raise TypeError("called ControlMainWindow with wrong arguments")
 
-        instruments = load_instruments(instruments)
-        scripts = load_scripts(scripts, instruments, log_function= lambda x: self.log(x, target = 'script'))
-        probes = load_probes(probes, instruments)
+        instruments = instantiate_instruments(instruments)
+        scripts = instantiate_scripts(scripts, instruments, log_function= lambda x: self.log(x, target ='script'))
+        probes = instantiate_probes(probes, instruments)
 
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
@@ -454,4 +454,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
             else:
                 B26QTreeItem(tree, key, value, type(value), '')
+
+
 

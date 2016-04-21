@@ -45,8 +45,13 @@ probes = {
           }
 
 settings_file = "Z:\Lab\Cantilever\Measurements\\tmp_\\a"
+settings_file = ""
 
-ex = qt_b26_gui.ControlMainWindow(settings_file)
+try:
+    ex = qt_b26_gui.ControlMainWindow(settings_file)
+except AssertionError:
+    ex = qt_b26_gui.ControlMainWindow(instruments, scripts, probes)
+
 # ex = qt_b26_gui.ControlMainWindow(instruments, scripts, probes)
 ex.show()
 ex.raise_()

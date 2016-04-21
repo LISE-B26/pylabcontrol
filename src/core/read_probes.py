@@ -44,17 +44,17 @@ class ReadProbes(QThread):
 
 if __name__ == '__main__':
 
-    from src.core import load_instruments, load_probes
+    from src.core import instantiate_instruments, instantiate_probes
     instruments = {'inst_dummy': 'DummyInstrument'}
 
-    instruments = load_instruments(instruments)
+    instruments = instantiate_instruments(instruments)
     print(instruments)
     probes = {
         'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
         'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
     }
 
-    probes = load_probes(probes, instruments)
+    probes = instantiate_probes(probes, instruments)
 
 
     r = ReadProbes(probes)

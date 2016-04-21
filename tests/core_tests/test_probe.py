@@ -1,13 +1,13 @@
 from unittest import TestCase
-from src.core import load_instruments, Probe
+from src.core import instantiate_instruments, Probe
 
 class TestProbe(TestCase):
 
     def test_init(self):
-        from src.core import load_instruments
+        from src.core import instantiate_instruments
         instruments = {'inst_dummy': 'DummyInstrument'}
 
-        instrument = load_instruments(instruments)['inst_dummy']
+        instrument = instantiate_instruments(instruments)['inst_dummy']
 
         p = Probe(instrument, 'value1', 'random')
 

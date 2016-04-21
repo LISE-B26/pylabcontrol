@@ -1,6 +1,6 @@
-from src.core.probe import Probe
-
-def instantiate_instruments(instruments):
+from src.core import Probe
+import json
+def load_instruments(instruments):
     """
     Creates instances of the instruments inputted; in the case of the Maestro Beam Block and other motors, makes sure
     to use the same controller for all of them by creating a single controller instance for each maestro motor to be
@@ -33,15 +33,19 @@ def instantiate_instruments(instruments):
 
     for instrument_name, instrument_class_name in instruments.iteritems():
         if isinstance(instrument_class_name, dict):
-            print('LLLL', instrument_class_name)
             instrument_settings = instrument_class_name['settings']
             instrument_class_name = str(instrument_class_name['instrument_class'])
         else:
             instrument_settings = None
         try:
-
+            if len(instrument_class_name.split('.')) == 1:
+                module_path = 'src.instruments'
+            else:
+                module_path = 'src.instruments.'+'.'.join(instrument_class_name.split('.')[0:-1])
+                instrument_class_name = instrument_class_name.split('.')[-1]
             # try to import the instrument
-            module = __import__('src.instruments', fromlist=[instrument_class_name])
+            module = __import__(module_path, fromlist=[instrument_class_name])
+
             # this returns the name of the module that was imported.
             class_of_instrument = getattr(module, instrument_class_name)
 
@@ -72,14 +76,14 @@ def instantiate_instruments(instruments):
             instrument_instances[instrument_name] = instrument_instance
 
         except AttributeError as e:
-            print('{:s} ({:s}) did not load'.format(instrument_name, class_of_instrument))
             print(e.message)
             # catches when we try to create an instrument of a class that doesn't exist!
             raise AttributeError
 
     return instrument_instances
 
-def instantiate_scripts(scripts, instruments, log_function = None):
+
+def load_scripts(scripts, instruments, log_function = None):
     """
     Creates instances of the scripts inputted;
 
@@ -204,7 +208,8 @@ def instantiate_scripts(scripts, instruments, log_function = None):
 
     return scripts_instances
 
-def instantiate_probes(probes, instruments):
+
+def load_probes(probes, instruments):
     """
      Creates instances of the probes inputed;
 
@@ -244,103 +249,67 @@ def instantiate_probes(probes, instruments):
 
 
 
-
 if __name__ == '__main__':
-    instruments = {
-        # 'inst_dummy': 'DummyInstrument',
-        'zihf2': 'ZIHF2',
-        'pressure gauge': 'PressureGauge',
-        'cryo station': 'CryoStation',
-        'spectrum analyzer': 'SpectrumAnalyzer',
-        'microwave generator': 'MicrowaveGenerator'
-    }
 
-    scripts = {
+    # path to instrument classes
+    # path_to_instrument = 'C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\src\\instruments'
+    #
+    # # path to a instrument file
+    # intrument_filename = 'Z:\\Lab\\Cantilever\\Measurements\\160414_MW_transmission_vs_Power\\160414-18_59_33_test.inst'
+    #
 
-        'u-wave spectra': {
-            'script_class': 'KeysightGetSpectrum',
-            'instruments': {
-                'spectrum_analyzer': 'spectrum analyzer'
-            }
-        },
 
-        'u-wave spectra vs power': {
-            'script_class': 'MWSpectraVsPower',
-            'instruments': {
-                'cryo_station': 'cryo station',
-                'spectrum_analyzer': 'spectrum analyzer',
-                'microwave_generator': 'microwave generator'
-            }
-        },
 
-        # 'u-wave spectra vs power': {
-        #     'script_class': 'MWSpectraVsPower',
-        #     'instruments':{
-        #     'microwave_generator' : 'microwave generator',
-        #     'cryo_station' : 'cryo station',
-        #     'spectrum_analyzer' : 'spectrum analyzer'
-        #     }
-        # },
+    import yaml
 
-        'ZI sweep': {
-            'script_class': 'ZISweeper',
-            'instruments': {'zihf2': 'zihf2'}
-        },
+    filename = 'C:\\Users\\Experiment\\Desktop\\Jan\\test2.inst'
+    with open(filename, 'r') as infile:
+        instrument_dict2 = yaml.safe_load(infile)
 
-        'High res scan': {
-            'script_class': 'ZISweeperHighResolution',
-            'scripts': {
-                'zi sweep': {
-                    'script_class': 'ZISweeper',
-                    'instruments': {'zihf2': 'zihf2'}
-                }
-            }
-        }
+    print(instrument_dict2)
 
-    }
+    instruments2 = load_instruments(instrument_dict2)
 
-    probes = {
-        # 'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
-        # 'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
-        'ZI (R)': {'probe_name': 'R', 'instrument_name': 'zihf2'},
-        'ZI (X)': {'probe_name': 'X', 'instrument_name': 'zihf2'},
-        'T (platform)': {'probe_name': 'platform_temp', 'instrument_name': 'cryo station'},
-        'T (stage 1)': {'probe_name': 'stage_1_temp', 'instrument_name': 'cryo station'},
-        'T (stage 2)': {'probe_name': 'stage_2_temp', 'instrument_name': 'cryo station'}
-        # 'Chamber Pressure' : { 'probe_name': 'pressure', 'instrument_name': 'pressure gauge'}
-    }
+    print(instruments2, instruments2['inst_dummy'].settings)
+
+    instruments2['inst_dummy'].save('C:\\Users\\Experiment\\Desktop\\Jan\\test2.inst')
 
 
 
 
 
-    filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\a.b26"
-    save_b26_file(filename, instruments, scripts, probes)
-
-    # filename = 'C:\\Users\\Experiment\\gui_settings.b26gui'
-
-    data = load_b26_file(filename)
-
-    print(data['instruments'])
-
+    # instrument_dict = {
+    #     'inst_dummy':{
+    #         'instrument_class' : 'DummyInstrument',
+    #         'settings': {
+    #             'test1' : 5,
+    #             'output probe2':23
+    #         }
+    #     }
+    # }
     #
     #
-    # import yaml
-    # in_file_name = "Z:\Lab\Cantilever\Measurements\\tmp_\\a"
-    # with open(in_file_name, 'r') as infile:
-    #     in_data = yaml.safe_load(infile)
+    # # instrument_dict = {
+    # #     'inst_dummy': 'DummyInstrument'
+    # # }
     #
-    # instruments = in_data['instruments']
-    # scripts = in_data['scripts']
-    # probes = in_data['probes']
+    # instruments = load_instruments(instrument_dict)
+    #
+    # str(type(instruments['inst_dummy'])).split('\'')[1]
+    # inst_dict = {name: {'instrument_class' : str(type(instrument)).split('\'')[1],'settings': instrument.settings} for name, instrument in instruments.iteritems()}
+    # print(inst_dict)
+    #
+    # filename = 'C:\\Users\\Experiment\\Desktop\\Jan\\test.inst'
+    #
+    # instruments['inst_dummy'].save(filename)
     #
     #
     #
-    # inst = load_instruments(instruments)
-    #
-    # sc = load_scripts(scripts, inst)
-    #
-    # pr = load_probes(probes, inst)
 
-
+    #
+    #
+    #
+    #
+    #
+    #
 

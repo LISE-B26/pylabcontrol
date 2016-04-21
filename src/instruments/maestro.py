@@ -301,9 +301,9 @@ class MaestroFilterWheel(Instrument):
     _DEFAULT_SETTINGS = Parameter([
         Parameter('channel', 0, int, 'channel to which motor is connected'),
         Parameter('settle_time', 0.8, float, 'settling time'),
-        Parameter('position_1', 4 * 600, int, 'position corresponding to position 1'),
-        Parameter('position_2', 4 * 1550, int, 'position corresponding to position 2'),
-        Parameter('position_3', 4 * 2500, int, 'position corresponding to position 3'),
+        Parameter('position_1', 4 * 750, int, 'position corresponding to position 1'),
+        Parameter('position_2', 4 * 1700, int, 'position corresponding to position 2'),
+        Parameter('position_3', 4 * 2700, int, 'position corresponding to position 3'),
         Parameter('current_position', 'position_1', ['position_1', 'position_2', 'position_3'], 'current position of filter wheel')
 
     ])

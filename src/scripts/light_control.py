@@ -35,19 +35,20 @@ class CameraOn(Script):
         """
 
         if self.settings['On'] == True:
-            # high ND
+            # fluorescence filter
+            self.instruments['white_light'].update({'open': False})
             self.instruments['filter_wheel'].update({'current_position': 'position_3'})
-            self.instruments['block_ir'].update({'open': False})
-            self.instruments['block_green'].update({'open': False})
-            self.instruments['white_light'].update({'open': True})
+            self.instruments['block_ir'].update({'open': True})
+            self.instruments['block_green'].update({'open': True})
 
             self.log('camera on')
         else:
             # high ND
-            self.instruments['white_light'].update({'open': False})
-            self.instruments['filter_wheel'].update({'current_position': 'position_2'})
-            self.instruments['block_ir'].update({'open': True})
-            self.instruments['block_green'].update({'open': True})
+            self.instruments['filter_wheel'].update({'current_position': 'position_1'})
+            self.instruments['block_ir'].update({'open': False})
+            self.instruments['block_green'].update({'open': False})
+            self.instruments['white_light'].update({'open': True})
+
 
 
             self.log('camera off')

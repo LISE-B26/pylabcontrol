@@ -1,4 +1,4 @@
-from src.core import Instrument
+from src.core.instruments import Instrument
 from collections import deque
 class Probe(object):
 
@@ -87,10 +87,10 @@ class Probe(object):
 
 
 if __name__ == '__main__':
-    from src.core import load_instruments
+    from src.core import instantiate_instruments
     instruments = {'inst_dummy': 'DummyInstrument'}
 
-    instrument = load_instruments(instruments)['inst_dummy']
+    instrument = instantiate_instruments(instruments)['inst_dummy']
 
     p = Probe(instrument, 'value1', 'random')
 
