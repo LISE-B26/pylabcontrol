@@ -155,7 +155,7 @@ class Instrument(object):
 
         """
 
-        dictator = {self.name: {'instrument_class': self.__class__.__name__, 'settings': self.settings}}
+        dictator = {self.name: {'class': self.__class__.__name__, 'settings': self.settings}}
 
         return dictator
 
@@ -165,18 +165,11 @@ class Instrument(object):
         save the instrument to path as a .b26 file
 
         Args:
-            file_path:
-
-        Returns:
-
+            filename: path of file
         """
-        # inst_dict = {name: {'instrument_class': str(type(instrument)).split('\'')[1], 'settings': instrument.settings}
-        #              for name, instrument in instruments.iteritems()}
-        # instrument_class = str(type(self)).split('\'')[1].split('src.instruments.')[1]
+
         instrument_class = self.__class__.__name__
-        inst_dict = {self.name: {'instrument_class': instrument_class, 'settings': self.settings}}
-        # with open(filename, 'w') as outfile:
-        #     tmp = json.dump(inst_dict, outfile, indent=4)
+        inst_dict = {self.name: {'class': instrument_class, 'settings': self.settings}}
 
         save_b26_file(filename, instruments = inst_dict)
 
@@ -227,7 +220,7 @@ class Instrument(object):
         for instrument_name, instrument_class_name in instrument_dict.iteritems():
             if isinstance(instrument_class_name, dict):
                 instrument_settings = instrument_class_name['settings']
-                instrument_class_name = str(instrument_class_name['instrument_class'])
+                instrument_class_name = str(instrument_class_name['class'])
             else:
                 instrument_settings = None
 
@@ -289,52 +282,3 @@ if __name__ == '__main__':
 
     print(instruments)
 
-
-    # with open(filename, 'r') as infile:
-    #     instrument_dict2 = yaml.safe_load(infile)
-    #
-    # print(instrument_dict2)
-    #
-    # instruments2 = load_instruments(instrument_dict2)
-    #
-    # print(instruments2, instruments2['inst_dummy'].settings)
-    #
-    # instruments2['inst_dummy'].save('C:\\Users\\Experiment\\Desktop\\Jan\\test2.inst')
-
-
-
-
-
-    # instrument_dict = {
-    #     'inst_dummy':{
-    #         'instrument_class' : 'DummyInstrument',
-    #         'settings': {
-    #             'test1' : 5,
-    #             'output probe2':23
-    #         }
-    #     }
-    # }
-    #
-    #
-    # # instrument_dict = {
-    # #     'inst_dummy': 'DummyInstrument'
-    # # }
-    #
-    # instruments = load_instruments(instrument_dict)
-    #
-    # str(type(instruments['inst_dummy'])).split('\'')[1]
-    # inst_dict = {name: {'instrument_class' : str(type(instrument)).split('\'')[1],'settings': instrument.settings} for name, instrument in instruments.iteritems()}
-    # print(inst_dict)
-    #
-    # filename = 'C:\\Users\\Experiment\\Desktop\\Jan\\test.inst'
-    #
-    # instruments['inst_dummy'].save(filename)
-    #
-    #
-    #
-
-    #
-    #
-    #
-    #
-    #
