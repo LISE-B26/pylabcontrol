@@ -226,7 +226,11 @@ class MaestroController(Instrument):
 
 
 class MaestroBeamBlock(Instrument):
-
+    """
+MaestroBeamBlock:
+-----------------
+motorized mount with two positions, generally used for blocking ir unblocking beams, but can also be used as a flip mount
+    """
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('channel', 0, int, 'channel to which motor is connected'),
