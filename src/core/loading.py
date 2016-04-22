@@ -14,7 +14,7 @@ def instantiate_instruments(instruments):
 
         or
 
-        (key,value) = (name of the instrument, {'instrument_class' : instrument class name, "settings", dict with settings}),
+        (key,value) = (name of the instrument, {'class' : instrument class name, "settings", dict with settings}),
 
 
     Returns:
@@ -33,9 +33,8 @@ def instantiate_instruments(instruments):
 
     for instrument_name, instrument_class_name in instruments.iteritems():
         if isinstance(instrument_class_name, dict):
-            print('LLLL', instrument_class_name)
             instrument_settings = instrument_class_name['settings']
-            instrument_class_name = str(instrument_class_name['instrument_class'])
+            instrument_class_name = str(instrument_class_name['class'])
         else:
             instrument_settings = None
         try:

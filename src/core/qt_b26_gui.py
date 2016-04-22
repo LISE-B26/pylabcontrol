@@ -280,14 +280,26 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         elif sender is self.btn_load_instruments:
 
             dialog = LoadDialog(elements_type='instruments', elements_old=self.instruments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
-
-            dialog.show()
-            dialog.raise_()
-
-            print('asda')
             if dialog.exec_():
-                values = dialog.getValues()
-                print(values)
+                instruments = dialog.getValues()
+                # create instances of new instruments
+                new_instruments = {}
+                for instrument, value in instruments.iteritems():
+                    if not isinstance(value, Instrument):
+                        new_instruments.update({instrument: value})
+
+                new_instruments = instantiate_instruments(new_instruments)
+                self.instruments.update(new_instruments)
+
+                # create instruments that have been deseclected
+                for instrument_name in set(self.instruments.keys())^set(instruments.keys()):
+                    del self.instruments[instrument_name]
+
+                # refresh tree
+                self.tree_settings.itemChanged.disconnect()
+                self.fill_tree(self.tree_settings, self.instruments)
+                self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
+
     def load_settings(self, in_file_name):
         """
         loads a old_gui settings file (a json dictionary)
