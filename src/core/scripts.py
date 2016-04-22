@@ -10,6 +10,7 @@ import pandas as pd
 import glob
 import json as json
 from PySide.QtCore import Signal, QThread
+from src.core.read_write_functions import save_b26_file
 
 class Script(object):
     # __metaclass__ = ABCMeta
@@ -238,103 +239,82 @@ class Script(object):
     def stop(self):
         self._abort == True
 
-    def save(self, save_data = True, save_settings = True, save_instrumets = True, save_log = True):
+    def filename(self, appendix):
         """
-        saves self.data
-        requires that the script has
-         - a self.data dictionary that holds the data
-         - a 'path' parameter
-         - a 'tag' parameter
+        creates a filename based
+        Args:
+            appendix: appendix for file
+
+        Returns: filename
 
         """
-
         path = self.settings['path']
         tag = self.settings['tag']
 
         if os.path.exists(path) == False:
             os.makedirs(path)
 
-        # ======= save self.data ==============================
-        if save_data:
-            # if deque object, take the last dataset, which is the most recent
-            if isinstance(self.data, deque):
-                data = self.data[-1]
-            elif isinstance(self.data, dict):
-                data = self.data
-            else:
-                raise TypeError("unknown datatype!")
+        filename = "{:s}\\{:s}_{:s}{:s}".format(
+            path,
+            self.start_time.strftime('%y%m%d-%H_%M_%S'),
+            tag,
+            appendix
+        )
+        return filename
 
-            if len(set([len(v) for k, v in data.iteritems()]))==1:
-                # if all entries of the dictionary are the same length we can write the data into a single file
-                file_path = "{:s}\\{:s}_{:s}.{:s}".format(
-                    path,
-                    self.end_time.strftime('%y%m%d-%H_%M_%S'),
-                    tag,
-                    'dat'
-                )
+    def save_data(self, filename = None):
+        """
+        saves the script data to a file: filename is filename is not provided, it is created from internal function
 
-                df = pd.DataFrame(data)
-                df.to_csv(file_path, index = False)
+        Returns:
 
-            else:
-                # otherwise, we write each entry into a separate file into a subfolder data
+        """
 
-                path = "{:s}\\data\\".format(path)
-                if os.path.exists(path) == False:
-                    os.makedirs(path)
-                for key, value in self.data.iteritems():
+        if filename is None:
+            filename = self.filename('-data.csv')
 
+        # if deque object, take the last dataset, which is the most recent
+        if isinstance(self.data, deque):
+            data = self.data[-1]
+        elif isinstance(self.data, dict):
+            data = self.data
+        else:
+            raise TypeError("unknown datatype!")
 
-                    file_path = "{:s}\\{:s}_{:s}.{:s}".format(
-                        path,
-                        self.end_time.strftime('%y%m%d-%H_%M_%S'),
-                        tag,
-                        key
-                    )
+        if len(set([len(v) for k, v in data.iteritems()])) == 1:
+            # if all entries of the dictionary are the same length we can write the data into a single file
 
-                    df = pd.DataFrame(value)
-                    df.to_csv(file_path, index = False)
+            df = pd.DataFrame(data)
+            df.to_csv(filename, index=False)
 
-        # ======= save self.settings ==============================
-        if save_settings:
-            file_path = "{:s}\\{:s}_{:s}.{:s}".format(
-                            path,
-                            self.end_time.strftime('%y%m%d-%H_%M_%S'),
-                            tag,
-                            'set'
-                        )
+        else:
+            # otherwise, we write each entry into a separate file into a subfolder data
+            for key, value in self.data.iteritems():
+                df = pd.DataFrame(value)
+                df.to_csv(filename.replace('-data.csv', '-{:s}.csv'.format(key)), index=False)
 
-            # save settings
-            with open(file_path, 'w') as outfile:
-                tmp = json.dump(self.settings, outfile, indent=4)
-        # ======= save self.log_data ==============================
-        # save logfile
-        if save_log:
-            file_path = "{:s}\\{:s}_{:s}.{:s}".format(
-                            path,
-                            self.end_time.strftime('%y%m%d-%H_%M_%S'),
-                            tag,
-                            'log'
-                        )
+    def save_log(self, filename = None):
+        """
+        save log to file
+        Returns:
 
+        """
 
-            with open(file_path, 'w') as outfile:
-                for item in self.log_data:
-                  outfile.write("%s\n" % item)
+        if filename is None:
+            filename = self.filename('-info.txt')
 
-        # ======= save self.instruments ==============================
-        if save_instrumets:
-            if self.instruments != {}:
+        with open(filename, 'w') as outfile:
+            for item in self.log_data:
+                outfile.write("%s\n" % item)
 
-                file_path = "{:s}\\{:s}_{:s}.{:s}".format(
-                                path,
-                                self.end_time.strftime('%y%m%d-%H_%M_%S'),
-                                tag,
-                                'inst'
-                            )
-                inst_dict = {k : v.settings for k, v in self.instruments.iteritems()}
-                with open(file_path, 'w') as outfile:
-                    tmp = json.dump(inst_dict, outfile, indent=4)
+    def save(self, filename=None):
+        """
+        saves the script settings to a file: filename is filename is not provided, it is created from internal function
+        """
+        if filename is None:
+            filename = self.filename('.b26')
+
+        save_b26_file(filename, scripts=self.to_dict())
 
     def plot(self, axes):
         """
@@ -358,7 +338,6 @@ class Script(object):
             for key, value in data.iteritems():
                 axes.plot(value)
 
-
     def to_dict(self):
         """
 
@@ -366,7 +345,7 @@ class Script(object):
 
         """
 
-        dictator = {self.name: {'script_class' : self.__class__.__name__}}
+        dictator = {self.name: {'class' : self.__class__.__name__}}
 
         if self.scripts != {}:
             dictator[self.name].update({'scripts': {} })
@@ -376,9 +355,8 @@ class Script(object):
         if self.instruments != {}:
             dictator[self.name].update({'instruments': {} })
             for instrument_name, instrument in self.instruments.iteritems():
-                # dictator[self.name]['instruments'].update(instrument.to_dict() )
-                # dictator[self.name]['instruments'].update({instrument.name: instrument.__class__.__name__ })
-                dictator[self.name]['instruments'].update({instrument_name: instrument.name})
+                # dictator[self.name]['instruments'].update({instrument_name: instrument.name})
+                dictator[self.name]['instruments'].update(instrument.to_dict())
 
         dictator[self.name]['settings'] = self.settings
 

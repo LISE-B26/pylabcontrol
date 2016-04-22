@@ -168,10 +168,7 @@ class Instrument(object):
             filename: path of file
         """
 
-        instrument_class = self.__class__.__name__
-        inst_dict = {self.name: {'class': instrument_class, 'settings': self.settings}}
-
-        save_b26_file(filename, instruments = inst_dict)
+        save_b26_file(filename, instruments = self.to_dict())
 
     @staticmethod
     def load(input, instrument_instances = {}):

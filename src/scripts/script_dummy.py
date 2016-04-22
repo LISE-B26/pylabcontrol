@@ -11,7 +11,7 @@ class ScriptDummy(Script):
     # updateProgress = QtCore.Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'C:\Users\Experiment\Desktop\\tmp_data', str, 'path for data'),
+        Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', True, bool, 'save data on/off'),
         Parameter('count', 3, int),
@@ -60,7 +60,9 @@ class ScriptDummy(Script):
         self.data = {'random data':data}
 
         if self.settings['save']:
+            self.save_data()
             self.save()
+            self.save_log()
 
 # class ScriptDummyWithQtSignal(Script, QtCore.QThread):
 class ScriptDummyWithQtSignal(Script, QThread):
@@ -120,6 +122,9 @@ class ScriptDummyWithQtSignal(Script, QThread):
 class ScriptDummyWithInstrument(Script):
 
     _DEFAULT_SETTINGS = Parameter([
+        Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data'),
+        Parameter('tag', 'dummy_tag', str, 'tag for data'),
+        Parameter('save', True, bool, 'save data on/off'),
         Parameter('count', 0, int),
         Parameter('name', 'this is a counter'),
         Parameter('wait_time', 0.1, float)
@@ -160,6 +165,11 @@ class ScriptDummyWithInstrument(Script):
 
             self.log('signal from dummy instrument {:s}: {:0.3f}'.format(name, self.instruments['dummy_instrument'].value1))
             time.sleep(wait_time)
+
+        if self.settings['save']:
+            self.save_data()
+            self.save()
+            self.save_log()
 
 
 

@@ -123,7 +123,14 @@ probes = {
 }
 path_to_default = ''
 
-path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26gui'
+
+instruments = {
+    # 'FPGA': 'NI7845RReadFifo'
+    'light control': 'MaestroLightControl'
+}
+
+scripts = {}
+path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26guic'
 
 try:
     ex = qt_b26_gui.ControlMainWindow(path_to_default)

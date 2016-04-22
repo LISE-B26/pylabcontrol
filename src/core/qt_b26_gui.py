@@ -5,7 +5,7 @@ import sip
 sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
-from src.core import Parameter, Instrument, B26QTreeItem, ReadProbes, QThreadWrapper
+from src.core import Parameter, Instrument, Script, B26QTreeItem, ReadProbes, QThreadWrapper
 import os.path
 import numpy as np
 import json as json
@@ -113,15 +113,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # self.sliderPosition.valueChanged.connect(lambda: self.set_position())
 
             # link buttons to old_functions
-            self.btn_start_script.clicked.connect(lambda: self.btn_clicked())
-            self.btn_stop_script.clicked.connect(lambda: self.btn_clicked())
-            self.btn_plot_script.clicked.connect(lambda: self.btn_clicked())
-            self.btn_plot_probe.clicked.connect(lambda: self.btn_clicked())
+            self.btn_start_script.clicked.connect(self.btn_clicked)
+            self.btn_stop_script.clicked.connect(self.btn_clicked)
+            self.btn_plot_script.clicked.connect(self.btn_clicked)
+            self.btn_plot_probe.clicked.connect(self.btn_clicked)
 
-            self.btn_save_gui.clicked.connect(lambda: self.btn_clicked())
-            self.btn_load_gui.clicked.connect(lambda: self.btn_clicked())
+            self.btn_save_gui.clicked.connect(self.btn_clicked)
+            self.btn_load_gui.clicked.connect(self.btn_clicked)
 
             self.btn_load_instruments.clicked.connect(self.btn_clicked)
+            self.btn_load_scripts.clicked.connect(self.btn_clicked)
 
             # tree structures
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
@@ -277,28 +278,41 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file', 'Z:\\Lab\\Cantilever\\Measurements')
             self.load_settings(fname)
 
-        elif sender is self.btn_load_instruments:
+        elif (sender is self.btn_load_instruments) or (sender is self.btn_load_scripts):
 
-            dialog = LoadDialog(elements_type='instruments', elements_old=self.instruments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
+            if sender is self.btn_load_instruments:
+                element_type = "instruments"
+                elements_old = self.instruments
+                element_class = Instrument
+                init_function = instantiate_instruments
+                tree = self.tree_settings
+            elif sender is self.btn_load_scripts:
+                element_type = "scripts"
+                elements_old = self.scripts
+                element_class = Script
+                init_function = lambda scripts: instantiate_scripts(scripts, self.instruments, self.log)
+                tree = self.tree_scripts
+
+            dialog = LoadDialog(elements_type=element_type, elements_old=elements_old, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
             if dialog.exec_():
-                instruments = dialog.getValues()
+                elements = dialog.getValues()
                 # create instances of new instruments
-                new_instruments = {}
-                for instrument, value in instruments.iteritems():
-                    if not isinstance(value, Instrument):
-                        new_instruments.update({instrument: value})
+                new_elements = {}
+                for element, value in elements.iteritems():
+                    if not isinstance(value, element_class):
+                        new_elements.update({element: value})
 
-                new_instruments = instantiate_instruments(new_instruments)
-                self.instruments.update(new_instruments)
+                        new_elements = init_function(new_elements)
+                elements_old.update(new_elements)
 
-                # create instruments that have been deseclected
-                for instrument_name in set(self.instruments.keys())^set(instruments.keys()):
-                    del self.instruments[instrument_name]
+                # create instruments that have been deselected
+                for element_name in set(elements_old.keys())^set(elements.keys()):
+                    del self.instruments[element_name]
 
                 # refresh tree
-                self.tree_settings.itemChanged.disconnect()
-                self.fill_tree(self.tree_settings, self.instruments)
-                self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
+                tree.itemChanged.disconnect()
+                self.fill_tree(tree, elements_old)
+                tree.itemChanged.connect(lambda: self.update_parameters(tree))
 
     def load_settings(self, in_file_name):
         """

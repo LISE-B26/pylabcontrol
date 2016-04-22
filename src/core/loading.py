@@ -90,7 +90,7 @@ def instantiate_scripts(scripts, instruments, log_function = None):
         or
 
         scripts is a dictionary with
-        (key,value) = (name of the script, {"script_class": script class name, "settings": settings, "instruments": instrument, "subscripts": subscripts}),
+        (key,value) = (name of the script, {"class": script class name, "settings": settings, "instruments": instrument, "subscripts": subscripts}),
 
         log_function (optional): log_function where script outputs text
     Returns:
@@ -109,14 +109,14 @@ def instantiate_scripts(scripts, instruments, log_function = None):
 
     def create_script_instance(script_name, value):
         script_instance = None
-        script_instruments = None
-        script_scripts = None
-        script_settings =  None
+        script_instruments = {}
+        script_scripts = {}
+        script_settings =  {}
         if isinstance(value, dict):
-            assert 'script_class' in value
+            assert 'class' in value
             assert 'instruments' in value or 'scripts' in value or 'settings' in value
 
-            script_class = str(value['script_class'])
+            script_class = str(value['class'])
             if 'instruments' in value:
                 script_instruments = value['instruments']
                 script_instruments = {
@@ -149,40 +149,39 @@ def instantiate_scripts(scripts, instruments, log_function = None):
         # This has the same name as the name for the module, because of our __init__.py file in the scripts
         # folder. This raises an AttributeError if, in fact, we did not import the module
 
+
+        # if there are instruments required be the script that have not been provided yet, need to load instruments
+        missing_instruments = {}
+        for instrument_name in class_of_script._INSTRUMENTS.keys():
+            if instrument_name in script_instruments.keys() and isinstance(script_instruments[instrument_name], class_of_script._INSTRUMENTS[instrument_name]):
+                pass
+            else:
+                missing_instruments.update({instrument_name: str(class_of_script._INSTRUMENTS[instrument_name].__name__)})
+                # missing_instruments.update({instrument_name: str(class_of_script._INSTRUMENTS[instrument_name].__class__.__name__)})
+        # for instrument_name in set(class_of_script._INSTRUMENTS.keys()).difference(set(script_instruments.keys())):
+        #     missing_instruments.update({instrument_name: class_of_script._INSTRUMENTS['instrument_name']})
+
+        new_instruments = instantiate_instruments(missing_instruments)
+        script_instruments.update(new_instruments)
+        instruments.update(new_instruments)
         # this creates an instance of the class
         try:
 
             class_creation_string = ''
-            if script_instruments is not None:
+            if script_instruments !={}:
                 class_creation_string += ', instruments = script_instruments'
-            if script_scripts is not None:
+            if script_scripts !={}:
                 class_creation_string += ', scripts = script_scripts'
-            if script_settings is not None:
+            if script_settings !={}:
                 class_creation_string += ', settings = script_settings'
             if log_function is not None:
                 class_creation_string += ', log_output = log_function'
             class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
-
+            print('class_creation_string', class_creation_string)
+            print('class_of_script', class_of_script)
             script_instance = eval(class_creation_string)
-            # if script_instruments is None and script_scripts is None:
-            #     script_instance = class_of_script(name=script_name,
-            #                                       log_output = log_function)
-            # elif script_instruments is not None and script_scripts is None:
-            #     script_instance = class_of_script(name=script_name,
-            #                                       instruments = script_instruments,
-            #                                       log_output = log_function)
-            # elif script_instruments is None and script_scripts is not None:
-            #     script_instance = class_of_script(name=script_name,
-            #                                       scripts = script_scripts,
-            #                                       log_output = log_function)
-            # elif script_instruments is not None and script_scripts is not None:
-            #     script_instance = class_of_script(name=script_name,
-            #                                       instruments = script_instruments,
-            #                                       scripts = script_scripts,
-            #                                       log_output = log_function)
-            # else:
-            #     raise AssertionError
+
         except:
             raise
 

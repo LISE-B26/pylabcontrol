@@ -90,13 +90,13 @@ Returns:
         sender = self.sender()
         tree = sender.parent()
         index = tree.selectedIndexes()
-
+        info = ''
         if index != []:
             index = index[0]
             name = str(index.model().itemFromIndex(index).text())
             self.selected_element_name = name
 
-            info  = name
+
 
             if name in self.elements_old:
                 info = self.elements_old[name].__class__.__doc__
@@ -105,6 +105,9 @@ Returns:
                 class_name = self.elements_from_file[name]['class']
                 module = __import__('src.{:s}'.format(self.elements_type), fromlist=[class_name])
                 info = getattr(module, class_name).__doc__
+
+            if info is None:
+                info = name
 
             if tree == self.tree_infile:
                 self.lbl_info.setText(info)
@@ -136,7 +139,10 @@ Returns:
         loads the elements from file filename
         """
         input_data = load_b26_file(filename)
-        return input_data[self.elements_type]
+        if isinstance(input_data, dict) and self.elements_type in input_data:
+            return input_data[self.elements_type]
+        else:
+            return {}
 
     def fill_tree(self, tree, input_dict):
         """

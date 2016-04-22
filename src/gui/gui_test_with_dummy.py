@@ -35,6 +35,8 @@ scripts= {
 
 }
 
+
+
 # {"zihf2": "ZIHF2", "inst": 'INST'} => param = {"zihf2": &ZIHF2, 'inst': &sacbs;}
 
 # Zi_Sweeper(*param)
@@ -43,6 +45,15 @@ probes = {
     'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
     'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
           }
+
+instruments = {}
+scripts= {
+
+
+    'dummy script with inst': 'ScriptDummyWithInstrument'
+
+}
+probes = {}
 
 settings_file = "Z:\Lab\Cantilever\Measurements\\tmp_\\a"
 settings_file = ""

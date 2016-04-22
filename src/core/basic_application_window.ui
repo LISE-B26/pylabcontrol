@@ -76,7 +76,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_scripts">
      <attribute name="title">
@@ -191,17 +191,17 @@
        <string>plot script  ↑</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_plot_script_2">
+     <widget class="QPushButton" name="btn_load_scripts">
       <property name="geometry">
        <rect>
-        <x>560</x>
+        <x>600</x>
         <y>0</y>
-        <width>31</width>
+        <width>101</width>
         <height>23</height>
        </rect>
       </property>
       <property name="text">
-       <string>+</string>
+       <string>load</string>
       </property>
      </widget>
     </widget>
@@ -308,7 +308,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>10</y>
+        <y>30</y>
         <width>711</width>
         <height>401</height>
        </rect>
@@ -341,6 +341,19 @@
         <string>Value</string>
        </property>
       </column>
+     </widget>
+     <widget class="QPushButton" name="btn_load_instruments">
+      <property name="geometry">
+       <rect>
+        <x>600</x>
+        <y>0</y>
+        <width>101</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>load</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_history">
@@ -405,19 +418,6 @@
      <string>Load</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="btn_load_instruments">
-    <property name="geometry">
-     <rect>
-      <x>750</x>
-      <y>520</y>
-      <width>101</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>load</string>
-    </property>
-   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>list_records</zorder>
    <zorder>tabWidget</zorder>
@@ -425,7 +425,6 @@
    <zorder>matplotlibwidget_2</zorder>
    <zorder>btn_save_gui</zorder>
    <zorder>btn_load_gui</zorder>
-   <zorder>btn_load_instruments</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

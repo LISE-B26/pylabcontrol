@@ -39,6 +39,12 @@ except:
     print("./src/instrument/__init__ warning! MaestroFilterWheel did not load")
 
 try:
+    from maestro import MaestroLightControl
+except:
+    print("./src/instrument/__init__ warning! MaestroLightControl did not load")
+
+
+try:
     from attocube import Attocube
 except:
     print("./src/instrument/__init__ warning! Attocube did not load")

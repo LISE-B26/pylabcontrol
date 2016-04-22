@@ -28,7 +28,7 @@ class MaestroController(Instrument):
 
         self.usb = None
         super(MaestroController, self).__init__(name, settings)
-        self.update(self.settings)
+
         # Open the command port
         # self.usb = self.serial.Serial(port)
         # Command lead-in and device 12 are sent for each Pololu serial commands.
@@ -40,6 +40,8 @@ class MaestroController(Instrument):
         # Servo minimum and maximum targets can be restricted to protect components.
         self.Mins = [0] * 24
         self.Maxs = [0] * 24
+
+        self.update(self.settings)
 
 
     def update(self, settings):
@@ -371,3 +373,45 @@ class MaestroFilterWheel(Instrument):
         self.maestro.set_target(self.settings['channel'], position)
         sleep(self.settings['settle_time'])
         self.maestro.disable(self.settings['channel'])  # diconnect to avoid piezo from going crazy
+
+
+class MaestroLightControl(MaestroController):
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected'),
+        Parameter('block green', [
+            Parameter('channel', 0, int, 'channel to which motor is connected'),
+            Parameter('open', True, bool, 'beam block open or closed'),
+            Parameter('settle_time', 0.2, float, 'settling time'),
+            Parameter('position_open', 4 * 1900, int, 'position corresponding to open'),
+            Parameter('position_closed', 4 * 950, int, 'position corresponding to closed')
+        ])
+    ])
+
+    _PROBES = {}
+    def __init__(self, name = None, settings = None):
+
+        self.usb = None
+        super(MaestroLightControl, self).__init__(name, settings)
+
+
+    def update(self, settings):
+        # call the update_parameter_list to update the parameter list
+        super(MaestroLightControl, self).update(settings)
+        # now we actually apply these newsettings to the hardware
+        for key, value in settings.iteritems():
+            if key in ['block green']:
+                channel = self.settings[key]['channel']
+                position = self.settings[key]['position_open'] if value['open'] else self.settings[key]['position_closed']
+                settle_time = self.settings[key]['settle_time']
+                self.goto(channel, position, settle_time)
+
+    def goto(self, channel, position, settle_time):
+        self.set_target(channel, position)
+        sleep(settle_time)
+        self.disable(channel)  # diconnect to avoid piezo from going crazy
+
+
+if __name__ == '__main__':
+
+    light = MaestroLightControl()

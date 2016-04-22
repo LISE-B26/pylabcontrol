@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'load_dialog.ui'
 #
-# Created: Fri Apr 22 10:13:20 2016
+# Created: Fri Apr 22 14:53:04 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -68,6 +68,12 @@ class Ui_Dialog(object):
         self.lbl_info.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.lbl_info.setWordWrap(True)
         self.lbl_info.setObjectName(_fromUtf8("lbl_info"))
+        self.label = QtGui.QLabel(Dialog)
+        self.label.setGeometry(QtCore.QRect(20, 10, 241, 16))
+        self.label.setObjectName(_fromUtf8("label"))
+        self.label_2 = QtGui.QLabel(Dialog)
+        self.label_2.setGeometry(QtCore.QRect(280, 10, 241, 16))
+        self.label_2.setObjectName(_fromUtf8("label_2"))
 
         self.retranslateUi(Dialog)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
@@ -80,4 +86,6 @@ class Ui_Dialog(object):
         self.txt_probe_log_path.setText(_translate("Dialog", "Z:\\Lab\\Cantilever\\Measurements", None))
         self.btn_open.setText(_translate("Dialog", "open", None))
         self.lbl_info.setText(_translate("Dialog", "info", None))
+        self.label.setText(_translate("Dialog", "Selected", None))
+        self.label_2.setText(_translate("Dialog", "Not Selected", None))
 
