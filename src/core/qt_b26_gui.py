@@ -11,7 +11,7 @@ import numpy as np
 import json as json
 import yaml # we use this to load json files, yaml doesn't cast everything to unicode
 from PySide.QtCore import QThread
-
+from src.core import LoadDialog
 # from src.instruments import DummyInstrument
 # from src.scripts import ScriptDummy, ScriptDummyWithQtSignal
 
@@ -120,6 +120,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             self.btn_save_gui.clicked.connect(lambda: self.btn_clicked())
             self.btn_load_gui.clicked.connect(lambda: self.btn_clicked())
+
+            self.btn_load_instruments.clicked.connect(self.btn_clicked)
 
             # tree structures
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
@@ -265,18 +267,27 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.probe_to_plot = self.probes[item.name]
             else:
                 self.log('Can\'t plot, No probe selected. Select probe and try again!')
-
         elif sender is self.btn_save_gui:
 
             # get filename
             fname = QtGui.QFileDialog.getSaveFileName(self, 'Save gui settings to file', 'Z:\\Lab\\Cantilever\\Measurements')# filter = '.b26gui'
             self.save_settings(fname)
         elif sender is self.btn_load_gui:
-
             # get filename
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file', 'Z:\\Lab\\Cantilever\\Measurements')
             self.load_settings(fname)
 
+        elif sender is self.btn_load_instruments:
+
+            dialog = LoadDialog(elements_type='instruments', elements_old=self.instruments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
+
+            dialog.show()
+            dialog.raise_()
+
+            print('asda')
+            if dialog.exec_():
+                values = dialog.getValues()
+                print(values)
     def load_settings(self, in_file_name):
         """
         loads a old_gui settings file (a json dictionary)

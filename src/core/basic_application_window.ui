@@ -76,7 +76,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab_scripts">
      <attribute name="title">
@@ -299,7 +299,7 @@
     </widget>
     <widget class="QWidget" name="tab_settings">
      <attribute name="title">
-      <string>Settings</string>
+      <string>Instruments</string>
      </attribute>
      <widget class="QTreeWidget" name="tree_settings">
       <property name="enabled">
@@ -310,7 +310,7 @@
         <x>0</x>
         <y>10</y>
         <width>711</width>
-        <height>431</height>
+        <height>401</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -405,6 +405,19 @@
      <string>Load</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="btn_load_instruments">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>520</y>
+      <width>101</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>load</string>
+    </property>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>list_records</zorder>
    <zorder>tabWidget</zorder>
@@ -412,6 +425,7 @@
    <zorder>matplotlibwidget_2</zorder>
    <zorder>btn_save_gui</zorder>
    <zorder>btn_load_gui</zorder>
+   <zorder>btn_load_instruments</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

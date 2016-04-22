@@ -1,42 +1,26 @@
 """
 Basic gui class designed with QT designer
 """
-import sip
-sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
-from PyQt4 import QtGui, QtCore
+# import sip
+# sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
+from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
-from src.core import Parameter, Instrument, B26QTreeItem, ReadProbes, QThreadWrapper
-import os.path
-import numpy as np
-import json as json, yaml
-import yaml # we use this to load json files, yaml doesn't cast everything to unicode
-from PySide.QtCore import QThread
 from src.core.read_write_functions import load_b26_file
-# from src.instruments import DummyInstrument
-# from src.scripts import ScriptDummy, ScriptDummyWithQtSignal
 from copy import deepcopy
-import datetime
-from collections import deque
-
-from src.core import instantiate_probes, instantiate_scripts, instantiate_instruments
-
-from src.scripts import ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan
-from src.core.plotting import plot_psd
-# from PyQt4.QtCore import QDataStream, Qt, QVariant
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
     # import external_modules.matplotlibwidget
-    Ui_MainWindow, QMainWindow = loadUiType('load_dialog.ui') # with this we don't have to convert the .ui file into a python file!
+    Ui_Dialog, QMainWindow = loadUiType('load_dialog.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
-    from src.core.load_dialog import Ui_MainWindow
+    from src.core.load_dialog import Ui_Dialog
     from PyQt4.QtGui import QMainWindow
     print('Warning: on the fly conversion of .ui file failed, loaded .py file instead!!')
 
 
 
-class LoadDialog(QMainWindow, Ui_MainWindow):
+class LoadDialog(QMainWindow, Ui_Dialog):
     """
 LoadDialog(intruments, scripts, probes)
     - type: either script, instrument or probe
@@ -130,18 +114,22 @@ Returns:
                 self.tree_infile.clearSelection()
 
 
+    # def accept(self):
+
 
     def open_file_dialog(self):
         """
         opens a file dialog to get the path to a file and
         """
-        filename = QtGui.QFileDialog.getOpenFileName(self, 'Select a file:', self.txt_probe_log_path.text())
-        self.txt_probe_log_path.setText(filename)
-        # load elements from file and display in tree
-        elements_from_file = self.load_elements(filename)
-        self.fill_tree(self.tree_infile, elements_from_file)
-        # append new elements to internal dictionary
-        self.elements_from_file.update(elements_from_file)
+        dialog = QtGui.QFileDialog
+        filename = dialog.getOpenFileName(self, 'Select a file:', self.txt_probe_log_path.text())
+        if str(filename)!='':
+            self.txt_probe_log_path.setText(filename)
+            # load elements from file and display in tree
+            elements_from_file = self.load_elements(filename)
+            self.fill_tree(self.tree_infile, elements_from_file)
+            # append new elements to internal dictionary
+            self.elements_from_file.update(elements_from_file)
     def load_elements(self, filename):
         """
         loads the elements from file filename
