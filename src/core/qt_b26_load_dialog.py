@@ -116,7 +116,7 @@ Returns:
         """
         opens a file dialog to get the path to a file and
         """
-        filename = QtGui.QFileDialog.getOpenFileName(self, 'Select a file:', target.text())
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Select a file:', self.txt_probe_log_path.text())
         self.txt_probe_log_path.setText(filename)
         self.load_elements(filename)
 
@@ -169,6 +169,19 @@ Returns:
 
             tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
 
+    def getValues(self):
+        """
+        Returns: the selected instruments
+        """
+        elements_selected = {}
+        for index in range(self.tree_loaded_model.rowCount()):
+            element_name = str(self.tree_loaded_model.item(index).text())
+            if element_name in self.elements_old:
+                elements_selected.update({element_name: self.elements_old[element_name]})
+            elif element_name in self.elements_from_file:
+                elements_selected.update({element_name: self.elements_from_file[element_name]})
+
+        return elements_selected
 
 if __name__ == '__main__':
     import sys
@@ -180,5 +193,12 @@ if __name__ == '__main__':
 
     ex.show()
     ex.raise_()
+
+    print('asda')
+    if ex.exec_():
+        values = ex.getValues()
+        print(values)
+
     sys.exit(app.exec_())
+
 
