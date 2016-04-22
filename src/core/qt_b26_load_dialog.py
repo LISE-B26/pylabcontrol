@@ -81,6 +81,22 @@ Returns:
         self.tree_infile.selectionModel().selectionChanged.connect(self.show_info)
         self.tree_loaded.selectionModel().selectionChanged.connect(self.show_info)
 
+        self.tree_infile.selectionModel().selectionChanged.connect(self.show_info)
+
+        self.tree_infile_model.itemChanged.connect(self.name_changed)
+        self.tree_loaded_model.itemChanged.connect(self.name_changed)
+
+    def name_changed(self, changed_item):
+        name = str(changed_item.text())
+
+        # if the item has been moved we ignore this because the item only went from one tree to the other without changing names
+        if name != '':
+            print('new:',name,'old:', self.selected_element_name)
+            if name != self.selected_element_name:
+                self.elements_from_file[name] = self.elements_from_file[self.selected_element_name]
+                del self.elements_from_file[self.selected_element_name]
+                self.selected_element_name = name
+
 
     def show_info(self):
         """
@@ -93,6 +109,7 @@ Returns:
         if index != []:
             index = index[0]
             name = str(index.model().itemFromIndex(index).text())
+            self.selected_element_name = name
 
             info  = name
 
@@ -112,16 +129,19 @@ Returns:
                 self.lbl_info.setText(info)
                 self.tree_infile.clearSelection()
 
+
+
     def open_file_dialog(self):
         """
         opens a file dialog to get the path to a file and
         """
         filename = QtGui.QFileDialog.getOpenFileName(self, 'Select a file:', self.txt_probe_log_path.text())
         self.txt_probe_log_path.setText(filename)
-        self.load_elements(filename)
-
-        self.fill_tree(self.tree_infile, self.elements_from_file)
-
+        # load elements from file and display in tree
+        elements_from_file = self.load_elements(filename)
+        self.fill_tree(self.tree_infile, elements_from_file)
+        # append new elements to internal dictionary
+        self.elements_from_file.update(elements_from_file)
     def load_elements(self, filename):
         """
         loads the elements from file filename
@@ -166,7 +186,8 @@ Returns:
                 add_elemet(item, key, value)
 
             tree.model().appendRow(item)
-
+            if tree == self.tree_loaded:
+                item.setEditable(False)
             tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
 
     def getValues(self):
