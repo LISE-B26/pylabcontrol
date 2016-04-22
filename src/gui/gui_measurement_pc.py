@@ -131,7 +131,7 @@ instruments = {
 
 scripts = {}
 path_to_default = 'C:\\Users\\Experiment\\gui_settings.b26guic'
-
+path_to_default = 'Z:\Lab\Cantilever\Measurements\__tmp\\new_gui.b26'
 try:
     ex = qt_b26_gui.ControlMainWindow(path_to_default)
 except AssertionError:

@@ -333,6 +333,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         instruments = in_data['instruments']
         scripts = in_data['scripts']
         probes = in_data['probes']
+        print(in_data)
 
         return instruments, scripts, probes
 
