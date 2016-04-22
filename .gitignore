@@ -1,3 +1,4 @@
+/src/core/tmp.py
 /src/labview_fpga_lib/pid_loop_simple/pid_loop_simple.dll
 .idea\
 /src/labview_fpga_lib/read_ai_ao/read_ai_ao.dll

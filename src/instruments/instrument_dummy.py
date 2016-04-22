@@ -3,6 +3,10 @@ from src.core import Instrument, Parameter
 
 
 class DummyInstrument(Instrument):
+    '''
+    Dummy instrument
+    a implementation of a dummy instrument
+    '''
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('test1', 0, int, 'some int parameter'),
@@ -20,6 +24,7 @@ class DummyInstrument(Instrument):
                }
 
     def __init__(self, name =  None, settings = None):
+
         super(DummyInstrument, self).__init__(name, settings)
         self._internal_state = None
         self._internal_state_deep = None
