@@ -14,7 +14,7 @@ from PySide.QtCore import QThread
 from src.core.read_write_functions import load_b26_file
 # from src.instruments import DummyInstrument
 # from src.scripts import ScriptDummy, ScriptDummyWithQtSignal
-
+from copy import deepcopy
 import datetime
 from collections import deque
 
@@ -37,14 +37,12 @@ except (ImportError, IOError):
 
 
 class LoadDialog(QMainWindow, Ui_MainWindow):
-    DEFAULT_PATH = "Z:\Lab\Cantilever\Measurements\\__tmp"
-    def __init__(self, type = "instruments"):
+    def __init__(self, elements_type, elements_old, filename):
         """
 
-        ControlMainWindow(intruments, scripts, probes)
-            - intruments: depth 1 dictionary where keys are instrument names and keys are instrument classes
-            - scripts: depth 1 dictionary where keys are script names and keys are script classes
-            - probes: depth 1 dictionary where to be decided....?
+        LoadDialog(intruments, scripts, probes)
+            - type: either script, instrument or probe
+            - loaded_elements: dictionary that contains the loaded elements
 
         ControlMainWindow(settings_file)
             - settings_file is the path to a json file that contains all the settings for the old_gui
@@ -54,30 +52,54 @@ class LoadDialog(QMainWindow, Ui_MainWindow):
         """
         super(LoadDialog, self).__init__()
         self.setupUi(self)
+
+
+        self.elements_type = elements_type
+        self.txt_probe_log_path.setText(filename)
+
         self.tree_infile_model = QtGui.QStandardItemModel()
         self.tree_infile.setModel(self.tree_infile_model)
-        self.tree_infile_model.setHorizontalHeaderLabels(['Instrument', 'Value'])
+        self.tree_infile_model.setHorizontalHeaderLabels([self.elements_type, 'Value'])
 
         self.tree_loaded_model = QtGui.QStandardItemModel()
         self.tree_loaded.setModel(self.tree_loaded_model)
-        self.tree_loaded_model.setHorizontalHeaderLabels(['Instrument', 'Value'])
+        self.tree_loaded_model.setHorizontalHeaderLabels([self.elements_type, 'Value'])
 
 
-        def connect_controls():
-            self.btn_open.clicked.connect(lambda: self.open_file_dialog(self.txt_probe_log_path))
+        self.btn_open.clicked.connect(lambda: self.open_file_dialog(self.txt_probe_log_path))
 
-        connect_controls()
+        self.elements_old = elements_old
+        self.elements_selected = {}
+        for element_name, element in self.elements_old.iteritems():
+            self.elements_selected.update( {element_name: {'class': element.__class__.__name__ , 'settings':element.settings}})
+        self.elements_from_file = self.load_elements(filename)
+
+        self.fill_tree(self.tree_loaded, self.elements_selected)
+        self.fill_tree(self.tree_infile, self.elements_from_file)
+
+
+
+
+        #todo: upon selection of element display docstring : element.__doc__
+
+        # todo: don't load duplicates
+
+
+
 
 
     def open_file_dialog(self, target):
         # sender = self.sender()
         # self.file_dialog_open = True
-        filename = QtGui.QFileDialog.getOpenFileName(self, 'Select a file:', self.DEFAULT_PATH)
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Select a file:', target.text())
         target.setText(filename)
+        self.load_elements(filename)
 
-        input_dict = load_b26_file(filename)['instruments']
+        self.fill_tree(self.tree_infile, self.elements_from_file)
 
-        self.fill_tree(self.tree_infile,input_dict )
+    def load_elements(self, filename):
+        input_data = load_b26_file(filename)
+        return input_data[self.elements_type]
 
     # QtGui.QTreeWidgetItem
     def fill_tree(self, tree, input_dict):
@@ -107,9 +129,11 @@ class LoadDialog(QMainWindow, Ui_MainWindow):
 
 if __name__ == '__main__':
     import sys
-
+    from src.core.loading import instantiate_instruments
+    instuments = instantiate_instruments({'inst_dummy': 'DummyInstrument'})
+    print(instuments)
     app = QtGui.QApplication(sys.argv)
-    ex = LoadDialog()
+    ex = LoadDialog(elements_type = 'instruments', elements_old=instuments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
 
     ex.show()
     ex.raise_()
