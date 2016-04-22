@@ -11,16 +11,17 @@ from copy import deepcopy
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
     # import external_modules.matplotlibwidget
-    Ui_Dialog, QMainWindow = loadUiType('load_dialog.ui') # with this we don't have to convert the .ui file into a python file!
+    Ui_Dialog, QDialog = loadUiType('load_dialog.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
     from src.core.load_dialog import Ui_Dialog
     from PyQt4.QtGui import QMainWindow
+    from PyQt4.QtGui import QDialog
     print('Warning: on the fly conversion of .ui file failed, loaded .py file instead!!')
 
 
 
-class LoadDialog(QMainWindow, Ui_Dialog):
+class LoadDialog(QDialog, Ui_Dialog):
     """
 LoadDialog(intruments, scripts, probes)
     - type: either script, instrument or probe
