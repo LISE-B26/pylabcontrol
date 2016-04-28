@@ -520,14 +520,16 @@ class Script(object):
             """
             default_instruments = getattr(class_of_script, '_INSTRUMENTS')
             instrument_dict = {}
+            instruments_updated = {}
+            instruments_updated.update(instruments)
             # check if instruments needed by script already exist, if not create an instance
             for instrument_name, instrument_class in default_instruments.iteritems():
                 # check if instruments needed by script already exist
-                instrument = [instance for name, instance in instruments.iteritems() if
+                instrument = [instance for name, instance in instruments_updated.iteritems() if
                               isinstance(instance, instrument_class) and name == instrument_name]
                 if len(instrument) == 0:
                     # create new instance of instrument
-                    instruments_updated, __ = Instrument.load_and_append({instrument_name: instrument_class.__name__}, instruments)
+                    instruments_updated, __ = Instrument.load_and_append({instrument_name: instrument_class.__name__}, instruments_updated)
 
                 if script_instruments is not None and instrument_name in script_instruments:
                     instrument_settings = script_instruments[instrument_name]['settings']

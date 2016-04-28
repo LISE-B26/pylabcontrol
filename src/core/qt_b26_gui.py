@@ -60,11 +60,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         else:
             raise TypeError("called ControlMainWindow with wrong arguments")
         print('============ loading instruments ================')
-        instruments = instantiate_instruments(instruments)
+        instruments, failed = Instrument.load_and_append(instruments)
+        if failed != []:
+            print('WARNING! Following instruments could not be loaded: ', failed)
         print('============ loading scripts ================')
-        scripts = instantiate_scripts(scripts, instruments, log_function= lambda x: self.log(x, target ='script'))
-        print('============ loading probes ================')
-        probes = instantiate_probes(probes, instruments)
+        scripts, failed, instruments = Script.load_and_append(scripts, instruments = instruments, log_function= lambda x: self.log(x, target ='script'))
+        if failed != []:
+            print('WARNING! Following scripts could not be loaded: ', failed)
+        print('============ loading probes not implmented ================')
+        # probes = instantiate_probes(probes, instruments)
 
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
