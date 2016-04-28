@@ -4,24 +4,18 @@ from src.core import Instrument, Parameter, Script
 
 
 class TestInstrument(TestCase):
-    def test_init(self):
-        '''
-        initiallize instance in all possible ways
-        :return:
-        '''
 
+    def test_loading_and_saving(self):
+        from src.core.read_write_functions import load_b26_file
 
-        test = Script()
+        filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XYX.b26"
 
-        print(test)
+        scripts, loaded_failed, instruments = Script.load_and_append({"some script": 'ScriptDummyWithInstrument'})
 
-        test.run()
+        script = scripts['some script']
+        script.save(filename)
 
-        #
-        #
-        # test = Instrument('test inst', {'test1':2020})
-        # self.assertEqual(test.parameters, {'test1': 2020, 'test2': {'test2_1': 'string', 'test2_2': 0.0}})
-        # test = Instrument('test inst', { 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
-        # self.assertEqual(test.parameters, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.2}})
-        # test = Instrument('test inst', { 'test2': {'test2_1': 'new string'}})
-        # self.assertEqual(test.parameters, {'test1': 0, 'test2': {'test2_1': 'new string', 'test2_2': 0.0}})
+        data = load_b26_file(filename)
+        scripts = {}
+        instruments = {}
+        scripts, scripts_failed, instruments_2 = Script.load_and_append(data['scripts'], scripts, instruments)

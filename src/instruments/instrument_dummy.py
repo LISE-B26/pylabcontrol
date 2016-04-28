@@ -78,3 +78,9 @@ class DummyInstrument(Instrument):
         '''
         return self._is_connected
 
+if __name__ == '__main__':
+
+    d = DummyInstrument
+    print(issubclass(d, Instrument))
+    print(d)
+    print(d.__name__)

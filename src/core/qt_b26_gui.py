@@ -23,6 +23,7 @@ from src.core import instantiate_probes, instantiate_scripts, instantiate_instru
 from src.scripts import ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan
 from src.core.plotting import plot_psd
 
+from src.core.read_write_functions import load_b26_file
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
@@ -58,9 +59,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             instruments, scripts, probes = args
         else:
             raise TypeError("called ControlMainWindow with wrong arguments")
-
+        print('============ loading instruments ================')
         instruments = instantiate_instruments(instruments)
+        print('============ loading scripts ================')
         scripts = instantiate_scripts(scripts, instruments, log_function= lambda x: self.log(x, target ='script'))
+        print('============ loading probes ================')
         probes = instantiate_probes(probes, instruments)
 
         super(ControlMainWindow, self).__init__()
@@ -83,8 +86,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.list_scripts.setModel(self.script_model)
         self.list_scripts.show()
 
-
         # fill the trees
+        self.tree_instruments_model = QtGui.QStandardItemModel()
+        self.tree_instruments.setModel(self.tree_instruments_model)
+        self.fill_tree_2(self.tree_instruments, self.instruments)
+        self.tree_instruments_model.setHorizontalHeaderLabels(['Instrument', 'Value'])
+        self.tree_instruments.setColumnWidth(0, 300)
+
+
         self.fill_tree(self.tree_settings, self.instruments)
         self.tree_settings.setColumnWidth(0, 300)
 
@@ -148,11 +157,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.read_probes.stop()
             except RuntimeError:
                 pass
-        if current_tab == 'Scripts':
-            # rebuild script- tree because intruments might have changed
-            self.tree_scripts.itemChanged.disconnect()
-            self.fill_tree(self.tree_scripts, self.scripts)
-            self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+
+        # following is outdated: now we want to have independent instrument settings in the scripts
+        # if current_tab == 'Scripts':
+        #     # rebuild script- tree because intruments might have changed
+        #     self.tree_scripts.itemChanged.disconnect()
+        #     self.fill_tree(self.tree_scripts, self.scripts)
+        #     self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
 
     def refresh_instruments(self):
         """
@@ -178,6 +189,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         for index in range(self.tree_settings.topLevelItemCount()):
             instrument = self.tree_settings.topLevelItem(index)
             update(instrument)
+
     def plot_clicked(self, mouse_event):
         item = self.tree_scripts.currentItem()
 
@@ -222,6 +234,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.history_model.insertRow(0,QtGui.QStandardItem(msg))
 
 
+    def update_script_from_tree(self, script):
+
+        for index in range(self.tree_scripts.topLevelItemCount()):
+            topLvlItem = self.tree_scripts.topLevelItem(index)
+            if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
+                # build dictionary
+                dictator = topLvlItem.to_dict()
+
+
+
+
     def btn_clicked(self):
         sender = self.sender()
         self.probe_to_plot = None
@@ -231,15 +254,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if item is not None:
                 script, path_to_script = item.get_script()
-                # # is the script is a QThread object we connect its signals to the update_status function
-                # if isinstance(script, QThread):
-                #     script.updateProgress.connect(self.update_status)
-                #     self.current_script = script
-                #     script.start()
-                # else:
-                #     # non QThread script don't have a start function so we call .run() directly
-                #     script.run()
-
+                self.update_script_from_tree(script)
                 self.log('start {:s}'.format(script.name))
                 # is the script is not a QThread object we use the wrapper QtSCript
                 # to but it on a separate thread such that the gui remains responsive
@@ -325,15 +340,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             - probes: depth 1 dictionary where to be decided....?
         """
 
+
         assert os.path.isfile(in_file_name)
 
-        with open(in_file_name, 'r') as infile:
-            in_data = yaml.safe_load(infile)
+        # with open(in_file_name, 'r') as infile:
+        #     in_data = yaml.safe_load(infile)
+        in_data = load_b26_file(in_file_name)
 
         instruments = in_data['instruments']
         scripts = in_data['scripts']
         probes = in_data['probes']
-        print(in_data)
 
         return instruments, scripts, probes
 
@@ -394,30 +410,59 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         elif treeWidget == self.tree_scripts:
 
             item = treeWidget.currentItem()
-
             script, path_to_script = item.get_script()
 
-            # build nested dictionary to update instrument
-            dictator = item.value
-            for element in path_to_script:
-                dictator = {element: dictator}
+            # check if changes value is from an instrument
+            instrument, path_to_instrument = item.get_instrument()
+            if instrument is not None:
+                print('INSTUMENT PARAMETER CHANGED in', script.instruments[instrument.name])
 
-            # get old value from instrument
-            old_value = script.settings
-            path_to_script.reverse()
-            for element in path_to_script:
-                old_value = old_value[element]
+                # just check if value is valid without actually sending a command to the instrument
 
-            # send new value from tree to script
-            script.update(dictator)
+                # # get old value from script.instrument
+                # old_value = script.instruments[instrument.name].settings
+                # path_to_instrument.reverse()
+                # for element in path_to_instrument:
+                #     old_value = old_value[element]
 
-            new_value = item.value
-            if new_value is not old_value:
-                msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value),
+                new_value = item.value
+
+                # msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value),
+                #                                                             str(new_value),
+                #                                                             script.name)
+
+
+
+                msg = "changed parameter {:s} to {:s} on {:s}".format(item.name,
                                                                                 str(new_value),
                                                                                 script.name)
+                print(msg)
             else:
-                msg = "did not change parameter {:s} on {:s}".format(item.name, script.name)
+
+                # # get old value from script
+                # old_value = script.settings
+                # path_to_script.reverse()
+                # for element in path_to_script:
+                #     old_value = old_value[element]
+
+                # send new value from tree to script -  not needed anymore because we will update this one we actually execute the script
+                # build nested dictionary to update script
+                # dictator = item.value
+                # for element in path_to_script:
+                #     dictator = {element: dictator}
+                # script.update(dictator)
+                new_value = item.value
+                msg = "changed parameter {:s} to {:s} on {:s}".format(item.name,
+                                                                            str(new_value),
+                                                                            script.name)
+
+                # new_value = item.value
+                # if new_value is not old_value:
+                #     msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value),
+                #                                                                     str(new_value),
+                #                                                                     script.name)
+                # else:
+                #     msg = "did not change parameter {:s} on {:s}".format(item.name, script.name)
 
             self.log(msg)
 
@@ -470,8 +515,47 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 outfile = open(file_name, 'a')
             outfile.write("{:s}\n".format(",".join(map(str, new_values.values()))))
 
+    def fill_tree_2(self, tree, input_dict):
+        """
+        fills a tree with nested parameters
+        Args:
+            tree: QtGui.QTreeWidget
+            parameters: dictionary or Parameter object
 
+        Returns:
 
+        """
+
+        def add_elemet(item, key, value):
+            child_name = QtGui.QStandardItem(key)
+            child_name.setDragEnabled(False)
+            child_name.setSelectable(False)
+            child_name.setEditable(False)
+
+            if isinstance(value, dict):
+                for ket_child, value_child in value.iteritems():
+                    add_elemet(child_name, ket_child, value_child)
+                item.appendRow(child_name)
+            else:
+                child_value = QtGui.QStandardItem(unicode(value))
+                child_value.setDragEnabled(False)
+                child_value.setSelectable(False)
+                child_value.setEditable(False)
+
+                item.appendRow([child_name, child_value])
+
+        for index, (name, value) in enumerate(input_dict.iteritems()):
+            item = QtGui.QStandardItem(name)
+            # print('(instrument, instrument_settings)', (instrument, instrument_settings))
+
+            if isinstance(value, Instrument):
+                for sub_key, sub_value in value.settings.iteritems():
+                    add_elemet(item, sub_key, sub_value)
+
+                tree.model().appendRow(item)
+                # if tree == self.tree_loaded:
+                #     item.setEditable(False)
+                tree.setFirstColumnSpanned(index, tree.rootIndex(), True)
 
     def fill_tree(self, tree, parameters):
         """

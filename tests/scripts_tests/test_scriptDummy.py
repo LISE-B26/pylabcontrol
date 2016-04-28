@@ -29,3 +29,7 @@ class TestScriptDummy(TestCase):
             print(key, val)
         print('----------------------')
         print(self.inst.to_dict())
+
+    def test_with_inst(self):
+        instr = {}
+        script_with_inst = ScriptDummyWithInstrument(instr)

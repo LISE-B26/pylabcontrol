@@ -49,14 +49,17 @@ probes = {
 instruments = {}
 scripts= {
 
-
-    'dummy script with inst': 'ScriptDummyWithInstrument'
+    #
+    # 'dummy script with inst': 'ScriptDummyWithInstrument',
+    # 'script': 'ScriptDummy'
 
 }
 probes = {}
 
-settings_file = "Z:\Lab\Cantilever\Measurements\\tmp_\\a"
-settings_file = ""
+settings_file = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
+# settings_file = ""
+
+print(instruments, scripts, probes)
 
 try:
     ex = qt_b26_gui.ControlMainWindow(settings_file)

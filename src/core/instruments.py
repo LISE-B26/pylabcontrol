@@ -171,55 +171,62 @@ class Instrument(object):
         save_b26_file(filename, instruments = self.to_dict())
 
     @staticmethod
-    def load(input, instrument_instances = {}):
+    def load_and_append(instrument_dict, instruments = {}):
         """
-        load instrument from input
-
-
-        Args:
-            input:  (1) a path to a file, that contains a valid dictionary with instrument settings
-                    (2) a valid dictionary with instrument settings
-
-        Returns:
+        load instrument from instrument_dict and append to instruments
 
         Args:
-            instruments:
-            instruments is a dictionary with
-            (key,value) = (name of the instrument, instrument class name),
-            for example instruments = {'Chamber Pressure Gauge': 'PressureGauge'}
+            instrument_dict: dictionary of form
+
+                instrument_dict = {
+                name_of_instrument_1 :
+                    {"settings" : settings_dictionary, "class" : name_of_class}
+                name_of_instrument_2 :
+                    {"settings" : settings_dictionary, "class" : name_of_class}
+                ...
+                }
 
             or
 
-            (key,value) = (name of the instrument, {'instrument_class' : instrument class name, "settings", dict with settings}),
+                instrument_dict = {
+                name_of_instrument_1 : name_of_class,
+                name_of_instrument_2 : name_of_class
+                ...
+                }
+
+            where name_of_class is either a class or the name of a class
+
+            instruments: dictionary of form
+
+                instruments = {
+                name_of_instrument_1 : instance_of_instrument_1,
+                name_of_instrument_2 : instance_of_instrument_2,
+                ...
+                }
+
 
 
         Returns:
-            a dictionary with (key,value) = (name of instrument, instance of instrument class) for all of the instruments
-            passed to the function that were successfully imported and initialized. Otherwise, instruments are omitted
-            in the outputted list.
+                dictionary updated_instruments that contains the old and the new instruments
 
-        Examples:
-            In the following, instrument_1 loads correctly, but instrument_2 does not, so only an instance of instrument_1
-            is outputted.
+                and list loaded_failed = [name_of_instrument_1, name_of_instrument_2, ....] that contains the instruments that were requested but could not be loaded
 
         """
-
-
-        if isinstance(input, str):
-            # try to load file
-            with open(input, 'r') as infile:
-                instrument_dict = yaml.safe_load(infile)
-        else:
-            assert isinstance(input, dict)
-            instrument_dict = input
-
+        updated_instruments = {}
+        updated_instruments.update(instruments)
+        loaded_failed = []
 
         for instrument_name, instrument_class_name in instrument_dict.iteritems():
+            instrument_settings = None
             if isinstance(instrument_class_name, dict):
                 instrument_settings = instrument_class_name['settings']
                 instrument_class_name = str(instrument_class_name['class'])
+            elif isinstance(instrument_class_name, Instrument):
+                instrument_class_name = instrument_class_name.__class__
+            elif isinstance(instrument_class_name, str):
+                pass
             else:
-                instrument_settings = None
+                raise TypeError('instrument_class_name not recognized')
 
             if len(instrument_class_name.split('.')) == 1:
                 module_path = 'src.instruments'
@@ -228,34 +235,37 @@ class Instrument(object):
                 instrument_class_name = instrument_class_name.split('.')[-1]
 
             # check if instrument already exists
-
-            if instrument_name in instrument_instances.keys():
+            if instrument_name in instruments.keys():
                 print('WARNING: instrument {:s} already exists. Did not load!'.format(instrument_name))
+                loaded_failed.append(instrument_name)
             else:
-
+                instrument_instance = None
                 # ==== import module =======
                 try:
                     # try to import the instrument
                     module = __import__(module_path, fromlist=[instrument_class_name])
-
                     # this returns the name of the module that was imported.
                     class_of_instrument = getattr(module, instrument_class_name)
+
+                    if instrument_settings is None:
+                        # this creates an instance of the class with default settings
+                        instrument_instance = class_of_instrument(name=instrument_name)
+                    else:
+                        # this creates an instance of the class with custom settings
+                        instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
+
                 except AttributeError as e:
                     print(e.message)
                     # catches when we try to create an instrument of a class that doesn't exist!
-                    raise AttributeError
+                    # raise AttributeError
 
-                if instrument_settings is None:
-                    # this creates an instance of the class with default settings
-                    instrument_instance = class_of_instrument(name=instrument_name)
+                if instrument_instance is None:
+                    loaded_failed.append(instrument_name)
                 else:
-                    # this creates an instance of the class with custom settings
-                    instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
+                    # adds the instance to our dictionary
+                    updated_instruments[instrument_name] = instrument_instance
 
-                # adds the instance to our output ditionary
-                instrument_instances[instrument_name] = instrument_instance
-
-        return instrument_instances
+        return updated_instruments, loaded_failed
 
 
 
@@ -268,14 +278,16 @@ if __name__ == '__main__':
     # intrument_filename = 'Z:\\Lab\\Cantilever\\Measurements\\160414_MW_transmission_vs_Power\\160414-18_59_33_test.inst'
     #
 
-    filename = 'C:\\Users\\Experiment\\Desktop\\Jan\\test.inst'
-
-
-    instruments = Instrument.load(filename)
-
-    print(instruments)
-    filename = 'C:\\Users\\Experiment\\Desktop\\Jan\\test2.inst'
-    instruments = Instrument.load(filename, instruments)
-
-    print(instruments)
+    from src.core.read_write_functions import load_b26_file
+    filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
+    data = load_b26_file(filename)
+    inst = {}
+    instruments, instruments_failed = Instrument.load_and_append(data['instruments'], instruments = inst)
+    print('loaded', instruments)
+    print('inst', inst)
+    print('failed', instruments_failed)
+    print('load again')
+    instruments_failed = Instrument.load_and_append(data['instruments'], instruments)
+    print('loaded', instruments)
+    print('failed', instruments_failed)
 

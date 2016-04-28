@@ -11,7 +11,7 @@ import glob
 import json as json
 from PySide.QtCore import Signal, QThread
 from src.core.read_write_functions import save_b26_file
-
+from src.core.loading import instantiate_instruments
 class Script(object):
     # __metaclass__ = ABCMeta
 
@@ -153,9 +153,7 @@ class Script(object):
     def instruments(self, instrument_dict):
         assert isinstance(instrument_dict, dict)
         assert set(instrument_dict.keys()) == set(self._INSTRUMENTS.keys()), "keys in{:s}\nkeys expected{:s}".format(str(instrument_dict.keys()), str( self._INSTRUMENTS.keys()))
-
         for key, value in self._INSTRUMENTS.iteritems():
-            assert isinstance(instrument_dict[key], self._INSTRUMENTS[key])
             self._instruments.update({key: instrument_dict[key]})
 
     @property
@@ -353,13 +351,17 @@ class Script(object):
                 dictator[self.name]['scripts'].update(subscript.to_dict() )
 
         if self.instruments != {}:
-            dictator[self.name].update({'instruments': {} })
-            for instrument_name, instrument in self.instruments.iteritems():
-                # dictator[self.name]['instruments'].update({instrument_name: instrument.name})
-                dictator[self.name]['instruments'].update(instrument.to_dict())
+            # dictator[self.name].update({'instruments': self.instruments})
+            # dictator[self.name].update({'instruments': {} })
+            # for instrument_name, instrument in self.instruments.iteritems():
+            #     dictator[self.name]['instruments'].update(instrument.to_dict())
+
+            dictator[self.name].update({'instruments': {
+                instrument_name: {'class': instrument['instance'].__class__.__name__, 'settings':instrument['settings']}
+                for instrument_name, instrument in self.instruments.iteritems()
+            }})
 
         dictator[self.name]['settings'] = self.settings
-
         return dictator
 
     @staticmethod
@@ -414,6 +416,187 @@ class Script(object):
         return data
 
 
+    @staticmethod
+    def load_and_append(script_dict, scripts = {}, instruments = {}, log_function = None):
+        """
+        load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
+
+        Args:
+            script_dict: dictionary of form
+
+                script_dict = {
+                name_of_script_1 :
+                    {"settings" : settings_dictionary, "class" : name_of_class}
+                name_of_instrument_2 :
+                    {"settings" : settings_dictionary, "class" : name_of_class}
+                ...
+                }
+
+            or
+
+                script_dict = {
+                name_of_script_1 : name_of_class,
+                name_of_script_2 : name_of_class
+                ...
+                }
+
+            where name_of_class is either a class or the name of a class
+
+            scripts: dictionary of form
+
+                scripts = {
+                name_of_script_1 : instance_of_instrument_1,
+                name_of_script_2 : instance_of_instrument_2,
+                ...
+                }
+
+            instruments: dictionary of form
+
+                instruments = {
+                name_of_instrument_1 : instance_of_instrument_1,
+                name_of_instrument_2 : instance_of_instrument_2,
+                ...
+                }
+
+        Returns:
+                list of form
+
+                loaded_failed = [name_of_script_1, name_of_script_2, ....]
+
+        """
+        loaded_failed = []
+        updated_scripts = {}
+        updated_scripts.update(scripts)
+        updated_instruments = {}
+        updated_instruments.update(instruments)
+
+        def get_script_information(script_information):
+            """
+
+            Args:
+                script_information: information of the script. This can be
+                    - a dictionary
+                    - a Script instance
+                    - name of Script class
+
+            Returns: module_path, script_class_name, script_settings, script_instruments, script_sub_scripts
+
+            """
+            script_settings = None
+            script_instruments = None
+            script_sub_scripts = None
+            script_class_name = None
+            if isinstance(script_information, dict):
+                script_settings = script_information['settings']
+                script_class_name = str(script_information['class'])
+                if 'instruments' in script_information:
+                    script_instruments = script_information['instruments']
+                if 'scripts' in script_information:
+                    script_sub_scripts = script_information['scripts']
+            elif isinstance(script_information, Script):
+                script_class_name = script_information.__class__
+            elif isinstance(script_information, str):
+                script_class_name = script_information
+
+            if len(script_class_name.split('.')) == 1:
+                module_path = 'src.scripts'
+            else:
+                module_path = 'src.scripts.' + '.'.join(script_class_name.split('.')[0:-1])
+                script_class_name = script_information.split('.')[-1]
+
+            return module_path, script_class_name, script_settings, script_instruments, script_sub_scripts
+
+        def get_instruments(class_of_script, script_instruments, instruments):
+            """
+
+            creates the dictionary with the instruments needed for the script and update the instrument dictionary if new instruments are required
+
+            Args:
+                class_of_script: the class of the script
+                instruments: the instruments that have been loaded already
+
+            Returns: dictionary with the instruments that the script needs and the updated instruments dictionary
+
+            """
+            default_instruments = getattr(class_of_script, '_INSTRUMENTS')
+            instrument_dict = {}
+            # check if instruments needed by script already exist, if not create an instance
+            for instrument_name, instrument_class in default_instruments.iteritems():
+                # check if instruments needed by script already exist
+                instrument = [instance for name, instance in instruments.iteritems() if
+                              isinstance(instance, instrument_class) and name == instrument_name]
+                if len(instrument) == 0:
+                    # create new instance of instrument
+                    instruments_updated, __ = Instrument.load_and_append({instrument_name: instrument_class.__name__}, instruments)
+
+                if script_instruments is not None and instrument_name in script_instruments:
+                    instrument_settings = script_instruments[instrument_name]['settings']
+                else:
+                    instrument_settings = instruments_updated[instrument_name].settings
+
+                instrument_instance = instruments_updated[instrument_name]
+
+                instrument_dict.update({instrument_name: {"instance":instrument_instance, "settings":instrument_settings}})
+
+
+            return instrument_dict, instruments_updated
+
+        def get_sub_scripts(class_of_script, instruments):
+            """
+
+            creates the dictionary with the sub scripts needed by the script and updates the instrument dictionary if new instruments are required
+
+            Args:
+                class_of_script: the class of the script
+                instruments: the instruments that have been loaded already
+
+            Returns: dictionary with the sub scripts that the script needs
+
+            """
+            default_scripts = getattr(class_of_script, '_SCRIPTS')
+            # create instruments that script needs
+            sub_scripts = {}
+            sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments)
+
+            # todo: update the scripts with the settings if there are any
+            # .....
+            return sub_scripts, instruments_updated
+
+        for script_name, script_class_name in script_dict.iteritems():
+
+            # check if script already exists
+            if script_name in scripts.keys():
+                print('WARNING: script {:s} already exists. Did not load!'.format(script_name))
+                loaded_failed.append(script_name)
+            else:
+                module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = get_script_information(script_class_name)
+                script_instance = None
+
+                # try to import the script
+                module = __import__(module_path, fromlist=[script_class_name])
+                # this returns the name of the module that was imported.
+                class_of_script = getattr(module, script_class_name)
+
+                #  ========= get the instruments that are needed by the script =========
+                script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
+                #  ========= create the scripts that are needed by the script =========
+                sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments)
+
+                class_creation_string = ''
+                if script_instruments != {}:
+                    class_creation_string += ', instruments = script_instruments'
+                if sub_scripts != {}:
+                    class_creation_string += ', scripts = sub_scripts'
+                if script_settings != {}:
+                    class_creation_string += ', settings = script_settings'
+                if log_function is not None:
+                    class_creation_string += ', log_output = log_function'
+                class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
+
+                script_instance = eval(class_creation_string)
+                updated_scripts.update({script_name :script_instance})
+
+        return updated_scripts, loaded_failed, updated_instruments
 
 class QThreadWrapper(QThread):
 
@@ -438,8 +621,47 @@ class QThreadWrapper(QThread):
         self.updateProgress.emit(100)
 
 
+#
+# if __name__ == '__main__':
+#     from src.core.read_write_functions import load_b26_file
+#     from src.instruments import DummyInstrument
+#     filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
+#     data = load_b26_file(filename)
+#     scripts = {}
+#     instruments = {"dummy_instrument": DummyInstrument("dummy_instrument")}
+#     scripts_failed = Script.load_and_append(data['scripts'], scripts, instruments)
+#     print('loaded', scripts)
+#     print('failed', scripts_failed)
+#
+#
+#     print(scripts['dummy script with inst'].settings)
+#     print(scripts['dummy script with inst'].instruments['dummy_instrument'])
+#     print(scripts['dummy script with inst'].scripts)
+
+
 
 if __name__ == '__main__':
-    pass
+    from src.core.read_write_functions import load_b26_file
+    from src.instruments import DummyInstrument
+    from src.scripts import ScriptDummyWithInstrument
+    filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XYX.b26"
+
+    # create script
 
 
+    scripts, loaded_failed, instruments = Script.load_and_append({"some script":'ScriptDummyWithInstrument'})
+    print(instruments)
+    print(scripts)
+    script = scripts['some script']
+    script.save(filename)
+
+
+    data = load_b26_file(filename)
+    scripts = {}
+    instruments = {}
+    scripts, scripts_failed, instruments_2 = Script.load_and_append(data['scripts'], scripts, instruments)
+    print('loaded', scripts)
+    print('failed', scripts_failed)
+
+    print(instruments)
+    print(instruments_2)

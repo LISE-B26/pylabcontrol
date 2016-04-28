@@ -418,6 +418,16 @@
      <string>Load</string>
     </property>
    </widget>
+   <widget class="QTreeView" name="tree_instruments">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>10</y>
+      <width>256</width>
+      <height>192</height>
+     </rect>
+    </property>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>list_records</zorder>
    <zorder>tabWidget</zorder>
@@ -425,6 +435,7 @@
    <zorder>matplotlibwidget_2</zorder>
    <zorder>btn_save_gui</zorder>
    <zorder>btn_load_gui</zorder>
+   <zorder>tree_instruments</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

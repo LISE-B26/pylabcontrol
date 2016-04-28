@@ -38,7 +38,7 @@ def instantiate_instruments(instruments):
         else:
             instrument_settings = None
         try:
-
+            print('SSSinstrument_name, instrument_class_name ', instrument_name, instrument_class_name )
             # try to import the instrument
             module = __import__('src.instruments', fromlist=[instrument_class_name])
             # this returns the name of the module that was imported.
@@ -112,17 +112,30 @@ def instantiate_scripts(scripts, instruments, log_function = None):
         script_instruments = {}
         script_scripts = {}
         script_settings =  {}
+
         if isinstance(value, dict):
             assert 'class' in value
             assert 'instruments' in value or 'scripts' in value or 'settings' in value
 
             script_class = str(value['class'])
             if 'instruments' in value:
-                script_instruments = value['instruments']
-                script_instruments = {
-                    instrument_name: instruments[instrument_reference]
-                    for instrument_name, instrument_reference in script_instruments.iteritems()
-                    }
+                script_instruments_settings = value['instruments']
+                print('script_instruments_settings',script_instruments_settings)
+                print('AA instruments', instruments)
+                for instrument_name, instrument_reference in script_instruments_settings.iteritems():
+                    print('instrument_name, instrument_reference', instrument_name, instrument_reference)
+                    if isinstance(instrument_reference, dict):
+                        # script has specific settings for instrument
+
+                        print(instrument_name, instrument_reference)
+
+
+                script_instruments.update({instrument_name: instruments[instrument_reference]})
+
+                # script_instruments = {
+                #     instrument_name: instruments[instrument_reference]
+                #     for instrument_name, instrument_reference in script_instruments.iteritems()
+                #     }
 
             if 'scripts' in value:
                 script_scripts = value['scripts']
@@ -150,7 +163,7 @@ def instantiate_scripts(scripts, instruments, log_function = None):
         # folder. This raises an AttributeError if, in fact, we did not import the module
 
 
-        # if there are instruments required be the script that have not been provided yet, need to load instruments
+        # if there are instruments required by the script that have not been provided yet, need to load instruments
         missing_instruments = {}
         for instrument_name in class_of_script._INSTRUMENTS.keys():
             if instrument_name in script_instruments.keys() and isinstance(script_instruments[instrument_name], class_of_script._INSTRUMENTS[instrument_name]):
@@ -192,12 +205,11 @@ def instantiate_scripts(scripts, instruments, log_function = None):
     scripts_instances = {}
 
     for script_name, value in scripts.iteritems():
-
+            # print('script_name, value',script_name, value)
             script = create_script_instance(script_name, value)
 
             if script is not None:
                 scripts_instances[script_name] = script
-
 
 
     return scripts_instances
@@ -244,101 +256,24 @@ def instantiate_probes(probes, instruments):
 
 
 if __name__ == '__main__':
-    instruments = {
-        # 'inst_dummy': 'DummyInstrument',
-        'zihf2': 'ZIHF2',
-        'pressure gauge': 'PressureGauge',
-        'cryo station': 'CryoStation',
-        'spectrum analyzer': 'SpectrumAnalyzer',
-        'microwave generator': 'MicrowaveGenerator'
-    }
 
-    scripts = {
-
-        'u-wave spectra': {
-            'script_class': 'KeysightGetSpectrum',
-            'instruments': {
-                'spectrum_analyzer': 'spectrum analyzer'
-            }
-        },
-
-        'u-wave spectra vs power': {
-            'script_class': 'MWSpectraVsPower',
-            'instruments': {
-                'cryo_station': 'cryo station',
-                'spectrum_analyzer': 'spectrum analyzer',
-                'microwave_generator': 'microwave generator'
-            }
-        },
-
-        # 'u-wave spectra vs power': {
-        #     'script_class': 'MWSpectraVsPower',
-        #     'instruments':{
-        #     'microwave_generator' : 'microwave generator',
-        #     'cryo_station' : 'cryo station',
-        #     'spectrum_analyzer' : 'spectrum analyzer'
-        #     }
-        # },
-
-        'ZI sweep': {
-            'script_class': 'ZISweeper',
-            'instruments': {'zihf2': 'zihf2'}
-        },
-
-        'High res scan': {
-            'script_class': 'ZISweeperHighResolution',
-            'scripts': {
-                'zi sweep': {
-                    'script_class': 'ZISweeper',
-                    'instruments': {'zihf2': 'zihf2'}
-                }
-            }
-        }
-
-    }
-
-    probes = {
-        # 'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
-        # 'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
-        'ZI (R)': {'probe_name': 'R', 'instrument_name': 'zihf2'},
-        'ZI (X)': {'probe_name': 'X', 'instrument_name': 'zihf2'},
-        'T (platform)': {'probe_name': 'platform_temp', 'instrument_name': 'cryo station'},
-        'T (stage 1)': {'probe_name': 'stage_1_temp', 'instrument_name': 'cryo station'},
-        'T (stage 2)': {'probe_name': 'stage_2_temp', 'instrument_name': 'cryo station'}
-        # 'Chamber Pressure' : { 'probe_name': 'pressure', 'instrument_name': 'pressure gauge'}
-    }
-
-
-
-
-
-    filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\a.b26"
-    save_b26_file(filename, instruments, scripts, probes)
-
-    # filename = 'C:\\Users\\Experiment\\gui_settings.b26gui'
-
+# ======= test  instantiate_scripts =====
+    from src.core.read_write_functions import load_b26_file
+    filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
     data = load_b26_file(filename)
 
-    print(data['instruments'])
-
-    #
-    #
-    # import yaml
-    # in_file_name = "Z:\Lab\Cantilever\Measurements\\tmp_\\a"
-    # with open(in_file_name, 'r') as infile:
-    #     in_data = yaml.safe_load(infile)
-    #
-    # instruments = in_data['instruments']
-    # scripts = in_data['scripts']
-    # probes = in_data['probes']
-    #
-    #
-    #
-    # inst = load_instruments(instruments)
-    #
-    # sc = load_scripts(scripts, inst)
-    #
-    # pr = load_probes(probes, inst)
+    print(data['scripts'])
+    instruments = {}
+    scripts = instantiate_scripts(data['scripts'], instruments)
+    print(scripts)
 
 
-
+# # ======= test  instantiate_instruments =====
+#     from src.core.read_write_functions import load_b26_file
+#     filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
+#     data = load_b26_file(filename)
+#
+#     print(data['instruments'])
+#
+#     instruments = instantiate_instruments(data['instruments'])
+#     print(instruments)
