@@ -56,15 +56,18 @@ scripts= {
 }
 probes = {}
 
-settings_file = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
+settings_file = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b2XXXX6"
 # settings_file = ""
+from src.scripts import Script
+# scripts, loaded_failed, instruments = Script.load_and_append({"script with inst": 'ScriptDummyWithInstrument', "script with suscript": 'ScriptDummyWithSubScript'})
+# scripts, loaded_failed, instruments = Script.load_and_append({"script with inst": 'ScriptDummyWithInstrument'})
+print('Starting GUI')
+# try:
+#     ex = qt_b26_gui.ControlMainWindow(settings_file)
+# except AssertionError:
+#     ex = qt_b26_gui.ControlMainWindow(instruments, scripts, probes)
 
-print(instruments, scripts, probes)
-
-try:
-    ex = qt_b26_gui.ControlMainWindow(settings_file)
-except AssertionError:
-    ex = qt_b26_gui.ControlMainWindow(instruments, scripts, probes)
+ex = qt_b26_gui.ControlMainWindow()
 
 # ex = qt_b26_gui.ControlMainWindow(instruments, scripts, probes)
 ex.show()

@@ -14,7 +14,7 @@ from PySide.QtCore import QThread
 from src.core import LoadDialog
 # from src.instruments import DummyInstrument
 # from src.scripts import ScriptDummy, ScriptDummyWithQtSignal
-
+from copy import deepcopy
 import datetime
 from collections import deque
 
@@ -52,23 +52,29 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns:
 
         """
-        if len(args) == 1:
+        if len(args) == 0:
+            instruments = {}
+            scripts = {}
+            probes = {}
+        elif len(args) == 1:
             print('loading from file {:s}'.format(args[0]))
             instruments, scripts, probes = self.load_settings(args[0])
+            print('============ loading instruments ================')
+            instruments, failed = Instrument.load_and_append(instruments)
+            if failed != []:
+                print('WARNING! Following instruments could not be loaded: ', failed)
+            print('============ loading scripts ================')
+            scripts, failed, instruments = Script.load_and_append(scripts, instruments=instruments,
+                                                                  log_function=lambda x: self.log(x, target='script'))
+            if failed != []:
+                print('WARNING! Following scripts could not be loaded: ', failed)
+            print('============ loading probes not implmented ================')
+            # probes = instantiate_probes(probes, instruments)
         elif len(args) == 3:
             instruments, scripts, probes = args
         else:
             raise TypeError("called ControlMainWindow with wrong arguments")
-        print('============ loading instruments ================')
-        instruments, failed = Instrument.load_and_append(instruments)
-        if failed != []:
-            print('WARNING! Following instruments could not be loaded: ', failed)
-        print('============ loading scripts ================')
-        scripts, failed, instruments = Script.load_and_append(scripts, instruments = instruments, log_function= lambda x: self.log(x, target ='script'))
-        if failed != []:
-            print('WARNING! Following scripts could not be loaded: ', failed)
-        print('============ loading probes not implmented ================')
-        # probes = instantiate_probes(probes, instruments)
+
 
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
@@ -300,38 +306,65 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         elif (sender is self.btn_load_instruments) or (sender is self.btn_load_scripts):
 
             if sender is self.btn_load_instruments:
-                element_type = "instruments"
-                elements_old = self.instruments
-                element_class = Instrument
-                init_function = instantiate_instruments
-                tree = self.tree_settings
+
+                dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\")
+                if dialog.exec_():
+                    instruments = dialog.getValues()
+                    # create instances of new instruments/scripts
+                    new_instruments = {}
+                    for instrument, value in instruments.iteritems():
+                        if not isinstance(value, Instrument):
+                            new_instruments.update({instrument: value})
+                    self.instruments, instruments_failed = Instrument.load_and_append(new_instruments, self.instruments)
+
             elif sender is self.btn_load_scripts:
-                element_type = "scripts"
-                elements_old = self.scripts
-                element_class = Script
-                init_function = lambda scripts: instantiate_scripts(scripts, self.instruments, self.log)
-                tree = self.tree_scripts
 
-            dialog = LoadDialog(elements_type=element_type, elements_old=elements_old, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
-            if dialog.exec_():
-                elements = dialog.getValues()
-                # create instances of new instruments
-                new_elements = {}
-                for element, value in elements.iteritems():
-                    if not isinstance(value, element_class):
-                        new_elements.update({element: value})
 
-                        new_elements = init_function(new_elements)
-                elements_old.update(new_elements)
+                dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\")
+                if dialog.exec_():
+                    scripts = dialog.getValues()
+                    old_script_names = self.scripts.keys()
 
-                # create instruments that have been deselected
-                for element_name in set(elements_old.keys())^set(elements.keys()):
-                    del self.instruments[element_name]
+                    added_scripts = set(scripts.keys())-set(self.scripts.keys())
+                    removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
 
-                # refresh tree
-                tree.itemChanged.disconnect()
-                self.fill_tree(tree, elements_old)
-                tree.itemChanged.connect(lambda: self.update_parameters(tree))
+                    print('added_scripts', added_scripts)
+                    print('removed_scripts', removed_scripts)
+                    # create instances of new instruments/scripts
+                    self.scripts, loaded_failed, self.instruments = Script.load_and_append({name: scripts[name] for name in added_scripts},
+                                                                                               self.scripts,
+                                                                                               self.instruments,
+                                                                                               self.log)
+                    # delete instances of new instruments/scripts that have been deselected
+                    for name in removed_scripts:
+                        del self.scripts[name]
+
+
+
+                    # scripts = dialog.getValues()
+                    # # create instances of new instruments/scripts
+                    # scripts = {}
+                    # for script, value in scripts.iteritems():
+                    #     print('vakue', value)
+                    #     if not isinstance(value, Script):
+                    #         scripts.update({script: value})
+                    #
+                    #     self.scripts, loaded_failed, self.instruments = Script.load_and_append(scripts,
+                    #                                                                            self.scripts,
+                    #                                                                            self.instruments,
+                    #                                                                            self.log)
+
+
+        # refresh trees
+        self.tree_scripts.itemChanged.disconnect()
+        self.fill_tree(self.tree_scripts, self.scripts)
+        self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+
+        # refresh tree
+        self.tree_settings.itemChanged.disconnect()
+        self.fill_tree(self.tree_settings, self.instruments)
+        self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
+
 
     def load_settings(self, in_file_name):
         """

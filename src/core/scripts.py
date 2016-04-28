@@ -486,6 +486,9 @@ class Script(object):
             script_instruments = None
             script_sub_scripts = None
             script_class_name = None
+
+            print('script_information', script_information,  type(script_information))
+
             if isinstance(script_information, dict):
                 script_settings = script_information['settings']
                 script_class_name = str(script_information['class'])
@@ -493,11 +496,12 @@ class Script(object):
                     script_instruments = script_information['instruments']
                 if 'scripts' in script_information:
                     script_sub_scripts = script_information['scripts']
-            elif isinstance(script_information, Script):
-                script_class_name = script_information.__class__
             elif isinstance(script_information, str):
                 script_class_name = script_information
-
+            elif issubclass(script_information, Script):
+                # watch out when testing this code from __main__, then classes might not be identified correctly because the path is different
+                # to avoid this problem call from src.core import Script (otherwise the path to Script is __main__.Script)
+                script_class_name = script_information.__name__
             if len(script_class_name.split('.')) == 1:
                 module_path = 'src.scripts'
             else:
@@ -646,24 +650,26 @@ if __name__ == '__main__':
     from src.core.read_write_functions import load_b26_file
     from src.instruments import DummyInstrument
     from src.scripts import ScriptDummyWithInstrument
-    filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XYX.b26"
-
+    path = "Z:\Lab\Cantilever\Measurements\\__tmp\\"
+    from src.core import Script
     # create script
 
 
-    scripts, loaded_failed, instruments = Script.load_and_append({"some script":'ScriptDummyWithInstrument'})
+    scripts, loaded_failed, instruments = Script.load_and_append({"script with inst": 'ScriptDummyWithInstrument', "script with suscript": 'ScriptDummyWithSubScript'})
     print(instruments)
     print(scripts)
-    script = scripts['some script']
-    script.save(filename)
 
+    for name, script in scripts.iteritems():
+        script.save('{:s}{:s}.b26'.format(path, name.replace(' ', '_')))
 
-    data = load_b26_file(filename)
-    scripts = {}
-    instruments = {}
-    scripts, scripts_failed, instruments_2 = Script.load_and_append(data['scripts'], scripts, instruments)
-    print('loaded', scripts)
-    print('failed', scripts_failed)
-
-    print(instruments)
-    print(instruments_2)
+    #
+    #
+    # data = load_b26_file(filename)
+    # scripts = {}
+    # instruments = {}
+    # scripts, scripts_failed, instruments_2 = Script.load_and_append(data['scripts'], scripts, instruments)
+    # print('loaded', scripts)
+    # print('failed', scripts_failed)
+    #
+    # print(instruments)
+    # print(instruments_2)

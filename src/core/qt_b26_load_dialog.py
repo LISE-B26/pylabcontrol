@@ -7,7 +7,7 @@ from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 from src.core.read_write_functions import load_b26_file
 from copy import deepcopy
-
+import os
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
     # import external_modules.matplotlibwidget
@@ -31,7 +31,7 @@ ControlMainWindow(settings_file)
 Returns:
     """
 
-    def __init__(self, elements_type, elements_old, filename):
+    def __init__(self, elements_type, elements_old = {}, filename = ''):
         super(LoadDialog, self).__init__()
         self.setupUi(self)
 
@@ -57,7 +57,10 @@ Returns:
         self.elements_selected = {}
         for element_name, element in self.elements_old.iteritems():
             self.elements_selected.update( {element_name: {'class': element.__class__.__name__ , 'settings':element.settings}})
-        self.elements_from_file = self.load_elements(filename)
+        if os.path.isfile(filename):
+            self.elements_from_file = self.load_elements(filename)
+        else:
+            self.elements_from_file = {}
 
         # fill trees with the data
         self.fill_tree(self.tree_loaded, self.elements_selected)
@@ -173,7 +176,6 @@ Returns:
 
                 item.appendRow([child_name, child_value])
 
-
         for index, (instrument, instrument_settings) in enumerate(input_dict.iteritems()):
             item = QtGui.QStandardItem(instrument)
 
@@ -205,7 +207,9 @@ if __name__ == '__main__':
     instuments = instantiate_instruments({'inst_dummy': 'DummyInstrument'})
     print(instuments)
     app = QtGui.QApplication(sys.argv)
-    ex = LoadDialog(elements_type = 'instruments', elements_old=instuments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
+    # ex = LoadDialog(elements_type = 'instruments', elements_old=instuments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
+    # ex = LoadDialog(elements_type='scripts', elements_old=instuments)
+    ex = LoadDialog(elements_type='scripts')
 
     ex.show()
     ex.raise_()
