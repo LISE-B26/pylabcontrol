@@ -245,12 +245,30 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     def update_script_from_tree(self, script):
-
+        print('update script', script)
         for index in range(self.tree_scripts.topLevelItemCount()):
             topLvlItem = self.tree_scripts.topLevelItem(index)
             if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
                 # build dictionary
-                dictator = topLvlItem.to_dict()
+                # get full information from script
+                dictator = topLvlItem.to_dict().values()[0] # there is only one item in the dictionary
+
+                for instrument in script.instruments.keys():
+                    # update instrument
+                    script.instruments[instrument]['settings'] = dictator[instrument]['settings']
+                    # remove instrument
+                    del dictator[instrument]
+
+                for sub_script in script.scripts.keys():
+                    print('LLscript.scripts', script.scripts)
+                    print('LL ', dictator[sub_script])
+                    # update instrument
+                    script.scripts[sub_script].update(dictator[sub_script])
+                    # remove script
+                    del dictator[sub_script]
+
+                print('FFFF dict', dictator)
+                script.update(dictator)
 
 
 
@@ -328,8 +346,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     added_scripts = set(scripts.keys())-set(self.scripts.keys())
                     removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
 
-                    print('added_scripts', added_scripts)
-                    print('removed_scripts', removed_scripts)
                     # create instances of new instruments/scripts
                     self.scripts, loaded_failed, self.instruments = Script.load_and_append({name: scripts[name] for name in added_scripts},
                                                                                                self.scripts,
@@ -338,21 +354,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     # delete instances of new instruments/scripts that have been deselected
                     for name in removed_scripts:
                         del self.scripts[name]
-
-
-
-                    # scripts = dialog.getValues()
-                    # # create instances of new instruments/scripts
-                    # scripts = {}
-                    # for script, value in scripts.iteritems():
-                    #     print('vakue', value)
-                    #     if not isinstance(value, Script):
-                    #         scripts.update({script: value})
-                    #
-                    #     self.scripts, loaded_failed, self.instruments = Script.load_and_append(scripts,
-                    #                                                                            self.scripts,
-                    #                                                                            self.instruments,
-                    #                                                                            self.log)
 
 
         # refresh trees
@@ -583,7 +584,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         for index, (name, value) in enumerate(input_dict.iteritems()):
             item = QtGui.QStandardItem(name)
-            # print('(instrument, instrument_settings)', (instrument, instrument_settings))
 
             if isinstance(value, Instrument):
                 for sub_key, sub_value in value.settings.iteritems():

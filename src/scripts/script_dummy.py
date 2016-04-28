@@ -155,6 +155,11 @@ class ScriptDummyWithInstrument(Script):
 
         import time
 
+
+        # update instrument
+        self.instruments['dummy_instrument'].update(self.instruments['dummy_instrument']['settings'])
+
+        instrument = self.instruments['dummy_instrument']['instance']
         count = self.settings['count']
         name = self.settings['name']
         wait_time = self.settings['wait_time']
@@ -163,7 +168,7 @@ class ScriptDummyWithInstrument(Script):
         self.log('I am a test function counting to {:d}...'.format(count))
         for i in range(count):
 
-            self.log('signal from dummy instrument {:s}: {:0.3f}'.format(name, self.instruments['dummy_instrument'].value1))
+            self.log('signal from dummy instrument {:s}: {:0.3f}'.format(name, instrument.value1))
             time.sleep(wait_time)
 
         if self.settings['save']:
