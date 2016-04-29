@@ -34,6 +34,28 @@
         "MaestroLightControl": {
             "class": "MaestroLightControl", 
             "settings": {
+                "white light": {
+                    "settle_time": 0.2, 
+                    "position_open": 4000, 
+                    "position_closed": 7200, 
+                    "open": true, 
+                    "channel": 0
+                }, 
+                "filter wheel": {
+                    "settle_time": 0.8, 
+                    "current_position": "ND1.0", 
+                    "Red": 3000, 
+                    "ND2.0": 10800, 
+                    "ND1.0": 6800, 
+                    "channel": 1
+                }, 
+                "block IR": {
+                    "settle_time": 0.2, 
+                    "position_open": 7600, 
+                    "position_closed": 3800, 
+                    "open": true, 
+                    "channel": 4
+                }, 
                 "port": "COM5", 
                 "block green": {
                     "settle_time": 0.2, 
