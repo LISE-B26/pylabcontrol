@@ -1,0 +1,119 @@
+{
+    "instruments": {
+        "NI7845RReadAnalogIO": {
+            "class": "NI7845RReadAnalogIO", 
+            "settings": {
+                "AO7": 0.0, 
+                "AO6": 0.0, 
+                "AO5": 0.0, 
+                "AO4": 0.0, 
+                "AO3": 0.0, 
+                "AO2": 0.0, 
+                "AO1": 0.0, 
+                "AO0": 0.0
+            }
+        }, 
+        "NI7845RPidSimpleLoop": {
+            "class": "NI7845RPidSimpleLoop", 
+            "settings": {
+                "gains": {
+                    "proportional": 0, 
+                    "integral": 0
+                }, 
+                "Setpoint": 0.0, 
+                "Acquire": false, 
+                "SamplePeriodsPID": 400000, 
+                "SamplePeriodsAcq": 200, 
+                "PI_on": false, 
+                "PiezoOut": 0.0, 
+                "ElementsToWrite": 500, 
+                "TimeoutBuffer": 0, 
+                "fifo_size": 4096
+            }
+        }, 
+        "PressureGauge": {
+            "class": "PressureGauge", 
+            "settings": {
+                "baudrate": 9600, 
+                "port": "COM5", 
+                "timeout": 1.0
+            }
+        }, 
+        "MicrowaveGenerator": {
+            "class": "MicrowaveGenerator", 
+            "settings": {
+                "enable_output": false, 
+                "enable_modulation": true, 
+                "amplitude": -60, 
+                "GPIB_num": 0, 
+                "frequency": 3000000000.0, 
+                "dev_width": 32000000.0, 
+                "pulse_modulation_function": "External", 
+                "phase": 0, 
+                "modulation_function": "External", 
+                "port": 27, 
+                "modulation_type": "FM"
+            }
+        }, 
+        "NI7845RReadFifo": {
+            "class": "NI7845RReadFifo", 
+            "settings": {
+                "SamplePeriodsAcq": 200, 
+                "ElementsToWrite": 500, 
+                "Acquire": false, 
+                "PI_on": false, 
+                "fifo_size": 4096
+            }
+        }, 
+        "DummyInstrument": {
+            "class": "DummyInstrument", 
+            "settings": {
+                "test1": 0, 
+                "test2": {
+                    "test2_1": "string", 
+                    "test2_2": 0.0
+                }, 
+                "output probe2": 0
+            }
+        }, 
+        "CryoStation": {
+            "class": "CryoStation", 
+            "settings": {
+                "path": "C:/Cryostation/Temperature Data/"
+            }
+        }, 
+        "Attocube": {
+            "class": "Attocube", 
+            "settings": {
+                "y": {
+                    "on": false, 
+                    "freq": 1000, 
+                    "pos": 0, 
+                    "voltage": 30
+                }, 
+                "x": {
+                    "on": false, 
+                    "freq": 1000, 
+                    "pos": 0.0, 
+                    "voltage": 30
+                }, 
+                "z": {
+                    "on": false, 
+                    "freq": 1000, 
+                    "pos": 0, 
+                    "voltage": 30
+                }
+            }
+        }, 
+        "MaestroBeamBlock": {
+            "class": "MaestroBeamBlock", 
+            "settings": {
+                "settle_time": 0.2, 
+                "position_open": 7600, 
+                "position_closed": 3800, 
+                "open": true, 
+                "channel": 0
+            }
+        }
+    }
+}
