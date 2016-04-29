@@ -103,13 +103,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.fill_tree(self.tree_scripts, self.scripts)
         self.tree_scripts.setColumnWidth(0, 300)
 
-
-
         # self.fill_tree(self.tree_monitor, self.probes)
         self.tree_monitor.setColumnWidth(0, 300)
         self.tree_monitor.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         # self.tree_monitor.setDisabled(True)
-
 
         self.current_script = None
         self.probe_to_plot = None
@@ -303,6 +300,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # get filename
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file', 'Z:\\Lab\\Cantilever\\Measurements')
             self.load_settings(fname)
+
         elif (sender is self.btn_load_instruments) or (sender is self.btn_load_scripts):
 
             if sender is self.btn_load_instruments:
@@ -336,17 +334,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     # delete instances of new instruments/scripts that have been deselected
                     for name in removed_scripts:
                         del self.scripts[name]
-
-
             # refresh trees
-            self.tree_scripts.itemChanged.disconnect()
-            self.fill_tree(self.tree_scripts, self.scripts)
-            self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
-
-            # refresh tree
-            self.tree_settings.itemChanged.disconnect()
-            self.fill_tree(self.tree_settings, self.instruments)
-            self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
+            self.refresh_tree(self.tree_scripts, self.scripts)
+            self.refresh_tree(self.tree_settings, self.instruments)
 
     def load_settings(self, in_file_name):
         """
@@ -370,7 +360,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         scripts = in_data['scripts']
         probes = in_data['probes']
 
-        return instruments, scripts, probes
+        print('============ loading instruments ================')
+        self.instruments, failed = Instrument.load_and_append(instruments)
+        if failed != []:
+            print('WARNING! Following instruments could not be loaded: ', failed)
+        print('============ loading scripts ================')
+        self.scripts, failed, self.instruments = Script.load_and_append(scripts, instruments=self.instruments,
+                                                              log_function=lambda x: self.log(x, target='script'))
+        if failed != []:
+            print('WARNING! Following scripts could not be loaded: ', failed)
+        print('============ loading probes not implmented ================')
+        # probes = instantiate_probes(probes, instruments)
+
+        # refresh trees
+        self.refresh_tree(self.tree_scripts, self.scripts)
+        self.refresh_tree(self.tree_settings, self.instruments)
 
     def save_settings(self, out_file_name):
         """
@@ -566,5 +570,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 B26QTreeItem(tree, key, value, type(value), '')
 
+    def refresh_tree(self, tree, items):
+        """
+        refresh trees with current settings
+        Args:
+            tree:
 
+        Returns:
 
+        """
+        # refresh trees
+        tree.itemChanged.disconnect()
+        self.fill_tree(tree, items)
+        tree.itemChanged.connect(lambda: self.update_parameters(tree))
