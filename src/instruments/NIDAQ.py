@@ -53,7 +53,7 @@ class DAQ(Instrument):
         Parameter('override_buffer_size', -1, int, 'Buffer size for manual override (unused if -1)'),
         Parameter('analog_output',
                   [
-                      Parameter('AO0',
+                      Parameter('ao0',
                         [
                           Parameter('channel', 0, [0, 1, 2, 3], 'output channel(s)'),
                           Parameter('sample_rate', 1000, float, 'output sample rate'),
@@ -61,7 +61,7 @@ class DAQ(Instrument):
                           Parameter('max_voltage', 10, float, 'maximum output voltage')
                         ]
                                 ),
-                      Parameter('AO1',
+                      Parameter('ao1',
                                 [
                                     Parameter('channel', 1, [0, 1, 2, 3], 'output channel(s)'),
                                     Parameter('sample_rate', 1000, float, 'output sample rate'),
@@ -69,7 +69,7 @@ class DAQ(Instrument):
                                     Parameter('max_voltage', 10, float, 'maximum output voltage')
                                 ]
                                 ),
-                      Parameter('AO2',
+                      Parameter('ao2',
                                 [
                                     Parameter('channel', 2, [0, 1, 2, 3], 'output channel(s)'),
                                     Parameter('sample_rate', 1000, float, 'output sample rate'),
@@ -77,7 +77,7 @@ class DAQ(Instrument):
                                     Parameter('max_voltage', 10, float, 'maximum output voltage')
                                 ]
                                 ),
-                      Parameter('AO3',
+                      Parameter('ao3',
                                 [
                                     Parameter('channel', 3, [0, 1, 2, 3], 'output channel(s)'),
                                     Parameter('sample_rate', 1000, float, 'output sample rate'),
@@ -89,7 +89,7 @@ class DAQ(Instrument):
                   ),
         Parameter('analog_input',
                   [
-                      Parameter('AI0',
+                      Parameter('ai0',
                                 [
                                     Parameter('channel', 0, range(0, 32), 'input channel(s)'),
                                     Parameter('sample_rate', 1000, float, 'input sample rate'),
@@ -97,7 +97,7 @@ class DAQ(Instrument):
                                     Parameter('max_voltage', 10, float, 'maximum input voltage')
                                 ]
                                 ),
-                      Parameter('AI1',
+                      Parameter('ai1',
                                 [
                                     Parameter('channel', 1, range(0, 32), 'input channel(s)'),
                                     Parameter('sample_rate', 1000, float, 'input sample rate'),
@@ -105,7 +105,7 @@ class DAQ(Instrument):
                                     Parameter('max_voltage', 10, float, 'maximum input voltage')
                                 ]
                                 ),
-                      Parameter('AI2',
+                      Parameter('ai2',
                                 [
                                     Parameter('channel', 2, range(0, 32), 'input channel(s)'),
                                     Parameter('sample_rate', 1000, float, 'input sample rate'),
@@ -113,7 +113,7 @@ class DAQ(Instrument):
                                     Parameter('max_voltage', 10, float, 'maximum input voltage')
                                 ]
                                 ),
-                      Parameter('AI3',
+                      Parameter('ai3',
                                 [
                                     Parameter('channel', 3, range(0, 32), 'input channel(s)'),
                                     Parameter('sample_rate', 1000, float, 'input sample rate'),
@@ -121,7 +121,7 @@ class DAQ(Instrument):
                                     Parameter('max_voltage', 10, float, 'maximum input voltage')
                                 ]
                                 ),
-                      Parameter('AI4',
+                      Parameter('ai4',
                                 [
                                     Parameter('channel', 4, range(0, 32), 'input channel(s)'),
                                     Parameter('sample_rate', 1000, float, 'input sample rate'),
@@ -182,32 +182,34 @@ class DAQ(Instrument):
         except RuntimeError:
             return False
 
-    def DI_init(self, channel, sampleNum, continuous_acquisition = False):
+    def DI_init(self, channel, sampleNum, continuous_acquisition = False, sample_rate_multiplier = 1):
         if not channel in self.settings['digital_input'].keys():
             raise KeyError('This is not a valid digital input channel')
         channel_settings = self.settings['digital_input'][channel]
         self.running = True
         self.DI_sampleNum = sampleNum
+        self.DI_sample_rate = float(channel_settings['sample_rate'])*sample_rate_multiplier
         if continuous_acquisition == False:
             self.numSampsPerChan = self.DI_sampleNum
         elif continuous_acquisition == True:
             self.numSampsPerChan = -1
-        self.DI_timeout = float64(5 * (1 / self.settings['digital_input'][channel]) * self.DI_sampleNum)
-        counter_out_PFI_str = self.settings['device'] + '/PFI' + str(channel_settings['clock_PFI_channel'])
-        counter_out_str = self.settings['device'] + '/ctr' + str(channel_settings['clock_counter_channel'])
+        self.DI_timeout = float64(5 * (1 / self.DI_sample_rate) * self.DI_sampleNum)
+        self.input_channel_str = self.settings['device'] + '/' + channel
+        self.counter_out_PFI_str = '/' + self.settings['device'] + '/PFI' + str(channel_settings['clock_PFI_channel']) #initial / required only here, see NIDAQ documentation
+        self.counter_out_str = self.settings['device'] + '/ctr' + str(channel_settings['clock_counter_channel'])
         self.DI_taskHandleCtr = TaskHandle(0)
         self.DI_taskHandleClk = TaskHandle(1)
         # set up clock
-        self._dig_pulse_train_cont(channel_settings['sample_rate'], 0.5, self.DI_sampleNum)
+        self._dig_pulse_train_cont(self.DI_sample_rate, 0.5, self.DI_sampleNum)
         self.CHK(self.nidaq.DAQmxStartTask(self.DI_taskHandleClk))
         # set up counter using clock as reference
-        self.CHK(self.nidaq.DAQmxCreateTask("", ctypes.byref(self.taskHandleCtr)))
-        self.CHK(self.nidaq.DAQmxCreateCICountEdgesChan(self.taskHandleCtr,
-                      self.device, "", DAQmx_Val_Rising, 0, DAQmx_Val_CountUp))
+        self.CHK(self.nidaq.DAQmxCreateTask("", ctypes.byref(self.DI_taskHandleCtr)))
+        self.CHK(self.nidaq.DAQmxCreateCICountEdgesChan(self.DI_taskHandleCtr,
+                            self.input_channel_str, "", DAQmx_Val_Rising, 0, DAQmx_Val_CountUp))
         # PFI13 is standard output channel for ctr1 channel used for clock and
         # is internally looped back to ctr1 input to be read
-        self.CHK(self.nidaq.DAQmxCfgSampClkTiming(self.DI_taskHandleCtr, counter_out_PFI_str,
-                                             float64(channel_settings['sample_rate']), DAQmx_Val_Rising,
+        self.CHK(self.nidaq.DAQmxCfgSampClkTiming(self.DI_taskHandleCtr, self.counter_out_PFI_str,
+                                             float64(self.DI_sample_rate), DAQmx_Val_Rising,
                                              DAQmx_Val_ContSamps, uInt64(self.DI_sampleNum)))
         if (self.settings['override_buffer_size'] > 0):
             self.CHK(self.nidaq.DAQmxCfgInputBuffer(self.DI_taskHandleCtr, self.settings['override_buffer_size']))
@@ -216,16 +218,16 @@ class DAQ(Instrument):
     def _dig_pulse_train_cont(self, Freq, DutyCycle, Samps):
         self.CHK(self.nidaq.DAQmxCreateTask("", ctypes.byref(self.DI_taskHandleClk)))
         self.CHK(self.nidaq.DAQmxCreateCOPulseChanFreq(self.DI_taskHandleClk,
-                                                       self.counter_out, '', DAQmx_Val_Hz, DAQmx_Val_Low,
+                                                       self.counter_out_str, '', DAQmx_Val_Hz, DAQmx_Val_Low,
                                                        float64(0.0),
                                                        float64(Freq), float64(DutyCycle)))
-        self.CHK(self.nidaq.DAQmxCfgImplicitTiming(self.taskHandleClk,
+        self.CHK(self.nidaq.DAQmxCfgImplicitTiming(self.DI_taskHandleClk,
                                                    DAQmx_Val_ContSamps, uInt64(Samps)))
 
     # start reading sampleNum values from counter into buffer
     # todo: AK - should this be threaded? original todo: is this actually blocking? Is the threading actually doing anything? see nidaq cookbook
     def DI_run(self):
-        self.CHK(self.nidaq.DAQmxStartTask(self.taskHandleCtr))
+        self.CHK(self.nidaq.DAQmxStartTask(self.DI_taskHandleCtr))
 
     # read sampleNum previously generated values from a buffer, and return the
     # corresponding 1D array of ctypes.c_double values
@@ -254,14 +256,19 @@ class DAQ(Instrument):
         self.nidaq.DAQmxStopTask(self.DI_taskHandleCtr)
         self.nidaq.DAQmxClearTask(self.DI_taskHandleCtr)
 
-    def AO_init(self, channels, waveform):
+    def AO_init(self, channels, waveform, sample_rate_multiplier = 1):
         for c in channels:
             if not c in self.settings['analog_output'].keys():
                 raise KeyError('This is not a valid analog output channel')
-        sample_rate = self.settings['analog_output'][channels[0]]['sample_rate']
+        self.AO_sample_rate = float(self.settings['analog_output'][channels[0]]['sample_rate']) #float prevents truncation in division
         for c in channels:
-            if not self.settings['analog_output'][c]['sample_rate'] == sample_rate:
+            if not self.settings['analog_output'][c]['sample_rate'] == self.AO_sample_rate:
                 raise ValueError('All sample rates must be the same')
+        self.AO_sample_rate = self.AO_sample_rate * sample_rate_multiplier #float prevents truncation in division
+        channel_list = ''
+        for c in channels:
+            channel_list += self.settings['device'] + '/' + c + ','
+        channel_list = channel_list[:-1]
         self.running = True
         #todo: probably all 1D conversion code bugged, need to test
         # special case 1D waveform since length(waveform[0]) is undefined
@@ -287,19 +294,19 @@ class DAQ(Instrument):
         self.CHK(self.nidaq.DAQmxCreateTask("",
                                        ctypes.byref(self.AO_taskHandle)))
         self.CHK(self.nidaq.DAQmxCreateAOVoltageChan(self.AO_taskHandle,
-                                                self.settings['device'],
+                                                channel_list,
                                                 "",
                                                 float64(-10.0),
                                                 float64(10.0),
                                                 DAQmx_Val_Volts,
                                                 None))
-        self.CHK(self.nidaq.DAQmxCfgSampClkTiming(self.taskHandle,
+        self.CHK(self.nidaq.DAQmxCfgSampClkTiming(self.AO_taskHandle,
                                              "",
-                                             float64(self.sampleRate),
+                                             float64(self.AO_sample_rate),
                                              DAQmx_Val_Rising,
                                              DAQmx_Val_FiniteSamps,
                                              uInt64(self.periodLength)))
-        self.CHK(self.nidaq.DAQmxWriteAnalogF64(self.taskHandle,
+        self.CHK(self.nidaq.DAQmxWriteAnalogF64(self.AO_taskHandle,
                                            int32(self.periodLength),
                                            0,
                                            float64(-1),
@@ -311,12 +318,12 @@ class DAQ(Instrument):
     # begin outputting waveforms
     # todo: AK - does this actually need to be threaded like in example code? Is it blocking?
     def AO_run(self):
-        self.CHK(self.nidaq.DAQmxStartTask(self.taskHandle))
+        self.CHK(self.nidaq.DAQmxStartTask(self.AO_taskHandle))
 
     # wait until waveform output has finished
     def AO_waitToFinish(self):
         self.CHK(self.nidaq.DAQmxWaitUntilTaskDone(self.AO_taskHandle,
-                                                   float64(self.periodLength / self.sampleRate * 2)))
+                                                   float64(self.periodLength / self.AO_sample_rate * 2)))
     # stop output and clean up
     def AO_stop(self):
         self.running = False
@@ -348,14 +355,14 @@ class DAQ(Instrument):
                                              uInt64(self.AI_numSamples)))
 
     def AI_run(self):
-        self.CHK(self.nidaq.DAQmxStartTask(self.taskHandle))
+        self.CHK(self.nidaq.DAQmxStartTask(self.AI_taskHandle))
 
     def AI_read(self):
         read = int32()
         self.CHK(self.nidaq.DAQmxReadAnalogF64(self.AI_taskHandle, self.AI_numSamples, float64(10.0),
                                           DAQmx_Val_GroupByChannel, self.data.ctypes.data,
                                           self.AI_numSamples, ctypes.byref(read), None))
-        if self.taskHandle.value != 0:
+        if self.AI_taskHandle.value != 0:
             self.nidaq.DAQmxStopTask(self.AI_taskHandle)
             self.nidaq.DAQmxClearTask(self.AI_taskHandle)
         return self.data
@@ -376,5 +383,9 @@ class DAQ(Instrument):
             raise RuntimeError('nidaq generated warning %d: %s'%(err,repr(buf.value)))
 
 if __name__ == '__main__':
-    a = DAQ()
-    print(a.settings['digital_input'].keys())
+
+    from src.core import Instrument
+
+    instr, failed = Instrument.load_and_append({'galvo':'DAQ'})
+    print(instr)
+    print(failed)

@@ -13,11 +13,12 @@ app = QtGui.QApplication(sys.argv)
 # =========== for right PC =================================
 instruments = {
     # 'inst_dummy': 'DummyInstrument',
-    'zihf2':'ZIHF2',
-    'pressure gauge': 'PressureGauge',
+    # 'zihf2':'ZIHF2',
+    # 'pressure gauge': 'PressureGauge',
     'cryo station': 'CryoStation',
     'spectrum analyzer': 'SpectrumAnalyzer',
     'microwave generator': 'MicrowaveGenerator'
+    #'daq': 'NIDAQ'
 }
 
 scripts= {
@@ -39,6 +40,15 @@ scripts= {
         }
     },
 
+    # 'galvo scan': {
+    #     'script_class' : 'GalvoScan',
+    #     'instruments' : {
+    #         'NIDAQ' : 'daq',
+    #         'spectrum_analyzer' : 'spectrum analyzer',
+    #         'microwave_generator': 'microwave generator'
+    #     }
+    # },
+
 
 
     # 'u-wave spectra vs power': {
@@ -50,20 +60,20 @@ scripts= {
     #     }
     # },
 
-    'ZI sweep' : {
-        'script_class': 'ZISweeper',
-        'instruments': {'zihf2': 'zihf2'}
-    },
-
-    'High res scan' : {
-        'script_class': 'ZISweeperHighResolution',
-        'scripts': {
-            'zi sweep' : {
-                'script_class': 'ZISweeper',
-                'instruments': {'zihf2': 'zihf2'}
-            }
-        }
-    }
+    # 'ZI sweep' : {
+    #     'script_class': 'ZISweeper',
+    #     'instruments': {'zihf2': 'zihf2'}
+    # },
+    #
+    # 'High res scan' : {
+    #     'script_class': 'ZISweeperHighResolution',
+    #     'scripts': {
+    #         'zi sweep' : {
+    #             'script_class': 'ZISweeper',
+    #             'instruments': {'zihf2': 'zihf2'}
+    #         }
+    #     }
+    # }
 
 }
 
@@ -72,11 +82,11 @@ scripts= {
 probes = {
     # 'random': {'probe_name': 'value1', 'instrument_name': 'inst_dummy'},
     # 'value2': {'probe_name': 'value2', 'instrument_name': 'inst_dummy'},
-    'ZI (R)': {'probe_name': 'R', 'instrument_name': 'zihf2'},
-    'ZI (X)': {'probe_name': 'X', 'instrument_name': 'zihf2'},
-    'T (platform)': {'probe_name': 'platform_temp', 'instrument_name': 'cryo station'},
-    'T (stage 1)': {'probe_name': 'stage_1_temp', 'instrument_name': 'cryo station'},
-    'T (stage 2)': {'probe_name': 'stage_2_temp', 'instrument_name': 'cryo station'}
+    # 'ZI (R)': {'probe_name': 'R', 'instrument_name': 'zihf2'},
+    # 'ZI (X)': {'probe_name': 'X', 'instrument_name': 'zihf2'},
+    # 'T (platform)': {'probe_name': 'platform_temp', 'instrument_name': 'cryo station'},
+    # 'T (stage 1)': {'probe_name': 'stage_1_temp', 'instrument_name': 'cryo station'},
+    # 'T (stage 2)': {'probe_name': 'stage_2_temp', 'instrument_name': 'cryo station'}
     # 'Chamber Pressure' : { 'probe_name': 'pressure', 'instrument_name': 'pressure gauge'}
           }
 

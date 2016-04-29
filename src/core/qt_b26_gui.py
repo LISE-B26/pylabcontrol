@@ -20,7 +20,7 @@ from collections import deque
 
 from src.core import instantiate_probes, instantiate_scripts, instantiate_instruments
 
-from src.scripts import ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan
+from src.scripts import ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower
 from src.core.plotting import plot_psd
 
 from src.core.read_write_functions import load_b26_file
@@ -258,6 +258,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 script.start()
             else:
                 self.log('No script selected. Select script and try again!')
+        elif sender is self.btn_stop_script:
+            if ((not self.current_script is None) and (self.current_script.isRunning())):
+                print('here')
+                self.current_script.stop()
+            else:
+                self.log('There is no currently running script. Stop failed!')
         elif sender is self.btn_plot_script:
             item = self.tree_scripts.currentItem()
 
@@ -500,10 +506,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             pass
         script = self.current_script
 
-        if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan)):
-            if script.data:
-                script.plot(self.matplotlibwidget.axes)
-                self.matplotlibwidget.draw()
+        # if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower)):
+        #     if script.data:
+        #         script.plot(self.matplotlibwidget.axes)
+        #         self.matplotlibwidget.draw()
 
     def update_probes(self, progress):
         """

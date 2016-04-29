@@ -111,7 +111,6 @@ def run_esr(rf_power,freq_values,(nv_x,nv_y) = (None,None), num_avg = 1, int_tim
 
 
 
-
         esr_avg = np.mean(esr_data[0:(scan_num + 1)], axis=0)
         fit_params,_ = fit_esr(freq_values, esr_avg)
 

@@ -4,6 +4,7 @@ from src.instruments import SpectrumAnalyzer, MicrowaveGenerator, CryoStation
 from collections import deque
 import time
 import numpy as np
+from copy import deepcopy
 
 class MWSpectraVsPower(Script, QThread):
 
@@ -64,9 +65,9 @@ class MWSpectraVsPower(Script, QThread):
 
         power_values = [float(power) for power in np.arange(self.settings['uwave_power_min'], self.settings['uwave_power_max'], self.settings['uwave_power_step'])]
 
-        stage_1_temp = []
-        stage_2_temp = []
-        platform_temp = []
+        # stage_1_temp = []
+        # stage_2_temp = []
+        # platform_temp = []
         times = []
         spectrum = []
         uwave_power = []
@@ -79,23 +80,21 @@ class MWSpectraVsPower(Script, QThread):
 
             uwave_power.append(power)
             times.append(time.strftime('%Y_%m_%d_%H_%M_%S'))
-            stage_1_temp.append(self.instruments['cryo_station'].platform_temp)
-            stage_2_temp.append(self.instruments['cryo_station'].stage_1_temp)
-            platform_temp.append(self.instruments['cryo_station'].stage_2_temp)
+            # stage_1_temp.append(self.instruments['cryo_station'].platform_temp)
+            # stage_2_temp.append(self.instruments['cryo_station'].stage_1_temp)
+            # platform_temp.append(self.instruments['cryo_station'].stage_2_temp)
 
             trace = self.instruments['spectrum_analyzer'].trace
-            freq = [item[0] for item in trace]
-            trans = [item[1] for item in trace]
-
-            spectrum.append(trans)
+            print(trace)
+            spectrum.append(deepcopy(trace['amplitudes']))
 
             data = {
-                'stage_1_temp' : stage_1_temp,
-                'stage_2_temp' : stage_2_temp,
-                'platform_temp' : platform_temp,
+                # 'stage_1_temp' : stage_1_temp,
+                # 'stage_2_temp' : stage_2_temp,
+                # 'platform_temp' : platform_temp,
                 'times' : times,
                 'spectrum' : spectrum,
-                'frequency' : freq,
+                'frequency' : trace['frequencies'],
                 'uwave_power' : uwave_power
             }
 
@@ -108,16 +107,15 @@ class MWSpectraVsPower(Script, QThread):
             self.log('current u-wave power : {:0.2f} dBm'.format(power))
 
             self.updateProgress.emit(progress)
-        self.save(save_data=False, save_instrumets=False, save_log=True, save_settings=False)
 
         self.instruments['microwave_generator'].AMPR = -60
 
         self.instruments['microwave_generator'].update({'enable_output': False})
 
+        self.settings_for_save.update({'save_data':False, 'save_instrumets':False, 'save_log':True, 'save_settings':False})
         self.updateProgress.emit(100)
     def plot(self, axes):
+        spectrum = self.data['spectrum']
+        freq = self.data['frequency']
 
-        spectrum = self.data[-1]['spectrum']
-        freq = self.data[-1]['frequency']
-
-        axes.plot(freq, spectrum)
+        #axes.plot(freq, spectrum)

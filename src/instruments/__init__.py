@@ -9,7 +9,7 @@ except:
     print("./src/instrument/__init__ warning! SpectrumAnalyzer did not load")
 
 try:
-    from instruments_DAQ import DAQ
+    from NIDAQ import DAQ
 except:
     print("./src/instrument/__init__ warning! DAQ did not load")
 

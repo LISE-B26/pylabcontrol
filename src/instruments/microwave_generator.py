@@ -39,7 +39,7 @@ class MicrowaveGenerator(Instrument):
         super(MicrowaveGenerator, self).update(settings)
         for key, value in settings.iteritems():
             if not (key == 'port' or key == 'GPIB_num'):
-                if type(self.settings.valid_values[key]) == bool: #converts booleans, which are more natural to store for on/off, to
+                if self.settings.valid_values[key] == bool: #converts booleans, which are more natural to store for on/off, to
                     value = int(value)                #the integers used internally in the SRS
                 elif key == 'modulation_type':
                     value = self._mod_type_to_internal(value)
@@ -160,7 +160,7 @@ class MicrowaveGenerator(Instrument):
 
 if __name__ == '__main__':
     a = MicrowaveGenerator()
-    print(a.FREQ)
+    a.update({'frequency': 3e9})
 
     # Parameter('ENBR', False, bool, 'Type-N output enabled'),
     # Parameter('FREQ', 3e9, float, 'frequency in Hz, or with label in other units ex 300 MHz'),

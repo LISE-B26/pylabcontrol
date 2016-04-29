@@ -154,7 +154,9 @@ class SpectrumAnalyzer(Instrument):
         num_points = len(amplitudes)
         frequencies = np.linspace(start=self.start_frequency, stop=self.stop_frequency,
                                   num=num_points).tolist()
-        return [(frequencies[i], amplitudes[i])for i in range(num_points)]
+        # return [(frequencies[i], amplitudes[i])for i in range(num_points)]
+
+        return {'frequencies':frequencies, 'amplitudes':amplitudes}
 
     def _get_bandwidth(self):
         return float(self.spec_anal.query('BANDWIDTH?'))

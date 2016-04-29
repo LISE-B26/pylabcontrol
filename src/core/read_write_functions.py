@@ -88,5 +88,5 @@ def export_default_scripts(filename):
                 print('failed to create scripts file for: {:s}'.format(obj.__name__))
 
 if __name__ == '__main__':
-    export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments.b26')
-    export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts.b26')
+    export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments-2.b26')
+    export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts-2.b26')
