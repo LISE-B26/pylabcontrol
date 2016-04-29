@@ -97,13 +97,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.list_scripts.show()
 
         # fill the trees
-        self.tree_instruments_model = QtGui.QStandardItemModel()
-        self.tree_instruments.setModel(self.tree_instruments_model)
-        self.fill_tree_2(self.tree_instruments, self.instruments)
-        self.tree_instruments_model.setHorizontalHeaderLabels(['Instrument', 'Value'])
-        self.tree_instruments.setColumnWidth(0, 300)
-
-
         self.fill_tree(self.tree_settings, self.instruments)
         self.tree_settings.setColumnWidth(0, 300)
 
@@ -245,7 +238,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     def update_script_from_tree(self, script):
-        print('update script', script)
         for index in range(self.tree_scripts.topLevelItemCount()):
             topLvlItem = self.tree_scripts.topLevelItem(index)
             if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
@@ -260,16 +252,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     del dictator[instrument]
 
                 for sub_script in script.scripts.keys():
-                    print('LLscript.scripts', script.scripts)
-                    print('LL ', dictator[sub_script])
-                    # update instrument
+                    # update script
                     script.scripts[sub_script].update(dictator[sub_script])
                     # remove script
                     del dictator[sub_script]
 
-                print('FFFF dict', dictator)
                 script.update(dictator)
-
 
 
 
@@ -292,8 +280,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 script.updateProgress.connect(self.update_status)
                 self.current_script = script
                 script.start()
-
-
             else:
                 self.log('No script selected. Select script and try again!')
         elif sender is self.btn_plot_script:
@@ -320,7 +306,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # get filename
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file', 'Z:\\Lab\\Cantilever\\Measurements')
             self.load_settings(fname)
-
         elif (sender is self.btn_load_instruments) or (sender is self.btn_load_scripts):
 
             if sender is self.btn_load_instruments:
@@ -356,15 +341,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         del self.scripts[name]
 
 
-        # refresh trees
-        self.tree_scripts.itemChanged.disconnect()
-        self.fill_tree(self.tree_scripts, self.scripts)
-        self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+            # refresh trees
+            self.tree_scripts.itemChanged.disconnect()
+            self.fill_tree(self.tree_scripts, self.scripts)
+            self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
 
-        # refresh tree
-        self.tree_settings.itemChanged.disconnect()
-        self.fill_tree(self.tree_settings, self.instruments)
-        self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
+            # refresh tree
+            self.tree_settings.itemChanged.disconnect()
+            self.fill_tree(self.tree_settings, self.instruments)
+            self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
 
 
     def load_settings(self, in_file_name):
@@ -552,47 +537,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 outfile = open(file_name, 'a')
             outfile.write("{:s}\n".format(",".join(map(str, new_values.values()))))
-
-    def fill_tree_2(self, tree, input_dict):
-        """
-        fills a tree with nested parameters
-        Args:
-            tree: QtGui.QTreeWidget
-            parameters: dictionary or Parameter object
-
-        Returns:
-
-        """
-
-        def add_elemet(item, key, value):
-            child_name = QtGui.QStandardItem(key)
-            child_name.setDragEnabled(False)
-            child_name.setSelectable(False)
-            child_name.setEditable(False)
-
-            if isinstance(value, dict):
-                for ket_child, value_child in value.iteritems():
-                    add_elemet(child_name, ket_child, value_child)
-                item.appendRow(child_name)
-            else:
-                child_value = QtGui.QStandardItem(unicode(value))
-                child_value.setDragEnabled(False)
-                child_value.setSelectable(False)
-                child_value.setEditable(False)
-
-                item.appendRow([child_name, child_value])
-
-        for index, (name, value) in enumerate(input_dict.iteritems()):
-            item = QtGui.QStandardItem(name)
-
-            if isinstance(value, Instrument):
-                for sub_key, sub_value in value.settings.iteritems():
-                    add_elemet(item, sub_key, sub_value)
-
-                tree.model().appendRow(item)
-                # if tree == self.tree_loaded:
-                #     item.setEditable(False)
-                tree.setFirstColumnSpanned(index, tree.rootIndex(), True)
 
     def fill_tree(self, tree, parameters):
         """

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Tue Apr 26 17:46:30 2016
+# Created: Fri Apr 29 12:09:26 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -161,9 +161,6 @@ class Ui_MainWindow(object):
         self.btn_load_gui = QtGui.QPushButton(self.centralwidget)
         self.btn_load_gui.setGeometry(QtCore.QRect(940, 580, 75, 23))
         self.btn_load_gui.setObjectName(_fromUtf8("btn_load_gui"))
-        self.tree_instruments = QtGui.QTreeView(self.centralwidget)
-        self.tree_instruments.setGeometry(QtCore.QRect(410, 10, 256, 192))
-        self.tree_instruments.setObjectName(_fromUtf8("tree_instruments"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1144, 21))

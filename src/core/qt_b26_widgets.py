@@ -68,8 +68,28 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
         elif isinstance(self.value, Instrument):
 
-            for key, value in self.value.settings.iteritems():
-                B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
+            index_top_level_item = self.treeWidget().indexOfTopLevelItem(self)
+            top_level_item = self.treeWidget().topLevelItem(index_top_level_item)
+            if top_level_item == self:
+                # instrument is on top level, thus we are in the instrument tab
+                for key, value in self.value.settings.iteritems():
+                    # B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
+                    B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
+            else:
+
+                # B26QTreeItem(self, 'instance', self.value.name, [self.value.name], 'instrument '.format(self.value.name), visible=self.visible)
+                self.valid_values = [self.value.name]
+                self.value = self.value.name
+                self.combobox = QtGui.QComboBox()
+                for item in self.valid_values:
+                    self.combobox.addItem(unicode(item))
+                self.combobox.setCurrentIndex(self.combobox.findText(unicode(self.value)))
+                self.treeWidget().setItemWidget(self, 1, self.combobox)
+                self.combobox.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combobox))
+                # todo: change so that all the instruments of the same type can be selected in the gui
+                # B26QTreeItem(self, 'instance', self.value.name, self.value, 'instrument '.format(self.value.name),
+                #      visible=self.visible)
+
 
         elif isinstance(self.value, Script):
 
