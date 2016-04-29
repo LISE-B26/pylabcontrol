@@ -362,6 +362,8 @@ class Script(object):
             }})
 
         dictator[self.name]['settings'] = self.settings
+
+        print('GGG', dictator)
         return dictator
 
     @staticmethod

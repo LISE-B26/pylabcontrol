@@ -236,7 +236,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.history.append(msg)
         self.history_model.insertRow(0,QtGui.QStandardItem(msg))
 
-
     def update_script_from_tree(self, script):
         for index in range(self.tree_scripts.topLevelItemCount()):
             topLvlItem = self.tree_scripts.topLevelItem(index)
@@ -258,8 +257,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     del dictator[sub_script]
 
                 script.update(dictator)
-
-
 
     def btn_clicked(self):
         sender = self.sender()
@@ -351,7 +348,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.fill_tree(self.tree_settings, self.instruments)
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
 
-
     def load_settings(self, in_file_name):
         """
         loads a old_gui settings file (a json dictionary)
@@ -384,6 +380,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
         print('saving', out_file_name)
+
+        # update the internal dictionaries from the trees in the gui
+        for name, script in self.scripts.iteritems():
+            print('updating ', name)
+            self.update_script_from_tree(script)
+        # for index in range(self.tree_scripts.topLevelItemCount()):
+        #     script = self.tree_scripts.topLevelItem(index)
+        #     self.update_script_from_tree(script)
+
+
+
+
 
         out_data = {'instruments':{}, 'scripts':{}, 'probes':{}}
 
