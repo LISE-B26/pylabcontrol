@@ -27,8 +27,6 @@ class MaestroController(Instrument):
     def __init__(self, name = None, settings = None):
 
         self.usb = None
-        super(MaestroController, self).__init__(name, settings)
-
         # Open the command port
         # self.usb = self.serial.Serial(port)
         # Command lead-in and device 12 are sent for each Pololu serial commands.
@@ -40,6 +38,9 @@ class MaestroController(Instrument):
         # Servo minimum and maximum targets can be restricted to protect components.
         self.Mins = [0] * 24
         self.Maxs = [0] * 24
+        super(MaestroController, self).__init__(name, settings)
+
+
 
         self.update(self.settings)
 
@@ -51,7 +52,8 @@ class MaestroController(Instrument):
         for key, value in settings.iteritems():
             if key == 'port':
                 try:
-                    self.usb = self.serial.Serial(value)
+                    if self.usb is None or value != self.usb.port:
+                        self.usb = self.serial.Serial(value)
                 except OSError:
                     print('Couln\'t connect to maestro controler at port {:s}'.format(value))
 
@@ -226,6 +228,72 @@ class MaestroController(Instrument):
         cmd = self.PololuCmd + chr(0x22)
         self.usb.write(cmd)
 
+class MaestroLightControl(MaestroController):
+    """
+maestro light controller
+6-channel maestro micro-controller to control the lights in the cold temperature setup
+    """
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected'),
+        Parameter('block green', [
+            Parameter('channel', 5, int, 'channel to which motor is connected'),
+            Parameter('open', True, bool, 'beam block open or closed'),
+            Parameter('settle_time', 0.2, float, 'settling time'),
+            Parameter('position_open', 4 * 1900, int, 'position corresponding to open'),
+            Parameter('position_closed', 4 * 950, int, 'position corresponding to closed')
+        ]),
+        Parameter('block IR', [
+            Parameter('channel', 4, int, 'channel to which motor is connected'),
+            Parameter('open', True, bool, 'beam block open or closed'),
+            Parameter('settle_time', 0.2, float, 'settling time'),
+            Parameter('position_open', 4 * 1900, int, 'position corresponding to open'),
+            Parameter('position_closed', 4 * 950, int, 'position corresponding to closed')
+        ]),
+        Parameter('white light', [
+            Parameter('channel', 0, int, 'channel to which motor is connected'),
+            Parameter('open', True, bool, 'beam block open or closed'),
+            Parameter('settle_time', 0.2, float, 'settling time'),
+            Parameter('position_open', 4 * 1000, int, 'position corresponding to open'),
+            Parameter('position_closed', 4 * 1800, int, 'position corresponding to closed')
+        ]),
+        Parameter('filter wheel', [
+            Parameter('channel', 1, int, 'channel to which motor is connected'),
+            Parameter('settle_time', 0.8, float, 'settling time'),
+            Parameter('ND2.0', 4 * 2700, int, 'position corresponding to position 1'),
+            Parameter('ND1.0', 4 * 1700, int, 'position corresponding to position 2'),
+            Parameter('Red', 4 * 750, int, 'position corresponding to position 3'),
+            Parameter('current_position', 'ND1.0', ['ND1.0', 'ND2.0', 'Red'],
+                      'current position of filter wheel')
+        ])
+    ])
+
+    _PROBES = {}
+    def __init__(self, name = None, settings = None):
+
+        self.usb = None
+        super(MaestroLightControl, self).__init__(name, settings)
+
+
+    def update(self, settings):
+        # call the update_parameter_list to update the parameter list
+        super(MaestroLightControl, self).update(settings)
+        # now we actually apply these newsettings to the hardware
+        for key, value in settings.iteritems():
+            if key in ['block green', 'block IR', 'white light']:
+                channel = self.settings[key]['channel']
+                position = self.settings[key]['position_open'] if value['open'] else self.settings[key]['position_closed']
+                settle_time = self.settings[key]['settle_time']
+                self.goto(channel, position, settle_time)
+            elif key in ['filter wheel']:
+                channel = self.settings[key]['channel']
+                position = self.settings[key][self.settings[key]['current_position']]
+                settle_time = self.settings[key]['settle_time']
+                self.goto(channel, position, settle_time)
+    def goto(self, channel, position, settle_time):
+        self.set_target(channel, position)
+        sleep(settle_time)
+        self.disable(channel)  # diconnect to avoid piezo from going crazy
+
 
 class MaestroBeamBlock(Instrument):
     """
@@ -375,43 +443,12 @@ class MaestroFilterWheel(Instrument):
         self.maestro.disable(self.settings['channel'])  # diconnect to avoid piezo from going crazy
 
 
-class MaestroLightControl(MaestroController):
-
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected'),
-        Parameter('block green', [
-            Parameter('channel', 0, int, 'channel to which motor is connected'),
-            Parameter('open', True, bool, 'beam block open or closed'),
-            Parameter('settle_time', 0.2, float, 'settling time'),
-            Parameter('position_open', 4 * 1900, int, 'position corresponding to open'),
-            Parameter('position_closed', 4 * 950, int, 'position corresponding to closed')
-        ])
-    ])
-
-    _PROBES = {}
-    def __init__(self, name = None, settings = None):
-
-        self.usb = None
-        super(MaestroLightControl, self).__init__(name, settings)
-
-
-    def update(self, settings):
-        # call the update_parameter_list to update the parameter list
-        super(MaestroLightControl, self).update(settings)
-        # now we actually apply these newsettings to the hardware
-        for key, value in settings.iteritems():
-            if key in ['block green']:
-                channel = self.settings[key]['channel']
-                position = self.settings[key]['position_open'] if value['open'] else self.settings[key]['position_closed']
-                settle_time = self.settings[key]['settle_time']
-                self.goto(channel, position, settle_time)
-
-    def goto(self, channel, position, settle_time):
-        self.set_target(channel, position)
-        sleep(settle_time)
-        self.disable(channel)  # diconnect to avoid piezo from going crazy
 
 
 if __name__ == '__main__':
 
     light = MaestroLightControl()
+    # print(light.settings)
+    light.update({'block green':{'open':False}})
+    # light.settings.update({'block green': {'open': True}})
+    # print(light.Mins)

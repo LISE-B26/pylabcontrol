@@ -23,20 +23,20 @@ try:
 except:
     print("./src/instrument/__init__ warning! ZIHF2 did not load")
 
-try:
-    from maestro import MaestroBeamBlock
-except:
-    print("./src/instrument/__init__ warning! MaestroBeamBlock did not load")
-
-try:
-    from maestro import MaestroController
-except:
-    print("./src/instrument/__init__ warning! MaestroController did not load")
-
-try:
-    from maestro import MaestroFilterWheel
-except:
-    print("./src/instrument/__init__ warning! MaestroFilterWheel did not load")
+# try:
+#     from maestro import MaestroBeamBlock
+# except:
+#     print("./src/instrument/__init__ warning! MaestroBeamBlock did not load")
+#
+# try:
+#     from maestro import MaestroController
+# except:
+#     print("./src/instrument/__init__ warning! MaestroController did not load")
+#
+# try:
+#     from maestro import MaestroFilterWheel
+# except:
+#     print("./src/instrument/__init__ warning! MaestroFilterWheel did not load")
 
 try:
     from maestro import MaestroLightControl

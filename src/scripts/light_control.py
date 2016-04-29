@@ -1,5 +1,5 @@
 from src.core import Script, Parameter
-from src.instruments import MaestroFilterWheel, MaestroBeamBlock
+from src.instruments import MaestroLightControl
 
 
 class CameraOn(Script):
@@ -9,10 +9,7 @@ class CameraOn(Script):
     ])
 
     _INSTRUMENTS = {
-        'filter_wheel' : MaestroFilterWheel,
-        'block_ir': MaestroBeamBlock,
-        'block_green': MaestroBeamBlock,
-        'white_light': MaestroBeamBlock
+        'light_control' : MaestroLightControl
     }
     _SCRIPTS = {}
 

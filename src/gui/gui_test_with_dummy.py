@@ -58,7 +58,7 @@ probes = {}
 
 settings_file = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b2XXXX6"
 # settings_file = ""
-from src.scripts import Script
+
 # scripts, loaded_failed, instruments = Script.load_and_append({"script with inst": 'ScriptDummyWithInstrument', "script with suscript": 'ScriptDummyWithSubScript'})
 # scripts, loaded_failed, instruments = Script.load_and_append({"script with inst": 'ScriptDummyWithInstrument'})
 print('Starting GUI')
