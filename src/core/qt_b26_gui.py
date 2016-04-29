@@ -38,7 +38,7 @@ except (ImportError, IOError):
 
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self, *args):
+    def __init__(self, filename = None):
         """
 
         ControlMainWindow(intruments, scripts, probes)
@@ -52,38 +52,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns:
 
         """
-        if len(args) == 0:
-            instruments = {}
-            scripts = {}
-            probes = {}
-        elif len(args) == 1:
-            print('loading from file {:s}'.format(args[0]))
-            instruments, scripts, probes = self.load_settings(args[0])
-            print('============ loading instruments ================')
-            instruments, failed = Instrument.load_and_append(instruments)
-            if failed != []:
-                print('WARNING! Following instruments could not be loaded: ', failed)
-            print('============ loading scripts ================')
-            scripts, failed, instruments = Script.load_and_append(scripts, instruments=instruments,
-                                                                  log_function=lambda x: self.log(x, target='script'))
-            if failed != []:
-                print('WARNING! Following scripts could not be loaded: ', failed)
-            print('============ loading probes not implmented ================')
-            # probes = instantiate_probes(probes, instruments)
-        elif len(args) == 3:
-            instruments, scripts, probes = args
-        else:
-            raise TypeError("called ControlMainWindow with wrong arguments")
-
 
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
 
-        self.instruments = instruments
-        self.scripts = scripts
-        self.probes = probes
-
-        self.read_probes = ReadProbes(self.probes)
         # self.read_probes.updateProgress.connect(self.update_probes)
 
         # define data container
@@ -96,11 +68,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.list_scripts.setModel(self.script_model)
         self.list_scripts.show()
 
+        if filename is not None:
+            self.load_settings(filename)
+        else:
+            self.instruments = {}
+            self.scripts = {}
+            self.probes = {}
+        self.read_probes = ReadProbes(self.probes)
         # fill the trees
-        self.fill_tree(self.tree_settings, self.instruments)
+        # self.fill_tree(self.tree_settings, self.instruments)
         self.tree_settings.setColumnWidth(0, 300)
 
-        self.fill_tree(self.tree_scripts, self.scripts)
+        # self.fill_tree(self.tree_scripts, self.scripts)
         self.tree_scripts.setColumnWidth(0, 300)
 
         # self.fill_tree(self.tree_monitor, self.probes)
@@ -110,6 +89,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.current_script = None
         self.probe_to_plot = None
+
+        self.path_to_scripts = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts.b26"
+        self.path_to_instruments = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments.b26"
 
         def connect_controls():
             # =============================================================
@@ -305,8 +287,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if sender is self.btn_load_instruments:
 
-                dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\")
+                dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments, filename=self.path_to_instruments)
+
                 if dialog.exec_():
+                    self.path_to_instruments = str(dialog.txt_probe_log_path.text())
                     instruments = dialog.getValues()
                     added_instruments = set(instruments.keys())-set(self.instruments.keys())
                     removed_instruments = set(self.instruments.keys()) - set(instruments.keys())
@@ -320,8 +304,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             elif sender is self.btn_load_scripts:
 
-                dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\")
+                dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts, filename=self.path_to_scripts)
                 if dialog.exec_():
+                    self.path_to_scripts = str(dialog.txt_probe_log_path.text())
                     scripts = dialog.getValues()
                     added_scripts = set(scripts.keys())-set(self.scripts.keys())
                     removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
