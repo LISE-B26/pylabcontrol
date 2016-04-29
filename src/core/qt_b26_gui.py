@@ -328,21 +328,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\")
                 if dialog.exec_():
                     instruments = dialog.getValues()
-                    # create instances of new instruments/scripts
-                    new_instruments = {}
-                    for instrument, value in instruments.iteritems():
-                        if not isinstance(value, Instrument):
-                            new_instruments.update({instrument: value})
-                    self.instruments, instruments_failed = Instrument.load_and_append(new_instruments, self.instruments)
+                    added_instruments = set(instruments.keys())-set(self.instruments.keys())
+                    removed_instruments = set(self.instruments.keys()) - set(instruments.keys())
+
+                    # create instances of new instruments
+                    self.instruments, loaded_failed = Instrument.load_and_append(
+                        {name: instruments[name] for name in added_instruments}, self.instruments)
+                    # delete instances of new instruments/scripts that have been deselected
+                    for name in removed_instruments:
+                        del self.instruments[name]
 
             elif sender is self.btn_load_scripts:
-
 
                 dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\")
                 if dialog.exec_():
                     scripts = dialog.getValues()
-                    old_script_names = self.scripts.keys()
-
                     added_scripts = set(scripts.keys())-set(self.scripts.keys())
                     removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
 
