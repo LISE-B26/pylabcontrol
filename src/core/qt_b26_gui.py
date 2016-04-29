@@ -294,10 +294,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     instruments = dialog.getValues()
                     added_instruments = set(instruments.keys())-set(self.instruments.keys())
                     removed_instruments = set(self.instruments.keys()) - set(instruments.keys())
-
+                    print('added_instruments', {name: instruments[name] for name in added_instruments})
+                    print('ffff', self.instruments)
                     # create instances of new instruments
                     self.instruments, loaded_failed = Instrument.load_and_append(
                         {name: instruments[name] for name in added_instruments}, self.instruments)
+                    if loaded_failed != []:
+                        print('WARNING following instrument could not be loaded', loaded_failed)
                     # delete instances of new instruments/scripts that have been deselected
                     for name in removed_instruments:
                         del self.instruments[name]

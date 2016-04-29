@@ -27,8 +27,6 @@ class MaestroController(Instrument):
     def __init__(self, name = None, settings = None):
 
         self.usb = None
-        super(MaestroController, self).__init__(name, settings)
-
         # Open the command port
         # self.usb = self.serial.Serial(port)
         # Command lead-in and device 12 are sent for each Pololu serial commands.
@@ -40,6 +38,9 @@ class MaestroController(Instrument):
         # Servo minimum and maximum targets can be restricted to protect components.
         self.Mins = [0] * 24
         self.Maxs = [0] * 24
+        super(MaestroController, self).__init__(name, settings)
+
+
 
         self.update(self.settings)
 
@@ -51,7 +52,8 @@ class MaestroController(Instrument):
         for key, value in settings.iteritems():
             if key == 'port':
                 try:
-                    self.usb = self.serial.Serial(value)
+                    if self.usb is None or value != self.usb.port:
+                        self.usb = self.serial.Serial(value)
                 except OSError:
                     print('Couln\'t connect to maestro controler at port {:s}'.format(value))
 
@@ -376,11 +378,14 @@ class MaestroFilterWheel(Instrument):
 
 
 class MaestroLightControl(MaestroController):
-
+    """
+maestro light controller
+6-channel maestro micro-controller to control the lights in the cold temperature setup
+    """
     _DEFAULT_SETTINGS = Parameter([
         Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected'),
         Parameter('block green', [
-            Parameter('channel', 0, int, 'channel to which motor is connected'),
+            Parameter('channel', 5, int, 'channel to which motor is connected'),
             Parameter('open', True, bool, 'beam block open or closed'),
             Parameter('settle_time', 0.2, float, 'settling time'),
             Parameter('position_open', 4 * 1900, int, 'position corresponding to open'),
@@ -403,6 +408,7 @@ class MaestroLightControl(MaestroController):
             if key in ['block green']:
                 channel = self.settings[key]['channel']
                 position = self.settings[key]['position_open'] if value['open'] else self.settings[key]['position_closed']
+                print(position/4)
                 settle_time = self.settings[key]['settle_time']
                 self.goto(channel, position, settle_time)
 
@@ -415,3 +421,7 @@ class MaestroLightControl(MaestroController):
 if __name__ == '__main__':
 
     light = MaestroLightControl()
+    # print(light.settings)
+    light.update({'block green':{'open':False}})
+    # light.settings.update({'block green': {'open': True}})
+    # print(light.Mins)

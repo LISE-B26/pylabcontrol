@@ -34,7 +34,6 @@ class Instrument(object):
         # self.update(self._settings)
         if settings is not None:
             self.update(settings)
-
         if name is None:
             name = self.__class__.__name__
 
@@ -248,9 +247,11 @@ class Instrument(object):
                     class_of_instrument = getattr(module, instrument_class_name)
 
                     if instrument_settings is None:
+                        # print('FF -- mss')
                         # this creates an instance of the class with default settings
                         instrument_instance = class_of_instrument(name=instrument_name)
                     else:
+                        # print('FF -- m', class_of_instrument, instrument_name, instrument_settings)
                         # this creates an instance of the class with custom settings
                         instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
 
@@ -278,16 +279,26 @@ if __name__ == '__main__':
     # intrument_filename = 'Z:\\Lab\\Cantilever\\Measurements\\160414_MW_transmission_vs_Power\\160414-18_59_33_test.inst'
     #
 
-    from src.core.read_write_functions import load_b26_file
-    filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
-    data = load_b26_file(filename)
-    inst = {}
-    instruments, instruments_failed = Instrument.load_and_append(data['instruments'], instruments = inst)
-    print('loaded', instruments)
-    print('inst', inst)
-    print('failed', instruments_failed)
-    print('load again')
-    instruments_failed = Instrument.load_and_append(data['instruments'], instruments)
-    print('loaded', instruments)
-    print('failed', instruments_failed)
+# from src.core.read_write_functions import load_b26_file
+# filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
+# data = load_b26_file(filename)
+# inst = {}
+# instruments, instruments_failed = Instrument.load_and_append(data['instruments'], instruments = inst)
+# print('loaded', instruments)
+# print('inst', inst)
+# print('failed', instruments_failed)
+# print('load again')
+# instruments_failed = Instrument.load_and_append(data['instruments'], instruments)
+# print('loaded', instruments)
+# print('failed', instruments_failed)
+#
 
+
+
+    from src.core import Instrument
+
+
+
+    instr, fail = Instrument.load_and_append({'MaestroLightControl': {'class': 'MaestroLightControl', 'settings': {'port': 'COM5', 'block green': {'settle_time': 0.2, 'position_open': 7600, 'position_closed': 3800, 'open': True, 'channel': 0}}}})
+    print(instr)
+    print(fail)

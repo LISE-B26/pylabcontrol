@@ -31,6 +31,19 @@
                 "fifo_size": 4096
             }
         }, 
+        "MaestroLightControl": {
+            "class": "MaestroLightControl", 
+            "settings": {
+                "port": "COM5", 
+                "block green": {
+                    "settle_time": 0.2, 
+                    "position_open": 7600, 
+                    "position_closed": 3800, 
+                    "open": true, 
+                    "channel": 5
+                }
+            }
+        }, 
         "PressureGauge": {
             "class": "PressureGauge", 
             "settings": {
@@ -103,16 +116,6 @@
                     "pos": 0, 
                     "voltage": 30
                 }
-            }
-        }, 
-        "MaestroBeamBlock": {
-            "class": "MaestroBeamBlock", 
-            "settings": {
-                "settle_time": 0.2, 
-                "position_open": 7600, 
-                "position_closed": 3800, 
-                "open": true, 
-                "channel": 0
             }
         }
     }
