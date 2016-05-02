@@ -90,8 +90,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.current_script = None
         self.probe_to_plot = None
 
-        self.path_to_scripts = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\"
-        self.path_to_instruments = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\"
+        self.path_to_scripts = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts\\"
+        self.path_to_instruments = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments\\"
 
         def connect_controls():
             # =============================================================
@@ -456,43 +456,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 new_value = item.value
 
-                # msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value),
-                #                                                             str(new_value),
-                #                                                             script.name)
-
-
 
                 msg = "changed parameter {:s} to {:s} on {:s}".format(item.name,
                                                                                 str(new_value),
                                                                                 script.name)
                 print(msg)
             else:
-
-                # # get old value from script
-                # old_value = script.settings
-                # path_to_script.reverse()
-                # for element in path_to_script:
-                #     old_value = old_value[element]
-
-                # send new value from tree to script -  not needed anymore because we will update this one we actually execute the script
-                # build nested dictionary to update script
-                # dictator = item.value
-                # for element in path_to_script:
-                #     dictator = {element: dictator}
-                # script.update(dictator)
                 new_value = item.value
                 msg = "changed parameter {:s} to {:s} on {:s}".format(item.name,
                                                                             str(new_value),
                                                                             script.name)
-
-                # new_value = item.value
-                # if new_value is not old_value:
-                #     msg = "changed parameter {:s} from {:s} to {:s} on {:s}".format(item.name, str(old_value),
-                #                                                                     str(new_value),
-                #                                                                     script.name)
-                # else:
-                #     msg = "did not change parameter {:s} on {:s}".format(item.name, script.name)
-
             self.log(msg)
 
     def update_status(self, progress):

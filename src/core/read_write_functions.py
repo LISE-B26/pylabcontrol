@@ -62,22 +62,22 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
         with open(filename, 'w') as outfile:
             tmp = json.dump(data_dict, outfile, indent=4)
 
-def export_default_instruments(filename):
+def export_default_instruments(path):
     import src.instruments as instruments
     import inspect
 
     for name, obj in inspect.getmembers(instruments):
-        print('----', name, '------')
         if inspect.isclass(obj):
             try:
-                print(name, obj)
                 instrument = obj()
+
+                filename = '{:s}{:s}.b26'.format(path, name)
                 instrument.save(filename)
             except:
                 print('failed to create instrument file for: {:s}'.format(obj.__name__))
 
 
-def export_default_scripts(filename):
+def export_default_scripts(path):
     import src.scripts as scripts
     import inspect
     from src.core.scripts import Script
@@ -91,6 +91,7 @@ def export_default_scripts(filename):
 
 
     for name, value in loaded_scripts.iteritems():
+        filename = '{:s}{:s}.b26'.format(path, name)
         value.save(filename)
 
     if failed != []:
@@ -98,5 +99,5 @@ def export_default_scripts(filename):
 
 
 if __name__ == '__main__':
-    # export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_and_instruments.b26')
-    export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_and_instruments.b26')
+    export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments\\')
+    export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts\\')

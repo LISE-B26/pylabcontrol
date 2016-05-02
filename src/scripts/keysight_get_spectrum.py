@@ -44,15 +44,7 @@ class KeysightGetSpectrum(Script):
         instrument = self.instruments['spectrum_analyzer']['instance']
         settings = self.instruments['spectrum_analyzer']['settings']
 
-        if settings['output_on']:
-            if settings['mode'] != 'TrackingGenerator':
-                instrument.mode = 'TrackingGenerator'
-            if settings['output_power'] != self.settings['output_power']:
-                instrument.output_power = self.settings['output_power']
-            if settings['output_on'] != self.settings['output_on']:
-                instrument.output_on = self.settings['output_on']
-
-                instrument.update(self.instruments['spectrum_analyzer']['settings'])
+        instrument.update(settings)
 
         trace = instrument.trace
 
