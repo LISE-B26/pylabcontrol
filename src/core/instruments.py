@@ -29,17 +29,15 @@ class Instrument(object):
         # make a deepcopy of the default settings
         # because _DEFAULT_SETTINGS is a class variable and thus shared among the instances
         self._settings = deepcopy(self._DEFAULT_SETTINGS)
-        # todo: check why the following two lines give an error
-        # apply settings to instrument
-        # self.update(self._settings)
-        if settings is not None:
-            self.update(settings)
+
         if name is None:
             name = self.__class__.__name__
 
         self.name = name
 
         self._initialized = True
+
+    # apply settings to instrument should be carried out in derived class
 
     @abstractproperty
     def _DEFAULT_SETTINGS(self):
@@ -257,14 +255,8 @@ class Instrument(object):
 
                 except AttributeError as e:
                     print(e.message)
-                    print('module', module)
-                    print('class_of_instrument', class_of_instrument)
-                    print('instrument_class_name', instrument_class_name)
-                    print('instrument_name', instrument_name)
-                    print('instrument_settings', instrument_settings)
-
                     # catches when we try to create an instrument of a class that doesn't exist!
-                    raise AttributeError
+                    # raise AttributeError
 
                 if instrument_instance is None:
                     loaded_failed.append(instrument_name)

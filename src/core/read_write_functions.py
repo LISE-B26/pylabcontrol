@@ -69,6 +69,7 @@ def export_default_instruments(filename):
     for name, obj in inspect.getmembers(instruments):
         if inspect.isclass(obj):
             try:
+                print(name, obj)
                 instrument = obj()
                 instrument.save(filename)
             except:
@@ -89,4 +90,4 @@ def export_default_scripts(filename):
 
 if __name__ == '__main__':
     export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_and_instruments.b26')
-    export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_and_instruments.b26')
+    # export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_and_instruments.b26')

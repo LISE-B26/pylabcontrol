@@ -186,7 +186,19 @@ class SpectrumAnalyzer(Instrument):
 
 if __name__ == '__main__':
 
-        spec_anal = SpectrumAnalyzer()
+        sett = {
+            "settings": {
+                "output_power": -20.0,
+                "stop_frequency": 3000000000.0,
+                "start_frequency": 0.0,
+                "connection_timeout": 1000,
+                "mode": "SpectrumAnalyzer",
+                "output_on": False,
+                "visa_resource": "USB0::0x0957::0xFFEF::CN0323B356::INSTR"
+            }
+        }
+
+        spec_anal = SpectrumAnalyzer(settings=sett)
         print spec_anal.is_connected()
         print spec_anal.mode
         spec_anal.mode = 'TrackingGenerator'

@@ -90,8 +90,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.current_script = None
         self.probe_to_plot = None
 
-        self.path_to_scripts = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts.b26"
-        self.path_to_instruments = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments.b26"
+        self.path_to_scripts = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\"
+        self.path_to_instruments = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\"
 
         def connect_controls():
             # =============================================================

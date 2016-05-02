@@ -10,7 +10,8 @@ import scipy.optimize as opt
 import time
 import pandas as pd
 from PyQt4 import QtGui
-
+from src.core import Parameter
+from src.instruments import MicrowaveGenerator, DAQ
 
 class StanfordResearch_ESR(Script):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
