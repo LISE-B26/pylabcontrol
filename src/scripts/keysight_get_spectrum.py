@@ -11,11 +11,11 @@ class KeysightGetSpectrum(Script):
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', 'Z:/Lab/Cantilever/Measurements/----data_tmp_default----', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off'),
-        Parameter('start_frequency', 2.7e9, float, 'start frequency of spectrum'),
-        Parameter('stop_frequency', 3e9, float, 'end frequency of spectrum'),
-        Parameter('output_power',0.0, float, 'output power (dBm)'),
-        Parameter('output_on',True, bool, 'enable output'),
+        Parameter('save', True, bool, 'save data on/off')
+        # Parameter('start_frequency', 2.7e9, float, 'start frequency of spectrum'),
+        # Parameter('stop_frequency', 3e9, float, 'end frequency of spectrum'),
+        # Parameter('output_power',0.0, float, 'output power (dBm)'),
+        # Parameter('output_on',True, bool, 'enable output'),
     ])
 
     _INSTRUMENTS = {
@@ -39,26 +39,22 @@ class KeysightGetSpectrum(Script):
         will be overwritten in the __init__
         """
 
-        def setup_instrument():
-            print('self.settings',self.settings)
-            inst = self.instruments['spectrum_analyzer']
-            if inst.settings['start_frequency'] != self.settings['start_frequency']:
-                inst.start_frequency = self.settings['start_frequency']
+        print(self.instruments['spectrum_analyzer'])
 
-            if inst.settings['stop_frequency'] != self.settings['stop_frequency']:
-                inst.stop_frequency = self.settings['stop_frequency']
+        instrument = self.instruments['spectrum_analyzer']['instance']
+        settings = self.instruments['spectrum_analyzer']['settings']
 
-            if self.settings['output_on']:
-                if inst.settings['mode'] != 'TrackingGenerator':
-                    inst.mode = 'TrackingGenerator'
-                if inst.settings['output_power'] != self.settings['output_power']:
-                    inst.output_power = self.settings['output_power']
-                if inst.settings['output_on'] != self.settings['output_on']:
-                    inst.output_on = self.settings['output_on']
+        if settings['output_on']:
+            if settings['mode'] != 'TrackingGenerator':
+                instrument.mode = 'TrackingGenerator'
+            if settings['output_power'] != self.settings['output_power']:
+                instrument.output_power = self.settings['output_power']
+            if settings['output_on'] != self.settings['output_on']:
+                instrument.output_on = self.settings['output_on']
 
-        setup_instrument()
+                instrument.update(self.instruments['spectrum_analyzer']['settings'])
 
-        trace = self.instruments['spectrum_analyzer'].trace
+        trace = instrument.trace
 
         self.data = {
             'spectrum' : [item[1] for item in trace],

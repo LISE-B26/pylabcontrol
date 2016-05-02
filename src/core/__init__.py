@@ -12,7 +12,7 @@ from instruments import Instrument
 from probe import Probe
 from scripts import Script, QThreadWrapper
 from qt_b26_load_dialog import LoadDialog
-from loading import instantiate_probes, instantiate_scripts, instantiate_instruments
+
 from qt_b26_widgets import B26QTreeItem
 try:
     from read_probes import ReadProbes

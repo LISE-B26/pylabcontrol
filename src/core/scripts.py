@@ -2,7 +2,8 @@ import datetime
 import time
 from abc import ABCMeta, abstractmethod, abstractproperty
 from copy import deepcopy
-from src.core import Parameter, Instrument
+from src.core.parameter import Parameter
+from src.core.instruments import Instrument
 from PyQt4 import QtCore
 from collections import deque
 import os
@@ -11,7 +12,7 @@ import glob
 import json as json
 from PySide.QtCore import Signal, QThread
 from src.core.read_write_functions import save_b26_file
-from src.core.loading import instantiate_instruments
+
 class Script(object):
     # __metaclass__ = ABCMeta
 
@@ -363,7 +364,6 @@ class Script(object):
 
         dictator[self.name]['settings'] = self.settings
 
-        print('GGG', dictator)
         return dictator
 
     @staticmethod
@@ -488,8 +488,6 @@ class Script(object):
             script_instruments = None
             script_sub_scripts = None
             script_class_name = None
-
-            print('script_information', script_information,  type(script_information))
 
             if isinstance(script_information, dict):
                 script_settings = script_information['settings']

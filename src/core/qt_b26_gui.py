@@ -18,9 +18,9 @@ from copy import deepcopy
 import datetime
 from collections import deque
 
-from src.core import instantiate_probes, instantiate_scripts, instantiate_instruments
+# from src.core import instantiate_probes
 
-from src.scripts import ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower
+from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower
 from src.core.plotting import plot_psd
 
 from src.core.read_write_functions import load_b26_file

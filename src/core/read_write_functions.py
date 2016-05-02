@@ -67,6 +67,7 @@ def export_default_instruments(filename):
     import inspect
 
     for name, obj in inspect.getmembers(instruments):
+        print('----', name, '------')
         if inspect.isclass(obj):
             try:
                 print(name, obj)
@@ -79,15 +80,23 @@ def export_default_instruments(filename):
 def export_default_scripts(filename):
     import src.scripts as scripts
     import inspect
+    from src.core.scripts import Script
 
-    for name, obj in inspect.getmembers(scripts):
-        if inspect.isclass(obj):
-            try:
-                scripts = obj()
-                scripts.save(filename)
-            except:
-                print('failed to create scripts file for: {:s}'.format(obj.__name__))
+    loaded_instruments = {}
+    loaded_scripts = {}
+
+    scripts_to_load = {name:name for name, obj in inspect.getmembers(scripts) if inspect.isclass(obj)}
+
+    loaded_scripts, failed, loaded_instruments = Script.load_and_append(scripts_to_load, scripts=loaded_scripts, instruments=loaded_instruments)
+
+
+    for name, value in loaded_scripts.iteritems():
+        value.save(filename)
+
+    if failed != []:
+        print('failed to create scripts: ', failed)
+
 
 if __name__ == '__main__':
-    export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_and_instruments.b26')
-    # export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_and_instruments.b26')
+    # export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_and_instruments.b26')
+    export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_and_instruments.b26')

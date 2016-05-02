@@ -119,3 +119,15 @@ class MWSpectraVsPower(Script, QThread):
         freq = self.data['frequency']
 
         #axes.plot(freq, spectrum)
+
+
+
+
+if __name__ == '__main__':
+    script = {}
+    instr = {}
+    script, failed, instr = Script.load_and_append({'MWSpectraVsPower':'MWSpectraVsPower'}, script, instr)
+
+    print(script)
+    print(failed)
+    print(instr)

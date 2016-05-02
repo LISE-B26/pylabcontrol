@@ -3,7 +3,7 @@ from PyQt4 import QtCore
 from abc import ABCMeta, abstractmethod, abstractproperty
 from copy import deepcopy
 import yaml
-from src.core import Parameter
+from src.core.parameter import Parameter
 from src.core.read_write_functions import save_b26_file
 
 class Instrument(object):
@@ -265,7 +265,6 @@ class Instrument(object):
                     updated_instruments[instrument_name] = instrument_instance
 
         return updated_instruments, loaded_failed
-
 
 
 if __name__ == '__main__':
