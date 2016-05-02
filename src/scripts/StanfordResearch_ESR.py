@@ -157,7 +157,7 @@ class StanfordResearch_ESR(Script):
             axes.set_title('ESR')
             axes.set_xlabel('Frequency (Hz)')
             axes.set_ylabel('Kcounts/s')
-
+ 
     def stop(self):
         self._abort = True
 
