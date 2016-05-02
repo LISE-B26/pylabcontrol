@@ -61,23 +61,42 @@ class SpectrumAnalyzer(Instrument):
         super(SpectrumAnalyzer, self).update(settings)
 
         self._wait_for_spec_anal()
-        for key, value in settings.iteritems():
-            if key == 'start_frequency':
-                assert 0.0 < value < 3e9, \
-                    "start frequency must be between 0 and 3e9, you tried to set it to {0}!".format(value)
-                self._set_start_frequency(value)
-            elif key == 'stop_frequency':
-                assert 0.0 < value < 3e9, \
-                    "stop frequency must be between 0 and 3e9, you tried to set it to {0}!".format(value)
-                self._set_stop_frequency(value)
-            elif key == 'output_on':
-                self._toggle_output(value)
-            elif key == 'output_power':
-                self._set_output_power(value)
-            elif key == 'mode':
-                self._set_mode(value)
-            else:
-                message = '{0} is not a parameter of {1}'.format(key, self.name)
+
+        # set mode first
+        if  'mode' in settings:
+            self._set_mode(settings['mode'])
+
+        if 'start_frequency' in settings:
+            assert 0.0 < settings['start_frequency'] < 3e9, "start frequency must be between 0 and 3e9, you tried to set it to {0}!".format(settings['start_frequency'])
+            self._set_start_frequency(settings['start_frequency'])
+
+        if 'stop_frequency' in settings:
+            assert 0.0 < settings['stop_frequency'] < 3e9, "start frequency must be between 0 and 3e9, you tried to set it to {0}!".format(settings['stop_frequency'])
+            self._set_stop_frequency(settings['stop_frequency'])
+
+        if 'output_on' in settings:
+            self._toggle_output(settings['output_on'])
+
+        if 'output_power' in settings:
+            self._set_output_power(settings['output_power'])
+
+        # for key, value in settings.iteritems():
+            # if key == 'start_frequency':
+            #     assert 0.0 < value < 3e9, \
+            #         "start frequency must be between 0 and 3e9, you tried to set it to {0}!".format(value)
+            #     self._set_start_frequency(value)
+            # elif key == 'stop_frequency':
+            #     assert 0.0 < value < 3e9, \
+            #         "stop frequency must be between 0 and 3e9, you tried to set it to {0}!".format(value)
+            #     self._set_stop_frequency(value)
+            # elif key == 'output_on':
+            #     self._toggle_output(value)
+            # elif key == 'output_power':
+            #     self._set_output_power(value)
+            # elif key == 'mode':
+            #     self._set_mode(value)
+            # else:
+            #     message = '{0} is not a parameter of {1}'.format(key, self.name)
 
     def read_probes(self, probe_name):
         self._wait_for_spec_anal()
@@ -186,21 +205,33 @@ class SpectrumAnalyzer(Instrument):
 
 if __name__ == '__main__':
 
-        sett = {
-            "settings": {
-                "output_power": -20.0,
-                "stop_frequency": 3000000000.0,
-                "start_frequency": 0.0,
-                "connection_timeout": 1000,
-                "mode": "SpectrumAnalyzer",
-                "output_on": False,
-                "visa_resource": "USB0::0x0957::0xFFEF::CN0323B356::INSTR"
-            }
-        }
+        # sett = {
+        #     "settings": {
+        #         "output_power": -20.0,
+        #         "stop_frequency": 3000000000.0,
+        #         "start_frequency": 0.0,
+        #         "connection_timeout": 1000,
+        #         "mode": "SpectrumAnalyzer",
+        #         "output_on": False,
+        #         "visa_resource": "USB0::0x0957::0xFFEF::CN0323B356::INSTR"
+        #     }
+        # }
+        #
+        # spec_anal = SpectrumAnalyzer(settings=sett)
+        # print spec_anal.is_connected()
+        # print spec_anal.mode
+        # spec_anal.mode = 'TrackingGenerator'
+        # print spec_anal.mode
+        #
+        # print('=============')
+        #
+        # print(spec_anal.settings, type(spec_anal.settings))
 
-        spec_anal = SpectrumAnalyzer(settings=sett)
-        print spec_anal.is_connected()
-        print spec_anal.mode
-        spec_anal.mode = 'TrackingGenerator'
-        print spec_anal.mode
+
+    from src.core import Instrument
+    instruments = {}
+    instr, failed = Instrument.load_and_append({'spec':'SpectrumAnalyzer'}, instruments=instruments)
+
+    print(instr['spec'].settings)
+    print(type(instr['spec'].settings))
 

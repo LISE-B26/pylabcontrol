@@ -103,7 +103,6 @@ class Script(object):
         else:
             self.log_output(string)
 
-
     @property
     def _DEFAULT_SETTINGS(self):
         """
@@ -536,11 +535,23 @@ class Script(object):
                     instruments_updated, __ = Instrument.load_and_append({instrument_name: instrument_class.__name__}, instruments_updated)
 
                 if script_instruments is not None and instrument_name in script_instruments:
-                    instrument_settings = script_instruments[instrument_name]['settings']
+                    instrument_settings_dict = script_instruments[instrument_name]['settings']
                 else:
-                    instrument_settings = instruments_updated[instrument_name].settings
+                    instrument_settings_dict = instruments_updated[instrument_name].settings
+                print('instrument_settings_dict', instrument_settings_dict, type(instrument_settings_dict))
+
 
                 instrument_instance = instruments_updated[instrument_name]
+
+                # make a deepcopy of _DEFAULT_SETTINGS to get a parameter object
+                instrument_settings = deepcopy(instrument_instance._DEFAULT_SETTINGS)
+                #now update parameter object with new values
+                instrument_settings.update(instrument_settings_dict)
+
+                print('instrument_settings', instrument_settings, type(instrument_settings))
+
+
+
 
                 instrument_dict.update({instrument_name: {"instance":instrument_instance, "settings":instrument_settings}})
 

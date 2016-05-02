@@ -535,6 +535,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if isinstance(value, Parameter):
                 B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
             else:
+                print('value', value)
                 B26QTreeItem(tree, key, value, type(value), '')
 
     def refresh_tree(self, tree, items):

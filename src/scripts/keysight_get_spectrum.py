@@ -63,4 +63,6 @@ class KeysightGetSpectrum(Script):
         spectrum = self.data['spectrum']
         freq = self.data['frequency']
 
+        print(self.data)
+
         axes.plot(freq, spectrum)

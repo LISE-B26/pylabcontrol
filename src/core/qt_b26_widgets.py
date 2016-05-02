@@ -59,25 +59,24 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             self.check.stateChanged.connect(lambda: self.setData(1, 2, self.check))
 
         elif isinstance(self.value, Parameter):
+            # print('-->', self.value, self.value.valid_values)
             for key, value in self.value.iteritems():
-                B26QTreeItem(self, key, value, self.valid_values[key], self.info[key], visible=self.visible)
+                print('=======>',  key, value, self.value.valid_values[key])
+                B26QTreeItem(self, key, value, self.value.valid_values[key], self.value.info[key], visible=self.visible)
 
         elif isinstance(self.value, dict):
             for key, value in self.value.iteritems():
                 B26QTreeItem(self, key, value, type(value), '',visible=self.visible)
 
         elif isinstance(self.value, Instrument):
-
+            print('SAFSDDS', self.value)
             index_top_level_item = self.treeWidget().indexOfTopLevelItem(self)
             top_level_item = self.treeWidget().topLevelItem(index_top_level_item)
             if top_level_item == self:
                 # instrument is on top level, thus we are in the instrument tab
                 for key, value in self.value.settings.iteritems():
-                    # B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
                     B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
             else:
-
-                # B26QTreeItem(self, 'instance', self.value.name, [self.value.name], 'instrument '.format(self.value.name), visible=self.visible)
                 self.valid_values = [self.value.name]
                 self.value = self.value.name
                 self.combobox = QtGui.QComboBox()
