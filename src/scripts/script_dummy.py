@@ -1,6 +1,9 @@
 from src.core import Parameter, Script
 # from PyQt4 import QtCore
-from src.instruments import DummyInstrument
+try:
+    from src.instruments import DummyInstrument
+except:
+    print('WARNING script_dummy')
 # from PyQt4 import QtCore
 from PySide.QtCore import Signal, QThread
 

@@ -93,6 +93,8 @@ class Parameter(dict):
 
     @staticmethod
     def is_valid(value, valid_values):
+
+
         valid = False
 
         if isinstance(valid_values, type) and type(value) is valid_values:
@@ -104,10 +106,126 @@ class Parameter(dict):
             # check that all values actually exist in valid_values
             # assert value.keys() & valid_values.keys() == value.keys() # python 3 syntax
             assert set(value.keys()) & set(valid_values.keys()) == set(value.keys()) # python 2
+            # valid = True
+            for k ,v in value.iteritems():
+                valid = Parameter.is_valid(v, valid_values[k])
+                if valid ==False:
+                    break
+
+        elif isinstance(value, dict) and valid_values == Parameter:
             valid = True
-            for k ,v in value.items():
-                if type(v) is not valid_values[k]:
-                    valid = True
+
         elif isinstance(valid_values, list) and value in valid_values:
             valid = True
+
         return valid
+
+
+
+if __name__ == '__main__':
+
+    # test 1
+    from src.core import Instrument
+
+    instruments_updated = {}
+    instruments_updated, __ = Instrument.load_and_append({'DAQ':'DAQ'},
+                                                         instruments_updated)
+
+    print(instruments_updated['DAQ'].settings)
+
+
+    settings = {
+                        "device": "Dev1",
+                        "analog_output": {
+                            "ao3": {
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0,
+                                "sample_rate": 1000.0,
+                                "channel": 3
+                            },
+                            "ao2": {
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0,
+                                "sample_rate": 1000.0,
+                                "channel": 2
+                            },
+                            "ao1": {
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0,
+                                "sample_rate": 1000.0,
+                                "channel": 1
+                            },
+                            "ao0": {
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0,
+                                "sample_rate": 1000.0,
+                                "channel": 0
+                            }
+                        },
+                        "override_buffer_size": -1,
+                        "digital_input": {
+                            "ctr0": {
+                                "clock_PFI_channel": 13,
+                                "sample_rate": 1000.0,
+                                "input_channel": 0,
+                                "clock_counter_channel": 1
+                            }
+                        },
+                        "analog_input": {
+                            "ai4": {
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0,
+                                "sample_rate": 1000.0,
+                                "channel": 4
+                            },
+                            "ai1": {
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0,
+                                "sample_rate": 1000.0,
+                                "channel": 1
+                            },
+                            "ai0": {
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0,
+                                "sample_rate": 1000.0,
+                                "channel": 0
+                            },
+                            "ai3": {
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0,
+                                "sample_rate": 1000.0,
+                                "channel": 3
+                            },
+                            "ai2": {
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0,
+                                "sample_rate": 1000.0,
+                                "channel": 2
+                            }
+                        }
+                    }
+
+
+    par = instruments_updated['DAQ'].settings['analog_output']['ao3']
+    print('DDD', par, type(par), par.valid_values)
+    instruments_updated['DAQ'].update(settings)
+
+
+    # # test 2
+    # file = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts\\GalvoScan.b26"
+    #
+    # from src.core import Script
+    # from src.core.read_write_functions import load_b26_file
+    #
+    # x = load_b26_file(file)['scripts']
+    # instr = {}
+    # scripts = {}
+    # scripts, failed, instr = Script.load_and_append(x, scripts=scripts, instruments=instr)
+
+    # test 3
+    # from src.scripts import GalvoScan
+    # from src.core import Instrument
+    # from src.instruments import DAQ
+    # daq = Instrument
+    #
+    # gs = GalvoScan()

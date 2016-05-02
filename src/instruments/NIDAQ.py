@@ -55,34 +55,34 @@ class DAQ(Instrument):
                   [
                       Parameter('ao0',
                         [
-                            Parameter('channel', 0, [0, 1, 2, 3], 'output channel(s)'),
-                            Parameter('sample_rate', 1000, float, 'output sample rate'),
-                            Parameter('min_voltage', -10, float, 'minimum output voltage'),
-                            Parameter('max_voltage', 10, float, 'maximum output voltage')
+                            Parameter('channel', 0, [0, 1, 2, 3], 'output channel'),
+                            Parameter('sample_rate', 1000.0, float, 'output sample rate (Hz)'),
+                            Parameter('min_voltage', -10.0, float, 'minimum output voltage (V)'),
+                            Parameter('max_voltage', 10.0, float, 'maximum output voltage (V)')
                         ]
                                 ),
                       Parameter('ao1',
                         [
-                            Parameter('channel', 1, [0, 1, 2, 3], 'output channel(s)'),
-                            Parameter('sample_rate', 1000, float, 'output sample rate'),
-                            Parameter('min_voltage', -10, float, 'minimum output voltage'),
-                            Parameter('max_voltage', 10, float, 'maximum output voltage')
+                            Parameter('channel', 1, [0, 1, 2, 3], 'output channel'),
+                            Parameter('sample_rate', 1000.0, float, 'output sample rate (Hz)'),
+                            Parameter('min_voltage', -10.0, float, 'minimum output voltage (V)'),
+                            Parameter('max_voltage', 10.0, float, 'maximum output voltage (V)')
                         ]
                                 ),
                       Parameter('ao2',
                         [
-                            Parameter('channel', 2, [0, 1, 2, 3], 'output channel(s)'),
-                            Parameter('sample_rate', 1000, float, 'output sample rate'),
-                            Parameter('min_voltage', -10, float, 'minimum output voltage'),
-                            Parameter('max_voltage', 10, float, 'maximum output voltage')
+                            Parameter('channel', 2, [0, 1, 2, 3], 'output channel'),
+                            Parameter('sample_rate', 1000.0, float, 'output sample rate (Hz)'),
+                            Parameter('min_voltage', -10.0, float, 'minimum output voltage (V)'),
+                            Parameter('max_voltage', 10.0, float, 'maximum output voltage (V)')
                         ]
                                 ),
                       Parameter('ao3',
                         [
-                            Parameter('channel', 3, [0, 1, 2, 3], 'output channel(s)'),
-                            Parameter('sample_rate', 1000, float, 'output sample rate'),
-                            Parameter('min_voltage', -10, float, 'minimum output voltage'),
-                            Parameter('max_voltage', 10, float, 'maximum output voltage')
+                            Parameter('channel', 3, [0, 1, 2, 3], 'output channel'),
+                            Parameter('sample_rate', 1000.0, float, 'output sample rate (Hz)'),
+                            Parameter('min_voltage', -10.0, float, 'minimum output voltage (V)'),
+                            Parameter('max_voltage', 10.0, float, 'maximum output voltage (V)')
                         ]
                                 )
                   ]
@@ -91,42 +91,42 @@ class DAQ(Instrument):
                   [
                       Parameter('ai0',
                                 [
-                                    Parameter('channel', 0, range(0, 32), 'input channel(s)'),
-                                    Parameter('sample_rate', 1000, float, 'input sample rate'),
-                                    Parameter('min_voltage', -10, float, 'minimum input voltage'),
-                                    Parameter('max_voltage', 10, float, 'maximum input voltage')
+                                    Parameter('channel', 0, range(0, 32), 'input channel'),
+                                    Parameter('sample_rate', 1000.0, float, 'input sample rate (Hz)'),
+                                    Parameter('min_voltage', -10.0, float, 'minimum input voltage'),
+                                    Parameter('max_voltage', 10.0, float, 'maximum input voltage')
                                 ]
                                 ),
                       Parameter('ai1',
                                 [
-                                    Parameter('channel', 1, range(0, 32), 'input channel(s)'),
-                                    Parameter('sample_rate', 1000, float, 'input sample rate'),
-                                    Parameter('min_voltage', -10, float, 'minimum input voltage'),
-                                    Parameter('max_voltage', 10, float, 'maximum input voltage')
+                                    Parameter('channel', 1, range(0, 32), 'input channel'),
+                                    Parameter('sample_rate', 1000.0, float, 'input sample rate'),
+                                    Parameter('min_voltage', -10.0, float, 'minimum input voltage'),
+                                    Parameter('max_voltage', 10.0, float, 'maximum input voltage')
                                 ]
                                 ),
                       Parameter('ai2',
                                 [
-                                    Parameter('channel', 2, range(0, 32), 'input channel(s)'),
-                                    Parameter('sample_rate', 1000, float, 'input sample rate'),
-                                    Parameter('min_voltage', -10, float, 'minimum input voltage'),
-                                    Parameter('max_voltage', 10, float, 'maximum input voltage')
+                                    Parameter('channel', 2, range(0, 32), 'input channel'),
+                                    Parameter('sample_rate', 1000.0, float, 'input sample rate'),
+                                    Parameter('min_voltage', -10.0, float, 'minimum input voltage'),
+                                    Parameter('max_voltage', 10.0, float, 'maximum input voltage')
                                 ]
                                 ),
                       Parameter('ai3',
                                 [
-                                    Parameter('channel', 3, range(0, 32), 'input channel(s)'),
-                                    Parameter('sample_rate', 1000, float, 'input sample rate'),
-                                    Parameter('min_voltage', -10, float, 'minimum input voltage'),
-                                    Parameter('max_voltage', 10, float, 'maximum input voltage')
+                                    Parameter('channel', 3, range(0, 32), 'input channel'),
+                                    Parameter('sample_rate', 1000.0, float, 'input sample rate'),
+                                    Parameter('min_voltage', -10.0, float, 'minimum input voltage'),
+                                    Parameter('max_voltage', 10.0, float, 'maximum input voltage')
                                 ]
                                 ),
                       Parameter('ai4',
                                 [
-                                    Parameter('channel', 4, range(0, 32), 'input channel(s)'),
-                                    Parameter('sample_rate', 1000, float, 'input sample rate'),
-                                    Parameter('min_voltage', -10, float, 'minimum input voltage'),
-                                    Parameter('max_voltage', 10, float, 'maximum input voltage')
+                                    Parameter('channel', 4, range(0, 32), 'input channel'),
+                                    Parameter('sample_rate', 1000.0, float, 'input sample rate'),
+                                    Parameter('min_voltage', -10.0, float, 'minimum input voltage'),
+                                    Parameter('max_voltage', 10.0, float, 'maximum input voltage (V)')
                                 ]
                                 )
                   ]
@@ -135,10 +135,10 @@ class DAQ(Instrument):
                   [
                       Parameter('ctr0',
                                 [
-                                    Parameter('input_channel', 0, range(0, 32), 'input channel(s)'),
+                                    Parameter('input_channel', 0, range(0, 32), 'input channel'),
                                     Parameter('clock_PFI_channel', 13, range(0, 32), 'PFI output clock channel'),
                                     Parameter('clock_counter_channel', 1, [0, 1], 'counter output clock channel'),
-                                    Parameter('sample_rate', 1000, float, 'input sample rate')
+                                    Parameter('sample_rate', 1000.0, float, 'input sample rate (Hz)')
                                 ]
                                 )
                   ]

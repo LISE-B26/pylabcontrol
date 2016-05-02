@@ -546,6 +546,9 @@ class Script(object):
                 # make a deepcopy of _DEFAULT_SETTINGS to get a parameter object
                 instrument_settings = deepcopy(instrument_instance._DEFAULT_SETTINGS)
                 #now update parameter object with new values
+
+                par = instruments_updated['daq'].settings['analog_output']['ao3']
+                print('DDD', par, type(par), par.valid_values)
                 instrument_settings.update(instrument_settings_dict)
 
                 print('instrument_settings', instrument_settings, type(instrument_settings))
