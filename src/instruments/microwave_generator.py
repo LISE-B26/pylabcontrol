@@ -3,6 +3,8 @@ import pyvisa.errors
 
 from src.core import Parameter, Instrument
 
+RANGE_MIN = 2025000000 #2.025 GHz
+RANGE_MAX = 4050000000 #4.050 GHZ
 
 class MicrowaveGenerator(Instrument):
 
@@ -51,6 +53,9 @@ class MicrowaveGenerator(Instrument):
                     value = self._mod_func_to_internal(value)
                 elif key == 'pulse_modulation_function':
                     value = self._pulse_mod_func_to_internal
+                elif key == 'frequency':
+                    if value > RANGE_MAX or value < RANGE_MIN:
+                        raise ValueError("Invalid frequency. All frequencies must be between 2.025 GHz and 4.050 GHz.")
                 key = self._param_to_internal(key)
 
                 # only send update to instrument if connection to instrument has been established
