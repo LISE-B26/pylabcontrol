@@ -39,30 +39,28 @@ class KeysightGetSpectrum(Script):
         will be overwritten in the __init__
         """
 
-        print(self.instruments['spectrum_analyzer'])
+
 
         instrument = self.instruments['spectrum_analyzer']['instance']
         settings = self.instruments['spectrum_analyzer']['settings']
 
         instrument.update(settings)
-
         trace = instrument.trace
 
-        self.data = {
-            'spectrum' : [item[1] for item in trace],
-            'frequency' : [item[0] for item in trace]
-        }
+        self.data = trace
 
         if self.settings['save']:
             self.save()
+            self.save_data()
+            self.save_log()
 
 
 
     def plot(self, axes):
 
-        spectrum = self.data['spectrum']
-        freq = self.data['frequency']
-
-        print(self.data)
+        spectrum = self.data['amplitudes']
+        freq = self.data['frequencies']
 
         axes.plot(freq, spectrum)
+        axes.set_xlabel('frequencies')
+        axes.set_xlabel('spectrum (??)')

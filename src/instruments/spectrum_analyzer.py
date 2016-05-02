@@ -60,24 +60,28 @@ class SpectrumAnalyzer(Instrument):
     def update(self, settings):
         super(SpectrumAnalyzer, self).update(settings)
 
-        self._wait_for_spec_anal()
-
         # set mode first
         if  'mode' in settings:
+            self._wait_for_spec_anal()
             self._set_mode(settings['mode'])
+            print('mode',settings['mode'])
 
         if 'start_frequency' in settings:
             assert 0.0 < settings['start_frequency'] < 3e9, "start frequency must be between 0 and 3e9, you tried to set it to {0}!".format(settings['start_frequency'])
+            self._wait_for_spec_anal()
             self._set_start_frequency(settings['start_frequency'])
 
         if 'stop_frequency' in settings:
             assert 0.0 < settings['stop_frequency'] < 3e9, "start frequency must be between 0 and 3e9, you tried to set it to {0}!".format(settings['stop_frequency'])
+            self._wait_for_spec_anal()
             self._set_stop_frequency(settings['stop_frequency'])
 
         if 'output_on' in settings:
+            self._wait_for_spec_anal()
             self._toggle_output(settings['output_on'])
 
         if 'output_power' in settings:
+            self._wait_for_spec_anal()
             self._set_output_power(settings['output_power'])
 
         # for key, value in settings.iteritems():

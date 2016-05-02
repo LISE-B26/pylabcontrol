@@ -61,7 +61,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         elif isinstance(self.value, Parameter):
             # print('-->', self.value, self.value.valid_values)
             for key, value in self.value.iteritems():
-                print('=======>',  key, value, self.value.valid_values[key])
                 B26QTreeItem(self, key, value, self.value.valid_values[key], self.value.info[key], visible=self.visible)
 
         elif isinstance(self.value, dict):
@@ -69,7 +68,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 B26QTreeItem(self, key, value, type(value), '',visible=self.visible)
 
         elif isinstance(self.value, Instrument):
-            print('SAFSDDS', self.value)
             index_top_level_item = self.treeWidget().indexOfTopLevelItem(self)
             top_level_item = self.treeWidget().topLevelItem(index_top_level_item)
             if top_level_item == self:
