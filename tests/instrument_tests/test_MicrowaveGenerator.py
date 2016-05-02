@@ -13,3 +13,11 @@ class TestMicrowaveGenerator(TestCase):
         freq = float(random.randint(2e9, 3e9))
         self.microwave.update({'frequency': freq})
         self.assertEqual(self.microwave.frequency, freq)
+
+
+    def test_init(self):
+        "init with settings"
+        mw = MG.MicrowaveGenerator(settings={'enable_modulation': True, 'frequency': 3000000000.0, 'dev_width': 32000000.0,
+                                          'pulse_modulation_function': 'External', 'phase': 0, 'port': 27,
+                                          'modulation_type': 'FM', 'enable_output': False, 'GPIB_num': 0,
+                                          'amplitude': -60, 'modulation_function': 'External'})

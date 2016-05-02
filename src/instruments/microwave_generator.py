@@ -1,7 +1,7 @@
 import visa
 import pyvisa.errors
 
-from src.core.instruments import *
+from src.core import Parameter, Instrument
 
 
 class MicrowaveGenerator(Instrument):
@@ -23,13 +23,17 @@ class MicrowaveGenerator(Instrument):
     ])
 
     def __init__(self, name = None, settings = None):
+
         super(MicrowaveGenerator, self).__init__(name, settings)
         try:
             rm = visa.ResourceManager()
             self.srs = rm.open_resource(u'GPIB' + str(self.settings['GPIB_num']) + '::' + str(self.settings['port']) + '::INSTR')
             self.srs.query('*IDN?') # simple call to check connection
         except pyvisa.errors.VisaIOError:
-            print('No Piezo Controller Detected')
+            print('No Microwave Controller Detected!!')
+            raise
+
+
 
     #Doesn't appear to be necessary, can't manually make two sessions conflict, rms may share well
     # def __del__(self):
@@ -48,7 +52,10 @@ class MicrowaveGenerator(Instrument):
                 elif key == 'pulse_modulation_function':
                     value = self._pulse_mod_func_to_internal
                 key = self._param_to_internal(key)
-                self.srs.write(key + ' ' + str(value))
+
+                # only send update to instrument if connection to instrument has been established
+                if self._initialized:
+                    self.srs.write(key + ' ' + str(value))
 
     @property
     def _PROBES(self):
@@ -159,17 +166,48 @@ class MicrowaveGenerator(Instrument):
             raise KeyError
 
 if __name__ == '__main__':
-    a = MicrowaveGenerator()
-    a.update({'frequency': 3e9})
+    # from src.core import Instrument
+    #
+    # instruments =        {"MicrowaveGenerator": {
+    #         "class": "MicrowaveGenerator",
+    #         "settings": {
+    #             "enable_output": False,
+    #             "enable_modulation": True,
+    #             "amplitude": -60,
+    #             "GPIB_num": 0,
+    #             "frequency": 3000000000.0,
+    #             "dev_width": 32000000.0,
+    #             "pulse_modulation_function": "External",
+    #             "phase": 0,
+    #             "modulation_function": "External",
+    #             "port": 27,
+    #             "modulation_type": "FM"
+    #         }
+    #     }}
+    #
+    # instr = {}
+    #
+    # instr, loaded_failed = Instrument.load_and_append(
+    #     {name: instruments[name] for name in instruments.keys()}, instr)
+    #
+    # print(instr)
+    # print(loaded_failed)
+    # import src.instruments.microwave_generator MicrowaveGenerator
 
-    # Parameter('ENBR', False, bool, 'Type-N output enabled'),
-    # Parameter('FREQ', 3e9, float, 'frequency in Hz, or with label in other units ex 300 MHz'),
-    # Parameter('AMPR', -60, float, 'Type-N amplitude in dBm'),
-    # Parameter('PHAS', 0, float, 'output phase'),
-    # Parameter('MODL', True, bool, 'enable modulation'),
-    # Parameter('TYPE', 1, [0, 1, 2, 3, 4, 5, 6],
-    #           'Modulation Type: 0= AM, 1=FM, 2= PhaseM, 3= Freq sweep, 4= Pulse, 5 = Blank, 6=IQ'),
-    # Parameter('MFNC', 5, [1, 2, 3, 4, 5],
-    #           'Modulation Function: 0=Sine, 1=Ramp, 2=Triangle, 3=Square, 4=Noise, 5=External'),
-    # Parameter('PFNC', 5, [3, 4, 5], 'Pulse Modulation Function: 3=Square, 4=Noise(PRBS), 5=External'),
-    # Parameter('FDEV', 32e6, float, 'Width of deviation from center frequency in FM')
+
+
+
+
+
+
+
+
+    # mw = MicrowaveGenerator(settings = {'port':27})
+    mw = MicrowaveGenerator(settings={'enable_modulation': True, 'frequency': 3000000000.0, 'dev_width': 32000000.0, 'pulse_modulation_function': 'External', 'phase': 0, 'port': 27, 'modulation_type': 'FM', 'enable_output': False, 'GPIB_num': 0, 'amplitude': -60, 'modulation_function': 'External'})
+
+    print(mw.srs)
+
+    # instrument_name= 'MicrowaveGenerator'
+    # instrument_settings = {'enable_modulation': True, 'frequency': 3000000000.0, 'dev_width': 32000000.0, 'pulse_modulation_function': 'External', 'phase': 0, 'port': 27, 'modulation_type': 'FM', 'enable_output': False, 'GPIB_num': 0, 'amplitude': -60, 'modulation_function': 'External'}
+    # class_of_instrument = MicrowaveGenerator
+    # instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)

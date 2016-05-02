@@ -33,7 +33,7 @@ except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
     from src.core.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
-    print('Warning: on the fly conversion of .ui file failed, loaded .py file instead!!')
+    print('Warning!!: on the fly conversion of .ui file failed, loaded .py file instead!!')
 
 
 
@@ -301,7 +301,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     added_instruments = set(instruments.keys())-set(self.instruments.keys())
                     removed_instruments = set(self.instruments.keys()) - set(instruments.keys())
                     print('added_instruments', {name: instruments[name] for name in added_instruments})
-                    print('ffff', self.instruments)
+
                     # create instances of new instruments
                     self.instruments, loaded_failed = Instrument.load_and_append(
                         {name: instruments[name] for name in added_instruments}, self.instruments)

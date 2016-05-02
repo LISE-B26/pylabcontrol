@@ -257,8 +257,14 @@ class Instrument(object):
 
                 except AttributeError as e:
                     print(e.message)
+                    print('module', module)
+                    print('class_of_instrument', class_of_instrument)
+                    print('instrument_class_name', instrument_class_name)
+                    print('instrument_name', instrument_name)
+                    print('instrument_settings', instrument_settings)
+
                     # catches when we try to create an instrument of a class that doesn't exist!
-                    # raise AttributeError
+                    raise AttributeError
 
                 if instrument_instance is None:
                     loaded_failed.append(instrument_name)

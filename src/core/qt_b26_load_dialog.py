@@ -17,7 +17,7 @@ except (ImportError, IOError):
     from src.core.load_dialog import Ui_Dialog
     from PyQt4.QtGui import QMainWindow
     from PyQt4.QtGui import QDialog
-    print('Warning: on the fly conversion of .ui file failed, loaded .py file instead!!')
+    print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!')
 
 
 
@@ -107,6 +107,7 @@ Returns:
             elif name in self.elements_from_file:
                 class_name = self.elements_from_file[name]['class']
                 module = __import__('src.{:s}'.format(self.elements_type), fromlist=[class_name])
+                print(module, class_name)
                 info = getattr(module, class_name).__doc__
 
             if info is None:
