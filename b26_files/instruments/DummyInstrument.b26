@@ -1,0 +1,15 @@
+{
+    "instruments": {
+        "DummyInstrument": {
+            "class": "DummyInstrument", 
+            "settings": {
+                "test1": 0, 
+                "test2": {
+                    "test2_1": "string", 
+                    "test2_2": 0.0
+                }, 
+                "output probe2": 0
+            }
+        }
+    }
+}

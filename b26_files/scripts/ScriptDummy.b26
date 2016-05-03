@@ -1,0 +1,19 @@
+{
+    "scripts": {
+        "ScriptDummy": {
+            "class": "ScriptDummy", 
+            "settings": {
+                "count": 3, 
+                "name": "this is a counter", 
+                "wait_time": 0.1, 
+                "point2": {
+                    "y": 0.1, 
+                    "x": 0.1
+                }, 
+                "tag": "dummy_tag", 
+                "path": "Z:\\Lab\\Cantilever\\Measurements\\__tmp", 
+                "save": true
+            }
+        }
+    }
+}

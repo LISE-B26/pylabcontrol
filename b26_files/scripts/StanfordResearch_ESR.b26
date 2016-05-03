@@ -1,0 +1,110 @@
+{
+    "scripts": {
+        "StanfordResearch_ESR": {
+            "instruments": {
+				"MicrowaveGenerator": {
+					"class": "MicrowaveGenerator", 
+					"settings": {
+						"enable_output": false, 
+						"enable_modulation": true, 
+						"amplitude": -60, 
+						"GPIB_num": 0, 
+						"frequency": 3000000000.0, 
+						"dev_width": 32000000.0, 
+						"pulse_modulation_function": "External", 
+						"phase": 0, 
+						"modulation_function": "External", 
+						"port": 27, 
+						"modulation_type": "FM"
+					}
+				},
+				"DAQ": {
+					"class": "DAQ", 
+					"settings": {
+						"device": "Dev1", 
+						"analog_output": {
+							"ao3": {
+								"min_voltage": -10.0, 
+								"max_voltage": 10.0, 
+								"sample_rate": 1000.0, 
+								"channel": 3
+							}, 
+							"ao2": {
+								"min_voltage": -10.0, 
+								"max_voltage": 10.0, 
+								"sample_rate": 1000.0, 
+								"channel": 2
+							}, 
+							"ao1": {
+								"min_voltage": -10.0, 
+								"max_voltage": 10.0, 
+								"sample_rate": 1000.0, 
+								"channel": 1
+							}, 
+							"ao0": {
+								"min_voltage": -10.0, 
+								"max_voltage": 10.0, 
+								"sample_rate": 1000.0, 
+								"channel": 0
+							}
+						}, 
+						"override_buffer_size": -1, 
+						"digital_input": {
+							"ctr0": {
+								"clock_PFI_channel": 13, 
+								"sample_rate": 1000.0, 
+								"input_channel": 0, 
+								"clock_counter_channel": 1
+							}
+						}, 
+						"analog_input": {
+							"ai4": {
+								"min_voltage": -10.0, 
+								"max_voltage": 10.0, 
+								"sample_rate": 1000.0, 
+								"channel": 4
+							}, 
+							"ai1": {
+								"min_voltage": -10.0, 
+								"max_voltage": 10.0, 
+								"sample_rate": 1000.0, 
+								"channel": 1
+							}, 
+							"ai0": {
+								"min_voltage": -10.0, 
+								"max_voltage": 10.0, 
+								"sample_rate": 1000.0, 
+								"channel": 0
+							}, 
+							"ai3": {
+								"min_voltage": -10.0, 
+								"max_voltage": 10.0, 
+								"sample_rate": 1000.0, 
+								"channel": 3
+							}, 
+							"ai2": {
+								"min_voltage": -10.0, 
+								"max_voltage": 10.0, 
+								"sample_rate": 1000.0, 
+								"channel": 2
+							}
+						}
+					}
+				}
+			}
+            "class": "StanfordResearch_ESR", 
+            "settings": {
+                "path": "Z:/Lab/Cantilever/Measurements/----data_tmp_default----", 
+                "tag": "dummy_tag", 
+                "save": true,
+				"power_out": -45.0,
+				"esr_avg": 50,
+				"freq_start": 2.82e9,
+				"freq_stop": 2.92e9,
+				"freq_points": 100,
+				"integration_time": .01,
+				"settle_time": .0002
+            }
+        }
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "instruments": {
+        "PiezoController": {
+            "class": "PiezoController", 
+            "settings": {
+                "baudrate": 115200, 
+                "axis": "x", 
+                "voltage": 0.0, 
+                "timeout": 0.1, 
+                "port": "COM17"
+            }
+        }
+    }
+}

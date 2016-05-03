@@ -1,0 +1,41 @@
+{
+    "instruments": {
+        "spectrum_analyzer": {
+            "class": "SpectrumAnalyzer", 
+            "settings": {
+                "output_power": -20.0, 
+                "visa_resource": "USB0::0x0957::0xFFEF::CN0323B356::INSTR", 
+                "stop_frequency": 2950000000.0, 
+                "start_frequency": 2000000000.0, 
+                "connection_timeout": 1000, 
+                "output_on": true, 
+                "mode": "TrackingGenerator"
+            }
+        }
+    }, 
+    "probes": {}, 
+    "scripts": {
+        "KeysightGetSpectrum": {
+            "instruments": {
+                "spectrum_analyzer": {
+                    "class": "SpectrumAnalyzer", 
+                    "settings": {
+                        "output_power": -20.0, 
+                        "stop_frequency": 2950000000.0, 
+                        "start_frequency": 2000000000.0, 
+                        "connection_timeout": 1000, 
+                        "mode": "TrackingGenerator", 
+                        "output_on": true, 
+                        "visa_resource": "USB0::0x0957::0xFFEF::CN0323B356::INSTR"
+                    }
+                }
+            }, 
+            "class": "KeysightGetSpectrum", 
+            "settings": {
+                "path": "Z:/Lab/Cantilever/Measurements/----data_tmp_default----", 
+                "tag": "dummy_tag", 
+                "save": true
+            }
+        }
+    }
+}

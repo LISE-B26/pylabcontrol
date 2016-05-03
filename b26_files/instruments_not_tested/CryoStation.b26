@@ -1,0 +1,10 @@
+{
+    "instruments": {
+        "CryoStation": {
+            "class": "CryoStation", 
+            "settings": {
+                "path": "C:/Cryostation/Temperature Data/"
+            }
+        }
+    }
+}

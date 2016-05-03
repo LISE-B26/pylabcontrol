@@ -1,0 +1,28 @@
+{
+    "scripts": {
+        "ScriptDummyWithInstrument": {
+            "instruments": {
+                "dummy_instrument": {
+                    "class": "DummyInstrument", 
+                    "settings": {
+                        "test1": 0, 
+                        "test2": {
+                            "test2_1": "string", 
+                            "test2_2": 0.0
+                        }, 
+                        "output probe2": 0
+                    }
+                }
+            }, 
+            "class": "ScriptDummyWithInstrument", 
+            "settings": {
+                "count": 0, 
+                "name": "this is a counter", 
+                "wait_time": 0.1, 
+                "tag": "dummy_tag", 
+                "path": "Z:\\Lab\\Cantilever\\Measurements\\__tmp", 
+                "save": true
+            }
+        }
+    }
+}

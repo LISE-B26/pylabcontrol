@@ -1,0 +1,12 @@
+{
+    "instruments": {
+        "PressureGauge": {
+            "class": "PressureGauge", 
+            "settings": {
+                "baudrate": 9600, 
+                "port": "COM5", 
+                "timeout": 1.0
+            }
+        }
+    }
+}

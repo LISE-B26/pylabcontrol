@@ -1,0 +1,16 @@
+{
+    "instruments": {
+        "SpectrumAnalyzer": {
+            "class": "SpectrumAnalyzer", 
+            "settings": {
+                "output_power": -20.0, 
+                "visa_resource": "USB0::0x0957::0xFFEF::CN0323B356::INSTR", 
+                "stop_frequency": 3000000000.0, 
+                "start_frequency": 0.0, 
+                "connection_timeout": 1000, 
+                "output_on": false, 
+                "mode": "SpectrumAnalyzer"
+            }
+        }
+    }
+}
