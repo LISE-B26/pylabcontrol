@@ -270,7 +270,6 @@ class DAQ(Instrument):
             channel_list += self.settings['device'] + '/' + c + ','
         channel_list = channel_list[:-1]
         self.running = True
-        #todo: probably all 1D conversion code bugged, need to test
         # special case 1D waveform since length(waveform[0]) is undefined
         if (len(numpy.shape(waveform)) == 2):
             self.numChannels = len(waveform)
@@ -293,6 +292,10 @@ class DAQ(Instrument):
                 self.data[i] = waveform[i]
         self.CHK(self.nidaq.DAQmxCreateTask("",
                                        ctypes.byref(self.AO_taskHandle)))
+
+        statusX = ctypes.c_bool()
+        x = self.nidaq.DAQmxIsTaskDone(self.AO_taskHandle, statusX)
+
         self.CHK(self.nidaq.DAQmxCreateAOVoltageChan(self.AO_taskHandle,
                                                 channel_list,
                                                 "",
@@ -300,6 +303,7 @@ class DAQ(Instrument):
                                                 float64(10.0),
                                                 DAQmx_Val_Volts,
                                                 None))
+
         self.CHK(self.nidaq.DAQmxCfgSampClkTiming(self.AO_taskHandle,
                                              "",
                                              float64(self.AO_sample_rate),

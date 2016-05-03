@@ -487,6 +487,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         #         script.plot(self.matplotlibwidget.axes)
         #         self.matplotlibwidget.draw()
 
+        if isinstance(script, (GalvoScan)):
+            if script.data:
+                script.plot(self.matplotlibwidget.axes)
+                self.matplotlibwidget.draw()
+
+
     def update_probes(self, progress):
         """
         update the probe monitor tree
