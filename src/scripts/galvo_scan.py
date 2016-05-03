@@ -53,6 +53,7 @@ class GalvoScan(Script, QThread):
             if (self._abort):
                 break
             # initialize APD thread
+            print(self.instruments)
             self.instruments['daq'].DI_init("ctr0", len(self.x_array) + 1, sample_rate_multiplier=(self.clockAdjust - 1))
             self.initPt = np.transpose(np.column_stack((self.x_array[0],
                                           self.y_array[yNum])))
