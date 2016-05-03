@@ -538,8 +538,6 @@ class Script(object):
                     instrument_settings_dict = script_instruments[instrument_name]['settings']
                 else:
                     instrument_settings_dict = instruments_updated[instrument_name].settings
-                print('instrument_settings_dict', instrument_settings_dict, type(instrument_settings_dict))
-
 
                 instrument_instance = instruments_updated[instrument_name]
 
@@ -547,12 +545,8 @@ class Script(object):
                 instrument_settings = deepcopy(instrument_instance._DEFAULT_SETTINGS)
                 #now update parameter object with new values
 
-                par = instruments_updated['daq'].settings['analog_output']['ao3']
-                print('DDD', par, type(par), par.valid_values)
+
                 instrument_settings.update(instrument_settings_dict)
-
-                print('instrument_settings', instrument_settings, type(instrument_settings))
-
 
 
 
@@ -598,23 +592,26 @@ class Script(object):
                 class_of_script = getattr(module, script_class_name)
 
                 #  ========= get the instruments that are needed by the script =========
-                script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
-                #  ========= create the scripts that are needed by the script =========
-                sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments)
+                try:
+                    script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
+                    #  ========= create the scripts that are needed by the script =========
+                    sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments)
 
-                class_creation_string = ''
-                if script_instruments != {}:
-                    class_creation_string += ', instruments = script_instruments'
-                if sub_scripts != {}:
-                    class_creation_string += ', scripts = sub_scripts'
-                if script_settings != {}:
-                    class_creation_string += ', settings = script_settings'
-                if log_function is not None:
-                    class_creation_string += ', log_output = log_function'
-                class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
+                    class_creation_string = ''
+                    if script_instruments != {}:
+                        class_creation_string += ', instruments = script_instruments'
+                    if sub_scripts != {}:
+                        class_creation_string += ', scripts = sub_scripts'
+                    if script_settings != {}:
+                        class_creation_string += ', settings = script_settings'
+                    if log_function is not None:
+                        class_creation_string += ', log_output = log_function'
+                    class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
-                script_instance = eval(class_creation_string)
-                updated_scripts.update({script_name :script_instance})
+                    script_instance = eval(class_creation_string)
+                    updated_scripts.update({script_name :script_instance})
+                except:
+                    loaded_failed.append(script_name)
 
         return updated_scripts, loaded_failed, updated_instruments
 

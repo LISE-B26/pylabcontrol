@@ -479,7 +479,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
         self.progressBar.setValue(progress)
         if progress == 100:
-            pass
+            self.refresh_tree(self.tree_scripts, self.scripts)
         script = self.current_script
 
         # if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower)):

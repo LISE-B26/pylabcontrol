@@ -120,112 +120,72 @@ class Parameter(dict):
 
         return valid
 
+    # def append(self, name, values):
+    #     """
+    #     append a parameter to an existing parameter. This has so far been tested for points to be added to a list of points
+    #     Args:
+    #         values: a parameter or a list of parameters to be added to the current paramter
+    #
+    #     Returns:
+    #
+    #     """
+    #
+    #     # we only support to append parameters or a list of parameters
+    #     assert isinstance(values, (Parameter, list))
+    #     if isinstance(values, list):
+    #         for element in values:
+    #             assert isinstance(element, Parameter)
+    #     else:
+    #         values = [values]
+    #
+    #
+    #     for element in values:
+    #
+    #         self.valid_values[name].update(element.valid_values)
+    #         self[name].update(element)
+    #         self.info[name].update(element.info)
+    #
+    #     print('AA',self[name])
+    #     print('VV',self.valid_values[name])
+    #
+    # # def remove(self, name, ):
 
 
 if __name__ == '__main__':
+    pt1 = Parameter('pt1',[Parameter('x', 1.0),Parameter('y', 0.0)])
+    pt2 = Parameter('pt2', [Parameter('x', 2.0), Parameter('y', 0.0)])
+    pt3 = Parameter('pt3', [Parameter('x', 3.0), Parameter('y', 0.0)])
 
-    # test 1
-    from src.core import Instrument
-
-    instruments_updated = {}
-    instruments_updated, __ = Instrument.load_and_append({'DAQ':'DAQ'},
-                                                         instruments_updated)
-
-    print(instruments_updated['DAQ'].settings)
+    plist2 = Parameter('list2', [pt1, pt2])
+    plist3 = Parameter('list2', [pt1, pt2, pt3])
 
 
-    settings = {
-                        "device": "Dev1",
-                        "analog_output": {
-                            "ao3": {
-                                "min_voltage": -10.0,
-                                "max_voltage": 10.0,
-                                "sample_rate": 1000.0,
-                                "channel": 3
-                            },
-                            "ao2": {
-                                "min_voltage": -10.0,
-                                "max_voltage": 10.0,
-                                "sample_rate": 1000.0,
-                                "channel": 2
-                            },
-                            "ao1": {
-                                "min_voltage": -10.0,
-                                "max_voltage": 10.0,
-                                "sample_rate": 1000.0,
-                                "channel": 1
-                            },
-                            "ao0": {
-                                "min_voltage": -10.0,
-                                "max_voltage": 10.0,
-                                "sample_rate": 1000.0,
-                                "channel": 0
-                            }
-                        },
-                        "override_buffer_size": -1,
-                        "digital_input": {
-                            "ctr0": {
-                                "clock_PFI_channel": 13,
-                                "sample_rate": 1000.0,
-                                "input_channel": 0,
-                                "clock_counter_channel": 1
-                            }
-                        },
-                        "analog_input": {
-                            "ai4": {
-                                "min_voltage": -10.0,
-                                "max_voltage": 10.0,
-                                "sample_rate": 1000.0,
-                                "channel": 4
-                            },
-                            "ai1": {
-                                "min_voltage": -10.0,
-                                "max_voltage": 10.0,
-                                "sample_rate": 1000.0,
-                                "channel": 1
-                            },
-                            "ai0": {
-                                "min_voltage": -10.0,
-                                "max_voltage": 10.0,
-                                "sample_rate": 1000.0,
-                                "channel": 0
-                            },
-                            "ai3": {
-                                "min_voltage": -10.0,
-                                "max_voltage": 10.0,
-                                "sample_rate": 1000.0,
-                                "channel": 3
-                            },
-                            "ai2": {
-                                "min_voltage": -10.0,
-                                "max_voltage": 10.0,
-                                "sample_rate": 1000.0,
-                                "channel": 2
-                            }
-                        }
-                    }
+    print(plist2['list2'], type(plist2['list2']))
+
+    for x in plist2['list2']:
+        print(x, type(x))
+
+    print('=========')
 
 
-    par = instruments_updated['DAQ'].settings['analog_output']['ao3']
-    print('DDD', par, type(par), par.valid_values)
-    instruments_updated['DAQ'].update(settings)
 
 
-    # # test 2
-    # file = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts\\GalvoScan.b26"
     #
-    # from src.core import Script
-    # from src.core.read_write_functions import load_b26_file
-    #
-    # x = load_b26_file(file)['scripts']
-    # instr = {}
-    # scripts = {}
-    # scripts, failed, instr = Script.load_and_append(x, scripts=scripts, instruments=instr)
+    plist2.append('list2', pt3)
 
-    # test 3
-    # from src.scripts import GalvoScan
-    # from src.core import Instrument
-    # from src.instruments import DAQ
-    # daq = Instrument
+    print(plist2)
+    print(plist3)
+
+    import json
+
+    assert json.dumps(plist2) == json.dumps(plist3)
+
+    print(plist2.valid_values)
+    print(plist3.valid_values)
+
+    # assert json.dumps(plist2.valid_values) == json.dumps(plist3.valid_values)
     #
-    # gs = GalvoScan()
+    # print(json.dumps(plist2))
+    # print(json.dumps(plist3))
+    #
+

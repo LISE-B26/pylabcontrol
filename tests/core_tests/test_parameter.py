@@ -10,7 +10,8 @@ class TestParameter(TestCase):
         # init
 
         p0 = Parameter('param', 0, int, 'integer')
-        self.assertEqual(p0.info, 'integer')
+        # print(p0.info)
+        self.assertEqual(p0.info['param'], 'integer')
 
         p0 = Parameter('param', 0.0, float, 'float')
         p0 = Parameter('param', '0', str, 'string')
@@ -221,23 +222,6 @@ class TestParameter(TestCase):
             parameters['test2']['test2_2'] = 's'
 
 
-    # def test_QString(self):
-    #     p1 = Parameter('param1', 0)
-    #
-    #     value_from_gui = QtCore.QString('1')
-    #
-    #     p1.value = value_from_gui
-    #
-    #     self.assertEquals(p1.value, 1)
-    #
-    #
-    #     p1 = Parameter('param1', [0,1,2,3])
-    #
-    #     value_from_gui = QtCore.QString('[1,2,3,4,5]')
-    #
-    #     p1.value = value_from_gui
-    #
-    #     self.assertEquals(p1.value, [1,2,3,4,5])
 
     def test_info(self):
         p0 = Parameter('test', 0, int, 'some info')
@@ -250,6 +234,9 @@ class TestParameter(TestCase):
                        Parameter('test2_2', 0.0, float, 'test parameter (float)')
                        ])
         ])
+
+        print(parameters.info)
+        print(parameters['test1'].info)
 
         self.assertEqual(parameters.info['test2'], {'test2_1': 'test parameter (str)', 'test2_2': 'test parameter (float)'})
         self.assertEqual(parameters.info['test1'], 'test parameter (int)')

@@ -255,6 +255,8 @@ class Instrument(object):
 
                 except AttributeError as e:
                     print(e.message)
+                except:
+                    pass
                     # catches when we try to create an instrument of a class that doesn't exist!
                     # raise AttributeError
 

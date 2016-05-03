@@ -10,7 +10,7 @@ from MWSpectraVsPower import MWSpectraVsPower
 from keysight_get_spectrum import KeysightGetSpectrum
 from keysight_spectra_vs_power import KeysightSpectrumVsPower
 from galvo_scan import GalvoScan
-
+from Find_Points import Find_Points
 # from light_control import CameraOn
 
 # from labview_fpga_get_timetrace import LabviewFpgaTimetrace
