@@ -47,7 +47,6 @@ class Script(object):
         """
         if name is None:
             name = self.__class__.__name__
-
         self.name = name
 
         self._instruments = {}
@@ -367,7 +366,7 @@ class Script(object):
         return dictator
 
     @staticmethod
-    def load_data(path, time_tag_in = None):
+    def load_data(path, time_tag_in = None, data_name_in = None):
         """
         loads the data that has been save with Script.save
         Args:
@@ -397,20 +396,47 @@ class Script(object):
                 data.update({time_tag: sub_data})
 
         else:
-            data_files = glob.glob(path + '*.dat')
-
+            data_files = glob.glob(path + '*.csv')
+            for x in data_files:
+                print(x)
             for data_file in data_files:
                 time_tag = '_'.join(data_file.split('\\')[-1].split('_')[0:3])
                 df = pd.read_csv(data_file)
                 data_names = list(df)
-                data.update({time_tag:
-                            {data_name:list(df[data_name]) for data_name in data_names}
-                            })
+
+                # test if first row is a row of headers or numbers
+                try:
+                    float(data_names[0])
+                    has_header = False
+                except ValueError:
+                    has_header = True
+
+                if has_header:
+                    data.update({time_tag:
+                                     {data_name: list(df[data_name]) for data_name in data_names}
+                                 })
+                else:
+
+                    data_name = data_file.split('\\')[-1].split('-')[-1].split('.')[0]
+                    if time_tag in data:
+                        data[time_tag].update({data_name: df})
+                    else:
+                        data.update({time_tag: {data_name: df}})
+
+
+
 
 
         if time_tag_in != None:
             # if user specifies a time_tag we only return that specific data set
-            data = data[time_tag_in]
+            if data_name_in ==None:
+                data = data[time_tag_in]
+            else:
+                data = data[time_tag_in][data_name_in]
+        elif data_name_in != None:
+            # return data of last data set
+            data = data[sorted(data.keys())[-1]][data_name_in]
+
         elif len(data) == 1:
             # if there is only one data_set, we strip of the time_tag level
             data = data[data.keys()[0]]

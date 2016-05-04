@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Fri Apr 29 12:09:26 2016
+# Created: Wed May 04 16:33:38 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,31 +26,16 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(1144, 718)
+        MainWindow.resize(1373, 734)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
+        MainWindow.setSizePolicy(sizePolicy)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
-        self.list_records = QtGui.QListView(self.centralwidget)
-        self.list_records.setGeometry(QtCore.QRect(740, 220, 391, 141))
-        self.list_records.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
-        self.list_records.setModelColumn(0)
-        self.list_records.setObjectName(_fromUtf8("list_records"))
-        self.layoutWidget = QtGui.QWidget(self.centralwidget)
-        self.layoutWidget.setGeometry(QtCore.QRect(740, 370, 391, 25))
-        self.layoutWidget.setObjectName(_fromUtf8("layoutWidget"))
-        self.horizontalLayout_2 = QtGui.QHBoxLayout(self.layoutWidget)
-        self.horizontalLayout_2.setMargin(0)
-        self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
-        self.txt_tag = QtGui.QLineEdit(self.layoutWidget)
-        self.txt_tag.setObjectName(_fromUtf8("txt_tag"))
-        self.horizontalLayout_2.addWidget(self.txt_tag)
-        self.btn_clear_record = QtGui.QPushButton(self.layoutWidget)
-        self.btn_clear_record.setObjectName(_fromUtf8("btn_clear_record"))
-        self.horizontalLayout_2.addWidget(self.btn_clear_record)
-        self.btn_save_record_to_disk = QtGui.QPushButton(self.layoutWidget)
-        self.btn_save_record_to_disk.setObjectName(_fromUtf8("btn_save_record_to_disk"))
-        self.horizontalLayout_2.addWidget(self.btn_save_record_to_disk)
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(10, 200, 721, 471))
+        self.tabWidget.setGeometry(QtCore.QRect(10, 210, 721, 471))
         self.tabWidget.setTabShape(QtGui.QTabWidget.Rounded)
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.tab_scripts = QtGui.QWidget()
@@ -150,20 +135,20 @@ class Ui_MainWindow(object):
         self.list_history.setObjectName(_fromUtf8("list_history"))
         self.tabWidget.addTab(self.tab_history, _fromUtf8(""))
         self.matplotlibwidget = MatplotlibWidget(self.centralwidget)
-        self.matplotlibwidget.setGeometry(QtCore.QRect(10, 0, 321, 191))
+        self.matplotlibwidget.setGeometry(QtCore.QRect(740, 0, 621, 691))
         self.matplotlibwidget.setObjectName(_fromUtf8("matplotlibwidget"))
         self.matplotlibwidget_2 = MatplotlibWidget(self.centralwidget)
-        self.matplotlibwidget_2.setGeometry(QtCore.QRect(740, 0, 391, 211))
+        self.matplotlibwidget_2.setGeometry(QtCore.QRect(10, 0, 391, 211))
         self.matplotlibwidget_2.setObjectName(_fromUtf8("matplotlibwidget_2"))
         self.btn_save_gui = QtGui.QPushButton(self.centralwidget)
-        self.btn_save_gui.setGeometry(QtCore.QRect(1020, 580, 75, 23))
+        self.btn_save_gui.setGeometry(QtCore.QRect(550, 110, 75, 23))
         self.btn_save_gui.setObjectName(_fromUtf8("btn_save_gui"))
         self.btn_load_gui = QtGui.QPushButton(self.centralwidget)
-        self.btn_load_gui.setGeometry(QtCore.QRect(940, 580, 75, 23))
+        self.btn_load_gui.setGeometry(QtCore.QRect(470, 110, 75, 23))
         self.btn_load_gui.setObjectName(_fromUtf8("btn_load_gui"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1144, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1373, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
@@ -176,9 +161,6 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
-        self.txt_tag.setText(_translate("MainWindow", "some tag", None))
-        self.btn_clear_record.setText(_translate("MainWindow", "Delete", None))
-        self.btn_save_record_to_disk.setText(_translate("MainWindow", "Save to disk", None))
         self.tree_scripts.headerItem().setText(0, _translate("MainWindow", "Parameter/Script", None))
         self.tree_scripts.headerItem().setText(1, _translate("MainWindow", "Value", None))
         self.btn_stop_script.setText(_translate("MainWindow", "stop", None))
