@@ -47,6 +47,7 @@ class Script(object):
         """
         if name is None:
             name = self.__class__.__name__
+
         self.name = name
 
         self._instruments = {}
@@ -54,8 +55,8 @@ class Script(object):
             instruments = {}
         else:
             assert isinstance(instruments, dict)
-            assert set(instruments.keys()) == set(self._INSTRUMENTS.keys())
-        self.instruments = instruments
+            assert set(self._INSTRUMENTS.keys()) <= set(instruments.keys())
+        self.instruments = {key: instruments[key] for key, value in self._INSTRUMENTS.iteritems()}
 
         self._scripts = {}
         if scripts is None:
@@ -143,7 +144,8 @@ class Script(object):
     def name(self, value):
         if isinstance(value, unicode):
             value = str(value)
-        assert isinstance(value, str)
+
+        assert isinstance(value, str), str(value) + ' is not a string'
         self._name = value
 
     @property
@@ -152,7 +154,7 @@ class Script(object):
     @instrumets.setter
     def instruments(self, instrument_dict):
         assert isinstance(instrument_dict, dict)
-        assert set(instrument_dict.keys()) == set(self._INSTRUMENTS.keys()), "keys in{:s}\nkeys expected{:s}".format(str(instrument_dict.keys()), str( self._INSTRUMENTS.keys()))
+        assert set(self._INSTRUMENTS.keys()) <= set(instrument_dict.keys()), "keys in{:s}\nkeys expected{:s}".format(str(instrument_dict.keys()), str( self._INSTRUMENTS.keys()))
         for key, value in self._INSTRUMENTS.iteritems():
             self._instruments.update({key: instrument_dict[key]})
 
@@ -282,13 +284,13 @@ class Script(object):
         if len(set([len(v) for v in data.values()])) == 1 and len(np.shape(data.values()[0]))==1:
             # if all entries of the dictionary are the same length and single column we can write the data into a single file
             df = pd.DataFrame(data)
-            df.to_csv(filename, index=False, header=False)
+            df.to_csv(filename, index=False)
 
         else:
             # otherwise, we write each entry into a separate file into a subfolder data
             for key, value in data.iteritems():
                 df = pd.DataFrame(value)
-                df.to_csv(filename.replace('-data.csv', '-{:s}.csv'.format(key)), index=False, header=False)
+                df.to_csv(filename.replace('-data.csv', '-{:s}.csv'.format(key)), index=False)
 
     def save_log(self, filename = None):
         """
@@ -637,22 +639,7 @@ class QThreadWrapper(QThread):
         self.updateProgress.emit(100)
 
 
-#
-# if __name__ == '__main__':
-#     from src.core.read_write_functions import load_b26_file
-#     from src.instruments import DummyInstrument
-#     filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
-#     data = load_b26_file(filename)
-#     scripts = {}
-#     instruments = {"dummy_instrument": DummyInstrument("dummy_instrument")}
-#     scripts_failed = Script.load_and_append(data['scripts'], scripts, instruments)
-#     print('loaded', scripts)
-#     print('failed', scripts_failed)
-#
-#
-#     print(scripts['dummy script with inst'].settings)
-#     print(scripts['dummy script with inst'].instruments['dummy_instrument'])
-#     print(scripts['dummy script with inst'].scripts)
+
 
 
 
@@ -664,8 +651,9 @@ if __name__ == '__main__':
     from src.core import Script
     # create script
 
-
-    scripts, loaded_failed, instruments = Script.load_and_append({"script with inst": 'ScriptDummyWithInstrument', "script with suscript": 'ScriptDummyWithSubScript'})
+    # instruments = {}
+    # scripts = {}
+    scripts, loaded_failed, instruments = Script.load_and_append({"af": 'AutoFocus'})
     print(instruments)
     print(scripts)
 

@@ -25,6 +25,7 @@ class ESR_Multiple_NVs(Script, QThread):
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
     updateProgress = Signal(int)
+
     def __init__(self, instruments = None, name = None, settings = None,  log_output = None):
         """
         Example of a script that emits a QT signal for the gui

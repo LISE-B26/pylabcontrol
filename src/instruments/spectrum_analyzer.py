@@ -61,7 +61,7 @@ class SpectrumAnalyzer(Instrument):
         super(SpectrumAnalyzer, self).update(settings)
 
         # set mode first
-        if  'mode' in settings:
+        if 'mode' in settings:
             self._wait_for_spec_anal()
             self._set_mode(settings['mode'])
             print('mode',settings['mode'])

@@ -5,7 +5,7 @@ from src.scripts import GalvoScan
 import numpy as np
 import scipy as sp
 
-class ScriptDummyWithQtSignal(Script, QThread):
+class AutoFocus(Script, QThread):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', 'Z:/Lab/Cantilever/Measurements/----data_tmp_default----', str, 'path for data'),
@@ -30,14 +30,14 @@ class ScriptDummyWithQtSignal(Script, QThread):
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
     updateProgress = Signal(float)
-    def __init__(self, name = None, settings = None, log_output = None):
+    def __init__(self, instruments, scripts, name = None, settings = None, log_output = None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        Script.__init__(self, name, settings, log_output = log_output)
+        Script.__init__(self, name, settings, instruments, scripts, log_output = log_output)
         # QtCore.QThread.__init__(self)
         QThread.__init__(self)
 
@@ -107,3 +107,27 @@ class ScriptDummyWithQtSignal(Script, QThread):
 
     def stop(self):
         self._abort = True
+
+
+if __name__ == '__main__':
+    # from src.core import Instrument
+    # from src.scripts import GalvoScan
+    # # instruments, loaded_failed = Instrument.load_and_append({'daq': 'DAQ'})
+    # # print(instruments)
+    # # gs = GalvoScan(instruments)
+    #
+    # scripts, loaded_failed, instruments = Script.load_and_append({"take_image": 'GalvoScan'})
+    # print(scripts, instruments)
+    # if loaded_failed != []:
+    #     print('FAILED')
+    #
+    # instruments, loaded_failed = Instrument.load_and_append({'z_piezo':'PiezoController'},instruments)
+    # print('DD', scripts, instruments)
+    # if loaded_failed != []:
+    #     print('FAILED')
+    #
+    # #
+    # af = AutoFocus(name = 'aff', instruments=instruments, scripts=scripts)
+    # print(af)
+    scripts, loaded_failed, instruments = Script.load_and_append({"af": 'AutoFocus'})
+    print(scripts, loaded_failed, instruments)

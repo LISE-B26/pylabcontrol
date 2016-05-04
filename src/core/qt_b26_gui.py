@@ -484,9 +484,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         script = self.current_script
 
         # if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower)):
-        #     if script.data:
-        #         script.plot(self.matplotlibwidget.axes)
-        #         self.matplotlibwidget.draw()
+        if isinstance(script, (AutoFocus)):
+            if script.data:
+                script.plot(self.matplotlibwidget.axes)
+                self.matplotlibwidget.draw()
 
         # if isinstance(script, (GalvoScan)):
         #     if script.data:
