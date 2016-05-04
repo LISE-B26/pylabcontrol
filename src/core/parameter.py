@@ -120,72 +120,29 @@ class Parameter(dict):
 
         return valid
 
-    # def append(self, name, values):
-    #     """
-    #     append a parameter to an existing parameter. This has so far been tested for points to be added to a list of points
-    #     Args:
-    #         values: a parameter or a list of parameters to be added to the current paramter
-    #
-    #     Returns:
-    #
-    #     """
-    #
-    #     # we only support to append parameters or a list of parameters
-    #     assert isinstance(values, (Parameter, list))
-    #     if isinstance(values, list):
-    #         for element in values:
-    #             assert isinstance(element, Parameter)
-    #     else:
-    #         values = [values]
-    #
-    #
-    #     for element in values:
-    #
-    #         self.valid_values[name].update(element.valid_values)
-    #         self[name].update(element)
-    #         self.info[name].update(element.info)
-    #
-    #     print('AA',self[name])
-    #     print('VV',self.valid_values[name])
-    #
-    # # def remove(self, name, ):
-
 
 if __name__ == '__main__':
-    pt1 = Parameter('pt1',[Parameter('x', 1.0),Parameter('y', 0.0)])
-    pt2 = Parameter('pt2', [Parameter('x', 2.0), Parameter('y', 0.0)])
-    pt3 = Parameter('pt3', [Parameter('x', 3.0), Parameter('y', 0.0)])
-
-    plist2 = Parameter('list2', [pt1, pt2])
-    plist3 = Parameter('list2', [pt1, pt2, pt3])
-
-
-    print(plist2['list2'], type(plist2['list2']))
-
-    for x in plist2['list2']:
-        print(x, type(x))
-
-    print('=========')
-
-
+    p = Parameter([
+        Parameter('x', 1),
+        Parameter('filter wheel', [
+            Parameter('channel', 1, int, 'channel to which motor is connected'),
+            Parameter('settle_time', 0.8, float, 'settling time'),
+            Parameter('ND2.0', 4 * 2700, int, 'position corresponding to position 1'),
+            Parameter('ND1.0', 4 * 1700, int, 'position corresponding to position 2'),
+            Parameter('Red', 4 * 750, int, 'position corresponding to position 3'),
+            Parameter('current_position', 'ND1.0', ['ND1.0', 'ND2.0', 'Red'],
+                      'current position of filter wheel')
+        ])
+    ])
+    print('asdad')
+    print(p['filter wheel'], type(p['filter wheel']))
 
 
+    print('======')
+    # print(p['filter wheel'].valid_values)
+    print(p.valid_values['filter wheel'])
     #
-    plist2.append('list2', pt3)
-
-    print(plist2)
-    print(plist3)
-
-    import json
-
-    assert json.dumps(plist2) == json.dumps(plist3)
-
-    print(plist2.valid_values)
-    print(plist3.valid_values)
-
-    # assert json.dumps(plist2.valid_values) == json.dumps(plist3.valid_values)
-    #
-    # print(json.dumps(plist2))
-    # print(json.dumps(plist3))
-    #
-
+    # p = Parameter({'a':1})
+    # print(p)
+    # p = Parameter('a', 1)
+    # print(p)

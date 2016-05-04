@@ -39,14 +39,8 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         self.info = info
         self.visible = visible
 
-
         self.setData(0, 0, unicode(self.name))
-        # self.setText(0, unicode(self.name))
 
-        print('fff',name, valid_values)
-        if name == 'current_position':
-            print('a', self.valid_values)
-            print('b', self.value)
             # raise ValueError
         if isinstance(self.valid_values, list):
             self.combobox = QtGui.QComboBox()
@@ -65,20 +59,16 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         elif isinstance(self.value, Parameter):
             # print('-->', self.value, self.value.valid_values)
             for key, value in self.value.iteritems():
-                if key == 'current_position':
-                    print('f', key, value)
-                    print('g', self.value.valid_values[key])
-                    print('g1', self.valid_values)
-                    print('g2', self.value.valid_values)
-                    # raise ValueError
-                    print('<========>')
-
-                # B26QTreeItem(self, key, value, self.value.valid_values[key], self.value.info[key], visible=self.visible)
-                B26QTreeItem(self, key, value, self.valid_values[key], self.info[key], visible=self.visible)
+                B26QTreeItem(self, key, value, self.value.valid_values[key], self.value.info[key], visible=self.visible)
 
         elif isinstance(self.value, dict):
+
+
+
             for key, value in self.value.iteritems():
-                B26QTreeItem(self, key, value, type(value), '',visible=self.visible)
+
+                # B26QTreeItem(self, key, value, type(value), '',visible=self.visible)
+                B26QTreeItem(self, key, value, self.valid_values[key], self.info[key], visible=self.visible)
 
         elif isinstance(self.value, Instrument):
             index_top_level_item = self.treeWidget().indexOfTopLevelItem(self)
@@ -310,3 +300,52 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             value = self.value
 
         return  {self.name: value}
+
+
+
+if __name__ == '__main__':
+
+    # from src.core import Instrument
+    # from src.core.read_write_functions import load_b26_file
+    #
+    #
+    # # from file
+    # file = 'C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments\\MaestroLightControl.b26'
+    #
+    # input = load_b26_file(file)['instruments']
+    #
+    # instruments = {}
+    # instruments, failed = Instrument.load_and_append(input, instruments)
+    # print(instruments)
+    #
+    #
+    # sett = instruments['MaestroLightControl'].settings
+    # print('======')
+    # print(sett['filter wheel'], type(sett['filter wheel']))
+    # print(sett.valid_values['filter wheel'])
+    #
+    # p = instruments['MaestroLightControl'].settings['filter wheel']
+    # print('======')
+    # print(p, type(p))
+    # print(p.valid_values)
+    #
+
+
+    print('- ---------- NEW -----------------')
+    # new
+    from src.instruments import MaestroLightControl
+
+    instruments = {'MaestroLightControl':MaestroLightControl()}
+
+    sett = instruments['MaestroLightControl'].settings
+    print('======')
+    print(sett['filter wheel'], type(sett['filter wheel']))
+    print(sett.valid_values['filter wheel'])
+
+    p = instruments['MaestroLightControl'].settings['filter wheel']
+    print('======')
+    print(p, type(p))
+    # print(p.valid_values)
+
+
+
