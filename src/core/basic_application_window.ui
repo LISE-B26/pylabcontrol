@@ -6,68 +6,25 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1144</width>
-    <height>718</height>
+    <width>1373</width>
+    <height>734</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QListView" name="list_records">
-    <property name="geometry">
-     <rect>
-      <x>740</x>
-      <y>220</y>
-      <width>391</width>
-      <height>141</height>
-     </rect>
-    </property>
-    <property name="selectionMode">
-     <enum>QAbstractItemView::MultiSelection</enum>
-    </property>
-    <property name="modelColumn">
-     <number>0</number>
-    </property>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>740</x>
-      <y>370</y>
-      <width>391</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QLineEdit" name="txt_tag">
-       <property name="text">
-        <string>some tag</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btn_clear_record">
-       <property name="text">
-        <string>Delete</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btn_save_record_to_disk">
-       <property name="text">
-        <string>Save to disk</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>200</y>
+      <y>210</y>
       <width>721</width>
       <height>471</height>
      </rect>
@@ -375,17 +332,17 @@
    <widget class="MatplotlibWidget" name="matplotlibwidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>740</x>
       <y>0</y>
-      <width>321</width>
-      <height>191</height>
+      <width>621</width>
+      <height>691</height>
      </rect>
     </property>
    </widget>
    <widget class="MatplotlibWidget" name="matplotlibwidget_2">
     <property name="geometry">
      <rect>
-      <x>740</x>
+      <x>10</x>
       <y>0</y>
       <width>391</width>
       <height>211</height>
@@ -395,8 +352,8 @@
    <widget class="QPushButton" name="btn_save_gui">
     <property name="geometry">
      <rect>
-      <x>1020</x>
-      <y>580</y>
+      <x>550</x>
+      <y>110</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -408,8 +365,8 @@
    <widget class="QPushButton" name="btn_load_gui">
     <property name="geometry">
      <rect>
-      <x>940</x>
-      <y>580</y>
+      <x>470</x>
+      <y>110</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -418,20 +375,13 @@
      <string>Load</string>
     </property>
    </widget>
-   <zorder>layoutWidget</zorder>
-   <zorder>list_records</zorder>
-   <zorder>tabWidget</zorder>
-   <zorder>matplotlibwidget</zorder>
-   <zorder>matplotlibwidget_2</zorder>
-   <zorder>btn_save_gui</zorder>
-   <zorder>btn_load_gui</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1144</width>
+     <width>1373</width>
      <height>21</height>
     </rect>
    </property>

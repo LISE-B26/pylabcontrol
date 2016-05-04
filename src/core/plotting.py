@@ -23,3 +23,12 @@ def plot_psd(freq, psd,  axes, clear = True):
     axes.semilogy(freq, psd)
 
     axes.set_xlabel('frequency ({:s})'.format(unit))
+
+
+
+def plot_fluorescence(image_data, extent, axes):
+
+        axes.imshow(image_data, cmap='pink', interpolation="nearest", extent=extent)
+        axes.set_xlabel('Vx')
+        axes.set_ylabel('Vy')
+        axes.set_title('Confocal Image')

@@ -1,6 +1,5 @@
 from src.core import Script, Parameter
 from PySide.QtCore import Signal, QThread
-
 import numpy as np
 
 
@@ -10,9 +9,9 @@ import numpy as np
 # from scipy import signal
 # import numpy as np
 # import scipy.optimize as opt
-# from scipy import ndimage
+from scipy import ndimage
 # import matplotlib.pyplot as plt
-# import skimage.feature
+import skimage.feature as feature
 # from skimage import data, img_as_float
 # import pandas as pd
 # from matplotlib.patches import Rectangle
@@ -25,46 +24,30 @@ import numpy as np
 # REF_PIXEL_NUM = 120
 # MIN_NV_CNTS = 15
 
-# def locate_NVs(image, voltage_range, numPts):
-#     """
-#     # Locates NVs in an image by smoothing with a gaussian filter and finding intensity maxima. Returns coordinates of
-#     # NVs in pixels
-#     :param image: an intensity image
-#     :param voltage_range: size of image in volts so filter can be scaled
-#     :return: coordinates of NVs in pixels
-#     """
-#     # scales Gaussian filter size based on current pixel to voltage scaling
-#     scaling = (REF_VOLTAGE_RANGE/voltage_range)*(numPts/REF_PIXEL_NUM)
-#     print('scaling:' + str(scaling))
-#
-#     # convolves image with a gaussian filter to smooth peaks and prevent many local maxima
-#     image_gaussian = ndimage.gaussian_filter(image, GAUSSIAN_SIGMA*scaling, mode='reflect')
-#
-#     #finds local maxima in smoothed images, corresponding to center of NVs
-#     coordinates = skimage.feature.peak_local_max(image_gaussian, MIN_SEPARATION*scaling, exclude_border=False, threshold_rel=0, threshold_abs=MIN_NV_CNTS)
-#     return np.array(coordinates,dtype=float)
-#
-#
-#
-
-
+from src.core.plotting import plot_fluorescence
 
 class Find_Points(Script):
 
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/', str, 'path for data'),
+        Parameter('image_path', 'Z:/Lab/Cantilever/Measurements/__test_data_for_coding/', str, 'path for data'),
+        Parameter('image_tag', 'some_name', str, 'some_name'),
+        Parameter('path', 'Z:/Lab/Cantilever/Measurements/__test_data_for_coding/', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off')
+        Parameter('save', True, bool, 'save data on/off'),
+        Parameter('fit_values',[
+            Parameter('min_separation', 2.0, float, 'minimum seperation between adjacent points in um'),
+            Parameter('point_size', 0.5, float, 'size of point in um'),
+            # Parameter('ref_voltage_range', .15),
+            # Parameter('ref_pixel_number', 120),
+            Parameter('min_NV_counts', 0.015, float, 'the minimum of NV counts (in kCounts) to be considered a valid NV'),
+            Parameter('image_size', 15.0, float, 'size of image in (um)')
+        ])
     ])
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}
 
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = Signal(int)
     def __init__(self, instruments = None, name = None, settings = None,  log_output = None):
         """
         Example of a script that emits a QT signal for the gui
@@ -80,101 +63,80 @@ class Find_Points(Script):
         will be overwritten in the __init__
         """
 
-        def calc_progress():
-            pass
+        def locate_Points(image):
+            """
+            # Locates NVs in an image by smoothing with a gaussian filter and finding intensity maxima. Returns coordinates of
+            # NVs in pixels
+            # scales Gaussian filter size based on current pixel to voltage scaling
+            Args:
+                image: an intensity image
 
-        # self.save(save_data=True, save_instrumets=False, save_log=False, save_settings=False)
+            Returns:  coordinates of NVs in pixels
 
-        # progress = calc_progress()
-        #
-        # self.updateProgress.emit(progress)
-        #
-        # self.updateProgress.emit(100)
-        x =  []
-        y = []
-        import random
-        for i in range(10):
-            x.append(random.random())
-            y.append(random.random())
+            """
 
-        self.data = {'x':x, 'y':y}
-        self.save_data()
+            numPts = len(image) # size of image in pixels
+            scaling_pixel_um = self.settings['fit_values']['image_size'] / numPts # scaling factor to convert from pixel to um
+            gaussian_sigma_px = int(self.settings['fit_values']['point_size'] / scaling_pixel_um) # size of point in pixel
+            separation_px = int(self.settings['fit_values']['min_separation'] / scaling_pixel_um) # minimum seperation between adjacent points in pixel
+            min_NV_counts  = self.settings['fit_values']['min_NV_counts']
 
-        print(self.settings)
-
-    def plot(self, axes):
-        for (x, y) in self.data['points']:
-            print(x, y)
-            axes.plot(x,y,'x')
-
-        axes.set_xlim([-1,1])
-        axes.set_ylim([-1, 1])
+            print('scaling_pixel_um',scaling_pixel_um)
+            print('gaussian_sigma_px', gaussian_sigma_px)
+            print('separation_px', separation_px)
 
 
+            # convolves image with a gaussian filter to smooth peaks and prevent many local maxima
+            image_gaussian = ndimage.gaussian_filter(image, gaussian_sigma_px, mode='reflect')
+            # image_gaussian = ndimage.gaussian_filter(image, gaussian_sigma_px)
 
-class Select_Points(Script):
+            # finds local maxima in smoothed images, corresponding to center of NVs
+            coordinates = feature.peak_local_max(image_gaussian, min_distance=separation_px, exclude_border=False,
+                                                 threshold_rel=0, threshold_abs = min_NV_counts)
 
-    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off')
-    ])
+            return np.array(coordinates, dtype=float), image_gaussian
 
-    _INSTRUMENTS = {}
-    _SCRIPTS = {}
+        # load image
+        image_data=Script.load_data(self.settings['image_path'], data_name_in='image_data')
 
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = Signal(int)
-    def __init__(self, instruments = None, name = None, settings = None,  log_output = None):
-        """
-        Example of a script that emits a QT signal for the gui
-        Args:
-            name (optional): name of script, if empty same as class name
-            settings (optional): settings for this script, if empty same as default settings
-        """
-        Script.__init__(self, name, settings = settings, instruments = instruments, log_output = log_output)
+        coordinates, image_gaussian = locate_Points(image_data)
+        self.data = {'NV_positions':coordinates, 'image':image_data, 'image_gaussian':image_gaussian}
+        # self.save_data()
 
-    def _function(self):
-        """
-        This is the actual function that will be executed. It uses only information that is provided in the settings property
-        will be overwritten in the __init__
-        """
 
-        def calc_progress():
-            pass
 
-        # self.save(save_data=True, save_instrumets=False, save_log=False, save_settings=False)
-
-        # progress = calc_progress()
-        #
-        # self.updateProgress.emit(progress)
-        #
-        # self.updateProgress.emit(100)
-        x =  []
-        y = []
-        import random
-        for i in range(10):
-            x.append(random.random())
-            y.append(random.random())
-
-        self.data = {'x':x, 'y':y}
-        self.save_data()
-
-        print(self.settings)
 
     def plot(self, axes):
-        for (x, y) in self.data['points']:
-            print(x, y)
-            axes.plot(x,y,'x')
 
-        axes.set_xlim([-1,1])
-        axes.set_ylim([-1, 1])
+        image  = self.data['image']
+        positions = self.data['NV_positions']
+        extend = [-1, 1, -1, 1]
+        plot_fluorescence(image, extend, axes)
+
+        # for x in self.data['NV_positions']:
+        #     # print(x)
+        #     axes.plot(x[0], x[1], 'ro')
 
 if __name__ == '__main__':
     fp = Find_Points(settings={'path': 'Z:/Lab/Cantilever/Measurements/__tmp__', 'tag':'nvs'})
     fp.run()
 
-    print(fp.data)
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    plt.pcolor(fp.data['image_gaussian'])
+
+
+    # for x in fp.data['NV_positions']:
+    #     # print(x)
+    #     plt.plot(x[0],x[1],'ro')
+
+    plt.show()
+
+    # plt.figure()
+    # plt.imshow(fp.data['image_gaussian'])
+    # Axes3D.plot(fp.data['image_gaussian'])
+    plt.show()
+    print(max(fp.data['image']))
+    print(max(fp.data['image_gaussian'].flatten()))
+    # print('NV_positions', fp.data['NV_positions'])
+
