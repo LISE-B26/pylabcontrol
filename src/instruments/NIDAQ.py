@@ -292,10 +292,6 @@ class DAQ(Instrument):
                 self.data[i] = waveform[i]
         self.CHK(self.nidaq.DAQmxCreateTask("",
                                        ctypes.byref(self.AO_taskHandle)))
-
-        statusX = ctypes.c_bool()
-        x = self.nidaq.DAQmxIsTaskDone(self.AO_taskHandle, statusX)
-
         self.CHK(self.nidaq.DAQmxCreateAOVoltageChan(self.AO_taskHandle,
                                                 channel_list,
                                                 "",

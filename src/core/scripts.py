@@ -282,13 +282,13 @@ class Script(object):
         if len(set([len(v) for v in data.values()])) == 1 and len(np.shape(data.values()[0]))==1:
             # if all entries of the dictionary are the same length and single column we can write the data into a single file
             df = pd.DataFrame(data)
-            df.to_csv(filename, index=False)
+            df.to_csv(filename, index=False, header=False)
 
         else:
             # otherwise, we write each entry into a separate file into a subfolder data
             for key, value in data.iteritems():
                 df = pd.DataFrame(value)
-                df.to_csv(filename.replace('-data.csv', '-{:s}.csv'.format(key)), index=False)
+                df.to_csv(filename.replace('-data.csv', '-{:s}.csv'.format(key)), index=False, header=False)
 
     def save_log(self, filename = None):
         """

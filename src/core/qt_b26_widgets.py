@@ -67,8 +67,10 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
             for key, value in self.value.iteritems():
 
-                # B26QTreeItem(self, key, value, type(value), '',visible=self.visible)
-                B26QTreeItem(self, key, value, self.valid_values[key], self.info[key], visible=self.visible)
+                if self.valid_values == dict:
+                    B26QTreeItem(self, key, value, type(value), '', visible=self.visible)
+                else:
+                    B26QTreeItem(self, key, value, self.valid_values[key], self.info[key], visible=self.visible)
 
         elif isinstance(self.value, Instrument):
             index_top_level_item = self.treeWidget().indexOfTopLevelItem(self)

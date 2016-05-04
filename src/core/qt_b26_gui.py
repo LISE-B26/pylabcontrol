@@ -255,12 +255,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 script.updateProgress.connect(self.update_status)
                 self.current_script = script
+                if(type(script) == GalvoScan):
+                    script.set_plot_widget(self.matplotlibwidget)
                 script.start()
             else:
                 self.log('No script selected. Select script and try again!')
         elif sender is self.btn_stop_script:
             if ((not self.current_script is None) and (self.current_script.isRunning())):
-                print('here')
                 self.current_script.stop()
             else:
                 self.log('There is no currently running script. Stop failed!')
@@ -487,10 +488,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         #         script.plot(self.matplotlibwidget.axes)
         #         self.matplotlibwidget.draw()
 
-        if isinstance(script, (GalvoScan)):
-            if script.data:
-                script.plot(self.matplotlibwidget.axes)
-                self.matplotlibwidget.draw()
+        # if isinstance(script, (GalvoScan)):
+        #     if script.data:
+        #         script.plot(self.matplotlibwidget.axes)
+        #         self.matplotlibwidget.draw()
 
 
     def update_probes(self, progress):

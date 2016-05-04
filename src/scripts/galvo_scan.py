@@ -37,6 +37,7 @@ class GalvoScan(Script, QThread):
 
     def __init__(self, instruments, name = None, settings = None,  log_output = None, timeout = 1000000000):
         self.timeout = timeout
+        self.plot_widget = None
 
         Script.__init__(self, name, settings=settings, instruments=instruments, log_output=log_output)
 
@@ -120,13 +121,21 @@ class GalvoScan(Script, QThread):
                 progress = int(float(yNum + 1)/len(self.y_array)*100)
                 self.updateProgress.emit(progress)
                 update_time = current_time
+                if self.plot_widget:
+                    self.plot(self.plot_widget.axes)
+                    self.plot_widget.draw()
 
-        time.sleep(.5)
-        progress = int(float(yNum + 1) / len(self.y_array) * 100)
+        time.sleep(1)
+        progress = 100
         self.updateProgress.emit(progress)
+        if self.plot_widget:
+            self.plot(self.plot_widget.axes)
+            self.plot_widget.draw()
 
         if self.settings['save']:
             self.save()
+            self.save_data()
+            self.save_log()
 
 
     def plot(self, axes):
@@ -167,6 +176,9 @@ class GalvoScan(Script, QThread):
 
     def stop(self):
         self._abort = True
+
+    def set_plot_widget(self, widget):
+        self.plot_widget = widget
 
 if __name__ == '__main__':
     pass

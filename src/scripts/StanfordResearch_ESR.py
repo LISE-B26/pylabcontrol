@@ -8,11 +8,11 @@ import matplotlib.pyplot as plt
 import scipy.optimize as opt
 import time
 import pandas as pd
-from PyQt4 import QtGui
+from PySide.QtCore import Signal, QThread
 from src.core import Parameter
 from src.instruments import MicrowaveGenerator, DAQ
 
-class StanfordResearch_ESR(Script):
+class StanfordResearch_ESR(Script, QThread):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', 'Z:/Lab/Cantilever/Measurements/----data_tmp_default----', str, 'path for data'),
@@ -179,3 +179,12 @@ class StanfordResearch_ESR(Script):
     # defines a lorentzian with some amplitude, width, center, and offset to use with opt.curve_fit
     def lorentzian(self, x, amplitude, width, center, offset):
         return (-(amplitude*(.5*width)**2)/((x-center)**2+(.5*width)**2))+offset
+
+if __name__ == '__main__':
+    script = {}
+    instr = {}
+    script, failed, instr = Script.load_and_append({'StanfordResearch_ESR': 'StanfordResearch_ESR'}, script, instr)
+
+    print(script)
+    print(failed)
+    print(instr)
