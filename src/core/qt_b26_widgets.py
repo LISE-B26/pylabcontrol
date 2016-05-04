@@ -43,7 +43,11 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         self.setData(0, 0, unicode(self.name))
         # self.setText(0, unicode(self.name))
 
-
+        print('fff',name, valid_values)
+        if name == 'current_position':
+            print('a', self.valid_values)
+            print('b', self.value)
+            # raise ValueError
         if isinstance(self.valid_values, list):
             self.combobox = QtGui.QComboBox()
             for item in self.valid_values:
@@ -61,7 +65,16 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         elif isinstance(self.value, Parameter):
             # print('-->', self.value, self.value.valid_values)
             for key, value in self.value.iteritems():
-                B26QTreeItem(self, key, value, self.value.valid_values[key], self.value.info[key], visible=self.visible)
+                if key == 'current_position':
+                    print('f', key, value)
+                    print('g', self.value.valid_values[key])
+                    print('g1', self.valid_values)
+                    print('g2', self.value.valid_values)
+                    # raise ValueError
+                    print('<========>')
+
+                # B26QTreeItem(self, key, value, self.value.valid_values[key], self.value.info[key], visible=self.visible)
+                B26QTreeItem(self, key, value, self.valid_values[key], self.info[key], visible=self.visible)
 
         elif isinstance(self.value, dict):
             for key, value in self.value.iteritems():
@@ -73,6 +86,13 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             if top_level_item == self:
                 # instrument is on top level, thus we are in the instrument tab
                 for key, value in self.value.settings.iteritems():
+                    # print(key, value)
+                    if key == 'filter wheel':
+
+                        print(key, value)
+                        print(self.value.settings.valid_values[key])
+                        # raise ValueError
+                        print('========')
                     B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
             else:
                 self.valid_values = [self.value.name]
