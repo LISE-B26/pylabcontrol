@@ -11,7 +11,6 @@ class AutoFocus(Script, QThread):
         Parameter('path', 'Z:/Lab/Cantilever/Measurements/----data_tmp_default----', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', True, bool, 'save data on/off'),
-        Parameter('axis', 'x', ['x', 'y', 'z'], 'piezo controller axis the piezo is connected to'),
         Parameter('piezo_min_voltage', 30.0, float, 'lower bound of piezo voltage sweep'),
         Parameter('piezo_max_voltage', 70.0, float, 'upper bound of piezo voltage sweep'),
         Parameter('num_sweep_points', 10, int, 'number of values to sweep between min and max voltage'),
@@ -47,12 +46,8 @@ class AutoFocus(Script, QThread):
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-
-        # some generic function
-        import time
-        import random
-
-        self.instruments.z_piezo.axis = self.settings.axis
+        z_piezo = self.instruments.z_piezo['instance']
+        z_piezo.update(self.instruments.z_piezo['settings'])
         sweep_voltages = np.linspace(self.settings.piezo_min_voltage,
                                      self.settings.piezo_max_voltage,
                                      self.settings.num_sweep_points)
@@ -62,11 +57,11 @@ class AutoFocus(Script, QThread):
 
         for voltage in sweep_voltages:
             # set the voltage on the piezo
-            self.instruments.z_piezo.voltage = float(voltage)
+            z_piezo.voltage = float(voltage)
             self.log('Voltage set to {:d}'.format(voltage))
 
             # take a galvo scan
-            self.scripts.take_image.run()
+            self.scripts.take_image['instance'].run()
             self.data['images'].append(self.scripts.take_image.data)
             self.log('Took image.')
 
