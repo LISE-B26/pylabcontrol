@@ -18,7 +18,7 @@ Autofocus: WRITE SOME TEXT HERE
         Parameter('piezo_min_voltage', 30.0, float, 'lower bound of piezo voltage sweep'),
         Parameter('piezo_max_voltage', 70.0, float, 'upper bound of piezo voltage sweep'),
         Parameter('num_sweep_points', 10, int, 'number of values to sweep between min and max voltage'),
-        Parameter('mode', 'mean', ['mean', 'std_dev'], 'optimization function for focusing'),
+        Parameter('mode', 'standard_deviation', ['mean', 'standard_deviation'], 'optimization function for focusing'),
         Parameter('wait_time', 0.1, float)
     ])
 
@@ -76,14 +76,14 @@ Autofocus: WRITE SOME TEXT HERE
 
             # take a galvo scan
             self.scripts['take_image'].run()
-            self.data['images'].append(self.scripts['take_image'].data)
+            self.data['images'].append(self.scripts['take_image'].data['image_data'])
             self.log('Took image.')
 
             # calculate focusing function for this sweep
             if self.settings['mode'] == 'mean':
-                self.data['focus_function_result'].append(float(np.mean(self.data['images'])))
+                self.data['focus_function_result'].append(float(np.mean(self.data['images'][-1])))
             elif self.settings['mode'] == 'std_dev':
-                self.data['focus_function_result'].append(float(np.std(self.data['images'])))
+                self.data['focus_function_result'].append(float(np.std(self.data['images'][-1])))
 
             # update progress bar
             progress = 100.0 * np.where(sweep_voltages == voltage) / float(self.settings.num_sweep_points)

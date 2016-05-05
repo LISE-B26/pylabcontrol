@@ -19,11 +19,10 @@ from collections import deque
 
 # from src.core import instantiate_probes
 
-from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower
+from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus
 from src.core.plotting import plot_psd
 
 from src.core.read_write_functions import load_b26_file
-
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
     # import external_modules.matplotlibwidget
@@ -33,6 +32,8 @@ except (ImportError, IOError):
     from src.core.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
     print('Warning!!: on the fly conversion of basic_application_window.ui file failed, loaded .py file instead!!')
+
+
 
 
 
@@ -404,7 +405,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # update the internal dictionaries from the trees in the gui
         for name, script in self.scripts.iteritems():
             print('updating ', name)
-            self.update_script_from_tree(script)
+            self.update_script_from_tree(script, self.tree_scripts)
         # for index in range(self.tree_scripts.topLevelItemCount()):
         #     script = self.tree_scripts.topLevelItem(index)
         #     self.update_script_from_tree(script)
