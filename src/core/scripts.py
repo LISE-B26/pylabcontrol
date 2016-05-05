@@ -179,14 +179,23 @@ class Script(object):
 
     def update(self, settings):
         '''
-        updates the internal dictionary and sends changed values to instrument
+        updates the internal dictionary
         Args:
             settings: parameters to be set
         # mabe in the future:
         # Returns: boolean that is true if update successful
 
         '''
-        self._settings.update(settings)
+        #'AAAAAAAAAAAAAA'
+        if 'settings' in settings:
+            self._settings.update(settings['settings'])
+        else:
+            self._settings.update(settings)
+
+        if 'instruments' in settings:
+            for instrument_name, instrument_setting in settings['instruments'].iteritems():
+                self.instruments[instrument_name].update(instrument_setting)
+            # print('AAA', settings['instruments'].keys())
 
     @property
     def end_time(self):
@@ -582,7 +591,7 @@ class Script(object):
 
             return instrument_dict, instruments_updated
 
-        def get_sub_scripts(class_of_script, instruments):
+        def get_sub_scripts(class_of_script, instruments, sub_scripts_dict):
             """
 
             creates the dictionary with the sub scripts needed by the script and updates the instrument dictionary if new instruments are required
@@ -595,9 +604,23 @@ class Script(object):
 
             """
             default_scripts = getattr(class_of_script, '_SCRIPTS')
+            #
             # create instruments that script needs
             sub_scripts = {}
             sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments)
+
+            if sub_scripts_dict is not None:
+                for k, v in sub_scripts_dict.iteritems():
+                    #update settings
+                    sub_scripts[k].update(v)
+
+                    # print('instruments',v.keys())
+
+
+                    # print('sub_scripts_dict', k, v.keys())
+                    # default_scripts.update(sub_scripts_dict)
+                    # print('default_scripts A', default_scripts.keys())
+                    # print('sub_scripts_dict', sub_scripts_dict.keys())
 
             # todo: update the scripts with the settings if there are any
             # .....
@@ -611,6 +634,7 @@ class Script(object):
                 loaded_failed.append(script_name)
             else:
                 module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = get_script_information(script_class_name)
+
                 script_instance = None
 
                 # try to import the script
@@ -622,7 +646,8 @@ class Script(object):
                 try:
                     script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
                     #  ========= create the scripts that are needed by the script =========
-                    sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments)
+
+                    sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
 
                     class_creation_string = ''
                     if script_instruments != {}:
@@ -673,27 +698,28 @@ if __name__ == '__main__':
     from src.core.read_write_functions import load_b26_file
     from src.instruments import DummyInstrument
     from src.scripts import ScriptDummyWithInstrument
-    path = "Z:\Lab\Cantilever\Measurements\\__tmp\\"
+
     from src.core import Script
     # create script
 
-    # instruments = {}
-    # scripts = {}
-    scripts, loaded_failed, instruments = Script.load_and_append({"af": 'AutoFocus'})
-    print(instruments)
-    print(scripts)
+    # # instruments = {}
+    # # scripts = {}
+    # scripts, loaded_failed, instruments = Script.load_and_append({"af": 'AutoFocus'})
+    # print(instruments)
+    # print(scripts)
 
-    for name, script in scripts.iteritems():
-        script.save('{:s}{:s}.b26'.format(path, name.replace(' ', '_')))
+    # for name, script in scripts.iteritems():
+    #     script.save('{:s}{:s}.b26'.format(path, name.replace(' ', '_')))
 
-    #
-    #
-    # data = load_b26_file(filename)
-    # scripts = {}
-    # instruments = {}
-    # scripts, scripts_failed, instruments_2 = Script.load_and_append(data['scripts'], scripts, instruments)
+    filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\AutoFocusX.b26"
+
+    data = load_b26_file(filename)
+    scripts = {}
+    instruments = {}
+    scripts, scripts_failed, instruments = Script.load_and_append(data['scripts'], scripts, instruments)
     # print('loaded', scripts)
     # print('failed', scripts_failed)
     #
     # print(instruments)
-    # print(instruments_2)
+    print(scripts['AutoFocus'].settings)
+    print(scripts['AutoFocus'].scripts['take_image'].settings)
