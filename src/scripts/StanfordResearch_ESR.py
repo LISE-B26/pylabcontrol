@@ -11,6 +11,7 @@ import pandas as pd
 from PySide.QtCore import Signal, QThread
 from src.core import Parameter
 from src.instruments import MicrowaveGenerator, DAQ
+from collections import deque
 
 class StanfordResearch_ESR(Script, QThread):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
@@ -30,7 +31,7 @@ class StanfordResearch_ESR(Script, QThread):
 
     _INSTRUMENTS = {
         'microwave_generator': MicrowaveGenerator,
-        'daq' : DAQ
+        'daq': DAQ
     }
 
     _SCRIPTS = {
@@ -54,20 +55,21 @@ class StanfordResearch_ESR(Script, QThread):
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-        self.freq_values = np.linspace(self.settings['freq_start'], self.settings['freq_stop'], self.settings['freq_points'])
-        freq_range = max(self.freq_values) - min(self.freq_values)
-        num_freq_sections = int(freq_range) / int(self.instruments['microwave_generator'].settings['dev_width']*2) + 1
+        freq_values = np.linspace(self.settings['freq_start'], self.settings['freq_stop'], self.settings['freq_points'])
+        freq_range = max(freq_values) - min(freq_values)
+        num_freq_sections = int(freq_range) / int(self.instruments['microwave_generator']['instance'].settings['dev_width']*2) + 1
         clock_adjust = int((self.settings['integration_time'] + self.settings['settle_time']) / self.settings['settle_time'])
-        freq_array = np.repeat(self.freq_values, clock_adjust)
+        freq_array = np.repeat(freq_values, clock_adjust)
         (self.settings['integration_time'] + self.settings['settle_time']) / clock_adjust
-        self.instruments['microwave_generator'].update({'amplitude': self.settings['power_out']})
+        self.instruments['microwave_generator']['instance'].update({'amplitude': self.settings['power_out']})
 
         # move to NV point if given
         # if not (nv_x is None):
         #     move_to_NV((nv_x, nv_y))
 
-        esr_data = np.zeros((self.settings['esr_avg'], len(self.freq_values)))
-        converge_data = []
+        esr_data = np.zeros((self.settings['esr_avg'], len(freq_values)))
+        self.data = deque()
+        self.fit_params_list = deque()
 
         # run sweeps
         for scan_num in xrange(0, self.settings['esr_avg']):
@@ -75,13 +77,13 @@ class StanfordResearch_ESR(Script, QThread):
                 break
             print("Scan Number: " + str(scan_num))
             esr_data_pos = 0
-            self.instruments['microwave_generator'].update({'enable_output': True})
+            self.instruments['microwave_generator']['instance'].update({'enable_output': True})
             for sec_num in xrange(0, num_freq_sections):
                 # initialize APD thread
 
                 # calculate the minimum ad and max frequency of current section
-                sec_min = min(self.freq_values) + self.settings['dev_width']*2 * sec_num
-                sec_max = sec_min + self.settings['dev_width']*2
+                sec_min = min(freq_values) + self.instruments['microwave_generator']['instance'].settings['dev_width']*2 * sec_num
+                sec_max = sec_min + self.instruments['microwave_generator']['instance'].settings['dev_width']*2
 
                 # make freq. array for current section
                 freq_section_array = freq_array[np.where(np.logical_and(freq_array >= sec_min,
@@ -91,20 +93,20 @@ class StanfordResearch_ESR(Script, QThread):
                     continue
                 center_freq = (sec_max + sec_min) / 2.0
                 freq_voltage_array = ((
-                                      freq_section_array - sec_min) / (self.settings['dev_width']*2)) * 2 - 1  # normalize voltages to +-1 range
+                                      freq_section_array - sec_min) / (self.instruments['microwave_generator']['instance'].settings['dev_width']*2)) * 2 - 1  # normalize voltages to +-1 range
 
-                self.instruments['microwave_generator'].update({'frequency': center_freq})
+                self.instruments['microwave_generator']['instance'].update({'frequency': float(center_freq)})
 
-                self.instruments['daq'].DI_init(["ctr0"],  len(freq_voltage_array) + 1, sample_rate_multiplier=(clock_adjust- 1))
-                self.instruments['daq'].AO_init(["ao2"], freq_voltage_array)
+                self.instruments['daq']['instance'].DI_init("ctr0",  len(freq_voltage_array) + 1, sample_rate_multiplier=(clock_adjust- 1))
+                self.instruments['daq']['instance'].AO_init(["ao2"], freq_voltage_array)
 
                 # start counter and scanning sequence
-                self.instruments['daq'].DI_run()
-                self.instruments['daq'].AO_run()
-                self.instruments['daq'].AO_waitToFinish()
-                self.instruments['daq'].AO_stop()
+                self.instruments['daq']['instance'].DI_run()
+                self.instruments['daq']['instance'].AO_run()
+                self.instruments['daq']['instance'].AO_waitToFinish()
+                self.instruments['daq']['instance'].AO_stop()
 
-                raw_data, _ = self.instruments['daq'].DI_read()
+                raw_data, _ = self.instruments['daq']['instance'].DI_read()
 
                 # raw_data = sweep_mw_and_count_APD(freq_voltage_array, dt)
                 # counter counts continiously so we take the difference to get the counts per time interval
@@ -113,26 +115,28 @@ class StanfordResearch_ESR(Script, QThread):
                 for i in range(0, int((len(freq_voltage_array) / clock_adjust))):
                     summed_data[i] = np.sum(diff_data[(i * clock_adjust + 1):(i * clock_adjust + clock_adjust - 1)])
                 # also normalizing to kcounts/sec
-                esr_data[scan_num, esr_data_pos:(esr_data_pos + len(summed_data))] = summed_data * (.001 / int_time)
+                esr_data[scan_num, esr_data_pos:(esr_data_pos + len(summed_data))] = summed_data * (.001 / self.settings['integration_time'])
                 esr_data_pos += len(summed_data)
 
                 # clean up APD tasks
-                self.instruments['daq'].DI_stop()
+                self.instruments['daq']['instance'].DI_stop()
 
-            self.esr_avg = np.mean(esr_data[0:(scan_num + 1)], axis=0)
-            self.fit_params, _ = self.fit_esr(self.freq_values, self.esr_avg)
+            esr_avg = np.mean(esr_data[0:(scan_num + 1)], axis=0)
+            fit_params, _ = self.fit_esr(freq_values, esr_avg)
+            self.data.append({'frequency': freq_values, 'data': esr_avg, 'fit_params': fit_params})
 
-            self.plot()
             self.updateProgress.emit(self.calc_progress)
 
 
         if self.settings['save']:
             self.save()
+            self.save_data()
+            self.save_log()
 
-        self.instruments['microwave_generator'].update({'enable_output': False})
+        self.instruments['microwave_generator']['instance'].update({'enable_output': False})
         print('finished')
         # plt.show()
-        return self.esr_avg, self.fit_params
+        #return self.esr_avg, self.fit_params
 
         def calc_progress():
             return np.round(scan_num/self.settings['esr_avg'])
@@ -141,19 +145,20 @@ class StanfordResearch_ESR(Script, QThread):
         self.updateProgress.emit(100)
 
     def plot(self, axes):
-        if not self.fit_params[0] == -1:  # check if fit failed
-            fit_data = self.lorentzian(self.freq_values, self.fit_params[0], self.fit_params[1], self.fit_params[2], self.fit_params[3])
+        fit_params = self.data[-1]['fit_params']
+        if not fit_params[0] == -1:  # check if fit failed
+            fit_data = self.lorentzian(self.freq_values, fit_params[0], fit_params[1], fit_params[2], fit_params[3])
         else:
             fit_data = None
         fig = axes.get_figure()
         fig.clf()
         if fit_data: # plot esr and fit data
-            axes.plot(self.freq_values, self.esr_data, 'b', self.freq_values, fit_data, 'r')
+            axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b', self.freq_values, fit_data, 'r')
             axes.set_title('ESR')
             axes.set_xlabel('Frequency (Hz)')
             axes.set_ylabel('Kcounts/s')
         else: #plot just esr data
-            axes.plot(self.freq_values, self.esr_data, 'b')
+            axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b')
             axes.set_title('ESR')
             axes.set_xlabel('Frequency (Hz)')
             axes.set_ylabel('Kcounts/s')
