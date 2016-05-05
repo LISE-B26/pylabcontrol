@@ -33,6 +33,7 @@ Autofocus: WRITE SOME TEXT HERE
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
     updateProgress = Signal(float)
+
     def __init__(self, instruments, scripts, name = None, settings = None, log_output = None):
         """
         Example of a script that emits a QT signal for the gui
@@ -64,11 +65,12 @@ Autofocus: WRITE SOME TEXT HERE
 
         self.data['sweep_voltages'] = sweep_voltages
         self.data['focus_function_result'] = []
-        self.data['images'] = []
 
         for voltage in sweep_voltages:
 
-            print('voltage', voltage)
+            if self._abort:
+                self.log('Leaving focusing loop')
+                break
 
             # set the voltage on the piezo
             z_piezo.voltage = float(voltage)
@@ -76,17 +78,18 @@ Autofocus: WRITE SOME TEXT HERE
 
             # take a galvo scan
             self.scripts['take_image'].run()
-            self.data['images'].append(self.scripts['take_image'].data['image_data'])
+            current_image = self.scripts['take_image'].data['image_data']
             self.log('Took image.')
 
             # calculate focusing function for this sweep
             if self.settings['mode'] == 'mean':
-                self.data['focus_function_result'].append(float(np.mean(self.data['images'][-1])))
-            elif self.settings['mode'] == 'std_dev':
-                self.data['focus_function_result'].append(float(np.std(self.data['images'][-1])))
+                self.data['focus_function_result'].append(current_image)
+
+            elif self.settings['mode'] == 'standard_deviation':
+                self.data['focus_function_result'].append(current_image)
 
             # update progress bar
-            progress = 100.0 * np.where(sweep_voltages == voltage)[0] / float(self.settings['num_sweep_points'])
+            progress = 100.0 * (np.where(sweep_voltages == voltage)[0]+1) / float(self.settings['num_sweep_points'])
             self.updateProgress.emit(progress)
 
         # fit the data and set piezo to focus spot
@@ -99,25 +102,29 @@ Autofocus: WRITE SOME TEXT HERE
 
         reasonable_params = [noise_guess, amplitude_guess, width_guess, center_guess]
 
-        p2, success = sp.optimize.curve_fit(gaussian, self.data['sweep_voltages'],
-                                            self.data['focus_function_result'], reasonable_params)
+        try:
+            p2, success = sp.optimize.curve_fit(gaussian, self.data['sweep_voltages'],
+                                                self.data['focus_function_result'], reasonable_params)
 
-        self.data['focusing_fit_parameters'] = {}
-        if success:
-            self.log('Fit succeeded.')
-            self.data['focusing_fit_parameters']['background_noise'] = p2[0]
-            self.data['focusing_fit_parameters']['amplitude'] = p2[1]
-            self.data['focusing_fit_parameters']['center'] = p2[2]
-            self.data['focusing_fit_parameters']['width'] = p2[3]
-        else:
-            self.log('Fit failed.')
-            self.data['focusing_fit_parameters']['background_noise'] = 0.0
-            self.data['focusing_fit_parameters']['amplitude'] = 0.0
-            self.data['focusing_fit_parameters']['center'] = 0.0
-            self.data['focusing_fit_parameters']['width'] = 0.0
+            self.log('Found fit parameters')
+
+            if p2[2] > self.settings['piezo_max_voltage']:
+                z_piezo.voltage = self.settings['piezo_max_voltage']
+                self.log('Best fit found center to be above max sweep range --- set voltage to max')
+            elif p2[2] < self.settings['piezo_min_voltage']:
+                z_piezo.voltage = self.settings['piezo_min_voltage']
+                self.log('Best fit found center to be below min sweep range --- set voltage to min')
+            else:
+                z_piezo.voltage = p2[2]
+        except:
+            p2 = [0, 0, 0, 0]
+            self.log('Could not converge to fit parameters')
+            z_piezo.voltage = (self.settings['piezo_min_voltage'] + self.settings['piezo_max_voltage'])/2.0
+
+        self.data['focusing_fit_parameters'] = p2
 
         # check to see if data should be saved and save it
-        if self.settings.save:
+        if self.settings['save']:
             self.log('Saving...')
             self.save()
             self.save_data()
@@ -125,28 +132,23 @@ Autofocus: WRITE SOME TEXT HERE
             self.log('Finished saving.')
 
 
-    def plot(self, axes):
-
+    def plot(self, axis1, axis2 = None):
         # plot current focusing data
-        axes.plot(self.data['sweep_voltages'][0:len(self.data['focus_function_result'])],
-                  self.data['focus_function_result'])
+        axis1.plot(self.data['sweep_voltages'][0:len(self.data['focus_function_result'])],
+                   self.data['focus_function_result'])
 
         # plot best fit
-        if 'focusing_fit_parameters' in self.data and self.data['focusing_fit_parameters']['background_noise'] != 0.0:
+        if 'focusing_fit_parameters' in self.data and self.data['focusing_fit_parameters'] != [0,0,0,0]:
             gaussian = lambda x, params: params[0] + params[1] * np.exp(((x - params[2]) ** 2 / (2 * params[3]) ** 2))
-            parameters = [self.data['focusing_fit_parameters']['background_noise'],
-                          self.data['focusing_fit_parameters']['amplitude'],
-                          self.data['focusing_fit_parameters']['center'],
-                          self.data['focusing_fit_parameters']['width']]
 
-            fit = [gaussian(x, parameters) for x in self.data['sweep_voltages']]
-            axes.plot(self.data['sweep_voltages'], fit)
+            fit = [gaussian(x, self.data['focusing_fit_parameters']) for x in self.data['sweep_voltages']]
+            axis1.plot(self.data['sweep_voltages'], fit)
 
         # format plot
-        axes.set_xlim([self.data['sweep_voltages'][0], self.data['sweep_voltages'][-1]])
-        axes.set_xlabel('Piezo Voltage [V]')
-        axes.set_ylabel('Focusing Function')
-        axes.set_title('Autofocusing Routine')
+        axis1.set_xlim([self.data['sweep_voltages'][0], self.data['sweep_voltages'][-1]])
+        axis1.set_xlabel('Piezo Voltage [V]')
+        axis1.set_ylabel('Focusing Function')
+        axis1.set_title('Autofocusing Routine')
 
 
     def stop(self):
