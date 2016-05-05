@@ -373,7 +373,7 @@ class Script(object):
         return dictator
 
     @staticmethod
-    def load_data(path, time_tag_in = None, data_name_in = None):
+    def load_data(path, tag = None, time_tag_in = None, data_name_in = None):
         """
         loads the data that has been save with Script.save
         Args:
@@ -442,7 +442,19 @@ class Script(object):
                 data = data[time_tag_in][data_name_in]
         elif data_name_in != None:
             # return data of last data set
-            data = data[sorted(data.keys())[-1]][data_name_in]
+            #todo: current broken, need to fix
+            #data = data[sorted(data.keys())[-1]][data_name_in]
+            time_keys = sorted(data.keys())
+            time_keys.reverse()
+            for time in time_keys:
+                try:
+                    data = data[time][data_name_in].values
+                    break
+                except KeyError:
+                    continue
+            if type(data) == dict and data.empty():
+                raise ValueError('Could not find a file with this name at any time_tag')
+
 
         elif len(data) == 1:
             # if there is only one data_set, we strip of the time_tag level

@@ -3,7 +3,7 @@ Basic gui class designed with QT designer
 """
 import sip
 sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 from src.core import Parameter, Instrument, Script, B26QTreeItem, ReadProbes, QThreadWrapper
 import os.path
@@ -19,10 +19,11 @@ from collections import deque
 
 # from src.core import instantiate_probes
 
-from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus
+from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, Find_Points
 from src.core.plotting import plot_psd
 
 from src.core.read_write_functions import load_b26_file
+
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
     # import external_modules.matplotlibwidget
@@ -32,8 +33,6 @@ except (ImportError, IOError):
     from src.core.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
     print('Warning!!: on the fly conversion of basic_application_window.ui file failed, loaded .py file instead!!')
-
-
 
 
 
@@ -64,9 +63,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.list_history.setModel(self.history_model)
         self.list_history.show()
 
-        self.script_model = QtGui.QStandardItemModel(self.list_scripts)
-        self.list_scripts.setModel(self.script_model)
-        self.list_scripts.show()
+        # self.script_model = QtGui.QStandardItemModel(self.list_scripts)
+        # self.list_scripts.setModel(self.script_model)
+        # self.list_scripts.show()
 
         if filename is not None:
             self.load_settings(filename)
@@ -215,49 +214,27 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.history.append(msg)
         self.history_model.insertRow(0,QtGui.QStandardItem(msg))
 
-    def update_script_from_tree(self, script, tree):
-        print('tree', tree)
-
-        def update_script_from_item(script, item):
-            # build dictionary
-            # get full information from script
-            dictator = item.to_dict().values()[0]  # there is only one item in the dictionary
-
-            for instrument in script.instruments.keys():
-                # update instrument
-                script.instruments[instrument]['settings'] = dictator[instrument]['settings']
-                # remove instrument
-                del dictator[instrument]
-
-            for sub_script_name in script.scripts.keys():
-
-                items = tree.findItems(sub_script_name, QtCore.Qt.MatchExactly | QtCore.Qt.MatchRecursive)
-                print(len(items), items[0], isinstance(items[0].value, Script))
-                if len(items) == 1 and isinstance(items[0].value, Script):
-                    sub_script_item = items[0]
-                else:
-                    raise ValueError, 'several elements with name ' + sub_script_name
-
-
-                sub_script = script.scripts[sub_script_name]
-
-                # update script
-                print('update subscript', sub_script, sub_script_item)
-                update_script_from_item(sub_script, sub_script_item)
-                # script.scripts[sub_script_name].update(dictator[sub_script_name])
-                # remove script
-                del dictator[sub_script_name]
-
-            script.update(dictator)
-
-
-        for index in range(tree.topLevelItemCount()):
-            topLvlItem = tree.topLevelItem(index)
-
-
+    def update_script_from_tree(self, script):
+        for index in range(self.tree_scripts.topLevelItemCount()):
+            topLvlItem = self.tree_scripts.topLevelItem(index)
             if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
+                # build dictionary
+                # get full information from script
+                dictator = topLvlItem.to_dict().values()[0] # there is only one item in the dictionary
 
-                update_script_from_item(script, topLvlItem)
+                for instrument in script.instruments.keys():
+                    # update instrument
+                    script.instruments[instrument]['settings'] = dictator[instrument]['settings']
+                    # remove instrument
+                    del dictator[instrument]
+
+                for sub_script in script.scripts.keys():
+                    # update script
+                    script.scripts[sub_script].update(dictator[sub_script])
+                    # remove script
+                    del dictator[sub_script]
+
+                script.update(dictator)
 
     def btn_clicked(self):
         sender = self.sender()
@@ -268,7 +245,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if item is not None:
                 script, path_to_script = item.get_script()
-                self.update_script_from_tree(script, self.tree_scripts)
+                self.update_script_from_tree(script)
                 self.log('start {:s}'.format(script.name))
                 # is the script is not a QThread object we use the wrapper QtSCript
                 # to but it on a separate thread such that the gui remains responsive
@@ -405,7 +382,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # update the internal dictionaries from the trees in the gui
         for name, script in self.scripts.iteritems():
             print('updating ', name)
-            self.update_script_from_tree(script, self.tree_scripts)
+            self.update_script_from_tree(script)
         # for index in range(self.tree_scripts.topLevelItemCount()):
         #     script = self.tree_scripts.topLevelItem(index)
         #     self.update_script_from_tree(script)
@@ -506,10 +483,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         script = self.current_script
 
         # if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower)):
-        if isinstance(script, (AutoFocus)):
-            if script.data:
-                script.plot(self.matplotlibwidget.axes)
-                self.matplotlibwidget.draw()
+        #     if script.data:
+        #         script.plot(self.matplotlibwidget.axes)
+        #         self.matplotlibwidget.draw()
 
         # if isinstance(script, (GalvoScan)):
         #     if script.data:

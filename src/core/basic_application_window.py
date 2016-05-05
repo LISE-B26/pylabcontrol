@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Thu May 05 16:55:14 2016
+# Created: Thu May 05 18:04:58 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -43,7 +43,7 @@ class Ui_MainWindow(object):
         self.tab_scripts.setObjectName(_fromUtf8("tab_scripts"))
         self.tree_scripts = QtGui.QTreeWidget(self.tab_scripts)
         self.tree_scripts.setEnabled(True)
-        self.tree_scripts.setGeometry(QtCore.QRect(0, 30, 711, 351))
+        self.tree_scripts.setGeometry(QtCore.QRect(0, 30, 711, 311))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -55,14 +55,14 @@ class Ui_MainWindow(object):
         self.tree_scripts.header().setDefaultSectionSize(150)
         self.tree_scripts.header().setHighlightSections(True)
         self.progressBar = QtGui.QProgressBar(self.tab_scripts)
-        self.progressBar.setGeometry(QtCore.QRect(230, 420, 471, 23))
+        self.progressBar.setGeometry(QtCore.QRect(230, 352, 471, 31))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName(_fromUtf8("progressBar"))
         self.btn_stop_script = QtGui.QPushButton(self.tab_scripts)
-        self.btn_stop_script.setGeometry(QtCore.QRect(120, 420, 101, 23))
+        self.btn_stop_script.setGeometry(QtCore.QRect(120, 352, 101, 31))
         self.btn_stop_script.setObjectName(_fromUtf8("btn_stop_script"))
         self.btn_start_script = QtGui.QPushButton(self.tab_scripts)
-        self.btn_start_script.setGeometry(QtCore.QRect(20, 420, 101, 23))
+        self.btn_start_script.setGeometry(QtCore.QRect(10, 352, 101, 31))
         self.btn_start_script.setObjectName(_fromUtf8("btn_start_script"))
         self.btn_plot_script = QtGui.QPushButton(self.tab_scripts)
         self.btn_plot_script.setGeometry(QtCore.QRect(0, 2, 101, 23))

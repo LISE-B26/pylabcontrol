@@ -2,10 +2,6 @@ from src.core import Script, Parameter
 from PySide.QtCore import Signal, QThread
 import numpy as np
 
-
-
-
-
 # from scipy import signal
 # import numpy as np
 # import scipy.optimize as opt
@@ -27,8 +23,6 @@ import skimage.feature as feature
 from src.core.plotting import plot_fluorescence
 
 class Find_Points(Script):
-
-    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('image_path', 'Z:/Lab/Cantilever/Measurements/__test_data_for_coding/', str, 'path for data'),
         Parameter('image_tag', 'some_name', str, 'some_name'),
@@ -38,8 +32,6 @@ class Find_Points(Script):
         Parameter('fit_values',[
             Parameter('min_separation', 2.0, float, 'minimum seperation between adjacent points in um'),
             Parameter('point_size', 0.5, float, 'size of point in um'),
-            # Parameter('ref_voltage_range', .15),
-            # Parameter('ref_pixel_number', 120),
             Parameter('min_NV_counts', 0.015, float, 'the minimum of NV counts (in kCounts) to be considered a valid NV'),
             Parameter('image_size', 15.0, float, 'size of image in (um)')
         ])
@@ -95,27 +87,23 @@ class Find_Points(Script):
                                                  threshold_rel=0, threshold_abs = min_NV_counts)
 
             return np.array(coordinates, dtype=float), image_gaussian
-
+        print('FF', self.settings['image_path'])
         # load image
         image_data=Script.load_data(self.settings['image_path'], data_name_in='image_data')
 
         coordinates, image_gaussian = locate_Points(image_data)
         self.data = {'NV_positions':coordinates, 'image':image_data, 'image_gaussian':image_gaussian}
-        # self.save_data()
-
-
-
+        #self.save_data()
 
     def plot(self, axes):
-
         image  = self.data['image']
-        positions = self.data['NV_positions']
-        extend = [-1, 1, -1, 1]
+        extend = [0, 120, 0, 120]
         plot_fluorescence(image, extend, axes)
 
-        # for x in self.data['NV_positions']:
-        #     # print(x)
-        #     axes.plot(x[0], x[1], 'ro')
+        for x in self.data['NV_positions']:
+            axes.plot(x[1], x[0], 'ro')
+
+
 
 if __name__ == '__main__':
     fp = Find_Points(settings={'path': 'Z:/Lab/Cantilever/Measurements/__tmp__', 'tag':'nvs'})
@@ -123,20 +111,23 @@ if __name__ == '__main__':
 
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
+
+    # plt.pcolor(fp.data['image'])
+    # print(fp.data['image_gaussian'].shape)
     plt.pcolor(fp.data['image_gaussian'])
 
 
-    # for x in fp.data['NV_positions']:
-    #     # print(x)
-    #     plt.plot(x[0],x[1],'ro')
+    for x in fp.data['NV_positions']:
+        print(x)
+        plt.plot(x[1],x[0],'ro')
 
     plt.show()
 
     # plt.figure()
     # plt.imshow(fp.data['image_gaussian'])
     # Axes3D.plot(fp.data['image_gaussian'])
-    plt.show()
-    print(max(fp.data['image']))
-    print(max(fp.data['image_gaussian'].flatten()))
+    # plt.show()
+    # print(max(fp.data['image']))
+    # print(max(fp.data['image_gaussian'].flatten()))
     # print('NV_positions', fp.data['NV_positions'])
 

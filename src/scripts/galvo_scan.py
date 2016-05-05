@@ -28,7 +28,8 @@ class GalvoScan(Script, QThread):
                    Parameter('y', 120, int, 'number of y points to scan')
                    ]),
         Parameter('time_per_pt', .001, [.001, .002, .005, .01], 'time in s to measure at each point'),
-        Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle')
+        Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle'),
+        Parameter('voltage_to_distance_conversion', 1.0, float,'Scaling from galvo voltages to physical distance')
     ])
 
     _INSTRUMENTS = {'daq':  DAQ}
@@ -54,7 +55,6 @@ class GalvoScan(Script, QThread):
         def init_scan():
             self._recording = False
             self._plotting = False
-            self.dvconv = None
             self._abort = False
 
             self.clockAdjust = int(
@@ -141,15 +141,16 @@ class GalvoScan(Script, QThread):
     def plot(self, axes):
         if(self._plotting == False):
             fig = axes.get_figure()
-            if self.dvconv is None:
+            if (self.settings['distance_to_voltage_conversion'] == 1):
                 implot = axes.imshow(self.data['image_data'], cmap = 'pink',
                                                   interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
                 axes.set_xlabel('Vx')
                 axes.set_ylabel('Vy')
                 axes.set_title('Confocal Image')
             else:
+                conversion = self.settings['distance_to_voltage_conversion']
                 implot = axes.imshow(self.data['image_data'], cmap = 'pink',
-                  interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
+                  interpolation="nearest", extent = [self.xVmin*conversion,self.xVmax*conversion,self.yVmax*conversion,self.yVmin*conversion])
                 axes.set_xlabel('Distance (um)')
                 axes.set_ylabel('Distance (um)')
                 axes.set_title('Confocal Image')
@@ -160,15 +161,16 @@ class GalvoScan(Script, QThread):
             self.cbar.set_cmap('pink')
             self._plotting = True
         else:
-            if self.dvconv is None:
+            if (self.settings['distance_to_voltage_conversion'] == 1):
                 implot = axes.imshow(self.data['image_data'], cmap = 'pink',
                                                   interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
                 axes.set_xlabel('Vx')
                 axes.set_ylabel('Vy')
                 axes.set_title('Confocal Image')
             else:
+                conversion = self.settings['distance_to_voltage_conversion']
                 implot = axes.imshow(self.data['image_data'], cmap = 'pink',
-                  interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
+                    interpolation="nearest", extent = [self.xVmin*conversion,self.xVmax*conversion,self.yVmax*conversion,self.yVmin*conversion])
                 axes.set_xlabel('Distance (um)')
                 axes.set_ylabel('Distance (um)')
                 axes.set_title('Confocal Image')

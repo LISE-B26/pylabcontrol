@@ -50,6 +50,7 @@ class Parameter(dict):
             self._valid_values = {}
             self._info = {}
             if isinstance(name, dict):
+                # print('1FFF', name)
                 for k, v in name.iteritems():
                     # convert to Parameter if value is a dict
                     if isinstance(v, dict):
@@ -58,13 +59,28 @@ class Parameter(dict):
                     self.update({k: v})
                     self._info.update({k: ''})
             elif isinstance(name, list) and isinstance(name[0], Parameter):
+                # print('2FFF', name)
                 for p in name:
+
                     c= 0
                     for k, v in p.iteritems():
                         c+=1
+
                         self._valid_values.update({k: p.valid_values[k]})
-                        self.update(Parameter({k: v}))
+                        self.update({k: v})
                         self._info.update({k: p.info[k]})
+
+
+                        # print('d', c, k, v, p.valid_values[k], type(v))
+                        # self.update(Parameter({k: v}))
+                        # self.update({k: v})
+                        # # self.update(Parameter(k, v))
+                        #
+                        # self._valid_values.update({k: p.valid_values[k]})
+                        # self.update(Parameter({k: v}))
+
+
+                        # self._info.update({k: p.info[k]})
             else:
                 raise TypeError('unknown input: ', name)
 
