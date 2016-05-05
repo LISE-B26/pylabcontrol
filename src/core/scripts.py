@@ -186,7 +186,6 @@ class Script(object):
         # Returns: boolean that is true if update successful
 
         '''
-        #'AAAAAAAAAAAAAA'
         if 'settings' in settings:
             self._settings.update(settings['settings'])
         else:
@@ -195,7 +194,6 @@ class Script(object):
         if 'instruments' in settings:
             for instrument_name, instrument_setting in settings['instruments'].iteritems():
                 self.instruments[instrument_name].update(instrument_setting)
-            # print('AAA', settings['instruments'].keys())
 
     @property
     def end_time(self):
@@ -611,19 +609,9 @@ class Script(object):
 
             if sub_scripts_dict is not None:
                 for k, v in sub_scripts_dict.iteritems():
-                    #update settings
+                    #update settings, updates instrument and settings
                     sub_scripts[k].update(v)
 
-                    # print('instruments',v.keys())
-
-
-                    # print('sub_scripts_dict', k, v.keys())
-                    # default_scripts.update(sub_scripts_dict)
-                    # print('default_scripts A', default_scripts.keys())
-                    # print('sub_scripts_dict', sub_scripts_dict.keys())
-
-            # todo: update the scripts with the settings if there are any
-            # .....
             return sub_scripts, instruments_updated
 
         for script_name, script_class_name in script_dict.iteritems():

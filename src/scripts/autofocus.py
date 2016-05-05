@@ -86,11 +86,12 @@ Autofocus: WRITE SOME TEXT HERE
                 self.data['focus_function_result'].append(float(np.std(self.data['images'][-1])))
 
             # update progress bar
-            progress = 100.0 * np.where(sweep_voltages == voltage) / float(self.settings.num_sweep_points)
+            progress = 100.0 * np.where(sweep_voltages == voltage)[0] / float(self.settings['num_sweep_points'])
             self.updateProgress.emit(progress)
 
         # fit the data and set piezo to focus spot
-        gaussian = lambda x, params: params[0] + params[1] * np.exp(((x-params[2])**2/(2*params[3])**2))
+        gaussian = lambda x, noise, amp, center, width: \
+            noise + amp * np.exp(((x-center)**2/(2*(width)**2)))
         center_guess = (self.data['sweep_voltages'][-1] - self.data['sweep_voltages'][0])/2 + self.data['sweep_voltages'][0]
         width_guess = 10.0
         noise_guess = np.min(self.data['sweep_voltages'])
