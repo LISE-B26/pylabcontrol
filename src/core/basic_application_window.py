@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Wed May 04 16:33:38 2016
+# Created: Thu May 05 16:55:14 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(1373, 734)
+        MainWindow.resize(1373, 849)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -35,14 +35,15 @@ class Ui_MainWindow(object):
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(10, 210, 721, 471))
+        self.tabWidget.setGeometry(QtCore.QRect(0, 230, 721, 411))
+        self.tabWidget.setTabPosition(QtGui.QTabWidget.North)
         self.tabWidget.setTabShape(QtGui.QTabWidget.Rounded)
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.tab_scripts = QtGui.QWidget()
         self.tab_scripts.setObjectName(_fromUtf8("tab_scripts"))
         self.tree_scripts = QtGui.QTreeWidget(self.tab_scripts)
         self.tree_scripts.setEnabled(True)
-        self.tree_scripts.setGeometry(QtCore.QRect(0, 30, 711, 311))
+        self.tree_scripts.setGeometry(QtCore.QRect(0, 30, 711, 351))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -63,11 +64,6 @@ class Ui_MainWindow(object):
         self.btn_start_script = QtGui.QPushButton(self.tab_scripts)
         self.btn_start_script.setGeometry(QtCore.QRect(20, 420, 101, 23))
         self.btn_start_script.setObjectName(_fromUtf8("btn_start_script"))
-        self.list_scripts = QtGui.QListView(self.tab_scripts)
-        self.list_scripts.setGeometry(QtCore.QRect(0, 350, 711, 61))
-        self.list_scripts.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
-        self.list_scripts.setModelColumn(0)
-        self.list_scripts.setObjectName(_fromUtf8("list_scripts"))
         self.btn_plot_script = QtGui.QPushButton(self.tab_scripts)
         self.btn_plot_script.setGeometry(QtCore.QRect(0, 2, 101, 23))
         self.btn_plot_script.setObjectName(_fromUtf8("btn_plot_script"))
@@ -128,12 +124,6 @@ class Ui_MainWindow(object):
         self.btn_load_instruments.setGeometry(QtCore.QRect(600, 0, 101, 23))
         self.btn_load_instruments.setObjectName(_fromUtf8("btn_load_instruments"))
         self.tabWidget.addTab(self.tab_settings, _fromUtf8(""))
-        self.tab_history = QtGui.QWidget()
-        self.tab_history.setObjectName(_fromUtf8("tab_history"))
-        self.list_history = QtGui.QListView(self.tab_history)
-        self.list_history.setGeometry(QtCore.QRect(0, 10, 711, 421))
-        self.list_history.setObjectName(_fromUtf8("list_history"))
-        self.tabWidget.addTab(self.tab_history, _fromUtf8(""))
         self.matplotlibwidget = MatplotlibWidget(self.centralwidget)
         self.matplotlibwidget.setGeometry(QtCore.QRect(740, 0, 621, 691))
         self.matplotlibwidget.setObjectName(_fromUtf8("matplotlibwidget"))
@@ -141,11 +131,14 @@ class Ui_MainWindow(object):
         self.matplotlibwidget_2.setGeometry(QtCore.QRect(10, 0, 391, 211))
         self.matplotlibwidget_2.setObjectName(_fromUtf8("matplotlibwidget_2"))
         self.btn_save_gui = QtGui.QPushButton(self.centralwidget)
-        self.btn_save_gui.setGeometry(QtCore.QRect(550, 110, 75, 23))
+        self.btn_save_gui.setGeometry(QtCore.QRect(1130, 750, 75, 23))
         self.btn_save_gui.setObjectName(_fromUtf8("btn_save_gui"))
         self.btn_load_gui = QtGui.QPushButton(self.centralwidget)
-        self.btn_load_gui.setGeometry(QtCore.QRect(470, 110, 75, 23))
+        self.btn_load_gui.setGeometry(QtCore.QRect(1050, 750, 75, 23))
         self.btn_load_gui.setObjectName(_fromUtf8("btn_load_gui"))
+        self.list_history = QtGui.QListView(self.centralwidget)
+        self.list_history.setGeometry(QtCore.QRect(0, 650, 721, 141))
+        self.list_history.setObjectName(_fromUtf8("list_history"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1373, 21))
@@ -179,7 +172,6 @@ class Ui_MainWindow(object):
         self.tree_settings.headerItem().setText(1, _translate("MainWindow", "Value", None))
         self.btn_load_instruments.setText(_translate("MainWindow", "load", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_settings), _translate("MainWindow", "Instruments", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_history), _translate("MainWindow", "History", None))
         self.btn_save_gui.setText(_translate("MainWindow", "Save", None))
         self.btn_load_gui.setText(_translate("MainWindow", "Load", None))
 
