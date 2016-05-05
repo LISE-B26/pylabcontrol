@@ -3,7 +3,7 @@ Basic gui class designed with QT designer
 """
 import sip
 sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 from PyQt4.uic import loadUiType
 from src.core import Parameter, Instrument, Script, B26QTreeItem, ReadProbes, QThreadWrapper
 import os.path
@@ -214,27 +214,49 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.history.append(msg)
         self.history_model.insertRow(0,QtGui.QStandardItem(msg))
 
-    def update_script_from_tree(self, script):
-        for index in range(self.tree_scripts.topLevelItemCount()):
-            topLvlItem = self.tree_scripts.topLevelItem(index)
+    def update_script_from_tree(self, script, tree):
+        print('tree', tree)
+
+        def update_script_from_item(script, item):
+            # build dictionary
+            # get full information from script
+            dictator = item.to_dict().values()[0]  # there is only one item in the dictionary
+
+            for instrument in script.instruments.keys():
+                # update instrument
+                script.instruments[instrument]['settings'] = dictator[instrument]['settings']
+                # remove instrument
+                del dictator[instrument]
+
+            for sub_script_name in script.scripts.keys():
+
+                items = tree.findItems(sub_script_name, QtCore.Qt.MatchExactly | QtCore.Qt.MatchRecursive)
+                print(len(items), items[0], isinstance(items[0].value, Script))
+                if len(items) == 1 and isinstance(items[0].value, Script):
+                    sub_script_item = items[0]
+                else:
+                    raise ValueError, 'several elements with name ' + sub_script_name
+
+
+                sub_script = script.scripts[sub_script_name]
+
+                # update script
+                print('update subscript', sub_script, sub_script_item)
+                update_script_from_item(sub_script, sub_script_item)
+                # script.scripts[sub_script_name].update(dictator[sub_script_name])
+                # remove script
+                del dictator[sub_script_name]
+
+            script.update(dictator)
+
+
+        for index in range(tree.topLevelItemCount()):
+            topLvlItem = tree.topLevelItem(index)
+
+
             if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
-                # build dictionary
-                # get full information from script
-                dictator = topLvlItem.to_dict().values()[0] # there is only one item in the dictionary
 
-                for instrument in script.instruments.keys():
-                    # update instrument
-                    script.instruments[instrument]['settings'] = dictator[instrument]['settings']
-                    # remove instrument
-                    del dictator[instrument]
-
-                for sub_script in script.scripts.keys():
-                    # update script
-                    script.scripts[sub_script].update(dictator[sub_script])
-                    # remove script
-                    del dictator[sub_script]
-
-                script.update(dictator)
+                update_script_from_item(script, topLvlItem)
 
     def btn_clicked(self):
         sender = self.sender()
@@ -245,7 +267,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if item is not None:
                 script, path_to_script = item.get_script()
-                self.update_script_from_tree(script)
+                self.update_script_from_tree(script, self.tree_scripts)
                 self.log('start {:s}'.format(script.name))
                 # is the script is not a QThread object we use the wrapper QtSCript
                 # to but it on a separate thread such that the gui remains responsive
