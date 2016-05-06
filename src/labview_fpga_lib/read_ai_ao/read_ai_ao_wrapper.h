@@ -49,9 +49,15 @@ void set_AO5(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
 void set_AO6(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
 void set_AO7(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
 
-//void set_DIO0(_Bool state, NiFpga_Session* session, NiFpga_Status* status);
+_Bool read_DIO0(NiFpga_Session* session, NiFpga_Status* status);
+_Bool read_DIO1(NiFpga_Session* session, NiFpga_Status* status);
+_Bool read_DIO2(NiFpga_Session* session, NiFpga_Status* status);
+_Bool read_DIO3(NiFpga_Session* session, NiFpga_Status* status);
 
-//_Bool read_DIO12(NiFpga_Session* session, NiFpga_Status* status);
+void set_DIO4(_Bool state, NiFpga_Session* session, NiFpga_Status* status);
+void set_DIO5(_Bool state, NiFpga_Session* session, NiFpga_Status* status);
+void set_DIO6(_Bool state, NiFpga_Session* session, NiFpga_Status* status);
+void set_DIO7(_Bool state, NiFpga_Session* session, NiFpga_Status* status);
 
 
 #endif /* FPGA_H_ */

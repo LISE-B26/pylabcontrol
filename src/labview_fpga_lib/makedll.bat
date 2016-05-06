@@ -1,3 +1,8 @@
+REM Author: Jan Gieseler
+REM Date: Feb 29th 2016
+REM Modified: May 6th 2016
+REM compiles .c code to .dll
+
 cls
 @echo off
 
@@ -6,9 +11,10 @@ set wrapper_file=%folder%_wrapper
 set lib_file=%folder%.dll
 
 REM ==== find the files we need for compilation =====
-for /R .\%folder% %%F IN (NiFpg_FPGA*.c) do set NiFpga_file=%%~nF
+for /R .\%folder% %%F IN (NiFpg*.c) do set NiFpga_file=%%~nF
 
 echo ---- starting conversion ---
+echo    Folder: %folder%
 echo    NiFpga file: %NiFpga_file%.c
 echo    Wrapper file: %wrapper_file%.c
 echo    Lib file: %lib_file%
