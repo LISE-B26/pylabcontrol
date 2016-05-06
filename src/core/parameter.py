@@ -34,7 +34,7 @@ class Parameter(dict):
 
             assert self.is_valid(value, valid_values)
 
-            if isinstance(value, list) and isinstance(value[0], Parameter):
+            if isinstance(value, list) and value and isinstance(value[0], Parameter):
                 #todo: check if folloing statement is correct: this should create a Parameter object and not a dict!
                 self._valid_values = {name: {k: v for d in value for k, v in d.valid_values.iteritems()}}
                 self.update({name: {k: v for d in value for k, v in d.iteritems()}})

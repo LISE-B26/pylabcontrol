@@ -1,6 +1,8 @@
 from src.core import Script, Parameter
 from PySide.QtCore import Signal, QThread
 import numpy as np
+import matplotlib.patches as patches
+
 
 # from scipy import signal
 # import numpy as np
@@ -87,7 +89,6 @@ class Find_Points(Script):
                                                  threshold_rel=0, threshold_abs = min_NV_counts)
 
             return np.array(coordinates, dtype=float), image_gaussian
-        print('FF', self.settings['image_path'])
         # load image
         image_data=Script.load_data(self.settings['image_path'], data_name_in='image_data')
 
@@ -97,31 +98,40 @@ class Find_Points(Script):
 
     def plot(self, axes):
         image  = self.data['image']
-        extend = [0, 120, 0, 120]
+        #todo: Convert nv positions to image positions and fix extent
+        extend = [0, 120, 120, 0]
         plot_fluorescence(image, extend, axes)
 
         for x in self.data['NV_positions']:
-            axes.plot(x[1], x[0], 'ro')
+            print(x[1],x[0])
+            patch = patches.Circle((x[1],x[0]), 2, fc = 'r')
+            axes.add_patch(patch)
 
 
 
 if __name__ == '__main__':
-    fp = Find_Points(settings={'path': 'Z:/Lab/Cantilever/Measurements/__tmp__', 'tag':'nvs'})
-    fp.run()
+    script, failed, instr = Script.load_and_append({'Find_Points': 'Find_Points'})
 
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import Axes3D
-
-    # plt.pcolor(fp.data['image'])
-    # print(fp.data['image_gaussian'].shape)
-    plt.pcolor(fp.data['image_gaussian'])
-
-
-    for x in fp.data['NV_positions']:
-        print(x)
-        plt.plot(x[1],x[0],'ro')
-
-    plt.show()
+    print(script)
+    print(failed)
+    print(instr)
+    # fp = Find_Points(settings={'path': 'Z:/Lab/Cantilever/Measurements/__tmp__', 'tag':'nvs'})
+    # fp.run()
+    #
+    # import matplotlib.pyplot as plt
+    # from mpl_toolkits.mplot3d import Axes3D
+    #
+    # # plt.pcolor(fp.data['image'])
+    # # print(fp.data['image_gaussian'].shape)
+    # # plt.pcolor(fp.data['image'])
+    # plt.imshow(fp.data['image'], cmap = 'pink', interpolation = 'nearest')
+    #
+    #
+    # for x in fp.data['NV_positions']:
+    #     print(x)
+    #     plt.plot(x[1],x[0],'ro')
+    #
+    # plt.show()
 
     # plt.figure()
     # plt.imshow(fp.data['image_gaussian'])

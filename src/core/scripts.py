@@ -295,6 +295,7 @@ class Script(object):
         else:
             # otherwise, we write each entry into a separate file into a subfolder data
             for key, value in data.iteritems():
+                print(value)
                 df = pd.DataFrame(value)
                 df.to_csv(filename.replace('-data.csv', '-{:s}.csv'.format(key)), index=False)
 

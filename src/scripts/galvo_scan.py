@@ -6,6 +6,7 @@ from src.instruments.NIDAQ import DAQ
 
 import datetime as dt
 import time
+import threading
 
 
 class GalvoScan(Script, QThread):
@@ -28,8 +29,7 @@ class GalvoScan(Script, QThread):
                    Parameter('y', 120, int, 'number of y points to scan')
                    ]),
         Parameter('time_per_pt', .001, [.001, .002, .005, .01], 'time in s to measure at each point'),
-        Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle'),
-        Parameter('voltage_to_distance_conversion', 1.0, float,'Scaling from galvo voltages to physical distance')
+        Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle')
     ])
 
     _INSTRUMENTS = {'daq':  DAQ}
@@ -55,6 +55,7 @@ class GalvoScan(Script, QThread):
         def init_scan():
             self._recording = False
             self._plotting = False
+            self.dvconv = None
             self._abort = False
 
             self.clockAdjust = int(
@@ -68,9 +69,10 @@ class GalvoScan(Script, QThread):
             self.x_array = np.repeat(np.linspace(self.xVmin, self.xVmax, self.settings['num_points']['x']),
                                      self.clockAdjust)
             self.y_array = np.linspace(self.yVmin, self.yVmax, self.settings['num_points']['y'])
-            # sample_rate = self.instruments['daq']['instance'].settings['analog_output']['ao0']['sample_rate']
-            # self.sample_rate_multiplier = 1/(((self.settings['time_per_pt'] + self.settings['settle_time']) / self.clockAdjust)*sample_rate)
-            # print(self.sample_rate_multiplier)
+            sample_rate = float(1) / self.settings['settle_time']
+            self.instruments['daq']['instance'].settings['analog_output']['ao0']['sample_rate'] = sample_rate
+            self.instruments['daq']['instance'].settings['analog_output']['ao1']['sample_rate'] = sample_rate
+            self.instruments['daq']['instance'].settings['digital_input']['ctr0']['sample_rate'] = sample_rate
             self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x']))}
 
         # self.data.clear()  # clear data queue
@@ -109,7 +111,7 @@ class GalvoScan(Script, QThread):
             for i in range(0,int((len(self.x_array)/self.clockAdjust))):
                 summedData[i] = np.sum(diffData[(i*self.clockAdjust+1):(i*self.clockAdjust+self.clockAdjust-1)])
             #also normalizing to kcounts/sec
-            self.data['image_data'][yNum] = summedData * (self.settings['time_per_pt'])
+            self.data['image_data'][yNum] = summedData * (.001/self.settings['time_per_pt'])
 
 
             # image_data[:, yNum] = self.summedData * (self.settings['time_per_pt'])
@@ -121,16 +123,11 @@ class GalvoScan(Script, QThread):
                 progress = int(float(yNum + 1)/len(self.y_array)*100)
                 self.updateProgress.emit(progress)
                 update_time = current_time
-                if self.plot_widget:
-                    self.plot(self.plot_widget.axes)
-                    self.plot_widget.draw()
+                time.sleep(.2) #ensure plot finishes before starting next row, otherwise occasional daq crash
 
-        time.sleep(1)
+        time.sleep(1.0)
         progress = 100
         self.updateProgress.emit(progress)
-        if self.plot_widget:
-            self.plot(self.plot_widget.axes)
-            self.plot_widget.draw()
 
         if self.settings['save']:
             self.save()
@@ -139,18 +136,18 @@ class GalvoScan(Script, QThread):
 
 
     def plot(self, axes):
+        data = np.copy(self.data['image_data'])
         if(self._plotting == False):
             fig = axes.get_figure()
-            if (self.settings['distance_to_voltage_conversion'] == 1):
-                implot = axes.imshow(self.data['image_data'], cmap = 'pink',
+            if self.dvconv is None:
+                implot = axes.imshow(data, cmap = 'pink',
                                                   interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
                 axes.set_xlabel('Vx')
                 axes.set_ylabel('Vy')
                 axes.set_title('Confocal Image')
             else:
-                conversion = self.settings['distance_to_voltage_conversion']
-                implot = axes.imshow(self.data['image_data'], cmap = 'pink',
-                  interpolation="nearest", extent = [self.xVmin*conversion,self.xVmax*conversion,self.yVmax*conversion,self.yVmin*conversion])
+                implot = axes.imshow(data, cmap = 'pink',
+                  interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
                 axes.set_xlabel('Distance (um)')
                 axes.set_ylabel('Distance (um)')
                 axes.set_title('Confocal Image')
@@ -161,16 +158,15 @@ class GalvoScan(Script, QThread):
             self.cbar.set_cmap('pink')
             self._plotting = True
         else:
-            if (self.settings['distance_to_voltage_conversion'] == 1):
-                implot = axes.imshow(self.data['image_data'], cmap = 'pink',
+            if self.dvconv is None:
+                implot = axes.imshow(data, cmap = 'pink',
                                                   interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
                 axes.set_xlabel('Vx')
                 axes.set_ylabel('Vy')
                 axes.set_title('Confocal Image')
             else:
-                conversion = self.settings['distance_to_voltage_conversion']
-                implot = axes.imshow(self.data['image_data'], cmap = 'pink',
-                    interpolation="nearest", extent = [self.xVmin*conversion,self.xVmax*conversion,self.yVmax*conversion,self.yVmin*conversion])
+                implot = axes.imshow(data, cmap = 'pink',
+                  interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
                 axes.set_xlabel('Distance (um)')
                 axes.set_ylabel('Distance (um)')
                 axes.set_title('Confocal Image')

@@ -75,7 +75,6 @@ class StanfordResearch_ESR(Script, QThread):
         for scan_num in xrange(0, self.settings['esr_avg']):
             if self._abort:
                 break
-            print("Scan Number: " + str(scan_num))
             esr_data_pos = 0
             self.instruments['microwave_generator']['instance'].update({'enable_output': True})
             for sec_num in xrange(0, num_freq_sections):
@@ -125,7 +124,8 @@ class StanfordResearch_ESR(Script, QThread):
             fit_params, _ = self.fit_esr(freq_values, esr_avg)
             self.data.append({'frequency': freq_values, 'data': esr_avg, 'fit_params': fit_params})
 
-            self.updateProgress.emit(self.calc_progress)
+            progress = int(float(scan_num) / self.settings['esr_avg'] * 100)
+            self.updateProgress.emit(progress)
 
 
         if self.settings['save']:
@@ -134,7 +134,6 @@ class StanfordResearch_ESR(Script, QThread):
             self.save_log()
 
         self.instruments['microwave_generator']['instance'].update({'enable_output': False})
-        print('finished')
         # plt.show()
         #return self.esr_avg, self.fit_params
 
@@ -147,13 +146,11 @@ class StanfordResearch_ESR(Script, QThread):
     def plot(self, axes):
         fit_params = self.data[-1]['fit_params']
         if not fit_params[0] == -1:  # check if fit failed
-            fit_data = self.lorentzian(self.freq_values, fit_params[0], fit_params[1], fit_params[2], fit_params[3])
+            fit_data = self.lorentzian(self.data[-1]['frequency'], fit_params[0], fit_params[1], fit_params[2], fit_params[3])
         else:
             fit_data = None
-        fig = axes.get_figure()
-        fig.clf()
-        if fit_data: # plot esr and fit data
-            axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b', self.freq_values, fit_data, 'r')
+        if fit_data is not None: # plot esr and fit data
+            axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b', self.data[-1]['frequency'], fit_data, 'r')
             axes.set_title('ESR')
             axes.set_xlabel('Frequency (Hz)')
             axes.set_ylabel('Kcounts/s')
@@ -162,7 +159,7 @@ class StanfordResearch_ESR(Script, QThread):
             axes.set_title('ESR')
             axes.set_xlabel('Frequency (Hz)')
             axes.set_ylabel('Kcounts/s')
- 
+
     def stop(self):
         self._abort = True
 
@@ -178,7 +175,7 @@ class StanfordResearch_ESR(Script, QThread):
         try:
             return opt.curve_fit(self.lorentzian, freq_values, esr_data, fit_start_params)
         except RuntimeError:
-            print('Lorentzian fit failed')
+            self.log('Lorentzian fit failed')
             return (-1, -1, -1, -1), 'Ignore'
 
     # defines a lorentzian with some amplitude, width, center, and offset to use with opt.curve_fit

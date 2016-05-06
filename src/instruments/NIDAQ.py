@@ -188,7 +188,7 @@ class DAQ(Instrument):
         channel_settings = self.settings['digital_input'][channel]
         self.running = True
         self.DI_sampleNum = sampleNum
-        self.DI_sample_rate = float(channel_settings['sample_rate'])*sample_rate_multiplier
+        self.DI_sample_rate = float(channel_settings['sample_rate'])
         if continuous_acquisition == False:
             self.numSampsPerChan = self.DI_sampleNum
         elif continuous_acquisition == True:
@@ -264,7 +264,6 @@ class DAQ(Instrument):
         for c in channels:
             if not self.settings['analog_output'][c]['sample_rate'] == self.AO_sample_rate:
                 raise ValueError('All sample rates must be the same')
-        self.AO_sample_rate = self.AO_sample_rate * sample_rate_multiplier #float prevents truncation in division
         channel_list = ''
         for c in channels:
             channel_list += self.settings['device'] + '/' + c + ','

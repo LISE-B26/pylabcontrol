@@ -19,7 +19,7 @@ from collections import deque
 
 # from src.core import instantiate_probes
 
-from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus
+from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, StanfordResearch_ESR, Find_Points, Select_NVs
 from src.core.plotting import plot_psd
 
 from src.core.read_write_functions import load_b26_file
@@ -64,9 +64,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.list_history.setModel(self.history_model)
         self.list_history.show()
 
-        self.script_model = QtGui.QStandardItemModel(self.list_scripts)
-        self.list_scripts.setModel(self.script_model)
-        self.list_scripts.show()
+        # self.script_model = QtGui.QStandardItemModel(self.list_scripts)
+        # self.list_scripts.setModel(self.script_model)
+        # self.list_scripts.show()
 
         if filename is not None:
             self.load_settings(filename)
@@ -173,6 +173,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             update(instrument)
 
     def plot_clicked(self, mouse_event):
+
+        if isinstance(self.current_script, Select_NVs) and self.current_script.isRunning:
+            if (not (mouse_event.xdata == None)):
+                if (mouse_event.button == 1):
+                    pt = np.array([mouse_event.xdata, mouse_event.ydata])
+                    self.current_script.toggle_NV(pt, self.matplotlibwidget.axes)
+                    self.matplotlibwidget.draw()
+
         item = self.tree_scripts.currentItem()
 
         if item is not None:
@@ -277,8 +285,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 script.updateProgress.connect(self.update_status)
                 self.current_script = script
-                if(type(script) == GalvoScan):
-                    script.set_plot_widget(self.matplotlibwidget)
                 script.start()
             else:
                 self.log('No script selected. Select script and try again!')
@@ -504,6 +510,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if progress == 100:
             self.refresh_tree(self.tree_scripts, self.scripts)
         script = self.current_script
+        if isinstance(script, QThreadWrapper):
+            script = script.script
 
         # if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower)):
         if isinstance(script, (AutoFocus)):
@@ -512,10 +520,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 script.plot(self.matplotlibwidget.axes)
                 self.matplotlibwidget.draw()
 
-        # if isinstance(script, (GalvoScan)):
-        #     if script.data:
-        #         script.plot(self.matplotlibwidget.axes)
-        #         self.matplotlibwidget.draw()
+        print(script)
+        if isinstance(script, (GalvoScan, StanfordResearch_ESR, Find_Points)):
+            if script.data:
+                script.plot(self.matplotlibwidget.axes)
+                self.matplotlibwidget.draw()
 
 
     def update_probes(self, progress):
