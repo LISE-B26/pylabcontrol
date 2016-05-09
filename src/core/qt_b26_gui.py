@@ -76,13 +76,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # self.list_scripts.setModel(self.script_model)
         # self.list_scripts.show()
 
-        if filename is not None:
-            self.load_settings(filename)
-        else:
-            self.instruments = {}
-            self.scripts = {}
-            self.probes = {}
-        self.read_probes = ReadProbes(self.probes)
         # fill the trees
         # self.fill_tree(self.tree_settings, self.instruments)
         self.tree_settings.setColumnWidth(0, 300)
@@ -135,6 +128,23 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_clicked)
 
         connect_controls()
+
+        if filename is not None:
+            self.load_settings(filename)
+        else:
+            self.instruments = {}
+            self.scripts = {}
+            self.probes = {}
+        self.read_probes = ReadProbes(self.probes)
+
+    def closeEvent(self, event):
+
+        fname = 'c:\\b26_tmp\\gui_settings.b26'
+        print('save settings to {:s}'.format(fname))
+
+        self.save_settings(fname)
+
+        event.accept()
 
     def switch_tab(self):
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
@@ -402,7 +412,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             print('WARNING! Following scripts could not be loaded: ', failed)
         print('============ loading probes not implmented ================')
         # probes = instantiate_probes(probes, instruments)
-
+        # todo: implement probes
+        self.probes = {}
         # refresh trees
         self.refresh_tree(self.tree_scripts, self.scripts)
         self.refresh_tree(self.tree_settings, self.instruments)
@@ -439,6 +450,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         for probe in self.probes.itervalues():
             out_data['probes'].update(probe.to_dict())
+
+        if not os.path.exists(os.path.dirname(out_file_name)):
+            os.makedirs(os.path.dirname(out_file_name))
 
         with open(out_file_name, 'w') as outfile:
             tmp = json.dump(out_data, outfile, indent=4)

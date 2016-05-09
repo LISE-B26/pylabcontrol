@@ -312,7 +312,7 @@ class Script(object):
             return result
 
         if filename is None:
-            filename = self.filename('-data.csv')
+            filename = self.filename('.csv')
 
         # if deque object, take the last dataset, which is the most recent
         if isinstance(self.data, deque):
@@ -340,7 +340,7 @@ class Script(object):
 
                 filename_new = os.path.join(os.path.join(os.path.dirname(filename),
                       os.path.basename(filename).replace('.csv', '')),
-                      os.path.basename(filename).replace('-data.csv', '-{:s}.csv'.format(key)))
+                      os.path.basename(filename).replace('.csv', '-{:s}.csv'.format(key)))
 
                 if not os.path.exists(os.path.dirname(filename_new)):
                     os.makedirs(os.path.dirname(filename_new))

@@ -4,7 +4,7 @@ from src.core import Parameter
 from src.instruments import NI7845RReadWrite
 import time
 import numpy as np
-class FPGA_PolarizationController(Script):
+class FPGA_PolarizationController(Script, QThread):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('channel_WP_1', 5, range(8), 'analog channel that controls waveplate 1'),
@@ -35,7 +35,7 @@ class FPGA_PolarizationController(Script):
         """
         self._abort = False
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_output=log_output)
-        # QThread.__init__(self)
+        QThread.__init__(self)
 
         self._plot_type = 1
 
@@ -64,8 +64,11 @@ class FPGA_PolarizationController(Script):
         c = 1
         channel_out = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(c)])
         channel_in = 'AI{:d}'.format(self.settings['channel_detector'])
-        volt_range = np.arange(-0.5,0.5, 0.1)
-        volt_o = self.settings['V_{:d}'.format(c)]
+        # volt_range = np.arange(-0.5,0.5, 0.1)
+        # volt_o = self.settings['V_{:d}'.format(c)]
+
+        volt_range = np.arange(0,5, 0.1)
+        volt_o = 0
 
         self.data = {'WP1_volt':[], 'det_signal':[]}
         for dV in volt_range:
