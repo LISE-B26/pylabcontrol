@@ -15,6 +15,7 @@ Autofocus: WRITE SOME TEXT HERE
         Parameter('path', 'Z:/Lab/Cantilever/Measurements/----data_tmp_default----', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', True, bool, 'save data on/off'),
+        Parameter('save_images', False, bool, 'save image taken at each voltage'),
         Parameter('piezo_min_voltage', 30.0, float, 'lower bound of piezo voltage sweep'),
         Parameter('piezo_max_voltage', 70.0, float, 'upper bound of piezo voltage sweep'),
         Parameter('num_sweep_points', 10, int, 'number of values to sweep between min and max voltage'),
@@ -66,7 +67,7 @@ Autofocus: WRITE SOME TEXT HERE
         self.data['sweep_voltages'] = sweep_voltages
         self.data['focus_function_result'] = []
 
-        for voltage in sweep_voltages:
+        for index, voltage in enumerate(sweep_voltages):
 
             if self._abort:
                 self.log('Leaving focusing loop')
@@ -92,6 +93,11 @@ Autofocus: WRITE SOME TEXT HERE
             progress = 100.0 * (np.where(sweep_voltages == voltage)[0]+1) / float(self.settings['num_sweep_points'])
             self.updateProgress.emit(progress)
 
+            # save image if the user requests it
+            if self.settings['save_images']:
+                self.data['image_{0}'.format(index)] = current_image
+
+
         # fit the data and set piezo to focus spot
         gaussian = lambda x, noise, amp, center, width: \
             noise + amp * np.exp(((x-center)**2/(2*(width)**2)))
@@ -110,15 +116,15 @@ Autofocus: WRITE SOME TEXT HERE
 
             if p2[2] > self.settings['piezo_max_voltage']:
                 z_piezo.voltage = self.settings['piezo_max_voltage']
-                self.log('Best fit found center to be above max sweep range --- set voltage to max')
+                self.log('Best fit found center to be above max sweep range, setting voltage to max')
             elif p2[2] < self.settings['piezo_min_voltage']:
                 z_piezo.voltage = self.settings['piezo_min_voltage']
-                self.log('Best fit found center to be below min sweep range --- set voltage to min')
+                self.log('Best fit found center to be below min sweep range, setting voltage to min')
             else:
                 z_piezo.voltage = p2[2]
         except:
             p2 = [0, 0, 0, 0]
-            self.log('Could not converge to fit parameters')
+            self.log('Could not converge to fit parameters, setting piezo to middle of sweep range')
             z_piezo.voltage = (self.settings['piezo_min_voltage'] + self.settings['piezo_max_voltage'])/2.0
 
         self.data['focusing_fit_parameters'] = p2
@@ -149,6 +155,9 @@ Autofocus: WRITE SOME TEXT HERE
         axis1.set_xlabel('Piezo Voltage [V]')
         axis1.set_ylabel('Focusing Function')
         axis1.set_title('Autofocusing Routine')
+
+        if axis2:
+            self.scripts['take_image'].plot(axis2)
 
 
     def stop(self):
