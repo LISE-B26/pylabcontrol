@@ -62,6 +62,31 @@ _libfpga.set_AO7.argtypes = [c_int16, POINTER(c_uint32), POINTER(c_int32)]
 _libfpga.set_AO7.restype = None
 
 
+_libfpga.read_DIO0.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.read_DIO0.restype = c_bool
+
+_libfpga.read_DIO1.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.read_DIO1.restype = c_bool
+
+_libfpga.read_DIO2.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.read_DIO3.restype = c_bool
+
+_libfpga.read_DIO3.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.read_DIO3.restype = c_bool
+
+
+_libfpga.set_DIO4.argtypes = [c_bool, POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.set_DIO4.restype = None
+
+_libfpga.set_DIO5.argtypes = [c_bool, POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.set_DIO5.restype = None
+
+_libfpga.set_DIO6.argtypes = [c_bool, POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.set_DIO6.restype = None
+
+_libfpga.set_DIO7.argtypes = [c_bool, POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.set_DIO7.restype = None
+
 
 def start_fpga(session, status):
     return _libfpga.start_fpga(byref(session), byref(status))
@@ -120,8 +145,29 @@ def set_AO6(value, session, status):
 def set_AO7(value, session, status):
     return _libfpga.set_AO7(value, byref(session), byref(status))
 
+def read_DIO0(session, status):
+    return _libfpga.read_DIO0(byref(session), byref(status))
 
+def read_DIO1(session, status):
+    return _libfpga.read_DIO1(byref(session), byref(status))
 
+def read_DIO2(session, status):
+    return _libfpga.read_DIO2(byref(session), byref(status))
+
+def read_DIO3(session, status):
+    return _libfpga.read_DIO3(byref(session), byref(status))
+
+def set_DIO4(value, session, status):
+    return _libfpga.set_DIO4(value, byref(session), byref(status))
+
+def set_DIO5(value, session, status):
+    return _libfpga.set_DIO5(value, byref(session), byref(status))
+
+def set_DIO6(value, session, status):
+    return _libfpga.set_DIO6(value, byref(session), byref(status))
+
+def set_DIO7(value, session, status):
+    return _libfpga.set_DIO7(value, byref(session), byref(status))
 
 class NI7845R(object):
     session = c_uint32()

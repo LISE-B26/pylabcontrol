@@ -1,5 +1,6 @@
 from src.core import Instrument, Parameter
 from src.labview_fpga_lib.labview_fpga_error_codes import LabviewFPGAException
+
 def volt_2_bit(volt):
     """
     converts a voltage value into a bit value
@@ -19,7 +20,7 @@ def volt_2_bit(volt):
 # ==================================================================================
 # simple fpga program that reads analog inputs and outputs
 # ==================================================================================
-class NI7845RReadAnalogIO(Instrument):
+class NI7845RReadWrite(Instrument):
 
     import src.labview_fpga_lib.read_ai_ao.read_ai_ao as FPGAlib
 
@@ -31,7 +32,11 @@ class NI7845RReadAnalogIO(Instrument):
         Parameter('AO4', 0.0, float, 'analog output channel 4 in volt'),
         Parameter('AO5', 0.0, float, 'analog output channel 5 in volt'),
         Parameter('AO6', 0.0, float, 'analog output channel 6 in volt'),
-        Parameter('AO7', 0.0, float, 'analog output channel 7 in volt')
+        Parameter('AO7', 0.0, float, 'analog output channel 7 in volt'),
+        Parameter('DIO4', False, bool, 'digital output channel 4 on/off'),
+        Parameter('DIO5', False, bool, 'digital output channel 5 on/off'),
+        Parameter('DIO6', False, bool, 'digital output channel 6 on/off'),
+        Parameter('DIO7', False, bool, 'digital output channel 7 on/off')
     ])
 
     _PROBES = {
@@ -42,10 +47,14 @@ class NI7845RReadAnalogIO(Instrument):
         'AI4': 'analog input channel 4 in bit',
         'AI5': 'analog input channel 5 in bit',
         'AI6': 'analog input channel 6 in bit',
-        'AI7': 'analog input channel 7 in bit'
+        'AI7': 'analog input channel 7 in bit',
+        'DIO0': 'digital input channel 0',
+        'DIO1': 'digital input channel 1',
+        'DIO2': 'digital input channel 2',
+        'DIO3': 'digital input channel 3'
     }
     def __init__(self, name = None, settings = None):
-        super(NI7845RReadAnalogIO, self).__init__(name, settings)
+        super(NI7845RReadWrite, self).__init__(name, settings)
 
         # start fpga
         self.fpga = self.FPGAlib.NI7845R()
@@ -62,13 +71,13 @@ class NI7845RReadAnalogIO(Instrument):
 
 
     def update(self, settings):
-        super(NI7845RReadAnalogIO, self).update(settings)
+        super(NI7845RReadWrite, self).update(settings)
 
         for key, value in settings.iteritems():
             if key in ['AO0', 'AO1', 'AO2', 'AO3', 'AO4', 'AO5', 'AO6', 'AO7']:
-                print('SGL_to_U32(value)', volt_2_bit(value))
                 getattr(self.FPGAlib, 'set_{:s}'.format(key))(volt_2_bit(value), self.fpga.session, self.fpga.status)
-
+            elif key in ['DIO4', 'DIO5', 'DIO6', 'DIO7']:
+                getattr(self.FPGAlib, 'set_{:s}'.format(key))(value, self.fpga.session, self.fpga.status)
 
 # ==================================================================================
 # simple fpga program that implements a PID loop and can read data quickly into a buffer

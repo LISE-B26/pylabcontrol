@@ -189,7 +189,7 @@ void set_AO7(int16_t value, NiFpga_Session* session, NiFpga_Status* status)
 
 _Bool read_DIO0(NiFpga_Session* session, NiFpga_Status* status)
 {
-	_Bool state;
+	NiFpga_Bool state;
 
 	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_read_ai_ao_IndicatorBool_Connector1DIO0,&state));
 	return state;
@@ -197,7 +197,7 @@ _Bool read_DIO0(NiFpga_Session* session, NiFpga_Status* status)
 
 _Bool read_DIO1(NiFpga_Session* session, NiFpga_Status* status)
 {
-	_Bool state;
+	NiFpga_Bool state;
 
 	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_read_ai_ao_IndicatorBool_Connector1DIO1,&state));
 	return state;
@@ -205,7 +205,7 @@ _Bool read_DIO1(NiFpga_Session* session, NiFpga_Status* status)
 
 _Bool read_DIO2(NiFpga_Session* session, NiFpga_Status* status)
 {
-	_Bool state;
+	NiFpga_Bool state;
 
 	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_read_ai_ao_IndicatorBool_Connector1DIO2,&state));
 	return state;
@@ -213,7 +213,7 @@ _Bool read_DIO2(NiFpga_Session* session, NiFpga_Status* status)
 
 _Bool read_DIO3(NiFpga_Session* session, NiFpga_Status* status)
 {
-	_Bool state;
+	NiFpga_Bool state;
 
 	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_FPGA_read_ai_ao_IndicatorBool_Connector1DIO3,&state));
 	return state;
@@ -222,20 +222,20 @@ _Bool read_DIO3(NiFpga_Session* session, NiFpga_Status* status)
 
 void set_DIO4(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_writeBool(*session,NiFpga_FPGA_read_ai_ao_ControlBool_Connector1DIO4,state));
+	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_FPGA_read_ai_ao_ControlBool_Connector1DIO4,state));
 }
 
 void set_DIO5(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_writeBool(*session,NiFpga_FPGA_read_ai_ao_ControlBool_Connector1DIO5,state));
+	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_FPGA_read_ai_ao_ControlBool_Connector1DIO5,state));
 }
 
 void set_DIO6(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_writeBool(*session,NiFpga_FPGA_read_ai_ao_ControlBool_Connector1DIO6,state));
+	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_FPGA_read_ai_ao_ControlBool_Connector1DIO6,state));
 }
 
 void set_DIO7(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_writeBool(*session,NiFpga_FPGA_read_ai_ao_ControlBool_Connector1DIO7,state));
+	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_FPGA_read_ai_ao_ControlBool_Connector1DIO7,state));
 }

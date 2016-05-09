@@ -22,3 +22,10 @@ Date: Feb 29th 2016
 4.) run batch file makedll.bat *folder_name*, e.g. makedll.bat read_ai_ao
 
 
+# write python wrapper file
+1.) import .dll, e.g. _libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/src/labview_fpga_lib/read_ai_ao/read_ai_ao.dll')
+2.) access c-functions as following example _libfpga.set_DIO7(value, byref(session), byref(status))
+
+
+
+

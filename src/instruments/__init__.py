@@ -66,7 +66,7 @@ except:
 
 
 try:
-    from labview_fpga import NI7845RReadAnalogIO
+    from labview_fpga import NI7845RReadWrite
 except:
     print("./src/instrument/__init__ warning! NI7845RReadAnalogIO did not load")
 

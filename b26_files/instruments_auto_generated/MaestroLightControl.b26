@@ -4,9 +4,9 @@
             "class": "MaestroLightControl", 
             "settings": {
                 "white light": {
-                    "settle_time": 0.2, 
                     "position_open": 4000, 
                     "position_closed": 7200, 
+                    "settle_time": 0.2, 
                     "open": true, 
                     "channel": 0
                 }, 
@@ -19,17 +19,17 @@
                     "Red": 3000
                 }, 
                 "block IR": {
-                    "settle_time": 0.2, 
                     "position_open": 7600, 
                     "position_closed": 3800, 
+                    "settle_time": 0.2, 
                     "open": true, 
                     "channel": 4
                 }, 
                 "port": "COM5", 
                 "block green": {
-                    "settle_time": 0.2, 
                     "position_open": 7600, 
                     "position_closed": 3800, 
+                    "settle_time": 0.2, 
                     "open": true, 
                     "channel": 5
                 }

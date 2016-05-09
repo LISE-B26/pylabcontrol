@@ -1,12 +1,12 @@
 from unittest import TestCase
-from src.instruments import NI7845RReadAnalogIO
+from src.instruments import NI7845RReadWrite
 import numpy as np
 import time
 from src.labview_fpga_lib.labview_helper_functions.labview_conversion import int_to_voltage
 
 class TestNI7845RReadAnalogIO(TestCase):
     def test_init(self):
-        fpga = NI7845RReadAnalogIO()
+        fpga = NI7845RReadWrite()
 
         print(fpga.settings)
 
@@ -20,7 +20,7 @@ class TestNI7845RReadAnalogIO(TestCase):
         # important for this test to pass, connect output AO4 to input AI7!!!!!
 
         values = np.arange(-5.0, 5.0, 0.4)
-        fpga = NI7845RReadAnalogIO()
+        fpga = NI7845RReadWrite()
         def similar(val1, val2):
             """
             compare if value val1 and val2 are similar
