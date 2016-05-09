@@ -9,7 +9,7 @@ from script_dummy import  ScriptDummy, ScriptDummyWithQtSignal
 # from MWSpectraVsPower import MWSpectraVsPower
 # from keysight_get_spectrum import KeysightGetSpectrum
 # from keysight_spectra_vs_power import KeysightSpectrumVsPower
-from galvo_scan import GalvoScan
+# from galvo_scan import GalvoScan
 from Find_Points import Find_Points
 # from StanfordResearch_ESR import StanfordResearch_ESR
 # from autofocus import AutoFocus
