@@ -91,20 +91,34 @@ class Find_Points(Script):
             return np.array(coordinates, dtype=float), image_gaussian
         # load image
         image_data=Script.load_data(self.settings['image_path'], data_name_in='image_data')
+        bounds = Script.load_data(self.settings['image_path'], data_name_in='bounds')
+        self.x_min = bounds[0][0]
+        self.x_max = bounds[1][0]
+        self.y_min = bounds[2][0]
+        self.y_max = bounds[3][0]
+        x_len = image_data.shape[1]
+        y_len = image_data.shape[0]
+        x_pixel_to_voltage= (self.x_max-self.x_min)/x_len
+        y_pixel_to_voltage= (self.y_max-self.y_min)/y_len
+
         coordinates, image_gaussian = locate_Points(image_data)
         # peak_local_max flips x and y for each point, need to flip it back
         coordinates = zip(*np.flipud(zip(*coordinates)))
+        for index, pt in enumerate(coordinates): 
+            xcoor = pt[0]*x_pixel_to_voltage + self.x_min
+            ycoor = pt[1] * y_pixel_to_voltage + self.y_min
+            coordinates[index] = [xcoor, ycoor]
+
         self.data = {'NV_positions':coordinates, 'image':image_data, 'image_gaussian':image_gaussian}
         #self.save_data()
 
     def plot(self, axes):
         image  = self.data['image']
-        #todo: Convert nv positions to image positions and fix extent
-        extend = [0, 120, 120, 0]
+        extend = [self.x_min, self.x_max, self.y_max, self.y_min]
         plot_fluorescence(image, extend, axes)
 
         for x in self.data['NV_positions']:
-            patch = patches.Circle((x[0],x[1]), 2, fc = 'r')
+            patch = patches.Circle((x[0],x[1]), .005, fc = 'r')
             axes.add_patch(patch)
 
 
@@ -115,8 +129,7 @@ if __name__ == '__main__':
     # print(script)
     # print(failed)
     # print(instr)
-    # fp = Find_Points(settings={'path': 'Z:/Lab/Cantilever/Measurements/__tmp__', 'tag':'nvs'})
-    fp = Find_Points(settings={'image_path': 'D:\\Downloads\\__test_data_for_coding\\__test_data_for_coding\\', 'tag':'nvs'})
+    fp = Find_Points(settings={'path': 'Z:/Lab/Cantilever/Measurements/__tmp__', 'tag':'nvs'})
     fp.run()
 
     import matplotlib.pyplot as plt

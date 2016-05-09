@@ -234,9 +234,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         time = self.get_time()
 
         msg = "{:s}\t {:s}".format(time, msg)
-
-        if target == 'script':
-            self.script_model.insertRow(0,QtGui.QStandardItem(msg))
+        #
+        # if target == 'script':
+        #     self.script_model.insertRow(0,QtGui.QStandardItem(msg))
 
         self.history.append(msg)
         self.history_model.insertRow(0,QtGui.QStandardItem(msg))
@@ -316,6 +316,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if item is not None:
                 script, path_to_script = item.get_script()
+                self.update_script_from_tree(script, self.tree_scripts)
                 # is the script is a QThread object we connect its signals to the update_status function
                 script.plot(self.matplotlibwidget.axes)
                 self.matplotlibwidget.draw()
@@ -391,33 +392,37 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
 
 
-        assert os.path.isfile(in_file_name)
+        if os.path.isfile(in_file_name):
 
-        # with open(in_file_name, 'r') as infile:
-        #     in_data = yaml.safe_load(infile)
-        in_data = load_b26_file(in_file_name)
+            # with open(in_file_name, 'r') as infile:
+            #     in_data = yaml.safe_load(infile)
+            in_data = load_b26_file(in_file_name)
 
-        instruments = in_data['instruments']
-        scripts = in_data['scripts']
-        probes = in_data['probes']
+            instruments = in_data['instruments']
+            scripts = in_data['scripts']
+            probes = in_data['probes']
 
-        print('============ loading instruments ================')
-        self.instruments, failed = Instrument.load_and_append(instruments)
-        if failed != []:
-            print('WARNING! Following instruments could not be loaded: ', failed)
-        print('============ loading scripts ================')
-        self.scripts, failed, self.instruments = Script.load_and_append(scripts, instruments=self.instruments,
-                                                              log_function=lambda x: self.log(x, target='script'))
-        if failed != []:
-            print('WARNING! Following scripts could not be loaded: ', failed)
-        print('============ loading probes not implmented ================')
-        # probes = instantiate_probes(probes, instruments)
-        # todo: implement probes
-        self.probes = {}
-        # refresh trees
-        self.refresh_tree(self.tree_scripts, self.scripts)
-        self.refresh_tree(self.tree_settings, self.instruments)
-
+            print('============ loading instruments ================')
+            self.instruments, failed = Instrument.load_and_append(instruments)
+            if failed != []:
+                print('WARNING! Following instruments could not be loaded: ', failed)
+            print('============ loading scripts ================')
+            self.scripts, failed, self.instruments = Script.load_and_append(scripts, instruments=self.instruments,
+                                                                  log_function=lambda x: self.log(x, target='script'))
+            if failed != []:
+                print('WARNING! Following scripts could not be loaded: ', failed)
+            print('============ loading probes not implmented ================')
+            # probes = instantiate_probes(probes, instruments)
+            # todo: implement probes
+            self.probes = {}
+            # refresh trees
+            self.refresh_tree(self.tree_scripts, self.scripts)
+            self.refresh_tree(self.tree_settings, self.instruments)
+        else:
+            print('WARNING GUI settings {:s} not found'.format(in_file_name))
+            self.instruments = {}
+            self.scripts = {}
+            self.probes = {}
     def save_settings(self, out_file_name):
         """
         saves a old_gui settings file (to a json dictionary)
@@ -539,7 +544,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script.plot(self.matplotlibwidget.axes)
             self.matplotlibwidget.draw()
         elif script.plot_type == 2:
-            script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2)
+            script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
             self.matplotlibwidget.draw()
             self.matplotlibwidget_2.draw()
         # if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower)):
@@ -566,6 +571,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     def update_probes(self, progress):
+
         """
         update the probe monitor tree
         """

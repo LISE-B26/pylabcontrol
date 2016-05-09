@@ -9,7 +9,7 @@ from script_dummy import  ScriptDummy, ScriptDummyWithQtSignal
 # from MWSpectraVsPower import MWSpectraVsPower
 # from keysight_get_spectrum import KeysightGetSpectrum
 # from keysight_spectra_vs_power import KeysightSpectrumVsPower
-# from galvo_scan import GalvoScan
+from galvo_scan import GalvoScan
 from Find_Points import Find_Points
 # from StanfordResearch_ESR import StanfordResearch_ESR
 # from autofocus import AutoFocus
@@ -26,4 +26,7 @@ try:
 except:
     print("./src/scripts/__init__ warning! LabviewFpgaTimetrace did not load")
 
-from FPGA_PolarizationController import FPGA_PolarizationController
+try:
+    from FPGA_PolarizationController import FPGA_PolarizationController
+except:
+    print("./src/scripts/__init__ warning! FPGA_PolarizationController did not load")
