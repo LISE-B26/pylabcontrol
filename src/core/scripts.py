@@ -13,6 +13,9 @@ import json as json
 from PySide.QtCore import Signal, QThread
 from src.core.read_write_functions import save_b26_file
 import numpy as np
+from __builtin__ import len as builtin_len
+
+
 class Script(object):
     # __metaclass__ = ABCMeta
 
@@ -276,6 +279,22 @@ class Script(object):
 
         """
 
+
+        def len(x):
+            """
+            overwrite the buildin len function to cover cases that don't have a length, like int or float
+            and to catch string as objects of length 0
+            Args:
+                x: quantity of which we want to find the length
+            Returns: length of x
+
+            """
+            if isinstance(x, (int, float, str)):
+                result = 0
+            else:
+                result = builtin_len(x)
+            return result
+
         if filename is None:
             filename = self.filename('-data.csv')
 
@@ -287,16 +306,30 @@ class Script(object):
         else:
             raise TypeError("unknown datatype!")
 
-        if len(set([len(v) for v in data.values()])) == 1 and len(np.shape(data.values()[0]))==1:
+        if len(set([len(v) for v in data.values()])) == 1 and len(np.shape(data.values()[0])) in [0,1]:
             # if all entries of the dictionary are the same length and single column we can write the data into a single file
-            df = pd.DataFrame(data)
+            if len(np.shape(data.values()[0]))==1:
+                df = pd.DataFrame(data)
+            else:
+                df = pd.DataFrame.from_records([data])
             df.to_csv(filename, index=False)
 
         else:
             # otherwise, we write each entry into a separate file into a subfolder data
             for key, value in data.iteritems():
-                df = pd.DataFrame(value)
-                df.to_csv(filename.replace('-data.csv', '-{:s}.csv'.format(key)), index=False)
+                if len(value) == 0:
+                    df = pd.DataFrame([value])
+                else:
+                    df = pd.DataFrame(value)
+
+                filename_new = os.path.join(os.path.join(os.path.dirname(filename),
+                      os.path.basename(filename).replace('.csv', '')),
+                      os.path.basename(filename).replace('-data.csv', '-{:s}.csv'.format(key)))
+
+                if not os.path.exists(os.path.dirname(filename_new)):
+                    os.makedirs(os.path.dirname(filename_new))
+
+                df.to_csv(filename_new, index=False)
 
     def save_log(self, filename = None):
         """
