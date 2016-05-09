@@ -25,3 +25,5 @@ try:
     from labview_fpga_get_timetrace import LabviewFpgaTimetrace
 except:
     print("./src/scripts/__init__ warning! LabviewFpgaTimetrace did not load")
+
+from FPGA_PolarizationController import FPGA_PolarizationController

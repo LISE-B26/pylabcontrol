@@ -522,12 +522,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script = script.script
 
         # if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower)):
-        if isinstance(script, (AutoFocus)):
-            if script.data:
-                print('in update status', progress)
-                script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2)
-                self.matplotlibwidget.draw()
-                self.matplotlibwidget_2.draw()
+        # if isinstance(script, (AutoFocus)):
+        #     if script.data:
+        #         print('in update status', progress)
+        #         script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2)
+        #         self.matplotlibwidget.draw()
+        #         self.matplotlibwidget_2.draw()
 
         if isinstance(script, (GalvoScan, StanfordResearch_ESR, Find_Points)):
             if script.data:

@@ -1,27 +1,18 @@
-from src.instruments import microwave_generator
 from src.core.scripts import Script
-from PySide.QtCore import Signal, QThread
-
-# import standard libraries
-import numpy as np
-import matplotlib.pyplot as plt
-import scipy.optimize as opt
-import time
-import pandas as pd
 from PySide.QtCore import Signal, QThread
 from src.core import Parameter
 from src.instruments import NI7845RReadWrite
-from collections import deque
 
 class FPGA_PolarizationController(Script):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('channel_WP_1', 5, range(8), 'channel that controls waveplate 1'),
-        Parameter('channel_WP_2', 6, range(8), 'channel that controls waveplate 2'),
-        Parameter('channel_WP_3', 7, range(8), 'channel that controls waveplate 3'),
+        Parameter('channel_WP_1', 5, range(8), 'analog channel that controls waveplate 1'),
+        Parameter('channel_WP_2', 6, range(8), 'analog channel that controls waveplate 2'),
+        Parameter('channel_WP_3', 7, range(8), 'analog channel that controls waveplate 3'),
         Parameter('V_1', 0.0, float, 'voltage applied to waveplate 1'),
         Parameter('V_2', 0.0, float, 'voltage applied to waveplate 2'),
-        Parameter('V_3', 0.0, float, 'voltage applied to waveplate 3')
+        Parameter('V_3', 0.0, float, 'voltage applied to waveplate 3'),
+        Parameter('channel_OnOff', 4, [4,5,6,7], 'digital channel that turns polarization controller on/off'),
     ])
 
     _INSTRUMENTS = {
@@ -51,8 +42,20 @@ class FPGA_PolarizationController(Script):
         """
 
         fpga_io = self.instruments['FPGA_IO']['instance']
-        fpga_io.update(self.instruments['FPGA_IO']['settings'])
+        # fpga_io.update(self.instruments['FPGA_IO']['settings'])
 
+        # turn controller on
+        control_channel = 'DIO{:d}'.format(self.settings['channel_OnOff'])
+        instrument_settings = {control_channel: True}
+
+        # set the voltages
+
+        for c in [1,2,3]:
+            channel = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(c)])
+            signal = self.settings['V_{:d}'.format(c)]
+            instrument_settings.update({channel:signal})
+        print('aaaa', instrument_settings)
+        fpga_io.update(instrument_settings)
 
     def plot(self, axes):
         pass

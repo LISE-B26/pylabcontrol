@@ -697,7 +697,7 @@ class Script(object):
                     updated_scripts.update({script_name :script_instance})
                 except Exception as inst:
                     loaded_failed[script_name] = inst
-                    raise inst
+                    # raise inst
                     # loaded_failed.append(script_name)
 
         return updated_scripts, loaded_failed, updated_instruments
