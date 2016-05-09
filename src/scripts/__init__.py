@@ -15,6 +15,9 @@ from Find_Points import Find_Points
 # from autofocus import AutoFocus
 # from light_control import CameraOn
 from Select_NVs import Select_NVs
+
+from StanfordResearch_ESR import StanfordResearch_ESR
+
 from ESR_Selected_NVs import ESR_Selected_NVs
 
 # from labview_fpga_get_timetrace import LabviewFpgaTimetrace

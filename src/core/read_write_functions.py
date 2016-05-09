@@ -94,8 +94,10 @@ def export_default_scripts(path):
         filename = '{:s}{:s}.b26'.format(path, name)
         value.save(filename)
 
-    if failed != []:
-        print('failed to create scripts: ', failed)
+    if failed != {}:
+        for error_name, error in failed.iteritems():
+            print('failed to create script: ', error_name)
+            raise error
 
 
 if __name__ == '__main__':

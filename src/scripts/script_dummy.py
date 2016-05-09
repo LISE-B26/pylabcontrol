@@ -180,7 +180,6 @@ class ScriptDummyWithInstrument(Script):
             self.save_log()
 
 
-
 class ScriptDummyWithSubScript(Script):
 
     _DEFAULT_SETTINGS = Parameter([
@@ -218,3 +217,65 @@ class ScriptDummyWithSubScript(Script):
         for i in range(N):
             self.log('run number {:d} / {:d}'.format(i+1, N))
             script.run()
+
+
+
+
+class ScriptDummySaveData(Script):
+    """
+This Dummy script is used to test saving of data, it takes a data set as input and save it with the internal save function of the Script class
+    """
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data'),
+        Parameter('tag', 'dummy_tag', str, 'tag for data'),
+        Parameter('save', True, bool, 'save data on/off'),
+        Parameter('count', 3, int),
+        Parameter('name', 'this is a counter'),
+        Parameter('wait_time', 0.1, float),
+        Parameter('point2',
+                  [Parameter('x', 0.1, float, 'x-coordinate'),
+                  Parameter('y', 0.1, float, 'y-coordinate')
+                  ])
+    ])
+
+    _INSTRUMENTS = {}
+    _SCRIPTS = {}
+
+    def __init__(self, name=None, settings=None, log_output = None):
+        """
+        Example of a script
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+        Script.__init__(self, name, settings, log_output = log_output)
+
+
+    def _function(self):
+        """
+        This is the actual function that will be executed. It uses only information that is provided in the settings property
+        will be overwritten in the __init__
+        """
+
+        # some generic function
+        import time
+        import random
+
+        count = self.settings['count']
+        name = self.settings['name']
+        wait_time = self.settings['wait_time']
+
+        data = []
+        self.log('I am a test function counting to {:d} and creating random values'.format(count))
+        for i in range(count):
+            time.sleep(wait_time)
+            self.log('count {:02d}'.format(i))
+            data.append(random.random())
+
+        self.data = {'random data':data}
+
+        if self.settings['save']:
+            self.save_data()
+            self.save()
+            self.save_log()

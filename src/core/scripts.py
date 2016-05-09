@@ -295,7 +295,6 @@ class Script(object):
         else:
             # otherwise, we write each entry into a separate file into a subfolder data
             for key, value in data.iteritems():
-                print(value)
                 df = pd.DataFrame(value)
                 df.to_csv(filename.replace('-data.csv', '-{:s}.csv'.format(key)), index=False)
 
@@ -507,12 +506,12 @@ class Script(object):
                 }
 
         Returns:
-                list of form
-
-                loaded_failed = [name_of_script_1, name_of_script_2, ....]
+                dictionary of form
+                script_dict = { name_of_script_1 : script_1_instance, name_of_script_2 : script_2_instance, ...}
+                loaded_failed = {name_of_script_1: exception_1, name_of_script_2: exception_2, ....}
 
         """
-        loaded_failed = []
+        loaded_failed = {}
         updated_scripts = {}
         updated_scripts.update(scripts)
         updated_instruments = {}
@@ -534,7 +533,6 @@ class Script(object):
             script_instruments = None
             script_sub_scripts = None
             script_class_name = None
-
             if isinstance(script_information, dict):
                 script_settings = script_information['settings']
                 script_class_name = str(script_information['class'])
@@ -611,13 +609,14 @@ class Script(object):
                 class_of_script: the class of the script
                 instruments: the instruments that have been loaded already
 
-            Returns: dictionary with the sub scripts that the script needs
+            Returns:dictionary with the sub scripts that the script needs
 
             """
             default_scripts = getattr(class_of_script, '_SCRIPTS')
             #
             # create instruments that script needs
             sub_scripts = {}
+
             sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments)
 
             if sub_scripts_dict is not None:
@@ -632,7 +631,7 @@ class Script(object):
             # check if script already exists
             if script_name in scripts.keys():
                 print('WARNING: script {:s} already exists. Did not load!'.format(script_name))
-                loaded_failed.append(script_name)
+                loaded_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
                 module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = get_script_information(script_class_name)
 
@@ -663,8 +662,10 @@ class Script(object):
 
                     script_instance = eval(class_creation_string)
                     updated_scripts.update({script_name :script_instance})
-                except:
-                    loaded_failed.append(script_name)
+                except Exception as inst:
+                    loaded_failed[script_name] = inst
+                    raise inst
+                    # loaded_failed.append(script_name)
 
         return updated_scripts, loaded_failed, updated_instruments
 

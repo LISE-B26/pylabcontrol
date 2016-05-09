@@ -89,6 +89,8 @@ class Select_NVs(Script, QThread):
 
 
 if __name__ == '__main__':
+
+
     script, failed, instr = Script.load_and_append({'Select_NVs':'Select_NVs'})
 
     print(script)

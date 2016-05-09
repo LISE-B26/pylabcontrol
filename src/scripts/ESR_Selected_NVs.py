@@ -85,8 +85,12 @@ class ESR_Selected_NVs(Script, QThread):
         self.scripts['StanfordResearch_ESR'].plot(axes)
 
 if __name__ == '__main__':
-    script, failed, instr = Script.load_and_append({'ESR_Selected_NVs':'ESR_Selected_NVs'})
+    from src.core import Instrument
 
-    print(script)
-    print(failed)
-    print(instr)
+    instruments, instruments_failed = Instrument.load_and_append({'daq':  'DAQ'})
+
+    script, failed, instruments = Script.load_and_append(script_dict={'ESR_Selected_NVs':'ESR_Selected_NVs'}, instruments = instruments)
+
+    # print(script)
+    # print(failed)
+    print(instruments)
