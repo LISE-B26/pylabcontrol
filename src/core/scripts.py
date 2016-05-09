@@ -83,6 +83,9 @@ class Script(object):
         # this can be overwritten
         self.log_output = log_output
 
+        # default value is 0, overwrite this in script if it has plotting capabilities
+        self._plot_type = 0
+
 
     # @abstractmethod
     def _function(self):
@@ -159,6 +162,19 @@ class Script(object):
         assert set(self._INSTRUMENTS.keys()) <= set(instrument_dict.keys()), "keys in{:s}\nkeys expected{:s}".format(str(instrument_dict.keys()), str( self._INSTRUMENTS.keys()))
         for key, value in self._INSTRUMENTS.iteritems():
             self._instruments.update({key: instrument_dict[key]})
+
+    @property
+    def plot_type(self):
+        """
+        overwrite this function if script has plotting abilities
+        Returns: the type of plot the script produces
+            0 - no plot (script doesn't produce any plottable data)
+            1 - single plot
+            2 -  two plots, typically a main plot and a small plot that shows some intermediate data
+
+        """
+
+        return self._plot_type
 
     @property
     def scripts(self):
@@ -495,7 +511,6 @@ class Script(object):
 
         return data
 
-
     @staticmethod
     def load_and_append(script_dict, scripts = {}, instruments = {}, log_function = None):
         """
@@ -701,6 +716,7 @@ class Script(object):
                     # loaded_failed.append(script_name)
 
         return updated_scripts, loaded_failed, updated_instruments
+
 
 class QThreadWrapper(QThread):
 

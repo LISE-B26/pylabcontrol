@@ -521,6 +521,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if isinstance(script, QThreadWrapper):
             script = script.script
 
+        if script.plot_type == 1:
+            script.plot(self.matplotlibwidget.axes)
+            self.matplotlibwidget.draw()
+        elif script.plot_type == 2:
+            script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2)
+            self.matplotlibwidget.draw()
+            self.matplotlibwidget_2.draw()
         # if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower)):
         # if isinstance(script, (AutoFocus)):
         #     if script.data:
@@ -529,19 +536,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         #         self.matplotlibwidget.draw()
         #         self.matplotlibwidget_2.draw()
 
-        if isinstance(script, (GalvoScan, StanfordResearch_ESR, Find_Points)):
-            if script.data:
-                script.plot(self.matplotlibwidget.axes)
-                self.matplotlibwidget.draw()
-
-        if isinstance(script, Select_NVs):
-            script.plot(self.matplotlibwidget.axes)
-            self.matplotlibwidget.draw()
-
-
-        if isinstance(script, ESR_Selected_NVs):
-            script.plot(self.matplotlibwidget.axes)
-            self.matplotlibwidget.draw()
+        # if isinstance(script, (GalvoScan, StanfordResearch_ESR, Find_Points)):
+        #     if script.data:
+        #         script.plot(self.matplotlibwidget.axes)
+        #         self.matplotlibwidget.draw()
+        #
+        # if isinstance(script, Select_NVs):
+        #     script.plot(self.matplotlibwidget.axes)
+        #     self.matplotlibwidget.draw()
+        #
+        #
+        # if isinstance(script, ESR_Selected_NVs):
+        #     script.plot(self.matplotlibwidget.axes)
+        #     self.matplotlibwidget.draw()
 
 
     def update_probes(self, progress):
