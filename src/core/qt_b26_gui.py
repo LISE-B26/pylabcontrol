@@ -19,7 +19,15 @@ from collections import deque
 
 # from src.core import instantiate_probes
 
-from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, StanfordResearch_ESR, Find_Points, Select_NVs
+#from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, StanfordResearch_ESR, Find_Points, Select_NVs, ESR_Selected_NVs
+
+###AARON_PC REMOVE
+from src.scripts.galvo_scan import GalvoScan
+from src.scripts.StanfordResearch_ESR import StanfordResearch_ESR
+from src.scripts.Find_Points import Find_Points
+from src.scripts.Select_NVs import Select_NVs
+from src.scripts.ESR_Selected_NVs import ESR_Selected_NVs
+
 from src.core.plotting import plot_psd
 
 from src.core.read_write_functions import load_b26_file
@@ -514,17 +522,25 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script = script.script
 
         # if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower)):
-        if isinstance(script, (AutoFocus)):
-            if script.data:
-                print('in update status', progress)
-                script.plot(self.matplotlibwidget.axes)
-                self.matplotlibwidget.draw()
+        # if isinstance(script, (AutoFocus)):
+        #     if script.data:
+        #         print('in update status', progress)
+        #         script.plot(self.matplotlibwidget.axes)
+        #         self.matplotlibwidget.draw()
 
-        print(script)
         if isinstance(script, (GalvoScan, StanfordResearch_ESR, Find_Points)):
             if script.data:
                 script.plot(self.matplotlibwidget.axes)
                 self.matplotlibwidget.draw()
+
+        if isinstance(script, Select_NVs):
+            script.plot(self.matplotlibwidget.axes)
+            self.matplotlibwidget.draw()
+
+
+        if isinstance(script, ESR_Selected_NVs):
+            script.plot(self.matplotlibwidget.axes)
+            self.matplotlibwidget.draw()
 
 
     def update_probes(self, progress):

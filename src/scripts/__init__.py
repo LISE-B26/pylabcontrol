@@ -6,14 +6,16 @@ except:
 from script_dummy import  ScriptDummy, ScriptDummyWithQtSignal
 # from zi_sweeper import ZISweeper
 # from zi_high_res_sweep import ZISweeperHighResolution
-from MWSpectraVsPower import MWSpectraVsPower
-from keysight_get_spectrum import KeysightGetSpectrum
-from keysight_spectra_vs_power import KeysightSpectrumVsPower
-from galvo_scan import GalvoScan
+# from MWSpectraVsPower import MWSpectraVsPower
+# from keysight_get_spectrum import KeysightGetSpectrum
+# from keysight_spectra_vs_power import KeysightSpectrumVsPower
+# from galvo_scan import GalvoScan
 from Find_Points import Find_Points
-from StanfordResearch_ESR import StanfordResearch_ESR
-from autofocus import AutoFocus
+# from StanfordResearch_ESR import StanfordResearch_ESR
+# from autofocus import AutoFocus
 # from light_control import CameraOn
+from Select_NVs import Select_NVs
+from ESR_Selected_NVs import ESR_Selected_NVs
 
 # from labview_fpga_get_timetrace import LabviewFpgaTimetrace
 try:
