@@ -114,6 +114,8 @@ class ZISweeper(Script, QThread):
 
             if self.settings['save']:
                 self.save()
+                self.save_data()
+                self.save_log()
 
 
     def plot(self, axes):

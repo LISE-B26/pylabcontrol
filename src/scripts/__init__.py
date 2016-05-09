@@ -26,4 +26,4 @@ try:
 except:
     print("./src/scripts/__init__ warning! LabviewFpgaTimetrace did not load")
 
-from FPGA_PolarizationController import FPGA_PolarizationController
+from FPGA_PolarizationController import FPGA_PolarizationController, FPGA_PolarizationSignalMap

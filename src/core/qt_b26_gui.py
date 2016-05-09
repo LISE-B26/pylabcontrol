@@ -235,8 +235,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         msg = "{:s}\t {:s}".format(time, msg)
 
-        if target == 'script':
-            self.script_model.insertRow(0,QtGui.QStandardItem(msg))
+        # if target == 'script':
+        #     self.script_model.insertRow(0,QtGui.QStandardItem(msg))
 
         self.history.append(msg)
         self.history_model.insertRow(0,QtGui.QStandardItem(msg))
@@ -539,7 +539,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script.plot(self.matplotlibwidget.axes)
             self.matplotlibwidget.draw()
         elif script.plot_type == 2:
-            script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2)
+            script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
             self.matplotlibwidget.draw()
             self.matplotlibwidget_2.draw()
         # if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower)):
