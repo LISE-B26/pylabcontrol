@@ -11,18 +11,19 @@ import threading
 
 class GalvoScan(Script, QThread):
     updateProgress = Signal(int)
+    saveFigure = Signal(str)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
         Parameter('save', True, bool,'check to automatically save data'),
         Parameter('point_a',
-                  [Parameter('x', -0.1, float, 'x-coordinate'),
-                   Parameter('y', -0.1, float, 'y-coordinate')
+                  [Parameter('x', -0.4, float, 'x-coordinate'),
+                   Parameter('y', -0.4, float, 'y-coordinate')
                    ]),
         Parameter('point_b',
-                  [Parameter('x', 0.1, float, 'x-coordinate'),
-                   Parameter('y', 0.1, float, 'y-coordinate')
+                  [Parameter('x', 0.4, float, 'x-coordinate'),
+                   Parameter('y', 0.4, float, 'y-coordinate')
                    ]),
         Parameter('num_points',
                   [Parameter('x', 120, int, 'number of x points to scan'),
@@ -140,7 +141,7 @@ class GalvoScan(Script, QThread):
     def plot(self, axes):
         data = np.copy(self.data['image_data'])
         if(self._plotting == False):
-            fig = axes.get_figure()
+            self.fig = axes.get_figure()
             if self.dvconv is None:
                 implot = axes.imshow(data, cmap = 'pink',
                                                   interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
@@ -153,10 +154,10 @@ class GalvoScan(Script, QThread):
                 axes.set_xlabel('Distance (um)')
                 axes.set_ylabel('Distance (um)')
                 axes.set_title('Confocal Image')
-            if(len(fig.axes) > 1):
-                self.cbar = fig.colorbar(implot,cax = fig.axes[1],label = 'kcounts/sec')
+            if(len(self.fig.axes) > 1):
+                self.cbar = self.fig.colorbar(implot,cax = self.fig.axes[1],label = 'kcounts/sec')
             else:
-                self.cbar = fig.colorbar(implot,label = 'kcounts/sec')
+                self.cbar = self.fig.colorbar(implot,label = 'kcounts/sec')
             self.cbar.set_cmap('pink')
             self._plotting = True
         else:
@@ -179,6 +180,9 @@ class GalvoScan(Script, QThread):
 
     def save_data(self, filename = None):
         super(GalvoScan, self).save_data(filename)
+        if filename is None:
+            filename = self.filename('.jpg')
+        self.saveFigure.emit(filename)
 
 if __name__ == '__main__':
     script, failed, instruments = Script.load_and_append(script_dict={'GalvoScan': 'GalvoScan'})

@@ -302,6 +302,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     script = QThreadWrapper(script)
 
                 script.updateProgress.connect(self.update_status)
+                if hasattr(script, 'saveFigure'):
+                    script.saveFigure.connect(self.save_figure)
+
                 self.current_script = script
                 script.start()
             else:
@@ -628,3 +631,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         tree.itemChanged.disconnect()
         self.fill_tree(tree, items)
         tree.itemChanged.connect(lambda: self.update_parameters(tree))
+
+    def save_figure(self, filename):
+        self.current_script.fig.savefig(filename, format='jpg')
+

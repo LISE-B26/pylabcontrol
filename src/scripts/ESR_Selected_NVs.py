@@ -82,6 +82,8 @@ class ESR_Selected_NVs(Script, QThread):
                 self.cur_pt = pt
                 self.log('Taking ESR of point ' + str(index + 1) + ' of ' + str(len(self.nv_locs)))
                 #set laser to new point
+                pt = np.transpose(np.column_stack((pt[0], pt[1])))
+                pt = (np.repeat(pt, 2, axis=1))
                 self.instruments['daq']['instance'].AO_init(["ao0","ao1"], pt)
                 self.instruments['daq']['instance'].AO_run()
                 self.instruments['daq']['instance'].AO_waitToFinish()

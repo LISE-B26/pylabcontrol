@@ -1,9 +1,6 @@
 import yaml, json
 import os
-from src.core.scripts import Script
-import src.scripts as scripts
-import src.instruments as instruments
-import inspect
+
 
 def load_b26_file(file_name):
     """
@@ -67,6 +64,9 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
             tmp = json.dump(data_dict, outfile, indent=4)
 
 def export_default_instruments(path):
+    import src.instruments as instruments
+    import inspect
+
     for name, obj in inspect.getmembers(instruments):
         if inspect.isclass(obj):
             try:
@@ -79,13 +79,16 @@ def export_default_instruments(path):
 
 
 def export_default_scripts(path):
+    from src.core.scripts import Script
+    import src.scripts as scripts
+    import inspect
+
     loaded_instruments = {}
     loaded_scripts = {}
 
     scripts_to_load = {name:name for name, obj in inspect.getmembers(scripts) if inspect.isclass(obj)}
 
     loaded_scripts, failed, loaded_instruments = Script.load_and_append(scripts_to_load)
-
 
     for name, value in loaded_scripts.iteritems():
         filename = '{:s}{:s}.b26'.format(path, name)
