@@ -2,8 +2,7 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Fri May 06 16:29:53 2016
-#      by: PyQt4 UI code generator 4.10.4
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -87,8 +86,18 @@ class Ui_MainWindow(object):
         self.btn_plot_script.setGeometry(QtCore.QRect(0, 2, 101, 31))
         self.btn_plot_script.setObjectName(_fromUtf8("btn_plot_script"))
         self.btn_load_scripts = QtGui.QPushButton(self.tab_scripts)
-        self.btn_load_scripts.setGeometry(QtCore.QRect(600, 10, 101, 23))
+        self.btn_load_scripts.setGeometry(QtCore.QRect(550, 10, 151, 23))
         self.btn_load_scripts.setObjectName(_fromUtf8("btn_load_scripts"))
+        self.btn_save_script_data = QtGui.QPushButton(self.tab_scripts)
+        self.btn_save_script_data.setGeometry(QtCore.QRect(390, 10, 151, 23))
+        self.btn_save_script_data.setObjectName(_fromUtf8("btn_save_script_data"))
+        self.tree_scripts.raise_()
+        self.progressBar.raise_()
+        self.btn_stop_script.raise_()
+        self.btn_plot_script.raise_()
+        self.btn_load_scripts.raise_()
+        self.btn_start_script.raise_()
+        self.btn_save_script_data.raise_()
         self.tabWidget.addTab(self.tab_scripts, _fromUtf8(""))
         self.tab_monitor = QtGui.QWidget()
         self.tab_monitor.setObjectName(_fromUtf8("tab_monitor"))
@@ -112,7 +121,6 @@ class Ui_MainWindow(object):
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(110, 0, 591, 31))
         self.horizontalLayoutWidget.setObjectName(_fromUtf8("horizontalLayoutWidget"))
         self.horizontalLayout = QtGui.QHBoxLayout(self.horizontalLayoutWidget)
-        self.horizontalLayout.setMargin(0)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.lbl_probe_log_path = QtGui.QLabel(self.horizontalLayoutWidget)
         self.lbl_probe_log_path.setObjectName(_fromUtf8("lbl_probe_log_path"))
@@ -140,7 +148,7 @@ class Ui_MainWindow(object):
         self.tree_settings.header().setDefaultSectionSize(150)
         self.tree_settings.header().setHighlightSections(True)
         self.btn_load_instruments = QtGui.QPushButton(self.tab_settings)
-        self.btn_load_instruments.setGeometry(QtCore.QRect(600, 0, 101, 23))
+        self.btn_load_instruments.setGeometry(QtCore.QRect(540, 0, 161, 23))
         self.btn_load_instruments.setObjectName(_fromUtf8("btn_load_instruments"))
         self.tabWidget.addTab(self.tab_settings, _fromUtf8(""))
         self.matplotlibwidget = MatplotlibWidget(self.centralwidget)
@@ -193,7 +201,8 @@ class Ui_MainWindow(object):
         self.btn_stop_script.setText(_translate("MainWindow", "stop", None))
         self.btn_start_script.setText(_translate("MainWindow", "start", None))
         self.btn_plot_script.setText(_translate("MainWindow", "plot script  ↑", None))
-        self.btn_load_scripts.setText(_translate("MainWindow", "load", None))
+        self.btn_load_scripts.setText(_translate("MainWindow", "import script", None))
+        self.btn_save_script_data.setText(_translate("MainWindow", "save script data", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_scripts), _translate("MainWindow", "Scripts", None))
         self.tree_monitor.headerItem().setText(0, _translate("MainWindow", "Parameter", None))
         self.tree_monitor.headerItem().setText(1, _translate("MainWindow", "Value", None))
@@ -204,7 +213,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_monitor), _translate("MainWindow", "Monitor", None))
         self.tree_settings.headerItem().setText(0, _translate("MainWindow", "Instrument", None))
         self.tree_settings.headerItem().setText(1, _translate("MainWindow", "Value", None))
-        self.btn_load_instruments.setText(_translate("MainWindow", "load", None))
+        self.btn_load_instruments.setText(_translate("MainWindow", "import instrument", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_settings), _translate("MainWindow", "Instruments", None))
         self.btn_save_gui.setText(_translate("MainWindow", "Save", None))
         self.btn_load_gui.setText(_translate("MainWindow", "Load", None))

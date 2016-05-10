@@ -175,14 +175,27 @@
      <widget class="QPushButton" name="btn_load_scripts">
       <property name="geometry">
        <rect>
-        <x>600</x>
+        <x>550</x>
         <y>10</y>
-        <width>101</width>
+        <width>151</width>
         <height>23</height>
        </rect>
       </property>
       <property name="text">
-       <string>load</string>
+       <string>import script</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_save_script_data">
+      <property name="geometry">
+       <rect>
+        <x>390</x>
+        <y>10</y>
+        <width>151</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>save script data</string>
       </property>
      </widget>
      <zorder>tree_scripts</zorder>
@@ -191,6 +204,7 @@
      <zorder>btn_plot_script</zorder>
      <zorder>btn_load_scripts</zorder>
      <zorder>btn_start_script</zorder>
+     <zorder>btn_save_script_data</zorder>
     </widget>
     <widget class="QWidget" name="tab_monitor">
      <attribute name="title">
@@ -332,14 +346,14 @@
      <widget class="QPushButton" name="btn_load_instruments">
       <property name="geometry">
        <rect>
-        <x>600</x>
+        <x>540</x>
         <y>0</y>
-        <width>101</width>
+        <width>161</width>
         <height>23</height>
        </rect>
       </property>
       <property name="text">
-       <string>load</string>
+       <string>import instrument</string>
       </property>
      </widget>
     </widget>

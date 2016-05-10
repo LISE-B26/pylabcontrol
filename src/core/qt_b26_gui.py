@@ -109,6 +109,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_stop_script.clicked.connect(self.btn_clicked)
             self.btn_plot_script.clicked.connect(self.btn_clicked)
             self.btn_plot_probe.clicked.connect(self.btn_clicked)
+            self.btn_save_script_data.clicked.connect(self.btn_clicked)
 
             self.btn_save_gui.clicked.connect(self.btn_clicked)
             self.btn_load_gui.clicked.connect(self.btn_clicked)
@@ -316,12 +317,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.log('There is no currently running script. Stop failed!')
         elif sender is self.btn_plot_script:
             item = self.tree_scripts.currentItem()
-
             if item is not None:
                 script, path_to_script = item.get_script()
-                # is the script is a QThread object we connect its signals to the update_status function
                 script.plot(self.matplotlibwidget.axes)
                 self.matplotlibwidget.draw()
+        elif sender is self.btn_save_script_data:
+            item = self.tree_scripts.currentItem()
+            if item is not None:
+                script, path_to_script = item.get_script()
+                script.save_log()
+                script.save()
+                script.save_data()
         elif sender is self.btn_plot_probe:
             item = self.tree_monitor.currentItem()
 

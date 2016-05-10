@@ -137,6 +137,8 @@ script to balance photodetector to zero by adjusting polarization controller vol
 class FPGA_PolarizationSignalMap(Script, QThread):
     """
 script to map out detector response as a function of polarization controller voltages
+the script scans the voltage of all three channels from 0 to 5 volt and records the detector response
+this gives a three dimensional dataset
     """
 
     updateProgress = Signal(int)
@@ -381,6 +383,104 @@ script to map out detector response as a function of polarization controller vol
     def stop(self):
         self._abort = True
 
+class FPGA_PolarizationSignalScan(Script, QThread):
+    """
+script to map out detector response as a function of polarization controller voltage WP2
+the script scans the voltage of  channel 2 from 0 to 5 volt and records the detector response
+this gives a one dimensional dataset
+    """
+
+    updateProgress = Signal(int)
+    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
+        Parameter('tag', 'some_name'),
+        Parameter('save', True, bool, 'check to automatically save data'),
+        Parameter('channel_WP_1', 5, range(8), 'analog channel that controls waveplate 1'),
+        Parameter('channel_WP_2', 6, range(8), 'analog channel that controls waveplate 2'),
+        Parameter('channel_WP_3', 7, range(8), 'analog channel that controls waveplate 3'),
+        Parameter('channel_OnOff', 4, [4,5,6,7], 'digital channel that turns polarization controller on/off'),
+        Parameter('channel_detector', 0, range(4), 'analog input channel of the detector signal'),
+        Parameter('V_1', 2.4, float, 'voltage applied to waveplate 1'),
+        Parameter('V_3', 2.4, float, 'voltage applied to waveplate 3')
+    ])
+
+    _INSTRUMENTS = {
+        'FPGA_IO': NI7845RReadWrite
+    }
+
+    _SCRIPTS = {
+
+    }
+
+    def __init__(self, instruments, scripts = None, name=None, settings=None, log_output=None):
+        """
+        Example of a script that emits a QT signal for the gui
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+        self._abort = False
+        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_output=log_output)
+        QThread.__init__(self)
+
+        self._plot_type = 1
+
+    def _function(self):
+        """
+        This is the actual function that will be executed. It uses only information that is provided in the settings property
+        will be overwritten in the __init__
+        """
+
+
+        def calc_progress(v2, volt_range):
+            dV = np.mean(np.diff(volt_range))
+            progress = (v2 - min(volt_range)) / (max(volt_range) - min(volt_range))
+            return int(100*progress)
+
+        self.data = {}
+        fpga_io = self.instruments['FPGA_IO']['instance']
+        # fpga_io.update(self.instruments['FPGA_IO']['settings'])
+
+        # turn controller on
+        control_channel = 'DIO{:d}'.format(self.settings['channel_OnOff'])
+        instrument_settings = {control_channel: True}
+        fpga_io.update(instrument_settings)
+
+        channel_out_1 = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(1)])
+        channel_out_2 = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(2)])
+        channel_out_3 = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(3)])
+        channel_in = 'AI{:d}'.format(self.settings['channel_detector'])
+
+        signal_1 = float(self.settings['V_1'])
+        signal_3 = float(self.settings['V_3'])
+
+        volt_range = np.arange(0, 5, 0.2)
+        data = []
+        for v2 in volt_range:
+            signal_2 = float(v2)
+            fpga_io.update({channel_out_2: signal_2})
+            time.sleep(1)
+            detector_value = getattr(fpga_io, channel_in)
+            data.append(detector_value)
+            progress = calc_progress(v2, volt_range)
+            self.data.update({'WP1 = {:0.2f}V, WP3 = {:0.2f}V'.format(signal_1, signal_3): data})
+            self.updateProgress.emit(progress)
+
+        if self.settings['save']:
+            self.save()
+            self.save_data()
+            self.save_log()
+
+        self.updateProgress.emit(100)
+
+    def plot(self, axes1):
+        last_key = sorted(self.data.keys())[-1]
+        volt_range = np.arange(0, 5, 0.2)
+        axes1.plot(volt_range[0:len(self.data[last_key])], self.data[last_key], '-o')
+
+    def stop(self):
+        self._abort = True
 if __name__ == '__main__':
     script = {}
     instr = {}

@@ -31,3 +31,13 @@ try:
     from FPGA_PolarizationController import FPGA_PolarizationController
 except:
     print("./src/scripts/__init__ warning! FPGA_PolarizationController did not load")
+
+try:
+    from FPGA_PolarizationController import FPGA_PolarizationSignalMap
+except:
+    print("./src/scripts/__init__ warning! FPGA_PolarizationSignalMap did not load")
+
+try:
+    from FPGA_PolarizationController import FPGA_PolarizationSignalScan
+except:
+    print("./src/scripts/__init__ warning! FPGA_PolarizationSignalScan did not load")
