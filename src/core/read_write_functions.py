@@ -77,7 +77,6 @@ def export_default_instruments(path):
             except:
                 print('failed to create instrument file for: {:s}'.format(obj.__name__))
 
-
 def export_default_scripts(path):
     from src.core.scripts import Script
     import src.scripts as scripts

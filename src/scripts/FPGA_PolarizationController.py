@@ -147,9 +147,27 @@ this gives a three dimensional dataset
         Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
         Parameter('save', True, bool, 'check to automatically save data'),
-        Parameter('channel_WP_1', 5, range(8), 'analog channel that controls waveplate 1'),
-        Parameter('channel_WP_2', 6, range(8), 'analog channel that controls waveplate 2'),
-        Parameter('channel_WP_3', 7, range(8), 'analog channel that controls waveplate 3'),
+        Parameter('WP_1', [
+            Parameter('channel', 5, range(8), 'analog channel that controls waveplate 1'),
+            Parameter('V_min', 0.0, float, 'minimum voltage of scan'),
+            Parameter('V_max', 5.0, float, 'maximum voltage of scan'),
+            Parameter('dV', 0.2, float, 'voltage step of scan')
+        ]),
+        Parameter('WP_2', [
+            Parameter('channel', 5, range(8), 'analog channel that controls waveplate 1'),
+            Parameter('V_min', 0.0, float, 'minimum voltage of scan'),
+            Parameter('V_max', 5.0, float, 'maximum voltage of scan'),
+            Parameter('dV', 0.2, float, 'voltage step of scan')
+        ]),
+        Parameter('WP_3', [
+            Parameter('channel', 5, range(8), 'analog channel that controls waveplate 1'),
+            Parameter('V_min', 0.0, float, 'minimum voltage of scan'),
+            Parameter('V_max', 5.0, float, 'maximum voltage of scan'),
+            Parameter('dV', 0.2, float, 'voltage step of scan')
+        ]),
+        # Parameter('channel_WP_1', 5, range(8), 'analog channel that controls waveplate 1'),
+        # Parameter('channel_WP_2', 6, range(8), 'analog channel that controls waveplate 2'),
+        # Parameter('channel_WP_3', 7, range(8), 'analog channel that controls waveplate 3'),
         Parameter('channel_OnOff', 4, [4,5,6,7], 'digital channel that turns polarization controller on/off'),
         Parameter('channel_detector', 0, range(4), 'analog input channel of the detector signal')
     ])
@@ -182,11 +200,11 @@ this gives a three dimensional dataset
         """
 
 
-        def calc_progress(v1, v3, volt_range):
-            dV = np.mean(np.diff(volt_range))
-            progress_v3 = (v3 - min(volt_range)) / (max(volt_range) - min(volt_range))
-            progress_v1 = (v1 - min(volt_range)) / (max(volt_range) - min(volt_range))
-            progress = progress_v1 + progress_v3 * dV / (max(volt_range) - min(volt_range))
+        def calc_progress(v1, v3, volt_range_1, volt_range_3):
+            dV = np.mean(np.diff(volt_range_1))
+            progress_v3 = (v3 - min(volt_range_3)) / (max(volt_range_3) - min(volt_range_3))
+            progress_v1 = (v1 - min(volt_range_1)) / (max(volt_range_1) - min(volt_range_1))
+            progress = progress_v1 + progress_v3 * dV / (max(volt_range_1) - min(volt_range_1))
             return int(100*progress)
 
         self.data = {}
@@ -198,29 +216,34 @@ this gives a three dimensional dataset
         instrument_settings = {control_channel: True}
         fpga_io.update(instrument_settings)
 
-        channel_out_1 = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(1)])
-        channel_out_2 = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(2)])
-        channel_out_3 = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(3)])
+        # channel_out_1 = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(1)])
+        # channel_out_2 = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(2)])
+        # channel_out_3 = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(3)])
+        channel_out_1 = 'AO{:d}'.format(self.settings['WP_1']['channel'])
+        channel_out_2 = 'AO{:d}'.format(self.settings['WP_2']['channel'])
+        channel_out_3 = 'AO{:d}'.format(self.settings['WP_3']['channel'])
         channel_in = 'AI{:d}'.format(self.settings['channel_detector'])
 
         # set the voltages
-        volt_range = np.arange(0, 5, 0.2)
-        for v1 in volt_range:
+        volt_range_1 = np.arange(self.settings['WP_1']['V_min'], self.settings['WP_1']['V_max'], self.settings['WP_1']['dV'])
+        volt_range_2 = np.arange(self.settings['WP_2']['V_min'], self.settings['WP_2']['V_max'], self.settings['WP_2']['dV'])
+        volt_range_3 = np.arange(self.settings['WP_3']['V_min'], self.settings['WP_3']['V_max'], self.settings['WP_3']['dV'])
+        for v1 in volt_range_1:
             signal_1 = float(v1)
-            for v3 in volt_range:
+            for v3 in volt_range_3:
                 signal_3 = float(v3)
                 self.log('WP1 = {:0.2f}V, WP3 = {:0.2f}V: wait 3 seconds to settle down'.format(signal_1, signal_3))
                 fpga_io.update({channel_out_1: signal_1, channel_out_2: 0, channel_out_3: signal_3})
                 time.sleep(3)
                 data = []
-                for v2 in volt_range:
+                for v2 in volt_range_2:
                     signal_2 = float(v2)
                     fpga_io.update({channel_out_2: signal_2})
                     time.sleep(1)
                     detector_value = getattr(fpga_io, channel_in)
                     data.append(detector_value)
                 self.data.update({'WP1 = {:0.2f}V, WP3 = {:0.2f}V'.format(signal_1, signal_3) : data})
-                progress = calc_progress(v1, v3, volt_range)
+                progress = calc_progress(v1, v3, volt_range_1, volt_range_3)
                 self.updateProgress.emit(progress)
 
         if self.settings['save']:
