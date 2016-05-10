@@ -44,6 +44,8 @@ class GalvoScan(Script, QThread):
 
         QThread.__init__(self)
 
+        self._plot_type = 1
+
         # self.data = deque()
 
     def _function(self):
@@ -73,7 +75,7 @@ class GalvoScan(Script, QThread):
             self.instruments['daq']['instance'].settings['analog_output']['ao0']['sample_rate'] = sample_rate
             self.instruments['daq']['instance'].settings['analog_output']['ao1']['sample_rate'] = sample_rate
             self.instruments['daq']['instance'].settings['digital_input']['ctr0']['sample_rate'] = sample_rate
-            self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x']))}
+            self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x'])), 'bounds': [self.xVmin, self.xVmax, self.yVmin, self.yVmax]}
 
         # self.data.clear()  # clear data queue
         init_scan()
@@ -119,13 +121,13 @@ class GalvoScan(Script, QThread):
 
             # sending updates every cycle leads to invalid task errors, so wait and don't overload gui
             current_time = dt.datetime.now()
-            if((current_time-update_time).total_seconds() > 1.0):
+            if((current_time-update_time).total_seconds() > 3.0):
                 progress = int(float(yNum + 1)/len(self.y_array)*100)
                 self.updateProgress.emit(progress)
                 update_time = current_time
-                time.sleep(.2) #ensure plot finishes before starting next row, otherwise occasional daq crash
+                time.sleep(.4) #ensure plot finishes before starting next row, otherwise occasional daq crash
 
-        time.sleep(1.0)
+        time.sleep(3.0)
         progress = 100
         self.updateProgress.emit(progress)
 
@@ -175,9 +177,13 @@ class GalvoScan(Script, QThread):
     def stop(self):
         self._abort = True
 
-    def set_plot_widget(self, widget):
-        self.plot_widget = widget
+    def save_data(self, filename = None):
+        super(GalvoScan, self).save_data(filename)
 
 if __name__ == '__main__':
-    pass
+    script, failed, instruments = Script.load_and_append(script_dict={'GalvoScan': 'GalvoScan'})
+
+    print(script)
+    print(failed)
+    # print(instruments)
 

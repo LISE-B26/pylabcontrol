@@ -144,21 +144,22 @@ class StanfordResearch_ESR(Script, QThread):
         self.updateProgress.emit(100)
 
     def plot(self, axes):
-        fit_params = self.data[-1]['fit_params']
-        if not fit_params[0] == -1:  # check if fit failed
-            fit_data = self.lorentzian(self.data[-1]['frequency'], fit_params[0], fit_params[1], fit_params[2], fit_params[3])
-        else:
-            fit_data = None
-        if fit_data is not None: # plot esr and fit data
-            axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b', self.data[-1]['frequency'], fit_data, 'r')
-            axes.set_title('ESR')
-            axes.set_xlabel('Frequency (Hz)')
-            axes.set_ylabel('Kcounts/s')
-        else: #plot just esr data
-            axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b')
-            axes.set_title('ESR')
-            axes.set_xlabel('Frequency (Hz)')
-            axes.set_ylabel('Kcounts/s')
+        if self.data:
+            fit_params = self.data[-1]['fit_params']
+            if not fit_params[0] == -1:  # check if fit failed
+                fit_data = self.lorentzian(self.data[-1]['frequency'], fit_params[0], fit_params[1], fit_params[2], fit_params[3])
+            else:
+                fit_data = None
+            if fit_data is not None: # plot esr and fit data
+                axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b', self.data[-1]['frequency'], fit_data, 'r')
+                axes.set_title('ESR')
+                axes.set_xlabel('Frequency (Hz)')
+                axes.set_ylabel('Kcounts/s')
+            else: #plot just esr data
+                axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b')
+                axes.set_title('ESR')
+                axes.set_xlabel('Frequency (Hz)')
+                axes.set_ylabel('Kcounts/s')
 
     def stop(self):
         self._abort = True
@@ -176,7 +177,7 @@ class StanfordResearch_ESR(Script, QThread):
             return opt.curve_fit(self.lorentzian, freq_values, esr_data, fit_start_params)
         except RuntimeError:
             self.log('Lorentzian fit failed')
-            return (-1, -1, -1, -1), 'Ignore'
+            return [-1, -1, -1, -1], 'Ignore'
 
     # defines a lorentzian with some amplitude, width, center, and offset to use with opt.curve_fit
     def lorentzian(self, x, amplitude, width, center, offset):
