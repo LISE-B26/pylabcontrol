@@ -104,7 +104,7 @@ class Find_Points(Script):
         coordinates, image_gaussian = locate_Points(image_data)
         # peak_local_max flips x and y for each point, need to flip it back
         coordinates = zip(*np.flipud(zip(*coordinates)))
-        for index, pt in enumerate(coordinates): 
+        for index, pt in enumerate(coordinates):
             xcoor = pt[0]*x_pixel_to_voltage + self.x_min
             ycoor = pt[1] * y_pixel_to_voltage + self.y_min
             coordinates[index] = [xcoor, ycoor]
