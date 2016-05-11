@@ -154,13 +154,13 @@ this gives a three dimensional dataset
             Parameter('dV', 0.2, float, 'voltage step of scan')
         ]),
         Parameter('WP_2', [
-            Parameter('channel', 5, range(8), 'analog channel that controls waveplate 1'),
+            Parameter('channel', 6, range(8), 'analog channel that controls waveplate 1'),
             Parameter('V_min', 0.0, float, 'minimum voltage of scan'),
             Parameter('V_max', 5.0, float, 'maximum voltage of scan'),
             Parameter('dV', 0.2, float, 'voltage step of scan')
         ]),
         Parameter('WP_3', [
-            Parameter('channel', 5, range(8), 'analog channel that controls waveplate 1'),
+            Parameter('channel', 7, range(8), 'analog channel that controls waveplate 1'),
             Parameter('V_min', 0.0, float, 'minimum voltage of scan'),
             Parameter('V_max', 5.0, float, 'maximum voltage of scan'),
             Parameter('dV', 0.2, float, 'voltage step of scan')

@@ -113,6 +113,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             self.btn_save_gui.triggered.connect(self.btn_clicked)
             self.btn_load_gui.triggered.connect(self.btn_clicked)
+            self.btn_about.triggered.connect(self.btn_clicked)
+
 
             self.btn_load_instruments.clicked.connect(self.btn_clicked)
             self.btn_load_scripts.clicked.connect(self.btn_clicked)
@@ -336,7 +338,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.log('Can\'t plot, No probe selected. Select probe and try again!')
         elif sender is self.btn_save_gui:
-
             # get filename
             fname = QtGui.QFileDialog.getSaveFileName(self, 'Save gui settings to file', 'Z:\\Lab\\Cantilever\\Measurements')# filter = '.b26gui'
             self.save_settings(fname)
@@ -344,7 +345,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # get filename
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file', 'Z:\\Lab\\Cantilever\\Measurements')
             self.load_settings(fname)
-
+        elif sender is self.btn_about:
+            # get filename
+            fname = QtGui.QMessageBox(QtCore.QString('asdad'), QtCore.QString('asdasd'), QtGui.QMessageBox.Ok)
+            self.load_settings(fname)
         elif (sender is self.btn_load_instruments) or (sender is self.btn_load_scripts):
 
             if sender is self.btn_load_instruments:

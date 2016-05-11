@@ -486,7 +486,7 @@
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionAbout"/>
+    <addaction name="btn_about"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
@@ -520,7 +520,7 @@
     <string>save</string>
    </property>
   </action>
-  <action name="actionAbout">
+  <action name="btn_about">
    <property name="text">
     <string>about</string>
    </property>

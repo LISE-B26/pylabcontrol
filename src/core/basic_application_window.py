@@ -220,12 +220,12 @@ class Ui_MainWindow(object):
         self.btn_load_gui.setObjectName(_fromUtf8("btn_load_gui"))
         self.btn_save_gui = QtGui.QAction(MainWindow)
         self.btn_save_gui.setObjectName(_fromUtf8("btn_save_gui"))
-        self.actionAbout = QtGui.QAction(MainWindow)
-        self.actionAbout.setObjectName(_fromUtf8("actionAbout"))
+        self.btn_about = QtGui.QAction(MainWindow)
+        self.btn_about.setObjectName(_fromUtf8("btn_about"))
         self.menuFile.addAction(self.actionExit)
         self.menuSettings.addAction(self.btn_load_gui)
         self.menuSettings.addAction(self.btn_save_gui)
-        self.menuHelp.addAction(self.actionAbout)
+        self.menuHelp.addAction(self.btn_about)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuSettings.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
@@ -237,7 +237,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Lukin Lab - B26 GUI", None))
         self.tree_scripts.headerItem().setText(0, _translate("MainWindow", "Parameter/Script", None))
         self.tree_scripts.headerItem().setText(1, _translate("MainWindow", "Value", None))
         self.btn_stop_script.setText(_translate("MainWindow", "stop", None))
@@ -265,6 +265,6 @@ class Ui_MainWindow(object):
         self.actionExit.setText(_translate("MainWindow", "Exit", None))
         self.btn_load_gui.setText(_translate("MainWindow", "load", None))
         self.btn_save_gui.setText(_translate("MainWindow", "save", None))
-        self.actionAbout.setText(_translate("MainWindow", "about", None))
+        self.btn_about.setText(_translate("MainWindow", "about", None))
 
 from matplotlibwidget import MatplotlibWidget
