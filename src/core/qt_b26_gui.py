@@ -114,6 +114,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_save_gui.triggered.connect(self.btn_clicked)
             self.btn_load_gui.triggered.connect(self.btn_clicked)
             self.btn_about.triggered.connect(self.btn_clicked)
+            self.btn_exit.triggered.connect(self.close)
 
 
             self.btn_load_instruments.clicked.connect(self.btn_clicked)
@@ -346,9 +347,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file', 'Z:\\Lab\\Cantilever\\Measurements')
             self.load_settings(fname)
         elif sender is self.btn_about:
-            # get filename
-            fname = QtGui.QMessageBox(QtCore.QString('asdad'), QtCore.QString('asdasd'), QtGui.QMessageBox.Ok)
-            self.load_settings(fname)
+            msg = QtGui.QMessageBox()
+            msg.setIcon(QtGui.QMessageBox.Information)
+            msg.setText("Lukin Lab B26 Gui")
+            msg.setInformativeText("Check out: https://github.com/LISE-B26/PythonLab")
+            msg.setWindowTitle("About")
+            # msg.setDetailedText("some stuff")
+            msg.setStandardButtons(QtGui.QMessageBox.Ok)
+            # msg.buttonClicked.connect(msgbtn)
+            retval = msg.exec_()
         elif (sender is self.btn_load_instruments) or (sender is self.btn_load_scripts):
 
             if sender is self.btn_load_instruments:
