@@ -512,7 +512,7 @@ class Script(object):
         return data
 
     @staticmethod
-    def load_and_append(script_dict, scripts = {}, instruments = {}, log_function = None):
+    def load_and_append(script_dict, scripts = None, instruments = None, log_function = None):
         """
         load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
 
@@ -556,10 +556,16 @@ class Script(object):
         Returns:
                 dictionary of form
                 script_dict = { name_of_script_1 : script_1_instance, name_of_script_2 : script_2_instance, ...}
-                loaded_failed = {name_of_script_1: exception_1, name_of_script_2: exception_2, ....}
+                load_failed = {name_of_script_1: exception_1, name_of_script_2: exception_2, ....}
 
         """
-        loaded_failed = {}
+
+        if scripts is None:
+            scripts = {}
+        if instruments is None:
+            instruments = {}
+
+        load_failed = {}
         updated_scripts = {}
         updated_scripts.update(scripts)
         updated_instruments = {}
@@ -679,7 +685,7 @@ class Script(object):
             # check if script already exists
             if script_name in scripts.keys():
                 print('WARNING: script {:s} already exists. Did not load!'.format(script_name))
-                loaded_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
+                load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
                 module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = get_script_information(script_class_name)
 
@@ -711,11 +717,11 @@ class Script(object):
                     script_instance = eval(class_creation_string)
                     updated_scripts.update({script_name :script_instance})
                 except Exception as inst:
-                    loaded_failed[script_name] = inst
+                    load_failed[script_name] = inst
                     # raise inst
                     # loaded_failed.append(script_name)
 
-        return updated_scripts, loaded_failed, updated_instruments
+        return updated_scripts, load_failed, updated_instruments
 
 
 class QThreadWrapper(QThread):

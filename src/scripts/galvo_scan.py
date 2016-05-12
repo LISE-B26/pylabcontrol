@@ -11,18 +11,19 @@ import threading
 
 class GalvoScan(Script, QThread):
     updateProgress = Signal(int)
+    saveFigure = Signal(str)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
         Parameter('save', True, bool,'check to automatically save data'),
         Parameter('point_a',
-                  [Parameter('x', -0.1, float, 'x-coordinate'),
-                   Parameter('y', -0.1, float, 'y-coordinate')
+                  [Parameter('x', -0.4, float, 'x-coordinate'),
+                   Parameter('y', -0.4, float, 'y-coordinate')
                    ]),
         Parameter('point_b',
-                  [Parameter('x', 0.1, float, 'x-coordinate'),
-                   Parameter('y', 0.1, float, 'y-coordinate')
+                  [Parameter('x', 0.4, float, 'x-coordinate'),
+                   Parameter('y', 0.4, float, 'y-coordinate')
                    ]),
         Parameter('num_points',
                   [Parameter('x', 120, int, 'number of x points to scan'),
@@ -43,6 +44,8 @@ class GalvoScan(Script, QThread):
         Script.__init__(self, name, settings=settings, instruments=instruments, log_output=log_output)
 
         QThread.__init__(self)
+
+        self._plot_type = 1
 
         # self.data = deque()
 
@@ -73,7 +76,7 @@ class GalvoScan(Script, QThread):
             self.instruments['daq']['instance'].settings['analog_output']['ao0']['sample_rate'] = sample_rate
             self.instruments['daq']['instance'].settings['analog_output']['ao1']['sample_rate'] = sample_rate
             self.instruments['daq']['instance'].settings['digital_input']['ctr0']['sample_rate'] = sample_rate
-            self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x']))}
+            self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x'])), 'bounds': [self.xVmin, self.xVmax, self.yVmin, self.yVmax]}
 
         # self.data.clear()  # clear data queue
         init_scan()
@@ -119,13 +122,13 @@ class GalvoScan(Script, QThread):
 
             # sending updates every cycle leads to invalid task errors, so wait and don't overload gui
             current_time = dt.datetime.now()
-            if((current_time-update_time).total_seconds() > 1.0):
+            if((current_time-update_time).total_seconds() > 3.0):
                 progress = int(float(yNum + 1)/len(self.y_array)*100)
                 self.updateProgress.emit(progress)
                 update_time = current_time
-                time.sleep(.2) #ensure plot finishes before starting next row, otherwise occasional daq crash
+                time.sleep(.4) #ensure plot finishes before starting next row, otherwise occasional daq crash
 
-        time.sleep(1.0)
+        time.sleep(3.0)
         progress = 100
         self.updateProgress.emit(progress)
 
@@ -138,7 +141,7 @@ class GalvoScan(Script, QThread):
     def plot(self, axes):
         data = np.copy(self.data['image_data'])
         if(self._plotting == False):
-            fig = axes.get_figure()
+            self.fig = axes.get_figure()
             if self.dvconv is None:
                 implot = axes.imshow(data, cmap = 'pink',
                                                   interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
@@ -151,10 +154,10 @@ class GalvoScan(Script, QThread):
                 axes.set_xlabel('Distance (um)')
                 axes.set_ylabel('Distance (um)')
                 axes.set_title('Confocal Image')
-            if(len(fig.axes) > 1):
-                self.cbar = fig.colorbar(implot,cax = fig.axes[1],label = 'kcounts/sec')
+            if(len(self.fig.axes) > 1):
+                self.cbar = self.fig.colorbar(implot,cax = self.fig.axes[1],label = 'kcounts/sec')
             else:
-                self.cbar = fig.colorbar(implot,label = 'kcounts/sec')
+                self.cbar = self.fig.colorbar(implot,label = 'kcounts/sec')
             self.cbar.set_cmap('pink')
             self._plotting = True
         else:
@@ -175,9 +178,16 @@ class GalvoScan(Script, QThread):
     def stop(self):
         self._abort = True
 
-    def set_plot_widget(self, widget):
-        self.plot_widget = widget
+    def save_data(self, filename = None):
+        super(GalvoScan, self).save_data(filename)
+        if filename is None:
+            filename = self.filename('.jpg')
+        self.saveFigure.emit(filename)
 
 if __name__ == '__main__':
-    pass
+    script, failed, instruments = Script.load_and_append(script_dict={'GalvoScan': 'GalvoScan'})
+
+    print(script)
+    print(failed)
+    # print(instruments)
 

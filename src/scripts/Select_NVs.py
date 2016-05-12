@@ -5,6 +5,8 @@ import scipy.spatial
 import numpy as np
 from matplotlib import patches
 from PySide.QtCore import Signal, QThread
+from src.core.plotting import plot_fluorescence
+
 
 
 
@@ -33,17 +35,18 @@ class Select_NVs(Script, QThread):
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        self._abort = False
         Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_output = log_output)
 
         QThread.__init__(self)
 
+        self._plot_type = 1
 
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
+        self._abort = False
         self.scripts['Find_Points'].run()
         self.coordinates = self.scripts['Find_Points'].data['NV_positions']
         self.patches = []
@@ -57,20 +60,30 @@ class Select_NVs(Script, QThread):
         if self.settings['save']:
             self.save()
             self.save_data()
+            self.log('saving')
+
+        self.updateProgress.emit(100)
 
     def stop(self):
         self._abort = True
 
     def plot(self, axes):
-        print('plotting')
-        self.scripts['Find_Points'].plot(axes)
+        if self.data['nv_locations'] == []:
+            self.scripts['Find_Points'].plot(axes)
+        else:
+            image = self.scripts['Find_Points'].data['image']
+            extend = [self.scripts['Find_Points'].x_min, self.scripts['Find_Points'].x_max, self.scripts['Find_Points'].y_max, self.scripts['Find_Points'].y_min]
+            plot_fluorescence(image, extend, axes)
+
+            for x in self.data['nv_locations']:
+                patch = patches.Circle((x[0], x[1]), .0005, fc='b')
+                axes.add_patch(patch)
 
     def toggle_NV(self, pt, axes):
         #use KDTree to find NV closest to mouse click
         tree = scipy.spatial.KDTree(self.coordinates)
         _, i = tree.query(pt)
         nv_pt = self.coordinates[i]
-        print(nv_pt)
 
         # removes NV if previously selected
         if (nv_pt in self.data['nv_locations']):
@@ -83,7 +96,7 @@ class Select_NVs(Script, QThread):
         # adds NV if not previously selected
         else:
             self.data['nv_locations'].append(nv_pt)
-            circ = patches.Circle((nv_pt[0], nv_pt[1]), 2, fc='b')
+            circ = patches.Circle((nv_pt[0], nv_pt[1]), .0005, fc='b')
             axes.add_patch(circ)
             self.patches.append(circ)
 

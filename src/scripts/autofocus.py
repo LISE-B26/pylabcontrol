@@ -5,9 +5,12 @@ from src.scripts import GalvoScan
 import numpy as np
 import scipy as sp
 
+
+
 class AutoFocus(Script, QThread):
     """
-Autofocus: WRITE SOME TEXT HERE
+Autofocus: Takes images at different piezo voltages and uses a heuristic to figure out the point at which the objective
+            is focused.
     """
 
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
@@ -45,6 +48,8 @@ Autofocus: WRITE SOME TEXT HERE
         Script.__init__(self, name, settings, instruments, scripts, log_output = log_output)
         # QtCore.QThread.__init__(self)
         QThread.__init__(self)
+
+        self._plot_type = 2
 
 
     def _function(self):
