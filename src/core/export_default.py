@@ -1,6 +1,24 @@
 from src.core.scripts import Script
 import src.scripts as scripts
+from src.core import Probe
+
 import inspect
+
+def export_default_probes(path):
+    import src.instruments as instruments
+    import inspect
+
+    for name, obj in inspect.getmembers(instruments):
+        if inspect.isclass(obj):
+            try:
+                instrument = obj()
+
+                for probe_name, probe_info in instrument._PROBES.iteritems():
+                    probe = Probe(instrument, probe_name, info = probe_info)
+                    filename = '{:s}/{:s}/{:s}.b26'.format(path, instrument.name, probe_name)
+                    probe.save(filename)
+            except:
+                print('failed to create probe file for: {:s}'.format(obj.__name__))
 
 
 def export_default_instruments(path):

@@ -1,5 +1,7 @@
 from src.core.instruments import Instrument
 from collections import deque
+from src.core.read_write_functions import save_b26_file
+
 class Probe(object):
 
 
@@ -71,6 +73,16 @@ class Probe(object):
         dictator = {self.name: {'probe_name': self.probe_name, 'instrument_name': self.instrument.name}}
 
         return dictator
+
+    def save(self, filename):
+        """
+        save the instrument to path as a .b26 file
+
+        Args:
+            filename: path of file
+        """
+
+        save_b26_file(filename, probes=self.to_dict())
 
 
     @staticmethod
