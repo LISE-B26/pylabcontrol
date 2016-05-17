@@ -46,6 +46,8 @@ Autofocus: WRITE SOME TEXT HERE
         # QtCore.QThread.__init__(self)
         QThread.__init__(self)
 
+        self._plot_type = 2
+
 
     def _function(self):
         """
@@ -84,10 +86,10 @@ Autofocus: WRITE SOME TEXT HERE
 
             # calculate focusing function for this sweep
             if self.settings['mode'] == 'mean':
-                self.data['focus_function_result'].append(current_image)
+                self.data['focus_function_result'].append(np.mean(current_image))
 
             elif self.settings['mode'] == 'standard_deviation':
-                self.data['focus_function_result'].append(current_image)
+                self.data['focus_function_result'].append(np.std(current_image))
 
             # update progress bar
             progress = 100.0 * (np.where(sweep_voltages == voltage)[0]+1) / float(self.settings['num_sweep_points'])
@@ -137,11 +139,19 @@ Autofocus: WRITE SOME TEXT HERE
             self.save_log()
             self.log('Finished saving.')
 
+        # update progress bar if focusing loop was aborted, reset _abort
+        if self._abort:
+            self.updateProgress.emit(100.0)
+
+        self._abort = False
+
+
 
     def plot(self, axis1, axis2 = None):
         # plot current focusing data
         axis1.plot(self.data['sweep_voltages'][0:len(self.data['focus_function_result'])],
                    self.data['focus_function_result'])
+
 
         # plot best fit
         if 'focusing_fit_parameters' in self.data and self.data['focusing_fit_parameters'] != [0,0,0,0]:

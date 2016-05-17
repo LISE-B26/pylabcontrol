@@ -121,15 +121,15 @@ class ESR_Selected_NVs(Script, QThread):
         plot_fluorescence(image, extend, axes_Image)
 
         if self.isRunning():
-            patch = patches.Circle((self.cur_pt[0], self.cur_pt[1]), .005, fc='b')
+            patch = patches.Circle((self.cur_pt[0], self.cur_pt[1]), .0005, fc='b')
             axes_Image.add_patch(patch)
         else:
             for pt in self.nv_locs:
-                patch = patches.Circle((pt[0], pt[1]), .005, fc='b')
+                patch = patches.Circle((pt[0], pt[1]), .0005, fc='b')
                 axes_Image.add_patch(patch)
 
         if axes_ESR is not None:
-            self.scripts['StanfordResearch_ESR'].plot(axes_ESR)
+            self.scripts['StanfordResearch_ESR'].plot(None, axes_ESR)
 
     def load_coors_and_image(self):
         self.image_data = Script.load_data(self.settings['image_path'], data_name_in='image_data')

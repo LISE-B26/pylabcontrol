@@ -12,7 +12,7 @@ from script_dummy import  ScriptDummy, ScriptDummyWithQtSignal
 from galvo_scan import GalvoScan
 from Find_Points import Find_Points
 # from StanfordResearch_ESR import StanfordResearch_ESR
-# from autofocus import AutoFocus
+from autofocus import AutoFocus
 # from light_control import CameraOn
 from Select_NVs import Select_NVs
 from set_laser import SetLaser

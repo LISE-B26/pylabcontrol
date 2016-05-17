@@ -76,7 +76,7 @@ class Select_NVs(Script, QThread):
             plot_fluorescence(image, extend, axes)
 
             for x in self.data['nv_locations']:
-                patch = patches.Circle((x[0], x[1]), .0005, fc='b')
+                patch = patches.Circle((x[0], x[1]), .001, fc='b')
                 axes.add_patch(patch)
 
     def toggle_NV(self, pt, axes):
@@ -96,7 +96,7 @@ class Select_NVs(Script, QThread):
         # adds NV if not previously selected
         else:
             self.data['nv_locations'].append(nv_pt)
-            circ = patches.Circle((nv_pt[0], nv_pt[1]), .0005, fc='b')
+            circ = patches.Circle((nv_pt[0], nv_pt[1]), .001, fc='b')
             axes.add_patch(circ)
             self.patches.append(circ)
 

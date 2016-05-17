@@ -49,13 +49,14 @@ class StanfordResearch_ESR(Script, QThread):
         self._abort = False
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_output=log_output)
         QThread.__init__(self)
-        self._plot_type = 1
+        self._plot_type = 2
 
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
+        self._abort = False
         freq_values = np.linspace(self.settings['freq_start'], self.settings['freq_stop'], self.settings['freq_points'])
         freq_range = max(freq_values) - min(freq_values)
         num_freq_sections = int(freq_range) / int(self.instruments['microwave_generator']['instance'].settings['dev_width']*2) + 1
@@ -63,6 +64,7 @@ class StanfordResearch_ESR(Script, QThread):
         freq_array = np.repeat(freq_values, clock_adjust)
         self.instruments['microwave_generator']['instance'].update({'amplitude': self.settings['power_out']})
 
+        sample_rate = float(1) / self.settings['settle_time']
         self.instruments['daq']['instance'].settings['analog_output']['ao2']['sample_rate'] = sample_rate
         self.instruments['daq']['instance'].settings['digital_input']['ctr0']['sample_rate'] = sample_rate
 
@@ -146,7 +148,7 @@ class StanfordResearch_ESR(Script, QThread):
         # send 100 to signal that script is finished
         self.updateProgress.emit(100)
 
-    def plot(self, axes):
+    def plot(self, skip, axes):
         if self.data:
             fit_params = self.data[-1]['fit_params']
             if not fit_params[0] == -1:  # check if fit failed

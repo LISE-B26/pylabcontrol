@@ -118,7 +118,7 @@ class Find_Points(Script):
         plot_fluorescence(image, extend, axes)
 
         for x in self.data['NV_positions']:
-            patch = patches.Circle((x[0],x[1]), .005, fc = 'r')
+            patch = patches.Circle((x[0],x[1]), .0005, fc = 'r')
             axes.add_patch(patch)
 
 

@@ -128,7 +128,8 @@ class GalvoScan(Script, QThread):
                 update_time = current_time
                 time.sleep(.4) #ensure plot finishes before starting next row, otherwise occasional daq crash
 
-        time.sleep(3.0)
+        if not ((current_time - update_time).total_seconds() > 3.0):
+            time.sleep(3.0 - (current_time - update_time).total_seconds())
         progress = 100
         self.updateProgress.emit(progress)
 

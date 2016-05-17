@@ -306,6 +306,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     script.saveFigure.connect(self.save_figure)
 
                 self.current_script = script
+                self.btn_start_script.setEnabled(False)
                 script.start()
             else:
                 self.log('No script selected. Select script and try again!')
@@ -314,6 +315,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.current_script.stop()
             else:
                 self.log('There is no currently running script. Stop failed!')
+            self.btn_start_script.setEnabled(True)
         elif sender is self.btn_plot_script:
             item = self.tree_scripts.currentItem()
 
@@ -533,7 +535,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
         self.progressBar.setValue(progress)
         if progress == 100:
-            self.refresh_tree(self.tree_scripts, self.scripts)
+            # self.refresh_tree(self.tree_scripts, self.scripts)
+            self.btn_start_script.setEnabled(True)
         script = self.current_script
         if isinstance(script, QThreadWrapper):
             script = script.script
@@ -542,30 +545,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script.plot(self.matplotlibwidget.axes)
             self.matplotlibwidget.draw()
         elif script.plot_type == 2:
-            script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2)
+            script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
             self.matplotlibwidget.draw()
             self.matplotlibwidget_2.draw()
-        # if isinstance(script, (ZISweeper, ZISweeperHighResolution, KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower)):
-        # if isinstance(script, (AutoFocus)):
-        #     if script.data:
-        #         print('in update status', progress)
-        #         script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2)
-        #         self.matplotlibwidget.draw()
-        #         self.matplotlibwidget_2.draw()
-
-        # if isinstance(script, (GalvoScan, StanfordResearch_ESR, Find_Points)):
-        #     if script.data:
-        #         script.plot(self.matplotlibwidget.axes)
-        #         self.matplotlibwidget.draw()
-        #
-        # if isinstance(script, Select_NVs):
-        #     script.plot(self.matplotlibwidget.axes)
-        #     self.matplotlibwidget.draw()
-        #
-        #
-        # if isinstance(script, ESR_Selected_NVs):
-        #     script.plot(self.matplotlibwidget.axes)
-        #     self.matplotlibwidget.draw()
 
 
     def update_probes(self, progress):
