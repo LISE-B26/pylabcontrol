@@ -82,6 +82,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # self.fill_tree(self.tree_scripts, self.scripts)
         self.tree_scripts.setColumnWidth(0, 300)
+        self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
         # self.fill_tree(self.tree_monitor, self.probes)
         self.tree_monitor.setColumnWidth(0, 300)
@@ -120,8 +121,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_load_instruments.clicked.connect(self.btn_clicked)
             self.btn_load_scripts.clicked.connect(self.btn_clicked)
 
+            # Helper function to make only column 1 editable
+            def onScriptParamClick(item, column):
+                if column == 1:
+                    self.tree_scripts.editItem(item, column)
+
             # tree structures
-            self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+            self.tree_scripts.itemClicked.connect(lambda: onScriptParamClick(self.tree_scripts.currentItem(),
+                                                                             self.tree_scripts.currentColumn()))
+            self.tree_scripts.itemChanged.connect(lambda: self.update_parametuers(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
             self.tabWidget.currentChanged.connect(lambda : self.switch_tab())
 

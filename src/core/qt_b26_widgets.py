@@ -50,6 +50,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             self.treeWidget().setItemWidget( self, 1, self.combobox)
             self.combobox.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combobox))
 
+
         elif self.valid_values is bool:
             self.check = QtGui.QCheckBox()
             self.check.setChecked(self.value)
