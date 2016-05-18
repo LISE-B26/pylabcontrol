@@ -22,7 +22,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         Parameter('piezo_min_voltage', 30.0, float, 'lower bound of piezo voltage sweep'),
         Parameter('piezo_max_voltage', 70.0, float, 'upper bound of piezo voltage sweep'),
         Parameter('num_sweep_points', 10, int, 'number of values to sweep between min and max voltage'),
-        Parameter('mode', 'standard_deviation', ['mean', 'standard_deviation'], 'optimization function for focusing'),
+        Parameter('focusing_optimizer', 'standard_deviation', ['mean', 'standard_deviation'], 'optimization function for focusing'),
         Parameter('wait_time', 0.1, float)
     ])
 
@@ -88,10 +88,10 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             self.log('Took image.')
 
             # calculate focusing function for this sweep
-            if self.settings['mode'] == 'mean':
+            if self.settings['focusing_optimizer'] == 'mean':
                 self.data['focus_function_result'].append(np.mean(current_image))
 
-            elif self.settings['mode'] == 'standard_deviation':
+            elif self.settings['focusing_optimizer'] == 'standard_deviation':
                 self.data['focus_function_result'].append(np.std(current_image))
 
             # update progress bar
@@ -166,7 +166,14 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         # format plot
         axis1.set_xlim([self.data['sweep_voltages'][0], self.data['sweep_voltages'][-1]])
         axis1.set_xlabel('Piezo Voltage [V]')
-        axis1.set_ylabel('Focusing Function')
+
+        if self.settings['focusing_optimizer'] == 'mean':
+            ylabel = 'Image Mean [kcounts]'
+
+        elif self.settings['focusing_optimizer'] == 'standard_deviation':
+            ylabel = 'Image Standard Deviation [kcounts]'
+
+        axis1.set_ylabel(ylabel)
         axis1.set_title('Autofocusing Routine')
 
         if axis2:
