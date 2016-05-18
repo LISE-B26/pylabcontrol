@@ -7,6 +7,7 @@ from src.core import qt_b26_gui
 from PyQt4 import QtGui
 import ctypes
 
+#work around to change taskbar icon
 myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 

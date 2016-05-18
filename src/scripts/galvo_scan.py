@@ -7,6 +7,7 @@ from src.instruments.NIDAQ import DAQ
 import datetime as dt
 import time
 import threading
+import Queue
 
 
 class GalvoScan(Script, QThread):
@@ -47,7 +48,7 @@ class GalvoScan(Script, QThread):
 
         self._plot_type = 1
 
-        # self.data = deque()
+        self.queue = Queue.Queue()
 
     def _function(self):
         """
@@ -122,14 +123,21 @@ class GalvoScan(Script, QThread):
 
             # sending updates every cycle leads to invalid task errors, so wait and don't overload gui
             current_time = dt.datetime.now()
-            if((current_time-update_time).total_seconds() > 3.0):
+            if((current_time-update_time).total_seconds() > 1):
+                self.plotting_data = np.copy(self.data['image_data'])
                 progress = int(float(yNum + 1)/len(self.y_array)*100)
                 self.updateProgress.emit(progress)
+                # print('emitting')
                 update_time = current_time
-                time.sleep(.4) #ensure plot finishes before starting next row, otherwise occasional daq crash
+                #time.sleep(0) #ensure plot finishes before starting next row, otherwise occasional daq crash
+                # print('waiting')
+                # temp = self.queue.get(True)
+                # print('got')
+                # print('queue_len', self.queue.qsize())
 
-        if not ((current_time - update_time).total_seconds() > 3.0):
-            time.sleep(3.0 - (current_time - update_time).total_seconds())
+        self.plotting_data = np.copy(self.data['image_data'])
+        if not ((current_time - update_time).total_seconds() > 1):
+            time.sleep(1 - (current_time - update_time).total_seconds())
         progress = 100
         self.updateProgress.emit(progress)
 
@@ -140,17 +148,16 @@ class GalvoScan(Script, QThread):
 
 
     def plot(self, axes):
-        data = np.copy(self.data['image_data'])
         if(self._plotting == False):
             self.fig = axes.get_figure()
             if self.dvconv is None:
-                implot = axes.imshow(data, cmap = 'pink',
+                implot = axes.imshow(self.plotting_data, cmap = 'pink',
                                                   interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
                 axes.set_xlabel('Vx')
                 axes.set_ylabel('Vy')
                 axes.set_title('Confocal Image')
             else:
-                implot = axes.imshow(data, cmap = 'pink',
+                implot = axes.imshow(self.plotting_data, cmap = 'pink',
                   interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
                 axes.set_xlabel('Distance (um)')
                 axes.set_ylabel('Distance (um)')
@@ -163,13 +170,13 @@ class GalvoScan(Script, QThread):
             self._plotting = True
         else:
             if self.dvconv is None:
-                implot = axes.imshow(data, cmap = 'pink',
+                implot = axes.imshow(self.plotting_data, cmap = 'pink',
                                                   interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
                 axes.set_xlabel('Vx')
                 axes.set_ylabel('Vy')
                 axes.set_title('Confocal Image')
             else:
-                implot = axes.imshow(data, cmap = 'pink',
+                implot = axes.imshow(self.plotting_data, cmap = 'pink',
                   interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
                 axes.set_xlabel('Distance (um)')
                 axes.set_ylabel('Distance (um)')

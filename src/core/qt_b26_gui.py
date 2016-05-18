@@ -305,6 +305,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             item = self.tree_scripts.currentItem()
             self.script_start_time = datetime.datetime.now()
 
+            #delete colorbar if it exists, as it is a separate plot and will not properly be overwritten by some plots
+            if(len(self.matplotlibwidget.figure.axes) > 1):
+                self.matplotlibwidget.figure.delaxes(self.matplotlibwidget.figure.axes[1])
+                self.matplotlibwidget.axes.change_geometry(1,1,1)
+            if(len(self.matplotlibwidget_2.figure.axes) > 1):
+                self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
+                self.matplotlibwidget_2.axes.change_geometry(1,1,1)
+
             if item is not None:
                 script, path_to_script = item.get_script()
                 self.update_script_from_tree(script, self.tree_scripts)
@@ -315,6 +323,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     script = QThreadWrapper(script)
 
                 script.updateProgress.connect(self.update_status)
+                print(script)
                 if hasattr(script, 'saveFigure'):
                     script.saveFigure.connect(self.save_figure)
 
@@ -329,6 +338,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.log('There is no currently running script. Stop failed!')
             self.btn_start_script.setEnabled(True)
+            if self.current_script:
+                self.current_script.updateProgress.disconnect(self.update_status)
         elif sender is self.btn_plot_script:
             item = self.tree_scripts.currentItem()
             if item is not None:
@@ -564,6 +575,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns:
 
         """
+        # print('SIGNAL')
         self.progressBar.setValue(progress)
 
         # Estimate remaining time if progress has been made
@@ -582,9 +594,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                                                       "time remaining: {0} min, {1} sec".format(remaining_time_minutes,
                                                                                                 leftover_seconds), None))
 
-        if progress == 100:
-            # self.refresh_tree(self.tree_scripts, self.scripts)
-            self.btn_start_script.setEnabled(True)
         script = self.current_script
         if isinstance(script, QThreadWrapper):
             script = script.script
@@ -596,6 +605,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
             self.matplotlibwidget.draw()
             self.matplotlibwidget_2.draw()
+
+        # if isinstance(script, GalvoScan):
+        #     script.queue.put(0)
+        #     print('put')
+
+        if progress == 100:
+            # self.refresh_tree(self.tree_scripts, self.scripts)
+            self.btn_start_script.setEnabled(True)
+            self.current_script.updateProgress.disconnect(self.update_status)
 
 
     def update_probes(self, progress):
