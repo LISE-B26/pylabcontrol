@@ -109,9 +109,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_stop_script.clicked.connect(self.btn_clicked)
             self.btn_plot_script.clicked.connect(self.btn_clicked)
             self.btn_plot_probe.clicked.connect(self.btn_clicked)
+            self.btn_save_script_data.clicked.connect(self.btn_clicked)
 
-            self.btn_save_gui.clicked.connect(self.btn_clicked)
-            self.btn_load_gui.clicked.connect(self.btn_clicked)
+            self.btn_save_gui.triggered.connect(self.btn_clicked)
+            self.btn_load_gui.triggered.connect(self.btn_clicked)
+            self.btn_about.triggered.connect(self.btn_clicked)
+            self.btn_exit.triggered.connect(self.close)
+
 
             self.btn_load_instruments.clicked.connect(self.btn_clicked)
             self.btn_load_scripts.clicked.connect(self.btn_clicked)
@@ -318,12 +322,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_start_script.setEnabled(True)
         elif sender is self.btn_plot_script:
             item = self.tree_scripts.currentItem()
-
             if item is not None:
                 script, path_to_script = item.get_script()
-                # is the script is a QThread object we connect its signals to the update_status function
                 script.plot(self.matplotlibwidget.axes)
                 self.matplotlibwidget.draw()
+        elif sender is self.btn_save_script_data:
+            item = self.tree_scripts.currentItem()
+            if item is not None:
+                script, path_to_script = item.get_script()
+                script.save_log()
+                script.save()
+                script.save_data()
         elif sender is self.btn_plot_probe:
             item = self.tree_monitor.currentItem()
 
@@ -332,7 +341,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.log('Can\'t plot, No probe selected. Select probe and try again!')
         elif sender is self.btn_save_gui:
-
             # get filename
             fname = QtGui.QFileDialog.getSaveFileName(self, 'Save gui settings to file', 'Z:\\Lab\\Cantilever\\Measurements')# filter = '.b26gui'
             self.save_settings(fname)
@@ -340,7 +348,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # get filename
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file', 'Z:\\Lab\\Cantilever\\Measurements')
             self.load_settings(fname)
-
+        elif sender is self.btn_about:
+            msg = QtGui.QMessageBox()
+            msg.setIcon(QtGui.QMessageBox.Information)
+            msg.setText("Lukin Lab B26 Gui")
+            msg.setInformativeText("Check out: https://github.com/LISE-B26/PythonLab")
+            msg.setWindowTitle("About")
+            # msg.setDetailedText("some stuff")
+            msg.setStandardButtons(QtGui.QMessageBox.Ok)
+            # msg.buttonClicked.connect(msgbtn)
+            retval = msg.exec_()
         elif (sender is self.btn_load_instruments) or (sender is self.btn_load_scripts):
 
             if sender is self.btn_load_instruments:
@@ -396,32 +413,37 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
 
 
-        assert os.path.isfile(in_file_name)
+        if os.path.isfile(in_file_name):
 
-        # with open(in_file_name, 'r') as infile:
-        #     in_data = yaml.safe_load(infile)
-        in_data = load_b26_file(in_file_name)
+            # with open(in_file_name, 'r') as infile:
+            #     in_data = yaml.safe_load(infile)
+            in_data = load_b26_file(in_file_name)
 
-        instruments = in_data['instruments']
-        scripts = in_data['scripts']
-        probes = in_data['probes']
+            instruments = in_data['instruments']
+            scripts = in_data['scripts']
+            probes = in_data['probes']
 
-        print('============ loading instruments ================')
-        self.instruments, failed = Instrument.load_and_append(instruments)
-        if failed != []:
-            print('WARNING! Following instruments could not be loaded: ', failed)
-        print('============ loading scripts ================')
-        self.scripts, failed, self.instruments = Script.load_and_append(scripts, instruments=self.instruments,
-                                                              log_function=lambda x: self.log(x, target='script'))
-        if failed != []:
-            print('WARNING! Following scripts could not be loaded: ', failed)
-        print('============ loading probes not implmented ================')
-        # probes = instantiate_probes(probes, instruments)
-        # todo: implement probes
-        self.probes = {}
-        # refresh trees
-        self.refresh_tree(self.tree_scripts, self.scripts)
-        self.refresh_tree(self.tree_settings, self.instruments)
+            print('============ loading instruments ================')
+            self.instruments, failed = Instrument.load_and_append(instruments)
+            if failed != []:
+                print('WARNING! Following instruments could not be loaded: ', failed)
+            print('============ loading scripts ================')
+            self.scripts, failed, self.instruments = Script.load_and_append(scripts, instruments=self.instruments,
+                                                                  log_function=lambda x: self.log(x, target='script'))
+            if failed != []:
+                print('WARNING! Following scripts could not be loaded: ', failed)
+            print('============ loading probes not implmented ================')
+            # probes = instantiate_probes(probes, instruments)
+            # todo: implement probes
+            self.probes = {}
+            # refresh trees
+            self.refresh_tree(self.tree_scripts, self.scripts)
+            self.refresh_tree(self.tree_settings, self.instruments)
+        else:
+            self.instruments = {}
+            self.probes = {}
+            self.scripts = {}
+
 
     def save_settings(self, out_file_name):
         """
