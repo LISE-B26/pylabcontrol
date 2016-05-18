@@ -105,8 +105,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def update_progress(self, current_progress):
         self.progressBar.setValue(current_progress)
-        if current_progress == 100:
-            self.log('finished!!!')
 
     def get_time(self):
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')

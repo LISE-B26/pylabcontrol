@@ -303,6 +303,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         if sender is self.btn_start_script:
             item = self.tree_scripts.currentItem()
+            self.script_start_time = datetime.datetime.now()
 
             if item is not None:
                 script, path_to_script = item.get_script()
@@ -564,6 +565,23 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         """
         self.progressBar.setValue(progress)
+
+        # Estimate remaining time if progress has been made
+        if progress:
+
+            def _translate(context, text, disambig):
+                _encoding = QtGui.QApplication.UnicodeUTF8
+                return QtGui.QApplication.translate(context, text, disambig, _encoding)
+
+            script_run_time = datetime.datetime.now() - self.script_start_time
+            remaining_time_seconds = (100.0-progress)*script_run_time.total_seconds()/float(progress)
+            remaining_time_minutes = int(remaining_time_seconds/60.0)
+            leftover_seconds = int(remaining_time_seconds - remaining_time_minutes*60)
+
+            self.lbl_time_estimate.setText(_translate("MainWindow",
+                                                      "time remaining: {0} min, {1} sec".format(remaining_time_minutes,
+                                                                                                leftover_seconds), None))
+
         if progress == 100:
             # self.refresh_tree(self.tree_scripts, self.scripts)
             self.btn_start_script.setEnabled(True)
