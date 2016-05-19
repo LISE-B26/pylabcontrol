@@ -98,8 +98,9 @@ class ESR_Selected_NVs(Script, QThread):
                 self.data['ESR_data'][index] = self.scripts['StanfordResearch_ESR'].data[-1]['data']
 
                 #can't call run twice on the same object, so start a new, identical ESR script for the next run
-                self.scripts['StanfordResearch_ESR'] = StanfordResearch_ESR(esr_instruments, settings = esr_settings)
-                self.scripts['StanfordResearch_ESR'].updateProgress.connect(self._receive_signal)
+                #update: probably not supported, but doesn't seem to have any ill effects
+                # self.scripts['StanfordResearch_ESR'] = StanfordResearch_ESR(esr_instruments, settings = esr_settings)
+                # self.scripts['StanfordResearch_ESR'].updateProgress.connect(self._receive_signal)
 
 
 

@@ -1,7 +1,5 @@
-from collections import OrderedDict
 
-
-class Parameter(OrderedDict):
+class Parameter(dict):
     def __init__(self, name, value = None, valid_values = None, info = None):
         """
 
@@ -22,7 +20,6 @@ class Parameter(OrderedDict):
 
         """
 
-        super(Parameter, self).__init__()
 
         if isinstance(name, str):
 
@@ -37,7 +34,7 @@ class Parameter(OrderedDict):
 
             assert self.is_valid(value, valid_values)
 
-            if isinstance(value, list) and value and isinstance(value[0], Parameter):
+            if isinstance(value, list) and isinstance(value[0], Parameter):
                 #todo: check if folloing statement is correct: this should create a Parameter object and not a dict!
                 self._valid_values = {name: {k: v for d in value for k, v in d.valid_values.iteritems()}}
                 self.update({name: {k: v for d in value for k, v in d.iteritems()}})
@@ -53,6 +50,7 @@ class Parameter(OrderedDict):
             self._valid_values = {}
             self._info = {}
             if isinstance(name, dict):
+                # print('1FFF', name)
                 for k, v in name.iteritems():
                     # convert to Parameter if value is a dict
                     if isinstance(v, dict):
@@ -64,13 +62,25 @@ class Parameter(OrderedDict):
                 # print('2FFF', name)
                 for p in name:
 
-                    c = 0
+                    c= 0
                     for k, v in p.iteritems():
-                        c += 1
+                        c+=1
 
                         self._valid_values.update({k: p.valid_values[k]})
                         self.update({k: v})
                         self._info.update({k: p.info[k]})
+
+
+                        # print('d', c, k, v, p.valid_values[k], type(v))
+                        # self.update(Parameter({k: v}))
+                        # self.update({k: v})
+                        # # self.update(Parameter(k, v))
+                        #
+                        # self._valid_values.update({k: p.valid_values[k]})
+                        # self.update(Parameter({k: v}))
+
+
+                        # self._info.update({k: p.info[k]})
             else:
                 raise TypeError('unknown input: ', name)
 

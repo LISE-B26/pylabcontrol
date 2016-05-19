@@ -131,8 +131,6 @@ class StanfordResearch_ESR(Script, QThread):
 
             progress = int(float(scan_num) / self.settings['esr_avg'] * 100)
             self.updateProgress.emit(progress)
-            print('emitting')
-
 
         if self.settings['save']:
             self.save()

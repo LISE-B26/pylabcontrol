@@ -334,12 +334,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.log('No script selected. Select script and try again!')
         elif sender is self.btn_stop_script:
             if ((not self.current_script is None) and (self.current_script.isRunning())):
+                self.current_script.updateProgress.disconnect(self.update_status)
                 self.current_script.stop()
             else:
                 self.log('There is no currently running script. Stop failed!')
             self.btn_start_script.setEnabled(True)
-            if self.current_script:
-                self.current_script.updateProgress.disconnect(self.update_status)
+
         elif sender is self.btn_plot_script:
             item = self.tree_scripts.currentItem()
             if item is not None:
