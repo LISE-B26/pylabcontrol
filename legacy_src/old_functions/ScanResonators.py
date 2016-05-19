@@ -16,7 +16,7 @@ import numpy
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from src.old_functions import ScanTest as GalvoScan
+from legacy_src.old_functions import ScanTest as GalvoScan
 
 
 class SweepScan():

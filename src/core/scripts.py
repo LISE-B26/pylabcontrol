@@ -320,7 +320,7 @@ class Script(object):
         elif isinstance(self.data, dict):
             data = self.data
         else:
-            raise TypeError("unknown datatype!")
+            raise TypeError("script data variable has an invalid datatype! Must be deque or dict.")
 
         if len(set([len(v) for v in data.values()])) == 1 and len(np.shape(data.values()[0])) in [0,1]:
             # if all entries of the dictionary are the same length and single column we can write the data into a single file
@@ -453,8 +453,6 @@ class Script(object):
 
         else:
             data_files = glob.glob(path + '*.csv')
-            for x in data_files:
-                print(x)
             for data_file in data_files:
                 time_tag = '_'.join(data_file.split('\\')[-1].split('_')[0:3])
                 df = pd.read_csv(data_file)

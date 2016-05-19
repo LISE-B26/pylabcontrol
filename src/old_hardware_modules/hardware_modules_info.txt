@@ -1,1 +1,0 @@
-# This folder collects all the scripts to communicate with hardware

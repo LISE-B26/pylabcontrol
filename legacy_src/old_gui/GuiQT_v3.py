@@ -11,14 +11,16 @@
 # may be distributed without limitation.
 
 from __future__ import unicode_literals
+
 import sip
+
 sip.setapi('QVariant', 2)
 import sys
 sys.path.append('.')
 
 from PyQt4 import QtGui, QtCore
 
-from src.old_gui import gui_scan_layout
+from legacy_src.old_gui import gui_scan_layout
 
 
 # Class corresponding to window in which all widgets (objects used to display things) are placed. Extends QtGui.QMainWindow

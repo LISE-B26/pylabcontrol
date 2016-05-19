@@ -5,24 +5,23 @@ import json as json
 import subprocess
 import time
 
-import Image
-import src.old_helper_functions.Meshing as Meshing
-import src.old_helper_functions.reading_writing as rw
 import matplotlib.patches as patches
 import numpy as np
 import pandas as pd
 import scipy.spatial
-import src.old_scripts.ESR_many_NVs as ESR
 from PyQt4 import QtGui
 from src.old_functions import track_NVs as track
+from src.old_gui import PlotAPDCounts3 as Cnts
+from src.old_gui import gui_custom_widgets as gui_cw
+
+import src.old_helper_functions.Meshing as Meshing
+import src.old_helper_functions.reading_writing as rw
+import src.old_scripts.ESR_many_NVs as ESR
+import src.old_scripts.auto_focus as AF
+from legacy_src.old_gui import GuiDeviceTriggers as DeviceTriggers
 from src.old_hardware_modules import PiezoController as PC
 from src.old_scripts import ZiControl_many_pts as ZIControl
 from src.old_scripts import set_focus as f
-
-import src.old_scripts.auto_focus as AF
-from src.old_gui import GuiDeviceTriggers as DeviceTriggers
-from src.old_gui import PlotAPDCounts3 as Cnts
-from src.old_gui import gui_custom_widgets as gui_cw
 
 
 # This function should be called from the PYQT main loop. It implements all of the widgets in the old_gui

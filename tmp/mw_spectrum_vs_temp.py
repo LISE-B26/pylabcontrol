@@ -1,5 +1,5 @@
 from src.instruments.spectrum_analyzer import SpectrumAnalyzer
-from src.old_hardware_modules.Cryostation import TemperatureData
+from legacy_src.old_hardware_modules.Cryostation import TemperatureData
 import time
 import json
 import pandas as pd
