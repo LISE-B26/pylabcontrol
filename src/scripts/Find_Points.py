@@ -124,13 +124,13 @@ class Find_Points(Script):
 
 
 if __name__ == '__main__':
-    # script, failed, instr = Script.load_and_append({'Find_Points': 'Find_Points'})
-    #
-    # print(script)
-    # print(failed)
-    # print(instr)
-    fp = Find_Points(settings={'path': 'Z:/Lab/Cantilever/Measurements/__tmp__', 'tag':'nvs'})
-    fp.run()
+    script, failed, instr = Script.load_and_append({'Find_Points': 'Find_Points'})
+
+    print(script)
+    print(failed)
+    print(instr)
+    # fp = Find_Points(settings={'path': 'Z:/Lab/Cantilever/Measurements/__tmp__', 'tag':'nvs'})
+    # fp.run()
 
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
@@ -138,13 +138,13 @@ if __name__ == '__main__':
     # plt.pcolor(fp.data['image'])
     # print(fp.data['image_gaussian'].shape)
     # plt.pcolor(fp.data['image'])
-    plt.imshow(fp.data['image'], cmap = 'pink', interpolation = 'nearest')
-
-
-    for x in fp.data['NV_positions']:
-        plt.plot(x[0],x[1],'ro')
-
-    plt.show()
+    # plt.imshow(fp.data['image'], cmap = 'pink', interpolation = 'nearest')
+    #
+    #
+    # for x in fp.data['NV_positions']:
+    #     plt.plot(x[0],x[1],'ro')
+    #
+    # plt.show()
 
     # plt.figure()
     # plt.imshow(fp.data['image_gaussian'])

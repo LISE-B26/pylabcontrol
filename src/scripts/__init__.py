@@ -16,6 +16,8 @@ from autofocus import AutoFocus
 # from light_control import CameraOn
 from Select_NVs import Select_NVs
 from set_laser import SetLaser
+from Correlate_Images import Correlate_Images
+from center_on_NVs import Center_On_NVs
 
 from StanfordResearch_ESR import StanfordResearch_ESR
 
