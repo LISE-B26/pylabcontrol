@@ -337,4 +337,4 @@ class Ui_MainWindow(object):
         self.btn_save_gui.setText(_translate("MainWindow", "save", None))
         self.btn_about.setText(_translate("MainWindow", "about", None))
 
-from matplotlibwidget import MatplotlibWidget
+from external_modules.matplotlibwidget import MatplotlibWidget

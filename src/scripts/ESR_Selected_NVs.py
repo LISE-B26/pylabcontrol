@@ -1,5 +1,5 @@
 from src.core import Script, Parameter
-from src.scripts import StanfordResearch_ESR
+from src.scripts import StanfordResearch_ESR, Correlate_Images
 from src.instruments.NIDAQ import DAQ
 import time
 import scipy.spatial
@@ -21,11 +21,12 @@ class ESR_Selected_NVs(Script, QThread):
         Parameter('image_tag', 'some_name', str, 'some_name'),
         Parameter('path', 'Z:/Lab/Cantilever/Measurements/', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off')
+        Parameter('save', True, bool, 'save data on/off'),
+        Parameter('correlate', False, bool, 'Activate Correlation')
     ])
 
     _INSTRUMENTS = {'daq':  DAQ}
-    _SCRIPTS = {'StanfordResearch_ESR': StanfordResearch_ESR}
+    _SCRIPTS = {'StanfordResearch_ESR': StanfordResearch_ESR, 'Correlate_Images': Correlate_Images}
 
     #updateProgress = Signal(int)
 
@@ -78,6 +79,10 @@ class ESR_Selected_NVs(Script, QThread):
 
         for index, pt in enumerate(self.nv_locs):
             if not self._abort:
+                if self.settings['correlate']:
+                    self.scripts['Correlate_Images'].run()
+                    self.scripts['Correlate_Images'].wait()
+                    pt = self.scripts['Correlate_Images'].shift_coordinates(pt)
                 self.index = index
                 self.cur_pt = pt
                 self.log('Taking ESR of point ' + str(index + 1) + ' of ' + str(len(self.nv_locs)))
