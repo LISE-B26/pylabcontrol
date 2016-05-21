@@ -123,7 +123,7 @@ class GalvoScan(Script, QThread):
 
             # sending updates every cycle leads to invalid task errors, so wait and don't overload gui
             current_time = dt.datetime.now()
-            if((current_time-update_time).total_seconds() > 1.5):
+            if((current_time-update_time).total_seconds() > 2):
                 self.plotting_data = np.copy(self.data['image_data'])
                 progress = int(float(yNum + 1)/len(self.y_array)*100)
                 self.updateProgress.emit(progress)
@@ -137,7 +137,7 @@ class GalvoScan(Script, QThread):
 
         self.plotting_data = np.copy(self.data['image_data'])
         if not ((current_time - update_time).total_seconds() > 1.5):
-            time.sleep(1 - (current_time - update_time).total_seconds())
+            time.sleep(2 - (current_time - update_time).total_seconds())
         progress = 100
         self.updateProgress.emit(progress)
 

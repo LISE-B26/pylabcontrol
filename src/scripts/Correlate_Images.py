@@ -18,8 +18,9 @@ class Correlate_Images(Script, QThread):
         Parameter('path', 'Z:/Lab/Cantilever/Measurements/__test_data_for_coding/', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', True, bool, 'save data on/off'),
-        Parameter('new_image_center', ((0,0)), tuple, 'Center of new image to acquire for correlation'),
-        Parameter('new_image_width', 0.1, float, 'Height and Width in V of new image to take')
+        Parameter('new_image_center', [0,0], list, 'Center of new image to acquire for correlation'),
+        Parameter('new_image_width', 0.1, float, 'Height and Width in V of new image to take'),
+        Parameter('reset', False, bool, 'Reset Current Shift State')
     ])
 
     _INSTRUMENTS = {}
@@ -37,7 +38,7 @@ class Correlate_Images(Script, QThread):
 
         self.data = {'baseline_image': [], 'new_image': [], 'x_shift': 0, 'y_shift': 0}
         #forward the galvo scan progress to the top layer
-        self.scripts['GalvoScan'].updateProgress.connect(lambda x: self.updateProgress.emit(x))
+        self.scripts['GalvoScan'].updateProgress.connect(lambda x: self.updateProgress.emit(x/2))
 
         self._plot_type = 2
 
@@ -48,17 +49,24 @@ class Correlate_Images(Script, QThread):
         # subtracts mean to sharpen each image and sharpen correlation
         assert(self.settings['new_image_width'] < 1)
 
+        print('x_shift', self.data['x_shift'], 'y_shift', self.data['y_shift'])
+
+        if self.settings['reset']:
+            self.data['x_shift'] = 0
+            self.data['y_shift'] = 0
+            self.settings['reset'] = False
+
         self.baseline_image = Script.load_data(self.settings['baseline_image_path'], data_name_in='image_data')
-        bounds = Script.load_data(self.settings['baseline_image_path'], data_name_in='bounds')
+        self.bounds = Script.load_data(self.settings['baseline_image_path'], data_name_in='bounds')
         baseline_image_sub = self.baseline_image - self.baseline_image.mean()
 
         #compute new guess of where the POI should be based on last known shift
         center_guess = ((self.settings['new_image_center'][0] + self.data['x_shift'],self.settings['new_image_center'][1] + self.data['x_shift']))
 
-        x_min = bounds[0][0]
-        x_max = bounds[1][0]
-        y_min = bounds[2][0]
-        y_max = bounds[3][0]
+        x_min = self.bounds[0][0]
+        x_max = self.bounds[1][0]
+        y_min = self.bounds[2][0]
+        y_max = self.bounds[3][0]
         x_len = self.baseline_image.shape[1]
         y_len = self.baseline_image.shape[0]
         x_pixel_to_voltage= (x_max-x_min)/x_len
@@ -95,6 +103,7 @@ class Correlate_Images(Script, QThread):
         self.scripts['GalvoScan'].wait()  #wait for scan to complete
         self.new_image = self.scripts['GalvoScan'].data['image_data']
 
+
         new_x_len = self.new_image.shape[1]
         new_y_len = self.new_image.shape[0]
         new_x_pixel_to_voltage = (new_x_max-new_x_min)/new_x_len
@@ -102,18 +111,24 @@ class Correlate_Images(Script, QThread):
 
         new_image_sub = self.new_image - self.new_image.mean()
 
+        print('x_p_t_v', x_pixel_to_voltage)
+        print('n_x_p_t_v', new_x_pixel_to_voltage)
+
         if x_pixel_to_voltage > new_x_pixel_to_voltage:
             size = int(round(baseline_image_sub.shape[0]*(new_x_pixel_to_voltage/x_pixel_to_voltage)))
             size = (size,size)
             baseline_image_sub_PIL = im.fromarray(baseline_image_sub)
             baseline_image_sub_PIL.resize(size, im.ANTIALIAS)
-            baseline_image_sub = np.reshape(np.array(list(baseline_image_sub_PIL.getdata())), size)
+            new_side_len = (np.sqrt(np.array(list(baseline_image_sub_PIL.getdata())).shape[0]))
+            baseline_image_sub = np.reshape(np.array(list(baseline_image_sub_PIL.getdata())), (new_side_len, new_side_len))
         elif x_pixel_to_voltage < new_x_pixel_to_voltage:
             size = int(round(new_image_sub.shape[0]*(x_pixel_to_voltage/new_x_pixel_to_voltage)))
             size = (size,size)
             new_image_sub_PIL = im.fromarray(new_image_sub)
             new_image_sub_PIL.resize(size, im.ANTIALIAS)
-            new_image_sub = np.reshape(np.array(list(new_image_sub_PIL.getdata())), size)
+            new_side_len = (np.sqrt(np.array(list(new_image_sub_PIL.getdata())).shape[0]))
+            new_image_sub = np.reshape(np.array(list(new_image_sub_PIL.getdata())), (new_side_len, new_side_len))
+
 
         #takes center part of baseline image
         # x_len = len(baseline_image_sub[0])
@@ -126,7 +141,7 @@ class Correlate_Images(Script, QThread):
         y, x = np.unravel_index(np.argmax(self.corr_image), self.corr_image.shape)
 
         x_expected_location = (self.settings['new_image_center'][0] - x_min)/x_pixel_to_voltage
-        y_expected_location = (y_max - self.settings['new_image_center'][1])/y_pixel_to_voltage
+        y_expected_location = (self.settings['new_image_center'][1] - y_min)/y_pixel_to_voltage
 
         #correct shift for change with respect to guess
         self.data['x_shift'] = self.data['x_shift'] + (x-x_expected_location)*x_pixel_to_voltage
@@ -138,12 +153,17 @@ class Correlate_Images(Script, QThread):
         self.data['baseline_image'] = baseline_image_sub
         self.data['new_image'] = new_image_sub
 
+        print('x_shift', self.data['x_shift'], 'y_shift', self.data['y_shift'])
+
+        self.updateProgress.emit(100)
+
     def shift_coordinates(self, coordinates):
         new_coordinates = list()
         for coor in coordinates:
             new_x = coor[0] + self.data['x_shift']
             new_y = coor[1] + self.data['y_shift']
             new_coordinates.append((new_x,new_y))
+        return new_coordinates
 
     def plot(self, axes, axes_2):
         # axes.imshow(self.corr_image, cmap = 'pink', interpolation = 'nearest')
@@ -151,7 +171,7 @@ class Correlate_Images(Script, QThread):
         new_center = ((self.settings['new_image_center'][0] + self.data['x_shift'], self.settings['new_image_center'][1] + self.data['y_shift']))
         patch = patches.Rectangle(new_center, self.settings['new_image_width'], self.settings['new_image_width'], fill = False)
         axes.add_patch(patch)
-        axes_2.imshow(self.new_image, cmap = 'pink', interpolation = 'nearest')
+        self.scripts['GalvoScan'].plot(axes_2)
 
 if __name__ == '__main__':
     script, failed, instr = Script.load_and_append({'Correlate_Images': 'Correlate_Images'})

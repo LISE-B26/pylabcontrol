@@ -80,6 +80,7 @@ class ESR_Selected_NVs(Script, QThread):
         for index, pt in enumerate(self.nv_locs):
             if not self._abort:
                 if self.settings['correlate']:
+                    self.scripts['Correlate_Images'].settings['new_image_center'] = pt
                     self.scripts['Correlate_Images'].run()
                     self.scripts['Correlate_Images'].wait()
                     pt = self.scripts['Correlate_Images'].shift_coordinates(pt)
