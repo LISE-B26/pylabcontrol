@@ -84,6 +84,7 @@ class ESR_Selected_NVs(Script, QThread):
                     self.scripts['Correlate_Images'].run()
                     self.scripts['Correlate_Images'].wait()
                     pt = self.scripts['Correlate_Images'].shift_coordinates(pt)
+                    self.scripts['Correlate_Images'].settings['reset'] = False
                 self.index = index
                 self.cur_pt = pt
                 self.log('Taking ESR of point ' + str(index + 1) + ' of ' + str(len(self.nv_locs)))
