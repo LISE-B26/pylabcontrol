@@ -13,6 +13,11 @@ from src.core import Parameter
 from src.instruments import MicrowaveGenerator, DAQ
 from collections import deque
 
+from src.core import plotting
+from matplotlib.backends.backend_pdf import FigureCanvasPdf as FigureCanvas
+from matplotlib.figure import Figure
+import os
+
 class StanfordResearch_ESR(Script, QThread):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
@@ -137,9 +142,13 @@ class StanfordResearch_ESR(Script, QThread):
             self.save_data()
             self.save_log()
 
-        #self.instruments['microwave_generator']['instance'].update({'enable_output': False})
-        # plt.show()
-        #return self.esr_avg, self.fit_params
+            # create and save images
+            filename = self.filename('-esr.jpg')
+            fig = Figure()
+            canvas = FigureCanvas(fig)
+            ax = fig.add_subplot(1, 1, 1)
+            plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], ax)
+            fig.savefig(filename)
 
         def calc_progress():
             return np.round(scan_num/self.settings['esr_avg'])
@@ -147,23 +156,25 @@ class StanfordResearch_ESR(Script, QThread):
         # send 100 to signal that script is finished
         self.updateProgress.emit(100)
 
-    def plot(self, skip, axes):
+    def plot(self, axes_1, axes_2):
         if self.data:
-            fit_params = self.data[-1]['fit_params']
-            if not fit_params[0] == -1:  # check if fit failed
-                fit_data = self.lorentzian(self.data[-1]['frequency'], fit_params[0], fit_params[1], fit_params[2], fit_params[3])
-            else:
-                fit_data = None
-            if fit_data is not None: # plot esr and fit data
-                axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b', self.data[-1]['frequency'], fit_data, 'r')
-                axes.set_title('ESR')
-                axes.set_xlabel('Frequency (Hz)')
-                axes.set_ylabel('Kcounts/s')
-            else: #plot just esr data
-                axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b')
-                axes.set_title('ESR')
-                axes.set_xlabel('Frequency (Hz)')
-                axes.set_ylabel('Kcounts/s')
+            plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes_2)
+        # if self.data:
+        #     fit_params = self.data[-1]['fit_params']
+        #     if not fit_params[0] == -1:  # check if fit failed
+        #         fit_data = self.lorentzian(self.data[-1]['frequency'], fit_params[0], fit_params[1], fit_params[2], fit_params[3])
+        #     else:
+        #         fit_data = None
+        #     if fit_data is not None: # plot esr and fit data
+        #         axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b', self.data[-1]['frequency'], fit_data, 'r')
+        #         axes.set_title('ESR')
+        #         axes.set_xlabel('Frequency (Hz)')
+        #         axes.set_ylabel('Kcounts/s')
+        #     else: #plot just esr data
+        #         axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b')
+        #         axes.set_title('ESR')
+        #         axes.set_xlabel('Frequency (Hz)')
+        #         axes.set_ylabel('Kcounts/s')
 
     def stop(self):
         self._abort = True
