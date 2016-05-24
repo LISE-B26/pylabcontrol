@@ -600,6 +600,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if isinstance(script, QThreadWrapper):
             script = script.script
 
+        if (len(self.matplotlibwidget.figure.axes) > 1):
+            self.matplotlibwidget.figure.delaxes(self.matplotlibwidget.figure.axes[1])
+            self.matplotlibwidget.axes.change_geometry(1, 1, 1)
+        if (len(self.matplotlibwidget_2.figure.axes) > 1):
+            self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
+            self.matplotlibwidget_2.axes.change_geometry(1, 1, 1)
+
         if script.plot_type == 1:
             script.plot(self.matplotlibwidget.axes)
             self.matplotlibwidget.draw()
@@ -607,10 +614,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
             self.matplotlibwidget.draw()
             self.matplotlibwidget_2.draw()
-
-        # if isinstance(script, GalvoScan):
-        #     script.queue.put(0)
-        #     print('put')
 
         if progress == 100:
             # self.refresh_tree(self.tree_scripts, self.scripts)

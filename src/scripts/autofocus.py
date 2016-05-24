@@ -4,8 +4,12 @@ from src.instruments import PiezoController
 from src.scripts import GalvoScan
 import numpy as np
 import scipy as sp
+import matplotlib.pyplot as plt
+from src.core import plotting
+import os
 
-
+from matplotlib.backends.backend_pdf import FigureCanvasPdf as FigureCanvas
+from matplotlib.figure import Figure
 
 class AutoFocus(Script, QThread):
     """
@@ -100,7 +104,22 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
             # save image if the user requests it
             if self.settings['save_images']:
-                self.data['image_{0}'.format(index)] = current_image
+                self.data['image_{:03d}'.format(index)] = current_image
+
+                # create and save images
+                filename = self.filename()
+                fig = Figure()
+                canvas = FigureCanvas(fig)
+                ax = fig.add_subplot(1, 1, 1)
+                pta = self.scripts['take_image'].settings['point_a']
+                ptb = self.scripts['take_image'].settings['point_b']
+                extent = [pta['x'], ptb['x'], ptb['y'], pta['y']]
+                plotting.plot_fluorescence(current_image, extent=extent, axes=ax)
+                img_filename_path = '{:s}\\image\\'.format(filename)
+                if os.path.exists(img_filename_path) == False:
+                    os.makedirs(img_filename_path)
+                fig.savefig('{:s}\\image_{:03d}.jpg'.format(img_filename_path, index))
+
 
 
         # fit the data and set piezo to focus spot
@@ -148,6 +167,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         self._abort = False
 
+    def save_data(self, filename = None):
+        Script.save_data(self,filename)
 
 
     def plot(self, axis1, axis2 = None):

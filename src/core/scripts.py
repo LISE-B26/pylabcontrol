@@ -264,7 +264,7 @@ class Script(object):
     def stop(self):
         self._abort == True
 
-    def filename(self, appendix):
+    def filename(self, appendix = None):
         """
         creates a filename based
         Args:
@@ -276,15 +276,22 @@ class Script(object):
         path = self.settings['path']
         tag = self.settings['tag']
 
-        if os.path.exists(path) == False:
-            os.makedirs(path)
-
-        filename = "{:s}\\{:s}_{:s}{:s}".format(
+        filename = "{:s}\\{:s}_{:s}".format(
             path,
             self.start_time.strftime('%y%m%d-%H_%M_%S'),
-            tag,
-            appendix
+            tag
         )
+        if os.path.exists(filename) == False:
+            os.makedirs(filename)
+
+        if appendix is not None:
+
+            filename = "{:s}\\{:s}_{:s}{:s}".format(
+                filename,
+                self.start_time.strftime('%y%m%d-%H_%M_%S'),
+                tag,
+                appendix
+            )
         return filename
 
     def save_data(self, filename = None):
@@ -338,14 +345,19 @@ class Script(object):
                 else:
                     df = pd.DataFrame(value)
 
-                filename_new = os.path.join(os.path.join(os.path.dirname(filename),
-                      os.path.basename(filename).replace('.csv', '')),
-                      os.path.basename(filename).replace('.csv', '-{:s}.csv'.format(key)))
+                # filename_new = os.path.join(os.path.join(os.path.dirname(filename),
+                #       os.path.basename(filename).replace('.csv', '')),
+                #       os.path.basename(filename).replace('.csv', '-{:s}.csv'.format(key)))
 
-                if not os.path.exists(os.path.dirname(filename_new)):
-                    os.makedirs(os.path.dirname(filename_new))
+                # if not os.path.exists(os.path.dirname(filename_new)):
+                #     os.makedirs(os.path.dirname(filename_new))
+                #
+                # df.to_csv(filename_new, index=False)
 
-                df.to_csv(filename_new, index=False)
+                if not os.path.exists(os.path.dirname(filename)):
+                    os.makedirs(os.path.dirname(filename))
+
+                df.to_csv(filename, index=False)
 
     def save_log(self, filename = None):
         """

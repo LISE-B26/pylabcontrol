@@ -92,6 +92,7 @@ class Find_Points(Script):
         # load image
         image_data=Script.load_data(self.settings['image_path'], data_name_in='image_data')
         bounds = Script.load_data(self.settings['image_path'], data_name_in='bounds')
+        self.log('loaded image {:s}'.format(self.settings['image_path']))
         self.x_min = bounds[0][0]
         self.x_max = bounds[1][0]
         self.y_min = bounds[2][0]
