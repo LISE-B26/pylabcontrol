@@ -104,14 +104,14 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
 
         # fit the data and set piezo to focus spot
-        gaussian = lambda x, noise, amp, center, width: \
-            noise + amp * np.exp(((x-center)**2/(2*(width)**2)))
-        center_guess = (self.data['sweep_voltages'][-1] - self.data['sweep_voltages'][0])/2 + self.data['sweep_voltages'][0]
-        width_guess = 10.0
+        gaussian = lambda x, noise, amp, center, width: noise + amp * np.exp(((x-center)**2/(2*(width)**2)))
+
+        center_guess = np.mean(self.data['sweep_voltages'])
+        width_guess = 2.0
         noise_guess = np.min(self.data['sweep_voltages'])
         amplitude_guess = np.max(self.data['sweep_voltages']) - noise_guess
 
-        reasonable_params = [noise_guess, amplitude_guess, width_guess, center_guess]
+        reasonable_params = [noise_guess, amplitude_guess, center_guess, width_guess]
 
         try:
             p2, success = sp.optimize.curve_fit(gaussian, self.data['sweep_voltages'],

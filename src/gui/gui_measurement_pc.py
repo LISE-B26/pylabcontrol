@@ -12,7 +12,7 @@ myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 app = QtGui.QApplication(sys.argv)
-fname = 'c:\\b26_tmp\\gui_settings.b26'
+fname = 'c:\\b26_tmp\\gui_settings.b26j'
 ex = qt_b26_gui.ControlMainWindow(fname)
 
 app.setWindowIcon(QtGui.QIcon('magnet_and_nv.ico'))

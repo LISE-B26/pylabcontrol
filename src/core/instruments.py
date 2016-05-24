@@ -168,7 +168,7 @@ class Instrument(object):
         save_b26_file(filename, instruments = self.to_dict())
 
     @staticmethod
-    def load_and_append(instrument_dict, instruments = {}):
+    def load_and_append(instrument_dict, instruments = None):
         """
         load instrument from instrument_dict and append to instruments
 
@@ -209,12 +209,17 @@ class Instrument(object):
                 and list loaded_failed = [name_of_instrument_1, name_of_instrument_2, ....] that contains the instruments that were requested but could not be loaded
 
         """
+        if instruments is None:
+            instruments = {}
+
+        print instruments
         updated_instruments = {}
         updated_instruments.update(instruments)
         loaded_failed = []
 
         for instrument_name, instrument_class_name in instrument_dict.iteritems():
             instrument_settings = None
+
             if isinstance(instrument_class_name, dict):
                 instrument_settings = instrument_class_name['settings']
                 instrument_class_name = str(instrument_class_name['class'])
@@ -223,7 +228,7 @@ class Instrument(object):
             elif isinstance(instrument_class_name, str):
                 pass
             else:
-                raise TypeError('instrument_class_name not recognized')
+                raise TypeError('instrument_class_name not recognized for {0}'.format(instrument_name))
 
             if len(instrument_class_name.split('.')) == 1:
                 module_path = 'src.instruments'
@@ -237,13 +242,14 @@ class Instrument(object):
                 loaded_failed.append(instrument_name)
             else:
                 instrument_instance = None
+
                 # ==== import module =======
                 try:
                     # try to import the instrument
                     module = __import__(module_path, fromlist=[instrument_class_name])
                     # this returns the name of the module that was imported.
                     class_of_instrument = getattr(module, instrument_class_name)
-
+                    print class_of_instrument
                     if instrument_settings is None:
                         # print('FF -- mss')
                         # this creates an instance of the class with default settings
@@ -255,7 +261,8 @@ class Instrument(object):
 
                 except AttributeError as e:
                     print(e.message)
-                except:
+                except Exception as e2:
+                    raise e2
                     pass
                     # catches when we try to create an instrument of a class that doesn't exist!
                     # raise AttributeError

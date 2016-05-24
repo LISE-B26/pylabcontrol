@@ -120,6 +120,7 @@ class Correlate_Images(Script, QThread):
             baseline_image_sub = np.reshape(np.array(list(baseline_image_sub_PIL.getdata())), (new_side_len, new_side_len))
             x_pixel_to_voltage = (x_max-x_min)/baseline_image_sub.shape[1]
             y_pixel_to_voltage = (y_max-y_min)/baseline_image_sub.shape[0]
+
         elif x_pixel_to_voltage > new_x_pixel_to_voltage:
             size = int(round(new_image_sub.shape[0]/(x_pixel_to_voltage/new_x_pixel_to_voltage)))
             size = (size,size)

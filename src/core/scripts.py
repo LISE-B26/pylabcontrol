@@ -464,6 +464,7 @@ class Script(object):
                     has_header = False
                 except ValueError:
                     has_header = True
+                    print('value_error')
 
                 if has_header:
                     data.update({time_tag:
@@ -498,6 +499,7 @@ class Script(object):
                     data = data[time][data_name_in].values
                     break
                 except KeyError:
+                    print('key_error')
                     continue
             if type(data) == dict and data.empty():
                 raise ValueError('Could not find a file with this name at any time_tag')
@@ -695,27 +697,27 @@ class Script(object):
                 class_of_script = getattr(module, script_class_name)
 
                 #  ========= get the instruments that are needed by the script =========
-                try:
-                    script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
-                    #  ========= create the scripts that are needed by the script =========
+                #try:
+                script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
+                #  ========= create the scripts that are needed by the script =========
 
-                    sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
+                sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
 
-                    class_creation_string = ''
-                    if script_instruments != {}:
-                        class_creation_string += ', instruments = script_instruments'
-                    if sub_scripts != {}:
-                        class_creation_string += ', scripts = sub_scripts'
-                    if script_settings != {}:
-                        class_creation_string += ', settings = script_settings'
-                    if log_function is not None:
-                        class_creation_string += ', log_output = log_function'
-                    class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
+                class_creation_string = ''
+                if script_instruments != {}:
+                    class_creation_string += ', instruments = script_instruments'
+                if sub_scripts != {}:
+                    class_creation_string += ', scripts = sub_scripts'
+                if script_settings != {}:
+                    class_creation_string += ', settings = script_settings'
+                if log_function is not None:
+                    class_creation_string += ', log_output = log_function'
+                class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
-                    script_instance = eval(class_creation_string)
-                    updated_scripts.update({script_name :script_instance})
-                except Exception as inst:
-                    load_failed[script_name] = inst
+                script_instance = eval(class_creation_string)
+                updated_scripts.update({script_name :script_instance})
+                #except Exception as inst:
+                #    load_failed[script_name] = inst
                     # raise inst
                     # loaded_failed.append(script_name)
 

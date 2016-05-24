@@ -301,6 +301,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         sender = self.sender()
         self.probe_to_plot = None
 
+        def start_button():
+            pass
+
         if sender is self.btn_start_script:
             item = self.tree_scripts.currentItem()
             self.script_start_time = datetime.datetime.now()
@@ -333,13 +336,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.log('No script selected. Select script and try again!')
         elif sender is self.btn_stop_script:
-            if ((not self.current_script is None) and (self.current_script.isRunning())):
+            if self.current_script is not None and self.current_script.isRunning():
                 self.current_script.updateProgress.disconnect(self.update_status)
                 self.current_script.stop()
             else:
                 self.log('There is no currently running script. Stop failed!')
             self.btn_start_script.setEnabled(True)
-
         elif sender is self.btn_plot_script:
             item = self.tree_scripts.currentItem()
             if item is not None:
