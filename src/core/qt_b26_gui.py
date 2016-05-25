@@ -16,7 +16,7 @@ from src.core import LoadDialog
 from copy import deepcopy
 import datetime
 from collections import deque
-
+import time
 # from src.core import instantiate_probes
 
 #from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, StanfordResearch_ESR, Find_Points, Select_NVs, ESR_Selected_NVs
@@ -346,6 +346,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.log('No script selected. Select script and try again!')
 
+        def stop_button():
+            if self.current_script is not None and self.current_script.isRunning():
+                self.current_script.stop()
+            else:
+                self.log('There is no currently running script. Stop failed!')
+            self.btn_start_script.setEnabled(True)
         def save_script_data():
             # item = self.tree_scripts.currentItem()
             # if item is not None:
@@ -361,12 +367,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if sender is self.btn_start_script:
             start_button()
         elif sender is self.btn_stop_script:
-            if self.current_script is not None and self.current_script.isRunning():
-                self.current_script.updateProgress.disconnect(self.update_status)
-                self.current_script.stop()
-            else:
-                self.log('There is no currently running script. Stop failed!')
-            self.btn_start_script.setEnabled(True)
+            stop_button()
         elif sender is self.btn_plot_script:
             item = self.tree_scripts.currentItem()
             if item is not None:

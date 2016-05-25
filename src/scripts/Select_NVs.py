@@ -104,7 +104,7 @@ class Select_NVs(Script, QThread):
 class Select_NVs_Simple(Script, QThread):
     updateProgress = Signal(int)
 
-    _DEFAULT_SETTINGS = Parameter('patch_size', 0.1)
+    _DEFAULT_SETTINGS = Parameter('patch_size', 0.003)
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}
@@ -142,10 +142,11 @@ class Select_NVs_Simple(Script, QThread):
 
         while not self._abort:
             time.sleep(1)
+        print('FINISEHD selection .... ')
 
-        self.updateProgress.emit(100)
 
     def stop(self):
+        self.updateProgress.emit(100)
         self._abort = True
 
     def plot(self, axes):

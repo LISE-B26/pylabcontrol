@@ -86,7 +86,10 @@ To select points, first run subscript Select_NVs_Simple
                      'ESR_freqs': [],
                      'ESR_data': np.zeros((len(nv_locs)))}
 
+        self.num_esrs = len(nv_locs)
+
         for index, pt in enumerate(nv_locs):
+            self.index = index
             if not self._abort:
                 self.log('Taking ESR of point ' + str(index + 1) + ' of ' + str(len(nv_locs)))
                 #set laser to new point
@@ -124,16 +127,16 @@ To select points, first run subscript Select_NVs_Simple
     def plot(self, axes_Image, axes_ESR = None):
         if self.data is not None:
 
-            image = self.data['image_data'].image_data
-            extend = self.data['extend'].image_data
+            image = self.data['image_data']
+            extend = self.data['extend']
             plot_fluorescence(image, extend, axes_Image)
 
         if self.isRunning():
-            patch = patches.Circle((self.cur_pt[0], self.cur_pt[1]), .0005, fc='r')
+            patch = patches.Circle((self.cur_pt[0], self.cur_pt[1]), .0005, edgecolor='r')
             axes_Image.add_patch(patch)
         else:
             for pt in self.data['nv_locs']:
-                patch = patches.Circle((pt[0], pt[1]), .0005, fc='b')
+                patch = patches.Circle((pt[0], pt[1]), .0005, edgecolor='b')
                 axes_Image.add_patch(patch)
 
         if axes_ESR is not None:
