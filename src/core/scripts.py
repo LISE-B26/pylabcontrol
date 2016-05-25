@@ -346,19 +346,18 @@ class Script(object):
                 else:
                     df = pd.DataFrame(value)
 
-                # filename_new = os.path.join(os.path.join(os.path.dirname(filename),
-                #       os.path.basename(filename).replace('.csv', '')),
-                #       os.path.basename(filename).replace('.csv', '-{:s}.csv'.format(key)))
+                filename_new = os.path.join(os.path.dirname(filename),
+                      os.path.basename(filename).replace('.csv', '-{:s}.csv'.format(key)))
 
                 # if not os.path.exists(os.path.dirname(filename_new)):
                 #     os.makedirs(os.path.dirname(filename_new))
                 #
                 # df.to_csv(filename_new, index=False)
 
-                if not os.path.exists(os.path.dirname(filename)):
-                    os.makedirs(os.path.dirname(filename))
+                if not os.path.exists(os.path.dirname(filename_new)):
+                    os.makedirs(os.path.dirname(filename_new))
 
-                df.to_csv(filename, index=False)
+                df.to_csv(filename_new, index=False)
 
     def save_log(self, filename = None):
         """

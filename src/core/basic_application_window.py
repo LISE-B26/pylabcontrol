@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Wed May 18 02:23:32 2016
+# Created: Tue May 24 18:48:20 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -93,6 +93,8 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         self.tree_scripts.setFont(font)
         self.tree_scripts.setAutoFillBackground(False)
+        self.tree_scripts.setLineWidth(1)
+        self.tree_scripts.setMidLineWidth(0)
         self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.AllEditTriggers)
         self.tree_scripts.setAlternatingRowColors(True)
         self.tree_scripts.setWordWrap(True)
@@ -223,6 +225,42 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.tree_settings)
         self.verticalLayout_8.addLayout(self.verticalLayout_3)
         self.tabWidget.addTab(self.tab_settings, _fromUtf8(""))
+        self.tab_data = QtGui.QWidget()
+        self.tab_data.setObjectName(_fromUtf8("tab_data"))
+        self.verticalLayoutWidget = QtGui.QWidget(self.tab_data)
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(9, 10, 511, 521))
+        self.verticalLayoutWidget.setObjectName(_fromUtf8("verticalLayoutWidget"))
+        self.verticalLayout = QtGui.QVBoxLayout(self.verticalLayoutWidget)
+        self.verticalLayout.setMargin(0)
+        self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
+        self.horizontalLayout_10 = QtGui.QHBoxLayout()
+        self.horizontalLayout_10.setObjectName(_fromUtf8("horizontalLayout_10"))
+        self.btn_plot_data = QtGui.QPushButton(self.verticalLayoutWidget)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.btn_plot_data.setFont(font)
+        self.btn_plot_data.setObjectName(_fromUtf8("btn_plot_data"))
+        self.horizontalLayout_10.addWidget(self.btn_plot_data)
+        self.verticalLayout.addLayout(self.horizontalLayout_10)
+        self.tree_dataset = QtGui.QTreeView(self.verticalLayoutWidget)
+        self.tree_dataset.setObjectName(_fromUtf8("tree_dataset"))
+        self.verticalLayout.addWidget(self.tree_dataset)
+        self.horizontalLayout_9 = QtGui.QHBoxLayout()
+        self.horizontalLayout_9.setObjectName(_fromUtf8("horizontalLayout_9"))
+        self.btn_save_data = QtGui.QPushButton(self.verticalLayoutWidget)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.btn_save_data.setFont(font)
+        self.btn_save_data.setObjectName(_fromUtf8("btn_save_data"))
+        self.horizontalLayout_9.addWidget(self.btn_save_data)
+        self.txt_data_path = QtGui.QLineEdit(self.verticalLayoutWidget)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.txt_data_path.setFont(font)
+        self.txt_data_path.setObjectName(_fromUtf8("txt_data_path"))
+        self.horizontalLayout_9.addWidget(self.txt_data_path)
+        self.verticalLayout.addLayout(self.horizontalLayout_9)
+        self.tabWidget.addTab(self.tab_data, _fromUtf8(""))
         self.verticalLayout_10.addWidget(self.tabWidget)
         self.tabWidget_2 = QtGui.QTabWidget(self.centralwidget)
         font = QtGui.QFont()
@@ -242,7 +280,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_9.addWidget(self.list_history)
         self.tabWidget_2.addTab(self.tab, _fromUtf8(""))
         self.verticalLayout_10.addWidget(self.tabWidget_2)
-        self.verticalLayout_10.setStretch(0, 2)
+        self.verticalLayout_10.setStretch(0, 3)
         self.verticalLayout_10.setStretch(1, 1)
         self.horizontalLayout_7.addLayout(self.verticalLayout_10)
         self.verticalLayout_2 = QtGui.QVBoxLayout()
@@ -301,7 +339,7 @@ class Ui_MainWindow(object):
         self.toolBar.addSeparator()
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(3)
         self.tabWidget_2.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -327,6 +365,10 @@ class Ui_MainWindow(object):
         self.tree_settings.headerItem().setText(0, _translate("MainWindow", "Instrument", None))
         self.tree_settings.headerItem().setText(1, _translate("MainWindow", "Value", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_settings), _translate("MainWindow", "Instruments", None))
+        self.btn_plot_data.setText(_translate("MainWindow", "plot script", None))
+        self.btn_save_data.setText(_translate("MainWindow", "save selected", None))
+        self.txt_data_path.setText(_translate("MainWindow", "Z:\\Lab\\Cantilever\\Measurements", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_data), _translate("MainWindow", "Dataset", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab), _translate("MainWindow", "History", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
         self.menuSettings.setTitle(_translate("MainWindow", "Settings", None))
@@ -337,4 +379,4 @@ class Ui_MainWindow(object):
         self.btn_save_gui.setText(_translate("MainWindow", "save", None))
         self.btn_about.setText(_translate("MainWindow", "about", None))
 
-from external_modules.matplotlibwidget import MatplotlibWidget
+from matplotlibwidget import MatplotlibWidget

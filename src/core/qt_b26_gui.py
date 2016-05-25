@@ -89,11 +89,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.tree_monitor.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         # self.tree_monitor.setDisabled(True)
 
+        self.tree_dataset.setColumnWidth(0, 100)
+        self.tree_dataset.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+
         self.current_script = None
         self.probe_to_plot = None
 
         self.path_to_scripts = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts\\"
         self.path_to_instruments = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments\\"
+
+        # create models for tree structures, the models reflect the data
+        self.tree_dataset_model = QtGui.QStandardItemModel()
+        self.tree_dataset.setModel(self.tree_dataset_model)
+        self.tree_dataset_model.setHorizontalHeaderLabels(['time', 'name (tag)', 'type (script)'])
 
         def connect_controls():
             # =============================================================
@@ -147,6 +155,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.instruments = {}
             self.scripts = {}
             self.probes = {}
+            self.data_sets = deque()
         self.read_probes = ReadProbes(self.probes)
 
     def closeEvent(self, event):
@@ -304,6 +313,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         def start_button():
             pass
 
+        def save_script_data():
+            # item = self.tree_scripts.currentItem()
+            # if item is not None:
+            #     script, path_to_script = item.get_script()
+            #     script.save_log()
+            #     script.save()
+            #     script.save_data()
+            item = self.tree_scripts.currentItem()
+            if item is not None:
+                script, path_to_script = item.get_script()
+                self.data_sets.append(script)
+
         if sender is self.btn_start_script:
             item = self.tree_scripts.currentItem()
             self.script_start_time = datetime.datetime.now()
@@ -349,12 +370,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 script.plot(self.matplotlibwidget.axes)
                 self.matplotlibwidget.draw()
         elif sender is self.btn_save_script_data:
-            item = self.tree_scripts.currentItem()
-            if item is not None:
-                script, path_to_script = item.get_script()
-                script.save_log()
-                script.save()
-                script.save_data()
+            save_script_data()
         elif sender is self.btn_plot_probe:
             item = self.tree_monitor.currentItem()
 
@@ -681,9 +697,29 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         """
         # refresh trees
-        tree.itemChanged.disconnect()
-        self.fill_tree(tree, items)
-        tree.itemChanged.connect(lambda: self.update_parameters(tree))
+
+
+
+        if tree == self.tree_scripts or tree == self.tree_settings:
+            tree.itemChanged.disconnect()
+            self.fill_tree(tree, items)
+            tree.itemChanged.connect(lambda: self.update_parameters(tree))
+        elif tree == self.tree_dataset:
+            self.fill_dataset(tree, self.data_sets)
+
+
+    def fill_dataset(self, tree, data_sets):
+
+        for script in self.data_sets:
+            time = script.start_time
+            name = script.settings['tag']
+            type = script.name
+
+            item = QtGui.QStandardItem(time)
+            item.appendRow([child_name, child_value])
+            items
+
+
 
     def save_figure(self, filename):
         self.current_script.fig.savefig(filename, format='jpg')

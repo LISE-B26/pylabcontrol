@@ -24,7 +24,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="8,12">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_10" stretch="2,1">
+       <layout class="QVBoxLayout" name="verticalLayout_10" stretch="3,1">
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="sizePolicy">
@@ -48,7 +48,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="tab_scripts">
            <attribute name="title">
@@ -128,6 +128,12 @@
                 </property>
                 <property name="autoFillBackground">
                  <bool>false</bool>
+                </property>
+                <property name="lineWidth">
+                 <number>1</number>
+                </property>
+                <property name="midLineWidth">
+                 <number>0</number>
                 </property>
                 <property name="editTriggers">
                  <set>QAbstractItemView::AllEditTriggers</set>
@@ -245,19 +251,6 @@
              </layout>
             </item>
            </layout>
-           <zorder>tree_scripts</zorder>
-           <zorder>progressBar</zorder>
-           <zorder>btn_stop_script</zorder>
-           <zorder>btn_plot_script</zorder>
-           <zorder>btn_load_scripts</zorder>
-           <zorder>btn_start_script</zorder>
-           <zorder>btn_save_script_data</zorder>
-           <zorder>verticalLayoutWidget</zorder>
-           <zorder>tabWidget_2</zorder>
-           <zorder>horizontalSpacer_2</zorder>
-           <zorder>lbl_time_estimate</zorder>
-           <zorder>horizontalSpacer_3</zorder>
-           <zorder>horizontalSpacer_4</zorder>
           </widget>
           <widget class="QWidget" name="tab_monitor">
            <attribute name="title">
@@ -435,6 +428,70 @@
              </layout>
             </item>
            </layout>
+          </widget>
+          <widget class="QWidget" name="tab_data">
+           <attribute name="title">
+            <string>Dataset</string>
+           </attribute>
+           <widget class="QWidget" name="verticalLayoutWidget">
+            <property name="geometry">
+             <rect>
+              <x>9</x>
+              <y>10</y>
+              <width>511</width>
+              <height>521</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_10">
+               <item>
+                <widget class="QPushButton" name="btn_plot_data">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>plot script</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QTreeView" name="tree_dataset"/>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_9">
+               <item>
+                <widget class="QPushButton" name="btn_save_data">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>save selected</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="txt_data_path">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Z:\Lab\Cantilever\Measurements</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
           </widget>
          </widget>
         </item>
