@@ -53,7 +53,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         # QtCore.QThread.__init__(self)
         QThread.__init__(self)
 
-        self._plot_type = 2
+        self._plot_type = 'two'
 
 
     def _function(self):
@@ -75,6 +75,12 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         self.data['sweep_voltages'] = sweep_voltages
         self.data['focus_function_result'] = []
+
+        if self.settings['save'] or self.settings['save_images']:
+            # create and save images
+            filename_image = '{:s}\\image\\'.format(self.filename())
+            if os.path.exists(filename_image) == False:
+                os.makedirs(filename_image)
 
         for index, voltage in enumerate(sweep_voltages):
 
@@ -104,21 +110,23 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
             # save image if the user requests it
             if self.settings['save_images']:
-                self.data['image_{:03d}'.format(index)] = current_image
+                self.scripts['take_image'].save_image_to_disk('{:s}\\image_{:03d}.jpg'.format(filename_image, index))
 
-                # create and save images
-                filename = self.filename()
-                fig = Figure()
-                canvas = FigureCanvas(fig)
-                ax = fig.add_subplot(1, 1, 1)
-                pta = self.scripts['take_image'].settings['point_a']
-                ptb = self.scripts['take_image'].settings['point_b']
-                extent = [pta['x'], ptb['x'], ptb['y'], pta['y']]
-                plotting.plot_fluorescence(current_image, extent=extent, axes=ax)
-                img_filename_path = '{:s}\\image\\'.format(filename)
-                if os.path.exists(img_filename_path) == False:
-                    os.makedirs(img_filename_path)
-                fig.savefig('{:s}\\image_{:03d}.jpg'.format(img_filename_path, index))
+                # self.data['image_{:03d}'.format(index)] = current_image
+                #
+                # # create and save images
+                # filename = self.filename()
+                # fig = Figure()
+                # canvas = FigureCanvas(fig)
+                # ax = fig.add_subplot(1, 1, 1)
+                # pta = self.scripts['take_image'].settings['point_a']
+                # ptb = self.scripts['take_image'].settings['point_b']
+                # extent = [pta['x'], ptb['x'], ptb['y'], pta['y']]
+                # plotting.plot_fluorescence(current_image, extent=extent, axes=ax)
+                # img_filename_path = '{:s}\\image\\'.format(filename)
+                # if os.path.exists(img_filename_path) == False:
+                #     os.makedirs(img_filename_path)
+                # fig.savefig('{:s}\\image_{:03d}.jpg'.format(img_filename_path, index))
 
 
 
@@ -161,14 +169,16 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             self.save_log()
             self.log('Finished saving.')
 
+            self.save_image_to_disk('{:s}\\autofocus.jpg'.format(filename_image))
+
         # update progress bar if focusing loop was aborted, reset _abort
         if self._abort:
-            self.updateProgress.emit(100.0)
+            self.updateProgress.emit(100)
 
         self._abort = False
 
-    def save_data(self, filename = None):
-        Script.save_data(self,filename)
+    # def save_data(self, filename = None):
+    #     Script.save_data(self,filename)
 
 
     def plot(self, axis1, axis2 = None):
