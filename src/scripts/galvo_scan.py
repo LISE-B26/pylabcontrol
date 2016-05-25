@@ -82,6 +82,7 @@ class GalvoScan(Script, QThread):
             self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x'])), 'bounds': [self.xVmin, self.xVmax, self.yVmin, self.yVmax]}
 
         # self.data.clear()  # clear data queue
+        self.log('update instruments')
         init_scan()
         # preallocate
         # image_data = np.zeros(len(self.x_array), len(self.y_array))

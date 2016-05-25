@@ -25,7 +25,7 @@ from collections import deque
 from src.scripts.galvo_scan import GalvoScan
 from src.scripts.StanfordResearch_ESR import StanfordResearch_ESR
 from src.scripts.Find_Points import Find_Points
-from src.scripts.Select_NVs import Select_NVs
+from src.scripts.Select_NVs import Select_NVs, Select_NVs_Simple
 from src.scripts.ESR_Selected_NVs import ESR_Selected_NVs
 
 from src.core.plotting import plot_psd
@@ -213,7 +213,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def plot_clicked(self, mouse_event):
 
-        if isinstance(self.current_script, Select_NVs) and self.current_script.isRunning:
+        if isinstance(self.current_script, (Select_NVs, Select_NVs_Simple)) and self.current_script.isRunning:
             if (not (mouse_event.xdata == None)):
                 if (mouse_event.button == 1):
                     pt = np.array([mouse_event.xdata, mouse_event.ydata])
@@ -263,7 +263,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.history_model.insertRow(0,QtGui.QStandardItem(msg))
 
     def update_script_from_tree(self, script, tree):
-        print('tree', tree)
 
         def update_script_from_item(script, item):
             # build dictionary
@@ -276,6 +275,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # remove instrument
                 del dictator[instrument]
 
+            print('script.scripts.keys()', script.scripts.keys())
             for sub_script_name in script.scripts.keys():
 
                 items = tree.findItems(sub_script_name, QtCore.Qt.MatchExactly | QtCore.Qt.MatchRecursive)
@@ -297,21 +297,54 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             script.update(dictator)
 
+        for item in tree.selectedItems():
+            if item.valid_values == type(script) and item.name == script.name:
+                update_script_from_item(script, item)
 
-        for index in range(tree.topLevelItemCount()):
-            topLvlItem = tree.topLevelItem(index)
-
-
-            if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
-
-                update_script_from_item(script, topLvlItem)
+        # old stuff can be deleted at some point (change may 25th, delete after june 25th)
+        # for index in range(tree.topLevelItemCount()):
+        #     topLvlItem = tree.topLevelItem(index)
+        #
+        #
+        #     if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
+        #
+        #         update_script_from_item(script, topLvlItem)
 
     def btn_clicked(self):
         sender = self.sender()
         self.probe_to_plot = None
 
         def start_button():
-            pass
+            item = self.tree_scripts.currentItem()
+            self.script_start_time = datetime.datetime.now()
+
+            # delete colorbar if it exists, as it is a separate plot and will not properly be overwritten by some plots
+            if (len(self.matplotlibwidget.figure.axes) > 1):
+                self.matplotlibwidget.figure.delaxes(self.matplotlibwidget.figure.axes[1])
+                self.matplotlibwidget.axes.change_geometry(1, 1, 1)
+            if (len(self.matplotlibwidget_2.figure.axes) > 1):
+                self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
+                self.matplotlibwidget_2.axes.change_geometry(1, 1, 1)
+
+            if item is not None:
+                script, path_to_script = item.get_script()
+                self.update_script_from_tree(script, self.tree_scripts)
+                self.log('start {:s}'.format(script.name))
+                # is the script is not a QThread object we use the wrapper QtSCript
+                # to but it on a separate thread such that the gui remains responsive
+                if not isinstance(script, QThread):
+                    script = QThreadWrapper(script)
+
+                script.updateProgress.connect(self.update_status)
+                print('script: ', script)
+                if hasattr(script, 'saveFigure'):
+                    script.saveFigure.connect(self.save_figure)
+
+                self.current_script = script
+                self.btn_start_script.setEnabled(False)
+                script.start()
+            else:
+                self.log('No script selected. Select script and try again!')
 
         def save_script_data():
             # item = self.tree_scripts.currentItem()
@@ -326,36 +359,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.data_sets.append(script)
 
         if sender is self.btn_start_script:
-            item = self.tree_scripts.currentItem()
-            self.script_start_time = datetime.datetime.now()
-
-            #delete colorbar if it exists, as it is a separate plot and will not properly be overwritten by some plots
-            if(len(self.matplotlibwidget.figure.axes) > 1):
-                self.matplotlibwidget.figure.delaxes(self.matplotlibwidget.figure.axes[1])
-                self.matplotlibwidget.axes.change_geometry(1,1,1)
-            if(len(self.matplotlibwidget_2.figure.axes) > 1):
-                self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
-                self.matplotlibwidget_2.axes.change_geometry(1,1,1)
-
-            if item is not None:
-                script, path_to_script = item.get_script()
-                self.update_script_from_tree(script, self.tree_scripts)
-                self.log('start {:s}'.format(script.name))
-                # is the script is not a QThread object we use the wrapper QtSCript
-                # to but it on a separate thread such that the gui remains responsive
-                if not isinstance(script, QThread):
-                    script = QThreadWrapper(script)
-
-                script.updateProgress.connect(self.update_status)
-                print(script)
-                if hasattr(script, 'saveFigure'):
-                    script.saveFigure.connect(self.save_figure)
-
-                self.current_script = script
-                self.btn_start_script.setEnabled(False)
-                script.start()
-            else:
-                self.log('No script selected. Select script and try again!')
+            start_button()
         elif sender is self.btn_stop_script:
             if self.current_script is not None and self.current_script.isRunning():
                 self.current_script.updateProgress.disconnect(self.update_status)
