@@ -50,6 +50,8 @@ class GalvoScan(Script, QThread):
 
         self.queue = Queue.Queue()
 
+        self.plotting_data = None
+
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property

@@ -101,6 +101,76 @@ class Select_NVs(Script, QThread):
             self.patches.append(circ)
 
 
+class Select_NVs_Simple(Script, QThread):
+    updateProgress = Signal(int)
+
+    _DEFAULT_SETTINGS = Parameter('patch_size', 0.1)
+
+    _INSTRUMENTS = {}
+    _SCRIPTS = {}
+
+    #This is the signal that will be emitted during the processing.
+    #By including int as an argument, it lets the signal know to expect
+    #an integer argument when emitting.
+
+    def __init__(self, instruments = None, scripts = None, name = None, settings = None,  log_output = None):
+        """
+        Example of a script that emits a QT signal for the gui
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+        Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_output = log_output)
+
+        QThread.__init__(self)
+
+        self._plot_type = 1
+
+        self.data = {'nv_locations': []}
+
+    def _function(self):
+        """
+        This is the actual function that will be executed. It uses only information that is provided in the settings property
+        will be overwritten in the __init__
+        """
+        self._abort = False
+
+        self.patches = []
+        self.data = {'nv_locations': []}
+
+        self.updateProgress.emit(50)
+
+        while not self._abort:
+            time.sleep(1)
+
+        self.updateProgress.emit(100)
+
+    def stop(self):
+        self._abort = True
+
+    def plot(self, axes):
+        pass
+        # if self.data['nv_locations'] == []:
+        #     self.scripts['Find_Points'].plot(axes)
+        # else:
+        #     image = self.scripts['Find_Points'].data['image']
+        #     extend = [self.scripts['Find_Points'].x_min, self.scripts['Find_Points'].x_max, self.scripts['Find_Points'].y_max, self.scripts['Find_Points'].y_min]
+        #     plot_fluorescence(image, extend, axes)
+        #
+        #     for x in self.data['nv_locations']:
+        #         patch = patches.Circle((x[0], x[1]), .001, fc='b')
+        #         axes.add_patch(patch)
+
+    def toggle_NV(self, pt, axes):
+        patch_size = self.settings['patch_size']
+        print(pt)
+        nv_pt = pt
+
+        self.data['nv_locations'].append(nv_pt)
+        circ = patches.Circle((nv_pt[0], nv_pt[1]), patch_size, fc='b')
+        axes.add_patch(circ)
+        self.patches.append(circ)
+
 if __name__ == '__main__':
 
 

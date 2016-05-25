@@ -15,6 +15,7 @@ from Find_Points import Find_Points
 from autofocus import AutoFocus
 # from light_control import CameraOn
 from Select_NVs import Select_NVs
+from Select_NVs import Select_NVs_Simple
 from set_laser import SetLaser
 from Correlate_Images import Correlate_Images
 from center_on_NVs import Center_On_NVs
@@ -43,3 +44,6 @@ try:
     from FPGA_PolarizationController import FPGA_PolarizationSignalScan
 except:
     print("./src/scripts/__init__ warning! FPGA_PolarizationSignalScan did not load")
+
+
+from Multiple_ESR import ESR_Selected_NVs_Simple
