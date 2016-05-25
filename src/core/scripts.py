@@ -251,6 +251,7 @@ class Script(object):
         :return: boolean if execution of script finished succesfully
         '''
         self.is_running = True
+        self.log_data.clear()
         self.start_time  = datetime.datetime.now()
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
         self._function()
