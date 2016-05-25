@@ -547,6 +547,9 @@
              </item>
              <item>
               <widget class="QLineEdit" name="txt_settings_path">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>

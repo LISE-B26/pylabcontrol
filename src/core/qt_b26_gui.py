@@ -64,44 +64,37 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
 
-        # self.read_probes.updateProgress.connect(self.update_probes)
+        def setup_trees():
 
-        # define data container
-        self.history = deque(maxlen=500)  # history of executed commands
-        self.history_model = QtGui.QStandardItemModel(self.list_history)
-        self.list_history.setModel(self.history_model)
-        self.list_history.show()
+            # define data container
+            self.history = deque(maxlen=500)  # history of executed commands
+            self.history_model = QtGui.QStandardItemModel(self.list_history)
+            self.list_history.setModel(self.history_model)
+            self.list_history.show()
 
-        # self.script_model = QtGui.QStandardItemModel(self.list_scripts)
-        # self.list_scripts.setModel(self.script_model)
-        # self.list_scripts.show()
+            # fill the trees
+            # self.fill_tree(self.tree_settings, self.instruments)
+            self.tree_settings.setColumnWidth(0, 300)
 
-        # fill the trees
-        # self.fill_tree(self.tree_settings, self.instruments)
-        self.tree_settings.setColumnWidth(0, 300)
+            # self.fill_tree(self.tree_scripts, self.scripts)
+            self.tree_scripts.setColumnWidth(0, 300)
+            self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
-        # self.fill_tree(self.tree_scripts, self.scripts)
-        self.tree_scripts.setColumnWidth(0, 300)
-        self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            # self.fill_tree(self.tree_monitor, self.probes)
+            self.tree_monitor.setColumnWidth(0, 300)
+            self.tree_monitor.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            # self.tree_monitor.setDisabled(True)
 
-        # self.fill_tree(self.tree_monitor, self.probes)
-        self.tree_monitor.setColumnWidth(0, 300)
-        self.tree_monitor.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        # self.tree_monitor.setDisabled(True)
+            self.tree_dataset.setColumnWidth(0, 100)
+            self.tree_dataset.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
-        self.tree_dataset.setColumnWidth(0, 100)
-        self.tree_dataset.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            self.current_script = None
+            self.probe_to_plot = None
 
-        self.current_script = None
-        self.probe_to_plot = None
-
-        self.path_to_scripts = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts\\"
-        self.path_to_instruments = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments\\"
-
-        # create models for tree structures, the models reflect the data
-        self.tree_dataset_model = QtGui.QStandardItemModel()
-        self.tree_dataset.setModel(self.tree_dataset_model)
-        self.tree_dataset_model.setHorizontalHeaderLabels(['time', 'name (tag)', 'type (script)'])
+            # create models for tree structures, the models reflect the data
+            self.tree_dataset_model = QtGui.QStandardItemModel()
+            self.tree_dataset.setModel(self.tree_dataset_model)
+            self.tree_dataset_model.setHorizontalHeaderLabels(['time', 'name (tag)', 'type (script)'])
 
         def connect_controls():
             # =============================================================
@@ -146,6 +139,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # plots
             self.matplotlibwidget.mpl_connect('button_press_event',  self.plot_clicked)
             self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_clicked)
+
+
+
+        self.path_to_scripts = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts\\"
+        self.path_to_instruments = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments\\"
+
+        setup_trees()
 
         connect_controls()
 
@@ -628,10 +628,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
             self.matplotlibwidget_2.axes.change_geometry(1, 1, 1)
 
-        if script.plot_type == 1:
+        if script.plot_type == 'main':
             script.plot(self.matplotlibwidget.axes)
             self.matplotlibwidget.draw()
-        elif script.plot_type == 2:
+        elif script.plot_type == 'aux':
+            script.plot(self.matplotlibwidget_2.axes)
+            self.matplotlibwidget.draw()
+        elif script.plot_type == 'two':
             script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
             self.matplotlibwidget.draw()
             self.matplotlibwidget_2.draw()

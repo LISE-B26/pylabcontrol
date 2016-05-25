@@ -47,7 +47,7 @@ class ESR_Selected_NVs(Script, QThread):
 
         QThread.__init__(self)
 
-        self._plot_type = 2
+        self._plot_type = 'two'
 
         self.index = 0
 

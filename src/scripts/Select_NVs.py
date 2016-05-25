@@ -124,7 +124,7 @@ class Select_NVs_Simple(Script, QThread):
 
         QThread.__init__(self)
 
-        self._plot_type = 1
+        self._plot_type = 'main'
 
         self.data = {'nv_locations': []}
 
@@ -155,12 +155,18 @@ class Select_NVs_Simple(Script, QThread):
         # delete all previous patches
         self.patches  = []
 
-        for pt in self.data['nv_locations']:
+        for index, pt in enumerate(self.data['nv_locations']):
             # axes.plot(pt, fc='b')
 
             circ = patches.Circle((pt[0], pt[1]), patch_size, fc='b')
             axes.add_patch(circ)
             self.patches.append(circ)
+
+            axes.text(pt[0], pt[1], '{:d}'.format(index),
+                    horizontalalignment='center',
+                    verticalalignment='center',
+                    color='white'
+                    )
 
     def toggle_NV(self, pt, axes):
         # patch_size = self.settings['patch_size']

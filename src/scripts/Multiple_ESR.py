@@ -45,7 +45,7 @@ To select points, first run subscript Select_NVs_Simple
 
         QThread.__init__(self)
 
-        self._plot_type = 2
+        self._plot_type = 'two'
 
         self.index = 0
 
@@ -86,18 +86,20 @@ To select points, first run subscript Select_NVs_Simple
 
         nv_locs = self.scripts['select_NVs'].data['nv_locations']
 
-        if self.scripts['acquire_image'].plotting_data is None:
+        acquire_image = self.scripts['acquire_image']
+
+        if acquire_image.plotting_data is None:
             self.log('no image acquired!! Run subscript acquire_image first!!')
 
         if nv_locs == []:
             self.log('no points selected acquired!! Run subscript select_NVs first!!')
 
-        xVmin = min(self.scripts['acquire_image'].settings['point_a']['x'], self.scripts['acquire_image'].settings['point_b']['x'])
-        xVmax = max(self.scripts['acquire_image'].settings['point_a']['x'], self.scripts['acquire_image'].settings['point_b']['x'])
-        yVmin = min(self.scripts['acquire_image'].settings['point_a']['y'], self.scripts['acquire_image'].settings['point_b']['y'])
-        yVmax = max(self.scripts['acquire_image'].settings['point_a']['y'], self.scripts['acquire_image'].settings['point_b']['y'])
+        [xVmin, xVmax, yVmax, yVmin] = acquire_image.pts_to_extent(acquire_image.settings['point_a'],
+                                                                   acquire_image.settings['point_b'],
+                                                                   acquire_image.settings['RoI_mode'])
 
-        self.data = {'image_data': deepcopy(self.scripts['acquire_image'].plotting_data),
+
+        self.data = {'image_data': deepcopy(acquire_image.plotting_data),
                      'image_data_2':None,
                      'extent' :  [xVmin, xVmax, yVmax, yVmin],
                      'nv_locs': nv_locs,
@@ -105,6 +107,12 @@ To select points, first run subscript Select_NVs_Simple
                      'ESR_data': np.zeros((len(nv_locs), self.scripts['StanfordResearch_ESR'].settings['freq_points']))}
 
         self.num_esrs = len(nv_locs)
+
+        if self.settings['save']:
+            # create and save images
+            filename_image = '{:s}\\image\\'.format(self.filename())
+            if os.path.exists(filename_image) == False:
+                os.makedirs(filename_image)
 
         self.progress_stage = 'acquire esr'
         for index, pt in enumerate(nv_locs):
@@ -130,10 +138,7 @@ To select points, first run subscript Select_NVs_Simple
                 self.data['ESR_data'][index] = self.scripts['StanfordResearch_ESR'].data[-1]['data']
                 if self.settings['save']:
                     # create and save images
-                    filename = '{:s}\\image\\'.format(self.filename())
-                    if os.path.exists(filename) == False:
-                        os.makedirs(filename)
-                    self.scripts['StanfordResearch_ESR'].save_image_to_disk('{:s}\\esr-point_{:03d}.jpg'.format(filename, index))
+                    self.scripts['StanfordResearch_ESR'].save_image_to_disk('{:s}\\esr-point_{:03d}.jpg'.format(filename_image, index))
 
                 #can't call run twice on the same object, so start a new, identical ESR script for the next run
                 #update: probably not supported, but doesn't seem to have any ill effects
@@ -143,10 +148,10 @@ To select points, first run subscript Select_NVs_Simple
         self.log('acquire new image')
         self.progress_stage = 'acquire image'
         # take another image
-        self.scripts['acquire_image'].run()
-        self.scripts['acquire_image'].wait()  # wait for thread to complete
+        acquire_image.run()
+        acquire_image.wait()  # wait for thread to complete
 
-        self.data['image_data_2'] = deepcopy(self.scripts['acquire_image'].plotting_data)
+        self.data['image_data_2'] = deepcopy(acquire_image.plotting_data)
 
 
 
@@ -154,6 +159,8 @@ To select points, first run subscript Select_NVs_Simple
         if self.settings['save']:
             self.save()
             self.save_data()
+            self.save_image_to_disk('{:s}\\nv-map.jpg'.format(filename_image))
+
 
         self.progress_stage = 'finished'
 
@@ -169,10 +176,11 @@ To select points, first run subscript Select_NVs_Simple
 
         patch_size = self.scripts['select_NVs'].settings['patch_size']
 
-        if self.progress_stage == 'finished':
+        if self.progress_stage == 'finished' or  self.progress_stage == 'saving data':
 
             image = self.data['image_data_2']
             extent = self.data['extent']
+
             plot_fluorescence(image, extent, axes_Image)
 
             self.scripts['select_NVs'].plot(axes_Image)
@@ -181,6 +189,7 @@ To select points, first run subscript Select_NVs_Simple
             # axes_Image.add_patch(patch)
         elif self.progress_stage == 'acquire image':
             self.scripts['acquire_image'].plot(axes_Image)
+
         elif self.progress_stage == 'acquire esr':
             image = self.data['image_data']
             extent = self.data['extent']
@@ -192,7 +201,7 @@ To select points, first run subscript Select_NVs_Simple
             axes_Image.add_patch(patch)
 
         if axes_ESR is not None:
-            self.scripts['StanfordResearch_ESR'].plot(None, axes_ESR)
+            self.scripts['StanfordResearch_ESR'].plot(axes_ESR)
 
 
 
@@ -203,6 +212,4 @@ if __name__ == '__main__':
 
     script, failed, instruments = Script.load_and_append(script_dict={'ESR_Selected_NVs':'ESR_Selected_NVs'}, instruments = instruments)
 
-    # print(script)
-    # print(failed)
     print(instruments)

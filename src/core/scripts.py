@@ -14,7 +14,8 @@ from PySide.QtCore import Signal, QThread
 from src.core.read_write_functions import save_b26_file
 import numpy as np
 from __builtin__ import len as builtin_len
-
+from matplotlib.backends.backend_pdf import FigureCanvasPdf as FigureCanvas # use this to avoid error that plotting should only be done on main thread
+from matplotlib.figure import Figure
 
 class Script(object):
     # __metaclass__ = ABCMeta
@@ -83,8 +84,8 @@ class Script(object):
         # this can be overwritten
         self.log_output = log_output
 
-        # default value is 0, overwrite this in script if it has plotting capabilities
-        self._plot_type = 0
+        # default value is 'none', overwrite this in script if it has plotting capabilities
+        self._plot_type = 'none'
 
 
     # @abstractmethod
@@ -168,9 +169,10 @@ class Script(object):
         """
         overwrite this function if script has plotting abilities
         Returns: the type of plot the script produces
-            0 - no plot (script doesn't produce any plottable data)
-            1 - single plot
-            2 -  two plots, typically a main plot and a small plot that shows some intermediate data
+            'none' - no plot (script doesn't produce any plottable data)
+            'main' - single plot on main plot
+            'aux' -  single plot on auxilary plot
+            'two' -  two plots, typically a main plot and a small plot that shows some intermediate data
 
         """
 
@@ -403,6 +405,59 @@ class Script(object):
         else:
             for key, value in data.iteritems():
                 axes.plot(value)
+
+    def save_image_to_disk(self, filename_1 = None, filename_2 = None):
+        """
+        creates an image using the scripts plot function and writes it to the disk
+        for single plots (plot_type: 'main', 'aux')
+            - if no filname provided take default name
+        for double plots (plot_type: 'main', 'aux')
+            - if no filnames provided take default name
+            - if only one filname provided save only the plot for which name is provided
+        Args:
+            filename_1: filname for figure 1
+            filename_2: filname for figure 1
+
+        Returns: None
+
+        """
+        if self.plot_type in ('main', 'aux'):
+
+            # create and save images
+            if filename_1 is None:
+                filename_1 = self.filename('-{:s}.jpg'.format(self.plot_type))
+
+            fig = Figure()
+            canvas = FigureCanvas(fig)
+            ax = fig.add_subplot(1, 1, 1)
+            self.plot(ax)
+            fig.savefig(filename_1)
+
+        elif self.plot_type in ('two'):
+
+            # create and save images
+            if (filename_1 is None) and (filename_2 is None):
+                filename_1 = self.filename('-main.jpg')
+                filename_2 = self.filename('-aux.jpg')
+
+            fig_1 = Figure()
+            canvas_1 = FigureCanvas(fig_1)
+            ax_1 = fig_1.add_subplot(1, 1, 1)
+
+            self.plot(ax_1)
+
+            fig_2 = Figure()
+            canvas_2 = FigureCanvas(fig_2)
+            ax_2 = fig_2.add_subplot(1, 1, 1)
+
+
+            self.plot(ax_1, ax_2)
+
+            if filename_1 is not None:
+                fig_1.savefig(filename_1)
+            if filename_2 is not None:
+                fig_2.savefig(filename_2)
+
 
     def to_dict(self):
         """
