@@ -7,8 +7,8 @@ import numpy as np
 from matplotlib import patches
 from PySide.QtCore import Signal, QThread
 from src.core.plotting import plot_fluorescence
-
-
+from copy import deepcopy
+import os
 
 class ESR_Selected_NVs_Simple(Script, QThread):
     """
@@ -50,15 +50,30 @@ To select points, first run subscript Select_NVs_Simple
         self.index = 0
 
         self.scripts['StanfordResearch_ESR'].updateProgress.connect(self._receive_signal)
+        self.scripts['acquire_image'].updateProgress.connect(self._receive_signal_2)
 
         self.data = None
+
+        self.progress_stage = 'ready'
 
     def _receive_signal(self, progress_sub_script):
         # calculate progress of this script based on progress in subscript
 
-        progress = int((float(self.index)/self.num_esrs)*100 + float(progress_sub_script)/self.num_esrs)
+        if progress_sub_script == 100:
+            progress = float(self.index)/self.num_esrs
+        else:
+            progress = float(self.index) / self.num_esrs + float(progress_sub_script) / 100. / self.num_esrs
+
+        progress*=100
+        progress = int(progress)
+
         self.updateProgress.emit(progress)
 
+    def _receive_signal_2(self, progress_sub_script):
+        # calculate progress of this script based on progress in subscript
+        if progress_sub_script ==100:
+            progress_sub_script = 90
+        self.updateProgress.emit(progress_sub_script)
 
     def _function(self):
         """
@@ -67,9 +82,11 @@ To select points, first run subscript Select_NVs_Simple
         """
         self._abort = False
 
+        self.progress_stage = 'start script'
+
         nv_locs = self.scripts['select_NVs'].data['nv_locations']
 
-        if self.scripts['acquire_image'].plotting_data == None:
+        if self.scripts['acquire_image'].plotting_data is None:
             self.log('no image acquired!! Run subscript acquire_image first!!')
 
         if nv_locs == []:
@@ -80,64 +97,99 @@ To select points, first run subscript Select_NVs_Simple
         yVmin = min(self.scripts['acquire_image'].settings['point_a']['y'], self.scripts['acquire_image'].settings['point_b']['y'])
         yVmax = max(self.scripts['acquire_image'].settings['point_a']['y'], self.scripts['acquire_image'].settings['point_b']['y'])
 
-        self.data = {'image_data': self.scripts['acquire_image'].plotting_data,
-                     'extent' :  [xVmin, xVmax, yVmin, yVmax],
+        self.data = {'image_data': deepcopy(self.scripts['acquire_image'].plotting_data),
+                     'image_data_2':None,
+                     'extent' :  [xVmin, xVmax, yVmax, yVmin],
                      'nv_locs': nv_locs,
                      'ESR_freqs': [],
-                     'ESR_data': np.zeros((len(nv_locs)))}
+                     'ESR_data': np.zeros((len(nv_locs), self.scripts['StanfordResearch_ESR'].settings['freq_points']))}
 
         self.num_esrs = len(nv_locs)
 
+        self.progress_stage = 'acquire esr'
         for index, pt in enumerate(nv_locs):
             self.index = index
+            self.cur_pt = pt
             if not self._abort:
                 self.log('Taking ESR of point ' + str(index + 1) + ' of ' + str(len(nv_locs)))
                 #set laser to new point
                 pt = np.transpose(np.column_stack((pt[0], pt[1])))
                 pt = (np.repeat(pt, 2, axis=1))
+
                 self.instruments['daq']['instance'].AO_init(["ao0","ao1"], pt)
                 self.instruments['daq']['instance'].AO_run()
                 self.instruments['daq']['instance'].AO_waitToFinish()
                 self.instruments['daq']['instance'].AO_stop()
 
                 #run the ESR
-                # self.scripts['StanfordResearch_ESR']['instance'].tag = self.scripts['StanfordResearch_ESR']['instance'].tag + '_NV_no_' + index
                 self.scripts['StanfordResearch_ESR'].run()
                 self.scripts['StanfordResearch_ESR'].wait() #wait for previous ESR thread to complete
 
                 self.data['ESR_freqs'] = self.scripts['StanfordResearch_ESR'].data[-1]['frequency']
+
                 self.data['ESR_data'][index] = self.scripts['StanfordResearch_ESR'].data[-1]['data']
+                if self.settings['save']:
+                    # create and save images
+                    filename = '{:s}\\image\\'.format(self.filename())
+                    if os.path.exists(filename) == False:
+                        os.makedirs(filename)
+                    self.scripts['StanfordResearch_ESR'].save_image_to_disk('{:s}\\esr-point_{:03d}.jpg'.format(filename, index))
 
                 #can't call run twice on the same object, so start a new, identical ESR script for the next run
                 #update: probably not supported, but doesn't seem to have any ill effects
                 # self.scripts['StanfordResearch_ESR'] = StanfordResearch_ESR(esr_instruments, settings = esr_settings)
                 # self.scripts['StanfordResearch_ESR'].updateProgress.connect(self._receive_signal)
 
+        self.log('acquire new image')
+        self.progress_stage = 'acquire image'
+        # take another image
+        self.scripts['acquire_image'].run()
+        self.scripts['acquire_image'].wait()  # wait for thread to complete
+
+        self.data['image_data_2'] = deepcopy(self.scripts['acquire_image'].plotting_data)
 
 
-        self.updateProgress.emit(100)
+
+        self.progress_stage = 'saving data'
         if self.settings['save']:
             self.save()
             self.save_data()
+
+        self.progress_stage = 'finished'
+
+        self.updateProgress.emit(100)
+
+
 
     def stop(self):
         self._abort = True
         self.scripts['StanfordResearch_ESR'].stop()
 
     def plot(self, axes_Image, axes_ESR = None):
-        if self.data is not None:
 
+        patch_size = self.scripts['select_NVs'].settings['patch_size']
+
+        if self.progress_stage == 'finished':
+
+            image = self.data['image_data_2']
+            extent = self.data['extent']
+            plot_fluorescence(image, extent, axes_Image)
+
+            self.scripts['select_NVs'].plot(axes_Image)
+
+            # patch = patches.Circle((self.cur_pt[0], self.cur_pt[1]), 1.1* patch_size, edgecolor='r')
+            # axes_Image.add_patch(patch)
+        elif self.progress_stage == 'acquire image':
+            self.scripts['acquire_image'].plot(axes_Image)
+        elif self.progress_stage == 'acquire esr':
             image = self.data['image_data']
-            extend = self.data['extend']
-            plot_fluorescence(image, extend, axes_Image)
+            extent = self.data['extent']
+            plot_fluorescence(image, extent, axes_Image)
 
-        if self.isRunning():
-            patch = patches.Circle((self.cur_pt[0], self.cur_pt[1]), .0005, edgecolor='r')
+            self.scripts['select_NVs'].plot(axes_Image)
+
+            patch = patches.Circle((self.cur_pt[0], self.cur_pt[1]), 1.1 * patch_size, edgecolor='r')
             axes_Image.add_patch(patch)
-        else:
-            for pt in self.data['nv_locs']:
-                patch = patches.Circle((pt[0], pt[1]), .0005, edgecolor='b')
-                axes_Image.add_patch(patch)
 
         if axes_ESR is not None:
             self.scripts['StanfordResearch_ESR'].plot(None, axes_ESR)

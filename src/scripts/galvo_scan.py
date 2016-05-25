@@ -26,6 +26,9 @@ class GalvoScan(Script, QThread):
                   [Parameter('x', 0.4, float, 'x-coordinate'),
                    Parameter('y', 0.4, float, 'y-coordinate')
                    ]),
+        Parameter('RoI_mode','corner',['corner', 'center'],'mode to calculate region of interest.\n \
+                                                           corner: pta and ptb are diagonal corners of rectangle.\n \
+                                                           center: pta is center and pta is extend or rectangle'),
         Parameter('num_points',
                   [Parameter('x', 120, int, 'number of x points to scan'),
                    Parameter('y', 120, int, 'number of y points to scan')
@@ -67,10 +70,16 @@ class GalvoScan(Script, QThread):
             self.clockAdjust = int(
                 (self.settings['time_per_pt'] + self.settings['settle_time']) / self.settings['settle_time'])
 
-            self.xVmin = min(self.settings['point_a']['x'], self.settings['point_b']['x'])
-            self.xVmax = max(self.settings['point_a']['x'], self.settings['point_b']['x'])
-            self.yVmin = min(self.settings['point_a']['y'], self.settings['point_b']['y'])
-            self.yVmax = max(self.settings['point_a']['y'], self.settings['point_b']['y'])
+            if self.settings['RoI_mode'] == 'corner':
+                self.xVmin = min(self.settings['point_a']['x'], self.settings['point_b']['x'])
+                self.xVmax = max(self.settings['point_a']['x'], self.settings['point_b']['x'])
+                self.yVmin = min(self.settings['point_a']['y'], self.settings['point_b']['y'])
+                self.yVmax = max(self.settings['point_a']['y'], self.settings['point_b']['y'])
+            elif self.settings['RoI_mode'] == 'center':
+                self.xVmin = self.settings['point_a']['x'] - float(self.settings['point_b']['x'])/2.
+                self.xVmax = self.settings['point_a']['x'] + float(self.settings['point_b']['x'])/2.
+                self.yVmin = self.settings['point_a']['y'] - float(self.settings['point_b']['y'])/2.
+                self.yVmax = self.settings['point_a']['y'] + float(self.settings['point_b']['y'])/2.
 
             self.x_array = np.repeat(np.linspace(self.xVmin, self.xVmax, self.settings['num_points']['x']),
                                      self.clockAdjust)

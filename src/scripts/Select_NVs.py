@@ -150,27 +150,27 @@ class Select_NVs_Simple(Script, QThread):
         self._abort = True
 
     def plot(self, axes):
-        pass
-        # if self.data['nv_locations'] == []:
-        #     self.scripts['Find_Points'].plot(axes)
-        # else:
-        #     image = self.scripts['Find_Points'].data['image']
-        #     extend = [self.scripts['Find_Points'].x_min, self.scripts['Find_Points'].x_max, self.scripts['Find_Points'].y_max, self.scripts['Find_Points'].y_min]
-        #     plot_fluorescence(image, extend, axes)
-        #
-        #     for x in self.data['nv_locations']:
-        #         patch = patches.Circle((x[0], x[1]), .001, fc='b')
-        #         axes.add_patch(patch)
+        patch_size = self.settings['patch_size']
+
+        # delete all previous patches
+        self.patches  = []
+
+        for pt in self.data['nv_locations']:
+            # axes.plot(pt, fc='b')
+
+            circ = patches.Circle((pt[0], pt[1]), patch_size, fc='b')
+            axes.add_patch(circ)
+            self.patches.append(circ)
 
     def toggle_NV(self, pt, axes):
-        patch_size = self.settings['patch_size']
+        # patch_size = self.settings['patch_size']
         print(pt)
-        nv_pt = pt
 
-        self.data['nv_locations'].append(nv_pt)
-        circ = patches.Circle((nv_pt[0], nv_pt[1]), patch_size, fc='b')
-        axes.add_patch(circ)
-        self.patches.append(circ)
+        self.data['nv_locations'].append(pt)
+        self.plot(axes)
+        # circ = patches.Circle((nv_pt[0], nv_pt[1]), patch_size, fc='b')
+        # axes.add_patch(circ)
+        # self.patches.append(circ)
 
 if __name__ == '__main__':
 
