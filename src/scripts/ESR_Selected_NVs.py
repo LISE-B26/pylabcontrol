@@ -34,7 +34,7 @@ class ESR_Selected_NVs(Script, QThread):
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
 
-    def __init__(self, instruments = None, scripts = None, name = None, settings = None,  log_output = None):
+    def __init__(self, instruments = None, scripts = None, name = None, settings = None, log_function = None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
@@ -43,7 +43,7 @@ class ESR_Selected_NVs(Script, QThread):
         """
         self._abort = False
 
-        Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_output = log_output)
+        Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function)
 
         QThread.__init__(self)
 

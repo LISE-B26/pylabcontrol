@@ -24,11 +24,11 @@ class LabviewFpgaTimetrace(Script, QThread):
 
     _SCRIPTS = {}
 
-    def __init__(self, instruments, name = None, settings = None, log_output = None):
+    def __init__(self, instruments, name = None, settings = None, log_function = None):
 
         self._recording = False
 
-        Script.__init__(self, name, settings, instruments, log_output = log_output)
+        Script.__init__(self, name, settings, instruments, log_function= log_function)
         QThread.__init__(self)
 
         self.data = deque()

@@ -247,14 +247,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def get_time(self):
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
-    def log(self, msg, target = 'hist'):
+    def log(self, msg):
 
         time = self.get_time()
 
         msg = "{:s}\t {:s}".format(time, msg)
-        #
-        # if target == 'script':
-        #     self.script_model.insertRow(0,QtGui.QStandardItem(msg))
 
         self.history.append(msg)
         self.history_model.insertRow(0,QtGui.QStandardItem(msg))
@@ -405,10 +402,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
 
                     # create instances of new instruments/scripts
-                    self.scripts, loaded_failed, self.instruments = Script.load_and_append({name: scripts[name] for name in added_scripts},
-                                                                                               self.scripts,
-                                                                                               self.instruments,
-                                                                                               self.log)
+                    self.scripts, loaded_failed, self.instruments = Script.load_and_append(script_dict = {name: scripts[name] for name in added_scripts},
+                                                                                           scripts = self.scripts,
+                                                                                           instruments = self.instruments,
+                                                                                           log_function = self.log,
+                                                                                           data_path = self.gui_settings['data_folder'])
                     # delete instances of new instruments/scripts that have been deselected
                     for name in removed_scripts:
                         del self.scripts[name]
@@ -756,9 +754,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if failed != []:
                 print('WARNING! Following instruments could not be loaded: ', failed)
             print('============ loading scripts ================')
-            self.scripts, failed, self.instruments = Script.load_and_append(scripts, instruments=self.instruments,
-                                                                            log_function=lambda x: self.log(x,
-                                                                                                            target='script'))
+            self.scripts, failed, self.instruments = Script.load_and_append(
+                script_dict=scripts,
+                instruments=self.instruments,
+                log_function=self.log,
+                data_path=self.gui_settings['data_folder'])
+
+            # self.scripts, failed, self.instruments = Script.load_and_append(scripts, instruments=self.instruments,
+            #                                                                 log_function=lambda x: self.log(x,target='script'))
             if failed != []:
                 print('WARNING! Following scripts could not be loaded: ', failed)
             print('============ loading probes not implmented ================')

@@ -39,7 +39,7 @@ class Script(object):
     # ======= Following old_functions are generic ================================================
     # ========================================================================================
 
-    def __init__(self, name = None, settings = None, instruments = None, scripts = None, log_output = None, data_path = None):
+    def __init__(self, name = None, settings = None, instruments = None, scripts = None, log_function = None, data_path = None):
         """
         executes scripts and stores script parameters and settings
         Args:
@@ -47,7 +47,7 @@ class Script(object):
             settings (optinal): a Parameter object that contains all the information needed in the script
             instruments (optinal): instruments used in the script
             scripts (optinal):  sub_scripts used in the script
-            log_output(optinal): function reference that takes a string
+            log_function(optinal): function reference that takes a string
         """
         if name is None:
             name = self.__class__.__name__
@@ -88,7 +88,7 @@ class Script(object):
         # a log for status outputs
         self.log_data = deque()
         # this can be overwritten
-        self.log_output = log_output
+        self.log_output = log_function
 
         # default value is 'none', overwrite this in script if it has plotting capabilities
         self._plot_type = 'none'
@@ -579,7 +579,7 @@ class Script(object):
         return data
 
     @staticmethod
-    def load_and_append(script_dict, scripts = None, instruments = None, log_function = None):
+    def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None):
         """
         load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
 
@@ -619,6 +619,9 @@ class Script(object):
                 name_of_instrument_2 : instance_of_instrument_2,
                 ...
                 }
+            log_function: function that takes a string
+
+            data_path: absolute path where data is saved, in case the path in the script is definded as a relative path
 
         Returns:
                 dictionary of form
@@ -779,6 +782,8 @@ class Script(object):
                     class_creation_string += ', settings = script_settings'
                 if log_function is not None:
                     class_creation_string += ', log_output = log_function'
+                if data_path is not None:
+                    class_creation_string += ', data_path = data_path'
                 class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
                 script_instance = eval(class_creation_string)

@@ -34,7 +34,7 @@ script to balance photodetector to zero by adjusting polarization controller vol
 
     }
 
-    def __init__(self, instruments, scripts = None, name=None, settings=None, log_output=None):
+    def __init__(self, instruments, scripts = None, name=None, settings=None, log_function=None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
@@ -42,7 +42,7 @@ script to balance photodetector to zero by adjusting polarization controller vol
             settings (optional): settings for this script, if empty same as default settings
         """
         self._abort = False
-        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_output=log_output)
+        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function)
         QThread.__init__(self)
 
         self._plot_type = 2
@@ -180,7 +180,7 @@ this gives a three dimensional dataset
 
     }
 
-    def __init__(self, instruments, scripts = None, name=None, settings=None, log_output=None):
+    def __init__(self, instruments, scripts = None, name=None, settings=None, log_function=None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
@@ -188,7 +188,7 @@ this gives a three dimensional dataset
             settings (optional): settings for this script, if empty same as default settings
         """
         self._abort = False
-        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_output=log_output)
+        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function)
         QThread.__init__(self)
 
         self._plot_type = 1
@@ -436,7 +436,7 @@ this gives a one dimensional dataset
 
     }
 
-    def __init__(self, instruments, scripts = None, name=None, settings=None, log_output=None):
+    def __init__(self, instruments, scripts = None, name=None, settings=None, log_function=None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
@@ -444,7 +444,7 @@ this gives a one dimensional dataset
             settings (optional): settings for this script, if empty same as default settings
         """
         self._abort = False
-        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_output=log_output)
+        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function)
         QThread.__init__(self)
 
         self._plot_type = 1

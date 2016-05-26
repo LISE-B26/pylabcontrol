@@ -27,14 +27,14 @@ class KeysightSpectrumVsPower(Script, QThread):
         'get_spectrum' : KeysightGetSpectrum
     }
     updateProgress = Signal(int)
-    def __init__(self, instruments, scripts, name = None, settings = None,  log_output = None):
+    def __init__(self, instruments, scripts, name = None, settings = None, log_function = None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        Script.__init__(self, name, settings = settings,scripts =scripts, instruments = instruments, log_output = log_output)
+        Script.__init__(self, name, settings = settings, scripts =scripts, instruments = instruments, log_function= log_function)
         QThread.__init__(self)
     def _function(self):
         """

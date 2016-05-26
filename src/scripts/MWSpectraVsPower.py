@@ -33,14 +33,14 @@ class MWSpectraVsPower(Script, QThread):
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
     updateProgress = Signal(int)
-    def __init__(self, instruments = None, name = None, settings = None,  log_output = None):
+    def __init__(self, instruments = None, name = None, settings = None, log_function = None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        Script.__init__(self, name, settings = settings, instruments = instruments, log_output = log_output)
+        Script.__init__(self, name, settings = settings, instruments = instruments, log_function= log_function)
         # QtCore.QThread.__init__(self)
         QThread.__init__(self)
         # self.data = deque()

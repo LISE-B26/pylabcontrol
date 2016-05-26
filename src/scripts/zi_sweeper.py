@@ -31,12 +31,12 @@ class ZISweeper(Script, QThread):
 
     _SCRIPTS = {}
 
-    def __init__(self, instruments, name = None, settings = None, log_output = None, timeout = 1000000000):
+    def __init__(self, instruments, name = None, settings = None, log_function = None, timeout = 1000000000):
 
         self._recording = False
         self._timeout = timeout
 
-        Script.__init__(self, name, settings, instruments, log_output = log_output)
+        Script.__init__(self, name, settings, instruments, log_function= log_function)
         QThread.__init__(self)
 
         self.sweeper = self.instruments['zihf2'].daq.sweep(self._timeout)
