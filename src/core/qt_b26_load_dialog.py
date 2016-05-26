@@ -152,7 +152,7 @@ Returns:
         """
         fills a tree with nested parameters
         Args:
-            tree: QtGui.QTreeWidget
+            tree: QtGui.QTreeView
             parameters: dictionary or Parameter object
 
         Returns:

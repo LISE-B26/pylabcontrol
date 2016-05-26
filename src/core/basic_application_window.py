@@ -2,8 +2,7 @@
 
 # Form implementation generated from reading ui file 'basic_application_window.ui'
 #
-# Created: Wed May 25 18:14:24 2016
-#      by: PyQt4 UI code generator 4.10.4
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -231,7 +230,6 @@ class Ui_MainWindow(object):
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(9, 10, 511, 521))
         self.verticalLayoutWidget.setObjectName(_fromUtf8("verticalLayoutWidget"))
         self.verticalLayout = QtGui.QVBoxLayout(self.verticalLayoutWidget)
-        self.verticalLayout.setMargin(0)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.horizontalLayout_10 = QtGui.QHBoxLayout()
         self.horizontalLayout_10.setObjectName(_fromUtf8("horizontalLayout_10"))
@@ -283,40 +281,16 @@ class Ui_MainWindow(object):
         self.tab_settings1 = QtGui.QWidget()
         self.tab_settings1.setObjectName(_fromUtf8("tab_settings1"))
         self.horizontalLayoutWidget_3 = QtGui.QWidget(self.tab_settings1)
-        self.horizontalLayoutWidget_3.setGeometry(QtCore.QRect(0, 10, 511, 31))
+        self.horizontalLayoutWidget_3.setGeometry(QtCore.QRect(0, 10, 521, 201))
         self.horizontalLayoutWidget_3.setObjectName(_fromUtf8("horizontalLayoutWidget_3"))
         self.horizontalLayout_11 = QtGui.QHBoxLayout(self.horizontalLayoutWidget_3)
-        self.horizontalLayout_11.setMargin(0)
         self.horizontalLayout_11.setObjectName(_fromUtf8("horizontalLayout_11"))
-        self.label = QtGui.QLabel(self.horizontalLayoutWidget_3)
-        self.label.setObjectName(_fromUtf8("label"))
-        self.horizontalLayout_11.addWidget(self.label)
-        self.txt_settings_path = QtGui.QLineEdit(self.horizontalLayoutWidget_3)
-        self.txt_settings_path.setEnabled(False)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.txt_settings_path.setFont(font)
-        self.txt_settings_path.setObjectName(_fromUtf8("txt_settings_path"))
-        self.horizontalLayout_11.addWidget(self.txt_settings_path)
-        self.horizontalLayoutWidget_4 = QtGui.QWidget(self.tab_settings1)
-        self.horizontalLayoutWidget_4.setGeometry(QtCore.QRect(0, 50, 511, 31))
-        self.horizontalLayoutWidget_4.setObjectName(_fromUtf8("horizontalLayoutWidget_4"))
-        self.horizontalLayout_12 = QtGui.QHBoxLayout(self.horizontalLayoutWidget_4)
-        self.horizontalLayout_12.setMargin(0)
-        self.horizontalLayout_12.setObjectName(_fromUtf8("horizontalLayout_12"))
-        self.label_2 = QtGui.QLabel(self.horizontalLayoutWidget_4)
-        self.label_2.setObjectName(_fromUtf8("label_2"))
-        self.horizontalLayout_12.addWidget(self.label_2)
-        self.txt_tmp_folder_path = QtGui.QLineEdit(self.horizontalLayoutWidget_4)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.txt_tmp_folder_path.setFont(font)
-        self.txt_tmp_folder_path.setObjectName(_fromUtf8("txt_tmp_folder_path"))
-        self.horizontalLayout_12.addWidget(self.txt_tmp_folder_path)
+        self.tree_gui_settings = QtGui.QTreeView(self.horizontalLayoutWidget_3)
+        self.tree_gui_settings.setObjectName(_fromUtf8("tree_gui_settings"))
+        self.horizontalLayout_11.addWidget(self.tree_gui_settings)
         self.tabWidget_2.addTab(self.tab_settings1, _fromUtf8(""))
         self.verticalLayout_10.addWidget(self.tabWidget_2)
         self.verticalLayout_10.setStretch(0, 3)
-        self.verticalLayout_10.setStretch(1, 1)
         self.horizontalLayout_7.addLayout(self.verticalLayout_10)
         self.verticalLayout_2 = QtGui.QVBoxLayout()
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
@@ -375,7 +349,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
-        self.tabWidget_2.setCurrentIndex(0)
+        self.tabWidget_2.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -405,11 +379,7 @@ class Ui_MainWindow(object):
         self.txt_data_path.setText(_translate("MainWindow", "Z:\\Lab\\Cantilever\\Measurements", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_data), _translate("MainWindow", "Dataset", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab), _translate("MainWindow", "History", None))
-        self.label.setText(_translate("MainWindow", "gui setting", None))
-        self.txt_settings_path.setText(_translate("MainWindow", "c:\\b26_tmp\\gui_settings.b26", None))
-        self.label_2.setText(_translate("MainWindow", "temp folder", None))
-        self.txt_tmp_folder_path.setText(_translate("MainWindow", "c:\\b26_tmp\\", None))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_settings1), _translate("MainWindow", "GUI Configuration", None))
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_settings1), _translate("MainWindow", "GUI Settings", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
         self.menuSettings.setTitle(_translate("MainWindow", "Settings", None))
         self.menuHelp.setTitle(_translate("MainWindow", "Help", None))

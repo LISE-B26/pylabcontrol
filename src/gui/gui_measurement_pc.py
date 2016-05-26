@@ -12,7 +12,8 @@ myappid = 'lukinlab.b26.pythonlab' # arbitrary string
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 app = QtGui.QApplication(sys.argv)
-fname = 'c:\\b26_tmp\\gui_settings.b26'
+fname = 'c:\\b26_tmp\\pythonlab_config.b26'
+
 ex = qt_b26_gui.ControlMainWindow(fname)
 
 app.setWindowIcon(QtGui.QIcon('magnet_and_nv.ico'))
@@ -20,3 +21,4 @@ app.setWindowIcon(QtGui.QIcon('magnet_and_nv.ico'))
 ex.show()
 ex.raise_()
 sys.exit(app.exec_())
+ 

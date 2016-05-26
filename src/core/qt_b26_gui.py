@@ -94,6 +94,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_dataset.setModel(self.tree_dataset_model)
             self.tree_dataset_model.setHorizontalHeaderLabels(['time', 'name (tag)', 'type (script)'])
 
+            # create models for tree structures, the models reflect the data
+            self.tree_gui_settings_model = QtGui.QStandardItemModel()
+            self.tree_gui_settings.setModel(self.tree_gui_settings_model)
+            self.tree_gui_settings_model.setHorizontalHeaderLabels(['parameter', 'value'])
+
         def connect_controls():
             # =============================================================
             # ===== LINK WIDGETS TO FUNCTIONS =============================
@@ -138,10 +143,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.matplotlibwidget.mpl_connect('button_press_event',  self.plot_clicked)
             self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_clicked)
 
-
-
-        self.path_to_scripts = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts\\"
-        self.path_to_instruments = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments\\"
 
         setup_trees()
 
@@ -260,54 +261,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.history.append(msg)
         self.history_model.insertRow(0,QtGui.QStandardItem(msg))
 
-    def update_script_from_tree(self, script, tree):
-
-        def update_script_from_item(script, item):
-            # build dictionary
-            # get full information from script
-            dictator = item.to_dict().values()[0]  # there is only one item in the dictionary
-
-            for instrument in script.instruments.keys():
-                # update instrument
-                script.instruments[instrument]['settings'] = dictator[instrument]['settings']
-                # remove instrument
-                del dictator[instrument]
-
-            print('script.scripts.keys()', script.scripts.keys())
-            for sub_script_name in script.scripts.keys():
-
-                items = tree.findItems(sub_script_name, QtCore.Qt.MatchExactly | QtCore.Qt.MatchRecursive)
-                print(len(items), items[0], isinstance(items[0].value, Script))
-                if len(items) == 1 and isinstance(items[0].value, Script):
-                    sub_script_item = items[0]
-                else:
-                    raise ValueError, 'several elements with name ' + sub_script_name
-
-
-                sub_script = script.scripts[sub_script_name]
-
-                # update script
-                print('update subscript', sub_script, sub_script_item)
-                update_script_from_item(sub_script, sub_script_item)
-                # script.scripts[sub_script_name].update(dictator[sub_script_name])
-                # remove script
-                del dictator[sub_script_name]
-
-            script.update(dictator)
-
-        for item in tree.selectedItems():
-            if item.valid_values == type(script) and item.name == script.name:
-                update_script_from_item(script, item)
-
-        # old stuff can be deleted at some point (change may 25th, delete after june 25th)
-        # for index in range(tree.topLevelItemCount()):
-        #     topLvlItem = tree.topLevelItem(index)
-        #
-        #
-        #     if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
-        #
-        #         update_script_from_item(script, topLvlItem)
-
     def btn_clicked(self):
         sender = self.sender()
         self.probe_to_plot = None
@@ -425,10 +378,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if sender is self.btn_load_instruments:
 
-                dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments, filename=self.path_to_instruments)
+                dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments, filename=self.gui_settings['instrument_folder'])
 
                 if dialog.exec_():
-                    self.path_to_instruments = str(dialog.txt_probe_log_path.text())
+                    self.gui_settings['instrument_folder'] = str(dialog.txt_probe_log_path.text())
                     instruments = dialog.getValues()
                     added_instruments = set(instruments.keys())-set(self.instruments.keys())
                     removed_instruments = set(self.instruments.keys()) - set(instruments.keys())
@@ -445,9 +398,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             elif sender is self.btn_load_scripts:
 
-                dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts, filename=self.path_to_scripts)
+                dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts, filename=self.gui_settings['scripts_folder'])
                 if dialog.exec_():
-                    self.path_to_scripts = str(dialog.txt_probe_log_path.text())
+                    self.gui_settings['scripts_folder'] = str(dialog.txt_probe_log_path.text())
                     scripts = dialog.getValues()
                     added_scripts = set(scripts.keys())-set(self.scripts.keys())
                     removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
@@ -463,89 +416,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # refresh trees
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
-
-    def load_settings(self, in_file_name):
-        """
-        loads a old_gui settings file (a json dictionary)
-        - path_to_file: path to file that contains the dictionary
-
-        Returns:
-            - instruments: depth 1 dictionary where keys are instrument names and values are instances of instruments
-            - scripts:  depth 1 dictionary where keys are script names and values are instances of scripts
-            - probes: depth 1 dictionary where to be decided....?
-        """
-
-
-        if os.path.isfile(in_file_name):
-
-            # with open(in_file_name, 'r') as infile:
-            #     in_data = yaml.safe_load(infile)
-            in_data = load_b26_file(in_file_name)
-
-            instruments = in_data['instruments']
-            scripts = in_data['scripts']
-            probes = in_data['probes']
-
-            print('============ loading instruments ================')
-            self.instruments, failed = Instrument.load_and_append(instruments)
-            if failed != []:
-                print('WARNING! Following instruments could not be loaded: ', failed)
-            print('============ loading scripts ================')
-            self.scripts, failed, self.instruments = Script.load_and_append(scripts, instruments=self.instruments,
-                                                                  log_function=lambda x: self.log(x, target='script'))
-            if failed != []:
-                print('WARNING! Following scripts could not be loaded: ', failed)
-            print('============ loading probes not implmented ================')
-            # probes = instantiate_probes(probes, instruments)
-            # todo: implement probes
-            self.probes = {}
-            # refresh trees
-            self.refresh_tree(self.tree_scripts, self.scripts)
-            self.refresh_tree(self.tree_settings, self.instruments)
-        else:
-            self.instruments = {}
-            self.probes = {}
-            self.scripts = {}
-
-
-    def save_settings(self, out_file_name):
-        """
-        saves a old_gui settings file (to a json dictionary)
-        - path_to_file: path to file that will contain the dictionary
-        """
-
-
-        print('saving', out_file_name)
-
-        # update the internal dictionaries from the trees in the gui
-        for name, script in self.scripts.iteritems():
-            print('updating ', name)
-            self.update_script_from_tree(script, self.tree_scripts)
-        # for index in range(self.tree_scripts.topLevelItemCount()):
-        #     script = self.tree_scripts.topLevelItem(index)
-        #     self.update_script_from_tree(script)
-
-
-
-
-
-        out_data = {'instruments':{}, 'scripts':{}, 'probes':{}}
-
-        for instrument in self.instruments.itervalues():
-
-            out_data['instruments'].update(instrument.to_dict())
-
-        for script in self.scripts.itervalues():
-            out_data['scripts'].update(script.to_dict())
-
-        for probe in self.probes.itervalues():
-            out_data['probes'].update(probe.to_dict())
-
-        if not os.path.exists(os.path.dirname(out_file_name)):
-            os.makedirs(os.path.dirname(out_file_name))
-
-        with open(out_file_name, 'w') as outfile:
-            tmp = json.dump(out_data, outfile, indent=4)
 
     def update_parameters(self, treeWidget):
 
@@ -664,7 +534,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_start_script.setEnabled(True)
             self.current_script.updateProgress.disconnect(self.update_status)
 
-
     def update_probes(self, progress):
         """
         update the probe monitor tree
@@ -675,7 +544,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         if probe_count > self.tree_monitor.topLevelItemCount():
             # when run for the first time, there are no probes in the tree, so we have to fill it first
-            self.fill_tree(self.tree_monitor, self.read_probes.probes_values)
+            self.fill_treewidget(self.tree_monitor, self.read_probes.probes_values)
         else:
             for x in range(0 , probe_count):
                 topLvlItem = self.tree_monitor.topLevelItem(x)
@@ -695,9 +564,57 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 outfile = open(file_name, 'a')
             outfile.write("{:s}\n".format(",".join(map(str, new_values.values()))))
 
-    def fill_tree(self, tree, parameters):
+    def update_script_from_tree(self, script, tree):
+
+        def update_script_from_item(script, item):
+            # build dictionary
+            # get full information from script
+            dictator = item.to_dict().values()[0]  # there is only one item in the dictionary
+
+            for instrument in script.instruments.keys():
+                # update instrument
+                script.instruments[instrument]['settings'] = dictator[instrument]['settings']
+                # remove instrument
+                del dictator[instrument]
+
+            print('script.scripts.keys()', script.scripts.keys())
+            for sub_script_name in script.scripts.keys():
+
+                items = tree.findItems(sub_script_name, QtCore.Qt.MatchExactly | QtCore.Qt.MatchRecursive)
+                print(len(items), items[0], isinstance(items[0].value, Script))
+                if len(items) == 1 and isinstance(items[0].value, Script):
+                    sub_script_item = items[0]
+                else:
+                    raise ValueError, 'several elements with name ' + sub_script_name
+
+
+                sub_script = script.scripts[sub_script_name]
+
+                # update script
+                print('update subscript', sub_script, sub_script_item)
+                update_script_from_item(sub_script, sub_script_item)
+                # script.scripts[sub_script_name].update(dictator[sub_script_name])
+                # remove script
+                del dictator[sub_script_name]
+
+            script.update(dictator)
+
+        for item in tree.selectedItems():
+            if item.valid_values == type(script) and item.name == script.name:
+                update_script_from_item(script, item)
+
+        # old stuff can be deleted at some point (change may 25th, delete after june 25th)
+        # for index in range(tree.topLevelItemCount()):
+        #     topLvlItem = tree.topLevelItem(index)
+        #
+        #
+        #     if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
+        #
+        #         update_script_from_item(script, topLvlItem)
+
+    def fill_treewidget(self, tree, parameters):
         """
-        fills a tree with nested parameters
+        fills a QTreeWidget with nested parameters, in future replace QTreeWidget with QTreeView and call fill_treeview
         Args:
             tree: QtGui.QTreeWidget
             parameters: dictionary or Parameter object
@@ -715,26 +632,71 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 B26QTreeItem(tree, key, value, type(value), '')
 
-    def refresh_tree(self, tree, items):
+    def fill_treeview(self, tree, input_dict):
         """
-        refresh trees with current settings
+        fills a treeview with nested parameters
         Args:
-            tree:
+            tree: QtGui.QTreeView
+            parameters: dictionary or Parameter object
 
         Returns:
 
         """
-        # refresh trees
 
+        def add_elemet(item, key, value):
+            child_name = QtGui.QStandardItem(key)
+            child_name.setDragEnabled(False)
+            child_name.setSelectable(False)
+            child_name.setEditable(False)
+
+            if isinstance(value, dict):
+                for ket_child, value_child in value.iteritems():
+                    add_elemet(child_name, ket_child, value_child)
+                item.appendRow(child_name)
+            else:
+                child_value = QtGui.QStandardItem(unicode(value))
+                child_value.setDragEnabled(False)
+                child_value.setSelectable(False)
+                child_value.setEditable(False)
+
+                item.appendRow([child_name, child_value])
+        print('input_dict', input_dict)
+        for index, (key, value) in enumerate(input_dict.iteritems()):
+
+            if isinstance(value, dict):
+                item = QtGui.QStandardItem(key)
+                for sub_key, sub_value in value.iteritems():
+                    add_elemet(item, sub_key, sub_value)
+                tree.model().appendRow(item)
+            elif isinstance(value, str):
+                item = QtGui.QStandardItem(key)
+                item_value = QtGui.QStandardItem(value)
+                tree.model().appendRow([item, item_value])
+
+
+            # if tree == self.tree_loaded:
+            #     item.setEditable(False)
+            # tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
+
+    def refresh_tree(self, tree, items):
+        """
+        refresh trees with current settings
+        Args:
+            tree: a QtGui.QTreeWidget object or a QtGui.QTreeView object
+
+        Returns:
+
+        """
 
 
         if tree == self.tree_scripts or tree == self.tree_settings:
             tree.itemChanged.disconnect()
-            self.fill_tree(tree, items)
+            self.fill_treewidget(tree, items)
             tree.itemChanged.connect(lambda: self.update_parameters(tree))
         elif tree == self.tree_dataset:
             self.fill_dataset(tree, self.data_sets)
-
+        elif tree == self.tree_gui_settings:
+            self.fill_treeview(tree, items)
 
     def fill_dataset(self, tree, data_sets):
 
@@ -746,9 +708,98 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             item = QtGui.QStandardItem(time)
             item.appendRow([child_name, child_value])
             items
+    # def save_figure(self, filename):
+    #     self.current_script.fig.savefig(filename, format='jpg')
+
+    def load_settings(self, in_file_name):
+        """
+        loads a old_gui settings file (a json dictionary)
+        - path_to_file: path to file that contains the dictionary
+
+        Returns:
+            - instruments: depth 1 dictionary where keys are instrument names and values are instances of instruments
+            - scripts:  depth 1 dictionary where keys are script names and values are instances of scripts
+            - probes: depth 1 dictionary where to be decided....?
+        """
+
+        self.instruments = {}
+        self.probes = {}
+        self.scripts = {}
+
+        assert os.path.isfile(in_file_name)
+
+        in_data = load_b26_file(in_file_name)
+        assert "gui_settings" in in_data
+        self.gui_settings = in_data['gui_settings']
+        # self.config_file = gui_settings['config_file']
+        # self.path_to_scripts = ""
+        # self.path_to_instruments = ""
+        # self.tmp_folder = ""
+        self.refresh_tree(self.tree_gui_settings, self.gui_settings)
 
 
 
-    def save_figure(self, filename):
-        self.current_script.fig.savefig(filename, format='jpg')
+        if os.path.isfile(self.gui_settings['config_file']):
+            in_data = load_b26_file(self.gui_settings['config_file'])
 
+            instruments = in_data['instruments']
+            scripts = in_data['scripts']
+            probes = in_data['probes']
+
+            print('============ loading instruments ================')
+            self.instruments, failed = Instrument.load_and_append(instruments)
+            if failed != []:
+                print('WARNING! Following instruments could not be loaded: ', failed)
+            print('============ loading scripts ================')
+            self.scripts, failed, self.instruments = Script.load_and_append(scripts, instruments=self.instruments,
+                                                                            log_function=lambda x: self.log(x,
+                                                                                                            target='script'))
+            if failed != []:
+                print('WARNING! Following scripts could not be loaded: ', failed)
+            print('============ loading probes not implmented ================')
+            # probes = instantiate_probes(probes, instruments)
+            # todo: implement probes
+            self.probes = {}
+            # refresh trees
+            self.refresh_tree(self.tree_scripts, self.scripts)
+            self.refresh_tree(self.tree_settings, self.instruments)
+
+
+
+
+    def save_settings(self, out_file_name):
+        """
+        saves a old_gui settings file (to a json dictionary)
+        - path_to_file: path to file that will contain the dictionary
+        """
+
+        print('saving', out_file_name)
+
+        # update the internal dictionaries from the trees in the gui
+        for name, script in self.scripts.iteritems():
+            print('updating ', name)
+            self.update_script_from_tree(script, self.tree_scripts)
+        # for index in range(self.tree_scripts.topLevelItemCount()):
+        #     script = self.tree_scripts.topLevelItem(index)
+        #     self.update_script_from_tree(script)
+
+
+
+
+
+        out_data = {'instruments': {}, 'scripts': {}, 'probes': {}}
+
+        for instrument in self.instruments.itervalues():
+            out_data['instruments'].update(instrument.to_dict())
+
+        for script in self.scripts.itervalues():
+            out_data['scripts'].update(script.to_dict())
+
+        for probe in self.probes.itervalues():
+            out_data['probes'].update(probe.to_dict())
+
+        if not os.path.exists(os.path.dirname(out_file_name)):
+            os.makedirs(os.path.dirname(out_file_name))
+
+        with open(out_file_name, 'w') as outfile:
+            tmp = json.dump(out_data, outfile, indent=4)
