@@ -45,7 +45,7 @@ script to balance photodetector to zero by adjusting polarization controller vol
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
         QThread.__init__(self)
 
-        self._plot_type = 2
+        self._plot_type = 'two'
 
     def _function(self):
         """
@@ -191,7 +191,7 @@ this gives a three dimensional dataset
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
         QThread.__init__(self)
 
-        self._plot_type = 1
+        self._plot_type = 'main'
 
     def _function(self):
         """
@@ -447,7 +447,7 @@ this gives a one dimensional dataset
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
         QThread.__init__(self)
 
-        self._plot_type = 1
+        self._plot_type = 'main'
 
     def _function(self):
         """

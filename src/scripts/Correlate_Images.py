@@ -43,7 +43,7 @@ class Correlate_Images(Script, QThread):
         #forward the galvo scan progress to the top layer
         self.scripts['GalvoScan'].updateProgress.connect(lambda x: self.updateProgress.emit(x/2))
 
-        self._plot_type = 2
+        self._plot_type = 'two'
 
     def _function(self):
         """

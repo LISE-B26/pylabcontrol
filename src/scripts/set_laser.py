@@ -40,7 +40,7 @@ class SetLaser(Script):
         """
         Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
 
-        self._plot_type = 1
+        self._plot_type = 'main'
 
     def _function(self):
         """
