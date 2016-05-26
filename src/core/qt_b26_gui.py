@@ -525,8 +525,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
             self.matplotlibwidget.draw()
             self.matplotlibwidget_2.draw()
+        elif script.plot_type == 'none':
+            pass
         else:
-            message = 'property plot_type not correct for this script!'
+            message = 'property plot_type = {:s} not correct for this script ({:s})!'.format(str(script.plot_type), script.name)
             raise AttributeError(message)
 
         if progress == 100:

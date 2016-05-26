@@ -328,6 +328,11 @@ class Script(object):
         if filename is None:
             filename = self.filename('.csv')
 
+        filename = os.path.join(os.path.join(os.path.dirname(filename),'raw_data'), os.path.basename(filename))
+
+        if not os.path.exists(os.path.dirname(filename)):
+            os.makedirs(os.path.dirname(filename))
+
         # if deque object, take the last dataset, which is the most recent
         if isinstance(self.data, deque):
             data = self.data[-1]
@@ -345,25 +350,20 @@ class Script(object):
             df.to_csv(filename, index=False)
 
         else:
-            # otherwise, we write each entry into a separate file into a subfolder data
+            # otherwise, we write each entry into a separate file
             for key, value in data.iteritems():
                 if len(value) == 0:
                     df = pd.DataFrame([value])
                 else:
                     df = pd.DataFrame(value)
 
-                filename_new = os.path.join(os.path.dirname(filename),
-                      os.path.basename(filename).replace('.csv', '-{:s}.csv'.format(key)))
-
+                # filename_new = os.path.join(os.path.dirname(filename),
+                #       os.path.basename(filename).replace('.csv', '-{:s}.csv'.format(key)))
+                #
                 # if not os.path.exists(os.path.dirname(filename_new)):
                 #     os.makedirs(os.path.dirname(filename_new))
-                #
-                # df.to_csv(filename_new, index=False)
 
-                if not os.path.exists(os.path.dirname(filename_new)):
-                    os.makedirs(os.path.dirname(filename_new))
-
-                df.to_csv(filename_new, index=False)
+                df.to_csv(filename.replace('.csv', '-{:s}.csv'.format(key)), index=False)
 
     def save_log(self, filename = None):
         """
