@@ -32,7 +32,7 @@ To select points, first run subscript Select_NVs_Simple
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
 
-    def __init__(self, instruments = None, scripts = None, name = None, settings = None, log_function = None):
+    def __init__(self, instruments = None, scripts = None, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
@@ -41,7 +41,7 @@ To select points, first run subscript Select_NVs_Simple
         """
         self._abort = False
 
-        Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function)
+        Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
 
         QThread.__init__(self)
 

@@ -31,7 +31,7 @@ class Focusing(Script, QThread):
 
     updateProgress = Signal(int)
 
-    def __init__(self, instruments, scripts, name = None, settings = None, log_function = None):
+    def __init__(self, instruments, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
@@ -40,7 +40,7 @@ class Focusing(Script, QThread):
         """
         assert (self.settings['min_z'] >= 1 and self.settings['max_z'] <= 99)
 
-        Script.__init__(self, name, settings = settings, scripts =scripts, instruments = instruments, log_function= log_function)
+        Script.__init__(self, name, settings = settings, scripts =scripts, instruments = instruments, log_function= log_function, data_path = data_path)
 
         volt_range = np.linspace(self.settings['min_z'], self.settings['max_z'], self.settings['num_points_z'])
 

@@ -13,7 +13,7 @@ class CameraOn(Script):
     }
     _SCRIPTS = {}
 
-    def __init__(self, instruments, name = None, settings = None, log_function = None):
+    def __init__(self, instruments, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that makes use of an instrument
         Args:
@@ -23,7 +23,7 @@ class CameraOn(Script):
         """
 
         # call init of superclass
-        Script.__init__(self, name, settings, instruments, log_function= log_function)
+        Script.__init__(self, name, settings, instruments, log_function= log_function, data_path = data_path)
 
     def _function(self):
         """

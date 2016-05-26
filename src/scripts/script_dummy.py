@@ -29,14 +29,14 @@ class ScriptDummy(Script):
     _INSTRUMENTS = {}
     _SCRIPTS = {}
 
-    def __init__(self, name=None, settings=None, log_function = None):
+    def __init__(self, name=None, settings=None, log_function = None, data_path = None):
         """
         Example of a script
         Args:
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        Script.__init__(self, name, settings, log_function= log_function)
+        Script.__init__(self, name, settings, log_function= log_function, data_path = data_path)
 
 
     def _function(self):
@@ -83,14 +83,14 @@ class ScriptDummyWithQtSignal(Script, QThread):
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
     updateProgress = Signal(int)
-    def __init__(self, name = None, settings = None, log_function = None):
+    def __init__(self, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        Script.__init__(self, name, settings, log_function= log_function)
+        Script.__init__(self, name, settings, log_function= log_function, data_path = data_path)
         # QtCore.QThread.__init__(self)
         QThread.__init__(self)
 
@@ -138,7 +138,7 @@ class ScriptDummyWithInstrument(Script):
     }
     _SCRIPTS = {}
 
-    def __init__(self, instruments, name = None, settings = None, log_function = None):
+    def __init__(self, instruments, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that makes use of an instrument
         Args:
@@ -148,7 +148,7 @@ class ScriptDummyWithInstrument(Script):
         """
 
         # call init of superclass
-        Script.__init__(self, name, settings, instruments, log_function= log_function)
+        Script.__init__(self, name, settings, instruments, log_function= log_function, data_path = data_path)
 
     def _function(self):
         """
@@ -189,7 +189,7 @@ class ScriptDummyWithSubScript(Script):
     _INSTRUMENTS = {}
     _SCRIPTS = {'sub_script':ScriptDummy}
 
-    def __init__(self, scripts, name = None, settings = None, log_function = None):
+    def __init__(self, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that makes use of an instrument
         Args:
@@ -199,7 +199,7 @@ class ScriptDummyWithSubScript(Script):
         """
 
         # call init of superclass
-        Script.__init__(self, name, settings, scripts = scripts, log_function= log_function)
+        Script.__init__(self, name, settings, scripts = scripts, log_function= log_function, data_path = data_path)
 
     def _function(self):
         """
@@ -234,14 +234,14 @@ This Dummy script is used to test saving of data, it takes a data set as input a
     _INSTRUMENTS = {}
     _SCRIPTS = {}
 
-    def __init__(self, name=None, settings=None, log_function = None, data = None):
+    def __init__(self, name=None, settings=None, log_function = None, data = None, data_path = None):
         """
         Example of a script
         Args:
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        Script.__init__(self, name, settings, log_function= log_function)
+        Script.__init__(self, name, settings, log_function= log_function, data_path = data_path)
         if data is None:
             self.data = {}
         else:

@@ -17,14 +17,14 @@ class Center_On_NVs(Script):
     _INSTRUMENTS = {}
     _SCRIPTS = {'GalvoScan': GalvoScan}
 
-    def __init__(self, instruments = None, name = None, settings = None, scripts = None, log_function = None):
+    def __init__(self, instruments = None, name = None, settings = None, scripts = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function)
+        Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
 
 
     def _function(self):

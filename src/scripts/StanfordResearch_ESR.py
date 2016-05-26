@@ -44,7 +44,7 @@ class StanfordResearch_ESR(Script, QThread):
     }
     updateProgress = Signal(int)
 
-    def __init__(self, instruments, scripts = None, name=None, settings=None, log_function=None):
+    def __init__(self, instruments, scripts = None, name=None, settings=None, log_function=None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
         Args:
@@ -52,7 +52,7 @@ class StanfordResearch_ESR(Script, QThread):
             settings (optional): settings for this script, if empty same as default settings
         """
         self._abort = False
-        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function)
+        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
         QThread.__init__(self)
         self._plot_type = 'aux'
 
