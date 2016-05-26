@@ -306,6 +306,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if item is not None:
                 script, path_to_script = item.get_script()
                 self.update_script_from_tree(script, self.tree_scripts)
+                script.data_path = self.gui_settings['data_folder']
                 self.log('starting {:s}'.format(script.name))
                 # is the script is not a QThread object we use the wrapper QtSCript
                 # to but it on a separate thread such that the gui remains responsive

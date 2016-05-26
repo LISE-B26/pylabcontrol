@@ -60,9 +60,6 @@ class Script(object):
             assert isinstance(instruments, dict)
             assert set(self._INSTRUMENTS.keys()) <= set(instruments.keys())
 
-        # check is path is a valid path string
-        if data_path is not None:
-            assert os.path.isabs(data_path)
         self.data_path = data_path
 
         self.instruments = {key: instruments[key] for key, value in self._INSTRUMENTS.iteritems()}
@@ -92,6 +89,16 @@ class Script(object):
 
         # default value is 'none', overwrite this in script if it has plotting capabilities
         self._plot_type = 'none'
+
+    @property
+    def data_path(self):
+        return self._data_path
+    @data_path.setter
+    def data_path(self, path):
+        # check is path is a valid path string
+        if path is not None:
+            assert os.path.isabs(path)
+        self._data_path = path
 
 
     # @abstractmethod
