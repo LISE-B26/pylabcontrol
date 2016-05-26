@@ -259,10 +259,10 @@ maestro light controller
         Parameter('filter wheel', [
             Parameter('channel', 1, int, 'channel to which motor is connected'),
             Parameter('settle_time', 0.8, float, 'settling time'),
-            Parameter('ND2.0', 4 * 2700, int, 'position corresponding to position 1'),
-            Parameter('ND1.0', 4 * 1700, int, 'position corresponding to position 2'),
-            Parameter('Red', 4 * 750, int, 'position corresponding to position 3'),
-            Parameter('current_position', 'ND1.0', ['ND1.0', 'ND2.0', 'Red'],
+            Parameter('ND2.0_position', 4 * 2700, int, 'position corresponding to position 1'),
+            Parameter('ND1.0_position', 4 * 1700, int, 'position corresponding to position 2'),
+            Parameter('red_filter_position', 4 * 750, int, 'position corresponding to position 3'),
+            Parameter('current_position', 'ND1.0', ['ND1.0', 'ND2.0', 'red_filter'],
                       'current position of filter wheel')
         ])
     ])
@@ -286,7 +286,7 @@ maestro light controller
                 self.goto(channel, position, settle_time)
             elif key in ['filter wheel']:
                 channel = self.settings[key]['channel']
-                position = self.settings[key][self.settings[key]['current_position']]
+                position = self.settings[key][self.settings[key]['current_position'] + '_position']
                 settle_time = self.settings[key]['settle_time']
                 self.goto(channel, position, settle_time)
     def goto(self, channel, position, settle_time):
