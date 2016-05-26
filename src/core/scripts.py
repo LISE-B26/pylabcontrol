@@ -545,17 +545,13 @@ class Script(object):
                     else:
                         data.update({time_tag: {data_name: df}})
 
-
-
-
-
-        if time_tag_in != None:
+        if time_tag_in:
             # if user specifies a time_tag we only return that specific data set
             if data_name_in ==None:
                 data = data[time_tag_in]
             else:
                 data = data[time_tag_in][data_name_in]
-        elif data_name_in != None:
+        elif data_name_in:
             # return data of last data set
             #todo: current broken, need to fix
             #data = data[sorted(data.keys())[-1]][data_name_in]
@@ -568,7 +564,7 @@ class Script(object):
                 except KeyError:
                     print('key_error')
                     continue
-            if type(data) == dict and data.empty():
+            if type(data) == dict and not data:
                 raise ValueError('Could not find a file with this name at any time_tag')
 
 

@@ -111,6 +111,7 @@ class Find_Points(Script):
             coordinates[index] = [xcoor, ycoor]
 
         self.data = {'NV_positions':coordinates, 'image':image_data, 'image_gaussian':image_gaussian}
+
         #self.save_data()
 
     def plot(self, axes):
