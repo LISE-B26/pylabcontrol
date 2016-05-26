@@ -157,7 +157,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.instruments = {}
             self.scripts = {}
             self.probes = {}
-            self.data_sets = deque()
+
+        self.data_sets = deque() # todo: load datasets from tmp folder
         self.read_probes = ReadProbes(self.probes)
 
     def closeEvent(self, event):
@@ -342,6 +343,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if item is not None:
                 script, path_to_script = item.get_script()
                 self.data_sets.append(script)
+                self.fill_dataset_tree(self.tree_dataset, self.data_sets)
 
         if sender is self.btn_start_script:
             start_button()
@@ -742,21 +744,23 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             tree.itemChanged.disconnect()
             self.fill_treewidget(tree, items)
             tree.itemChanged.connect(lambda: self.update_parameters(tree))
-        elif tree == self.tree_dataset:
-            self.fill_dataset(tree, self.data_sets)
+        # elif tree == self.tree_dataset:
+        #     self.fill_dataset(tree, self.data_sets)
         elif tree == self.tree_gui_settings:
             self.fill_treeview(tree, items)
 
-    def fill_dataset(self, tree, data_sets):
+    def fill_dataset_tree(self, tree, data_sets):
 
+        tree.model().removeRows(0, tree.model().rowCount())
         for script in self.data_sets:
-            time = script.start_time
+            time = script.start_time.strftime('%y%m%d-%H_%M_%S')
             name = script.settings['tag']
             type = script.name
 
-            item = QtGui.QStandardItem(time)
-            item.appendRow([child_name, child_value])
-            items
+            item_time = QtGui.QStandardItem(time)
+            item_name = QtGui.QStandardItem(name)
+            item_type = QtGui.QStandardItem(type)
+            tree.model().appendRow([item_time, item_name, item_type])
 
     def load_config(self, file_name):
         assert os.path.isfile(file_name)
