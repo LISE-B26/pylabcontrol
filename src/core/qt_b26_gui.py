@@ -70,19 +70,20 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.list_history.setModel(self.history_model)
             self.list_history.show()
 
-            self.tree_settings.setColumnWidth(0, 400)
-
-            self.tree_scripts.setColumnWidth(0, 300)
+            # self.tree_settings.setColumnWidth(0, 400)
+            #
+            # self.tree_scripts.setColumnWidth(0, 300)
             self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
-            self.tree_monitor.setColumnWidth(0, 300)
+            # self.tree_monitor.setColumnWidth(0, 300)
             self.tree_monitor.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
-            self.tree_dataset.setColumnWidth(0, 100)
+            # self.tree_dataset.setColumnWidth(0, 100)
             self.tree_dataset.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
-            self.tree_gui_settings.setColumnWidth(0, 500)
+            # self.tree_gui_settings.setColumnWidth(0, 500)
             self.tree_gui_settings.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            self.tree_gui_settings.doubleClicked.connect(self.edit_tree_item)
 
             self.current_script = None
             self.probe_to_plot = None
@@ -96,6 +97,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_gui_settings_model = QtGui.QStandardItemModel()
             self.tree_gui_settings.setModel(self.tree_gui_settings_model)
             self.tree_gui_settings_model.setHorizontalHeaderLabels(['parameter', 'value'])
+
+
 
         def connect_controls():
             # =============================================================
@@ -147,7 +150,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         connect_controls()
 
         if filename is not None:
-            self.load_settings(filename)
+            self.config_filename = filename
+            self.load_config(self.config_filename)
+            self.load_settings(os.path.join(self.gui_settings['tmp_folder'],'gui_settings.b26'))
         else:
             self.instruments = {}
             self.scripts = {}
@@ -157,10 +162,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def closeEvent(self, event):
 
-        fname = 'c:\\b26_tmp\\gui_settings.b26'
+        print('AAA', self.gui_settings)
+        fname =  os.path.join(self.gui_settings['tmp_folder'],'gui_settings.b26')
         print('save settings to {:s}'.format(fname))
-
         self.save_settings(fname)
+
+        fname =  self.config_filename
+        print('save config to {:s}'.format(fname))
+        self.save_config(fname)
 
         event.accept()
 
@@ -354,11 +363,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.log('Can\'t plot, No probe selected. Select probe and try again!')
         elif sender is self.btn_save_gui:
             # get filename
-            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save gui settings to file', 'Z:\\Lab\\Cantilever\\Measurements')# filter = '.b26gui'
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save gui settings to file', self.gui_settings['data_folder']) # filter = '.b26gui'
             self.save_settings(fname)
         elif sender is self.btn_load_gui:
             # get filename
-            fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file', 'Z:\\Lab\\Cantilever\\Measurements')
+            fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file',  self.gui_settings['data_folder'])
             self.load_settings(fname)
         elif sender is self.btn_about:
             msg = QtGui.QMessageBox()
@@ -644,12 +653,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns:
 
         """
-
+        # tree.model().clear()
+        tree.model().removeRows(0, tree.model().rowCount())
         def add_elemet(item, key, value):
             child_name = QtGui.QStandardItem(key)
-            child_name.setDragEnabled(False)
-            child_name.setSelectable(False)
-            child_name.setEditable(False)
+            # child_name.setDragEnabled(False)
+            # child_name.setSelectable(False)
+            # child_name.setEditable(False)
 
             if isinstance(value, dict):
                 for key_child, value_child in value.iteritems():
@@ -657,12 +667,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 item.appendRow(child_name)
             else:
                 child_value = QtGui.QStandardItem(unicode(value))
-                child_value.setDragEnabled(False)
-                child_value.setSelectable(False)
-                child_value.setEditable(False)
+                # child_value.setDragEnabled(False)
+                # child_value.setSelectable(False)
+                # child_value.setEditable(False)
 
                 item.appendRow([child_name, child_value])
-        print('input_dict', input_dict)
+
         for index, (key, value) in enumerate(input_dict.iteritems()):
 
             if isinstance(value, dict):
@@ -674,16 +684,47 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 item = QtGui.QStandardItem(key)
                 # item.setEditable(False)
                 item_value = QtGui.QStandardItem(value)
-                if key == "config_file":
-                    print(key, value)
+                # if key == "settings_file":
+                    # print('aaa', key, value)
                 item_value.setEditable(True)
-                print(key, value)
+                item_value.setSelectable(True)
                 tree.model().appendRow([item, item_value])
 
 
             # if tree == self.tree_loaded:
             #     item.setEditable(False)
             # tree.setFirstColumnSpanned(index, tree.rootIndex(), True)
+
+    def edit_tree_item(self):
+
+        def open_path_dialog(path):
+            """
+            opens a file dialog to get the path to a file and
+            """
+            dialog = QtGui.QFileDialog()
+            dialog.setFileMode(QtGui.QFileDialog.Directory)
+            dialog.setOption(QtGui.QFileDialog.ShowDirsOnly, True)
+            path = dialog.getExistingDirectory(self, 'Select a folder:', path)
+
+            return path
+
+        tree = self.sender()
+        print()
+        if tree == self.tree_gui_settings:
+
+            index = tree.selectedIndexes()[0]
+            model = index.model()
+
+            if index.column() == 1:
+                path = model.itemFromIndex(index).text()
+                path = str(open_path_dialog(path))
+
+                key = str(model.itemFromIndex(model.index(index.row(), 0)).text())
+
+                if path != "":
+                    self.gui_settings.update({key:path})
+                    self.fill_treeview(tree, self.gui_settings)
+
 
     def refresh_tree(self, tree, items):
         """
@@ -716,6 +757,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             item.appendRow([child_name, child_value])
             items
 
+    def load_config(self, file_name):
+        assert os.path.isfile(file_name)
+
+        in_data = load_b26_file(file_name)
+        assert "gui_settings" in in_data
+        self.gui_settings = in_data['gui_settings']
+
+        self.refresh_tree(self.tree_gui_settings, self.gui_settings)
+
     def load_settings(self, in_file_name):
         """
         loads a old_gui settings file (a json dictionary)
@@ -733,19 +783,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         assert os.path.isfile(in_file_name)
 
-        in_data = load_b26_file(in_file_name)
-        assert "gui_settings" in in_data
-        self.gui_settings = in_data['gui_settings']
-        # self.config_file = gui_settings['config_file']
-        # self.path_to_scripts = ""
-        # self.path_to_instruments = ""
-        # self.tmp_folder = ""
-        self.refresh_tree(self.tree_gui_settings, self.gui_settings)
 
 
-
-        if os.path.isfile(self.gui_settings['config_file']):
-            in_data = load_b26_file(self.gui_settings['config_file'])
+        if os.path.isfile(in_file_name):
+            in_data = load_b26_file(in_file_name)
 
             instruments = in_data['instruments']
             scripts = in_data['scripts']
@@ -762,8 +803,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 log_function=self.log,
                 data_path=self.gui_settings['data_folder'])
 
-            # self.scripts, failed, self.instruments = Script.load_and_append(scripts, instruments=self.instruments,
-            #                                                                 log_function=lambda x: self.log(x,target='script'))
             if failed != []:
                 print('WARNING! Following scripts could not be loaded: ', failed)
             print('============ loading probes not implmented ================')
@@ -786,13 +825,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         for name, script in self.scripts.iteritems():
             print('updating ', name)
             self.update_script_from_tree(script, self.tree_scripts)
-        # for index in range(self.tree_scripts.topLevelItemCount()):
-        #     script = self.tree_scripts.topLevelItem(index)
-        #     self.update_script_from_tree(script)
-
-
-
-
 
         out_data = {'instruments': {}, 'scripts': {}, 'probes': {}}
 
@@ -810,3 +842,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         with open(out_file_name, 'w') as outfile:
             tmp = json.dump(out_data, outfile, indent=4)
+
+    def save_config(self, out_file_name):
+        """
+        saves gui configuration to out_file_name
+        Args:
+            out_file_name: name of file
+        """
+        if not os.path.exists(os.path.dirname(out_file_name)):
+            os.makedirs(os.path.dirname(out_file_name))
+
+        with open(out_file_name, 'w') as outfile:
+            tmp = json.dump({"gui_settings":self.gui_settings}, outfile, indent=4)
