@@ -48,7 +48,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>3</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_scripts">
            <attribute name="title">
@@ -503,7 +503,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
@@ -520,13 +520,16 @@
               <property name="alternatingRowColors">
                <bool>true</bool>
               </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
            </layout>
           </widget>
           <widget class="QWidget" name="tab_settings">
            <attribute name="title">
-            <string>Settings</string>
+            <string>GUI Configuration</string>
            </attribute>
            <widget class="QWidget" name="horizontalLayoutWidget_3">
             <property name="geometry">

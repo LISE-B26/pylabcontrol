@@ -129,7 +129,7 @@ class ESR_Selected_NVs(Script, QThread):
         plot_fluorescence(image, extend, axes_Image)
 
         if self.isRunning():
-            patch = patches.Circle((self.cur_pt[0], self.cur_pt[1]), .0005, fc='b')
+            patch = patches.Circle((self.cur_pt[0], self.cur_pt[1]), .0005, fc='b', alpha=.75)
             axes_Image.add_patch(patch)
         else:
             for pt in self.nv_locs:

@@ -344,7 +344,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.btn_start_script.setEnabled(False)
                 script.start()
             else:
-                self.log('No script selected. Select script and try again!')
+                self.log('User stupidly tried to run a script without one selected.')
 
         def stop_button():
             if self.current_script is not None and self.current_script.isRunning():
@@ -621,12 +621,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if isinstance(script, QThreadWrapper):
             script = script.script
 
-        if (len(self.matplotlibwidget.figure.axes) > 1):
-            self.matplotlibwidget.figure.delaxes(self.matplotlibwidget.figure.axes[1])
-            self.matplotlibwidget.axes.change_geometry(1, 1, 1)
-        if (len(self.matplotlibwidget_2.figure.axes) > 1):
-            self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
-            self.matplotlibwidget_2.axes.change_geometry(1, 1, 1)
+        #if (len(self.matplotlibwidget.figure.axes) > 1):
+        #    self.matplotlibwidget.figure.delaxes(self.matplotlibwidget.figure.axes[1])
+        #    self.matplotlibwidget.axes.change_geometry(1, 1, 1)
+        #if (len(self.matplotlibwidget_2.figure.axes) > 1):
+        #    self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
+        #    self.matplotlibwidget_2.axes.change_geometry(1, 1, 1)
 
         if script.plot_type == 'main':
             script.plot(self.matplotlibwidget.axes)
