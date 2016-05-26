@@ -70,21 +70,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.list_history.setModel(self.history_model)
             self.list_history.show()
 
-            # fill the trees
-            # self.fill_tree(self.tree_settings, self.instruments)
-            self.tree_settings.setColumnWidth(0, 300)
+            self.tree_settings.setColumnWidth(0, 400)
 
-            # self.fill_tree(self.tree_scripts, self.scripts)
             self.tree_scripts.setColumnWidth(0, 300)
             self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
-            # self.fill_tree(self.tree_monitor, self.probes)
             self.tree_monitor.setColumnWidth(0, 300)
             self.tree_monitor.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-            # self.tree_monitor.setDisabled(True)
 
             self.tree_dataset.setColumnWidth(0, 100)
             self.tree_dataset.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+
+            self.tree_gui_settings.setColumnWidth(0, 500)
+            self.tree_gui_settings.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
             self.current_script = None
             self.probe_to_plot = None
@@ -658,8 +656,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             child_name.setEditable(False)
 
             if isinstance(value, dict):
-                for ket_child, value_child in value.iteritems():
-                    add_elemet(child_name, ket_child, value_child)
+                for key_child, value_child in value.iteritems():
+                    add_elemet(child_name, key_child, value_child)
                 item.appendRow(child_name)
             else:
                 child_value = QtGui.QStandardItem(unicode(value))
@@ -678,13 +676,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 tree.model().appendRow(item)
             elif isinstance(value, str):
                 item = QtGui.QStandardItem(key)
+                # item.setEditable(False)
                 item_value = QtGui.QStandardItem(value)
+                if key == "config_file":
+                    print(key, value)
+                item_value.setEditable(True)
+                print(key, value)
                 tree.model().appendRow([item, item_value])
 
 
             # if tree == self.tree_loaded:
             #     item.setEditable(False)
-            # tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
+            # tree.setFirstColumnSpanned(index, tree.rootIndex(), True)
 
     def refresh_tree(self, tree, items):
         """
@@ -771,9 +774,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # refresh trees
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
-
-
-
 
     def save_settings(self, out_file_name):
         """

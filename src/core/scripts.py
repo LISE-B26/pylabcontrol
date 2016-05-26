@@ -39,7 +39,7 @@ class Script(object):
     # ======= Following old_functions are generic ================================================
     # ========================================================================================
 
-    def __init__(self, name = None, settings = None, instruments = None, scripts = None, log_output = None):
+    def __init__(self, name = None, settings = None, instruments = None, scripts = None, log_output = None, data_path = None):
         """
         executes scripts and stores script parameters and settings
         Args:
@@ -59,6 +59,12 @@ class Script(object):
         else:
             assert isinstance(instruments, dict)
             assert set(self._INSTRUMENTS.keys()) <= set(instruments.keys())
+
+        # check is path is a valid path string
+        if data_path is not None:
+            assert os.path.isabs(data_path)
+        self.data_path = data_path
+
         self.instruments = {key: instruments[key] for key, value in self._INSTRUMENTS.iteritems()}
 
         self._scripts = {}
@@ -276,25 +282,23 @@ class Script(object):
         Returns: filename
 
         """
-        path = self.settings['path']
+
+        # if provided path is a relative path and self.data_path exists, build path
+        if os.path.isabs(self.settings['path']) == False and self.data_path is not None:
+            path = os.path.join(self.data_path, self.settings['path'])
+        else:
+            path = self.settings['path']
+
         tag = self.settings['tag']
 
-        filename = "{:s}\\{:s}_{:s}".format(
-            path,
-            self.start_time.strftime('%y%m%d-%H_%M_%S'),
-            tag
-        )
+        filename = os.path.join(path, "{:s}_{:s}".format(self.start_time.strftime('%y%m%d-%H_%M_%S'),tag))
+
         if os.path.exists(filename) == False:
             os.makedirs(filename)
 
         if appendix is not None:
+            filename = os.path.join(filename,  "{:s}_{:s}{:s}".format(self.start_time.strftime('%y%m%d-%H_%M_%S'),tag,appendix))
 
-            filename = "{:s}\\{:s}_{:s}{:s}".format(
-                filename,
-                self.start_time.strftime('%y%m%d-%H_%M_%S'),
-                tag,
-                appendix
-            )
         return filename
 
     def save_data(self, filename = None):
