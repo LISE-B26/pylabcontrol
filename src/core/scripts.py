@@ -88,7 +88,7 @@ class Script(object):
         # a log for status outputs
         self.log_data = deque()
         # this can be overwritten
-        self.log_output = log_function
+        self.log_function = log_function
 
         # default value is 'none', overwrite this in script if it has plotting capabilities
         self._plot_type = 'none'
@@ -105,16 +105,16 @@ class Script(object):
 
     def log(self, string):
         """
-        appends input string to log file and sends it to log function (self.log_output)
+        appends input string to log file and sends it to log function (self.log_function)
         Returns:
 
         """
 
         self.log_data.append(string)
-        if self.log_output is None:
+        if self.log_function is None:
             print(string)
         else:
-            self.log_output(string)
+            self.log_function(string)
 
     @property
     def _DEFAULT_SETTINGS(self):
@@ -781,7 +781,7 @@ class Script(object):
                 if script_settings != {}:
                     class_creation_string += ', settings = script_settings'
                 if log_function is not None:
-                    class_creation_string += ', log_output = log_function'
+                    class_creation_string += ', log_function = log_function'
                 if data_path is not None:
                     class_creation_string += ', data_path = data_path'
                 class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
