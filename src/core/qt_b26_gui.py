@@ -308,10 +308,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 script.updateProgress.connect(self.update_status)
 
-                print('script: ', script)
-                if hasattr(script, 'saveFigure'):
-                    script.saveFigure.connect(self.save_figure)
-
                 self.current_script = script
                 self.btn_start_script.setEnabled(False)
 
@@ -719,8 +715,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             item = QtGui.QStandardItem(time)
             item.appendRow([child_name, child_value])
             items
-    # def save_figure(self, filename):
-    #     self.current_script.fig.savefig(filename, format='jpg')
 
     def load_settings(self, in_file_name):
         """
