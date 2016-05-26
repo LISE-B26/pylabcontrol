@@ -16,7 +16,7 @@ from src.core import LoadDialog
 from copy import deepcopy
 import datetime
 from collections import deque
-
+import time
 # from src.core import instantiate_probes
 
 #from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, StanfordResearch_ESR, Find_Points, Select_NVs, ESR_Selected_NVs
@@ -25,7 +25,7 @@ from collections import deque
 from src.scripts.galvo_scan import GalvoScan
 from src.scripts.StanfordResearch_ESR import StanfordResearch_ESR
 from src.scripts.Find_Points import Find_Points
-from src.scripts.Select_NVs import Select_NVs
+from src.scripts.Select_NVs import Select_NVs, Select_NVs_Simple
 from src.scripts.ESR_Selected_NVs import ESR_Selected_NVs
 
 from src.core.plotting import plot_psd
@@ -64,44 +64,37 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
 
-        # self.read_probes.updateProgress.connect(self.update_probes)
+        def setup_trees():
 
-        # define data container
-        self.history = deque(maxlen=500)  # history of executed commands
-        self.history_model = QtGui.QStandardItemModel(self.list_history)
-        self.list_history.setModel(self.history_model)
-        self.list_history.show()
+            # define data container
+            self.history = deque(maxlen=500)  # history of executed commands
+            self.history_model = QtGui.QStandardItemModel(self.list_history)
+            self.list_history.setModel(self.history_model)
+            self.list_history.show()
 
-        # self.script_model = QtGui.QStandardItemModel(self.list_scripts)
-        # self.list_scripts.setModel(self.script_model)
-        # self.list_scripts.show()
+            # fill the trees
+            # self.fill_tree(self.tree_settings, self.instruments)
+            self.tree_settings.setColumnWidth(0, 300)
 
-        # fill the trees
-        # self.fill_tree(self.tree_settings, self.instruments)
-        self.tree_settings.setColumnWidth(0, 300)
+            # self.fill_tree(self.tree_scripts, self.scripts)
+            self.tree_scripts.setColumnWidth(0, 300)
+            self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
-        # self.fill_tree(self.tree_scripts, self.scripts)
-        self.tree_scripts.setColumnWidth(0, 300)
-        self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            # self.fill_tree(self.tree_monitor, self.probes)
+            self.tree_monitor.setColumnWidth(0, 300)
+            self.tree_monitor.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            # self.tree_monitor.setDisabled(True)
 
-        # self.fill_tree(self.tree_monitor, self.probes)
-        self.tree_monitor.setColumnWidth(0, 300)
-        self.tree_monitor.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        # self.tree_monitor.setDisabled(True)
+            self.tree_dataset.setColumnWidth(0, 100)
+            self.tree_dataset.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
-        self.tree_dataset.setColumnWidth(0, 100)
-        self.tree_dataset.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            self.current_script = None
+            self.probe_to_plot = None
 
-        self.current_script = None
-        self.probe_to_plot = None
-
-        self.path_to_scripts = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts\\"
-        self.path_to_instruments = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments\\"
-
-        # create models for tree structures, the models reflect the data
-        self.tree_dataset_model = QtGui.QStandardItemModel()
-        self.tree_dataset.setModel(self.tree_dataset_model)
-        self.tree_dataset_model.setHorizontalHeaderLabels(['time', 'name (tag)', 'type (script)'])
+            # create models for tree structures, the models reflect the data
+            self.tree_dataset_model = QtGui.QStandardItemModel()
+            self.tree_dataset.setModel(self.tree_dataset_model)
+            self.tree_dataset_model.setHorizontalHeaderLabels(['time', 'name (tag)', 'type (script)'])
 
         def connect_controls():
             # =============================================================
@@ -146,6 +139,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # plots
             self.matplotlibwidget.mpl_connect('button_press_event',  self.plot_clicked)
             self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_clicked)
+
+
+
+        self.path_to_scripts = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts\\"
+        self.path_to_instruments = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments\\"
+
+        setup_trees()
 
         connect_controls()
 
@@ -213,7 +213,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def plot_clicked(self, mouse_event):
 
-        if isinstance(self.current_script, Select_NVs) and self.current_script.isRunning:
+        if isinstance(self.current_script, (Select_NVs, Select_NVs_Simple)) and self.current_script.isRunning:
             if (not (mouse_event.xdata == None)):
                 if (mouse_event.button == 1):
                     pt = np.array([mouse_event.xdata, mouse_event.ydata])
@@ -263,7 +263,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.history_model.insertRow(0,QtGui.QStandardItem(msg))
 
     def update_script_from_tree(self, script, tree):
-        print('tree', tree)
 
         def update_script_from_item(script, item):
             # build dictionary
@@ -276,6 +275,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # remove instrument
                 del dictator[instrument]
 
+            print('script.scripts.keys()', script.scripts.keys())
             for sub_script_name in script.scripts.keys():
 
                 items = tree.findItems(sub_script_name, QtCore.Qt.MatchExactly | QtCore.Qt.MatchRecursive)
@@ -297,22 +297,61 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             script.update(dictator)
 
+        for item in tree.selectedItems():
+            if item.valid_values == type(script) and item.name == script.name:
+                update_script_from_item(script, item)
 
-        for index in range(tree.topLevelItemCount()):
-            topLvlItem = tree.topLevelItem(index)
-
-
-            if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
-
-                update_script_from_item(script, topLvlItem)
+        # old stuff can be deleted at some point (change may 25th, delete after june 25th)
+        # for index in range(tree.topLevelItemCount()):
+        #     topLvlItem = tree.topLevelItem(index)
+        #
+        #
+        #     if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
+        #
+        #         update_script_from_item(script, topLvlItem)
 
     def btn_clicked(self):
         sender = self.sender()
         self.probe_to_plot = None
 
         def start_button():
-            pass
+            item = self.tree_scripts.currentItem()
+            self.script_start_time = datetime.datetime.now()
 
+            # delete colorbar if it exists, as it is a separate plot and will not properly be overwritten by some plots
+            if (len(self.matplotlibwidget.figure.axes) > 1):
+                self.matplotlibwidget.figure.delaxes(self.matplotlibwidget.figure.axes[1])
+                self.matplotlibwidget.axes.change_geometry(1, 1, 1)
+            if (len(self.matplotlibwidget_2.figure.axes) > 1):
+                self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
+                self.matplotlibwidget_2.axes.change_geometry(1, 1, 1)
+
+            if item is not None:
+                script, path_to_script = item.get_script()
+                self.update_script_from_tree(script, self.tree_scripts)
+                self.log('start {:s}'.format(script.name))
+                # is the script is not a QThread object we use the wrapper QtSCript
+                # to but it on a separate thread such that the gui remains responsive
+                if not isinstance(script, QThread):
+                    script = QThreadWrapper(script)
+
+                script.updateProgress.connect(self.update_status)
+                print('script: ', script)
+                if hasattr(script, 'saveFigure'):
+                    script.saveFigure.connect(self.save_figure)
+
+                self.current_script = script
+                self.btn_start_script.setEnabled(False)
+                script.start()
+            else:
+                self.log('User stupidly tried to run a script without one selected.')
+
+        def stop_button():
+            if self.current_script is not None and self.current_script.isRunning():
+                self.current_script.stop()
+            else:
+                self.log('There is no currently running script. Stop failed!')
+            self.btn_start_script.setEnabled(True)
         def save_script_data():
             # item = self.tree_scripts.currentItem()
             # if item is not None:
@@ -326,43 +365,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.data_sets.append(script)
 
         if sender is self.btn_start_script:
-            item = self.tree_scripts.currentItem()
-            self.script_start_time = datetime.datetime.now()
-
-            #delete colorbar if it exists, as it is a separate plot and will not properly be overwritten by some plots
-            if(len(self.matplotlibwidget.figure.axes) > 1):
-                self.matplotlibwidget.figure.delaxes(self.matplotlibwidget.figure.axes[1])
-                self.matplotlibwidget.axes.change_geometry(1,1,1)
-            if(len(self.matplotlibwidget_2.figure.axes) > 1):
-                self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
-                self.matplotlibwidget_2.axes.change_geometry(1,1,1)
-
-            if item is not None:
-                script, path_to_script = item.get_script()
-                self.update_script_from_tree(script, self.tree_scripts)
-                self.log('start {:s}'.format(script.name))
-                # is the script is not a QThread object we use the wrapper QtSCript
-                # to but it on a separate thread such that the gui remains responsive
-                if not isinstance(script, QThread):
-                    script = QThreadWrapper(script)
-
-                script.updateProgress.connect(self.update_status)
-                print(script)
-                if hasattr(script, 'saveFigure'):
-                    script.saveFigure.connect(self.save_figure)
-
-                self.current_script = script
-                self.btn_start_script.setEnabled(False)
-                script.start()
-            else:
-                self.log('No script selected. Select script and try again!')
+            start_button()
         elif sender is self.btn_stop_script:
-            if self.current_script is not None and self.current_script.isRunning():
-                self.current_script.updateProgress.disconnect(self.update_status)
-                self.current_script.stop()
-            else:
-                self.log('There is no currently running script. Stop failed!')
-            self.btn_start_script.setEnabled(True)
+            stop_button()
         elif sender is self.btn_plot_script:
             item = self.tree_scripts.currentItem()
             if item is not None:
@@ -616,17 +621,20 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if isinstance(script, QThreadWrapper):
             script = script.script
 
-        if (len(self.matplotlibwidget.figure.axes) > 1):
-            self.matplotlibwidget.figure.delaxes(self.matplotlibwidget.figure.axes[1])
-            self.matplotlibwidget.axes.change_geometry(1, 1, 1)
-        if (len(self.matplotlibwidget_2.figure.axes) > 1):
-            self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
-            self.matplotlibwidget_2.axes.change_geometry(1, 1, 1)
+        #if (len(self.matplotlibwidget.figure.axes) > 1):
+        #    self.matplotlibwidget.figure.delaxes(self.matplotlibwidget.figure.axes[1])
+        #    self.matplotlibwidget.axes.change_geometry(1, 1, 1)
+        #if (len(self.matplotlibwidget_2.figure.axes) > 1):
+        #    self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
+        #    self.matplotlibwidget_2.axes.change_geometry(1, 1, 1)
 
-        if script.plot_type == 1:
+        if script.plot_type == 'main':
             script.plot(self.matplotlibwidget.axes)
             self.matplotlibwidget.draw()
-        elif script.plot_type == 2:
+        elif script.plot_type == 'aux':
+            script.plot(self.matplotlibwidget_2.axes)
+            self.matplotlibwidget.draw()
+        elif script.plot_type == 'two':
             script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
             self.matplotlibwidget.draw()
             self.matplotlibwidget_2.draw()

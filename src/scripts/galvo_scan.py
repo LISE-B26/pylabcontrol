@@ -26,6 +26,9 @@ class GalvoScan(Script, QThread):
                   [Parameter('x', 0.4, float, 'x-coordinate'),
                    Parameter('y', 0.4, float, 'y-coordinate')
                    ]),
+        Parameter('RoI_mode','corner',['corner', 'center'],'mode to calculate region of interest.\n \
+                                                           corner: pta and ptb are diagonal corners of rectangle.\n \
+                                                           center: pta is center and pta is extend or rectangle'),
         Parameter('num_points',
                   [Parameter('x', 120, int, 'number of x points to scan'),
                    Parameter('y', 120, int, 'number of y points to scan')
@@ -46,9 +49,11 @@ class GalvoScan(Script, QThread):
 
         QThread.__init__(self)
 
-        self._plot_type = 1
+        self._plot_type = 'main'
 
         self.queue = Queue.Queue()
+
+        self.plotting_data = None
 
     def _function(self):
         """
@@ -65,10 +70,7 @@ class GalvoScan(Script, QThread):
             self.clockAdjust = int(
                 (self.settings['time_per_pt'] + self.settings['settle_time']) / self.settings['settle_time'])
 
-            self.xVmin = min(self.settings['point_a']['x'], self.settings['point_b']['x'])
-            self.xVmax = max(self.settings['point_a']['x'], self.settings['point_b']['x'])
-            self.yVmin = min(self.settings['point_a']['y'], self.settings['point_b']['y'])
-            self.yVmax = max(self.settings['point_a']['y'], self.settings['point_b']['y'])
+            [self.xVmin, self.xVmax, self.yVmax, self.yVmin] = self.pts_to_extent(self.settings['point_a'], self.settings['point_b'], self.settings['RoI_mode'])
 
             self.x_array = np.repeat(np.linspace(self.xVmin, self.xVmax, self.settings['num_points']['x']),
                                      self.clockAdjust)
@@ -80,6 +82,7 @@ class GalvoScan(Script, QThread):
             self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x'])), 'bounds': [self.xVmin, self.xVmax, self.yVmin, self.yVmax]}
 
         # self.data.clear()  # clear data queue
+        self.log('update instruments')
         init_scan()
         # preallocate
         # image_data = np.zeros(len(self.x_array), len(self.y_array))
@@ -145,7 +148,34 @@ class GalvoScan(Script, QThread):
             self.save()
             self.save_data()
             self.save_log()
+            self.save_image_to_disk()
 
+
+    @staticmethod
+    def pts_to_extent(pta, ptb, roi_mode):
+        """
+
+        Args:
+            pta: point a
+            ptb: point b
+            roi_mode:   mode how to calculate region of interest
+                        corner: pta and ptb are diagonal corners of rectangle.
+                        center: pta is center and pta is extend or rectangle
+
+        Returns: extend of region of interest [xVmin, xVmax, yVmax, yVmin]
+
+        """
+        if roi_mode == 'corner':
+            xVmin = min(pta['x'], ptb['x'])
+            xVmax = max(pta['x'], ptb['x'])
+            yVmin = min(pta['y'], ptb['y'])
+            yVmax = max(pta['y'], ptb['y'])
+        elif roi_mode == 'center':
+            xVmin = pta['x'] - float(ptb['x']) / 2.
+            xVmax = pta['x'] + float(ptb['x']) / 2.
+            yVmin = pta['y'] - float(ptb['y']) / 2.
+            yVmax = pta['y'] + float(ptb['y']) / 2.
+        return [xVmin, xVmax, yVmax, yVmin]
 
     def plot(self, axes):
         if(self._plotting == False):
@@ -186,11 +216,11 @@ class GalvoScan(Script, QThread):
     def stop(self):
         self._abort = True
 
-    def save_data(self, filename = None):
-        super(GalvoScan, self).save_data(filename)
-        if filename is None:
-            filename = self.filename('.jpg')
-        self.saveFigure.emit(filename)
+    # def save_data(self, filename = None):
+    #     super(GalvoScan, self).save_data(filename)
+    #     if filename is None:
+    #         filename = self.filename('.jpg')
+    #     # self.saveFigure.emit(filename)
 
 if __name__ == '__main__':
     script, failed, instruments = Script.load_and_append(script_dict={'GalvoScan': 'GalvoScan'})

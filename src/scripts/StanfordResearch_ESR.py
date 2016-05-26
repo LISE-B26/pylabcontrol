@@ -54,7 +54,7 @@ class StanfordResearch_ESR(Script, QThread):
         self._abort = False
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_output=log_output)
         QThread.__init__(self)
-        self._plot_type = 2
+        self._plot_type = 'aux'
 
     def _function(self):
         """
@@ -142,13 +142,14 @@ class StanfordResearch_ESR(Script, QThread):
             self.save_data()
             self.save_log()
 
-            # create and save images
-            filename = self.filename('-esr.jpg')
-            fig = Figure()
-            canvas = FigureCanvas(fig)
-            ax = fig.add_subplot(1, 1, 1)
-            plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], ax)
-            fig.savefig(filename)
+            self.save_image_to_disk()
+            # # create and save images
+            # filename = self.filename('-esr.jpg')
+            # fig = Figure()
+            # canvas = FigureCanvas(fig)
+            # ax = fig.add_subplot(1, 1, 1)
+            # plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], ax)
+            # fig.savefig(filename)
 
         def calc_progress():
             return np.round(scan_num/self.settings['esr_avg'])
@@ -156,9 +157,19 @@ class StanfordResearch_ESR(Script, QThread):
         # send 100 to signal that script is finished
         self.updateProgress.emit(100)
 
-    def plot(self, axes_1, axes_2):
+    # def save_image_to_disk(self, filename = None):
+    #     # create and save images
+    #     if filename is None:
+    #         filename = self.filename('-esr.jpg')
+    #     fig = Figure()
+    #     canvas = FigureCanvas(fig)
+    #     ax = fig.add_subplot(1, 1, 1)
+    #     plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], ax)
+    #     fig.savefig(filename)
+
+    def plot(self, axes):
         if self.data:
-            plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes_2)
+            plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
         # if self.data:
         #     fit_params = self.data[-1]['fit_params']
         #     if not fit_params[0] == -1:  # check if fit failed
