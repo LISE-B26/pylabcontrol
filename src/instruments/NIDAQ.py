@@ -16,7 +16,7 @@ int64 = ctypes.c_longlong
 uInt32 = ctypes.c_ulong
 uInt64 = ctypes.c_ulonglong
 float64 = ctypes.c_double
-TaskHandle = uInt32
+TaskHandle = uInt64
 # Analog constants
 DAQmx_Val_Cfg_Default = int32(-1)
 DAQmx_Val_Volts = 10348
@@ -317,6 +317,7 @@ class DAQ(Instrument):
                                                          None,
                                                          None))
 
+
     # begin outputting waveforms
     # todo: AK - does this actually need to be threaded like in example code? Is it blocking?
     def AO_run(self):
@@ -369,19 +370,25 @@ class DAQ(Instrument):
             self.nidaq.DAQmxClearTask(self.AI_taskHandle)
         return self.data
 
-    # error checking routine for nidaq commands. Input should be return value
-    # from nidaq function
-    # err: nidaq error code
     def _check_error(self, err):
+        """
+        Error Checking Routine for DAQmx functions. Pass in the returned values form DAQmx functions (the errors) to get
+        an error description. Raises a runtime error
+        Args:
+            err: 32-it integer error from an NI-DAQmx function
+
+        Returns:
+
+        """
         if err < 0:
-            buf_size = 100
-            buf = ctypes.create_string_buffer('\000' * buf_size)
-            self.nidaq.DAQmxGetErrorString(err,ctypes.byref(buf),buf_size)
-            raise RuntimeError('nidaq call failed with error %d: %s'%(err,repr(buf.value)))
+            buffer_size = 500
+            buffer = ctypes.create_string_buffer('\000' * buffer_size)
+            self.nidaq.DAQmxGetErrorString(err,ctypes.byref(buffer),buffer_size)
+            raise RuntimeError('nidaq call failed with error %d: %s'%(err,repr(buffer.value)))
         if err > 0:
-            buf_size = 100
-            buf = ctypes.create_string_buffer('\000' * buf_size)
-            self.nidaq.DAQmxGetErrorString(err,ctypes.byref(buf),buf_size)
+            buffer_size = 500
+            buffer = ctypes.create_string_buffer('\000' * buffer_size)
+            self.nidaq.DAQmxGetErrorString(err,ctypes.byref(buffer), buffer_size)
             raise RuntimeError('nidaq generated warning %d: %s'%(err,repr(buf.value)))
 
 if __name__ == '__main__':
