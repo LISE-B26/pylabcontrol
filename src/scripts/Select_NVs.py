@@ -39,21 +39,19 @@ class Select_NVs(Script, QThread):
 
         QThread.__init__(self)
 
-        self._plot_type = 1
+        self._plot_type = 'main'
 
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-        self._abort = False
         self.scripts['Find_Points'].run()
         self.coordinates = self.scripts['Find_Points'].data['NV_positions']
         self.patches = []
         self.data = {'nv_locations': []}
 
         self.updateProgress.emit(50)
-
         while not self._abort:
             time.sleep(1)
 
@@ -63,12 +61,13 @@ class Select_NVs(Script, QThread):
             self.log('saving')
 
         self.updateProgress.emit(100)
+        self._abort = False
 
     def stop(self):
         self._abort = True
 
     def plot(self, axes):
-        if self.data['nv_locations'] == []:
+        if not self.data['nv_locations']:
             self.scripts['Find_Points'].plot(axes)
         else:
             image = self.scripts['Find_Points'].data['image']

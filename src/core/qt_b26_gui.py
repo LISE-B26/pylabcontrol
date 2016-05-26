@@ -337,6 +337,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.verticalLayout_2.addWidget(self.matplotlibwidget)
             self.verticalLayout_2.setStretch(0, 1)
             self.verticalLayout_2.setStretch(1, 2)
+            self.matplotlibwidget.mpl_connect('button_press_event', self.plot_clicked)
+            self.matplotlibwidget_2.mpl_connect('button_press_event', self.plot_clicked)
 
         def start_button():
 
@@ -361,7 +363,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 self.current_script = script
                 self.btn_start_script.setEnabled(False)
-                reset_figures()
+
+                if not isinstance(script, Select_NVs_Simple):
+                    reset_figures()
+
                 script.start()
             else:
                 self.log('User stupidly tried to run a script without one selected.')
@@ -658,6 +663,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
             self.matplotlibwidget.draw()
             self.matplotlibwidget_2.draw()
+        else:
+            message = 'property plot_type not correct for this script!'
+            raise AttributeError(message)
 
         if progress == 100:
             # self.refresh_tree(self.tree_scripts, self.scripts)
