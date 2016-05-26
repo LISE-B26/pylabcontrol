@@ -21,7 +21,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         Parameter('piezo_min_voltage', 30.0, float, 'lower bound of piezo voltage sweep'),
         Parameter('piezo_max_voltage', 70.0, float, 'upper bound of piezo voltage sweep'),
         Parameter('num_sweep_points', 10, int, 'number of values to sweep between min and max voltage'),
-        Parameter('focusing_optimizer', 'standard_deviation', ['mean', 'standard_deviation'], 'optimization function for focusing'),
+        Parameter('focusing_optimizer', 'standard_deviation',
+                  ['mean', 'standard_deviation', 'normalized_standard_deviation'], 'optimization function for focusing'),
         Parameter('wait_time', 0.1, float)
     ])
 
@@ -98,6 +99,9 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             elif self.settings['focusing_optimizer'] == 'standard_deviation':
                 self.data['focus_function_result'].append(np.std(current_image))
 
+            elif self.settings['focusing_optimizer'] == 'normalized_standard_deviation':
+                self.data['focus_function_result'].append(np.std(current_image) / np.mean(current_image))
+
             # update progress bar
             progress = 99.0 * (np.where(sweep_voltages == voltage)[0]+1) / float(self.settings['num_sweep_points'])
             self.updateProgress.emit(progress)
@@ -163,7 +167,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
 
         # plot best fit
-        if 'focusing_fit_parameters' in self.data.keys() and np.all(self.data['focusing_fit_parameters']):
+        if 'focusing_fit_parameters' in self.data.keys() and np.all(self.data['focusing_fit_parameters'])\
+                and len(self.data['sweep_voltages']) == len(self.data['focus_function_result']):
             gaussian = lambda x, params: params[0] + params[1] * np.exp(-1.0 * (np.square(x - params[2]) / (2 * params[3]) ** 2))
 
             fit_domain = np.linspace(self.settings['piezo_min_voltage'], self.settings['piezo_max_voltage'], 100)
@@ -183,6 +188,12 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         elif self.settings['focusing_optimizer'] == 'standard_deviation':
             ylabel = 'Image Standard Deviation [kcounts]'
+
+        elif self.settings['focusing_optimizer'] == 'normalized_standard_deviation':
+            ylabel = 'Image Normalized Standard Deviation [arb]'
+
+        else:
+            ylabel = self.settings['focusing_optimizer']
 
         axis1.set_ylabel(ylabel)
         axis1.set_title('Autofocusing Routine')
