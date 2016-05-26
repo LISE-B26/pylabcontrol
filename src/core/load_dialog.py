@@ -85,7 +85,7 @@ class Ui_Dialog(object):
         self.lbl_probe_log_path.setText(_translate("Dialog", "Path", None))
         self.txt_probe_log_path.setText(_translate("Dialog", "Z:\\Lab\\Cantilever\\Measurements", None))
         self.btn_open.setText(_translate("Dialog", "open", None))
-        self.lbl_info.setText(_translate("Dialog", "info", None))
+        self.lbl_info.setText(_translate("Dialog", "Highlighted scripts will show a description here. Try it!", None))
         self.label.setText(_translate("Dialog", "Selected", None))
         self.label_2.setText(_translate("Dialog", "Not Selected", None))
 

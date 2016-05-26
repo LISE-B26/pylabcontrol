@@ -87,9 +87,9 @@ class PiezoController(Instrument):
         successCheck = self.ser.readlines()
         # print(successCheck)
         # * and ! are values returned by controller on success or failure respectively
-        if(successCheck[0] == '*'):
-            print('Voltage set')
-        elif(successCheck[0] == '!'):
+        #if(successCheck[0] == '*'):
+        #    print('Voltage set')
+        if successCheck[0] == '!':
             message = 'Setting voltage failed. Confirm that device is properly connected and a valid voltage was entered'
             raise ValueError(message)
 

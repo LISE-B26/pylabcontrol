@@ -11,6 +11,10 @@ import Queue
 
 
 class GalvoScan(Script, QThread):
+    """
+    GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,
+    resulting in an image in the current field of view of the objective.
+    """
     updateProgress = Signal(int)
     saveFigure = Signal(str)
 
@@ -91,7 +95,7 @@ class GalvoScan(Script, QThread):
 
         for yNum in xrange(0, len(self.y_array)):
 
-            if (self._abort):
+            if self._abort:
                 break
             # initialize APD thread
             self.instruments['daq']['instance'].DI_init("ctr0", len(self.x_array) + 1, sample_rate_multiplier=(self.clockAdjust - 1))
@@ -100,11 +104,11 @@ class GalvoScan(Script, QThread):
             self.initPt = (np.repeat(self.initPt, 2, axis=1))
 
             # move galvo to first point in line
-            self.instruments['daq']['instance'].AO_init(["ao0","ao1"], self.initPt)
+            self.instruments['daq']['instance'].AO_init(["ao0", "ao1"], self.initPt)
             self.instruments['daq']['instance'].AO_run()
             self.instruments['daq']['instance'].AO_waitToFinish()
             self.instruments['daq']['instance'].AO_stop()
-            self.instruments['daq']['instance'].AO_init(["ao0"], self.x_array, sample_rate_multiplier=(self.clockAdjust - 1))
+            self.instruments['daq']['instance'].AO_init(["ao0"], self.x_array, sample_rate_multiplier=(self.clockAdjust-1))
             # start counter and scanning sequence
             self.instruments['daq']['instance'].DI_run()
             self.instruments['daq']['instance'].AO_run()
@@ -126,7 +130,7 @@ class GalvoScan(Script, QThread):
 
             # sending updates every cycle leads to invalid task errors, so wait and don't overload gui
             current_time = dt.datetime.now()
-            if((current_time-update_time).total_seconds() > 2):
+            if((current_time-update_time).total_seconds() > 1):
                 self.plotting_data = np.copy(self.data['image_data'])
                 progress = int(float(yNum + 1)/len(self.y_array)*100)
                 self.updateProgress.emit(progress)

@@ -12,6 +12,7 @@ import json as json
 import yaml # we use this to load json files, yaml doesn't cast everything to unicode
 from PySide.QtCore import QThread
 from src.core import LoadDialog
+from matplotlibwidget import MatplotlibWidget
 
 from copy import deepcopy
 import datetime
@@ -39,16 +40,13 @@ except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
     from src.core.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
-    print('Warning!!: on the fly conversion of basic_application_window.ui file failed, loaded .py file instead!!')
-
-
+    print('Warning: on-the-fly conversion of basic_application_window.ui file failed, loaded .py file instead.')
 
 
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, filename = None):
         """
-
         ControlMainWindow(intruments, scripts, probes)
             - intruments: depth 1 dictionary where keys are instrument names and keys are instrument classes
             - scripts: depth 1 dictionary where keys are script names and keys are script classes
@@ -314,34 +312,56 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         sender = self.sender()
         self.probe_to_plot = None
 
+        # the following function takes the current figures and makes a new widget in place of them.
+        # This work-around is necessary because figures have a nasty 'feature' of remembering axes
+        # characteristics of previous plots, and this is the only way I (Arthur) could figure out how to do it.
+        def reset_figures():
+            self.verticalLayout_2.removeWidget(self.matplotlibwidget_2)
+            self.verticalLayout_2.removeWidget(self.matplotlibwidget)
+            self.matplotlibwidget.close()
+            self.matplotlibwidget_2.close()
+            self.centralwidget = QtGui.QWidget(self)
+            self.centralwidget.setObjectName(QtCore.QString.fromUtf8("centralwidget"))
+            self.matplotlibwidget_2 = MatplotlibWidget(self.centralwidget)
+            sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+            sizePolicy.setHorizontalStretch(0)
+            sizePolicy.setVerticalStretch(0)
+            sizePolicy.setHeightForWidth(self.matplotlibwidget_2.sizePolicy().hasHeightForWidth())
+            self.matplotlibwidget_2.setSizePolicy(sizePolicy)
+            self.matplotlibwidget_2.setMinimumSize(QtCore.QSize(200, 200))
+            self.matplotlibwidget_2.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget_2"))
+            self.verticalLayout_2.addWidget(self.matplotlibwidget_2)
+            self.matplotlibwidget = MatplotlibWidget(self.centralwidget)
+            self.matplotlibwidget.setMinimumSize(QtCore.QSize(200, 200))
+            self.matplotlibwidget.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget"))
+            self.verticalLayout_2.addWidget(self.matplotlibwidget)
+            self.verticalLayout_2.setStretch(0, 1)
+            self.verticalLayout_2.setStretch(1, 2)
+
         def start_button():
+
             item = self.tree_scripts.currentItem()
             self.script_start_time = datetime.datetime.now()
 
-            # delete colorbar if it exists, as it is a separate plot and will not properly be overwritten by some plots
-            if (len(self.matplotlibwidget.figure.axes) > 1):
-                self.matplotlibwidget.figure.delaxes(self.matplotlibwidget.figure.axes[1])
-                self.matplotlibwidget.axes.change_geometry(1, 1, 1)
-            if (len(self.matplotlibwidget_2.figure.axes) > 1):
-                self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
-                self.matplotlibwidget_2.axes.change_geometry(1, 1, 1)
 
             if item is not None:
                 script, path_to_script = item.get_script()
                 self.update_script_from_tree(script, self.tree_scripts)
-                self.log('start {:s}'.format(script.name))
+                self.log('starting {:s}'.format(script.name))
                 # is the script is not a QThread object we use the wrapper QtSCript
                 # to but it on a separate thread such that the gui remains responsive
                 if not isinstance(script, QThread):
                     script = QThreadWrapper(script)
 
                 script.updateProgress.connect(self.update_status)
+
                 print('script: ', script)
                 if hasattr(script, 'saveFigure'):
                     script.saveFigure.connect(self.save_figure)
 
                 self.current_script = script
                 self.btn_start_script.setEnabled(False)
+                reset_figures()
                 script.start()
             else:
                 self.log('User stupidly tried to run a script without one selected.')
@@ -350,7 +370,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if self.current_script is not None and self.current_script.isRunning():
                 self.current_script.stop()
             else:
-                self.log('There is no currently running script. Stop failed!')
+                self.log('User clicked stop, but there isn\'t anything running...this is awkward. Re-enabling start button anyway.')
             self.btn_start_script.setEnabled(True)
         def save_script_data():
             # item = self.tree_scripts.currentItem()

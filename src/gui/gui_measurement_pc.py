@@ -8,7 +8,7 @@ from PyQt4 import QtGui
 import ctypes
 
 #work around to change taskbar icon
-myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
+myappid = 'lukinlab.b26.pythonlab' # arbitrary string
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 app = QtGui.QApplication(sys.argv)

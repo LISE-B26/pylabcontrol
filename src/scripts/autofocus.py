@@ -84,7 +84,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
             # set the voltage on the piezo
             z_piezo.voltage = float(voltage)
-            self.log('Voltage set to {:f}'.format(voltage))
+            self.log('Voltage set to {:.3f}'.format(voltage))
 
             # take a galvo scan
             self.scripts['take_image'].run()
