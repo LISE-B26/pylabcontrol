@@ -9,10 +9,19 @@ def plot_fluorescence(image_data, extent, axes):
     Returns:
 
     """
-    axes.imshow(image_data, cmap='pink', interpolation="nearest", extent=extent)
+    fig = axes.get_figure()
+    implot = axes.imshow(image_data, cmap='pink', interpolation="nearest", extent=extent)
     axes.set_xlabel('Vx')
     axes.set_ylabel('Vy')
     axes.set_title('Confocal Image')
+    #axes.imshow(image_data, cmap='pink', interpolation="nearest", extent=extent)
+    #axes.set_xlabel('Vx')
+    #axes.set_ylabel('Vy')
+    #axes.set_title('Confocal Image')
+    if len(fig.axes) == 2:
+        fig.colorbar(implot, cax=fig.axes[1], label='kcounts/sec')
+    else:
+        fig.colorbar(implot, label='kcounts/sec')
 
 
 

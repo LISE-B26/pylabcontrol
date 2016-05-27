@@ -12,6 +12,7 @@ import json as json
 from PySide.QtCore import QThread
 from src.core import LoadDialog
 from matplotlibwidget import MatplotlibWidget
+import sys
 
 import datetime
 from collections import deque
@@ -142,9 +143,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         connect_controls()
 
         if filename is not None:
-            self.config_filename = filename
-            self.load_config(self.config_filename)
-            self.load_settings(os.path.join(self.gui_settings['tmp_folder'],'gui_settings.b26'))
+            try:
+                self.config_filename = filename
+                self.load_config(self.config_filename)
+                self.load_settings(os.path.join(self.gui_settings['tmp_folder'],'gui_settings.b26'))
+            except KeyError:
+                print('Did not pre-load scripts! Issue: {:s}'.format(str(sys.exc_info())))
+
         else:
             self.instruments = {}
             self.scripts = {}

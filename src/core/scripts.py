@@ -382,7 +382,7 @@ class Script(object):
         else:
             raise TypeError("script data variable has an invalid datatype! Must be deque or dict.")
 
-        if len(set([len(v) for v in data.values()])) == 1 and len(np.shape(data.values()[0])) in [0,1]:
+        if len(set([len(v) for v in data.values()])) == 1 and len(np.shape(data.values()[0])) in [0, 1]:
             # if all entries of the dictionary are the same length and single column we can write the data into a single file
             if len(np.shape(data.values()[0]))==1:
                 df = pd.DataFrame(data)
@@ -393,6 +393,7 @@ class Script(object):
         else:
             # otherwise, we write each entry into a separate file
             for key, value in data.iteritems():
+                print value
                 if len(value) == 0:
                     df = pd.DataFrame([value])
                 else:
