@@ -64,18 +64,18 @@ class MatplotlibWidget(Canvas):
     def __init__(self, parent=None, title='', xlabel='', ylabel='',
                  xlim=None, ylim=None, xscale='linear', yscale='linear',
                  width=4, height=3, dpi=100, hold=False):
-        self.figure = Figure(figsize=(width, height), dpi=dpi)
+        self.figure = Figure(dpi=100)#figsize=(width, height), dpi=dpi)
         self.axes = self.figure.add_subplot(111)
         self.axes.set_title(title)
         self.axes.set_xlabel(xlabel)
         self.axes.set_ylabel(ylabel)
-        if xscale is not None:
+        if xscale:
             self.axes.set_xscale(xscale)
-        if yscale is not None:
+        if yscale:
             self.axes.set_yscale(yscale)
-        if xlim is not None:
+        if xlim:
             self.axes.set_xlim(*xlim)
-        if ylim is not None:
+        if ylim:
             self.axes.set_ylim(*ylim)
         self.axes.hold(hold)
 

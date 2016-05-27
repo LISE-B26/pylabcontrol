@@ -79,7 +79,7 @@ class GalvoScan(Script, QThread):
 
             self.x_array = np.repeat(np.linspace(self.xVmin, self.xVmax, self.settings['num_points']['x']),
                                      self.clockAdjust)
-            self.y_array = np.linspace(self.yVmin, self.yVmax, self.settings['num_points']['y'])
+            self.y_array = np.linspace(self.yVmin, self.yVmax, self.settings['num_points']['y'], endpoint=True)
             sample_rate = float(1) / self.settings['settle_time']
             self.instruments['daq']['instance'].settings['analog_output']['ao0']['sample_rate'] = sample_rate
             self.instruments['daq']['instance'].settings['analog_output']['ao1']['sample_rate'] = sample_rate
@@ -89,6 +89,7 @@ class GalvoScan(Script, QThread):
         init_scan()
         self.data['extent'] = [self.xVmin, self.xVmax, self.yVmax, self.yVmin]
 
+        print self.y_array
         for yNum in xrange(0, len(self.y_array)):
 
             if self._abort:

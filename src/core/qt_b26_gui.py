@@ -292,6 +292,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.horizontalLayout_14.addWidget(self.matplotlibwidget)
             self.matplotlibwidget.mpl_connect('button_press_event', self.plot_clicked)
             self.matplotlibwidget_2.mpl_connect('button_press_event', self.plot_clicked)
+            self.matplotlibwidget.figure.tight_layout()
+            self.matplotlibwidget_2.figure.tight_layout()
 
         def start_button():
 
@@ -512,7 +514,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.matplotlibwidget.draw()
         elif script.plot_type == 'aux':
             script.plot(self.matplotlibwidget_2.axes)
-            self.matplotlibwidget.draw()
+            self.matplotlibwidget_2.draw()
         elif script.plot_type == 'two':
             script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
             self.matplotlibwidget.draw()
