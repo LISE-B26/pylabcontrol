@@ -1,13 +1,12 @@
-from src.core import Script, Parameter
-from src.scripts import Find_Points
-import time
-import scipy.spatial
 import numpy as np
-from matplotlib import patches
+import scipy.spatial
+import time
 from PySide.QtCore import Signal, QThread
-from src.core.plotting import plot_fluorescence
+from matplotlib import patches
 
-
+from src.core import Script, Parameter
+from src.plotting.plotting import plot_fluorescence
+from src.scripts import Find_Points
 
 
 class Select_NVs(Script, QThread):

@@ -1,14 +1,9 @@
-from src.core import Script, Parameter
-from src.scripts import StanfordResearch_ESR
-from src.instruments.NIDAQ import DAQ
-import time
-import scipy.spatial
 import numpy as np
+from PySide.QtCore import Signal
 from matplotlib import patches
-from PySide.QtCore import Signal, QThread
-from src.core.plotting import plot_fluorescence
 
-
+from src.core import Script, Parameter
+from src.instruments.NIDAQ import DAQ
 
 
 class SetLaser(Script):

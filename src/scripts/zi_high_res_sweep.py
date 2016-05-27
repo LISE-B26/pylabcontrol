@@ -1,10 +1,13 @@
-from src.scripts import ZISweeper
+import numpy as np
 import time
-from src.core import Script, Parameter, plotting
 from PySide.QtCore import Signal, QThread
 from collections import deque
-import numpy as np
 from copy import deepcopy
+
+from src.core import Script, Parameter
+from src.plotting import plotting
+from src.scripts import ZISweeper
+
 
 class ZISweeperHighResolution(Script, QThread):
     updateProgress = Signal(int)

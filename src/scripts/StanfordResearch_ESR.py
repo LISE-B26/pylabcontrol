@@ -1,22 +1,15 @@
-from src.instruments import microwave_generator
 from src.core.scripts import Script
-from PySide.QtCore import Signal, QThread
 
 # import standard libraries
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy.optimize as opt
-import time
-import pandas as pd
 from PySide.QtCore import Signal, QThread
 from src.core import Parameter
 from src.instruments import MicrowaveGenerator, DAQ
 from collections import deque
 
-from src.core import plotting
-from matplotlib.backends.backend_pdf import FigureCanvasPdf as FigureCanvas
-from matplotlib.figure import Figure
-import os
+from src.plotting import plotting
+
 
 class StanfordResearch_ESR(Script, QThread):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!

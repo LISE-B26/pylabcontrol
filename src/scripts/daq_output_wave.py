@@ -1,13 +1,8 @@
-from src.core import Script, Parameter
-from PyQt4 import QtCore
-from PySide.QtCore import Signal, QThread
-import time
-from collections import deque
-from src.instruments import ZIHF2
-import numpy as np
-from src.core import plotting
-from src.instruments import NIDAQ
 import ctypes
+from PySide.QtCore import Signal, QThread
+
+from src.core import Script, Parameter
+from src.instruments import NIDAQ
 
 ##############################
 # Setup some typedefs and constants

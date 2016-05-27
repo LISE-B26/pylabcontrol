@@ -1,11 +1,9 @@
-from src.core import Script, Parameter
-from PyQt4 import QtCore
-from PySide.QtCore import Signal, QThread
-import time
-from collections import deque
-from src.instruments import ZIHF2
 import numpy as np
-from src.core import plotting
+from PySide.QtCore import Signal, QThread
+from collections import deque
+
+from src.core import Script, Parameter
+from src.plotting import plotting
 
 
 class ZISweeper(Script, QThread):
@@ -124,7 +122,7 @@ class ZISweeper(Script, QThread):
         freq = self.data[-1]['frequency']
         freq = freq[np.isfinite(r)]
         r = r[np.isfinite(r)]
-        plotting.plot_psd(freq, r,axes)
+        plotting.plot_psd(freq, r, axes)
 
 if __name__ == '__main__':
     from src.instruments import ZIHF2

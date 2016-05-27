@@ -9,27 +9,18 @@ from src.core import Parameter, Instrument, Script, B26QTreeItem, ReadProbes, QT
 import os.path
 import numpy as np
 import json as json
-import yaml # we use this to load json files, yaml doesn't cast everything to unicode
 from PySide.QtCore import QThread
 from src.core import LoadDialog
 from matplotlibwidget import MatplotlibWidget
 
-from copy import deepcopy
 import datetime
 from collections import deque
-import time
 # from src.core import instantiate_probes
 
 #from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, StanfordResearch_ESR, Find_Points, Select_NVs, ESR_Selected_NVs
 
 ###AARON_PC REMOVE
-from src.scripts.galvo_scan import GalvoScan
-from src.scripts.StanfordResearch_ESR import StanfordResearch_ESR
-from src.scripts.Find_Points import Find_Points
 from src.scripts.Select_NVs import Select_NVs, Select_NVs_Simple
-from src.scripts.ESR_Selected_NVs import ESR_Selected_NVs
-
-from src.core.plotting import plot_psd
 
 from src.core.read_write_functions import load_b26_file
 # load the basic old_gui either from .ui file or from precompiled .py file

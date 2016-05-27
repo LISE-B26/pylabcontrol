@@ -1,15 +1,12 @@
-from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread
-import numpy as np
 import matplotlib.patches as patches
-from src.scripts.galvo_scan import GalvoScan
-from scipy import signal
+import numpy as np
 from PIL import Image as im
-import matplotlib.pyplot as plt
-
 from PySide.QtCore import Signal, QThread
-from src.core.plotting import plot_fluorescence
+from scipy import signal
 
+from src.core import Script, Parameter
+from src.plotting.plotting import plot_fluorescence
+from src.scripts.galvo_scan import GalvoScan
 
 
 class Correlate_Images(Script, QThread):

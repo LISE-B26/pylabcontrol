@@ -1,9 +1,7 @@
-from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread
-import numpy as np
 import matplotlib.patches as patches
+import numpy as np
 
-
+from src.core import Script, Parameter
 # from scipy import signal
 # import numpy as np
 # import scipy.optimize as opt
@@ -22,7 +20,7 @@ import skimage.feature as feature
 # REF_PIXEL_NUM = 120
 # MIN_NV_CNTS = 15
 
-from src.core.plotting import plot_fluorescence
+from src.plotting.plotting import plot_fluorescence
 
 class Find_Points(Script):
     _DEFAULT_SETTINGS = Parameter([
@@ -133,9 +131,6 @@ if __name__ == '__main__':
     print(instr)
     # fp = Find_Points(settings={'path': 'Z:/Lab/Cantilever/Measurements/__tmp__', 'tag':'nvs'})
     # fp.run()
-
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import Axes3D
 
     # plt.pcolor(fp.data['image'])
     # print(fp.data['image_gaussian'].shape)

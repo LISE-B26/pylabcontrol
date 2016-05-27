@@ -1,14 +1,11 @@
-from src.core import Script, Parameter
-from src.scripts import StanfordResearch_ESR, Correlate_Images
-from src.instruments.NIDAQ import DAQ
-import time
-import scipy.spatial
 import numpy as np
-from matplotlib import patches
 from PySide.QtCore import Signal, QThread
-from src.core.plotting import plot_fluorescence
+from matplotlib import patches
 
-
+from src.core import Script, Parameter
+from src.instruments.NIDAQ import DAQ
+from src.plotting.plotting import plot_fluorescence
+from src.scripts import StanfordResearch_ESR, Correlate_Images
 
 
 class ESR_Selected_NVs(Script, QThread):
