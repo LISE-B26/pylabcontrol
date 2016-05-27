@@ -3,6 +3,7 @@ from PySide.QtCore import Signal, QThread
 import numpy as np
 from collections import deque
 from src.instruments.NIDAQ import DAQ
+from src.plotting.plots_2d import plot_fluorescence
 
 import datetime as dt
 import time
@@ -67,14 +68,14 @@ class GalvoScan(Script, QThread):
 
         def init_scan():
             self._recording = False
-            self._plotting = False
-            self.dvconv = None
+            #self._plotting = False
             self._abort = False
 
             self.clockAdjust = int(
                 (self.settings['time_per_pt'] + self.settings['settle_time']) / self.settings['settle_time'])
 
             [self.xVmin, self.xVmax, self.yVmax, self.yVmin] = self.pts_to_extent(self.settings['point_a'], self.settings['point_b'], self.settings['RoI_mode'])
+
 
             self.x_array = np.repeat(np.linspace(self.xVmin, self.xVmax, self.settings['num_points']['x']),
                                      self.clockAdjust)
@@ -85,9 +86,8 @@ class GalvoScan(Script, QThread):
             self.instruments['daq']['instance'].settings['digital_input']['ctr0']['sample_rate'] = sample_rate
             self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x'])), 'bounds': [self.xVmin, self.xVmax, self.yVmin, self.yVmax]}
 
-        # self.data.clear()  # clear data queue
         init_scan()
-
+        self.data['extent'] = [self.xVmin, self.xVmax, self.yVmax, self.yVmin]
 
         for yNum in xrange(0, len(self.y_array)):
 
@@ -167,6 +167,8 @@ class GalvoScan(Script, QThread):
         return [xVmin, xVmax, yVmax, yVmin]
 
     def plot(self, axes):
+        plot_fluorescence(self.data['image_data'], self.data['extent'], axes)
+        '''
         if(self._plotting == False):
             self.fig = axes.get_figure()
             if self.dvconv is None:
@@ -194,6 +196,7 @@ class GalvoScan(Script, QThread):
                 axes.set_xlabel('Vx')
                 axes.set_ylabel('Vy')
                 axes.set_title('Confocal Image')
+
             else:
                 implot = axes.imshow(self.data['image_data'], cmap = 'pink',
                   interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
@@ -201,6 +204,7 @@ class GalvoScan(Script, QThread):
                 axes.set_ylabel('Distance (um)')
                 axes.set_title('Confocal Image')
             self.cbar.update_bruteforce(implot)
+            '''
 
     def stop(self):
         self._abort = True
