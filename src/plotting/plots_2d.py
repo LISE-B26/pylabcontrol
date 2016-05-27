@@ -23,5 +23,7 @@ def plot_fluorescence(image_data, extent, axes):
     else:
         fig.colorbar(implot, label='kcounts/sec')
 
+    fig.tight_layout()
+
 
 

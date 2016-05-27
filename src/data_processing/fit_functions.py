@@ -1,0 +1,30 @@
+import numpy as np
+import scipy as sp
+
+
+def fit_gaussian(x_values, y_values, starting_params=None, bounds=None):
+    """
+
+    Args:
+        x_values: domain of fit function
+        y_values: y-values to fit
+        starting_params: reasonable guesses for where to start the fitting optimization of the parameters. This is a
+        length 4 list of the form [constant_offset, amplitude, center, width].
+        bounds: Optionally, include bounds for the parameters in the gaussian fitting, in the following form:
+                [(offset_lb, amplitude_lb, center_lb, width_lb), (offset_ub, amplitude_ub, center_ub, width_ub)]
+
+    Returns:
+        a length-4 list of [fit_parameters] in the form [constant_offset, amplitude, center, width]
+
+    """
+
+    def gaussian(x, constant_offset, amplitude, center, width):
+        return constant_offset + amplitude * np.exp(-1.0 * (np.square((x - center)) / (2 * (width ** 2))))
+
+    if bounds:
+        return sp.optimize.curve_fit(gaussian, x_values, y_values, p0=starting_params, bounds=bounds, max_nfev=2000)[0]
+    else:
+        return sp.optimize.curve_fit(gaussian, x_values, y_values, p0=starting_params)[0]
+
+
+
