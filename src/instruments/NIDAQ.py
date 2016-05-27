@@ -381,12 +381,12 @@ class DAQ(Instrument):
 
         """
         if err < 0:
-            buffer_size = 500
+            buffer_size = 100
             buffer = ctypes.create_string_buffer('\000' * buffer_size)
             self.nidaq.DAQmxGetErrorString(err,ctypes.byref(buffer),buffer_size)
             raise RuntimeError('nidaq call failed with error %d: %s'%(err,repr(buffer.value)))
         if err > 0:
-            buffer_size = 500
+            buffer_size = 100
             buffer = ctypes.create_string_buffer('\000' * buffer_size)
             self.nidaq.DAQmxGetErrorString(err,ctypes.byref(buffer), buffer_size)
             raise RuntimeError('nidaq generated warning %d: %s'%(err,repr(buf.value)))
