@@ -508,7 +508,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script: script to be plotted
 
         """
-        print('DDDD', script.plot_type)
+        print('DDDD -name', script.name)
+        print('DDDD - data', script.data)
+        print('DDDD - type', script.plot_type)
         if script.plot_type == 'main':
             script.plot(self.matplotlibwidget.axes)
             self.matplotlibwidget.draw()

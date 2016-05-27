@@ -13,7 +13,7 @@ class TestInstrument(TestCase):
         scripts, loaded_failed, instruments = Script.load_and_append({"some script": 'ScriptDummyWithInstrument'})
 
         script = scripts['some script']
-        script.save(filename)
+        script.save_b26(filename)
 
         data = load_b26_file(filename)
         scripts = {}

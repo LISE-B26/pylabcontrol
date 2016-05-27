@@ -55,7 +55,7 @@ class Select_NVs(Script, QThread):
             time.sleep(1)
 
         if self.settings['save']:
-            self.save()
+            self.save_b26()
             self.save_data()
             self.log('saving')
 

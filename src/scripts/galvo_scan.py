@@ -135,7 +135,7 @@ class GalvoScan(Script, QThread):
         self.updateProgress.emit(progress)
 
         if self.settings['save']:
-            self.save()
+            self.save_b26()
             self.save_data()
             self.save_log()
             self.save_image_to_disk()

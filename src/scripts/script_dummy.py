@@ -65,7 +65,7 @@ class ScriptDummy(Script):
 
         if self.settings['save']:
             self.save_data()
-            self.save()
+            self.save_b26()
             self.save_log()
 
 # class ScriptDummyWithQtSignal(Script, QtCore.QThread):
@@ -151,6 +151,7 @@ class ScriptDummyWithInstrument(Script):
 
         # call init of superclass
         Script.__init__(self, name, settings, instruments, log_function= log_function, data_path = data_path)
+        self._plot_type = 'main'
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in _DEFAULT_SETTINGS
@@ -159,7 +160,7 @@ class ScriptDummyWithInstrument(Script):
 
         import time
 
-        self.data = []
+        data = []
         # update instrument
         self.instruments['dummy_instrument'].update(self.instruments['dummy_instrument']['settings'])
 
@@ -174,11 +175,12 @@ class ScriptDummyWithInstrument(Script):
 
             self.log('signal from dummy instrument {:s}: {:0.3f}'.format(name, instrument.value1))
             time.sleep(wait_time)
-            self.data.append(instrument.value1)
+            data.append(instrument.value1)
 
+        self.data = {'data':data}
         if self.settings['save']:
             self.save_data()
-            self.save()
+            self.save_b26()
             self.save_log()
 
 

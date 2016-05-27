@@ -17,6 +17,10 @@ from __builtin__ import len as builtin_len
 from matplotlib.backends.backend_pdf import FigureCanvasPdf as FigureCanvas # use this to avoid error that plotting should only be done on main thread
 from matplotlib.figure import Figure
 
+# cPickle module implements the same algorithm as pickle, in C instead of Python.
+# It is many times faster than the Python implementation, but does not allow the user to subclass from Pickle.
+import cPickle
+
 class Script(object):
     # __metaclass__ = ABCMeta
 
@@ -49,6 +53,9 @@ class Script(object):
             scripts (optinal):  sub_scripts used in the script
             log_function(optinal): function reference that takes a string
         """
+
+        self._script_class = self.__class__.__name__
+
         if name is None:
             name = self.__class__.__name__
         self.name = name
@@ -307,7 +314,34 @@ class Script(object):
             filename = os.path.join(filename,  "{:s}_{:s}{:s}".format(self.start_time.strftime('%y%m%d-%H_%M_%S'),tag,appendix))
 
         return filename
+    def to_dict(self):
+        """
 
+        Returns: itself as a dictionary
+
+        """
+
+        dictator = {self.name: {'class' : self.__class__.__name__}}
+
+        if self.scripts != {}:
+            dictator[self.name].update({'scripts': {} })
+            for subscript_name, subscript in self.scripts.iteritems():
+                dictator[self.name]['scripts'].update(subscript.to_dict() )
+
+        if self.instruments != {}:
+            # dictator[self.name].update({'instruments': self.instruments})
+            # dictator[self.name].update({'instruments': {} })
+            # for instrument_name, instrument in self.instruments.iteritems():
+            #     dictator[self.name]['instruments'].update(instrument.to_dict())
+
+            dictator[self.name].update({'instruments': {
+                instrument_name: {'class': instrument['instance'].__class__.__name__, 'settings':instrument['settings']}
+                for instrument_name, instrument in self.instruments.iteritems()
+            }})
+
+        dictator[self.name]['settings'] = self.settings
+
+        return dictator
     def save_data(self, filename = None):
         """
         saves the script data to a file: filename is filename is not provided, it is created from internal function
@@ -372,7 +406,6 @@ class Script(object):
                 #     os.makedirs(os.path.dirname(filename_new))
 
                 df.to_csv(filename.replace('.csv', '-{:s}.csv'.format(key)), index=False)
-
     def save_log(self, filename = None):
         """
         save log to file
@@ -386,8 +419,7 @@ class Script(object):
         with open(filename, 'w') as outfile:
             for item in self.log_data:
                 outfile.write("%s\n" % item)
-
-    def save(self, filename=None):
+    def save_b26(self, filename=None):
         """
         saves the script settings to a file: filename is filename is not provided, it is created from internal function
         """
@@ -395,28 +427,6 @@ class Script(object):
             filename = self.filename('.b26')
 
         save_b26_file(filename, scripts=self.to_dict())
-
-    def plot(self, axes):
-        """
-        plots the data contained in self.data, which should be a dictionary or a deque of dictionaries
-        for the latter use the last entry
-
-        """
-
-        if isinstance(self.data, deque):
-            data = self.data[-1]
-        elif isinstance(self.data, dict):
-            data = self.data
-        else:
-            data = {}
-
-        assert isinstance(data, dict)
-
-        if data == {}:
-            self.log("warning, not data found that can be plotted")
-        else:
-            for key, value in data.iteritems():
-                axes.plot(value)
 
     def save_image_to_disk(self, filename_1 = None, filename_2 = None):
         """
@@ -469,35 +479,61 @@ class Script(object):
                 fig_1.savefig(filename_1)
             if filename_2 is not None:
                 fig_2.savefig(filename_2)
-
-    def to_dict(self):
+    def save(self, filename):
         """
-
-        Returns: itself as a dictionary
+        saves the instance of the script to a file using pickle
+        Args:
+            filename: target filename
 
         """
+        if filename is None:
+            filename = self.filename('.b26s')
 
-        dictator = {self.name: {'class' : self.__class__.__name__}}
+        with open(filename, 'w') as outfile:
+            outfile.write(cPickle.dumps(self.__dict__))
 
-        if self.scripts != {}:
-            dictator[self.name].update({'scripts': {} })
-            for subscript_name, subscript in self.scripts.iteritems():
-                dictator[self.name]['scripts'].update(subscript.to_dict() )
+    @staticmethod
+    def load(filename, instruments = None):
+        """
+        loads an script instance using pickle
+        Args:
+            filename: source filename
+            instruments:
+                optional - only needed if script requires instruments
+                dictionary of form
 
-        if self.instruments != {}:
-            # dictator[self.name].update({'instruments': self.instruments})
-            # dictator[self.name].update({'instruments': {} })
-            # for instrument_name, instrument in self.instruments.iteritems():
-            #     dictator[self.name]['instruments'].update(instrument.to_dict())
+                instruments = {
+                name_of_instrument_1 : instance_of_instrument_1,
+                name_of_instrument_2 : instance_of_instrument_2,
+                ...
+                }
+        Returns:
+            script_instance
+            updated_instruments
+        """
+        with open(filename, 'r') as infile:
+            dataPickle = infile.read()
 
-            dictator[self.name].update({'instruments': {
-                instrument_name: {'class': instrument['instance'].__class__.__name__, 'settings':instrument['settings']}
-                for instrument_name, instrument in self.instruments.iteritems()
-            }})
+        script_as_dict = cPickle.loads(dataPickle)
+        script_class = script_as_dict['_script_class']
 
-        dictator[self.name]['settings'] = self.settings
+        script_instance, _, updated_instruments = Script.load_and_append({'script': script_class}, instruments = instruments)
+        script_instance = script_instance['script']
 
-        return dictator
+        print(script_instance.instruments)
+
+        # save references to instruments
+        instruments = script_instance._instruments
+
+        # update the script instance
+        script_instance.__dict__ = script_as_dict
+
+        # update references to instruments
+        script_instance._instruments = instruments
+
+        return script_instance, updated_instruments
+
+
 
     @staticmethod
     def load_data(path, tag = None, time_tag_in = None, data_name_in = None):
@@ -584,7 +620,6 @@ class Script(object):
             data = data[data.keys()[0]]
 
         return data
-
     @staticmethod
     def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None):
         """
@@ -634,6 +669,7 @@ class Script(object):
                 dictionary of form
                 script_dict = { name_of_script_1 : script_1_instance, name_of_script_2 : script_2_instance, ...}
                 load_failed = {name_of_script_1: exception_1, name_of_script_2: exception_2, ....}
+                updated_instruments = {name_of_instrument_1 : instance_of_instrument_1, ..}
 
         """
 
@@ -846,7 +882,31 @@ class Script(object):
         script_instance = eval(class_creation_string)
 
         # todo: copy data
+        script_instance.data = deepcopy(self.data)
+
         return script_instance
+
+    def plot(self, axes):
+        """
+        plots the data contained in self.data, which should be a dictionary or a deque of dictionaries
+        for the latter use the last entry
+
+        """
+
+        if isinstance(self.data, deque):
+            data = self.data[-1]
+        elif isinstance(self.data, dict):
+            data = self.data
+        else:
+            data = {}
+
+        assert isinstance(data, dict)
+
+        if data == {}:
+            self.log("warning, not data found that can be plotted")
+        else:
+            for key, value in data.iteritems():
+                axes.plot(value)
 
 class QThreadWrapper(QThread):
 
@@ -878,29 +938,34 @@ class QThreadWrapper(QThread):
 if __name__ == '__main__':
     from src.core.read_write_functions import load_b26_file
     from src.instruments import DummyInstrument
-    from src.scripts import ScriptDummyWithInstrument
+    from src.scripts import ScriptDummyWithInstrument, ScriptDummy
 
     from src.core import Script
-    # create script
 
-    # # instruments = {}
-    # # scripts = {}
-    # scripts, loaded_failed, instruments = Script.load_and_append({"af": 'AutoFocus'})
-    # print(instruments)
-    # print(scripts)
+    f = 'Z:\\Lab\\Cantilever\\Measurements\\_tmp\\test.b26s'
+    script, instruments = Script.load(f)
 
-    # for name, script in scripts.iteritems():
-    #     script.save('{:s}{:s}.b26'.format(path, name.replace(' ', '_')))
+    print(script)
 
-    filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\AutoFocusX.b26"
+    print('----')
+    print(instruments)
 
-    data = load_b26_file(filename)
-    scripts = {}
-    instruments = {}
-    scripts, scripts_failed, instruments = Script.load_and_append(data['scripts'], scripts, instruments)
-    # print('loaded', scripts)
-    # print('failed', scripts_failed)
+    # #
+    # s, _, _ = Script.load_and_append({'s1':'ScriptDummyWithInstrument'})
+    # s = s['s1']
+    # print('------')
+    # # s = ScriptDummyWithInstrument()
     #
-    # print(instruments)
-    print(scripts['AutoFocus'].settings)
-    print(scripts['AutoFocus'].scripts['take_image'].settings)
+    # # print(s)
+    # s.update({'count': 55})
+    # s.save('Z:\\Lab\\Cantilever\\Measurements\\_tmp\\test.b26s')
+    # #
+    # print(s)
+
+    # s2 = ScriptDummyWithInstrument()
+    # print(s2)
+    # s2.load('Z:\\Lab\\Cantilever\\Measurements\\_tmp\\test.b26s')
+    #
+    # # print(s)
+    # print('----')
+    # print(s2)

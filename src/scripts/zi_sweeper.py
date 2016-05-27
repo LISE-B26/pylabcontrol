@@ -111,7 +111,7 @@ class ZISweeper(Script, QThread):
             progress = 100 # make sure that progess is set 1o 100 because we check that in the old_gui
 
             if self.settings['save']:
-                self.save()
+                self.save_b26()
                 self.save_data()
                 self.save_log()
 
