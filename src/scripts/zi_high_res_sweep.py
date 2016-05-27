@@ -163,7 +163,7 @@ class ZISweeperHighResolution(Script, QThread):
         self._recording = False
 
         if self.settings['save']:
-            self.save()
+            self.save_b26()
 
         # set the sweeper script back to initial settings
         sweeper_script.update(initial_settings)

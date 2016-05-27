@@ -115,7 +115,7 @@ script to balance photodetector to zero by adjusting polarization controller vol
         self.updateProgress.emit(90)
 
         if self.settings['save']:
-            self.save()
+            self.save_b26()
             self.save_data()
             self.save_log()
 
@@ -247,7 +247,7 @@ this gives a three dimensional dataset
                 self.updateProgress.emit(progress)
 
         if self.settings['save']:
-            self.save()
+            self.save_b26()
             self.save_data()
             self.save_log()
 
@@ -491,7 +491,7 @@ this gives a one dimensional dataset
             self.updateProgress.emit(progress)
 
         if self.settings['save']:
-            self.save()
+            self.save_b26()
             self.save_data()
             self.save_log()
 

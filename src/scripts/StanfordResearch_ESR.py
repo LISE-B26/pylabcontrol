@@ -131,7 +131,7 @@ class StanfordResearch_ESR(Script, QThread):
             self.updateProgress.emit(progress)
 
         if self.settings['save']:
-            self.save()
+            self.save_b26()
             self.save_data()
             self.save_log()
 

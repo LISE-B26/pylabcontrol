@@ -109,7 +109,7 @@ class ESR_Selected_NVs(Script, QThread):
 
         self.updateProgress.emit(100)
         if self.settings['save']:
-            self.save()
+            self.save_b26()
             self.save_data()
 
     def stop(self):

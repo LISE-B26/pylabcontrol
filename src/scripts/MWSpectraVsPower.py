@@ -60,7 +60,7 @@ class MWSpectraVsPower(Script, QThread):
 
         # set up instruments
 
-        self.save(save_data=False, save_instrumets=True, save_log=False, save_settings=True)
+        self.save_b26(save_data=False, save_instrumets=True, save_log=False, save_settings=True)
 
 
         power_values = [float(power) for power in np.arange(self.settings['uwave_power_min'], self.settings['uwave_power_max'], self.settings['uwave_power_step'])]
@@ -100,7 +100,7 @@ class MWSpectraVsPower(Script, QThread):
 
             self.data = data
 
-            self.save(save_data=True, save_instrumets=False, save_log=False, save_settings=False)
+            self.save_b26(save_data=True, save_instrumets=False, save_log=False, save_settings=False)
 
             progress = calc_progress(power)
 

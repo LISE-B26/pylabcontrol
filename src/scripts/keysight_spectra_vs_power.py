@@ -62,7 +62,7 @@ class KeysightSpectrumVsPower(Script, QThread):
         initial_power = spectrum_analyzer.settings['output_power']
         print('initial_power', initial_power)
 
-        self.save(save_data=False, save_instrumets=True, save_log=False, save_settings=True)
+        self.save_b26(save_data=False, save_instrumets=True, save_log=False, save_settings=True)
 
         for power in power_values:
 
@@ -98,13 +98,13 @@ class KeysightSpectrumVsPower(Script, QThread):
 
             self.data = data
 
-            self.save(save_data=True, save_instrumets=False, save_log=False, save_settings=False)
+            self.save_b26(save_data=True, save_instrumets=False, save_log=False, save_settings=False)
 
             progress = calc_progress(power)
             self.updateProgress.emit(progress)
 
 
-        self.save(save_data=False, save_instrumets=False, save_log=True, save_settings=False)
+        self.save_b26(save_data=False, save_instrumets=False, save_log=True, save_settings=False)
 
         spectrum_analyzer.output_power = initial_power
         # send 100 to signal that script is finished

@@ -148,7 +148,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         # check to see if data should be saved and save it
         if self.settings['save']:
             self.log('Saving...')
-            self.save()
+            self.save_b26()
             self.save_data()
             self.save_log()
             self.log('Finished saving.')

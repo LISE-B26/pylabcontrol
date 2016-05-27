@@ -31,7 +31,7 @@ def export_default_instruments(path):
                 instrument = obj()
 
                 filename = '{:s}{:s}.b26'.format(path, name)
-                instrument.save(filename)
+                instrument.save_b26(filename)
             except:
                 print('failed to create instrument file for: {:s}'.format(obj.__name__))
 
@@ -46,7 +46,7 @@ def export_default_scripts(path):
 
     for name, value in loaded_scripts.iteritems():
         filename = '{:s}{:s}.b26'.format(path, name)
-        value.save(filename)
+        value.save_b26(filename)
 
     if failed != {}:
         for error_name, error in failed.iteritems():
