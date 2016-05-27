@@ -37,6 +37,7 @@ class ScriptDummy(Script):
             settings (optional): settings for this script, if empty same as default settings
         """
         Script.__init__(self, name, settings, log_function= log_function, data_path = data_path)
+        self._plot_type = 'main'
 
 
     def _function(self):
@@ -93,6 +94,7 @@ class ScriptDummyWithQtSignal(Script, QThread):
         Script.__init__(self, name, settings, log_function= log_function, data_path = data_path)
         # QtCore.QThread.__init__(self)
         QThread.__init__(self)
+        self._plot_type = 'main'
 
 
     def _function(self):

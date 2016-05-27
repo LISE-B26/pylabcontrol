@@ -116,6 +116,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_plot_script.clicked.connect(self.btn_clicked)
             self.btn_plot_probe.clicked.connect(self.btn_clicked)
             self.btn_save_script_data.clicked.connect(self.btn_clicked)
+            self.btn_plot_data.clicked.connect(self.btn_clicked)
 
             self.btn_save_gui.triggered.connect(self.btn_clicked)
             self.btn_load_gui.triggered.connect(self.btn_clicked)
@@ -158,7 +159,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.scripts = {}
             self.probes = {}
 
-        self.data_sets = deque() # todo: load datasets from tmp folder
+        self.data_sets = {} # todo: load datasets from tmp folder
         self.read_probes = ReadProbes(self.probes)
 
     def closeEvent(self, event):
@@ -323,7 +324,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 script.start()
             else:
                 self.log('User stupidly tried to run a script without one selected.')
-
         def stop_button():
             if self.current_script is not None and self.current_script.isRunning():
                 self.current_script.stop()
@@ -345,21 +345,31 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # })
 
                 script_copy = script.duplicate()
+                time_tag = script.start_time.strftime('%y%m%d-%H_%M_%S')
 
-                self.data_sets.append(script_copy)
+                self.data_sets.update({time_tag : script_copy})
 
                 self.fill_dataset_tree(self.tree_dataset, self.data_sets)
+        def plot_data(sender):
+            print('plotdata', sender)
+            if sender is self.btn_plot_data:
+                index = self.tree_dataset.selectedIndexes()[0]
+                model = index.model()
+                time_tag = str(model.itemFromIndex(model.index(index.row(), 0)).text())
+                script = self.data_sets[time_tag]
+            elif sender is self.btn_plot_script:
+                item = self.tree_scripts.currentItem()
+                if item is not None:
+                    script, path_to_script = item.get_script()
+            print(script)
+            self.plot_script(script)
 
         if sender is self.btn_start_script:
             start_button()
         elif sender is self.btn_stop_script:
             stop_button()
-        elif sender is self.btn_plot_script:
-            item = self.tree_scripts.currentItem()
-            if item is not None:
-                script, path_to_script = item.get_script()
-                script.plot(self.matplotlibwidget.axes)
-                self.matplotlibwidget.draw()
+        elif sender is self.btn_plot_data or sender is self.btn_plot_script:
+            plot_data(sender)
         elif sender is self.btn_save_script_data:
             store_script_data()
         elif sender is self.btn_plot_probe:
@@ -493,6 +503,30 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                                                                             script.name)
             self.log(msg)
 
+    def plot_script(self, script):
+        """
+        checks the plottype of the script and plots it accordingly
+        Args:
+            script: script to be plotted
+
+        """
+        print('DDDD', script.plot_type)
+        if script.plot_type == 'main':
+            script.plot(self.matplotlibwidget.axes)
+            self.matplotlibwidget.draw()
+        elif script.plot_type == 'aux':
+            script.plot(self.matplotlibwidget_2.axes)
+            self.matplotlibwidget.draw()
+        elif script.plot_type == 'two':
+            script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
+            self.matplotlibwidget.draw()
+            self.matplotlibwidget_2.draw()
+        elif script.plot_type == 'none':
+            pass
+        else:
+            message = 'property plot_type = {:s} not correct for this script ({:s})!'.format(str(script.plot_type), script.name)
+            raise AttributeError(message)
+
     def update_status(self, progress):
         """
         waits for a signal emitted from a thread and updates the gui
@@ -524,29 +558,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         script = self.current_script
         if isinstance(script, QThreadWrapper):
             script = script.script
+        self.plot_script(script)
 
-        #if (len(self.matplotlibwidget.figure.axes) > 1):
-        #    self.matplotlibwidget.figure.delaxes(self.matplotlibwidget.figure.axes[1])
-        #    self.matplotlibwidget.axes.change_geometry(1, 1, 1)
-        #if (len(self.matplotlibwidget_2.figure.axes) > 1):
-        #    self.matplotlibwidget_2.figure.delaxes(self.matplotlibwidget_2.figure.axes[1])
-        #    self.matplotlibwidget_2.axes.change_geometry(1, 1, 1)
-
-        if script.plot_type == 'main':
-            script.plot(self.matplotlibwidget.axes)
-            self.matplotlibwidget.draw()
-        elif script.plot_type == 'aux':
-            script.plot(self.matplotlibwidget_2.axes)
-            self.matplotlibwidget.draw()
-        elif script.plot_type == 'two':
-            script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
-            self.matplotlibwidget.draw()
-            self.matplotlibwidget_2.draw()
-        elif script.plot_type == 'none':
-            pass
-        else:
-            message = 'property plot_type = {:s} not correct for this script ({:s})!'.format(str(script.plot_type), script.name)
-            raise AttributeError(message)
 
         if progress == 100:
             # self.refresh_tree(self.tree_scripts, self.scripts)
@@ -717,7 +730,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             return path
 
         tree = self.sender()
-        print()
+
         if tree == self.tree_gui_settings:
 
             index = tree.selectedIndexes()[0]
@@ -757,8 +770,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def fill_dataset_tree(self, tree, data_sets):
 
         tree.model().removeRows(0, tree.model().rowCount())
-        for script in self.data_sets:
-            time = script.start_time.strftime('%y%m%d-%H_%M_%S')
+        for time, script in self.data_sets.iteritems():
             name = script.settings['tag']
             type = script.name
 
