@@ -274,8 +274,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # This work-around is necessary because figures have a nasty 'feature' of remembering axes
         # characteristics of previous plots, and this is the only way I (Arthur) could figure out how to do it.
         def reset_figures():
-            self.verticalLayout_2.removeWidget(self.matplotlibwidget_2)
-            self.verticalLayout_2.removeWidget(self.matplotlibwidget)
+            self.horizontalLayout_15.removeWidget(self.matplotlibwidget_2)
+            self.horizontalLayout_14.removeWidget(self.matplotlibwidget)
             self.matplotlibwidget.close()
             self.matplotlibwidget_2.close()
             self.centralwidget = QtGui.QWidget(self)
@@ -288,13 +288,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.matplotlibwidget_2.setSizePolicy(sizePolicy)
             self.matplotlibwidget_2.setMinimumSize(QtCore.QSize(200, 200))
             self.matplotlibwidget_2.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget_2"))
-            self.verticalLayout_2.addWidget(self.matplotlibwidget_2)
+            self.horizontalLayout_15.addWidget(self.matplotlibwidget_2)
             self.matplotlibwidget = MatplotlibWidget(self.centralwidget)
             self.matplotlibwidget.setMinimumSize(QtCore.QSize(200, 200))
             self.matplotlibwidget.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget"))
-            self.verticalLayout_2.addWidget(self.matplotlibwidget)
-            self.verticalLayout_2.setStretch(0, 1)
-            self.verticalLayout_2.setStretch(1, 2)
+            self.horizontalLayout_14.addWidget(self.matplotlibwidget)
             self.matplotlibwidget.mpl_connect('button_press_event', self.plot_clicked)
             self.matplotlibwidget_2.mpl_connect('button_press_event', self.plot_clicked)
 

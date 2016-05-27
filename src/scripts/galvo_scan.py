@@ -57,7 +57,7 @@ class GalvoScan(Script, QThread):
 
         self.queue = Queue.Queue()
 
-        self.plotting_data = None
+        #self.plotting_data = None
 
     def _function(self):
         """
@@ -86,11 +86,7 @@ class GalvoScan(Script, QThread):
             self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x'])), 'bounds': [self.xVmin, self.xVmax, self.yVmin, self.yVmax]}
 
         # self.data.clear()  # clear data queue
-        self.log('update instruments')
         init_scan()
-        # preallocate
-        # image_data = np.zeros(len(self.x_array), len(self.y_array))
-        update_time = dt.datetime.now()
 
 
         for yNum in xrange(0, len(self.y_array)):
@@ -131,22 +127,9 @@ class GalvoScan(Script, QThread):
             # self.data.append(image_data)
 
             # sending updates every cycle leads to invalid task errors, so wait and don't overload gui
-            current_time = dt.datetime.now()
-            if (current_time-update_time).total_seconds() > 0.5:
-                self.plotting_data = np.copy(self.data['image_data'])
-                progress = int(float(yNum + 1)/len(self.y_array)*100)
-                self.updateProgress.emit(progress)
-                # print('emitting')
-                update_time = current_time
-                #time.sleep(0) #ensure plot finishes before starting next row, otherwise occasional daq crash
-                # print('waiting')
-                # temp = self.queue.get(True)
-                # print('got')
-                # print('queue_len', self.queue.qsize())
+            progress = int(float(yNum + 1) / len(self.y_array) * 100)
+            self.updateProgress.emit(progress)
 
-        self.plotting_data = np.copy(self.data['image_data'])
-        if not ((current_time - update_time).total_seconds() > 1.5):
-            time.sleep(2 - (current_time - update_time).total_seconds())
         progress = 100
         self.updateProgress.emit(progress)
 
@@ -187,13 +170,13 @@ class GalvoScan(Script, QThread):
         if(self._plotting == False):
             self.fig = axes.get_figure()
             if self.dvconv is None:
-                implot = axes.imshow(self.plotting_data, cmap = 'pink',
+                implot = axes.imshow(self.data['image_data'], cmap = 'pink',
                                                   interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
                 axes.set_xlabel('Vx')
                 axes.set_ylabel('Vy')
                 axes.set_title('Confocal Image')
             else:
-                implot = axes.imshow(self.plotting_data, cmap = 'pink',
+                implot = axes.imshow(self.data['image_data'], cmap = 'pink',
                   interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
                 axes.set_xlabel('Distance (um)')
                 axes.set_ylabel('Distance (um)')
@@ -206,13 +189,13 @@ class GalvoScan(Script, QThread):
             self._plotting = True
         else:
             if self.dvconv is None:
-                implot = axes.imshow(self.plotting_data, cmap = 'pink',
+                implot = axes.imshow(self.data['image_data'], cmap = 'pink',
                                                   interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
                 axes.set_xlabel('Vx')
                 axes.set_ylabel('Vy')
                 axes.set_title('Confocal Image')
             else:
-                implot = axes.imshow(self.plotting_data, cmap = 'pink',
+                implot = axes.imshow(self.data['image_data'], cmap = 'pink',
                   interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
                 axes.set_xlabel('Distance (um)')
                 axes.set_ylabel('Distance (um)')
@@ -222,11 +205,6 @@ class GalvoScan(Script, QThread):
     def stop(self):
         self._abort = True
 
-    # def save_data(self, filename = None):
-    #     super(GalvoScan, self).save_data(filename)
-    #     if filename is None:
-    #         filename = self.filename('.jpg')
-    #     # self.saveFigure.emit(filename)
 
 if __name__ == '__main__':
     script, failed, instruments = Script.load_and_append(script_dict={'GalvoScan': 'GalvoScan'})

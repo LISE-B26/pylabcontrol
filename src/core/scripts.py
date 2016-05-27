@@ -780,15 +780,15 @@ class Script(object):
                 sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
 
                 class_creation_string = ''
-                if script_instruments != {}:
+                if script_instruments:
                     class_creation_string += ', instruments = script_instruments'
-                if sub_scripts != {}:
+                if sub_scripts:
                     class_creation_string += ', scripts = sub_scripts'
-                if script_settings != {}:
+                if script_settings:
                     class_creation_string += ', settings = script_settings'
-                if log_function is not None:
+                if log_function:
                     class_creation_string += ', log_function = log_function'
-                if data_path is not None:
+                if data_path:
                     class_creation_string += ', data_path = data_path'
                 class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 

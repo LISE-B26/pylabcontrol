@@ -88,7 +88,7 @@ To select points, first run subscript Select_NVs_Simple
 
         acquire_image = self.scripts['acquire_image']
 
-        if acquire_image.plotting_data is None:
+        if 'image_data' not in acquire_image.data.keys():
             self.log('no image acquired!! Run subscript acquire_image first!!')
 
         if nv_locs == []:
@@ -98,8 +98,7 @@ To select points, first run subscript Select_NVs_Simple
                                                                    acquire_image.settings['point_b'],
                                                                    acquire_image.settings['RoI_mode'])
 
-
-        self.data = {'image_data': deepcopy(acquire_image.plotting_data),
+        self.data = {'image_data': deepcopy(acquire_image.data['image_data']),
                      'image_data_2':None,
                      'extent' :  [xVmin, xVmax, yVmax, yVmin],
                      'nv_locs': nv_locs,
@@ -151,7 +150,7 @@ To select points, first run subscript Select_NVs_Simple
         acquire_image.run()
         acquire_image.wait()  # wait for thread to complete
 
-        self.data['image_data_2'] = deepcopy(acquire_image.plotting_data)
+        self.data['image_data_2'] = deepcopy(acquire_image.data['image_data'])
 
 
 
