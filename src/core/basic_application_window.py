@@ -245,6 +245,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_10.addWidget(self.btn_plot_data)
         self.verticalLayout.addLayout(self.horizontalLayout_10)
         self.tree_dataset = QtGui.QTreeView(self.tab_data)
+        self.tree_dataset.setIndentation(0)
         self.tree_dataset.setObjectName(_fromUtf8("tree_dataset"))
         self.verticalLayout.addWidget(self.tree_dataset)
         self.horizontalLayout_9 = QtGui.QHBoxLayout()
@@ -396,7 +397,7 @@ class Ui_MainWindow(object):
         self.toolBar.addSeparator()
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(3)
         self.tabWidget_2.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 

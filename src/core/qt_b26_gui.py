@@ -332,7 +332,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.log('User clicked stop, but there isn\'t anything running...this is awkward. Re-enabling start button anyway.')
             self.btn_start_script.setEnabled(True)
-        def save_script_data():
+        def store_script_data():
             # item = self.tree_scripts.currentItem()
             # if item is not None:
             #     script, path_to_script = item.get_script()
@@ -342,7 +342,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             item = self.tree_scripts.currentItem()
             if item is not None:
                 script, path_to_script = item.get_script()
-                self.data_sets.append(script)
+                # self.data_sets.append({}
+                #     'data' : script.data,
+                # })
+
+                script_copy = script.duplicate()
+
+                self.data_sets.append(script_copy)
+
                 self.fill_dataset_tree(self.tree_dataset, self.data_sets)
 
         if sender is self.btn_start_script:
@@ -356,7 +363,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 script.plot(self.matplotlibwidget.axes)
                 self.matplotlibwidget.draw()
         elif sender is self.btn_save_script_data:
-            save_script_data()
+            store_script_data()
         elif sender is self.btn_plot_probe:
             item = self.tree_monitor.currentItem()
 

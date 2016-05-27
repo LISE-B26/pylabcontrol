@@ -62,7 +62,7 @@ class Script(object):
 
         self.data_path = data_path
 
-        self.instruments = {key: instruments[key] for key, value in self._INSTRUMENTS.iteritems()}
+        self.instruments = {key: instruments[key] for key in self._INSTRUMENTS.keys()}
 
         self._scripts = {}
         if scripts is None:
@@ -469,7 +469,6 @@ class Script(object):
             if filename_2 is not None:
                 fig_2.savefig(filename_2)
 
-
     def to_dict(self):
         """
 
@@ -802,6 +801,51 @@ class Script(object):
 
         return updated_scripts, load_failed, updated_instruments
 
+    def duplicate(self):
+        """
+        create an copy of the script
+
+        Returns:
+
+        """
+        print('class', self.__class__)
+        print('class.name', self.__class__.__name__)
+        print('instruments', self.instruments)
+        print('sub_scripts', self.scripts)
+        print('settings', self.settings)
+        print('log_function', self.log_function)
+        print('data_path', self.data_path)
+
+        # todo: check if deepcopy needed
+        # get settings of script
+        class_of_script = self.__class__
+        script_name = self.name
+        script_instruments = self.instruments
+        sub_scripts = self.scripts
+        script_settings = self.settings
+        log_function = self.log_function
+        data_path = self.data_path
+
+
+        #create a new instance of same script type
+        class_creation_string = ''
+        if script_instruments != {}:
+            class_creation_string += ', instruments = script_instruments'
+        if sub_scripts != {}:
+            class_creation_string += ', scripts = sub_scripts'
+        if script_settings != {}:
+            class_creation_string += ', settings = script_settings'
+        if log_function is not None:
+            class_creation_string += ', log_function = log_function'
+        if data_path is not None:
+            class_creation_string += ', data_path = data_path'
+        class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
+        # create instance
+        print(class_creation_string)
+        script_instance = eval(class_creation_string)
+
+        # todo: copy data
+        return script_instance
 
 class QThreadWrapper(QThread):
 
