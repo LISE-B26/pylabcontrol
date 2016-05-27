@@ -48,7 +48,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="tab_scripts">
            <attribute name="title">
@@ -85,14 +85,14 @@
                  </spacer>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="btn_save_script_data">
+                 <widget class="QPushButton" name="btn_store_script_data">
                   <property name="font">
                    <font>
                     <pointsize>10</pointsize>
                    </font>
                   </property>
                   <property name="text">
-                   <string>save script data</string>
+                   <string>send to dataset</string>
                   </property>
                  </widget>
                 </item>
@@ -413,7 +413,7 @@
                  <bool>false</bool>
                 </property>
                 <attribute name="headerDefaultSectionSize">
-                 <number>150</number>
+                 <number>200</number>
                 </attribute>
                 <attribute name="headerHighlightSections">
                  <bool>true</bool>
@@ -469,12 +469,36 @@
                     </property>
                    </widget>
                   </item>
+                  <item>
+                   <widget class="QPushButton" name="btn_delete_data">
+                    <property name="font">
+                     <font>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>delete selected</string>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
                 <item>
                  <widget class="QTreeView" name="tree_dataset">
-                  <property name="indentation">
-                   <number>0</number>
+                  <property name="dragEnabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="dragDropMode">
+                   <enum>QAbstractItemView::DragDrop</enum>
+                  </property>
+                  <property name="defaultDropAction">
+                   <enum>Qt::MoveAction</enum>
+                  </property>
+                  <property name="selectionMode">
+                   <enum>QAbstractItemView::ExtendedSelection</enum>
+                  </property>
+                  <property name="uniformRowHeights">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>

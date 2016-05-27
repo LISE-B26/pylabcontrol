@@ -71,7 +71,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_monitor.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
             # self.tree_dataset.setColumnWidth(0, 100)
-            self.tree_dataset.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            # self.tree_dataset.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
             # self.tree_gui_settings.setColumnWidth(0, 500)
             self.tree_gui_settings.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
@@ -107,8 +107,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_stop_script.clicked.connect(self.btn_clicked)
             self.btn_plot_script.clicked.connect(self.btn_clicked)
             self.btn_plot_probe.clicked.connect(self.btn_clicked)
-            self.btn_save_script_data.clicked.connect(self.btn_clicked)
+            self.btn_store_script_data.clicked.connect(self.btn_clicked)
             self.btn_plot_data.clicked.connect(self.btn_clicked)
+            self.btn_save_data.clicked.connect(self.btn_clicked)
+            self.btn_delete_data.clicked.connect(self.btn_clicked)
+
+
 
             self.btn_save_gui.triggered.connect(self.btn_clicked)
             self.btn_load_gui.triggered.connect(self.btn_clicked)
@@ -327,12 +331,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.log('User clicked stop, but there isn\'t anything running...this is awkward. Re-enabling start button anyway.')
             self.btn_start_script.setEnabled(True)
         def store_script_data():
-            # item = self.tree_scripts.currentItem()
-            # if item is not None:
-            #     script, path_to_script = item.get_script()
-            #     script.save_log()
-            #     script.save()
-            #     script.save_data()
+            """
+            send selected script to dataset tab
+            Returns:
+
+            """
             item = self.tree_scripts.currentItem()
             if item is not None:
                 script, path_to_script = item.get_script()
@@ -346,6 +349,32 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.data_sets.update({time_tag : script_copy})
 
                 self.fill_dataset_tree(self.tree_dataset, self.data_sets)
+        def save_data():
+            indecies = self.tree_dataset.selectedIndexes()
+            model = indecies[0].model()
+            rows = list(set([index.row()for index in indecies]))
+
+            for row in rows:
+                time_tag = str(model.itemFromIndex(model.index(row, 0)).text())
+                name_tag = str(model.itemFromIndex(model.index(row, 1)).text())
+                path = self.gui_settings['data_folder']
+                script = self.data_sets[time_tag]
+                script.update({'tag' : name_tag, 'path': path})
+                script.save_data()
+                script.save_b26()
+                script.save_log()
+        def delete_data():
+            indecies = self.tree_dataset.selectedIndexes()
+            model = indecies[0].model()
+            rows = list(set([index.row()for index in indecies]))
+
+            for row in rows:
+                time_tag = str(model.itemFromIndex(model.index(row, 0)).text())
+                print(self.data_sets.keys())
+                del self.data_sets[time_tag]
+
+                model.removeRows(row,1)
+
         def plot_data(sender):
             print('plotdata', sender)
             if sender is self.btn_plot_data:
@@ -366,8 +395,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             stop_button()
         elif sender is self.btn_plot_data or sender is self.btn_plot_script:
             plot_data(sender)
-        elif sender is self.btn_save_script_data:
+        elif sender is self.btn_store_script_data:
             store_script_data()
+        elif sender is self.btn_save_data:
+            save_data()
+        elif sender is self.btn_delete_data:
+            delete_data()
         elif sender is self.btn_plot_probe:
             item = self.tree_monitor.currentItem()
 
@@ -506,9 +539,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script: script to be plotted
 
         """
-        print('DDDD -name', script.name)
-        print('DDDD - data', script.data)
-        print('DDDD - type', script.plot_type)
+
         if script.plot_type == 'main':
             script.plot(self.matplotlibwidget.axes)
             self.matplotlibwidget.draw()
@@ -768,14 +799,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def fill_dataset_tree(self, tree, data_sets):
 
         tree.model().removeRows(0, tree.model().rowCount())
-        for time, script in self.data_sets.iteritems():
+        for index, (time, script) in enumerate(data_sets.iteritems()):
             name = script.settings['tag']
             type = script.name
 
-            item_time = QtGui.QStandardItem(time)
-            item_name = QtGui.QStandardItem(name)
-            item_type = QtGui.QStandardItem(type)
+            item_time = QtGui.QStandardItem(unicode(time))
+            item_name = QtGui.QStandardItem(unicode(name))
+            item_type = QtGui.QStandardItem(unicode(type))
+
+            item_time.setSelectable(False)
+            item_time.setEditable(False)
+            item_type.setSelectable(False)
+            item_type.setEditable(False)
+
             tree.model().appendRow([item_time, item_name, item_type])
+
 
     def load_config(self, file_name):
         assert os.path.isfile(file_name)
@@ -814,7 +852,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             print('============ loading instruments ================')
             self.instruments, failed = Instrument.load_and_append(instruments)
-            if failed != []:
+            if failed != {}:
                 print('WARNING! Following instruments could not be loaded: ', failed)
             print('============ loading scripts ================')
             self.scripts, failed, self.instruments = Script.load_and_append(
@@ -823,7 +861,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 log_function=self.log,
                 data_path=self.gui_settings['data_folder'])
 
-            if failed != []:
+            if failed != {}:
                 print('WARNING! Following scripts could not be loaded: ', failed)
             print('============ loading probes not implmented ================')
             # probes = instantiate_probes(probes, instruments)

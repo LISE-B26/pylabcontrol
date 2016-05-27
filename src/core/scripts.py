@@ -845,15 +845,7 @@ class Script(object):
         Returns:
 
         """
-        print('class', self.__class__)
-        print('class.name', self.__class__.__name__)
-        print('instruments', self.instruments)
-        print('sub_scripts', self.scripts)
-        print('settings', self.settings)
-        print('log_function', self.log_function)
-        print('data_path', self.data_path)
 
-        # todo: check if deepcopy needed
         # get settings of script
         class_of_script = self.__class__
         script_name = self.name
@@ -881,8 +873,9 @@ class Script(object):
         print(class_creation_string)
         script_instance = eval(class_creation_string)
 
-        # todo: copy data
         script_instance.data = deepcopy(self.data)
+        script_instance.start_time = self.start_time
+        script_instance.end_time = self.end_time
 
         return script_instance
 
