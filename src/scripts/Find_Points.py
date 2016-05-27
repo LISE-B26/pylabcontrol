@@ -20,7 +20,7 @@ import skimage.feature as feature
 # REF_PIXEL_NUM = 120
 # MIN_NV_CNTS = 15
 
-from src.plotting.plotting import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence
 
 class Find_Points(Script):
     _DEFAULT_SETTINGS = Parameter([

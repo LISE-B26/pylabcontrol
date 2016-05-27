@@ -5,7 +5,7 @@ from PySide.QtCore import Signal, QThread
 from scipy import signal
 
 from src.core import Script, Parameter
-from src.plotting.plotting import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence
 from src.scripts.galvo_scan import GalvoScan
 
 

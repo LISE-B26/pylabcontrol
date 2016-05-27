@@ -4,7 +4,7 @@ from matplotlib import patches
 
 from src.core import Script, Parameter
 from src.instruments.NIDAQ import DAQ
-from src.plotting.plotting import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence
 from src.scripts import StanfordResearch_ESR, Correlate_Images
 
 

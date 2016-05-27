@@ -8,7 +8,7 @@ from src.core import Parameter
 from src.instruments import MicrowaveGenerator, DAQ
 from collections import deque
 
-from src.plotting import plotting
+from src.plotting.plots_1d import plot_esr
 
 
 class StanfordResearch_ESR(Script, QThread):
@@ -162,7 +162,7 @@ class StanfordResearch_ESR(Script, QThread):
 
     def plot(self, axes):
         if self.data:
-            plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
+            plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
         # if self.data:
         #     fit_params = self.data[-1]['fit_params']
         #     if not fit_params[0] == -1:  # check if fit failed
