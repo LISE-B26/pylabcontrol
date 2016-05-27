@@ -164,7 +164,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def closeEvent(self, event):
 
-        print('AAA', self.gui_settings)
         fname =  os.path.join(self.gui_settings['tmp_folder'],'gui_settings.b26')
         print('save settings to {:s}'.format(fname))
         self.save_settings(fname)
@@ -172,6 +171,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         fname =  self.config_filename
         print('save config to {:s}'.format(fname))
         self.save_config(fname)
+
+        # fname = self.gui_settings['tmp_folder']
+        # print('save datasets to {:s}'.format(fname))
+        # self.save_dataset(fname)
 
         event.accept()
 
@@ -914,3 +917,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         with open(out_file_name, 'w') as outfile:
             tmp = json.dump({"gui_settings":self.gui_settings}, outfile, indent=4)
+
+    def save_dataset(self, out_file_name):
+        """
+        saves current dataset to out_file_name
+        Args:
+            out_file_name: name of file
+        """
+
+        for time_tag, script in self.data_sets.iteritems():
+            print(time_tag, script)
+            script.save(os.path.join(out_file_name, '{:s}.b26s'.format(time_tag)))

@@ -488,7 +488,7 @@ class Script(object):
         """
         if filename is None:
             filename = self.filename('.b26s')
-
+        print('savingg', filename)
         with open(filename, 'w') as outfile:
             outfile.write(cPickle.dumps(self.__dict__))
 
