@@ -99,7 +99,7 @@ class Ui_MainWindow(object):
         self.tree_scripts.setWordWrap(True)
         self.tree_scripts.setHeaderHidden(False)
         self.tree_scripts.setObjectName(_fromUtf8("tree_scripts"))
-        self.tree_scripts.header().setDefaultSectionSize(200)
+        self.tree_scripts.header().setDefaultSectionSize(300)
         self.tree_scripts.header().setHighlightSections(True)
         self.verticalLayout_4.addWidget(self.tree_scripts)
         self.horizontalLayout_5 = QtGui.QHBoxLayout()
