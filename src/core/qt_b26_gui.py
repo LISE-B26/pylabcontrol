@@ -119,6 +119,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_about.triggered.connect(self.btn_clicked)
             self.btn_exit.triggered.connect(self.close)
 
+            self.btn_test_2.triggered.connect(self.test)
+
 
             self.btn_load_instruments.clicked.connect(self.btn_clicked)
             self.btn_load_scripts.clicked.connect(self.btn_clicked)
@@ -177,6 +179,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # self.save_dataset(fname)
 
         event.accept()
+
+    def test(self):
+        """
+        just for testing
+        Returns:
+
+        """
+        print('AAAAAAA')
+        fname = self.gui_settings['tmp_folder']
+        print('save datasets to {:s}'.format(fname))
+        self.save_dataset(fname)
 
     def switch_tab(self):
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
