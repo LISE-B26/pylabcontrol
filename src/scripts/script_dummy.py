@@ -1,5 +1,9 @@
 from src.core import Parameter, Script
+
+from copy import deepcopy
 # from PyQt4 import QtCore
+import numpy as np
+
 try:
     from src.instruments import DummyInstrument
 except:
@@ -217,10 +221,25 @@ class ScriptDummyWithSubScript(Script):
 
         N = self.settings['repetitions']
 
+        print([self.settings['repetitions'], self.scripts['sub_script'].settings['count']])
+
+        data = np.zeros([self.settings['repetitions'], self.scripts['sub_script'].settings['count']])
+
         self.log('I am a test function runnning suscript {:s} {:d} times'.format(script.name, N))
         for i in range(N):
             self.log('run number {:d} / {:d}'.format(i+1, N))
             script.run()
+            # script.wait()
+
+            data[i] = deepcopy(script.data['random data'])
+
+        self.data = {'data' : data}
+
+
+    def plot(self, axes):
+     for data_set in self.data['data']:
+         axes.plot(data_set)
+
 
 
 
