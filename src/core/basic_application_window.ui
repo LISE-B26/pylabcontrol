@@ -148,7 +148,7 @@
                  <bool>false</bool>
                 </property>
                 <attribute name="headerDefaultSectionSize">
-                 <number>200</number>
+                 <number>300</number>
                 </attribute>
                 <attribute name="headerHighlightSections">
                  <bool>true</bool>
@@ -703,9 +703,16 @@
     </property>
     <addaction name="btn_about"/>
    </widget>
+   <widget class="QMenu" name="btn_test">
+    <property name="title">
+     <string>test_button</string>
+    </property>
+    <addaction name="btn_test_2"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
    <addaction name="menuHelp"/>
+   <addaction name="btn_test"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -738,6 +745,11 @@
   <action name="btn_about">
    <property name="text">
     <string>about</string>
+   </property>
+  </action>
+  <action name="btn_test_2">
+   <property name="text">
+    <string>test</string>
    </property>
   </action>
  </widget>
