@@ -234,7 +234,7 @@ maestro light controller
 6-channel maestro micro-controller to control the lights in the cold temperature setup
     """
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('port', 'COM5', ['COM5', 'COM3'], 'com port to which maestro controler is connected'),
+        Parameter('port', 'COM7', ['COM3', 'COM5', 'COM7'], 'com port to which maestro controler is connected'),
         Parameter('block green', [
             Parameter('channel', 5, int, 'channel to which motor is connected'),
             Parameter('open', True, bool, 'beam block open or closed'),

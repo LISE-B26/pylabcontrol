@@ -180,3 +180,10 @@ class FindMaxCounts(Script, QThread):
     #     if filename is None:
     #         filename = self.filename('.jpg')
     #     # self.saveFigure.emit(filename)
+
+    if __name__ == '__main__':
+        script, failed, instruments = Script.load_and_append(script_dict={'FindMaxCounts': 'FindMaxCounts'})
+
+        print(script)
+        print(failed)
+        print(instruments)
