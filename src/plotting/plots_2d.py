@@ -1,4 +1,4 @@
-def plot_fluorescence(image_data, extent, axes):
+def plot_fluorescence(image_data, extent, axes, max_counts = -1):
     """
 
     Args:
@@ -10,7 +10,11 @@ def plot_fluorescence(image_data, extent, axes):
 
     """
     fig = axes.get_figure()
-    implot = axes.imshow(image_data, cmap='pink', interpolation="nearest", extent=extent)
+    if max_counts > 0:
+        implot = axes.imshow(image_data, cmap='pink', interpolation="nearest", extent=extent, vmax = max_counts)
+        print('here')
+    else:
+        implot = axes.imshow(image_data, cmap='pink', interpolation="nearest", extent=extent)
     axes.set_xlabel('Vx')
     axes.set_ylabel('Vy')
     axes.set_title('Confocal Image')

@@ -36,7 +36,7 @@ class ReadProbes(QThread):
 
             self.updateProgress.emit(1)
 
-            time.sleep(self.refresh_interval)
+            #time.sleep(self.refresh_interval)
 
 
     def stop(self):

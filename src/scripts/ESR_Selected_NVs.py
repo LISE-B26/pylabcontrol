@@ -5,7 +5,7 @@ from matplotlib import patches
 from src.core import Script, Parameter
 from src.instruments.NIDAQ import DAQ
 from src.plotting.plots_2d import plot_fluorescence
-from src.scripts import StanfordResearch_ESR, Correlate_Images
+from src.scripts import StanfordResearch_ESR, Correlate_Images, AutoFocus, FindMaxCounts
 
 
 class ESR_Selected_NVs(Script, QThread):
@@ -19,11 +19,12 @@ class ESR_Selected_NVs(Script, QThread):
         Parameter('path', 'Z:/Lab/Cantilever/Measurements/', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', True, bool, 'save data on/off'),
-        Parameter('correlate', False, bool, 'Activate Correlation')
+        Parameter('correlate', False, bool, 'Activate Correlation'),
+        Parameter('num_between_autofocus', -1, int, 'Number of ESRs between autofocuses, -1 to deactivate autofocus')
     ])
 
     _INSTRUMENTS = {'daq':  DAQ}
-    _SCRIPTS = {'StanfordResearch_ESR': StanfordResearch_ESR, 'Correlate_Images': Correlate_Images}
+    _SCRIPTS = {'StanfordResearch_ESR': StanfordResearch_ESR, 'Correlate_Images': Correlate_Images, 'AF': AutoFocus, 'Find_NV': FindMaxCounts}
 
     #updateProgress = Signal(int)
 
@@ -66,6 +67,8 @@ class ESR_Selected_NVs(Script, QThread):
         """
         self._abort = False
 
+        self.af_index = 1
+
         self.load_coors_and_image()
 
         esr_settings = self.scripts['StanfordResearch_ESR'].settings
@@ -75,14 +78,31 @@ class ESR_Selected_NVs(Script, QThread):
 
         for index, pt in enumerate(self.nv_locs):
             if not self._abort:
+                if (not self.settings['num_between_autofocus'] == -1) and (self.af_index == self.settings['num_between_autofocus']):
+                    pt = np.transpose(np.column_stack((pt[0], pt[1])))
+                    pt = (np.repeat(pt, 2, axis=1))
+                    self.instruments['daq']['instance'].AO_init(["ao0", "ao1"], pt)
+                    self.instruments['daq']['instance'].AO_run()
+                    self.instruments['daq']['instance'].AO_waitToFinish()
+                    self.instruments['daq']['instance'].AO_stop()
+
+                    self.scripts['AF'].run()
+                    self.scripts['AF'].wait()
+
+                    self.af_index = 0
                 if self.settings['correlate']:
                     self.scripts['Correlate_Images'].settings['new_image_center'] = pt
                     self.scripts['Correlate_Images'].run()
                     self.scripts['Correlate_Images'].wait()
                     pt = self.scripts['Correlate_Images'].shift_coordinates(pt)
                     self.scripts['Correlate_Images'].settings['reset'] = False
+
+                self.scripts['Find_NV'].settings['initial_point'] = pt
+                self.scripts['Find_NV'].run()
+                self.scripts['Find_NV'].wait()
+                self.cur_pt = self.scripts['Find_NV'].data['maximum_points']
                 self.index = index
-                self.cur_pt = pt
+                # self.cur_pt = pt
                 self.log('Taking ESR of point ' + str(index + 1) + ' of ' + str(len(self.nv_locs)))
                 #set laser to new point
                 pt = np.transpose(np.column_stack((pt[0], pt[1])))
@@ -104,6 +124,8 @@ class ESR_Selected_NVs(Script, QThread):
                 #update: probably not supported, but doesn't seem to have any ill effects
                 # self.scripts['StanfordResearch_ESR'] = StanfordResearch_ESR(esr_instruments, settings = esr_settings)
                 # self.scripts['StanfordResearch_ESR'].updateProgress.connect(self._receive_signal)
+
+                self.af_index += 1
 
 
 
