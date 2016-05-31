@@ -51,6 +51,9 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         self._plot_type = 'two'
 
+        self.scripts['take_image'].settings['point_a'].update({'x': -.05, 'y': -.05})
+        self.scripts['take_image'].settings['point_b'].update({'x': .05, 'y': .05})
+        self.scripts['take_image'].settings['num_points'].update({'x': 30, 'y': 30})
 
     def _function(self):
         """

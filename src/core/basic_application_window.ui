@@ -155,7 +155,7 @@
                 </attribute>
                 <column>
                  <property name="text">
-                  <string>Parameter/Script</string>
+                  <string>Parameter/Script                       </string>
                  </property>
                 </column>
                 <column>

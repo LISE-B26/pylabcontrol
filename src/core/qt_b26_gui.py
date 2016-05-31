@@ -405,6 +405,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 if item is not None:
                     script, path_to_script = item.get_script()
             print(script)
+            self.update_script_from_tree(script, self.tree_scripts)
             self.plot_script(script)
 
         if sender is self.btn_start_script:
@@ -644,6 +645,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             outfile.write("{:s}\n".format(",".join(map(str, new_values.values()))))
 
     def update_script_from_tree(self, script, tree):
+        print('updating')
+        print('items', tree.selectedItems())
 
         def update_script_from_item(script, item):
             # build dictionary
@@ -678,9 +681,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             script.update(dictator)
 
-        for item in tree.selectedItems():
-            if item.valid_values == type(script) and item.name == script.name:
-                update_script_from_item(script, item)
+        # for item in tree.selectedItems():
+        #     if item.valid_values == type(script) and item.name == script.name:
+        #         print('updating', item)
+        #         update_script_from_item(script, item)
+
+        for index in range(tree.topLevelItemCount()):
+            topLvlItem = tree.topLevelItem(index)
+
+            if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
+                update_script_from_item(script, topLvlItem)
 
         # old stuff can be deleted at some point (change may 25th, delete after june 25th)
         # for index in range(tree.topLevelItemCount()):

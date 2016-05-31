@@ -39,7 +39,8 @@ class GalvoScan(Script, QThread):
                    Parameter('y', 120, int, 'number of y points to scan')
                    ]),
         Parameter('time_per_pt', .001, [.001, .002, .005, .01], 'time in s to measure at each point'),
-        Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle')
+        Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle'),
+        Parameter('max_counts_plot', -1, int, 'Rescales colorbar with this as the maximum counts on replotting')
     ])
 
     _INSTRUMENTS = {'daq':  DAQ}
@@ -89,7 +90,6 @@ class GalvoScan(Script, QThread):
         init_scan()
         self.data['extent'] = [self.xVmin, self.xVmax, self.yVmax, self.yVmin]
 
-        print self.y_array
         for yNum in xrange(0, len(self.y_array)):
 
             if self._abort:
@@ -150,7 +150,7 @@ class GalvoScan(Script, QThread):
             ptb: point b
             roi_mode:   mode how to calculate region of interest
                         corner: pta and ptb are diagonal corners of rectangle.
-                        center: pta is center and pta is extend or rectangle
+                        center: pta is center and ptb is extend or rectangle
 
         Returns: extend of region of interest [xVmin, xVmax, yVmax, yVmin]
 
@@ -168,7 +168,7 @@ class GalvoScan(Script, QThread):
         return [xVmin, xVmax, yVmax, yVmin]
 
     def plot(self, axes):
-        plot_fluorescence(self.data['image_data'], self.data['extent'], axes)
+        plot_fluorescence(self.data['image_data'], self.data['extent'], axes, max_counts = self.settings['max_counts_plot'])
         '''
         if(self._plotting == False):
             self.fig = axes.get_figure()
