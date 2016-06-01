@@ -170,11 +170,36 @@ class Select_NVs_Simple(Script, QThread):
         # patch_size = self.settings['patch_size']
         print(pt)
 
-        self.data['nv_locations'].append(pt)
-        self.plot(axes)
+        if not self.data['nv_locations']:
+            self.data['nv_locations'].append(pt)
         # circ = patches.Circle((nv_pt[0], nv_pt[1]), patch_size, fc='b')
         # axes.add_patch(circ)
         # self.patches.append(circ)
+
+        else:
+            # use KDTree to find NV closest to mouse click
+            tree = scipy.spatial.KDTree(self.data['nv_locations'])
+            d, i = tree.query(pt,k = 1, distance_upper_bound = self.settings['patch_size'])
+
+            # removes NV if previously selected
+            if d is not np.inf:
+                nv_pt = self.data['nv_locations'][i]
+                # print(nv_pt)
+                # self.data['nv_locations'].remove(np.array(nv_pt))
+                # for circ in self.patches:
+                #     if (nv_pt == np.array(circ.center)).all():
+                #         self.patches.remove(circ)
+                #         circ.remove()
+                #         break
+            # adds NV if not previously selected
+            else:
+                self.data['nv_locations'].append(pt)
+                circ = patches.Circle((pt[0], pt[1]), .001, fc='b')
+                axes.add_patch(circ)
+                self.patches.append(circ)
+
+        self.plot(axes)
+
 
 if __name__ == '__main__':
 

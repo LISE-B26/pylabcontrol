@@ -244,14 +244,14 @@ maestro light controller
         ]),
         Parameter('block IR', [
             Parameter('channel', 4, int, 'channel to which motor is connected'),
-            Parameter('open', True, bool, 'beam block open or closed'),
+            Parameter('open', False, bool, 'beam block open or closed'),
             Parameter('settle_time', 0.2, float, 'settling time'),
             Parameter('position_open', 4 * 1900, int, 'position corresponding to open'),
             Parameter('position_closed', 4 * 950, int, 'position corresponding to closed')
         ]),
         Parameter('white light', [
             Parameter('channel', 0, int, 'channel to which motor is connected'),
-            Parameter('open', True, bool, 'beam block open or closed'),
+            Parameter('open', False, bool, 'beam block open or closed'),
             Parameter('settle_time', 0.2, float, 'settling time'),
             Parameter('position_open', 4 * 1000, int, 'position corresponding to open'),
             Parameter('position_closed', 4 * 1800, int, 'position corresponding to closed')
@@ -262,7 +262,7 @@ maestro light controller
             Parameter('ND2.0_position', 4 * 2700, int, 'position corresponding to position 1'),
             Parameter('ND1.0_position', 4 * 1700, int, 'position corresponding to position 2'),
             Parameter('red_filter_position', 4 * 750, int, 'position corresponding to position 3'),
-            Parameter('current_position', 'ND1.0', ['ND1.0', 'ND2.0', 'red_filter'],
+            Parameter('current_position', 'red_filter', ['ND1.0', 'ND2.0', 'red_filter'],
                       'current position of filter wheel')
         ])
     ])

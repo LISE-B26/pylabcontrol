@@ -466,8 +466,6 @@ class Script(object):
             canvas_1 = FigureCanvas(fig_1)
             ax_1 = fig_1.add_subplot(1, 1, 1)
 
-            self.plot(ax_1)
-
             fig_2 = Figure()
             canvas_2 = FigureCanvas(fig_2)
             ax_2 = fig_2.add_subplot(1, 1, 1)
