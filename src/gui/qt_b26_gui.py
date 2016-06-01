@@ -2,10 +2,15 @@
 Basic gui class designed with QT designer
 """
 import sip
-sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
+try:
+    import sip
+    sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
+except ValueError:
+    pass
 from PyQt4 import QtGui, QtCore
 from PyQt4.uic import loadUiType
-from src.core import Parameter, Instrument, Script, B26QTreeItem, ReadProbes, QThreadWrapper
+from src.core import Parameter, Instrument, Script, ReadProbes, QThreadWrapper
+from src.gui import B26QTreeItem
 import os.path
 import numpy as np
 import json as json
@@ -30,7 +35,7 @@ try:
     Ui_MainWindow, QMainWindow = loadUiType('basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
-    from src.core.basic_application_window import Ui_MainWindow
+    from src.gui.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
     print('Warning: on-the-fly conversion of basic_application_window.ui file failed, loaded .py file instead.')
 
@@ -89,6 +94,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_gui_settings_model = QtGui.QStandardItemModel()
             self.tree_gui_settings.setModel(self.tree_gui_settings_model)
             self.tree_gui_settings_model.setHorizontalHeaderLabels(['parameter', 'value'])
+
 
 
         def connect_controls():
@@ -916,6 +922,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         saves a old_gui settings file (to a json dictionary)
         - path_to_file: path to file that will contain the dictionary
         """
+        out_file_name = str(out_file_name)
 
         print('saving', out_file_name)
 
@@ -936,6 +943,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             out_data['probes'].update(probe.to_dict())
 
         if not os.path.exists(os.path.dirname(out_file_name)):
+            print('creating: ', out_file_name)
             os.makedirs(os.path.dirname(out_file_name))
 
         with open(out_file_name, 'w') as outfile:

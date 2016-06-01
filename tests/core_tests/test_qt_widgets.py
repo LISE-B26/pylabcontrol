@@ -1,10 +1,8 @@
-from unittest import TestCase
-
 import sip
+from unittest import TestCase
 sip.setapi('QVariant', 2)
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtGui
 import sys
-from src.core.qt_b26_widgets import B26QTreeItem
 from src.core import Parameter
 
 class UI(QtGui.QMainWindow):

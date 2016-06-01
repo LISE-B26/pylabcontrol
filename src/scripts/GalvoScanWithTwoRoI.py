@@ -4,7 +4,7 @@ from src.scripts import GalvoScanWithLightControl
 from copy import deepcopy
 from src.plotting.plots_2d import plot_fluorescence
 
-class GalvoScanWithLightControl(Script, QThread):
+class GalvoScanWithTwoRoI(Script, QThread):
     """
 Select two regions of interest (RoI) and the light mode for each (fluorescence or reflection).
 Takes an image based on GalvoScanWithLightControl script which takes image based in GalvoScan script and controls light with MaestroLightControl instrument
@@ -14,10 +14,10 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
     saveFigure = Signal(str)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
+        Parameter('path', '\\tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
         Parameter('save', True, bool, 'check to automatically save data'),
-        Parameter('RoI_1',
+        Parameter('RoI_1',[
                   Parameter('point_a',
                             [Parameter('x', -0.4, float, 'x-coordinate'),
                              Parameter('y', -0.4, float, 'y-coordinate')
@@ -27,8 +27,8 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
                              Parameter('y', 0.4, float, 'y-coordinate')
                    ]),
                   Parameter('light_mode', 'fluorescence', ['fluorescence', 'reflection'])
-                  ),
-        Parameter('RoI_2',
+                  ]),
+        Parameter('RoI_2',[
                   Parameter('point_a',
                             [Parameter('x', -0.4, float, 'x-coordinate'),
                              Parameter('y', -0.4, float, 'y-coordinate')
@@ -38,7 +38,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
                              Parameter('y', 0.4, float, 'y-coordinate')
                              ]),
                   Parameter('light_mode', 'fluorescence', ['fluorescence', 'reflection'])
-                  )
+                  ])
     ])
 
     _INSTRUMENTS = {}
@@ -46,9 +46,9 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
     _SCRIPTS = {'acquire_image': GalvoScanWithLightControl}
 
 
-    def __init__(self, instruments, scripts, name=None, settings=None, log_function=None, data_path=None):
+    def __init__(self, scripts, name=None, settings=None, log_function=None, data_path=None):
 
-        Script.__init__(self, name, settings=settings, instruments=instruments, scripts = scripts, log_function=log_function, data_path=data_path)
+        Script.__init__(self, name, settings=settings, scripts = scripts, log_function=log_function, data_path=data_path)
 
         QThread.__init__(self)
 

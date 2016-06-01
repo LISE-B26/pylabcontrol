@@ -7,13 +7,11 @@ try:
 except ValueError:
     pass
 
-from parameter import Parameter
 from instruments import Instrument
+from parameter import Parameter
 from probe import Probe
 from scripts import Script, QThreadWrapper
-from qt_b26_load_dialog import LoadDialog
 
-from qt_b26_widgets import B26QTreeItem
 try:
     from read_probes import ReadProbes
 except:
