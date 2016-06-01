@@ -1,12 +1,12 @@
 """
 Basic gui class designed with QT designer
 """
-import sip
-try:
-    import sip
-    sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
-except ValueError:
-    pass
+# import sip
+# try:
+#     import sip
+#     sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
+# except ValueError:
+#     pass
 from PyQt4 import QtGui, QtCore
 from PyQt4.uic import loadUiType
 from src.core import Parameter, Instrument, Script, ReadProbes, QThreadWrapper
@@ -15,7 +15,7 @@ import os.path
 import numpy as np
 import json as json
 from PySide.QtCore import QThread
-from src.core import LoadDialog
+from src.gui import LoadDialog
 from external_modules.matplotlibwidget import MatplotlibWidget
 import sys
 

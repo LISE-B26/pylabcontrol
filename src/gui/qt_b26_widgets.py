@@ -1,10 +1,10 @@
 #Qvariant only need for gui
 
-try:
-    import sip
-    sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
-except ValueError:
-    pass
+# try:
+#     import sip
+#     sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
+# except ValueError:
+#     pass
     
 from PyQt4 import QtCore, QtGui
 from src.core import Parameter, Instrument, Script
@@ -152,18 +152,11 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         if role == 2 and column == 1:
 
             if isinstance(value, QtCore.QString):
-                print( str(value),self.valid_values, tuple, self.valid_values == tuple)
-                # if we expect a tupple then we now alwats assume it's a tuple of two float, i.e. a point
-                if self.valid_values == tuple:
-                    string = str(value)
-                    value = tuple([float(elem) for elem in string.replace('(','').replace(')','').split(',')])
-                else:
-                    value = self.cast_type(value) # cast into same type as valid values
 
-                # if not isinstance(self.valid_values, list):
-                #
-                # else:
-                #     value = self.cast_type(value.currentText()) # cast into same type as valid values
+                value = self.cast_type(value) # cast into same type as valid values
+            elif isinstance(value, QtCore.QVariant):
+
+                value = self.cast_type(value.toString())  # cast into same type as valid values
             elif isinstance(value, QtGui.QComboBox):
                 value = self.cast_type(value.currentText())
             elif isinstance(value, QtGui.QCheckBox):
