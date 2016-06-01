@@ -550,6 +550,7 @@ class Script(object):
 
             if there is only a single time tag, return data_set
         """
+        os.path.join(path, '')
         data = {}
         if 'data' in os.listdir(path):
             data_files = os.listdir(path + '\data')
