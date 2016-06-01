@@ -152,8 +152,6 @@ To select points, first run subscript Select_NVs_Simple
 
         self.data['image_data_2'] = deepcopy(acquire_image.data['image_data'])
 
-
-
         self.progress_stage = 'saving data'
         if self.settings['save']:
             self.save_b26()

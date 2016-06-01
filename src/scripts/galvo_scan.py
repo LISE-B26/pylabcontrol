@@ -20,9 +20,9 @@ class GalvoScan(Script, QThread):
     saveFigure = Signal(str)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
+        Parameter('path',  '\\tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
-        Parameter('save', True, bool,'check to automatically save data'),
+        Parameter('save', False, bool,'check to automatically save data'),
         Parameter('point_a',
                   [Parameter('x', -0.4, float, 'x-coordinate'),
                    Parameter('y', -0.4, float, 'y-coordinate')
@@ -167,45 +167,8 @@ class GalvoScan(Script, QThread):
             yVmax = pta['y'] + float(ptb['y']) / 2.
         return [xVmin, xVmax, yVmax, yVmin]
 
-    def plot(self, axes):
-        plot_fluorescence(self.data['image_data'], self.data['extent'], axes, max_counts = self.settings['max_counts_plot'])
-        '''
-        if(self._plotting == False):
-            self.fig = axes.get_figure()
-            if self.dvconv is None:
-                implot = axes.imshow(self.data['image_data'], cmap = 'pink',
-                                                  interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
-                axes.set_xlabel('Vx')
-                axes.set_ylabel('Vy')
-                axes.set_title('Confocal Image')
-            else:
-                implot = axes.imshow(self.data['image_data'], cmap = 'pink',
-                  interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
-                axes.set_xlabel('Distance (um)')
-                axes.set_ylabel('Distance (um)')
-                axes.set_title('Confocal Image')
-            if(len(self.fig.axes) > 1):
-                self.cbar = self.fig.colorbar(implot,cax = self.fig.axes[1],label = 'kcounts/sec')
-            else:
-                self.cbar = self.fig.colorbar(implot,label = 'kcounts/sec')
-            self.cbar.set_cmap('pink')
-            self._plotting = True
-        else:
-            if self.dvconv is None:
-                implot = axes.imshow(self.data['image_data'], cmap = 'pink',
-                                                  interpolation="nearest", extent = [self.xVmin,self.xVmax,self.yVmax,self.yVmin])
-                axes.set_xlabel('Vx')
-                axes.set_ylabel('Vy')
-                axes.set_title('Confocal Image')
-
-            else:
-                implot = axes.imshow(self.data['image_data'], cmap = 'pink',
-                  interpolation="nearest", extent = [self.xVmin*self.dvconv,self.xVmax*self.dvconv,self.yVmax*self.dvconv,self.yVmin*self.dvconv])
-                axes.set_xlabel('Distance (um)')
-                axes.set_ylabel('Distance (um)')
-                axes.set_title('Confocal Image')
-            self.cbar.update_bruteforce(implot)
-            '''
+    def plot(self, axes_image, axes_colorbar = None):
+        plot_fluorescence(self.data['image_data'], self.data['extent'], axes_image, max_counts = self.settings['max_counts_plot'], axes_colorbar=axes_colorbar)
 
     def stop(self):
         self._abort = True

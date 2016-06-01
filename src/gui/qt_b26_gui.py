@@ -1,17 +1,22 @@
 """
 Basic gui class designed with QT designer
 """
-import sip
-sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
+# import sip
+# try:
+#     import sip
+#     sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
+# except ValueError:
+#     pass
 from PyQt4 import QtGui, QtCore
 from PyQt4.uic import loadUiType
-from src.core import Parameter, Instrument, Script, B26QTreeItem, ReadProbes, QThreadWrapper
+from src.core import Parameter, Instrument, Script, ReadProbes, QThreadWrapper
+from src.gui import B26QTreeItem
 import os.path
 import numpy as np
 import json as json
 from PySide.QtCore import QThread
-from src.core import LoadDialog
-from matplotlibwidget import MatplotlibWidget
+from src.gui import LoadDialog
+from external_modules.matplotlibwidget import MatplotlibWidget
 import sys
 
 import datetime
@@ -30,7 +35,7 @@ try:
     Ui_MainWindow, QMainWindow = loadUiType('basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
-    from src.core.basic_application_window import Ui_MainWindow
+    from src.gui.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
     print('Warning: on-the-fly conversion of basic_application_window.ui file failed, loaded .py file instead.')
 
@@ -143,6 +148,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.matplotlibwidget.mpl_connect('button_press_event',  self.plot_clicked)
             self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_clicked)
 
+        self.create_figures()
 
         setup_trees()
 
@@ -283,6 +289,34 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.history.append(msg)
         self.history_model.insertRow(0,QtGui.QStandardItem(msg))
 
+    def create_figures(self):
+        try:
+            self.horizontalLayout_15.removeWidget(self.matplotlibwidget_2)
+            self.horizontalLayout_14.removeWidget(self.matplotlibwidget)
+            self.matplotlibwidget.close()
+            self.matplotlibwidget_2.close()
+        except AttributeError:
+            pass
+        self.centralwidget = QtGui.QWidget(self)
+        self.centralwidget.setObjectName(QtCore.QString.fromUtf8("centralwidget"))
+        self.matplotlibwidget_2 = MatplotlibWidget(self.centralwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.matplotlibwidget_2.sizePolicy().hasHeightForWidth())
+        self.matplotlibwidget_2.setSizePolicy(sizePolicy)
+        self.matplotlibwidget_2.setMinimumSize(QtCore.QSize(200, 200))
+        self.matplotlibwidget_2.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget_2"))
+        self.horizontalLayout_15.addWidget(self.matplotlibwidget_2)
+        self.matplotlibwidget = MatplotlibWidget(self.centralwidget)
+        self.matplotlibwidget.setMinimumSize(QtCore.QSize(200, 200))
+        self.matplotlibwidget.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget"))
+        self.horizontalLayout_14.addWidget(self.matplotlibwidget)
+        self.matplotlibwidget.mpl_connect('button_press_event', self.plot_clicked)
+        self.matplotlibwidget_2.mpl_connect('button_press_event', self.plot_clicked)
+        self.matplotlibwidget.figure.tight_layout()
+        self.matplotlibwidget_2.figure.tight_layout()
+
     def btn_clicked(self):
         sender = self.sender()
         self.probe_to_plot = None
@@ -290,30 +324,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # the following function takes the current figures and makes a new widget in place of them.
         # This work-around is necessary because figures have a nasty 'feature' of remembering axes
         # characteristics of previous plots, and this is the only way I (Arthur) could figure out how to do it.
-        def reset_figures():
-            self.horizontalLayout_15.removeWidget(self.matplotlibwidget_2)
-            self.horizontalLayout_14.removeWidget(self.matplotlibwidget)
-            self.matplotlibwidget.close()
-            self.matplotlibwidget_2.close()
-            self.centralwidget = QtGui.QWidget(self)
-            self.centralwidget.setObjectName(QtCore.QString.fromUtf8("centralwidget"))
-            self.matplotlibwidget_2 = MatplotlibWidget(self.centralwidget)
-            sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-            sizePolicy.setHorizontalStretch(0)
-            sizePolicy.setVerticalStretch(0)
-            sizePolicy.setHeightForWidth(self.matplotlibwidget_2.sizePolicy().hasHeightForWidth())
-            self.matplotlibwidget_2.setSizePolicy(sizePolicy)
-            self.matplotlibwidget_2.setMinimumSize(QtCore.QSize(200, 200))
-            self.matplotlibwidget_2.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget_2"))
-            self.horizontalLayout_15.addWidget(self.matplotlibwidget_2)
-            self.matplotlibwidget = MatplotlibWidget(self.centralwidget)
-            self.matplotlibwidget.setMinimumSize(QtCore.QSize(200, 200))
-            self.matplotlibwidget.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget"))
-            self.horizontalLayout_14.addWidget(self.matplotlibwidget)
-            self.matplotlibwidget.mpl_connect('button_press_event', self.plot_clicked)
-            self.matplotlibwidget_2.mpl_connect('button_press_event', self.plot_clicked)
-            self.matplotlibwidget.figure.tight_layout()
-            self.matplotlibwidget_2.figure.tight_layout()
+
 
         def start_button():
 
@@ -337,7 +348,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.btn_start_script.setEnabled(False)
 
                 if not isinstance(script, Select_NVs_Simple):
-                    reset_figures()
+                    self.create_figures()
 
                 script.start()
             else:
@@ -663,9 +674,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             for sub_script_name in script.scripts.keys():
 
                 items = tree.findItems(sub_script_name, QtCore.Qt.MatchExactly | QtCore.Qt.MatchRecursive)
-                print(len(items), items[0], isinstance(items[0].value, Script))
-                if len(items) == 1 and isinstance(items[0].value, Script):
-                    sub_script_item = items[0]
+
+                if len(items) >= 1:
+                    # identify correct script by checking that it is a sub_element of the current script
+                    sub_script_item = [sub_item for sub_item in items if isinstance(sub_item.value, Script)
+                                                                            and sub_item.parent() is item][0]
                 else:
                     raise ValueError, 'several elements with name ' + sub_script_name
 
@@ -844,7 +857,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     def load_config(self, file_name):
-        assert os.path.isfile(file_name)
+        assert os.path.isfile(file_name), file_name
 
         in_data = load_b26_file(file_name)
         assert "gui_settings" in in_data
@@ -866,8 +879,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.instruments = {}
         self.probes = {}
         self.scripts = {}
+        print('loading config file: ', in_file_name)
 
-        assert os.path.isfile(in_file_name)
+        # assert os.path.isfile(in_file_name), in_file_name
 
 
 
@@ -898,12 +912,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # refresh trees
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
+        else:
+            self.instruments = {}
+            self.scripts = {}
+            self.probes = {}
 
     def save_settings(self, out_file_name):
         """
         saves a old_gui settings file (to a json dictionary)
         - path_to_file: path to file that will contain the dictionary
         """
+        out_file_name = str(out_file_name)
 
         print('saving', out_file_name)
 
@@ -924,6 +943,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             out_data['probes'].update(probe.to_dict())
 
         if not os.path.exists(os.path.dirname(out_file_name)):
+            print('creating: ', out_file_name)
             os.makedirs(os.path.dirname(out_file_name))
 
         with open(out_file_name, 'w') as outfile:
