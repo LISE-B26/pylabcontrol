@@ -657,7 +657,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def update_script_from_tree(self, script, tree):
         print('updating')
-        print('items', tree.selectedItems())
 
         def update_script_from_item(script, item):
             # build dictionary
@@ -678,7 +677,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 if len(items) >= 1:
                     # identify correct script by checking that it is a sub_element of the current script
                     sub_script_item = [sub_item for sub_item in items if isinstance(sub_item.value, Script)
-                                                                            and sub_item.parent() is item][0]
+                                                                            and sub_item.parent() is item]
+
+                    print('----> subscripts:', [s.name for s in sub_script_item])
+
+                    sub_script_item = sub_script_item[0]
                 else:
                     raise ValueError, 'several elements with name ' + sub_script_name
 
@@ -694,16 +697,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             script.update(dictator)
 
-        # for item in tree.selectedItems():
-        #     if item.valid_values == type(script) and item.name == script.name:
-        #         print('updating', item)
-        #         update_script_from_item(script, item)
-
-        for index in range(tree.topLevelItemCount()):
-            topLvlItem = tree.topLevelItem(index)
-
-            if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
-                update_script_from_item(script, topLvlItem)
+        for item in tree.selectedItems():
+            if item.valid_values == type(script) and item.name == script.name:
+                print('updating', item)
+                update_script_from_item(script, item)
 
         # old stuff can be deleted at some point (change may 25th, delete after june 25th)
         # for index in range(tree.topLevelItemCount()):

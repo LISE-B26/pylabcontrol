@@ -204,7 +204,7 @@ class Script(object):
     @scripts.setter
     def scripts(self, script_dict):
         assert isinstance(script_dict, dict)
-        assert script_dict.keys() == self._SCRIPTS.keys(), "keys in{:s}\nkeys expected{:s}".format(str(script_dict.keys()), str( self._SCRIPTS.keys()))
+        assert set(script_dict.keys()) == set(self._SCRIPTS.keys()), "keys in{:s}\nkeys expected{:s}".format(str(script_dict.keys()), str( self._SCRIPTS.keys()))
 
         for key, value in self._SCRIPTS.iteritems():
             assert isinstance(script_dict[key], self._SCRIPTS[key])
@@ -601,7 +601,7 @@ class Script(object):
                 data = data[time_tag_in][data_name_in]
         elif data_name_in:
             # return data of last data set
-            #todo: current broken, need to fix
+            #todo: currently broken, need to fix
             #data = data[sorted(data.keys())[-1]][data_name_in]
             time_keys = sorted(data.keys())
             time_keys.reverse()
