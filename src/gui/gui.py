@@ -1,11 +1,12 @@
 # this is the gui for the measurment pc
 # this gui only loads dummy scripts and instruments
 
+import ctypes
 import sys
 
-from src.core import qt_b26_gui
 from PyQt4 import QtGui
-import ctypes
+
+from src.gui import qt_b26_gui
 
 #work around to change taskbar icon
 myappid = 'lukinlab.b26.pythonlab' # arbitrary string

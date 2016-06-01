@@ -873,9 +873,11 @@ class Script(object):
         print(class_creation_string)
         script_instance = eval(class_creation_string)
 
+        # copy some other properties that might be checked later for the duplicated script
         script_instance.data = deepcopy(self.data)
         script_instance.start_time = self.start_time
         script_instance.end_time = self.end_time
+        script_instance.is_running = self.is_running
 
         return script_instance
 

@@ -3,18 +3,20 @@ Basic gui class designed with QT designer
 """
 # import sip
 # sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
+import os
+
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
+
 from src.core.read_write_functions import load_b26_file
-from copy import deepcopy
-import os
+
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
     # import external_modules.matplotlibwidget
     Ui_Dialog, QDialog = loadUiType('load_dialog.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
-    from src.core.load_dialog import Ui_Dialog
+    from src.gui.load_dialog import Ui_Dialog
     from PyQt4.QtGui import QMainWindow
     from PyQt4.QtGui import QDialog
     print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!')
