@@ -14,9 +14,9 @@ class FindMaxCounts(Script, QThread):
     updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
+        Parameter('path',  '\\tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
-        Parameter('save', True, bool,'check to automatically save data'),
+        Parameter('save', False, bool,'check to automatically save data'),
         Parameter('initial_point',
                   [Parameter('x', 0, float, 'x-coordinate'),
                    Parameter('y', 0, float, 'y-coordinate')
@@ -50,6 +50,8 @@ class FindMaxCounts(Script, QThread):
 
         #start x scan
 
+        self._abort = False
+
         self.data['maximum_points'] = []
         self.data['maximum_points'].append([self.settings['initial_point']['x'], self.settings['initial_point']['y']])
 
@@ -71,6 +73,7 @@ class FindMaxCounts(Script, QThread):
             self.scripts['take_sweep'].settings['point_b'].update({'x': self.settings['sweep_range'], 'y': 0})
             self.scripts['take_sweep'].update({'RoI_mode': 'center'})
             self.scripts['take_sweep'].settings['num_points'].update({'x': self.settings['num_points'], 'y': 1})
+            print('points', {'x': initial_point[0], 'y': initial_point[1]}, {'x': self.settings['sweep_range'], 'y': 0})
 
             self.scripts['take_sweep'].run()
 
@@ -91,9 +94,10 @@ class FindMaxCounts(Script, QThread):
                 print('rfp', reasonable_fit_params)
                 print('fp', self.fit_params_x)
                 max_x_coordinate = self.fit_params_x[2]
+                assert((max_x_coordinate > min(self.x_sweep_domains[-1])) and (max_x_coordinate < max(self.x_sweep_domains[-1])))
                 self.data['maximum_points'].append([max_x_coordinate, initial_point[1]])
                 self.log('Gaussian fit successful! Centering on new point at x = {:.03f}'.format(max_x_coordinate))
-            except ValueError:
+            except (ValueError, RuntimeError, AssertionError):
                 self.log('Gaussian fit NOT successful. Centering on previous point at x = {0}'.format(initial_point[0]))
                 self.data['maximum_points'].append(initial_point)
 
@@ -107,6 +111,8 @@ class FindMaxCounts(Script, QThread):
             self.scripts['take_sweep'].settings['point_b'].update({'x': 0, 'y': self.settings['sweep_range']})
             self.scripts['take_sweep'].update({'RoI_mode': 'center'})
             self.scripts['take_sweep'].settings['num_points'].update({'x': 1, 'y': self.settings['num_points']})
+
+            print('points', {'x': initial_point[0], 'y': initial_point[1]}, {'x': self.settings['sweep_range'], 'y': 0})
 
             self.scripts['take_sweep'].run()
 
@@ -126,10 +132,10 @@ class FindMaxCounts(Script, QThread):
                 #                           bounds=([0, [np.inf, np.inf, 100., 100.]]))
                 self.fit_params_y = fit_gaussian(self.y_sweep_domains[-1], self.y_sweeps[-1])
                 max_y_coordinate = self.fit_params_y[2]
+                assert((max_y_coordinate > min(self.y_sweep_domains[-1])) and (max_y_coordinate < max(self.y_sweep_domains[-1])))
                 self.data['maximum_points'].append([initial_point[0], max_y_coordinate])
                 self.log('Gaussian fit successful! Centering on new point at y = {:.03f}'.format(max_y_coordinate))
-            except ValueError:
-                raise
+            except (ValueError, RuntimeError, AssertionError):
                 self.log(
                     'Gaussian fit NOT successful. Centering on previous point at y = {0}'.format(initial_point[1]))
                 self.data['maximum_points'].append(initial_point)

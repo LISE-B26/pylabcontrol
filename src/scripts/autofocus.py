@@ -14,9 +14,9 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
     """
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/----data_tmp_default----', str, 'path for data'),
+        Parameter('path', '/----data_tmp_default----', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off'),
+        Parameter('save', False, bool, 'save data on/off'),
         Parameter('save_images', False, bool, 'save image taken at each voltage'),
         Parameter('piezo_min_voltage', 30.0, float, 'lower bound of piezo voltage sweep'),
         Parameter('piezo_max_voltage', 70.0, float, 'upper bound of piezo voltage sweep'),
