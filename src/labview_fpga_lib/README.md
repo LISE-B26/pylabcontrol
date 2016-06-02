@@ -8,7 +8,8 @@ Date: Feb 29th 2016
     .the files created by the labview C API creator (FPGA bitfile (.lvbitx) and .c, .h files))
     .the python wrapper file named as the folder, e.g. read_ai_ao_wrapper.py
     .the .c and .h wrapper file names as the folder with appendix _wrapper.c and _wrapper.h, e.g. read_ai_ao_wrapper.c and read_ai_ao_wrapper.h
-- in the main folder (labview_fpga_lib) there is a .py file with the same name as the subfolder, e.g. read_ai_ao.py
+(June 2nd: following is probably not true)
+(- in the main folder (labview_fpga_lib) there is a .py file with the same name as the subfolder, e.g. read_ai_ao.py) 
 
 
 # complile dll
