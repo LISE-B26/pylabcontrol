@@ -1,6 +1,5 @@
 import numpy as np
-import scipy as sp
-
+from scipy import optimize
 
 def fit_gaussian(x_values, y_values, starting_params=None, bounds=None):
     """
@@ -18,13 +17,14 @@ def fit_gaussian(x_values, y_values, starting_params=None, bounds=None):
 
     """
 
-    def gaussian(x, constant_offset, amplitude, center, width):
-        return constant_offset + amplitude * np.exp(-1.0 * (np.square((x - center)) / (2 * (width ** 2))))
-
     if bounds:
-        return sp.optimize.curve_fit(gaussian, x_values, y_values, p0=starting_params, bounds=bounds, max_nfev=2000)[0]
+        return optimize.curve_fit(gaussian, x_values, y_values, p0=starting_params, bounds=bounds, max_nfev=2000)[0]
     else:
-        return sp.optimize.curve_fit(gaussian, x_values, y_values, p0=starting_params)[0]
+        return optimize.curve_fit(gaussian, x_values, y_values, p0=starting_params)[0]
+
+
+def gaussian(x, constant_offset, amplitude, center, width):
+    return constant_offset + amplitude * np.exp(-1.0 * (np.square((x - center)) / (2 * (width ** 2))))
 
 
 def fit_lorentzian(x_values, y_values, starting_params=None, bounds=None):
@@ -44,11 +44,13 @@ def fit_lorentzian(x_values, y_values, starting_params=None, bounds=None):
     """
 
     # defines a lorentzian with amplitude, width, center, and offset to use with opt.curve_fit
-    def lorentzian(self, x, constant_offset, amplitude, center, fwhm):
-        return constant_offset + amplitude*np.square(.5*fwhm)/(np.square(x-center)+np.square(.5*fwhm))
-
     if bounds:
-        return sp.optimize.curve_fit(lorentzian, x_values, y_values, p0=starting_params, bounds=bounds, max_nfev=2000)[0]
+        return optimize.curve_fit(lorentzian, x_values, y_values, p0=starting_params, bounds=bounds, max_nfev=2000)[0]
     else:
-        return sp.optimize.curve_fit(lorentzian, x_values, y_values, p0=starting_params)[0]
+        return optimize.curve_fit(lorentzian, x_values, y_values, p0=starting_params)[0]
+
+
+def lorentzian(x, constant_offset, amplitude, center, fwhm):
+    return constant_offset + amplitude * np.square(0.5 * fwhm) / (np.square(x - center) + np.square(0.5 * fwhm))
+
 
