@@ -573,6 +573,7 @@ class Script(object):
             data[data_name] = np.squeeze(imported_data_df.as_matrix())
 
         return data
+
         # else:
         #     data_files = glob.glob(path + '*.csv')
         #     for data_file in data_files:
