@@ -8,13 +8,16 @@ import time
 
 class FindMaxCounts(Script, QThread):
     """
-    GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,
-    resulting in an image in the current field of view of the objective.
+GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,
+resulting in an image in the current field of view of the objective.
+
+Known issues:
+    1.) if fits are poor, check  sweep_range. It should extend significantly beyond end of NV on both sides.
     """
     updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  '\\tmp_data', str, 'path to folder where data is saved'),
+        Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
         Parameter('save', False, bool,'check to automatically save data'),
         Parameter('initial_point',
@@ -23,7 +26,7 @@ class FindMaxCounts(Script, QThread):
                    ]),
         Parameter('num_sweep_iterations', 1, int,
                   'number of times to sweep galvo (in both x and y) and find max'),
-        Parameter('sweep_range', .005, float, 'voltage range to sweep over to find a max'),
+        Parameter('sweep_range', .02, float, 'voltage range to sweep over to find a max'),
         Parameter('num_points', 20, int, 'number of points to sweep in the sweep range')
     ])
 
@@ -52,7 +55,7 @@ class FindMaxCounts(Script, QThread):
 
         self._abort = False
 
-        self.data['maximum_points'] = []
+        self.data = {'maximum_points': [], 'sweep_domain': [], 'sweep': []}
         self.data['maximum_points'].append([self.settings['initial_point']['x'], self.settings['initial_point']['y']])
 
         self.x_sweeps = []
@@ -140,9 +143,15 @@ class FindMaxCounts(Script, QThread):
                     'Gaussian fit NOT successful. Centering on previous point at y = {0}'.format(initial_point[1]))
                 self.data['maximum_points'].append(initial_point)
 
+
             progress = 100 * ((float(iteration) + 1.0) / float(self.settings['num_sweep_iterations']))
             self.updateProgress.emit(progress)
             time.sleep(1)
+
+        self.data['sweep_domain'].append(self.x_sweep_domains)
+        self.data['sweep'].append(self.x_sweeps)
+        self.data['sweep_domain'].append(self.y_sweep_domains)
+        self.data['sweep'].append(self.y_sweeps)
 
 
         if self.settings['save']:
