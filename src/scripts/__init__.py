@@ -23,6 +23,8 @@ from set_laser import SetLaser
 from Correlate_Images import Correlate_Images
 from center_on_NVs import Center_On_NVs
 from find_max_counts_point import FindMaxCounts
+from find_max_counts_point_2d import FindMaxCounts2D
+
 
 from StanfordResearch_ESR import StanfordResearch_ESR
 
