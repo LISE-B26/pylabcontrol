@@ -103,7 +103,9 @@ class LabviewFpgaTimetrace(Script, QThread):
             self.save_b26()
 
 
-    def plot(self, axes):
+    def plot(self, figure):
+        axes = self.get_axes(figure)
+
 
         r = self.data[-1]['AI1']
         dt = self.settings['dt']/40e6

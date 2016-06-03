@@ -160,17 +160,11 @@ Known issues:
             self.save_log()
             self.save_image_to_disk()
 
-    def plot(self, axes):
+    def plot(self, figure):
         def gaussian(x, constant_offset, amplitude, center, width):
             return constant_offset + amplitude * np.exp(-1.0 * (np.square((x - center)) / (2 * (width ** 2))))
 
-        fig = axes.get_figure()
-        if (len(fig.axes) == 1):
-            axes.change_geometry(1,2,1)
-            axes2 = fig.add_subplot(1,2,2)
-        else:
-            axes2 = fig.axes[1]
-            axes2.clear()
+        axes, axes2 = self.get_axes(figure)
 
         if self.x_sweeps:
             axes.plot(self.x_sweep_domains[-1], self.x_sweeps[-1], self.x_sweep_domains[-1], gaussian(self.x_sweep_domains[-1], self.fit_params_x[0], self.fit_params_x[1], self.fit_params_x[2], self.fit_params_x[3]))
@@ -186,6 +180,14 @@ Known issues:
             #fig.subplots_adjust(top=0.85)
 
         fig.tight_layout()
+
+    def get_axes(self, figure):
+        figure.clf()
+        axes = figure.add_subplot(121)
+        axes2 = figure.add_subplot(122)
+
+        return axes, axes2
+
 
     def stop(self):
         self._abort = True

@@ -51,7 +51,9 @@ class SetLaser(Script):
         self.instruments['daq']['instance'].AO_waitToFinish()
         self.instruments['daq']['instance'].AO_stop()
 
-    def plot(self, axes_Image):
+    #must be passed figure with galvo plot on first axis
+    def plot(self, figure):
+        axes_Image = figure.axes[0]
         patch = patches.Circle((self.settings['point_laser']['x'], self.settings['point_laser']['y']), .0005, fc='r')
         axes_Image.add_patch(patch)
 

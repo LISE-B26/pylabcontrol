@@ -165,8 +165,8 @@ class Correlate_Images(Script, QThread):
         else:
             raise ValueError
 
-    def plot(self, axes, axes_2):
-        # axes.imshow(self.corr_image, cmap = 'pink', interpolation = 'nearest')
+    def plot(self, figure, figure2):
+        axes, axes_2 = self.get_axes(figure, figure2)
         plot_fluorescence(self.data['baseline_image'], [self.bounds[0][0], self.bounds[1][0], self.bounds[3][0], self.bounds[2][0]], axes)
         new_center = ((self.settings['new_image_center'][0] + self.data['x_shift'] - self.settings['new_image_width']/2, self.settings['new_image_center'][1] + self.data['y_shift'] - self.settings['new_image_width']/2))
         patch = patches.Rectangle(new_center, self.settings['new_image_width'], self.settings['new_image_width'], fill = False)

@@ -35,7 +35,8 @@ class Center_On_NVs(Script):
 
 
 
-    def plot(self, axes):
+    def plot(self, figure):
+        axes = self.get_axes(figure)
         axes.imshow(self.corr_image, cmap = 'pink', interpolation = 'nearest')
 
 

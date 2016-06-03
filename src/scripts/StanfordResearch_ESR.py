@@ -160,8 +160,9 @@ class StanfordResearch_ESR(Script, QThread):
     #     plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], ax)
     #     fig.savefig(filename)
 
-    def plot(self, axes):
+    def plot(self, figure):
         if self.data:
+            axes = self.get_axes(figure)
             plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
         # if self.data:
         #     fit_params = self.data[-1]['fit_params']

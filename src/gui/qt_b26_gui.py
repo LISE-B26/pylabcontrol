@@ -347,8 +347,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.current_script = script
                 self.btn_start_script.setEnabled(False)
 
-                if not isinstance(script, Select_NVs_Simple):
-                    self.create_figures()
+                # if not isinstance(script, Select_NVs_Simple):
+                #     self.create_figures()
 
                 script.start()
             else:
@@ -569,15 +569,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script: script to be plotted
 
         """
-
         if script.plot_type == 'main':
-            script.plot(self.matplotlibwidget.axes)
+            script.plot(self.matplotlibwidget.figure)
             self.matplotlibwidget.draw()
         elif script.plot_type == 'aux':
-            script.plot(self.matplotlibwidget_2.axes)
+            script.plot(self.matplotlibwidget_2.figure)
             self.matplotlibwidget_2.draw()
         elif script.plot_type == 'two':
-            script.plot(self.matplotlibwidget.axes, self.matplotlibwidget_2.axes)
+            script.plot(self.matplotlibwidget.figure, self.matplotlibwidget_2.figure)
             self.matplotlibwidget.draw()
             self.matplotlibwidget_2.draw()
         elif script.plot_type == 'none':

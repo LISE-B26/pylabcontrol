@@ -114,7 +114,9 @@ class MWSpectraVsPower(Script, QThread):
 
         self.settings_for_save.update({'save_data':False, 'save_instrumets':False, 'save_log':True, 'save_settings':False})
         self.updateProgress.emit(100)
-    def plot(self, axes):
+    def plot(self, figure):
+        axes = self.get_axes(figure)
+
         spectrum = self.data['spectrum']
         freq = self.data['frequency']
 

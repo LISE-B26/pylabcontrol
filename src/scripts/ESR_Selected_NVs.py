@@ -231,26 +231,34 @@ class ESR_Selected_NVs(Script, QThread):
         self.scripts['Find_Max'].stop()
         self.scripts['StanfordResearch_ESR'].stop()
 
-    def plot(self, axes_Image, axes_ESR):
-        image = self.data['image_data']
-        extend = self.data['extent']
-        plot_fluorescence(image, extend, axes_Image)
+    def plot(self, figure_image, figure_ESR):
 
         if self.current_stage == 'Autofocus':
-            self.scripts['AF'].plot(axes_Image, axes_ESR)
-            self.scripts['select_NVs'].plot(axes_Image)
+            self.scripts['AF'].plot(figure_image, figure_ESR)
         elif self.current_stage == 'Correlate':
-            self.scripts['Correlate_Images'].plot(axes_Image, axes_ESR)
+            self.scripts['Correlate_Images'].plot(figure_image, figure_ESR)
         elif self.current_stage == 'Find_Max':
-            self.scripts['Find_Max'].plot(axes_ESR)
+            axes_image = self.get_axes(figure_image)
+            image = self.data['image_data']
+            extend = self.data['extent']
+            plot_fluorescence(image, extend, axes_image)
+            self.scripts['Find_Max'].plot(figure_ESR)
         elif self.current_stage == 'ESR':
-            self.scripts['StanfordResearch_ESR'].plot(axes_ESR)
-            self.scripts['select_NVs'].plot(axes_Image)
+            axes_image = self.get_axes(figure_image)
+            image = self.data['image_data']
+            extend = self.data['extent']
+            plot_fluorescence(image, extend, axes_image)
+            self.scripts['StanfordResearch_ESR'].plot(figure_ESR)
+            self.scripts['select_NVs'].plot(axes_image)
             patch = patches.Circle((self.plot_pt[0], self.plot_pt[1]),
                                1.1 * self.scripts['select_NVs'].settings['patch_size'], fc='r', alpha=.75)
-            axes_Image.add_patch(patch)
+            axes_image.add_patch(patch)
         if self.current_stage in ('finished', 'saving'):
-            self.scripts['select_NVs'].plot(axes_Image)
+            axes_image = self.get_axes(figure_image)
+            image = self.data['image_data']
+            extend = self.data['extent']
+            plot_fluorescence(image, extend, axes_image)
+            self.scripts['select_NVs'].plot(axes_image)
 
 if __name__ == '__main__':
     from src.core import Instrument

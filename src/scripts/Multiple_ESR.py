@@ -171,6 +171,8 @@ To select points, first run subscript Select_NVs_Simple
 
     def plot(self, axes_Image, axes_ESR = None):
 
+        #PLOT NON-FUNCTIONING, SWITCH TO PASSED FIGURES
+
         patch_size = self.scripts['select_NVs'].settings['patch_size']
 
         if self.progress_stage == 'finished' or  self.progress_stage == 'saving data':
