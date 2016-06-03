@@ -149,6 +149,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_clicked)
 
         self.create_figures()
+        self.tree_scripts.setColumnWidth(0, 250)
 
         setup_trees()
 

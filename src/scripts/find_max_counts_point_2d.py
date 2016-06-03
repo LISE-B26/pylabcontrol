@@ -29,7 +29,7 @@ Known issues:
         Parameter('sweep_range', .02, float, 'voltage range to sweep over to find a max'),
         Parameter('num_points', 40, int, 'number of points to sweep in the sweep range'),
         Parameter('nv_size', 9, int, 'TEMP: size of nv in pixels - need to be refined!!'),
-        Parameter('minmass', 180, int, 'TEMP: brightness of nv - need to be refined!!')
+        Parameter('min_mass', 180, int, 'TEMP: brightness of nv - need to be refined!!')
     ])
 
     # todo: make minmass and nv_size more intelligent, i.e. uses extend to calculate the expected size and brightness
@@ -38,7 +38,6 @@ Known issues:
     _SCRIPTS = {'take_image': GalvoScan, 'set_laser': SetLaser}
 
     def __init__(self, scripts, name = None, settings = None, log_function = None, timeout = 1000000000, data_path = None):
-
 
         Script.__init__(self, name, scripts = scripts, settings=settings, log_function=log_function, data_path = data_path)
 
@@ -65,7 +64,7 @@ Known issues:
 
         initial_point = self.settings['initial_point']
         nv_size = self.settings['nv_size']
-        minmass = self.settings['minmass']
+        min_mass = self.settings['min_mass']
 
         self.data = {'maximum_point': initial_point,
                      'initial_point': initial_point,
@@ -111,9 +110,7 @@ Known issues:
         self.data['image_data'] = deepcopy(self.scripts['take_image'].data['image_data'])
         self.data['extent'] = deepcopy(self.scripts['take_image'].data['extent'])
 
-
-
-        f = tp.locate(self.data['image_data'], nv_size, minmass=minmass)
+        f = tp.locate(self.data['image_data'], nv_size, minmass=min_mass)
 
         if len(f) ==0:
             self.data['maximum_point'] = [self.data['initial_point']['x'], self.data['initial_point']['y']]
