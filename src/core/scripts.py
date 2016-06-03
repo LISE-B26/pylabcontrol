@@ -534,90 +534,101 @@ class Script(object):
 
 
     @staticmethod
-    def load_data(path, tag = None, time_tag_in = None, data_name_in = None):
+    def load_data(path):
         """
-        loads the data that has been save with Script.save
+        loads the data that has been save with Script.save.
         Args:
-            path: path to data
-            time_tag: (optional) time tag of data if None, returns all data sets that have been found
+            path: path to folder saved vy Script.save or raw_data folder within
         Returns:
             a dictionary with the data of form
-            data = {time_tag:data_set}
-            with
-            data_set = {'varible1':data, 'variable2' : data, etc.}
-
-            if there is only a single time tag, return data_set
+            data = {param_1_name: param_1_data, ...}
         """
+
+        # check that path exists
+        if not os.path.exists(path):
+            raise AttributeError('Path given does not exist!')
+
+        # if raw_data folder exists, get a list of directories from within it; otherwise, get names of all .csv files in
+        # current directory
+
         data = {}
-        if 'data' in os.listdir(path):
-            data_files = os.listdir(path + '\data')
-            data_names = set([f.split('.')[1] for f  in  data_files])
-            time_tags = set(['_'.join(f.split('_')[0:3]) for f  in  data_files])
-
-
-            for time_tag in time_tags:
-                sub_data = {}
-                for data_name in data_names:
-                    file_path = "{:s}\\data\\{:s}*.{:s}".format(DIR, time_tag, data_name)
-                    df = pd.read_csv(glob.glob(file_path)[0])
-                    sub_data.update({data_name:list(df[list(df)[0]])})
-                data.update({time_tag: sub_data})
+        if 'raw_data' in os.listdir(path):
+            data_files = os.listdir(os.path.join(path, 'raw_data/'))
+            path = os.path.join(path, 'raw_data/')
 
         else:
-            data_files = glob.glob(path + '*.csv')
-            for data_file in data_files:
-                time_tag = '_'.join(data_file.split('\\')[-1].split('_')[0:3])
-                df = pd.read_csv(data_file)
-                data_names = list(df)
+            data_files = glob.glob(os.path.join(path, '*.csv'))
 
-                # test if first row is a row of headers or numbers
-                try:
-                    float(data_names[0])
-                    has_header = False
-                except ValueError:
-                    has_header = True
-                    print('value_error')
+        # If no data files were found, raise error
+        if not data_files:
+            raise AttributeError('Could not find data files in {s}'.format(path))
 
-                if has_header:
-                    data.update({time_tag:
-                                     {data_name: list(df[data_name]) for data_name in data_names}
-                                 })
-                else:
+        # import data from each csv
+        for data_file in data_files:
 
-                    data_name = data_file.split('\\')[-1].split('-')[-1].split('.')[0]
-                    if time_tag in data:
-                        data[time_tag].update({data_name: df})
-                    else:
-                        data.update({time_tag: {data_name: df}})
-
-        if time_tag_in:
-            # if user specifies a time_tag we only return that specific data set
-            if data_name_in ==None:
-                data = data[time_tag_in]
-            else:
-                data = data[time_tag_in][data_name_in]
-        elif data_name_in:
-            # return data of last data set
-            #todo: currently broken, need to fix
-            #data = data[sorted(data.keys())[-1]][data_name_in]
-            time_keys = sorted(data.keys())
-            time_keys.reverse()
-            for time in time_keys:
-                try:
-                    data = data[time][data_name_in].values
-                    break
-                except KeyError:
-                    print('key_error')
-                    continue
-            if type(data) == dict and not data:
-                raise ValueError('Could not find a file with this name at any time_tag')
-
-
-        elif len(data) == 1:
-            # if there is only one data_set, we strip of the time_tag level
-            data = data[data.keys()[0]]
+            # get data name, read the data from the csv, and save it to dictionary
+            data_name = data_file.split('-')[-1][0:-4]
+            imported_data_df = pd.read_csv(os.path.join(path, data_file))
+            # note, np.squeeze removes extraneous length-1 dimensions from the returned 'matrix' from the dataframe
+            data[data_name] = np.squeeze(imported_data_df.as_matrix())
 
         return data
+
+        # else:
+        #     data_files = glob.glob(path + '*.csv')
+        #     for data_file in data_files:
+        #         time_tag = '_'.join(data_file.split('\\')[-1].split('_')[0:3])
+        #         df = pd.read_csv(data_file)
+        #         data_names = list(df)
+        #
+        #         # test if first row is a row of headers or numbers
+        #         try:
+        #             float(data_names[0])
+        #             has_header = False
+        #         except ValueError:
+        #             has_header = True
+        #             print('value_error')
+        #
+        #         if has_header:
+        #             data.update({time_tag:
+        #                              {data_name: list(df[data_name]) for data_name in data_names}
+        #                          })
+        #         else:
+        #
+        #             data_name = data_file.split('\\')[-1].split('-')[-1].split('.')[0]
+        #             if time_tag in data:
+        #                 data[time_tag].update({data_name: df})
+        #             else:
+        #                 data.update({time_tag: {data_name: df}})
+
+        # if time_tag_in:
+        #     # if user specifies a time_tag we only return that specific data set
+        #     if data_name_in ==None:
+        #         data = data[time_tag_in]
+        #     else:
+        #         data = data[time_tag_in][data_name_in]
+        # elif data_name_in:
+        #     # return data of last data set
+        #     #todo: currently broken, need to fix
+        #     #data = data[sorted(data.keys())[-1]][data_name_in]
+        #     time_keys = sorted(data.keys())
+        #     time_keys.reverse()
+        #     for time in time_keys:
+        #         try:
+        #             data = data[time][data_name_in].values
+        #             break
+        #         except KeyError:
+        #             print('key_error')
+        #             continue
+        #     if type(data) == dict and not data:
+        #         raise ValueError('Could not find a file with this name at any time_tag')
+        #
+        #
+        # elif len(data) == 1:
+        #     # if there is only one data_set, we strip of the time_tag level
+        #     data = data[data.keys()[0]]
+        #
+        # return data
     @staticmethod
     def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None):
         """
