@@ -182,7 +182,7 @@ class DAQ(Instrument):
         except RuntimeError:
             return False
 
-    def DI_init(self, channel, sampleNum, continuous_acquisition=False, sample_rate_multiplier=1):
+    def DI_init(self, channel, sampleNum, continuous_acquisition=False):
         if not channel in self.settings['digital_input'].keys():
             raise KeyError('This is not a valid digital input channel')
         channel_settings = self.settings['digital_input'][channel]
@@ -200,8 +200,6 @@ class DAQ(Instrument):
         self.DI_taskHandleCtr = TaskHandle(0)
         self.DI_taskHandleClk = TaskHandle(1)
 
-
-
         # set up clock
         self._dig_pulse_train_cont(self.DI_sample_rate, 0.5, self.DI_sampleNum)
         self._check_error(self.nidaq.DAQmxStartTask(self.DI_taskHandleClk))
@@ -213,9 +211,11 @@ class DAQ(Instrument):
         # is internally looped back to ctr1 input to be read
         self._check_error(self.nidaq.DAQmxCfgSampClkTiming(self.DI_taskHandleCtr, self.counter_out_PFI_str,
                                                            float64(self.DI_sample_rate), DAQmx_Val_Rising,
-                                                           DAQmx_Val_ContSamps, uInt64(self.DI_sampleNum)))
-        if (self.settings['override_buffer_size'] > 0):
-            self._check_error(self.nidaq.DAQmxCfgInputBuffer(self.DI_taskHandleCtr, self.settings['override_buffer_size']))
+                                                           DAQmx_Val_FiniteSamps, uInt64(self.DI_sampleNum)))
+        # if (self.settings['override_buffer_size'] > 0):
+        #     self._check_error(self.nidaq.DAQmxCfgInputBuffer(self.DI_taskHandleCtr, uInt64(self.settings['override_buffer_size'])))
+        # self._check_error(self.nidaq.DAQmxCfgInputBuffer(self.DI_taskHandleCtr, uInt64(sampleNum)))
+
 
     # initialize reference clock output
     def _dig_pulse_train_cont(self, Freq, DutyCycle, Samps):

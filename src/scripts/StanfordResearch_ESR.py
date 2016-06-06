@@ -99,7 +99,7 @@ class StanfordResearch_ESR(Script, QThread):
 
                 self.instruments['microwave_generator']['instance'].update({'frequency': float(center_freq)})
 
-                self.instruments['daq']['instance'].DI_init("ctr0",  len(freq_voltage_array) + 1, sample_rate_multiplier=(clock_adjust- 1))
+                self.instruments['daq']['instance'].DI_init("ctr0",  len(freq_voltage_array) + 1)
                 self.instruments['daq']['instance'].AO_init(["ao2"], freq_voltage_array)
 
                 # start counter and scanning sequence

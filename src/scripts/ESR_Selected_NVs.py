@@ -53,18 +53,6 @@ class ESR_Selected_NVs(Script, QThread):
 
         self.index = 0
 
-        self.progress = 0
-
-        self.scripts['AF'].updateProgress.connect(self._receive_signal)
-
-        self.scripts['Correlate_Images'].updateProgress.connect(self._receive_signal)
-
-        self.scripts['Find_Max'].updateProgress.connect(self._receive_signal)
-
-        self.scripts['StanfordResearch_ESR'].updateProgress.connect(self._receive_signal)
-
-        self.scripts['acquire_image'].updateProgress.connect(self._receive_signal_2)
-
         self.scripts['AF'].log_function = self.log_function
         self.scripts['acquire_image'].log_function = self.log_function
         self.scripts['Correlate_Images'].log_function = self.log_function
@@ -89,6 +77,19 @@ class ESR_Selected_NVs(Script, QThread):
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
+        self.progress = 0
+
+        self.scripts['AF'].updateProgress.connect(self._receive_signal)
+
+        self.scripts['Correlate_Images'].updateProgress.connect(self._receive_signal)
+
+        self.scripts['Find_Max'].updateProgress.connect(self._receive_signal)
+
+        self.scripts['StanfordResearch_ESR'].updateProgress.connect(self._receive_signal)
+
+        self.scripts['acquire_image'].updateProgress.connect(self._receive_signal_2)
+
+
         self._abort = False
         self.current_stage = None
 
