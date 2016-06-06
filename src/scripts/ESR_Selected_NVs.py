@@ -237,6 +237,16 @@ class ESR_Selected_NVs(Script, QThread):
             self.save_data()
             self.save_image_to_disk('{:s}\\nv-map.jpg'.format(filename_image))
 
+        self.scripts['AF'].updateProgress.disconnect(self._receive_signal)
+
+        self.scripts['Correlate_Images'].updateProgress.disconnect(self._receive_signal)
+
+        self.scripts['Find_Max'].updateProgress.disconnect(self._receive_signal)
+
+        self.scripts['StanfordResearch_ESR'].updateProgress.disconnect(self._receive_signal)
+
+        self.scripts['acquire_image'].updateProgress.disconnect(self._receive_signal_2)
+
     def stop(self):
         self._abort = True
         self.scripts['AF'].stop()

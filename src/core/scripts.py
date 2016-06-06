@@ -450,9 +450,8 @@ class Script(object):
                 filename_1 = self.filename('-{:s}.jpg'.format(self.plot_type))
 
             fig = Figure()
-            canvas = FigureCanvas(fig)
-            ax = fig.add_subplot(1, 1, 1)
-            self.plot(ax)
+            canvas = FigureCanvas(fig) #need to create a canvas to have the figure be somewhere, otherwise can't save
+            self.plot(fig)
             fig.savefig(filename_1)
 
         elif self.plot_type in ('two'):
@@ -464,14 +463,12 @@ class Script(object):
 
             fig_1 = Figure()
             canvas_1 = FigureCanvas(fig_1)
-            ax_1 = fig_1.add_subplot(1, 1, 1)
 
             fig_2 = Figure()
             canvas_2 = FigureCanvas(fig_2)
-            ax_2 = fig_2.add_subplot(1, 1, 1)
 
 
-            self.plot(ax_1, ax_2)
+            self.plot(fig_1, fig_2)
 
             if filename_1 is not None:
                 fig_1.savefig(filename_1)

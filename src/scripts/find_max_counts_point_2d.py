@@ -28,7 +28,7 @@ Known issues:
                    ]),
         Parameter('sweep_range', .02, float, 'voltage range to sweep over to find a max'),
         Parameter('num_points', 40, int, 'number of points to sweep in the sweep range'),
-        Parameter('nv_size', 9, int, 'TEMP: size of nv in pixels - need to be refined!!'),
+        Parameter('nv_size', 11, int, 'TEMP: size of nv in pixels - need to be refined!!'),
         Parameter('min_mass', 180, int, 'TEMP: brightness of nv - need to be refined!!')
     ])
 
@@ -138,13 +138,13 @@ Known issues:
         self.updateProgress.emit(100)
 
 
-    def plot(self, axes, axes_colorbar = None):
-
+    def plot(self, figure, axes_colorbar = None):
         # plot image
         if self.script_stage == 'take image':
-            self.scripts['take_image'].plot(axes)
+            self.scripts['take_image'].plot(figure)
 
         if self.script_stage != 'take image':
+            axes = self.get_axes(figure)
 
             plot_fluorescence(self.data['image_data'], self.data['extent'], axes, axes_colorbar=axes_colorbar)
 
@@ -156,7 +156,7 @@ Known issues:
 
 
     def stop(self):
-        self.scripts['take_sweep'].stop()
+        self.scripts['take_image'].stop()
 
 
     if __name__ == '__main__':
