@@ -171,7 +171,8 @@ class ZISweeperHighResolution(Script, QThread):
         self.updateProgress.emit(100)
 
 
-    def plot(self, axes):
+    def plot(self, figure):
+        axes = self.get_axes(figure)
         if self.current_subscript == 'quick scan' and self.scripts['zi sweep'].data:
             self.scripts['zi sweep'].plot(axes)
         elif self.current_subscript in ('high res scan', None) and self.data:

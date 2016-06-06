@@ -147,7 +147,9 @@ class Select_NVs_Simple(Script, QThread):
         self.updateProgress.emit(100)
         self._abort = True
 
-    def plot(self, axes):
+    #must be passed figure with galvo plot on first axis
+    def plot(self, figure):
+        axes = figure.axes[0]
         patch_size = self.settings['patch_size']
 
         # delete all previous patches

@@ -99,7 +99,7 @@ class StanfordResearch_ESR(Script, QThread):
 
                 self.instruments['microwave_generator']['instance'].update({'frequency': float(center_freq)})
 
-                self.instruments['daq']['instance'].DI_init("ctr0",  len(freq_voltage_array) + 1, sample_rate_multiplier=(clock_adjust- 1))
+                self.instruments['daq']['instance'].DI_init("ctr0",  len(freq_voltage_array) + 1)
                 self.instruments['daq']['instance'].AO_init(["ao2"], freq_voltage_array)
 
                 # start counter and scanning sequence
@@ -160,8 +160,9 @@ class StanfordResearch_ESR(Script, QThread):
     #     plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], ax)
     #     fig.savefig(filename)
 
-    def plot(self, axes):
+    def plot(self, figure):
         if self.data:
+            axes = self.get_axes(figure)
             plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
         # if self.data:
         #     fit_params = self.data[-1]['fit_params']

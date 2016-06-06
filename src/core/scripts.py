@@ -819,9 +819,11 @@ class Script(object):
                 class_of_script = getattr(module, script_class_name)
 
                 #  ========= get the instruments that are needed by the script =========
-                #try:
+                # try:
                 script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
                 #  ========= create the scripts that are needed by the script =========
+
+                print('cos', class_of_script)
 
                 sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
 
@@ -911,6 +913,19 @@ class Script(object):
         else:
             for key, value in data.iteritems():
                 axes.plot(value)
+
+    def get_axes(self, figure1, figure2 = None):
+        figure1.clf()
+        axes1 = figure1.add_subplot(111)
+
+        if figure2:
+            figure2.clf()
+            axes2 = figure2.add_subplot(111)
+
+        if figure2:
+            return axes1, axes2
+        else:
+            return axes1
 
 class QThreadWrapper(QThread):
 

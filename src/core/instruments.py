@@ -5,6 +5,7 @@ from copy import deepcopy
 import yaml
 from src.core.parameter import Parameter
 from src.core.read_write_functions import save_b26_file
+import pyvisa
 
 class Instrument(object):
     '''
@@ -249,7 +250,6 @@ class Instrument(object):
                     module = __import__(module_path, fromlist=[instrument_class_name])
                     # this returns the name of the module that was imported.
                     class_of_instrument = getattr(module, instrument_class_name)
-                    print class_of_instrument
                     if instrument_settings is None:
                         # print('FF -- mss')
                         # this creates an instance of the class with default settings

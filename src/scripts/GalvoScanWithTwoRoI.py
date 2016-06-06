@@ -155,21 +155,23 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
         self.scripts['acquire_image'].stop()
 
 
-    def plot(self, axes1):
+    def plot(self, figure):
 
         # we need two axes object to plot both plots, if there is only one, create another
-        fig = axes1.get_figure()
-        if (len(fig.axes) != 4):
-            axes1.change_geometry(1, 4, 1)
-            axes1b = fig.add_subplot(1, 4, 2)
-            axes2 = fig.add_subplot(1, 4, 3)
-            axes2b = fig.add_subplot(1, 4, 4)
-        else:
-            axes1.change_geometry(1, 4, 1)
-            axes1b = fig.axes[1]
-            axes2 = fig.axes[2]
-            axes2b = fig.axes[3]
-            # axes2.clear()
+        # fig = axes1.get_figure()
+        # if (len(fig.axes) != 4):
+        #     axes1.change_geometry(1, 4, 1)
+        #     axes1b = fig.add_subplot(1, 4, 2)
+        #     axes2 = fig.add_subplot(1, 4, 3)
+        #     axes2b = fig.add_subplot(1, 4, 4)
+        # else:
+        #     axes1.change_geometry(1, 4, 1)
+        #     axes1b = fig.axes[1]
+        #     axes2 = fig.axes[2]
+        #     axes2b = fig.axes[3]
+        #     # axes2.clear()
+
+        axes1, axes1b, axes2, axes2b = self.get_axes(figure)
 
         image_data_roi_1 = None
         image_data_roi_2 = None
@@ -192,5 +194,18 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
         if image_data_roi_2 is not None:
             plot_fluorescence(image_data_roi_2, extent_roi_2, axes2, axes_colorbar=axes2b)
 
-        fig.tight_layout()
+        figure.tight_layout()
+
+    def get_axes(self, figure):
+        figure.clf()
+
+        axes1 = figure.add_subplot(141)
+        axes1b = figure.add_subplot(142)
+        axes2 = figure.add_subplot(143)
+        axes2b = figure.add_subplot(144)
+
+        return axes1, axes1b, axes2, axes2b
+
+
+
 

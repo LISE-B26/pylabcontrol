@@ -167,7 +167,8 @@ class GalvoScan(Script, QThread):
             yVmax = pta['y'] + float(ptb['y']) / 2.
         return [xVmin, xVmax, yVmax, yVmin]
 
-    def plot(self, axes_image, axes_colorbar = None):
+    def plot(self, image_figure, axes_colorbar = None):
+        axes_image = self.get_axes(image_figure)
         plot_fluorescence(self.data['image_data'], self.data['extent'], axes_image, max_counts = self.settings['max_counts_plot'], axes_colorbar=axes_colorbar)
 
     def stop(self):

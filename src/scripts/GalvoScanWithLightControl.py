@@ -83,8 +83,8 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
         self.scripts['acquire_image'].stop()
 
 
-    def plot(self, axes_image, axes_colorbar = None):
-
+    def plot(self, image_figure, axes_colorbar = None):
+        axes_image = self.get_axes(image_figure)
         if self.is_running:
             self.scripts['acquire_image'].plot(axes_image, axes_colorbar = axes_colorbar)
         else:

@@ -111,6 +111,6 @@ class KeysightSpectrumVsPower(Script, QThread):
         self.updateProgress.emit(100)
 
 
-    def plot(self, axes):
-
+    def plot(self, figure):
+        axes = self.get_axes(figure)
         self.scripts['get_spectrum'].plot(axes)

@@ -103,7 +103,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         self._abort = False
 
-    def plot(self, axis1, axis2 = None):
+    def plot(self, figure1, figure2 = None):
+        axis1, axis2 = self.get_axes(figure1, figure2)
         # plot current focusing data
         axis1.plot(self.data['sweep_voltages'][0:len(self.data['focus_function_result'])],
                    self.data['focus_function_result'])

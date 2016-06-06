@@ -3,7 +3,7 @@ try:
     from script_dummy import ScriptDummyWithInstrument
 except:
     print("./src/scripts/__init__ warning! ScriptDummyWithInstrument did not load")
-from script_dummy import  ScriptDummy, ScriptDummyWithQtSignal
+from script_dummy import  ScriptDummy, ScriptDummyWithQtSignal, ScriptDummyPlotting
 # from zi_sweeper import ZISweeper
 # from zi_high_res_sweep import ZISweeperHighResolution
 # from MWSpectraVsPower import MWSpectraVsPower
