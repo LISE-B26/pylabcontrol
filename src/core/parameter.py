@@ -86,7 +86,8 @@ class Parameter(dict):
 
 
     def __setitem__(self, key, value):
-        assert self.is_valid(value, self.valid_values[key]), "{0}(of type {1}) is not in {2}".format(str(value), type(value), str(self.valid_values[key]))
+        message = "{0} (of type {1}) is not in {2}".format(str(value), type(value), str(self.valid_values[key]))
+        assert self.is_valid(value, self.valid_values[key]), message
 
         if isinstance(value, dict) and len(self)>0 and len(self) == len(self.valid_values):
             for k, v in value.iteritems():

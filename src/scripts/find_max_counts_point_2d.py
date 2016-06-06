@@ -112,19 +112,22 @@ Known issues:
 
         f = tp.locate(self.data['image_data'], nv_size, minmass=min_mass)
 
-        if len(f) ==0:
+        if len(f) == 0:
             self.data['maximum_point'] = [self.data['initial_point']['x'], self.data['initial_point']['y']]
 
-            self.log('find nv center: FINDING MAX DOESNT WORK: TAKING INITIAL POINT')
+            self.log('pytrack failed to find NV --- setting laser to initial point instead')
         else:
 
             pt = pixel_to_voltage(f[['x','y']].iloc[0].as_matrix(),
                                                           self.data['extent'],
                                                           np.shape(self.data['image_data']))
-            self.data['maximum_point'] = {'x': pt[0], 'y':pt[1]}
+            self.data['maximum_point'] = pt
         self.script_stage = 'find max'
 
-        self.scripts['set_laser'].update({'point':self.data['maximum_point']})
+        print(self.data['maximum_point'])
+        self.scripts['set_laser'].settings['point'].update({'x': self.data['maximum_point'][0],
+                                                       'y': self.data['maximum_point'][1]})
+        self.scripts['set_laser'].run()
 
         if self.settings['save']:
             self.save_b26()
@@ -147,7 +150,7 @@ Known issues:
 
             # plot marker
             maximum_point = self.data['maximum_point']
-            patch = patches.Circle((maximum_point['x'], maximum_point['y']), .001, ec='r', fc = 'none')
+            patch = patches.Circle((maximum_point[0], maximum_point[1]), .001, ec='r', fc = 'none')
             axes.add_patch(patch)
 
 

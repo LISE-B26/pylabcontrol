@@ -19,8 +19,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', False, bool, 'save data on/off'),
         Parameter('save_images', False, bool, 'save image taken at each voltage'),
-        Parameter('piezo_min_voltage', 30.0, float, 'lower bound of piezo voltage sweep'),
-        Parameter('piezo_max_voltage', 70.0, float, 'upper bound of piezo voltage sweep'),
+        Parameter('piezo_min_voltage', 45, float, 'lower bound of piezo voltage sweep'),
+        Parameter('piezo_max_voltage', 60, float, 'upper bound of piezo voltage sweep'),
         Parameter('num_sweep_points', 10, int, 'number of values to sweep between min and max voltage'),
         Parameter('focusing_optimizer', 'standard_deviation',
                   ['mean', 'standard_deviation', 'normalized_standard_deviation'], 'optimization function for focusing'),
@@ -76,11 +76,9 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         # check to see if data should be saved and save it
         if self.settings['save']:
-            # self.log('Saving...')
             self.save_b26()
             self.save_data()
             self.save_log()
-            # self.log('Finished saving.')
 
             self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
 
@@ -159,16 +157,14 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         self.data['sweep_voltages'] = sweep_voltages
         self.data['focus_function_result'] = []
 
-
         for index, voltage in enumerate(sweep_voltages):
 
             if self._abort:
-                self.log('Leaving focusing loop')
+                self.log('Leaving autofocusing loop')
                 break
 
             # set the voltage on the piezo
             z_piezo.voltage = float(voltage)
-            # self.log('Voltage set to {:.3f}'.format(voltage))
             time.sleep(self.settings['wait_time'])
 
             # take a galvo scan
@@ -198,6 +194,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         gaussian = lambda x, noise, amp, center, width: noise + amp * np.exp(
             -1.0 * (np.square((x - center)) / (2 * (width ** 2))))
 
+        print(self.data['focus_function_result'])
         noise_guess = np.min(self.data['focus_function_result'])
         amplitude_guess = np.max(self.data['focus_function_result']) - noise_guess
         center_guess = np.mean(self.data['sweep_voltages'])
