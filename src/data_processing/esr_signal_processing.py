@@ -5,7 +5,7 @@ from peakutils.peak import indexes # package required https://pypi.python.org/py
 
 
 
-def find_nv_peaks(freq, data, width_Hz=0.005e9, initial_threshold = 0.00, ax=None):
+def find_nv_peaks(freq, data, width_Hz=0.005e9, initial_threshold = 0.00, steps_size = 0.05, ax=None):
     """
     finds the single peak or double peak frequencies of esr spectrum
     Args:
@@ -23,7 +23,7 @@ def find_nv_peaks(freq, data, width_Hz=0.005e9, initial_threshold = 0.00, ax=Non
 
     freq_to_mag = 1. / (2 * 2.8e6)  # conversion factor from frequency to magentic field in Gauss (1/(2*gyromag ratio))
 
-    def find_peaks_pts(data, width, initial_threshold):
+    def find_peaks_pts(data, width, initial_threshold, steps_size):
         """
         find the maximum points in data
         Args:
@@ -38,11 +38,15 @@ def find_nv_peaks(freq, data, width_Hz=0.005e9, initial_threshold = 0.00, ax=Non
 
         threshold = initial_threshold  # initial threshold
         continue_search = True
+        # number of peaks of previous attempt
+        number_peaks_previous = -1
+
+
         while continue_search:
             idx = indexes(np.array(data), thres=threshold, min_dist=width)
             #             print(idx)
             if len(idx) > 2:
-                threshold = threshold + 0.05
+                threshold += steps_size
             elif len(idx) == 2:
                 # double peak detected, maybe need to check if reasonable here
                 continue_search = False
@@ -50,8 +54,17 @@ def find_nv_peaks(freq, data, width_Hz=0.005e9, initial_threshold = 0.00, ax=Non
                 # single peak detected
                 continue_search = False
             elif len(idx) == 0:
-                # peak detection failed
-                continue_search = False
+                # peak detection in this iteration but was successful before
+                # this means that we should go back and raise the threshold slower
+                if number_peaks_previous >0:
+                    threshold -= steps_size # go back to previous threshold that was successful
+                    steps_size /= 2. # reduce stepsize by factor 2
+                else:
+                    # search failed
+                    continue_search = False
+
+            number_peaks_previous = len(idx)
+
         return idx, data[idx]
 
     def check_double_peak(freq_max, peak_max):
@@ -103,7 +116,7 @@ def find_nv_peaks(freq, data, width_Hz=0.005e9, initial_threshold = 0.00, ax=Non
     win = signal.gaussian(int(width_pts / 2) * 2 * 3 + 1, std=width_pts)
 
     sig_filtered = signal.convolve(sig, win, mode='same') / sum(win)
-    max_idx, max_pts = find_peaks_pts(sig_filtered, width_pts, initial_threshold)
+    max_idx, max_pts = find_peaks_pts(sig_filtered, width_pts, initial_threshold, steps_size)
 
     if len(max_idx) == 2:
         freq_max = check_double_peak(freq[max_idx], max_pts)
