@@ -16,7 +16,9 @@ import numpy as np
 import json as json
 from PySide.QtCore import QThread
 from src.gui import LoadDialog
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as Canvas
+from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as Canvas,
+                                                NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 import sys
 
@@ -146,8 +148,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_settings.itemExpanded.connect(lambda: self.refresh_instruments())
 
             # plots
-            self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_clicked)
-            self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_clicked)
+            self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_1_clicked)
+            self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_2_clicked)
 
         self.create_figures()
         self.tree_scripts.setColumnWidth(0, 250)
@@ -250,8 +252,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             instrument = self.tree_settings.topLevelItem(index)
             update(instrument)
 
-    def plot_clicked(self, mouse_event):
+    def plot_1_clicked(self, mouse_event):
+        key_press_handler(mouse_event, self.matplotlibwidget_1.canvas, self.matplotlibwidget_1)
+        self.plot_clicked(mouse_event)
 
+    def plot_2_clicked(self, mouse_event):
+        key_press_handler(mouse_event, self.matplotlibwidget_1.canvas, self.matplotlibwidget_1)
+        self.plot_clicked(mouse_event)
+
+    def plot_clicked(self, mouse_event):
         if isinstance(self.current_script, (Select_NVs, Select_NVs_Simple)) and self.current_script.isRunning:
             if (not (mouse_event.xdata == None)):
                 if (mouse_event.button == 1):
@@ -316,13 +325,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.matplotlibwidget_2.setSizePolicy(sizePolicy)
         self.matplotlibwidget_2.setMinimumSize(QtCore.QSize(200, 200))
         self.matplotlibwidget_2.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget_2"))
-        self.horizontalLayout_15.addWidget(self.matplotlibwidget_2)
+        self.horizontalLayout_16.addWidget(self.matplotlibwidget_2)
         self.matplotlibwidget_1 = MatplotlibWidget(self.plot_1)
         self.matplotlibwidget_1.setMinimumSize(QtCore.QSize(200, 200))
-        self.matplotlibwidget_1.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget"))
-        self.horizontalLayout_14.addWidget(self.matplotlibwidget_1)
-        self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_clicked)
-        self.matplotlibwidget_2.mpl_connect('button_press_event', self.plot_clicked)
+        self.matplotlibwidget_1.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget_1"))
+        self.horizontalLayout_15.addWidget(self.matplotlibwidget_1)
+        self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_1_clicked)
+        self.matplotlibwidget_2.mpl_connect('button_press_event', self.plot_2_clicked)
+
+        # adds a toolbar to the plots
+        self.mpl_toolbar_1 = NavigationToolbar(self.matplotlibwidget_1.canvas, self.toolbar_space_1)
+        self.mpl_toolbar_2 = NavigationToolbar(self.matplotlibwidget_2.canvas, self.toolbar_space_2)
+        self.horizontalLayout_9.addWidget(self.mpl_toolbar_2)
+        self.horizontalLayout_14.addWidget(self.mpl_toolbar_1)
+
+
         self.matplotlibwidget_1.figure.tight_layout()
         self.matplotlibwidget_2.figure.tight_layout()
 
@@ -1024,25 +1041,12 @@ class MatplotlibWidget(Canvas):
     self.widget.axes.plot(x, x**2)
     self.wdiget.axes.plot(x, x**3)
     """
-    def __init__(self, parent=None, title='', xlabel='', ylabel='',
-                 xlim=None, ylim=None, xscale='linear', yscale='linear',
-                 width=4, height=3, dpi=100, hold=False):
-        self.figure = Figure(dpi=100)#figsize=(width, height), dpi=dpi)
-        self.axes = self.figure.add_subplot(111)
-        self.axes.set_title(title)
-        self.axes.set_xlabel(xlabel)
-        self.axes.set_ylabel(ylabel)
-        if xscale:
-            self.axes.set_xscale(xscale)
-        if yscale:
-            self.axes.set_yscale(yscale)
-        if xlim:
-            self.axes.set_xlim(*xlim)
-        if ylim:
-            self.axes.set_ylim(*ylim)
-        self.axes.hold(hold)
-
+    def __init__(self, parent=None):
+        self.figure = Figure(dpi=100)
         Canvas.__init__(self, self.figure)
+        self.axes = self.figure.add_subplot(111)
+
+        self.canvas = self.figure.canvas
         self.setParent(parent)
 
         Canvas.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
