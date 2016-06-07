@@ -38,7 +38,7 @@ class GalvoScan(Script, QThread):
                   [Parameter('x', 120, int, 'number of x points to scan'),
                    Parameter('y', 120, int, 'number of y points to scan')
                    ]),
-        Parameter('time_per_pt', .001, [.001, .002, .005, .01], 'time in s to measure at each point'),
+        Parameter('time_per_pt', .001, [.001, .002, .005, .01, .015, .02], 'time in s to measure at each point'),
         Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle'),
         Parameter('max_counts_plot', -1, int, 'Rescales colorbar with this as the maximum counts on replotting')
     ])
@@ -95,8 +95,7 @@ class GalvoScan(Script, QThread):
             if self._abort:
                 break
             # initialize APD thread
-            self.instruments['daq']['instance'].DI_init("ctr0", len(self.x_array) + 1,
-                                                        sample_rate_multiplier=(self.clockAdjust - 1))
+            self.instruments['daq']['instance'].DI_init("ctr0", len(self.x_array) + 1)
             self.initPt = np.transpose(np.column_stack((self.x_array[0],
                                           self.y_array[yNum])))
             self.initPt = (np.repeat(self.initPt, 2, axis=1))
@@ -106,8 +105,7 @@ class GalvoScan(Script, QThread):
             self.instruments['daq']['instance'].AO_run()
             self.instruments['daq']['instance'].AO_waitToFinish()
             self.instruments['daq']['instance'].AO_stop()
-            self.instruments['daq']['instance'].AO_init(["ao0"], self.x_array,
-                                                        sample_rate_multiplier=(self.clockAdjust-1))
+            self.instruments['daq']['instance'].AO_init(["ao0"], self.x_array)
             # start counter and scanning sequence
             self.instruments['daq']['instance'].DI_run()
             self.instruments['daq']['instance'].AO_run()

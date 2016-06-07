@@ -164,6 +164,7 @@ class StanfordResearch_ESR(Script, QThread):
         if self.data:
             axes = self.get_axes(figure)
             plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
+            figure.tight_layout()
         # if self.data:
         #     fit_params = self.data[-1]['fit_params']
         #     if not fit_params[0] == -1:  # check if fit failed

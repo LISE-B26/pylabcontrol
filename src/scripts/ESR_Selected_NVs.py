@@ -5,7 +5,8 @@ from matplotlib import patches
 from src.core import Script, Parameter
 from src.instruments.NIDAQ import DAQ
 from src.plotting.plots_2d import plot_fluorescence
-from src.scripts import StanfordResearch_ESR, Correlate_Images, AutoFocus, FindMaxCounts, Select_NVs_Simple, GalvoScan
+from src.scripts import StanfordResearch_ESR, Correlate_Images, AutoFocus, Select_NVs_Simple, GalvoScan
+from src.scripts import FindMaxCounts2D
 import os
 
 
@@ -26,7 +27,7 @@ class ESR_Selected_NVs(Script, QThread):
     _SCRIPTS = {'StanfordResearch_ESR': StanfordResearch_ESR,
                 'Correlate_Images': Correlate_Images,
                 'AF': AutoFocus,
-                'Find_Max': FindMaxCounts,
+                'Find_Max': FindMaxCounts2D,
                 'select_NVs': Select_NVs_Simple,
                 'acquire_image': GalvoScan}
 
@@ -58,6 +59,8 @@ class ESR_Selected_NVs(Script, QThread):
         self.scripts['Correlate_Images'].log_function = self.log_function
         self.scripts['Find_Max'].log_function = self.log_function
         self.scripts['StanfordResearch_ESR'].log_function = self.log_function
+
+        self.current_stage = 'init'
 
     def _receive_signal(self, progress_sub_script):
         # calculate progress of this script based on progress in subscript
@@ -121,7 +124,9 @@ class ESR_Selected_NVs(Script, QThread):
                      'extent': [xVmin, xVmax, yVmax, yVmin],
                      'nv_locs': nv_locs,
                      'ESR_freqs': [],
-                     'ESR_data': np.zeros((len(nv_locs), esr_settings['freq_points']))}
+                     'ESR_data': np.zeros((len(nv_locs), esr_settings['freq_points'])),
+                     'NV_image_data': np.zeros((len(nv_locs), self.scripts['Find_Max'].settings['num_points']**2)),
+                     'NV_image_extents': np.zeros((len(nv_locs), 4))}
 
         if self.settings['save']:
             # create and save images
@@ -180,11 +185,18 @@ class ESR_Selected_NVs(Script, QThread):
                 self.scripts['Find_Max'].run()
                 self.scripts['Find_Max'].wait()
                 self.updateProgress.emit(self.progress)
+                self.data['NV_image_data'][index] = np.array(self.scripts['Find_Max'].data['image_data'].flatten())
+                self.data['NV_image_extents'][index] = self.scripts['Find_Max'].data['extent']
+
+
+                if self.settings['save']:
+                    # create and save images
+                    self.scripts['Find_Max'].save_image_to_disk('{:s}\\NV_{:03d}.jpg'.format(filename_image, index))
 
                 self.current_stage = 'ESR'
-                self.cur_pt = self.scripts['Find_Max'].data['maximum_points']
+                # self.cur_pt = self.scripts['Find_Max'].data['maximum_points']
+                self.cur_pt = pt
                 self.index = index
-                # self.cur_pt = pt
                 self.log('Taking ESR of point ' + str(index + 1) + ' of ' + str(len(nv_locs)))
                 #set laser to new point
                 daq_pt = np.transpose(np.column_stack((pt[0], pt[1])))
@@ -224,6 +236,16 @@ class ESR_Selected_NVs(Script, QThread):
             self.save_b26()
             self.save_data()
             self.save_image_to_disk('{:s}\\nv-map.jpg'.format(filename_image))
+
+        self.scripts['AF'].updateProgress.disconnect(self._receive_signal)
+
+        self.scripts['Correlate_Images'].updateProgress.disconnect(self._receive_signal)
+
+        self.scripts['Find_Max'].updateProgress.disconnect(self._receive_signal)
+
+        self.scripts['StanfordResearch_ESR'].updateProgress.disconnect(self._receive_signal)
+
+        self.scripts['acquire_image'].updateProgress.disconnect(self._receive_signal_2)
 
     def stop(self):
         self._abort = True

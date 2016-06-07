@@ -10,7 +10,7 @@ class SetLaser(Script):
     updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('point_laser',
+        Parameter('point',
                   [Parameter('x', -0.4, float, 'x-coordinate'),
                    Parameter('y', -0.4, float, 'y-coordinate')
                    ])
@@ -42,7 +42,7 @@ class SetLaser(Script):
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-        pt = (self.settings['point_laser']['x'], self.settings['point_laser']['y'])
+        pt = (self.settings['point']['x'], self.settings['point']['y'])
         pt = np.transpose(np.column_stack((pt[0],pt[1])))
         pt = (np.repeat(pt, 2, axis=1))
 
@@ -54,7 +54,7 @@ class SetLaser(Script):
     #must be passed figure with galvo plot on first axis
     def plot(self, figure):
         axes_Image = figure.axes[0]
-        patch = patches.Circle((self.settings['point_laser']['x'], self.settings['point_laser']['y']), .0005, fc='r')
+        patch = patches.Circle((self.settings['point']['x'], self.settings['point']['y']), .0005, fc='r')
         axes_Image.add_patch(patch)
 
 

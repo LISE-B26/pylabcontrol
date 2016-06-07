@@ -28,7 +28,7 @@ Known issues:
                    ]),
         Parameter('sweep_range', .02, float, 'voltage range to sweep over to find a max'),
         Parameter('num_points', 40, int, 'number of points to sweep in the sweep range'),
-        Parameter('nv_size', 9, int, 'TEMP: size of nv in pixels - need to be refined!!'),
+        Parameter('nv_size', 11, int, 'TEMP: size of nv in pixels - need to be refined!!'),
         Parameter('min_mass', 180, int, 'TEMP: brightness of nv - need to be refined!!')
     ])
 
@@ -112,19 +112,22 @@ Known issues:
 
         f = tp.locate(self.data['image_data'], nv_size, minmass=min_mass)
 
-        if len(f) ==0:
+        if len(f) == 0:
             self.data['maximum_point'] = [self.data['initial_point']['x'], self.data['initial_point']['y']]
 
-            self.log('find nv center: FINDING MAX DOESNT WORK: TAKING INITIAL POINT')
+            self.log('pytrack failed to find NV --- setting laser to initial point instead')
         else:
 
             pt = pixel_to_voltage(f[['x','y']].iloc[0].as_matrix(),
                                                           self.data['extent'],
                                                           np.shape(self.data['image_data']))
-            self.data['maximum_point'] = {'x': pt[0], 'y':pt[1]}
+            self.data['maximum_point'] = pt
         self.script_stage = 'find max'
 
-        self.scripts['set_laser'].update({'point':self.data['maximum_point']})
+        print(self.data['maximum_point'])
+        self.scripts['set_laser'].settings['point'].update({'x': self.data['maximum_point'][0],
+                                                       'y': self.data['maximum_point'][1]})
+        self.scripts['set_laser'].run()
 
         if self.settings['save']:
             self.save_b26()
@@ -135,25 +138,25 @@ Known issues:
         self.updateProgress.emit(100)
 
 
-    def plot(self, axes, axes_colorbar = None):
-
+    def plot(self, figure, axes_colorbar = None):
         # plot image
         if self.script_stage == 'take image':
-            self.scripts['take_image'].plot(axes)
+            self.scripts['take_image'].plot(figure)
 
         if self.script_stage != 'take image':
+            axes = self.get_axes(figure)
 
             plot_fluorescence(self.data['image_data'], self.data['extent'], axes, axes_colorbar=axes_colorbar)
 
             # plot marker
             maximum_point = self.data['maximum_point']
-            patch = patches.Circle((maximum_point['x'], maximum_point['y']), .001, ec='r', fc = 'none')
+            patch = patches.Circle((maximum_point[0], maximum_point[1]), .001, ec='r', fc = 'none')
             axes.add_patch(patch)
 
 
 
     def stop(self):
-        self.scripts['take_sweep'].stop()
+        self.scripts['take_image'].stop()
 
 
     if __name__ == '__main__':
