@@ -148,7 +148,7 @@
                  <bool>false</bool>
                 </property>
                 <attribute name="headerDefaultSectionSize">
-                 <number>250</number>
+                 <number>300</number>
                 </attribute>
                 <attribute name="headerHighlightSections">
                  <bool>true</bool>
@@ -617,20 +617,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="MatplotlibWidget" name="matplotlibwidget_2">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>200</width>
-               <height>200</height>
-              </size>
-             </property>
-            </widget>
+            <widget class="QWidget" name="plot2_container" native="true"/>
            </item>
           </layout>
          </widget>
@@ -651,20 +638,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="MatplotlibWidget" name="matplotlibwidget">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>200</width>
-               <height>200</height>
-              </size>
-             </property>
-            </widget>
+            <widget class="QWidget" name="plot1_container" native="true"/>
            </item>
           </layout>
          </widget>
@@ -753,13 +727,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>MatplotlibWidget</class>
-   <extends>QWidget</extends>
-   <header>matplotlibwidget</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

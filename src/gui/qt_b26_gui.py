@@ -16,7 +16,8 @@ import numpy as np
 import json as json
 from PySide.QtCore import QThread
 from src.gui import LoadDialog
-from external_modules.matplotlibwidget import MatplotlibWidget
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as Canvas
+from matplotlib.figure import Figure
 import sys
 
 import datetime
@@ -145,7 +146,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_settings.itemExpanded.connect(lambda: self.refresh_instruments())
 
             # plots
-            self.matplotlibwidget.mpl_connect('button_press_event',  self.plot_clicked)
+            self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_clicked)
             self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_clicked)
 
         self.create_figures()
@@ -255,8 +256,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if (not (mouse_event.xdata == None)):
                 if (mouse_event.button == 1):
                     pt = np.array([mouse_event.xdata, mouse_event.ydata])
-                    self.current_script.toggle_NV(pt, self.matplotlibwidget.axes)
-                    self.matplotlibwidget.draw()
+                    self.current_script.toggle_NV(pt, self.matplotlibwidget_1.axes)
+                    self.matplotlibwidget_1.draw()
 
         item = self.tree_scripts.currentItem()
 
@@ -300,14 +301,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def create_figures(self):
         try:
             self.horizontalLayout_15.removeWidget(self.matplotlibwidget_2)
-            self.horizontalLayout_14.removeWidget(self.matplotlibwidget)
-            self.matplotlibwidget.close()
+            self.horizontalLayout_14.removeWidget(self.matplotlibwidget_1)
+            self.matplotlibwidget_1.close()
             self.matplotlibwidget_2.close()
         except AttributeError:
             pass
         self.centralwidget = QtGui.QWidget(self)
         self.centralwidget.setObjectName(QtCore.QString.fromUtf8("centralwidget"))
-        self.matplotlibwidget_2 = MatplotlibWidget(self.centralwidget)
+        self.matplotlibwidget_2 = MatplotlibWidget(self.plot_2)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -316,13 +317,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.matplotlibwidget_2.setMinimumSize(QtCore.QSize(200, 200))
         self.matplotlibwidget_2.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget_2"))
         self.horizontalLayout_15.addWidget(self.matplotlibwidget_2)
-        self.matplotlibwidget = MatplotlibWidget(self.centralwidget)
-        self.matplotlibwidget.setMinimumSize(QtCore.QSize(200, 200))
-        self.matplotlibwidget.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget"))
-        self.horizontalLayout_14.addWidget(self.matplotlibwidget)
-        self.matplotlibwidget.mpl_connect('button_press_event', self.plot_clicked)
+        self.matplotlibwidget_1 = MatplotlibWidget(self.plot_1)
+        self.matplotlibwidget_1.setMinimumSize(QtCore.QSize(200, 200))
+        self.matplotlibwidget_1.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget"))
+        self.horizontalLayout_14.addWidget(self.matplotlibwidget_1)
+        self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_clicked)
         self.matplotlibwidget_2.mpl_connect('button_press_event', self.plot_clicked)
-        self.matplotlibwidget.figure.tight_layout()
+        self.matplotlibwidget_1.figure.tight_layout()
         self.matplotlibwidget_2.figure.tight_layout()
 
     def btn_clicked(self):
@@ -578,14 +579,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         """
         if script.plot_type == 'main':
-            script.plot(self.matplotlibwidget.figure)
-            self.matplotlibwidget.draw()
+            script.plot(self.matplotlibwidget_1.figure)
+            self.matplotlibwidget_1.draw()
         elif script.plot_type == 'aux':
             script.plot(self.matplotlibwidget_2.figure)
             self.matplotlibwidget_2.draw()
         elif script.plot_type == 'two':
-            script.plot(self.matplotlibwidget.figure, self.matplotlibwidget_2.figure)
-            self.matplotlibwidget.draw()
+            script.plot(self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure)
+            self.matplotlibwidget_1.draw()
             self.matplotlibwidget_2.draw()
         elif script.plot_type == 'none':
             pass
@@ -649,8 +650,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 topLvlItem.value = new_values[topLvlItem.name]
                 topLvlItem.setText(1, unicode(topLvlItem.value))
         if self.probe_to_plot is not None:
-            self.probe_to_plot.plot(self.matplotlibwidget.axes)
-            self.matplotlibwidget.draw()
+            self.probe_to_plot.plot(self.matplotlibwidget_1.axes)
+            self.matplotlibwidget_1.draw()
 
 
         if self.chk_probe_log.isChecked():
@@ -987,3 +988,69 @@ class CustomEditorFactory(QtGui.QItemEditorFactory):
             return spin_box
         else:
             return super(CustomEditorFactory, self).createEditor(type, QWidget)
+
+
+
+class MatplotlibWidget(Canvas):
+    """
+    MatplotlibWidget inherits PyQt4.QtGui.QWidget
+    and matplotlib.backend_bases.FigureCanvasBase
+
+    Options: option_name (default_value)
+    -------
+    parent (None): parent widget
+    title (''): figure title
+    xlabel (''): X-axis label
+    ylabel (''): Y-axis label
+    xlim (None): X-axis limits ([min, max])
+    ylim (None): Y-axis limits ([min, max])
+    xscale ('linear'): X-axis scale
+    yscale ('linear'): Y-axis scale
+    width (4): width in inches
+    height (3): height in inches
+    dpi (100): resolution in dpi
+    hold (False): if False, figure will be cleared each time plot is called
+
+    Widget attributes:
+    -----------------
+    figure: instance of matplotlib.figure.Figure
+    axes: figure axes
+
+    Example:
+    -------
+    self.widget = MatplotlibWidget(self, yscale='log', hold=True)
+    from numpy import linspace
+    x = linspace(-10, 10)
+    self.widget.axes.plot(x, x**2)
+    self.wdiget.axes.plot(x, x**3)
+    """
+    def __init__(self, parent=None, title='', xlabel='', ylabel='',
+                 xlim=None, ylim=None, xscale='linear', yscale='linear',
+                 width=4, height=3, dpi=100, hold=False):
+        self.figure = Figure(dpi=100)#figsize=(width, height), dpi=dpi)
+        self.axes = self.figure.add_subplot(111)
+        self.axes.set_title(title)
+        self.axes.set_xlabel(xlabel)
+        self.axes.set_ylabel(ylabel)
+        if xscale:
+            self.axes.set_xscale(xscale)
+        if yscale:
+            self.axes.set_yscale(yscale)
+        if xlim:
+            self.axes.set_xlim(*xlim)
+        if ylim:
+            self.axes.set_ylim(*ylim)
+        self.axes.hold(hold)
+
+        Canvas.__init__(self, self.figure)
+        self.setParent(parent)
+
+        Canvas.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        Canvas.updateGeometry(self)
+
+    def sizeHint(self):
+        w, h = self.get_width_height()
+        return QtCore.QSize(w, h)
+
+    def minimumSizeHint(self):
+        return QtCore.QSize(10, 10)
