@@ -151,6 +151,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.create_figures()
         self.tree_scripts.setColumnWidth(0, 250)
 
+        # create a "delegate" --- an editor that uses our new Editor Factory when creating editors,
+        # and use that for tree_scripts
+        delegate = QtGui.QStyledItemDelegate()
+        new_factory = CustomEditorFactory()
+        delegate.setItemEditorFactory(new_factory)
+        self.tree_scripts.setItemDelegate(delegate)
+
         setup_trees()
 
         connect_controls()
@@ -968,3 +975,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         for time_tag, script in self.data_sets.iteritems():
             print(time_tag, script)
             script.save(os.path.join(out_file_name, '{:s}.b26s'.format(time_tag)))
+
+
+# In order to set the precision when editing floats, we need to override the default Editor widget that
+# pops up over the text when you click. To do that, we create a custom Editor Factory so that the QTreeWidget
+# uses the custom spinbox when editing floats
+class CustomEditorFactory(QtGui.QItemEditorFactory):
+    def createEditor(self, type, QWidget):
+        if type == QtCore.QVariant.Double or type == QtCore.QVariant.Int:
+            spin_box = QtGui.QLineEdit(QWidget)
+            return spin_box
+        else:
+            return super(CustomEditorFactory, self).createEditor(type, QWidget)
