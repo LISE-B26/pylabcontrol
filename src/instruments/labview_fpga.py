@@ -294,24 +294,25 @@ class NI7845RGalvoScan(Instrument):
         Parameter('time_per_pt', .001, [.001, .002, .005, .01, .015, .02], 'time in s to measure at each point'),
         Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle'),
         Parameter('fifo_size', int(2**12), int, 'size of fifo for data acquisition'),
-        Parameter('scan_mode_x', 'forward', ['forward', 'backward', 'forward-backward'], 'scan mode (x) onedirectional or bidirectional'),
-        Parameter('scan_mode_y', 'forward', ['forward', 'backward'], 'direction of scan (y)'),
+        Parameter('scanmode_x', 'forward', ['forward', 'backward', 'forward-backward'], 'scan mode (x) onedirectional or bidirectional'),
+        Parameter('scanmode_y', 'forward', ['forward', 'backward'], 'direction of scan (y)'),
     ])
 
     _PROBES = {
         # 'Detector Signal': 'detector signal (AI4)',
-        'ElementsWritten' : 'elements written to DMA',
-        'LoopTimeAcq': 'LoopTimeAcq',
-        'LoopRateLimitAcq': 'LoopRateLimitAcq',
-        'Stop':'Stop',
-        'DMATimeOut':'DMATimeOut',
-        'detector_signal':'detector_signal'
+        'elements_written_to_dma' : 'elements written to DMA',
+        'DMATimeOut': 'DMATimeOut',
+        'ix': 'ix',
+        'iy':'iy',
+        'detector_signal':'detector_signal',
+        'acquire':'acquire'
     }
     def __init__(self, name = None, settings = None):
         super(NI7845RGalvoScan, self).__init__(name, settings)
 
         # start fpga
         self.fpga = self.FPGAlib.NI7845R()
+        self.fpga.start()
         self.update(self.settings)
         print('NI7845RGalvoScan initialized')
 
@@ -375,21 +376,13 @@ class NI7845RGalvoScan(Instrument):
                 getattr(self.FPGAlib, 'set_dVmin_x')(dVmin_x, self.fpga.session, self.fpga.status)
                 getattr(self.FPGAlib, 'set_dVmin_y')(dVmin_y, self.fpga.session, self.fpga.status)
 
-            elif key in ['scan_mode_x', 'scan_mode_y']:
-                if key == 'scan_mode_x':
-                    command = "set_scanmode"
-                elif key == 'scan_mode_y':
-                    command = "set_forward_y"
-                getattr(self.FPGAlib, command)(value, self.fpga.session, self.fpga.status)
+            elif key in ['scanmode_x', 'scanmode_y']:
+                print('setting', key, value)
+                getattr(self.FPGAlib, 'set_{:s}'.format(key))(value, self.fpga.session, self.fpga.status)
             elif key in ['time_per_pt', 'settle_time']:
                 time_ticks = seconds_to_ticks(value)
-                if key == 'time_per_pt':
-                    command = "set_loop_time"
-                elif key == 'settle_time':
-                    command = "set_settle_time"
-
                 print('time_ticks',time_ticks)
-                getattr(self.FPGAlib, command)(time_ticks, self.fpga.session, self.fpga.status)
+                getattr(self.FPGAlib, 'set_{:s}'.format(key))(time_ticks, self.fpga.session, self.fpga.status)
             elif key in ['fifo_size']:
                 actual_fifo_size = self.FPGAlib.configure_FIFO(value, self.fpga.session, self.fpga.status)
                 print('requested ', value )
@@ -411,7 +404,7 @@ class NI7845RGalvoScan(Instrument):
         # start fifo
         self.start_fifo()
         # start scan
-        self.fpga.start()
+        getattr(self.FPGAlib, 'set_acquire')(True, self.fpga.session, self.fpga.status)
 
 
 
@@ -434,7 +427,10 @@ if __name__ == '__main__':
 
     fpga = NI7845RGalvoScan()
 
+
+
+    fpga.fpga.start()
     print(fpga.settings)
-    fpga.start_acquire()
-    print('XX')
+    fpga.fpga.stop()
+
 

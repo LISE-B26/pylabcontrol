@@ -74,38 +74,31 @@ void stop_fpga(NiFpga_Session* session, NiFpga_Status* status)
 
 
 // read times
-uint32_t read_LoopTimeAcq(NiFpga_Session* session, NiFpga_Status* status)
+uint32_t read_tick_count(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int32_t value;
-	NiFpga_MergeStatus(status, NiFpga_ReadU32(*session,NiFpga_GalvoScan_ControlU32_looptimeCountTicks,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadU32(*session,NiFpga_GalvoScan_IndicatorU32_TickCount,&value));
 	return value;
 }
 
 // read logical indicators
-_Bool read_LoopRateLimitAcq(NiFpga_Session* session, NiFpga_Status* status)
-{
-	NiFpga_Bool state;
-	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_GalvoScan_IndicatorBool_loopratelimitacquisition,&state));
-	return state;
-}
-_Bool read_Stop(NiFpga_Session* session, NiFpga_Status* status)
-{
-	NiFpga_Bool state;
-	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_GalvoScan_ControlBool_stop,&state));
-	return state;
-}
 _Bool read_DMATimeOut(NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_Bool state;
 	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_GalvoScan_IndicatorBool_DMAtimeout,&state));
 	return state;
 }
-
+_Bool read_acquire(NiFpga_Session* session, NiFpga_Status* status)
+{
+	NiFpga_Bool state;
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_GalvoScan_ControlBool_acquire,&state));
+	return state;
+}
 
 // set logical values
-void set_Stop(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
+void set_acquire(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_GalvoScan_ControlBool_stop, state));
+	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_GalvoScan_ControlBool_acquire, state));
 }
 
 // set parameters
@@ -139,23 +132,23 @@ void set_dVmin_y(int16_t value, NiFpga_Session* session, NiFpga_Status* status)
 	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_GalvoScan_ControlI16_dVmin_y,value));
 }
 
-void set_scanmode(uint8_t value, NiFpga_Session* session, NiFpga_Status* status)
+void set_scanmode_x(uint8_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteU8(*session,NiFpga_GalvoScan_ControlU8_scanmode,value));
+	NiFpga_MergeStatus(status, NiFpga_WriteU8(*session,NiFpga_GalvoScan_ControlU8_scanmodex,value));
 }
 
-void set_forward_y(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
+void set_scanmode_y(uint8_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_GalvoScan_ControlBool_forwardy, state));
+	NiFpga_MergeStatus(status, NiFpga_WriteU8(*session,NiFpga_GalvoScan_ControlU8_scanmodey,value));
 }
 void set_settle_time(uint32_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_GalvoScan_ControlU32_settletimeCountTicks,value));
 }
 
-void set_loop_time(uint32_t value, NiFpga_Session* session, NiFpga_Status* status)
+void set_time_per_pt(uint32_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_GalvoScan_ControlU32_looptimeCountTicks,value));
+	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_GalvoScan_ControlU32_time_per_pt,value));
 }
 
 
@@ -176,6 +169,21 @@ int16_t read_detector_signal(NiFpga_Session* session, NiFpga_Status* status)
 	return value;
 }
 
+int32_t read_ix(NiFpga_Session* session, NiFpga_Status* status)
+{
+	int32_t value;
+
+	NiFpga_MergeStatus(status, NiFpga_ReadI32(*session,NiFpga_GalvoScan_IndicatorI32_ix,&value));
+	return value;
+}
+
+int32_t read_iy(NiFpga_Session* session, NiFpga_Status* status)
+{
+	int32_t value;
+
+	NiFpga_MergeStatus(status, NiFpga_ReadI32(*session,NiFpga_GalvoScan_IndicatorI32_iy,&value));
+	return value;
+}
 
 
 // =========================================================
@@ -210,4 +218,5 @@ void read_FIFO(int16_t* input, size_t size, NiFpga_Session* session, NiFpga_Stat
 										  NiFpga_InfiniteTimeout,
 										  elementsRemaining));
 }
+
 

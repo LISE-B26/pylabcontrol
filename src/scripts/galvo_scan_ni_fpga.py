@@ -76,34 +76,30 @@ class GalvoScanNIFpga(Script):
 
 
         i = 0
-        j= 0
+        # j= 0
         line_scan_time = Nx * instr_settings['time_per_pt']
         print('line_scan_time', line_scan_time)
+
         while i < Ny:
             if self._abort:
                 break
             print('acquiring line {:02d}/{:02d}'.format(i, Ny))
-            elem_written = instr.ElementsWritten
+            elem_written = instr.elements_written_to_dma
             print('elem_written ', elem_written)
             if elem_written >= Nx:
                 line_data = instr.read_fifo(Nx)
-                self.data['image_data'][i] = deepcopy(line_data)
+                self.data['image_data'][i] = deepcopy(line_data['signal'])
                 i +=1
-            j+=1
+            # j+=1
 
             diagnostics = {
-                'ElementsWritten': instr.ElementsWritten,
-                'LoopTimeAcq': instr.LoopTimeAcq,
-                'LoopRateLimitAcq': instr.ElementsWritten,
-                'Stop': instr.Stop,
+                'acquire':instr.acquire,
+                'elements_written': instr.elements_written_to_dma,
                 'DMATimeOut': instr.DMATimeOut,
+                'ix': instr.ix,
+                'iy': instr.iy,
                 'detector_signal': instr.detector_signal
             }
-            print(diagnostics)
-
-            if j >5:
-                self._abort = True
-
 
             time.sleep(line_scan_time)
 

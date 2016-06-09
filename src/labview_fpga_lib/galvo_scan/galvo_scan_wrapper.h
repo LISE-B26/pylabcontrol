@@ -23,12 +23,12 @@ uint32_t read_LoopTimeAcq(NiFpga_Session* session, NiFpga_Status* status);
 
 
 // read logical indicators
-_Bool read_LoopRateLimitAcq(NiFpga_Session* session, NiFpga_Status* status);
+//_Bool read_LoopRateLimitAcq(NiFpga_Session* session, NiFpga_Status* status);
 _Bool read_Stop(NiFpga_Session* session, NiFpga_Status* status);
 _Bool read_DMATimeOut(NiFpga_Session* session, NiFpga_Status* status);
-
+_Bool read_acquire(NiFpga_Session* session, NiFpga_Status* status);
 // set logical values
-void set_Stop(_Bool state, NiFpga_Session* session, NiFpga_Status* status);
+void set_acquire(_Bool state, NiFpga_Session* session, NiFpga_Status* status);
 
 // set parameters
 void set_Nx(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
@@ -37,15 +37,18 @@ void set_dVmin_x(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
 void set_Ny(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
 void set_Vmin_y(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
 void set_dVmin_y(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
-void set_scanmode(uint8_t value, NiFpga_Session* session, NiFpga_Status* status);
+void set_scanmode_x(uint8_t value, NiFpga_Session* session, NiFpga_Status* status);
+void set_scanmode_y(uint8_t state, NiFpga_Session* session, NiFpga_Status* status);
 void set_settle_time(uint32_t value, NiFpga_Session* session, NiFpga_Status* status);
-void set_loop_time(uint32_t value, NiFpga_Session* session, NiFpga_Status* status);
-void set_forward_y(_Bool state, NiFpga_Session* session, NiFpga_Status* status);
+void set_time_per_pt(uint32_t value, NiFpga_Session* session, NiFpga_Status* status);
+
 
 // read parameters
 int16_t read_elements_written_to_dma(NiFpga_Session* session, NiFpga_Status* status);
 int16_t read_detector_signal(NiFpga_Session* session, NiFpga_Status* status);
-
+uint32_t read_tick_count(NiFpga_Session* session, NiFpga_Status* status);
+int32_t read_ix(NiFpga_Session* session, NiFpga_Status* status);
+int32_t read_iy(NiFpga_Session* session, NiFpga_Status* status);
 
 // set analog outputs
 //_Bool read_DIO12(NiFpga_Session* session, NiFpga_Status* status);

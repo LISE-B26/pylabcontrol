@@ -1,4 +1,5 @@
 from ctypes import *
+import numpy as np
 # TODO: find a way to call lib from a folder which doesn't contrain the bitfile of the FPGA (now it has to be place in the same directory as the python file to work
 
 # =========================================================================
@@ -18,11 +19,11 @@ setter_functions = {
     "set_Ny": c_int16,
     "set_Vmin_y": c_int16,
     "set_dVmin_y": c_int16,
-    "set_scanmode": c_int8,
+    "set_scanmode_x": c_uint8,
+    "set_scanmode_y": c_uint8,
     "set_settle_time": c_uint32,
-    "set_loop_time": c_uint32,
-    "set_forward_y": c_bool,
-    "set_Stop": c_bool
+    "set_time_per_pt": c_uint32,
+    'set_acquire': c_bool
 }
 
 for fun_name in setter_functions:
@@ -39,12 +40,13 @@ for fun_name in setter_functions:
 getter_functions = {
     "start_fpga": None,
     "stop_fpga": None,
-    "read_LoopTimeAcq": c_uint32,
-    "read_LoopRateLimitAcq": c_bool,
-    "read_Stop": c_bool,
+    "read_tick_count": c_uint32,
     "read_DMATimeOut": c_bool,
     "read_elements_written_to_dma": c_int16,
-    "read_detector_signal": c_int16
+    "read_detector_signal": c_int16,
+    "read_ix": c_int32,
+    "read_iy": c_int32,
+    'read_acquire':c_bool
 }
 
 for fun_name in getter_functions:
@@ -90,7 +92,7 @@ def read_FIFO(size, session, status):
     _libfpga.read_FIFO(Signal, size, byref(session), byref(status), byref(elements_remaining))
 
 
-    return {'Signal': Signal, 'elements_remaining': elements_remaining.value}
+    return {'signal': np.array(Signal), 'elements_remaining': elements_remaining.value}
 
 #
 #
