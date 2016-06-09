@@ -158,14 +158,14 @@ class Instrument(object):
         return dictator
 
 
-    def save(self, filename):
+    def save_b26(self, filename):
         """
         save the instrument to path as a .b26 file
 
         Args:
             filename: path of file
         """
-
+        print('ZZZ', filename)
         save_b26_file(filename, instruments = self.to_dict())
 
     @staticmethod

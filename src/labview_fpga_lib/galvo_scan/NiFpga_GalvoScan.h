@@ -19,8 +19,8 @@
  *
  *    static const char* const Bitfile = "C:\\" NiFpga_GalvoScan_Bitfile;
  */
-#define NiFpga_GalvoScan_Bitfile "NiFpga_GalvoScan.lvbitx"
-
+//#define NiFpga_GalvoScan_Bitfile "NiFpga_GalvoScan.lvbitx"
+#define NiFpga_GalvoScan_Bitfile "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\src\\labview_fpga_lib\\galvo_scan\\NiFpga_GalvoScan.lvbitx" 
 /**
  * The signature of the FPGA bitfile.
  */

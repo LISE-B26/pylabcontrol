@@ -3,35 +3,84 @@ try:
     from script_dummy import ScriptDummyWithInstrument
 except:
     print("./src/scripts/__init__ warning! ScriptDummyWithInstrument did not load")
+
 from script_dummy import  ScriptDummy, ScriptDummyWithQtSignal, ScriptDummyPlotting
 # from zi_sweeper import ZISweeper
 # from zi_high_res_sweep import ZISweeperHighResolution
 # from MWSpectraVsPower import MWSpectraVsPower
 # from keysight_get_spectrum import KeysightGetSpectrum
 # from keysight_spectra_vs_power import KeysightSpectrumVsPower
-from galvo_scan import GalvoScan
-from GalvoScanWithLightControl import GalvoScanWithLightControl
-from GalvoScanWithTwoRoI import GalvoScanWithTwoRoI
-
-from Find_Points import Find_Points
+try:
+    from galvo_scan import GalvoScan
+except:
+    print("./src/scripts/__init__ warning! GalvoScan did not load")
+try:
+    from GalvoScanWithLightControl import GalvoScanWithLightControl
+except:
+    print("./src/scripts/__init__ warning! GalvoScanWithLightControl did not load")
+try:
+    from GalvoScanWithTwoRoI import GalvoScanWithTwoRoI
+except:
+    print("./src/scripts/__init__ warning! GalvoScanWithTwoRoI did not load")
+try:
+    from Find_Points import Find_Points
+except:
+    print("./src/scripts/__init__ warning! Find_Points did not load")
 # from StanfordResearch_ESR import StanfordResearch_ESR
-from autofocus import AutoFocus
+try:
+    from autofocus import AutoFocus
+except:
+    print("./src/scripts/__init__ warning! AutoFocus did not load")
 # from light_control import CameraOn
-from Select_NVs import Select_NVs
-from Select_NVs import Select_NVs_Simple
-from set_laser import SetLaser
-from Correlate_Images import Correlate_Images
-from center_on_NVs import Center_On_NVs
-from find_max_counts_point import FindMaxCounts
+try:
+    from Select_NVs import Select_NVs
+except:
+    print("./src/scripts/__init__ warning! Select_NVs did not load")
+
+try:
+    from Select_NVs import Select_NVs_Simple
+except:
+    print("./src/scripts/__init__ warning! Select_NVs_Simple did not load")
+
+try:
+    from set_laser import SetLaser
+except:
+    print("./src/scripts/__init__ warning! AutoFocus did not load")
+
+try:
+    from Correlate_Images import Correlate_Images
+except:
+    print("./src/scripts/__init__ warning! Correlate_Images did not load")
+
+try:
+    from center_on_NVs import Center_On_NVs
+except:
+    print("./src/scripts/__init__ warning! Center_On_NVs did not load")
+
+
+try:
+    from find_max_counts_point import FindMaxCounts
+except:
+    print("./src/scripts/__init__ warning! FindMaxCounts did not load")
+
 # try:
 #     from find_max_counts_point_2d import FindMaxCounts2D
 # except:
 #     print("./src/scripts/__init__ warning! FindMaxCounts2D did not load")
-from find_max_counts_point_2d import FindMaxCounts2D
+try:
+    from find_max_counts_point_2d import FindMaxCounts2D
+except:
+    print("./src/scripts/__init__ warning! FindMaxCounts2D did not load")
 
-from StanfordResearch_ESR import StanfordResearch_ESR
+try:
+    from StanfordResearch_ESR import StanfordResearch_ESR
+except:
+    print("./src/scripts/__init__ warning! StanfordResearch_ESR did not load")
 
-from ESR_Selected_NVs import ESR_Selected_NVs
+try:
+    from ESR_Selected_NVs import ESR_Selected_NVs
+except:
+    print("./src/scripts/__init__ warning! ESR_Selected_NVs did not load")
 
 # from labview_fpga_get_timetrace import LabviewFpgaTimetrace
 try:
@@ -54,5 +103,13 @@ try:
 except:
     print("./src/scripts/__init__ warning! FPGA_PolarizationSignalScan did not load")
 
+try:
+    from galvo_scan_ni_fpga import GalvoScanNIFpga
+except:
+    print("./src/scripts/__init__ warning! GalvoScanNIFpga did not load")
 
-from Multiple_ESR import ESR_Selected_NVs_Simple
+try:
+    from Multiple_ESR import ESR_Selected_NVs_Simple
+except:
+    print("./src/scripts/__init__ warning! ESR_Selected_NVs_Simple did not load")
+

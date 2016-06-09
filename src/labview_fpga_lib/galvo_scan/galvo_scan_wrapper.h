@@ -7,7 +7,7 @@
  * 		Author JanGieseler
  */
  
-#include "./galvo_scan/NiFpga_GalvoScan.h"
+#include "NiFpga_GalvoScan.h"
 #include <stdio.h>
 
 

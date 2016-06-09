@@ -30,7 +30,7 @@ class CryoStation(Instrument):
         except IOError:
             self._is_connected = False
         except:
-            raise
+            raise ImportError
 
     def update(self, settings):
         '''
