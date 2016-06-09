@@ -5,19 +5,18 @@ from collections import deque
 from src.instruments.labview_fpga import NI7845RGalvoScan
 from src.plotting.plots_2d import plot_fluorescence
 from copy import deepcopy
-import datetime as dt
 import time
 import threading
 import Queue
+import datetime
 
-
-#X class GalvoScanNIFpga(Script, QThread):
-class GalvoScanNIFpga(Script):
+class GalvoScanNIFpga(Script, QThread):
+# class GalvoScanNIFpga(Script):
     """
     GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,
     resulting in an image in the current field of view of the objective.
     """
-    #X updateProgress = Signal(int)
+    updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),
@@ -36,11 +35,11 @@ class GalvoScanNIFpga(Script):
 
         Script.__init__(self, name, settings=settings, instruments=instruments, log_function=log_function, data_path = data_path)
 
-        #X QThread.__init__(self)
+        QThread.__init__(self)
 
         self._plot_type = 'main'
 
-        #X self.queue = Queue.Queue()
+        self.queue = Queue.Queue()
 
 
     def _function(self):
@@ -68,18 +67,12 @@ class GalvoScanNIFpga(Script):
 
         Nx, Ny = init_scan()
 
-        print(instr.settings)
-
         instr.start_acquire()
 
-        print(instr.settings)
-
-
         i = 0
-        # j= 0
-        line_scan_time = Nx * instr_settings['time_per_pt']
-        print('line_scan_time', line_scan_time)
 
+        t1 = datetime.datetime.now()
+        time_per_line = Nx*instr_settings['time_per_pt']
         while i < Ny:
             if self._abort:
                 break
@@ -90,23 +83,16 @@ class GalvoScanNIFpga(Script):
                 line_data = instr.read_fifo(Nx)
                 self.data['image_data'][i] = deepcopy(line_data['signal'])
                 i +=1
-            # j+=1
+            # wait time it takes acquire a point
+            time.sleep(time_per_line)
 
-            diagnostics = {
-                'acquire':instr.acquire,
-                'elements_written': instr.elements_written_to_dma,
-                'DMATimeOut': instr.DMATimeOut,
-                'ix': instr.ix,
-                'iy': instr.iy,
-                'detector_signal': instr.detector_signal
-            }
-
-            time.sleep(line_scan_time)
-
-
-            # sending updates every cycle leads to invalid task errors, so wait and don't overload gui
-            #X progress = int(float(iy + 1) / Ny * 100)
-            #X self.updateProgress.emit(progress)
+            t2 = datetime.datetime.now()
+            print(unicode(datetime.datetime.now()))
+            # if acquisition is too fast wait to not drive gui crazy, we choose 2 updates per second
+            if t2 - t1 > datetime.timedelta(seconds=0.5):
+                progress = int(float(i + 1) / Ny * 100)
+                self.updateProgress.emit(progress)
+                t1 = t2
 
 
         if self.settings['save']:
@@ -115,7 +101,7 @@ class GalvoScanNIFpga(Script):
             self.save_log()
             self.save_image_to_disk()
 
-        #X self.updateProgress.emit(100)
+        self.updateProgress.emit(100)
 
     @staticmethod
     def pts_to_extent(pta, ptb, roi_mode):

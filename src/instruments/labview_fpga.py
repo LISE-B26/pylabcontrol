@@ -318,7 +318,7 @@ class NI7845RGalvoScan(Instrument):
 
     def __del__(self):
         print('stopping fpga {:s}'.format(self.name))
-        self.fpga.stop()
+        #define NiFpga_GalvoScan_Bitfile "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\src\\labview_fpga_lib\\galvo_scan\\NiFpga_GalvoScan.lvbitx" stop()
 
     def read_probes(self, key):
         assert key in self._PROBES.keys(), "key assertion failed %s" % str(key)
