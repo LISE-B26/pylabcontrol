@@ -251,6 +251,98 @@ class NI7845RReadFifo(Instrument):
 
         return fifo_data
 
+# ==================================================================================
+# fpga program that performs a galvo scan
+# ==================================================================================
+class NI7845RGalvoScan(Instrument):
+
+    import src.labview_fpga_lib.galvo_scan.galvo_scan as FPGAlib
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('point_a',
+                  [Parameter('x', -0.4, float, 'x-coordinate'),
+                   Parameter('y', -0.4, float, 'y-coordinate')
+                   ]),
+        Parameter('point_b',
+                  [Parameter('x', 0.4, float, 'x-coordinate'),
+                   Parameter('y', 0.4, float, 'y-coordinate')
+                   ]),
+        Parameter('RoI_mode', 'corner', ['corner', 'center'], 'mode to calculate region of interest.\n \
+                                                       corner: pta and ptb are diagonal corners of rectangle.\n \
+                                                       center: pta is center and pta is extend or rectangle'),
+        Parameter('num_points',
+                  [Parameter('x', 120, int, 'number of x points to scan'),
+                   Parameter('y', 120, int, 'number of y points to scan')
+                   ]),
+        Parameter('time_per_pt', .001, [.001, .002, .005, .01, .015, .02], 'time in s to measure at each point'),
+        Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle'),
+        Parameter('fifo_size', int(2**12), int, 'size of fifo for data acquisition'),
+        Parameter('scan_mode_x', 'forward', ['forward', 'backward', 'forward-backward'], 'scan mode (x) onedirectional or bidirectional'),
+        Parameter('scan_mode_y', 'forward', ['forward', 'backward'], 'direction of scan (y)'),
+    ])
+
+    _PROBES = {
+        'Detector Signal': 'detector signal (AI4)',
+        'ElementsWritten' : 'elements written to DMA'
+    }
+    def __init__(self, name = None, settings = None):
+        super(NI7845RGalvoScan, self).__init__(name, settings)
+
+        # start fpga
+        self.fpga = self.FPGAlib.NI7845R()
+        print('===== start fpga =======')
+        self.fpga.start()
+        print('===== update fpga =======')
+        print(self.settings)
+        self.update(self.settings)
+
+    def __del__(self):
+        print('stopping fpga {:s}'.format(self.name))
+        self.fpga.stop()
+
+    def read_probes(self, key):
+        assert key in self._PROBES.keys(), "key assertion failed %s" % str(key)
+        value = getattr(self.FPGAlib, 'read_{:s}'.format(key))(self.fpga.session, self.fpga.status)
+        return value
+
+
+    def update(self, settings):
+        raise NotImplementedError
+        super(NI7845RGalvoScan, self).update(settings)
+
+        for key, value in settings.iteritems():
+            if key in ['point_a', 'point_b', 'RoI_mode', 'num_points']:
+                update_scan_parameters()
+            elif key in []:
+            # if key in ['Acquire']:
+            #     getattr(self.FPGAlib, 'set_AcquireData')(value, self.fpga.session, self.fpga.status)
+            # elif key in ['ElementsToWrite', 'SamplePeriodsAcq']:
+            #     getattr(self.FPGAlib, 'set_{:s}'.format(key))(value, self.fpga.session, self.fpga.status)
+            # elif key in ['fifo_size']:
+            #     actual_fifo_size = self.FPGAlib.configure_FIFO_AI(value, self.fpga.session, self.fpga.status)
+            #     print('requested ', value )
+            #     print('actual_fifo_size ', actual_fifo_size)
+
+    def start_fifo(self):
+        self.FPGAlib.start_FIFO_AI(self.fpga.session, self.fpga.status)
+
+    def stop_fifo(self):
+        self.FPGAlib.stop_FIFO_AI(self.fpga.session, self.fpga.status)
+
+
+    def read_fifo(self, block_size):
+        '''
+        read a block of data from the FIFO
+        :return: data from channels AI1 and AI2 and the elements remaining in the FIFO
+        '''
+        raise NotImplementedError
+        fifo_data = self.FPGAlib.read_FIFO_AI(block_size, self.fpga.session, self.fpga.status)
+        if str(self.fpga.status.value) != '0':
+            raise LabviewFPGAException(self.fpga.status)
+
+        return fifo_data
+
+
 if __name__ == '__main__':
     import time
     import numpy as np

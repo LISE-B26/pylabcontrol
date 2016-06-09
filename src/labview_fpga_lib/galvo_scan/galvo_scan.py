@@ -1,52 +1,110 @@
 from ctypes import *
 # TODO: find a way to call lib from a folder which doesn't contrain the bitfile of the FPGA (now it has to be place in the same directory as the python file to work
 
+# =========================================================================
+# ======= LOAD DLL ========================================================
+# =========================================================================
+_libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/src/labview_fpga_lib/galvo_scan/galvo_scan.dll')
 
-_libfpga = WinDLL('C:/Users/Experiment/PycharmProjects/PythonLab/src/labview_fpga_lib/read_ai_ao/read_ai_ao.dll')
+# =========================================================================
+# ======= DEFINE SETTER FUNCTIONS =========================================
+# =========================================================================
+# name of dictionary entry is the name of the function
+# value of the dictionary entry is the data type that is passed to the function
+setter_functions = {
+    "set_Nx": c_int16,
+    "set_Vmin_x": c_int16,
+    "set_dVmin_x": c_int16,
+    "set_Ny": c_int16,
+    "set_Vmin_y": c_int16,
+    "set_dVmin_y": c_int16,
+    "set_scanmode": c_int8,
+    "set_settle_time": c_uint32,
+    "set_loop_time": c_uint32,
+    "set_forward_y": c_bool,
+    "set_Stop": c_bool
+}
 
-_libfpga.start_fpga.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.start_fpga.restype = None
+for fun_name in setter_functions:
+    setattr( _libfpga, "{:s}.argtypes".format(fun_name), [setter_functions[fun_name], POINTER(c_uint32), POINTER(c_int32)])
+    setattr( _libfpga, "{:s}.restype".format(fun_name), None)
+    exec("""def {:s}(value, session, status):
+        return _libfpga.{:s}(value, byref(session), byref(status))""".format(fun_name, fun_name))
 
-_libfpga.stop_fpga.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.stop_fpga.restype = None
+# =========================================================================
+# ======= DEFINE GETTER FUNCTIONS =========================================
+# =========================================================================
+# name of dictionary entry is the name of the function
+# value of the dictionary entry is the data type that is returned from the function
+getter_functions = {
+    "start_fpga": None,
+    "stop_fpga": None,
+    "read_LoopTimeAcq": c_uint32,
+    "read_LoopRateLimitAcq": c_bool,
+    "read_Stop": c_bool,
+    "read_DMATimeOut": c_bool,
+    "read_elements_written_to_dma": c_int16,
+    "read_detector_signal": c_int16
+}
 
-# read inputs
-_libfpga.Detector_signal.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.Detector_signal.restype = c_int16
-
-# set outputs
-_libfpga.set_AO0.argtypes = [c_int16, POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.set_AO0.restype = None
-
-_libfpga.settle_time_CountTicks.argtypes = [c_int16, POINTER(c_uint32), POINTER(c_int32)]
-_libfpga.settle_time_CountTicks.restype = None
+for fun_name in getter_functions:
+    setattr( _libfpga, "{:s}.argtypes".format(fun_name), [POINTER(c_uint32), POINTER(c_int32)])
+    setattr( _libfpga, "{:s}.restype".format(fun_name), getter_functions[fun_name])
+    exec("""def {:s}(session, status):
+        return _libfpga.{:s}(byref(session), byref(status))""".format(fun_name, fun_name))
 
 
-def start_fpga(session, status):
-    return _libfpga.start_fpga(byref(session), byref(status))
 
-def stop_fpga(session, status):
-    return _libfpga.stop_fpga(byref(session), byref(status))
+# =========================================================================
+# ======= DEFINE FIFO FUNCTIONS =========================================
+# =========================================================================
+_libfpga.configure_FIFO.argtypes = [c_uint32, POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.configure_FIFO.restype = c_uint32
+def configure_FIFO(requestedDepth, session, status):
+    return _libfpga.configure_FIFO(requestedDepth, byref(session), byref(status))
+
+# start FIFO
+_libfpga.start_FIFO.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.start_FIFO.restype = None
+def start_FIFO(session, status):
+    return _libfpga.start_FIFO(byref(session), byref(status))
+
+# stop FIFO
+_libfpga.stop_FIFO.argtypes = [POINTER(c_uint32), POINTER(c_int32)]
+_libfpga.stop_FIFO.restype = None
+def stop_FIFO(session, status):
+    return _libfpga.stop_FIFO(byref(session), byref(status))
 
 
-# read vaues
-def get_detector_signal(session, status):
-    return _libfpga.Detector_signal(byref(session), byref(status))
+# read FIFO
+_libfpga.read_FIFO.argtypes = [POINTER(c_int16), c_uint32,
+                               POINTER(c_uint32), POINTER(c_int32),
+                               POINTER(c_uint32)]
 
-def get_detector_signal(session, status):
-    return _libfpga.Detector_signal(byref(session), byref(status))
+_libfpga.read_FIFO.restype = None
 
-# set values
-def set_scan_parameter(session, status,
-                       vmin_x, dv_x, n_x,
-                       vmin_y, dv_y, n_y,
-                       settle_time = 1000,
-                       loop_time = 10000,
-                       scan_mode = 'forward',
-                       forward_y = True,
-                       ):
+def read_FIFO(size, session, status):
+    Signal = (c_int16*size)()
+    elements_remaining = c_uint32()
 
-    _libfpga.settle_time_CountTicks(value, byref(session), byref(status))
+    _libfpga.read_FIFO(Signal, size, byref(session), byref(status), byref(elements_remaining))
+
+
+    return {'Signal': Signal, 'elements_remaining': elements_remaining.value}
+
+#
+#
+# # set values
+# def set_scan_parameter(session, status,
+#                        vmin_x, dv_x, n_x,
+#                        vmin_y, dv_y, n_y,
+#                        settle_time = 1000,
+#                        loop_time = 10000,
+#                        scan_mode = 'forward',
+#                        forward_y = True,
+#                        ):
+#
+#     _libfpga.settle_time_CountTicks(value, byref(session), byref(status))
 
 class NI7845R(object):
     session = c_uint32()
@@ -63,7 +121,6 @@ class NI7845R(object):
 
     def start(self):
         start_fpga(self.session, self.status)
-        # print(self.status.value)
         if self.status.value != 0:
             if int(self.status.value) ==  -63101:
                 print("ERROR 63101: Bitfile not found")

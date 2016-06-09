@@ -38,9 +38,9 @@ void set_Ny(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
 void set_Vmin_y(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
 void set_dVmin_y(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
 void set_scanmode(uint8_t value, NiFpga_Session* session, NiFpga_Status* status);
-void set_forward_y(_Bool state, NiFpga_Session* session, NiFpga_Status* status);
 void set_settle_time(uint32_t value, NiFpga_Session* session, NiFpga_Status* status);
 void set_loop_time(uint32_t value, NiFpga_Session* session, NiFpga_Status* status);
+void set_forward_y(_Bool state, NiFpga_Session* session, NiFpga_Status* status);
 
 // read parameters
 int16_t read_elements_written_to_dma(NiFpga_Session* session, NiFpga_Status* status);

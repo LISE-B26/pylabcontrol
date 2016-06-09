@@ -10,7 +10,8 @@ FPGA_PID_Loop_Simple.py which defines the higher level Python objects that are t
 
 """
 
-# TODO: reading of analog input gives only positive values (as if cast into unsigned integer, try to figure out why that is
+# TODO: reading of analog input gives only positive values (as if cast into unsigned integer, try to figure out why that is => check datatype of NiFpga_ReadFifoI16() in read_FIFO function in ..wrapper.c
+
 
 from ctypes import *
 import numpy as np
