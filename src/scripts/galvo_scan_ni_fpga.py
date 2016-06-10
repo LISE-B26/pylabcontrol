@@ -69,6 +69,19 @@ class GalvoScanNIFpga(Script, QThread):
 
         instr.start_acquire()
 
+        diagnostics = {
+            'acquire' : instr.acquire,
+            'elements_written_to_dma': instr.elements_written_to_dma,
+            'DMATimeOut': instr.acquire,
+            'ix': instr.ix,
+            'iy': instr.iy,
+            'detector_signal': instr.detector_signal,
+            'Nx': instr.Nx,
+            'Ny': instr.Ny,
+            'running': instr.running
+        }
+
+        print(diagnostics)
         i = 0
 
         t1 = datetime.datetime.now()
@@ -87,12 +100,14 @@ class GalvoScanNIFpga(Script, QThread):
             time.sleep(time_per_line)
 
             t2 = datetime.datetime.now()
-            print(unicode(datetime.datetime.now()))
+
             # if acquisition is too fast wait to not drive gui crazy, we choose 2 updates per second
             if t2 - t1 > datetime.timedelta(seconds=0.5):
                 progress = int(float(i + 1) / Ny * 100)
                 self.updateProgress.emit(progress)
                 t1 = t2
+                print(unicode(datetime.datetime.now()))
+                print(diagnostics)
 
 
         if self.settings['save']:

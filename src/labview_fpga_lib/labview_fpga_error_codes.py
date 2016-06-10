@@ -51,7 +51,8 @@ error_codes = {
 '-61060':'The Wait on IRQ method timed out before the specified interrupt was received.',
 '-61211':'Multiple resources with the same name are present in this VI. The Dynamic Mode of the FPGA Interface can only access a single resource of a given name.',
 '-63195':'NI-RIO FPGA Communications Framework: (Hex 0xFFF0925) The handle for device communication is invalid.',
-'-63101':'NI-RIO:  A valid .lvbitx bitfile is required. If you are using a valid .lvbitx bitfile, the bitfile may not be compatible with the software you are using. Determine which version of LabVIEW was used to make the bitfile, update your software to that version or later, and try again.'
+'-63101':'NI-RIO:  A valid .lvbitx bitfile is required. If you are using a valid .lvbitx bitfile, the bitfile may not be compatible with the software you are using. Determine which version of LabVIEW was used to make the bitfile, update your software to that version or later, and try again.',
+'63082' : 'The operation could not complete because another session is accessing the FIFO. Close the other session and retry.'
 }
 
 

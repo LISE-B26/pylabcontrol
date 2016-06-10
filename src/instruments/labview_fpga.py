@@ -1,6 +1,6 @@
 from src.core import Instrument, Parameter
 from src.labview_fpga_lib.labview_fpga_error_codes import LabviewFPGAException
-
+import time
 def volt_2_bit(volt):
     """
     converts a voltage value into a bit value
@@ -305,7 +305,10 @@ class NI7845RGalvoScan(Instrument):
         'ix': 'ix',
         'iy':'iy',
         'detector_signal':'detector_signal',
-        'acquire':'acquire'
+        'acquire':'acquire',
+        'running':'running',
+        'Nx': 'Nx',
+        'Ny': 'Ny'
     }
     def __init__(self, name = None, settings = None):
         super(NI7845RGalvoScan, self).__init__(name, settings)
@@ -403,11 +406,19 @@ class NI7845RGalvoScan(Instrument):
 
         # start fifo
         self.start_fifo()
+
+        max_attempts = 5
         # start scan
-        getattr(self.FPGAlib, 'set_acquire')(True, self.fpga.session, self.fpga.status)
-
-
-
+        i = 0
+        while self.running == False:
+            getattr(self.FPGAlib, 'set_acquire')(True, self.fpga.session, self.fpga.status)
+            print('XXX', self.running)
+            i +=1
+            # wait a little before trying again
+            time.sleep(0.1)
+            if i> max_attempts:
+                print('starting FPGA failed!!!')
+                break
     def read_fifo(self, block_size):
         '''
         read a block of data from the FIFO

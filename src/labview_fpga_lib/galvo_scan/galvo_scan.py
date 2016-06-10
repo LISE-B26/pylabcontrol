@@ -40,13 +40,17 @@ for fun_name in setter_functions:
 getter_functions = {
     "start_fpga": None,
     "stop_fpga": None,
+    "reset_fpga": None,
     "read_tick_count": c_uint32,
     "read_DMATimeOut": c_bool,
     "read_elements_written_to_dma": c_int16,
     "read_detector_signal": c_int16,
     "read_ix": c_int32,
     "read_iy": c_int32,
-    'read_acquire':c_bool
+    "read_Nx": c_int32,
+    "read_Ny": c_int32,
+    'read_acquire':c_bool,
+    'read_running':c_bool
 }
 
 for fun_name in getter_functions:
@@ -123,6 +127,12 @@ class NI7845R(object):
 
     def start(self):
         start_fpga(self.session, self.status)
+        print('fpga started, status = ', self.status.value)
+        # reset_fpga(self.session, self.status)
+        # print('fpga reset, status = ', self.status.value)
+        #
+        # start_fpga(self.session, self.status)
+        print('fpga started, status = ', self.status.value)
         if self.status.value != 0:
             if int(self.status.value) ==  -63101:
                 print("ERROR 63101: Bitfile not found")

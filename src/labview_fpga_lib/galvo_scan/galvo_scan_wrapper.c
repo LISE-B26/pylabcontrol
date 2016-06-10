@@ -46,6 +46,10 @@ void start_fpga(NiFpga_Session* session, NiFpga_Status* status)
 												"RIO0",
 												NiFpga_OpenAttribute_NoRun,
 												session));
+												
+		// reset
+		NiFpga_MergeStatus(status, NiFpga_Reset(*session));
+		
 		if (NiFpga_IsNotError(*status))
 		{
 			// run the FPGA application 
@@ -72,6 +76,10 @@ void stop_fpga(NiFpga_Session* session, NiFpga_Status* status)
 	NiFpga_MergeStatus(status, NiFpga_Finalize());
 }
 
+void reset_fpga(NiFpga_Session* session, NiFpga_Status* status)
+{
+	NiFpga_MergeStatus(status, NiFpga_Reset(*session));
+}
 
 // read times
 uint32_t read_tick_count(NiFpga_Session* session, NiFpga_Status* status)
@@ -88,10 +96,10 @@ _Bool read_DMATimeOut(NiFpga_Session* session, NiFpga_Status* status)
 	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_GalvoScan_IndicatorBool_DMAtimeout,&state));
 	return state;
 }
-_Bool read_acquire(NiFpga_Session* session, NiFpga_Status* status)
+_Bool read_running(NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_Bool state;
-	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_GalvoScan_ControlBool_acquire,&state));
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_GalvoScan_IndicatorBool_running,&state));
 	return state;
 }
 
@@ -100,11 +108,34 @@ void set_acquire(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_GalvoScan_ControlBool_acquire, state));
 }
+_Bool read_acquire(NiFpga_Session* session, NiFpga_Status* status)
+{
+	NiFpga_Bool state;
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_GalvoScan_ControlBool_acquire,&state));
+	return state;
+}
+void set_abort(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
+{
+	NiFpga_MergeStatus(status, NiFpga_WriteBool(*session,NiFpga_GalvoScan_ControlBool_abort, state));
+}
+_Bool read_abort(NiFpga_Session* session, NiFpga_Status* status)
+{
+	NiFpga_Bool state;
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_GalvoScan_ControlBool_abort,&state));
+	return state;
+}
 
 // set parameters
 void set_Nx(int16_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_GalvoScan_ControlI16_N_x,value));
+}
+int16_t read_Nx(NiFpga_Session* session, NiFpga_Status* status)
+{
+	int16_t value;
+
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_GalvoScan_ControlI16_N_x,&value));
+	return value;
 }
 
 void set_Vmin_x(int16_t value, NiFpga_Session* session, NiFpga_Status* status)
@@ -120,6 +151,13 @@ void set_dVmin_x(int16_t value, NiFpga_Session* session, NiFpga_Status* status)
 void set_Ny(int16_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
 	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_GalvoScan_ControlI16_N_y,value));
+}
+int16_t read_Ny(NiFpga_Session* session, NiFpga_Status* status)
+{
+	int16_t value;
+
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_GalvoScan_ControlI16_N_y,&value));
+	return value;
 }
 
 void set_Vmin_y(int16_t value, NiFpga_Session* session, NiFpga_Status* status)
@@ -153,6 +191,14 @@ void set_time_per_pt(uint32_t value, NiFpga_Session* session, NiFpga_Status* sta
 
 
 // read parameters
+int32_t read_i(NiFpga_Session* session, NiFpga_Status* status)
+{
+	int32_t value;
+
+	NiFpga_MergeStatus(status, NiFpga_ReadI32(*session,NiFpga_GalvoScan_IndicatorI32_i,&value));
+	return value;
+}
+
 int16_t read_elements_written_to_dma(NiFpga_Session* session, NiFpga_Status* status)
 {
 	int16_t value;
