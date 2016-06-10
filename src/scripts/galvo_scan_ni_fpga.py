@@ -59,13 +59,15 @@ class GalvoScanNIFpga(Script, QThread):
 
             Nx = instr_settings['num_points']['x']
             Ny = instr_settings['num_points']['y']
+            time_per_pt = instr_settings['time_per_pt']
+            N_per_pt = int(time_per_pt/2.5e-3)
             extent = instr.pts_to_extent(instr_settings['point_a'], instr_settings['point_b'], instr_settings['RoI_mode'])
 
             self.data = {'image_data': np.zeros((Nx, Ny)), 'extent': extent}
 
-            return Nx, Ny
+            return Nx, Ny, N_per_pt
 
-        Nx, Ny = init_scan()
+        Nx, Ny, N_per_pt = init_scan()
 
         instr.start_acquire()
 
@@ -92,9 +94,10 @@ class GalvoScanNIFpga(Script, QThread):
             print('acquiring line {:02d}/{:02d}'.format(i, Ny))
             elem_written = instr.elements_written_to_dma
             print('elem_written ', elem_written)
-            if elem_written >= Nx:
-                line_data = instr.read_fifo(Nx)
-                self.data['image_data'][i] = deepcopy(line_data['signal'])
+            if elem_written >= N_per_pt*Nx:
+                line_data = instr.read_fifo(N_per_pt*Nx)
+                sig = line_data['signal'].reshape(Nx,N_per_pt)
+                self.data['image_data'][i] = deepcopy(np.mean(sig,1))
                 i +=1
             # wait time it takes acquire a point
             time.sleep(time_per_line)

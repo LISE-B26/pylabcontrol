@@ -21,8 +21,9 @@ setter_functions = {
     "set_dVmin_y": c_int16,
     "set_scanmode_x": c_uint8,
     "set_scanmode_y": c_uint8,
+    "set_detector_mode": c_uint8,
     "set_settle_time": c_uint32,
-    "set_time_per_pt": c_uint32,
+    "set_measurements_per_pt": c_uint8,
     'set_acquire': c_bool
 }
 
@@ -50,7 +51,8 @@ getter_functions = {
     "read_Nx": c_int32,
     "read_Ny": c_int32,
     'read_acquire':c_bool,
-    'read_running':c_bool
+    'read_running':c_bool,
+    'read_output_valid':c_bool
 }
 
 for fun_name in getter_functions:
