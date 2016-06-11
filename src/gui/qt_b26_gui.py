@@ -172,6 +172,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.load_settings(os.path.join(self.gui_settings['tmp_folder'],'gui_settings.b26'))
             except KeyError:
                 print('Did not pre-load scripts! Issue: {:s}'.format(str(sys.exc_info())))
+            except AssertionError:
+                print('Did not pre-load scripts! Issue: {:s}'.format(str(sys.exc_info())))
 
         else:
             self.instruments = {}
@@ -179,7 +181,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.probes = {}
 
         self.data_sets = {} # todo: load datasets from tmp folder
-        self.read_probes = ReadProbes(self.probes)
+#        self.read_probes = ReadProbes(self.probes)
 
     def closeEvent(self, event):
 
