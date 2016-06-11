@@ -165,7 +165,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         connect_controls()
 
-        if filename is not None:
+        if filename is not None and os.path.exists(filename):
             try:
                 self.config_filename = filename
                 self.load_config(self.config_filename)
@@ -181,7 +181,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.probes = {}
 
         self.data_sets = {} # todo: load datasets from tmp folder
-#        self.read_probes = ReadProbes(self.probes)
+        self.read_probes = ReadProbes(self.probes)
 
     def closeEvent(self, event):
 
