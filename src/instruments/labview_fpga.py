@@ -291,7 +291,7 @@ class NI7845RGalvoScan(Instrument):
                   [Parameter('x', 120, int, 'number of x points to scan'),
                    Parameter('y', 120, int, 'number of y points to scan')
                    ]),
-        Parameter('time_per_pt', .001, [.001, .002, .005, .01, .015, .02], 'time in s to measure at each point'),
+        Parameter('time_per_pt', .0025, [.0025, .005, .0075, .01, .02], 'time in s to measure at each point'),
         Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle'),
         Parameter('fifo_size', int(2**12), int, 'size of fifo for data acquisition'),
         Parameter('scanmode_x', 'forward', ['forward', 'backward', 'forward-backward'], 'scan mode (x) onedirectional or bidirectional'),
@@ -379,13 +379,13 @@ class NI7845RGalvoScan(Instrument):
                 getattr(self.FPGAlib, 'set_dVmin_x')(dVmin_x, self.fpga.session, self.fpga.status)
                 getattr(self.FPGAlib, 'set_dVmin_y')(dVmin_y, self.fpga.session, self.fpga.status)
 
-            elif key in ['scanmode_x', 'scanmode_y']:
+            elif key in ['scanmode_x', 'scanmode_y', 'detector_mode', 'settle_time']:
                 print('setting', key, value)
                 getattr(self.FPGAlib, 'set_{:s}'.format(key))(value, self.fpga.session, self.fpga.status)
-            elif key in ['time_per_pt', 'settle_time']:
-                time_ticks = seconds_to_ticks(value)
-                print('time_ticks',time_ticks)
-                getattr(self.FPGAlib, 'set_{:s}'.format(key))(time_ticks, self.fpga.session, self.fpga.status)
+            elif key in ['time_per_pt']:
+                measurements_per_pt = int(value/2.5e-3)
+                print('measurements_per_pt',measurements_per_pt)
+                getattr(self.FPGAlib, 'set_measurements_per_pt')(measurements_per_pt, self.fpga.session, self.fpga.status)
             elif key in ['fifo_size']:
                 actual_fifo_size = self.FPGAlib.configure_FIFO(value, self.fpga.session, self.fpga.status)
                 print('requested ', value )

@@ -81,14 +81,6 @@ void reset_fpga(NiFpga_Session* session, NiFpga_Status* status)
 	NiFpga_MergeStatus(status, NiFpga_Reset(*session));
 }
 
-// read times
-uint32_t read_tick_count(NiFpga_Session* session, NiFpga_Status* status)
-{
-	int32_t value;
-	NiFpga_MergeStatus(status, NiFpga_ReadU32(*session,NiFpga_GalvoScan_IndicatorU32_TickCount,&value));
-	return value;
-}
-
 // read logical indicators
 _Bool read_DMATimeOut(NiFpga_Session* session, NiFpga_Status* status)
 {
@@ -102,7 +94,12 @@ _Bool read_running(NiFpga_Session* session, NiFpga_Status* status)
 	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_GalvoScan_IndicatorBool_running,&state));
 	return state;
 }
-
+_Bool read_output_valid(NiFpga_Session* session, NiFpga_Status* status)
+{
+	NiFpga_Bool state;
+	NiFpga_MergeStatus(status, NiFpga_ReadBool(*session,NiFpga_GalvoScan_IndicatorBool_outputvalid,&state));
+	return state;
+}
 // set logical values
 void set_acquire(_Bool state, NiFpga_Session* session, NiFpga_Status* status)
 {
@@ -179,14 +176,22 @@ void set_scanmode_y(uint8_t value, NiFpga_Session* session, NiFpga_Status* statu
 {
 	NiFpga_MergeStatus(status, NiFpga_WriteU8(*session,NiFpga_GalvoScan_ControlU8_scanmodey,value));
 }
-void set_settle_time(uint32_t value, NiFpga_Session* session, NiFpga_Status* status)
+
+void set_detector_mode(uint8_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_GalvoScan_ControlU32_settletimeCountTicks,value));
+	NiFpga_MergeStatus(status, NiFpga_WriteU8(*session,NiFpga_GalvoScan_ControlU8_detector_mode,value));
 }
 
-void set_time_per_pt(uint32_t value, NiFpga_Session* session, NiFpga_Status* status)
+
+
+void set_settle_time(uint32_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_GalvoScan_ControlU32_time_per_pt,value));
+	NiFpga_MergeStatus(status, NiFpga_WriteU32(*session,NiFpga_GalvoScan_ControlU32_settle_time_ms,value));
+}
+
+void set_set_measurements_per_pt(uint32_t value, NiFpga_Session* session, NiFpga_Status* status)
+{
+	NiFpga_MergeStatus(status, NiFpga_WriteU8(*session,NiFpga_GalvoScan_ControlU8_measurements_per_pt,value));
 }
 
 
