@@ -22,8 +22,8 @@ setter_functions = {
     "set_scanmode_x": c_uint8,
     "set_scanmode_y": c_uint8,
     "set_detector_mode": c_uint8,
-    "set_settle_time": c_uint32,
-    "set_measurements_per_pt": c_uint8,
+    "set_settle_time": c_uint8,
+    "set_meas_per_pt": c_uint8,
     'set_acquire': c_bool
 }
 
@@ -42,7 +42,8 @@ getter_functions = {
     "start_fpga": None,
     "stop_fpga": None,
     "reset_fpga": None,
-    "read_tick_count": c_uint32,
+    "read_loop_time": c_uint32,
+    "read_DMA_elem_to_write": c_uint32,
     "read_DMATimeOut": c_bool,
     "read_elements_written_to_dma": c_int16,
     "read_detector_signal": c_int16,
@@ -52,7 +53,9 @@ getter_functions = {
     "read_Ny": c_int32,
     'read_acquire':c_bool,
     'read_running':c_bool,
-    'read_output_valid':c_bool
+    'read_output_valid':c_bool,
+    'read_meas_per_pt':c_uint8,
+    'read_settle_time':c_uint8
 }
 
 for fun_name in getter_functions:

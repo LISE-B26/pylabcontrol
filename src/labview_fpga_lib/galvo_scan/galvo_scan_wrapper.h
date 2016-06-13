@@ -19,8 +19,8 @@ void start_fpga(NiFpga_Session* session, NiFpga_Status* status);
 void stop_fpga(NiFpga_Session* session, NiFpga_Status* status);
 
 // read times
-uint32_t read_LoopTimeAcq(NiFpga_Session* session, NiFpga_Status* status);
-
+uint32_t read_loop_time(NiFpga_Session* session, NiFpga_Status* status);
+uint32_t read_DMA_elem_to_write(NiFpga_Session* session, NiFpga_Status* status);
 
 // read logical indicators
 //_Bool read_LoopRateLimitAcq(NiFpga_Session* session, NiFpga_Status* status);
@@ -35,7 +35,7 @@ _Bool read_running(NiFpga_Session* session, NiFpga_Status* status);
 void set_abort(_Bool state, NiFpga_Session* session, NiFpga_Status* status);
 _Bool read_abort(NiFpga_Session* session, NiFpga_Status* status);
 
-// set/set parameters
+// set/read parameters
 void set_Nx(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
 int16_t read_Nx(NiFpga_Session* session, NiFpga_Status* status);
 void set_Vmin_x(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
@@ -47,8 +47,10 @@ void set_dVmin_y(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
 void set_scanmode_x(uint8_t value, NiFpga_Session* session, NiFpga_Status* status);
 void set_scanmode_y(uint8_t state, NiFpga_Session* session, NiFpga_Status* status);
 void set_detector_mode(uint8_t state, NiFpga_Session* session, NiFpga_Status* status);
-void set_settle_time(uint32_t value, NiFpga_Session* session, NiFpga_Status* status);
-void set_measurements_per_pt(uint8_t value, NiFpga_Session* session, NiFpga_Status* status);
+void set_settle_time(uint8_t value, NiFpga_Session* session, NiFpga_Status* status);
+uint8_t read_settle_time(NiFpga_Session* session, NiFpga_Status* status);
+void set_meas_per_pt(uint8_t value, NiFpga_Session* session, NiFpga_Status* status);
+uint8_t read_meas_per_pt(NiFpga_Session* session, NiFpga_Status* status);
 
 
 // read parameters

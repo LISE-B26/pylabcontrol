@@ -71,29 +71,19 @@ class GalvoScanNIFpga(Script, QThread):
 
         instr.start_acquire()
 
-        diagnostics = {
-            'acquire' : instr.acquire,
-            'elements_written_to_dma': instr.elements_written_to_dma,
-            'DMATimeOut': instr.acquire,
-            'ix': instr.ix,
-            'iy': instr.iy,
-            'detector_signal': instr.detector_signal,
-            'Nx': instr.Nx,
-            'Ny': instr.Ny,
-            'running': instr.running
-        }
-
-        print(diagnostics)
         i = 0
 
         t1 = datetime.datetime.now()
-        time_per_line = Nx*instr_settings['time_per_pt']
+        time_per_line = Nx*instr_settings['time_per_pt']*N_per_pt
+        print('N_per_pt', N_per_pt)
+        print('time_per_line', time_per_line)
+        print('instr_settings', instr_settings)
         while i < Ny:
             if self._abort:
                 break
-            print('acquiring line {:02d}/{:02d}'.format(i, Ny))
+            # print('acquiring line {:02d}/{:02d}'.format(i, Ny))
             elem_written = instr.elements_written_to_dma
-            print('elem_written ', elem_written)
+            # print('elem_written ', elem_written)
             if elem_written >= N_per_pt*Nx:
                 line_data = instr.read_fifo(N_per_pt*Nx)
                 sig = line_data['signal'].reshape(Nx,N_per_pt)
@@ -110,6 +100,23 @@ class GalvoScanNIFpga(Script, QThread):
                 self.updateProgress.emit(progress)
                 t1 = t2
                 print(unicode(datetime.datetime.now()))
+
+                diagnostics = {
+                    'acquire': instr.acquire,
+                    'elements_written_to_dma': instr.elements_written_to_dma,
+                    'DMATimeOut': instr.acquire,
+                    'ix': instr.ix,
+                    'iy': instr.iy,
+                    'detector_signal': instr.detector_signal,
+                    'Nx': instr.Nx,
+                    'Ny': instr.Ny,
+                    'running': instr.running,
+                    'DMA_elem_to_write': instr.DMA_elem_to_write,
+                    'loop_time': instr.loop_time,
+                    'meas_per_pt':instr.meas_per_pt,
+                    'settle_time': instr.settle_time
+                }
+
                 print(diagnostics)
 
 

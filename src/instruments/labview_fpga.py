@@ -292,7 +292,7 @@ class NI7845RGalvoScan(Instrument):
                    Parameter('y', 120, int, 'number of y points to scan')
                    ]),
         Parameter('time_per_pt', .0025, [.0025, .005, .0075, .01, .02], 'time in s to measure at each point'),
-        Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle'),
+        Parameter('settle_time', .002, [.002], 'wait time between points to allow galvo to settle'),
         Parameter('fifo_size', int(2**12), int, 'size of fifo for data acquisition'),
         Parameter('scanmode_x', 'forward', ['forward', 'backward', 'forward-backward'], 'scan mode (x) onedirectional or bidirectional'),
         Parameter('scanmode_y', 'forward', ['forward', 'backward'], 'direction of scan (y)'),
@@ -308,7 +308,11 @@ class NI7845RGalvoScan(Instrument):
         'acquire':'acquire',
         'running':'running',
         'Nx': 'Nx',
-        'Ny': 'Ny'
+        'Ny': 'Ny',
+        'loop_time':'loop_time',
+        'DMA_elem_to_write':'DMA_elem_to_write',
+        'meas_per_pt':'meas_per_pt',
+        'settle_time':'settle_time'
     }
     def __init__(self, name = None, settings = None):
         super(NI7845RGalvoScan, self).__init__(name, settings)
@@ -379,13 +383,17 @@ class NI7845RGalvoScan(Instrument):
                 getattr(self.FPGAlib, 'set_dVmin_x')(dVmin_x, self.fpga.session, self.fpga.status)
                 getattr(self.FPGAlib, 'set_dVmin_y')(dVmin_y, self.fpga.session, self.fpga.status)
 
-            elif key in ['scanmode_x', 'scanmode_y', 'detector_mode', 'settle_time']:
-                print('setting', key, value)
-                getattr(self.FPGAlib, 'set_{:s}'.format(key))(value, self.fpga.session, self.fpga.status)
+            elif key in ['scanmode_x', 'scanmode_y', 'detector_mode']:
+                getattr(self.FPGAlib, 'set_{:s}'.format(key))(settle_time, self.fpga.session, self.fpga.status)
+            elif key in ['settle_time']:
+                settle_time = int(value*1e3)
+                print('settle_time (ms)', settle_time)
+                getattr(self.FPGAlib, 'set_settle_time')(settle_time, self.fpga.session, self.fpga.status)
             elif key in ['time_per_pt']:
                 measurements_per_pt = int(value/2.5e-3)
-                print('measurements_per_pt',measurements_per_pt)
-                getattr(self.FPGAlib, 'set_measurements_per_pt')(measurements_per_pt, self.fpga.session, self.fpga.status)
+                print('set_meas_per_pt',measurements_per_pt)
+
+                getattr(self.FPGAlib, 'set_meas_per_pt')(measurements_per_pt, self.fpga.session, self.fpga.status)
             elif key in ['fifo_size']:
                 actual_fifo_size = self.FPGAlib.configure_FIFO(value, self.fpga.session, self.fpga.status)
                 print('requested ', value )
@@ -441,6 +449,8 @@ if __name__ == '__main__':
 
 
     fpga.fpga.start()
+
+    print(fpga.FPGAlib.setter_functions)
     print(fpga.settings)
     fpga.fpga.stop()
 
