@@ -13,6 +13,9 @@ def load_b26_file(file_name):
 
     """
     # file_name = "Z:\Lab\Cantilever\Measurements\\tmp_\\a"
+
+    assert os.path.exists(file_name)
+
     with open(file_name, 'r') as infile:
         data = yaml.safe_load(infile)
     return data
