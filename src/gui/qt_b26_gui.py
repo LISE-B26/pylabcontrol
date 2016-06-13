@@ -16,7 +16,10 @@ import numpy as np
 import json as json
 from PySide.QtCore import QThread
 from src.gui import LoadDialog
-from external_modules.matplotlibwidget import MatplotlibWidget
+from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as Canvas,
+                                                NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
 import sys
 
 import datetime
@@ -145,28 +148,38 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_settings.itemExpanded.connect(lambda: self.refresh_instruments())
 
             # plots
-            self.matplotlibwidget.mpl_connect('button_press_event',  self.plot_clicked)
-            self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_clicked)
+            self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_1_clicked)
+            self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_2_clicked)
 
         self.create_figures()
         self.tree_scripts.setColumnWidth(0, 250)
+
+        # create a "delegate" --- an editor that uses our new Editor Factory when creating editors,
+        # and use that for tree_scripts
+        delegate = QtGui.QStyledItemDelegate()
+        new_factory = CustomEditorFactory()
+        delegate.setItemEditorFactory(new_factory)
+        self.tree_scripts.setItemDelegate(delegate)
 
         setup_trees()
 
         connect_controls()
 
-        if filename is not None:
+        if filename is not None and os.path.exists(filename):
             try:
                 self.config_filename = filename
                 self.load_config(self.config_filename)
                 self.load_settings(os.path.join(self.gui_settings['tmp_folder'],'gui_settings.b26'))
             except KeyError:
                 print('Did not pre-load scripts! Issue: {:s}'.format(str(sys.exc_info())))
+            except AssertionError:
+                print('Did not pre-load scripts! Issue: {:s}'.format(str(sys.exc_info())))
 
         else:
             self.instruments = {}
             self.scripts = {}
             self.probes = {}
+            self.gui_settings = {'scripts_folder': '', 'data_folder': ''}
 
         self.data_sets = {} # todo: load datasets from tmp folder
         self.read_probes = ReadProbes(self.probes)
@@ -242,14 +255,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             instrument = self.tree_settings.topLevelItem(index)
             update(instrument)
 
-    def plot_clicked(self, mouse_event):
+    def plot_1_clicked(self, mouse_event):
+        key_press_handler(mouse_event, self.matplotlibwidget_1.canvas, self.matplotlibwidget_1)
+        self.plot_clicked(mouse_event)
 
+    def plot_2_clicked(self, mouse_event):
+        key_press_handler(mouse_event, self.matplotlibwidget_1.canvas, self.matplotlibwidget_1)
+        self.plot_clicked(mouse_event)
+
+    def plot_clicked(self, mouse_event):
         if isinstance(self.current_script, (Select_NVs, Select_NVs_Simple)) and self.current_script.isRunning:
             if (not (mouse_event.xdata == None)):
                 if (mouse_event.button == 1):
                     pt = np.array([mouse_event.xdata, mouse_event.ydata])
-                    self.current_script.toggle_NV(pt, self.matplotlibwidget.figure)
-                    self.matplotlibwidget.draw()
+                    self.current_script.toggle_NV(pt, self.matplotlibwidget_1.axes)
+                    self.matplotlibwidget_1.draw()
 
         item = self.tree_scripts.currentItem()
 
@@ -293,14 +313,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def create_figures(self):
         try:
             self.horizontalLayout_15.removeWidget(self.matplotlibwidget_2)
-            self.horizontalLayout_14.removeWidget(self.matplotlibwidget)
-            self.matplotlibwidget.close()
+            self.horizontalLayout_14.removeWidget(self.matplotlibwidget_1)
+            self.matplotlibwidget_1.close()
             self.matplotlibwidget_2.close()
         except AttributeError:
             pass
         self.centralwidget = QtGui.QWidget(self)
         self.centralwidget.setObjectName(QtCore.QString.fromUtf8("centralwidget"))
-        self.matplotlibwidget_2 = MatplotlibWidget(self.centralwidget)
+        self.matplotlibwidget_2 = MatplotlibWidget(self.plot_2)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -308,14 +328,22 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.matplotlibwidget_2.setSizePolicy(sizePolicy)
         self.matplotlibwidget_2.setMinimumSize(QtCore.QSize(200, 200))
         self.matplotlibwidget_2.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget_2"))
-        self.horizontalLayout_15.addWidget(self.matplotlibwidget_2)
-        self.matplotlibwidget = MatplotlibWidget(self.centralwidget)
-        self.matplotlibwidget.setMinimumSize(QtCore.QSize(200, 200))
-        self.matplotlibwidget.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget"))
-        self.horizontalLayout_14.addWidget(self.matplotlibwidget)
-        self.matplotlibwidget.mpl_connect('button_press_event', self.plot_clicked)
-        self.matplotlibwidget_2.mpl_connect('button_press_event', self.plot_clicked)
-        self.matplotlibwidget.figure.tight_layout()
+        self.horizontalLayout_16.addWidget(self.matplotlibwidget_2)
+        self.matplotlibwidget_1 = MatplotlibWidget(self.plot_1)
+        self.matplotlibwidget_1.setMinimumSize(QtCore.QSize(200, 200))
+        self.matplotlibwidget_1.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget_1"))
+        self.horizontalLayout_15.addWidget(self.matplotlibwidget_1)
+        self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_1_clicked)
+        self.matplotlibwidget_2.mpl_connect('button_press_event', self.plot_2_clicked)
+
+        # adds a toolbar to the plots
+        self.mpl_toolbar_1 = NavigationToolbar(self.matplotlibwidget_1.canvas, self.toolbar_space_1)
+        self.mpl_toolbar_2 = NavigationToolbar(self.matplotlibwidget_2.canvas, self.toolbar_space_2)
+        self.horizontalLayout_9.addWidget(self.mpl_toolbar_2)
+        self.horizontalLayout_14.addWidget(self.mpl_toolbar_1)
+
+
+        self.matplotlibwidget_1.figure.tight_layout()
         self.matplotlibwidget_2.figure.tight_layout()
 
     def btn_clicked(self):
@@ -335,7 +363,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if item is not None:
                 script, path_to_script = item.get_script()
-                print('update script', script.name)
                 self.update_script_from_tree(script, self.tree_scripts)
                 script.data_path = self.gui_settings['data_folder']
                 self.log('starting {:s}'.format(script.name))
@@ -489,12 +516,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     added_scripts = set(scripts.keys())-set(self.scripts.keys())
                     removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
 
+
+                    if 'data_folder' in self.gui_settings.keys() and os.path.exists(self.gui_settings['data_folder']):
+                        data_folder_name = self.gui_settings['data_folder']
+                    else:
+                        data_folder_name = None
+
                     # create instances of new instruments/scripts
                     self.scripts, loaded_failed, self.instruments = Script.load_and_append(script_dict = {name: scripts[name] for name in added_scripts},
                                                                                            scripts = self.scripts,
                                                                                            instruments = self.instruments,
                                                                                            log_function = self.log,
-                                                                                           data_path = self.gui_settings['data_folder'])
+                                                                                           data_path = data_folder_name)
                     # delete instances of new instruments/scripts that have been deselected
                     for name in removed_scripts:
                         del self.scripts[name]
@@ -572,14 +605,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         """
         if script.plot_type == 'main':
-            script.plot(self.matplotlibwidget.figure)
-            self.matplotlibwidget.draw()
+            script.plot(self.matplotlibwidget_1.figure)
+            self.matplotlibwidget_1.draw()
         elif script.plot_type == 'aux':
             script.plot(self.matplotlibwidget_2.figure)
             self.matplotlibwidget_2.draw()
         elif script.plot_type == 'two':
-            script.plot(self.matplotlibwidget.figure, self.matplotlibwidget_2.figure)
-            self.matplotlibwidget.draw()
+            script.plot(self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure)
+            self.matplotlibwidget_1.draw()
             self.matplotlibwidget_2.draw()
         elif script.plot_type == 'none':
             pass
@@ -643,8 +676,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 topLvlItem.value = new_values[topLvlItem.name]
                 topLvlItem.setText(1, unicode(topLvlItem.value))
         if self.probe_to_plot is not None:
-            self.probe_to_plot.plot(self.matplotlibwidget.axes)
-            self.matplotlibwidget.draw()
+            self.probe_to_plot.plot(self.matplotlibwidget_1.axes)
+            self.matplotlibwidget_1.draw()
 
 
         if self.chk_probe_log.isChecked():
@@ -969,3 +1002,68 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         for time_tag, script in self.data_sets.iteritems():
             print(time_tag, script)
             script.save(os.path.join(out_file_name, '{:s}.b26s'.format(time_tag)))
+
+
+# In order to set the precision when editing floats, we need to override the default Editor widget that
+# pops up over the text when you click. To do that, we create a custom Editor Factory so that the QTreeWidget
+# uses the custom spinbox when editing floats
+class CustomEditorFactory(QtGui.QItemEditorFactory):
+    def createEditor(self, type, QWidget):
+        if type == QtCore.QVariant.Double or type == QtCore.QVariant.Int:
+            spin_box = QtGui.QLineEdit(QWidget)
+            return spin_box
+        else:
+            return super(CustomEditorFactory, self).createEditor(type, QWidget)
+
+
+
+class MatplotlibWidget(Canvas):
+    """
+    MatplotlibWidget inherits PyQt4.QtGui.QWidget
+    and matplotlib.backend_bases.FigureCanvasBase
+
+    Options: option_name (default_value)
+    -------
+    parent (None): parent widget
+    title (''): figure title
+    xlabel (''): X-axis label
+    ylabel (''): Y-axis label
+    xlim (None): X-axis limits ([min, max])
+    ylim (None): Y-axis limits ([min, max])
+    xscale ('linear'): X-axis scale
+    yscale ('linear'): Y-axis scale
+    width (4): width in inches
+    height (3): height in inches
+    dpi (100): resolution in dpi
+    hold (False): if False, figure will be cleared each time plot is called
+
+    Widget attributes:
+    -----------------
+    figure: instance of matplotlib.figure.Figure
+    axes: figure axes
+
+    Example:
+    -------
+    self.widget = MatplotlibWidget(self, yscale='log', hold=True)
+    from numpy import linspace
+    x = linspace(-10, 10)
+    self.widget.axes.plot(x, x**2)
+    self.wdiget.axes.plot(x, x**3)
+    """
+    def __init__(self, parent=None):
+        self.figure = Figure(dpi=100)
+        Canvas.__init__(self, self.figure)
+        self.axes = self.figure.add_subplot(111)
+
+        self.canvas = self.figure.canvas
+        self.setParent(parent)
+
+        Canvas.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        Canvas.updateGeometry(self)
+
+    def sizeHint(self):
+        w, h = self.get_width_height()
+        return QtCore.QSize(w, h)
+
+    def minimumSizeHint(self):
+        return QtCore.QSize(10, 10)

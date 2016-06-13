@@ -63,9 +63,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 B26QTreeItem(self, key, value, self.value.valid_values[key], self.value.info[key], visible=self.visible)
 
         elif isinstance(self.value, dict):
-
-
-
             for key, value in self.value.iteritems():
 
                 if self.valid_values == dict:
@@ -115,9 +112,12 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 # item.setDisabled(True)
 
         else:
-            self.setText(1, unicode(self.value))
+            self.setData(1, 0, self.value)
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-        self.setToolTip(1, unicode(self.info  if isinstance(self.info, str) else ''))
+
+        self.setToolTip(1, unicode(self.info if isinstance(self.info, str) else ''))
+
+
 
     @property
     def value(self):

@@ -26,12 +26,14 @@ def export_default_instruments(path):
     import inspect
 
     for name, obj in inspect.getmembers(instruments):
+
         if inspect.isclass(obj):
             try:
                 instrument = obj()
-
+                print('created ', name)
                 filename = '{:s}{:s}.b26'.format(path, name)
                 instrument.save_b26(filename)
+                print('saved ', name)
             except:
                 print('failed to create instrument file for: {:s}'.format(obj.__name__))
 
@@ -51,9 +53,9 @@ def export_default_scripts(path):
     if failed != {}:
         for error_name, error in failed.iteritems():
             print('failed to create script: ', error_name)
-            raise error
+            # raise error
 
 
 if __name__ == '__main__':
-     #export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments_auto_generated\\')
+     # export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments_auto_generated\\')
     export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_auto_generated\\')
