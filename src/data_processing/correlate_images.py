@@ -53,6 +53,16 @@ def find_image_shift(reference_image, reference_image_bounds, shifted_image, shi
 
     dx_voltage = -1.0 * ref_img_pix2vol[0] * dx_pixel - (np.mean(reference_image_bounds[0:2]) - np.mean(shifted_image_bounds[0:2]))
     dy_voltage = -1.0 * ref_img_pix2vol[1] * dy_pixel - (np.mean(reference_image_bounds[2:4]) - np.mean(shifted_image_bounds[2:4]))
+
+    plt.figure()
+    plt.imshow(reference_image, extent = reference_image_bounds, cmap = 'pink')
+
+    plt.figure()
+    plt.imshow(shifted_image, extent = shifted_image_bounds, cmap = 'pink')
+
+    plt.figure()
+    plt.imshow(correlation)
+
     return dx_voltage, dy_voltage
 
 def pixel_to_voltage_conversion_factor(image_shape, image_bounds):
@@ -77,18 +87,18 @@ print find_image_shift(np.array(ref_image), ref_image_bounds, np.array(shifted_i
 
 '''
 
-data5 = Script.load_data(path = 'Z:\\Lab\\Cantilever\\Measurements\\__test_data_for_coding\\160525-12_05_06_center_beam_on_magnet\\')
-ref_image_bounds = np.array(data5['extent']).flatten()
-shifted_image_bounds = np.array(data5['extent']).flatten()
-
-ref_image = np.array(data5['image_data'])
-shifted_image = np.array(data5['image_data_2'])
-
-print find_image_shift(np.array(ref_image), ref_image_bounds, np.array(shifted_image), shifted_image_bounds, correlation_padding = True)
-
-
-plt.imshow(ref_image - shifted_image)
-plt.show()
+# data5 = Script.load_data(path = 'Z:\\Lab\\Cantilever\\Measurements\\__test_data_for_coding\\160525-12_05_06_center_beam_on_magnet\\')
+# ref_image_bounds = np.array(data5['extent']).flatten()
+# shifted_image_bounds = np.array(data5['extent']).flatten()
+#
+# ref_image = np.array(data5['image_data'])
+# shifted_image = np.array(data5['image_data_2'])
+#
+# print find_image_shift(np.array(ref_image), ref_image_bounds, np.array(shifted_image), shifted_image_bounds, correlation_padding = True)
+#
+#
+# plt.imshow(ref_image - shifted_image)
+# plt.show()
 
 
 

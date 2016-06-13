@@ -179,7 +179,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.instruments = {}
             self.scripts = {}
             self.probes = {}
-            self.gui_settings = {'scripts_folder': ''}
+            self.gui_settings = {'scripts_folder': '', 'data_folder': ''}
 
         self.data_sets = {} # todo: load datasets from tmp folder
         self.read_probes = ReadProbes(self.probes)

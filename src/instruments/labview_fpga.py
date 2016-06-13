@@ -291,7 +291,7 @@ class NI7845RGalvoScan(Instrument):
                   [Parameter('x', 120, int, 'number of x points to scan'),
                    Parameter('y', 120, int, 'number of y points to scan')
                    ]),
-        Parameter('time_per_pt', .0025, [.0025, .005, .0075, .01, .02], 'time in s to measure at each point'),
+        Parameter('time_per_pt', .00025, [.00025, .0005, .001, .0025, .005, .0075, .01, .02], 'time in s to measure at each point'),
         Parameter('settle_time', .002, [.002], 'wait time between points to allow galvo to settle'),
         Parameter('fifo_size', int(2**12), int, 'size of fifo for data acquisition'),
         Parameter('scanmode_x', 'forward', ['forward', 'backward', 'forward-backward'], 'scan mode (x) onedirectional or bidirectional'),
@@ -390,7 +390,7 @@ class NI7845RGalvoScan(Instrument):
                 print('settle_time (ms)', settle_time)
                 getattr(self.FPGAlib, 'set_settle_time')(settle_time, self.fpga.session, self.fpga.status)
             elif key in ['time_per_pt']:
-                measurements_per_pt = int(value/2.5e-3)
+                measurements_per_pt = int(value/2.5e-4)
                 print('set_meas_per_pt',measurements_per_pt)
 
                 getattr(self.FPGAlib, 'set_meas_per_pt')(measurements_per_pt, self.fpga.session, self.fpga.status)
@@ -420,7 +420,7 @@ class NI7845RGalvoScan(Instrument):
         i = 0
         while self.running == False:
             getattr(self.FPGAlib, 'set_acquire')(True, self.fpga.session, self.fpga.status)
-            print('XXX', self.running)
+            # print('XXX', self.running)
             i +=1
             # wait a little before trying again
             time.sleep(0.1)
@@ -435,7 +435,7 @@ class NI7845RGalvoScan(Instrument):
         fifo_data = self.FPGAlib.read_FIFO(block_size, self.fpga.session, self.fpga.status)
         if str(self.fpga.status.value) != '0':
             raise LabviewFPGAException(self.fpga.status)
-        print('fifo data', fifo_data)
+        # print('fifo data', fifo_data)
         return fifo_data
 
 

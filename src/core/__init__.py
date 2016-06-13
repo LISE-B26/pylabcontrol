@@ -17,5 +17,3 @@ try:
 except:
     pass
 __all__ = ['Instrument', 'Parameter']
-
-

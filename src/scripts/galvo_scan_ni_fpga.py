@@ -60,7 +60,7 @@ class GalvoScanNIFpga(Script, QThread):
             Nx = instr_settings['num_points']['x']
             Ny = instr_settings['num_points']['y']
             time_per_pt = instr_settings['time_per_pt']
-            N_per_pt = int(time_per_pt/2.5e-3)
+            N_per_pt = int(time_per_pt/2.5e-4)
             extent = instr.pts_to_extent(instr_settings['point_a'], instr_settings['point_b'], instr_settings['RoI_mode'])
 
             self.data = {'image_data': np.zeros((Nx, Ny)), 'extent': extent}
@@ -76,7 +76,7 @@ class GalvoScanNIFpga(Script, QThread):
         t1 = datetime.datetime.now()
         time_per_line = Nx*instr_settings['time_per_pt']*N_per_pt
         print('N_per_pt', N_per_pt)
-        print('time_per_line', time_per_line)
+        print('time_per_line (s)', time_per_line)
         print('instr_settings', instr_settings)
         while i < Ny:
             if self._abort:
