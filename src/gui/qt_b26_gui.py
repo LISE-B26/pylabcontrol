@@ -165,18 +165,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         connect_controls()
 
-        if filename is not None:
+        if filename is not None and os.path.exists(filename):
             try:
                 self.config_filename = filename
                 self.load_config(self.config_filename)
                 self.load_settings(os.path.join(self.gui_settings['tmp_folder'],'gui_settings.b26'))
             except KeyError:
                 print('Did not pre-load scripts! Issue: {:s}'.format(str(sys.exc_info())))
+            except AssertionError:
+                print('Did not pre-load scripts! Issue: {:s}'.format(str(sys.exc_info())))
 
         else:
             self.instruments = {}
             self.scripts = {}
             self.probes = {}
+            self.gui_settings = {'scripts_folder': ''}
 
         self.data_sets = {} # todo: load datasets from tmp folder
         self.read_probes = ReadProbes(self.probes)
@@ -513,12 +516,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     added_scripts = set(scripts.keys())-set(self.scripts.keys())
                     removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
 
+
+                    if 'data_folder' in self.gui_settings.keys() and os.path.exists(self.gui_settings['data_folder']):
+                        data_folder_name = self.gui_settings['data_folder']
+                    else:
+                        data_folder_name = None
+
                     # create instances of new instruments/scripts
                     self.scripts, loaded_failed, self.instruments = Script.load_and_append(script_dict = {name: scripts[name] for name in added_scripts},
                                                                                            scripts = self.scripts,
                                                                                            instruments = self.instruments,
                                                                                            log_function = self.log,
-                                                                                           data_path = self.gui_settings['data_folder'])
+                                                                                           data_path = data_folder_name)
                     # delete instances of new instruments/scripts that have been deselected
                     for name in removed_scripts:
                         del self.scripts[name]
