@@ -3,6 +3,7 @@ from PIL import Image as im
 from scipy import signal
 from src.core import Script
 import matplotlib.pyplot as plt
+import trackpy as tp
 
 def find_image_shift(reference_image, reference_image_bounds, shifted_image, shifted_image_bounds, correlation_padding = False):
     """
@@ -62,6 +63,29 @@ def pixel_to_voltage_conversion_factor(image_shape, image_bounds):
     y_voltage = (image_y_max - image_y_min) / image_y_len
     return x_voltage, y_voltage
 
+def create_nv_image(image, nv_size, created_pt_size = 3):
+    y_len, x_len = image.shape
+    f = tp.locate(image, nv_size)
+
+    baseline_image = np.zeros((y_len, x_len))
+    nv_locs = f.values
+    for pt in nv_locs:
+        for i in range(-created_pt_size, created_pt_size+1):
+            for j in range(-created_pt_size, created_pt_size+1):
+                if pt[1] + j < y_len and pt[1] - j >= 0 and pt[0] + i < x_len and pt[0] - i >= 0:
+                    baseline_image[pt[1] + j, pt[0] + i] = 10
+
+def correlation(nv_pos_list, baseline_image, baseline_image_bounds, new_image, new_image_bounds, trackpy = False, nv_size = 11):
+
+    if trackpy == True:
+        baseline_image = create_nv_image(baseline_image, nv_size)
+        new_image = create_nv_image(new_image, nv_size)
+
+    dx_voltage, dy_voltage = find_image_shift(baseline_image, baseline_image_bounds, new_image, new_image_bounds, correlation_padding=True)
+
+    return (nv_pos_list + [dx_voltage, dy_voltage])
+
+
 '''
 data3 = Script.load_data(path = 'Z:\\Lab\\Cantilever\\Measurements\\__test_data_for_coding\\160524-18_52_29_magn_on_center_beam\\')
 data4 = Script.load_data(path = 'Z:\\Lab\\Cantilever\\Measurements\\__test_data_for_coding\\160524-18_50_46_magn_on_center_beam\\')
@@ -77,18 +101,17 @@ print find_image_shift(np.array(ref_image), ref_image_bounds, np.array(shifted_i
 
 '''
 
-data5 = Script.load_data(path = 'Z:\\Lab\\Cantilever\\Measurements\\__test_data_for_coding\\160525-12_05_06_center_beam_on_magnet\\')
-ref_image_bounds = np.array(data5['extent']).flatten()
-shifted_image_bounds = np.array(data5['extent']).flatten()
-
-ref_image = np.array(data5['image_data'])
-shifted_image = np.array(data5['image_data_2'])
-
-print find_image_shift(np.array(ref_image), ref_image_bounds, np.array(shifted_image), shifted_image_bounds, correlation_padding = True)
-
-
-plt.imshow(ref_image - shifted_image)
-plt.show()
-
-
+# data5 = Script.load_data(path = 'Z:\\Lab\\Cantilever\\Measurements\\__test_data_for_coding\\160525-12_05_06_center_beam_on_magnet\\')
+# ref_image_bounds = np.array(data5['extent']).flatten()
+# shifted_image_bounds = np.array(data5['extent']).flatten()
+#
+# ref_image = np.array(data5['image_data'])
+# shifted_image = np.array(data5['image_data_2'])
+#
+# print find_image_shift(np.array(ref_image), ref_image_bounds, np.array(shifted_image), shifted_image_bounds, correlation_padding = True)
+#
+#
+# plt.imshow(ref_image - shifted_image)
+# plt.show()
+#
 

@@ -248,7 +248,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if (not (mouse_event.xdata == None)):
                 if (mouse_event.button == 1):
                     pt = np.array([mouse_event.xdata, mouse_event.ydata])
-                    self.current_script.toggle_NV(pt, self.matplotlibwidget.axes)
+                    self.current_script.toggle_NV(pt, self.matplotlibwidget.figure)
                     self.matplotlibwidget.draw()
 
         item = self.tree_scripts.currentItem()
@@ -335,6 +335,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if item is not None:
                 script, path_to_script = item.get_script()
+                print('update script', script.name)
                 self.update_script_from_tree(script, self.tree_scripts)
                 script.data_path = self.gui_settings['data_folder']
                 self.log('starting {:s}'.format(script.name))

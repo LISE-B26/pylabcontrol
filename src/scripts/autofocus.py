@@ -142,8 +142,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         axis1.set_ylabel(ylabel)
         axis1.set_title('Autofocusing Routine')
 
-        if axis2:
-            self.scripts['take_image'].plot(axis2)
+        if figure2:
+            self.scripts['take_image'].plot(figure2)
 
 
     def stop(self):
@@ -231,6 +231,5 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
 
 if __name__ == '__main__':
-    #scripts, loaded_failed, instruments = Script.load_and_append({"af": 'AutoFocus'})
-    #print(scripts, loaded_failed, instruments)
-    print(np.array([0, 0, 0, 0]) == [0, 0, 0, 0])
+    scripts, loaded_failed, instruments = Script.load_and_append({"af": 'AutoFocus'})
+    print(scripts, loaded_failed, instruments)

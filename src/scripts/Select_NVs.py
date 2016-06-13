@@ -170,9 +170,13 @@ class Select_NVs_Simple(Script, QThread):
                     color='white'
                     )
 
-    def toggle_NV(self, pt, axes):
+    def toggle_NV(self, pt, figure):
         # patch_size = self.settings['patch_size']
         print(pt)
+
+        axes = figure.axes
+        if type(axes) is list:
+            axes = axes[0]
 
         if not self.data['nv_locations']:
             self.data['nv_locations'].append(pt)
@@ -202,7 +206,7 @@ class Select_NVs_Simple(Script, QThread):
                 axes.add_patch(circ)
                 self.patches.append(circ)
 
-        self.plot(axes)
+        self.plot(figure)
 
 
 if __name__ == '__main__':
