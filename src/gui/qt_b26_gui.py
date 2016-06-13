@@ -516,12 +516,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     added_scripts = set(scripts.keys())-set(self.scripts.keys())
                     removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
 
+
+                    if 'data_folder' in self.gui_settings.keys() and os.path.exists(self.gui_settings['data_folder']):
+                        data_folder_name = self.gui_settings['data_folder']
+                    else:
+                        data_folder_name = ''
+
                     # create instances of new instruments/scripts
                     self.scripts, loaded_failed, self.instruments = Script.load_and_append(script_dict = {name: scripts[name] for name in added_scripts},
                                                                                            scripts = self.scripts,
                                                                                            instruments = self.instruments,
                                                                                            log_function = self.log,
-                                                                                           data_path = self.gui_settings['data_folder'])
+                                                                                           data_path = data_folder_name)
                     # delete instances of new instruments/scripts that have been deselected
                     for name in removed_scripts:
                         del self.scripts[name]
