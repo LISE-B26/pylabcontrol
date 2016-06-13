@@ -520,7 +520,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     if 'data_folder' in self.gui_settings.keys() and os.path.exists(self.gui_settings['data_folder']):
                         data_folder_name = self.gui_settings['data_folder']
                     else:
-                        data_folder_name = ''
+                        data_folder_name = None
 
                     # create instances of new instruments/scripts
                     self.scripts, loaded_failed, self.instruments = Script.load_and_append(script_dict = {name: scripts[name] for name in added_scripts},
