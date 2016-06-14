@@ -32,6 +32,13 @@ try:
 except:
     print("./src/scripts/__init__ warning! AutoFocus did not load")
 # from light_control import CameraOn
+from Select_NVs import Select_NVs
+from Select_NVs import Select_NVs_Simple
+from set_laser import SetLaser
+from Correlate_Images import Take_And_Correlate_Images
+from center_on_NVs import Center_On_NVs
+from find_max_counts_point import FindMaxCounts
+from find_max_counts_point_2d import FindMaxCounts2D
 try:
     from Select_NVs import Select_NVs
 except:
@@ -113,3 +120,7 @@ try:
 except:
     print("./src/scripts/__init__ warning! ESR_Selected_NVs_Simple did not load")
 
+
+from atto_scan import AttoStep
+
+from refind_NVs import Refind_NVs
