@@ -296,6 +296,7 @@ class NI7845RGalvoScan(Instrument):
         Parameter('fifo_size', int(2**12), int, 'size of fifo for data acquisition'),
         Parameter('scanmode_x', 'forward', ['forward', 'backward', 'forward-backward'], 'scan mode (x) onedirectional or bidirectional'),
         Parameter('scanmode_y', 'forward', ['forward', 'backward'], 'direction of scan (y)'),
+        Parameter('detector_mode', 'DC', ['DC', 'RMS'], 'return mean (DC) or rms of detector signal')
     ])
 
     _PROBES = {
@@ -385,21 +386,18 @@ class NI7845RGalvoScan(Instrument):
                 getattr(self.FPGAlib, 'set_dVmin_y')(dVmin_y, self.fpga.session, self.fpga.status)
 
             elif key in ['scanmode_x', 'scanmode_y', 'detector_mode']:
-                getattr(self.FPGAlib, 'set_{:s}'.format(key))(settle_time, self.fpga.session, self.fpga.status)
+                index = [i for i, x in enumerate(self._DEFAULT_SETTINGS.valid_values[key]) if x == value][0]
+                getattr(self.FPGAlib, 'set_{:s}'.format(key))(index, self.fpga.session, self.fpga.status)
             elif key in ['settle_time']:
                 settle_time = int(value*1e3)
-                print('settle_time (us)', settle_time)
                 getattr(self.FPGAlib, 'set_settle_time')(settle_time, self.fpga.session, self.fpga.status)
             elif key in ['time_per_pt']:
-                print('time_per_pt', value)
                 measurements_per_pt = int(value/0.25)
-                print('set_meas_per_pt',measurements_per_pt)
-
                 getattr(self.FPGAlib, 'set_meas_per_pt')(measurements_per_pt, self.fpga.session, self.fpga.status)
             elif key in ['fifo_size']:
                 actual_fifo_size = self.FPGAlib.configure_FIFO(value, self.fpga.session, self.fpga.status)
-                print('requested ', value )
-                print('actual_fifo_size ', actual_fifo_size)
+                # print('requested ', value )
+                # print('actual_fifo_size ', actual_fifo_size)
 
     def start_fifo(self):
         self.FPGAlib.start_FIFO(self.fpga.session, self.fpga.status)
@@ -414,6 +412,7 @@ class NI7845RGalvoScan(Instrument):
             data of galvo scan as numpy array with dimensions Nx Ny
         """
 
+        self.stop_fifo()
         # start fifo
         self.start_fifo()
 
@@ -429,6 +428,10 @@ class NI7845RGalvoScan(Instrument):
             if i> max_attempts:
                 print('starting FPGA failed!!!')
                 break
+
+    def abort_acquire(self):
+        getattr(self.FPGAlib, 'set_abort')(True, self.fpga.session, self.fpga.status)
+
     def read_fifo(self, block_size):
         '''
         read a block of data from the FIFO
@@ -439,6 +442,8 @@ class NI7845RGalvoScan(Instrument):
             raise LabviewFPGAException(self.fpga.status)
         # print('fifo data', fifo_data)
         return fifo_data
+
+
 
 
 if __name__ == '__main__':

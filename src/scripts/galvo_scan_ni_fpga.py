@@ -88,6 +88,11 @@ class GalvoScanNIFpga(Script, QThread):
 
             print(diagnostics)
 
+        def calc_progress(i, Ny):
+            progress = int(float(i + 1) / Ny * 100)
+            if progress ==100:
+                progress = 99
+            return progress
         Nx, Ny, N_per_pt = init_scan()
 
         instr.start_acquire()
@@ -96,10 +101,11 @@ class GalvoScanNIFpga(Script, QThread):
 
         t1 = datetime.datetime.now()
         # expecte time to acquire a line in seconds
-        time_per_line = Nx*(instr_settings['time_per_pt']+instr_settings['settle_time'])/1e3
+        time_per_line_s = Nx*(instr_settings['time_per_pt']+instr_settings['settle_time'])/1e3
 
         while i < Ny:
             if self._abort:
+                instr.abort_acquire()
                 break
             # print('acquiring line {:02d}/{:02d}'.format(i, Ny))
             elem_written = instr.elements_written_to_dma
@@ -108,20 +114,30 @@ class GalvoScanNIFpga(Script, QThread):
                 line_data = instr.read_fifo(N_per_pt*Nx)
                 sig = line_data['signal'].reshape(Nx,N_per_pt)
                 self.data['image_data'][i] = deepcopy(np.mean(sig,1))
+
+                # set the remaining values to the mean so that we get a good contrast while plotting
+                mean_value = np.mean(self.data['image_data'][0:i])
+                self.data['image_data'][i+1:, :] = mean_value*np.ones((Ny-(i+1), Nx))
+
                 i +=1
-            # wait time it takes acquire a point
-            time.sleep(time_per_line)
 
             t2 = datetime.datetime.now()
-
+            elapsed_time = t2 - t1
             # if acquisition is too fast wait to not drive gui crazy, we choose 2 updates per second
-            if t2 - t1 > datetime.timedelta(seconds=0.5):
-                progress = int(float(i + 1) / Ny * 100)
+            if elapsed_time > datetime.timedelta(seconds=0.5):
+                progress = calc_progress(i,Ny)
                 self.updateProgress.emit(progress)
                 t1 = t2
                 # uncomment following line to show some diagnostic values
-                # print_diagnostics()
+                print_diagnostics()
+            else:
 
+                time_sleep = time_per_line_s - elapsed_time.total_seconds()
+
+                if time_sleep>0:
+                    # wait time it takes acquire a point
+                    time.sleep(time_sleep)
+                    print('time to sleep', time_sleep)
 
 
         if self.settings['save']:
@@ -131,7 +147,7 @@ class GalvoScanNIFpga(Script, QThread):
             self.save_image_to_disk()
 
         self.updateProgress.emit(100)
-
+        print(self.data)
     @staticmethod
     def pts_to_extent(pta, ptb, roi_mode):
         """
