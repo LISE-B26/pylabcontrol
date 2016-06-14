@@ -232,6 +232,18 @@ class Attocube(Instrument):
         self._check_error(self.attocube.PositionerMoveAbsolute(device_handle, axis, int32(int(position * 1000.0))))
         self._check_error(self.attocube.PositionerClose(device_handle))
 
+    def step(self, axis, dir):
+        '''
+
+        Args:
+            axis: axis_x, axis_y, or axis_z
+            dir: 0 for forwards, 1 for backwards
+
+        '''
+        device_handle = int32()
+        self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
+        self._check_error(self.attocube.PositionerMoveSingleStep(device_handle, axis, int32(dir)))
+        self._check_error(self.attocube.PositionerClose(device_handle))
 
     def _convert_axis(self, axis):
         if axis == 'x':

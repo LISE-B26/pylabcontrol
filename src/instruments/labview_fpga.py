@@ -291,11 +291,12 @@ class NI7845RGalvoScan(Instrument):
                   [Parameter('x', 120, int, 'number of x points to scan'),
                    Parameter('y', 120, int, 'number of y points to scan')
                    ]),
-        Parameter('time_per_pt', .0025, [.0025, .005, .0075, .01, .02], 'time in s to measure at each point'),
-        Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle'),
+        Parameter('time_per_pt', 0.25, [ 0.25, 0.5, 1.0, 2.0, 5.0, 10.0], 'time (ms) to measure at each point'),
+        Parameter('settle_time', 0.1, [ 0.1, 0.2, 0.5, 1.0, 2.0], 'wait time (ms) between points to allow galvo to settle'),
         Parameter('fifo_size', int(2**12), int, 'size of fifo for data acquisition'),
         Parameter('scanmode_x', 'forward', ['forward', 'backward', 'forward-backward'], 'scan mode (x) onedirectional or bidirectional'),
         Parameter('scanmode_y', 'forward', ['forward', 'backward'], 'direction of scan (y)'),
+        Parameter('detector_mode', 'DC', ['DC', 'RMS'], 'return mean (DC) or rms of detector signal')
     ])
 
     _PROBES = {
@@ -308,7 +309,12 @@ class NI7845RGalvoScan(Instrument):
         'acquire':'acquire',
         'running':'running',
         'Nx': 'Nx',
-        'Ny': 'Ny'
+        'Ny': 'Ny',
+        'loop_time':'loop_time',
+        'DMA_elem_to_write':'DMA_elem_to_write',
+        'meas_per_pt':'meas_per_pt',
+        'settle_time':'settle_time',
+        'failed':'failed'
     }
     def __init__(self, name = None, settings = None):
         super(NI7845RGalvoScan, self).__init__(name, settings)
@@ -379,17 +385,19 @@ class NI7845RGalvoScan(Instrument):
                 getattr(self.FPGAlib, 'set_dVmin_x')(dVmin_x, self.fpga.session, self.fpga.status)
                 getattr(self.FPGAlib, 'set_dVmin_y')(dVmin_y, self.fpga.session, self.fpga.status)
 
-            elif key in ['scanmode_x', 'scanmode_y', 'detector_mode', 'settle_time']:
-                print('setting', key, value)
-                getattr(self.FPGAlib, 'set_{:s}'.format(key))(value, self.fpga.session, self.fpga.status)
+            elif key in ['scanmode_x', 'scanmode_y', 'detector_mode']:
+                index = [i for i, x in enumerate(self._DEFAULT_SETTINGS.valid_values[key]) if x == value][0]
+                getattr(self.FPGAlib, 'set_{:s}'.format(key))(index, self.fpga.session, self.fpga.status)
+            elif key in ['settle_time']:
+                settle_time = int(value*1e3)
+                getattr(self.FPGAlib, 'set_settle_time')(settle_time, self.fpga.session, self.fpga.status)
             elif key in ['time_per_pt']:
-                measurements_per_pt = int(value/2.5e-3)
-                print('measurements_per_pt',measurements_per_pt)
-                getattr(self.FPGAlib, 'set_measurements_per_pt')(measurements_per_pt, self.fpga.session, self.fpga.status)
+                measurements_per_pt = int(value/0.25)
+                getattr(self.FPGAlib, 'set_meas_per_pt')(measurements_per_pt, self.fpga.session, self.fpga.status)
             elif key in ['fifo_size']:
                 actual_fifo_size = self.FPGAlib.configure_FIFO(value, self.fpga.session, self.fpga.status)
-                print('requested ', value )
-                print('actual_fifo_size ', actual_fifo_size)
+                # print('requested ', value )
+                # print('actual_fifo_size ', actual_fifo_size)
 
     def start_fifo(self):
         self.FPGAlib.start_FIFO(self.fpga.session, self.fpga.status)
@@ -404,21 +412,26 @@ class NI7845RGalvoScan(Instrument):
             data of galvo scan as numpy array with dimensions Nx Ny
         """
 
+        self.stop_fifo()
         # start fifo
         self.start_fifo()
 
-        max_attempts = 5
+        max_attempts = 20
         # start scan
         i = 0
         while self.running == False:
             getattr(self.FPGAlib, 'set_acquire')(True, self.fpga.session, self.fpga.status)
-            print('XXX', self.running)
+            # print('XXX', self.running)
             i +=1
             # wait a little before trying again
             time.sleep(0.1)
             if i> max_attempts:
                 print('starting FPGA failed!!!')
                 break
+
+    def abort_acquire(self):
+        getattr(self.FPGAlib, 'set_abort')(True, self.fpga.session, self.fpga.status)
+
     def read_fifo(self, block_size):
         '''
         read a block of data from the FIFO
@@ -427,8 +440,10 @@ class NI7845RGalvoScan(Instrument):
         fifo_data = self.FPGAlib.read_FIFO(block_size, self.fpga.session, self.fpga.status)
         if str(self.fpga.status.value) != '0':
             raise LabviewFPGAException(self.fpga.status)
-        print('fifo data', fifo_data)
+        # print('fifo data', fifo_data)
         return fifo_data
+
+
 
 
 if __name__ == '__main__':
@@ -441,6 +456,8 @@ if __name__ == '__main__':
 
 
     fpga.fpga.start()
+
+    print(fpga.FPGAlib.setter_functions)
     print(fpga.settings)
     fpga.fpga.stop()
 

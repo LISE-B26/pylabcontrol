@@ -121,7 +121,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_delete_data.clicked.connect(self.btn_clicked)
 
 
-
             self.btn_save_gui.triggered.connect(self.btn_clicked)
             self.btn_load_gui.triggered.connect(self.btn_clicked)
             self.btn_about.triggered.connect(self.btn_clicked)
@@ -141,9 +140,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # tree structures
             self.tree_scripts.itemClicked.connect(lambda: onScriptParamClick(self.tree_scripts.currentItem(),
                                                                              self.tree_scripts.currentColumn()))
-            self.tree_scripts.itemChanged.connect(lambda: self.update_parametuers(self.tree_scripts))
+            self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
             self.tabWidget.currentChanged.connect(lambda : self.switch_tab())
+            self.tree_dataset.clicked.connect(lambda: self.btn_clicked())
 
             self.tree_settings.itemExpanded.connect(lambda: self.refresh_instruments())
 
@@ -179,7 +179,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.instruments = {}
             self.scripts = {}
             self.probes = {}
-            self.gui_settings = {'scripts_folder': ''}
+            self.gui_settings = {'scripts_folder': '', 'data_folder': ''}
 
         self.data_sets = {} # todo: load datasets from tmp folder
         self.read_probes = ReadProbes(self.probes)
@@ -206,7 +206,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns:
 
         """
-        print('AAAAAAA')
         fname = self.gui_settings['tmp_folder']
         print('save datasets to {:s}'.format(fname))
         self.save_dataset(fname)
@@ -348,6 +347,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def btn_clicked(self):
         sender = self.sender()
+        print(']]]xxxx', sender == self.tree_dataset)
         self.probe_to_plot = None
 
         # the following function takes the current figures and makes a new widget in place of them.
@@ -434,17 +434,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 model.removeRows(row,1)
 
         def plot_data(sender):
-            print('plotdata', sender)
-            if sender is self.btn_plot_data:
+            if sender in (self.btn_plot_data, self.tree_dataset):
                 index = self.tree_dataset.selectedIndexes()[0]
                 model = index.model()
                 time_tag = str(model.itemFromIndex(model.index(index.row(), 0)).text())
                 script = self.data_sets[time_tag]
-            elif sender is self.btn_plot_script:
+            elif sender in (self.btn_plot_script):
                 item = self.tree_scripts.currentItem()
                 if item is not None:
                     script, path_to_script = item.get_script()
-            print(script)
             self.update_script_from_tree(script, self.tree_scripts)
             self.plot_script(script)
 
@@ -452,7 +450,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             start_button()
         elif sender is self.btn_stop_script:
             stop_button()
-        elif sender is self.btn_plot_data or sender is self.btn_plot_script:
+        # elif sender is self.btn_plot_data or sender is self.btn_plot_script or sender is self.tree_dataset:
+        elif sender in (self.btn_plot_data, self.btn_plot_script, self.tree_dataset):
             plot_data(sender)
         elif sender is self.btn_store_script_data:
             store_script_data()
@@ -462,7 +461,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             delete_data()
         elif sender is self.btn_plot_probe:
             item = self.tree_monitor.currentItem()
-
             if item is not None:
                 self.probe_to_plot = self.probes[item.name]
             else:
@@ -690,8 +688,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             outfile.write("{:s}\n".format(",".join(map(str, new_values.values()))))
 
     def update_script_from_tree(self, script, tree):
-        print('updating')
-
         def update_script_from_item(script, item):
             # build dictionary
             # get full information from script
@@ -703,7 +699,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # remove instrument
                 del dictator[instrument]
 
-            print('script.scripts.keys()', script.scripts.keys())
             for sub_script_name in script.scripts.keys():
 
                 items = tree.findItems(sub_script_name, QtCore.Qt.MatchExactly | QtCore.Qt.MatchRecursive)
@@ -713,7 +708,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     sub_script_item = [sub_item for sub_item in items if isinstance(sub_item.value, Script)
                                                                             and sub_item.parent() is item]
 
-                    print('----> subscripts:', [s.name for s in sub_script_item])
 
                     sub_script_item = sub_script_item[0]
                 else:
@@ -723,7 +717,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 sub_script = script.scripts[sub_script_name]
 
                 # update script
-                print('update subscript', sub_script, sub_script_item)
                 update_script_from_item(sub_script, sub_script_item)
                 # script.scripts[sub_script_name].update(dictator[sub_script_name])
                 # remove script
@@ -733,17 +726,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         for item in tree.selectedItems():
             if item.valid_values == type(script) and item.name == script.name:
-                print('updating', item)
                 update_script_from_item(script, item)
-
-        # old stuff can be deleted at some point (change may 25th, delete after june 25th)
-        # for index in range(tree.topLevelItemCount()):
-        #     topLvlItem = tree.topLevelItem(index)
-        #
-        #
-        #     if topLvlItem.valid_values == type(script) and topLvlItem.name == script.name:
-        #
-        #         update_script_from_item(script, topLvlItem)
 
     def fill_treewidget(self, tree, parameters):
         """
@@ -804,10 +787,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 tree.model().appendRow(item)
             elif isinstance(value, str):
                 item = QtGui.QStandardItem(key)
-                # item.setEditable(False)
                 item_value = QtGui.QStandardItem(value)
-                # if key == "settings_file":
-                    # print('aaa', key, value)
                 item_value.setEditable(True)
                 item_value.setSelectable(True)
                 tree.model().appendRow([item, item_value])
@@ -959,7 +939,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # update the internal dictionaries from the trees in the gui
         for name, script in self.scripts.iteritems():
-            print('updating ', name)
             self.update_script_from_tree(script, self.tree_scripts)
 
         out_data = {'instruments': {}, 'scripts': {}, 'probes': {}}
