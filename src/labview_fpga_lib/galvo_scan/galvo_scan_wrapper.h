@@ -59,6 +59,7 @@ int16_t read_elements_written_to_dma(NiFpga_Session* session, NiFpga_Status* sta
 int16_t read_detector_signal(NiFpga_Session* session, NiFpga_Status* status);
 int32_t read_ix(NiFpga_Session* session, NiFpga_Status* status);
 int32_t read_iy(NiFpga_Session* session, NiFpga_Status* status);
+int32_t read_failed(NiFpga_Session* session, NiFpga_Status* status)
 
 // set analog outputs
 //_Bool read_DIO12(NiFpga_Session* session, NiFpga_Status* status);

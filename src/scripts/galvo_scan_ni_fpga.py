@@ -60,12 +60,33 @@ class GalvoScanNIFpga(Script, QThread):
             Nx = instr_settings['num_points']['x']
             Ny = instr_settings['num_points']['y']
             time_per_pt = instr_settings['time_per_pt']
-            N_per_pt = int(time_per_pt/2.5e-4)
+            N_per_pt = int(time_per_pt/0.25)
             extent = instr.pts_to_extent(instr_settings['point_a'], instr_settings['point_b'], instr_settings['RoI_mode'])
 
             self.data = {'image_data': np.zeros((Nx, Ny)), 'extent': extent}
 
             return Nx, Ny, N_per_pt
+
+        def print_diagnostics():
+            print(unicode(datetime.datetime.now()))
+            diagnostics = {
+                'acquire': instr.acquire,
+                'elements_written_to_dma': instr.elements_written_to_dma,
+                'DMATimeOut': instr.acquire,
+                'ix': instr.ix,
+                'iy': instr.iy,
+                'detector_signal': instr.detector_signal,
+                'Nx': instr.Nx,
+                'Ny': instr.Ny,
+                'running': instr.running,
+                'DMA_elem_to_write': instr.DMA_elem_to_write,
+                'loop_time': instr.loop_time,
+                'meas_per_pt': instr.meas_per_pt,
+                'settle_time': instr.settle_time,
+                'failed': instr.failed
+            }
+
+            print(diagnostics)
 
         Nx, Ny, N_per_pt = init_scan()
 
@@ -74,10 +95,9 @@ class GalvoScanNIFpga(Script, QThread):
         i = 0
 
         t1 = datetime.datetime.now()
-        time_per_line = Nx*instr_settings['time_per_pt']*N_per_pt
-        print('N_per_pt', N_per_pt)
-        print('time_per_line (s)', time_per_line)
-        print('instr_settings', instr_settings)
+        # expecte time to acquire a line in seconds
+        time_per_line = Nx*(instr_settings['time_per_pt']+instr_settings['settle_time'])/1e3
+
         while i < Ny:
             if self._abort:
                 break
@@ -99,25 +119,9 @@ class GalvoScanNIFpga(Script, QThread):
                 progress = int(float(i + 1) / Ny * 100)
                 self.updateProgress.emit(progress)
                 t1 = t2
-                print(unicode(datetime.datetime.now()))
+                # uncomment following line to show some diagnostic values
+                # print_diagnostics()
 
-                diagnostics = {
-                    'acquire': instr.acquire,
-                    'elements_written_to_dma': instr.elements_written_to_dma,
-                    'DMATimeOut': instr.acquire,
-                    'ix': instr.ix,
-                    'iy': instr.iy,
-                    'detector_signal': instr.detector_signal,
-                    'Nx': instr.Nx,
-                    'Ny': instr.Ny,
-                    'running': instr.running,
-                    'DMA_elem_to_write': instr.DMA_elem_to_write,
-                    'loop_time': instr.loop_time,
-                    'meas_per_pt':instr.meas_per_pt,
-                    'settle_time': instr.settle_time
-                }
-
-                print(diagnostics)
 
 
         if self.settings['save']:

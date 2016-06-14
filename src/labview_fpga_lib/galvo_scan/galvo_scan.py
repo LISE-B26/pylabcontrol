@@ -55,7 +55,8 @@ getter_functions = {
     'read_running':c_bool,
     'read_output_valid':c_bool,
     'read_meas_per_pt':c_uint8,
-    'read_settle_time':c_uint8
+    'read_settle_time':c_uint8,
+    'read_failed': c_int32
 }
 
 for fun_name in getter_functions:

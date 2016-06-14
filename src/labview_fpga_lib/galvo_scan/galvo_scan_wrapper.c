@@ -204,12 +204,12 @@ void set_detector_mode(uint8_t value, NiFpga_Session* session, NiFpga_Status* st
 
 void set_settle_time(uint8_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteU8(*session,NiFpga_GalvoScan_ControlU8_settle_time_ms,value));
+	NiFpga_MergeStatus(status, NiFpga_WriteU8(*session,NiFpga_GalvoScan_ControlU8_settle_time_us,value));
 }
 uint8_t read_settle_time(NiFpga_Session* session, NiFpga_Status* status)
 {
 	uint8_t value;
-	NiFpga_MergeStatus(status, NiFpga_ReadU8(*session,NiFpga_GalvoScan_ControlU8_settle_time_ms,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadU8(*session,NiFpga_GalvoScan_ControlU8_settle_time_us,&value));
 	return value;
 }
 
@@ -263,6 +263,14 @@ int32_t read_iy(NiFpga_Session* session, NiFpga_Status* status)
 	int32_t value;
 
 	NiFpga_MergeStatus(status, NiFpga_ReadI32(*session,NiFpga_GalvoScan_IndicatorI32_iy,&value));
+	return value;
+}
+
+int32_t read_failed(NiFpga_Session* session, NiFpga_Status* status)
+{
+	int32_t value;
+
+	NiFpga_MergeStatus(status, NiFpga_ReadI32(*session,NiFpga_GalvoScan_IndicatorI32_failed,&value));
 	return value;
 }
 

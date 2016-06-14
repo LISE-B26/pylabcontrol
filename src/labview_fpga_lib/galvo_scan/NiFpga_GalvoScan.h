@@ -24,7 +24,7 @@
 /**
  * The signature of the FPGA bitfile.
  */
-static const char* const NiFpga_GalvoScan_Signature = "95A1B118FB211F351CB43AAEC27CE704";
+static const char* const NiFpga_GalvoScan_Signature = "006C29329D140032C96A4CC97F16E75F";
 
 typedef enum
 {
@@ -66,7 +66,7 @@ typedef enum
    NiFpga_GalvoScan_ControlU8_measurements_per_pt = 0x22,
    NiFpga_GalvoScan_ControlU8_scanmodex = 0x72,
    NiFpga_GalvoScan_ControlU8_scanmodey = 0x42,
-   NiFpga_GalvoScan_ControlU8_settle_time_ms = 0x56,
+   NiFpga_GalvoScan_ControlU8_settle_time_us = 0x56,
 } NiFpga_GalvoScan_ControlU8;
 
 typedef enum
