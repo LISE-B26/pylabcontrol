@@ -296,7 +296,9 @@ class NI7845RGalvoScan(Instrument):
         Parameter('fifo_size', int(2**12), int, 'size of fifo for data acquisition'),
         Parameter('scanmode_x', 'forward', ['forward', 'backward', 'forward-backward'], 'scan mode (x) onedirectional or bidirectional'),
         Parameter('scanmode_y', 'forward', ['forward', 'backward'], 'direction of scan (y)'),
-        Parameter('detector_mode', 'DC', ['DC', 'RMS'], 'return mean (DC) or rms of detector signal')
+        Parameter('detector_mode', 'DC', ['DC', 'RMS'], 'return mean (DC) or rms of detector signal'),
+        Parameter('piezo', 0.0, float, 'output voltage for piezo'),
+        Parameter('piezo_gain', 10.0, [1.0, 7.5, 10.0, 15.0], 'gain factor for the piezo controller ')
     ])
 
     _PROBES = {
@@ -384,7 +386,10 @@ class NI7845RGalvoScan(Instrument):
                 getattr(self.FPGAlib, 'set_Ny')(Ny, self.fpga.session, self.fpga.status)
                 getattr(self.FPGAlib, 'set_dVmin_x')(dVmin_x, self.fpga.session, self.fpga.status)
                 getattr(self.FPGAlib, 'set_dVmin_y')(dVmin_y, self.fpga.session, self.fpga.status)
-
+            elif key in ['piezo']:
+                v = volt_2_bit(value)
+                print('voltage piezo', v)
+                getattr(self.FPGAlib, 'set_piezo_voltage')(v, self.fpga.session, self.fpga.status)
             elif key in ['scanmode_x', 'scanmode_y', 'detector_mode']:
                 index = [i for i, x in enumerate(self._DEFAULT_SETTINGS.valid_values[key]) if x == value][0]
                 getattr(self.FPGAlib, 'set_{:s}'.format(key))(index, self.fpga.session, self.fpga.status)

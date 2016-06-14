@@ -25,7 +25,8 @@ setter_functions = {
     "set_settle_time": c_uint16,
     "set_meas_per_pt": c_uint8,
     'set_acquire': c_bool,
-    'set_abort': c_bool
+    'set_abort': c_bool,
+    'set_piezo_voltage':c_uint16
 }
 
 for fun_name in setter_functions:

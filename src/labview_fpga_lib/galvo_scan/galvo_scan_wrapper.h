@@ -51,7 +51,7 @@ void set_settle_time(uint16_t value, NiFpga_Session* session, NiFpga_Status* sta
 uint16_t read_settle_time(NiFpga_Session* session, NiFpga_Status* status);
 void set_meas_per_pt(uint8_t value, NiFpga_Session* session, NiFpga_Status* status);
 uint8_t read_meas_per_pt(NiFpga_Session* session, NiFpga_Status* status);
-
+void set_piezo_voltage(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
 
 // read parameters
 int32_t read_i(NiFpga_Session* session, NiFpga_Status* status);

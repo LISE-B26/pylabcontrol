@@ -347,7 +347,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def btn_clicked(self):
         sender = self.sender()
-        print(']]]xxxx', sender == self.tree_dataset)
         self.probe_to_plot = None
 
         # the following function takes the current figures and makes a new widget in place of them.
@@ -902,7 +901,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             instruments = in_data['instruments']
             scripts = in_data['scripts']
             probes = in_data['probes']
-
             print('============ loading instruments ================')
             self.instruments, failed = Instrument.load_and_append(instruments)
             if failed != {}:
@@ -913,7 +911,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 instruments=self.instruments,
                 log_function=self.log,
                 data_path=self.gui_settings['data_folder'])
-
             if failed != {}:
                 print('WARNING! Following scripts could not be loaded: ', failed)
             print('============ loading probes not implmented ================')
@@ -922,6 +919,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.probes = {}
             # refresh trees
             self.refresh_tree(self.tree_scripts, self.scripts)
+
+
             self.refresh_tree(self.tree_settings, self.instruments)
         else:
             self.instruments = {}

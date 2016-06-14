@@ -224,7 +224,10 @@ uint8_t read_meas_per_pt(NiFpga_Session* session, NiFpga_Status* status)
 	return value;
 }
 
-
+void set_piezo_voltage(int16_t value, NiFpga_Session* session, NiFpga_Status* status)
+{
+	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_GalvoScan_ControlI16_Connector1AO2,value));
+}
 // read parameters
 int32_t read_i(NiFpga_Session* session, NiFpga_Status* status)
 {

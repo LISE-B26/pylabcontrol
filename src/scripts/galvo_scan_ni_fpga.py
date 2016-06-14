@@ -50,6 +50,7 @@ class GalvoScanNIFpga(Script, QThread):
 
         instr = self.instruments['NI7845RGalvoScan']['instance']
         instr_settings = self.instruments['NI7845RGalvoScan']['settings']
+        del instr_settings['piezo'] # don't update piezo to avoid spikes (assume this value is 0 but the scan starts at 50V, then this would give a huge step which is not necessary)
 
         def init_scan():
             self._recording = False

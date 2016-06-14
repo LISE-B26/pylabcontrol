@@ -38,7 +38,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         self.value = value
         self.info = info
         self.visible = visible
-
         self.setData(0, 0, unicode(self.name))
 
             # raise ValueError
@@ -58,7 +57,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             self.check.stateChanged.connect(lambda: self.setData(1, 2, self.check))
 
         elif isinstance(self.value, Parameter):
-            # print('-->', self.value, self.value.valid_values)
             for key, value in self.value.iteritems():
                 B26QTreeItem(self, key, value, self.value.valid_values[key], self.value.info[key], visible=self.visible)
 
@@ -76,13 +74,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             if top_level_item == self:
                 # instrument is on top level, thus we are in the instrument tab
                 for key, value in self.value.settings.iteritems():
-                    # print(key, value)
-                    if key == 'filter wheel':
-
-                        print(key, value)
-                        print(self.value.settings.valid_values[key])
-                        # raise ValueError
-                        print('========')
                     B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key], visible=self.visible)
             else:
                 self.valid_values = [self.value.name]
