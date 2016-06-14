@@ -23,6 +23,11 @@ try:
 except:
     print("./src/instrument/__init__ warning! ZIHF2 did not load")
 
+try:
+    from pulse_blaster import B26PulseBlaster
+except:
+    print("./src/instrument/__init__ warning! PulseBlaster did not load")
+
 # try:
 #     from maestro import MaestroBeamBlock
 # except:
