@@ -236,11 +236,12 @@ class Attocube(Instrument):
         '''
 
         Args:
-            axis: axis_x, axis_y, or axis_z
+            axis: 'x', 'y', or 'z'
             dir: 0 for forwards, 1 for backwards
 
         '''
         device_handle = int32()
+        axis = self._convert_axis(axis)
         self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
         self._check_error(self.attocube.PositionerMoveSingleStep(device_handle, axis, int32(dir)))
         self._check_error(self.attocube.PositionerClose(device_handle))

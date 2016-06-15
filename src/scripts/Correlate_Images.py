@@ -214,18 +214,18 @@ class Take_And_Correlate_Images_2(Script, QThread):
         """
         # subtracts mean to sharpen each image and sharpen correlation
 
-        if not self.data['baseline_image']:
+        if self.data['baseline_image'] == []:
             self.log('No baseline image avaliable. Taking baseline.')
-        elif not self.data['image_extent']:
+        elif self.data['image_extent'] == []:
             self.log('No image extent avaliable. Script may have been run in error.')
-        elif not self.data['NV_list']:
+        elif self.data['old_nv_list'] == []:
             self.log('No nv list avaliable. Scipt may have been run in error.')
 
-        if self.data['baseline_image']:
-            self.scripts['GalvoScan'].settings['point_a']['x'] = self.settings['image_extent'][0]
-            self.scripts['GalvoScan'].settings['point_b']['x'] = self.settings['image_extent'][1]
-            self.scripts['GalvoScan'].settings['point_a']['y'] = self.settings['image_extent'][3]
-            self.scripts['GalvoScan'].settings['point_b']['y'] = self.settings['image_extent'][2]
+        if not self.data['baseline_image'] == []:
+            self.scripts['GalvoScan'].settings['point_a']['x'] = self.data['image_extent'][0]
+            self.scripts['GalvoScan'].settings['point_b']['x'] = self.data['image_extent'][1]
+            self.scripts['GalvoScan'].settings['point_a']['y'] = self.data['image_extent'][3]
+            self.scripts['GalvoScan'].settings['point_b']['y'] = self.data['image_extent'][2]
 
             self.scripts['GalvoScan'].run()
             self.scripts['GalvoScan'].wait()  #wait for scan to complete
@@ -246,11 +246,11 @@ class Take_And_Correlate_Images_2(Script, QThread):
 
     def plot(self, figure, figure2):
         axes, axes_2 = self.get_axes(figure, figure2)
-        plot_fluorescence(self.data['baseline_image'], [self.bounds[0][0], self.bounds[1][0], self.bounds[3][0], self.bounds[2][0]], axes)
-        new_center = ((self.settings['new_image_center'][0] + self.data['x_shift'] - self.settings['new_image_width']/2, self.settings['new_image_center'][1] + self.data['y_shift'] - self.settings['new_image_width']/2))
-        patch = patches.Rectangle(new_center, self.settings['new_image_width'], self.settings['new_image_width'], fill = False)
-        axes.add_patch(patch)
-        self.scripts['GalvoScan'].plot(axes_2)
+        plot_fluorescence(self.data['baseline_image'], [self.data['image_extent'][0], self.data['image_extent'][1], self.data['image_extent'][3], self.data['image_extent'][2]], axes)
+        # new_center = ((self.settings['new_image_center'][0] + self.data['x_shift'] - self.settings['new_image_width']/2, self.settings['new_image_center'][1] + self.data['y_shift'] - self.settings['new_image_width']/2))
+        # patch = patches.Rectangle(new_center, self.settings['new_image_width'], self.settings['new_image_width'], fill = False)
+        # axes.add_patch(patch)
+        self.scripts['GalvoScan'].plot(figure2)
 
     def stop(self):
         self.scripts['GalvoScan'].stop()

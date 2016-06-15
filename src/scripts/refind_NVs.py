@@ -6,7 +6,7 @@ from src.core import Script, Parameter
 from src.instruments.NIDAQ import DAQ
 from src.plotting.plots_1d import plot_esr
 from src.plotting.plots_2d import plot_fluorescence
-from src.scripts import Take_And_Correlate_Images, AutoFocus
+from src.scripts import Take_And_Correlate_Images_2, AutoFocus
 import os
 
 
@@ -17,14 +17,14 @@ class Refind_NVs(Script, QThread):
         Parameter('path', 'Z:/Lab/Cantilever/Measurements/', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', True, bool, 'save data on/off'),
-        Parameter('activate_correlate', True, bool, 'perform correlation'),
+        Parameter('activate_correlation', True, bool, 'perform correlation'),
         Parameter('trackpy_correlation', False, bool, 'Use trackpy to create an artificial image of just the NVs to filter a noisy background'),
         Parameter('activate_autofocus', True, bool, 'perform autofocus'),
         Parameter('autofocus_size', .1, float, 'Side length of autofocusing square in Volts')
     ])
 
     _INSTRUMENTS = {}
-    _SCRIPTS = {'Correlate_Images': Take_And_Correlate_Images,
+    _SCRIPTS = {'Correlate_Images': Take_And_Correlate_Images_2,
                 'AF': AutoFocus}
 
     #updateProgress = Signal(int)
@@ -53,6 +53,12 @@ class Refind_NVs(Script, QThread):
         self.scripts['AF'].log_function = self.log_function
         self.scripts['Correlate_Images'].log_function = self.log_function
 
+        self.data = {'baseline_image': [],
+                     'baseline_extent': [],
+                     'new_image': [],
+                     'baseline_nv_locs': [],
+                     'new_nv_locs': []}
+
     def _receive_signal(self, progress_sub_script):
         # calculate progress of this script based on progress in subscript
 
@@ -74,12 +80,6 @@ class Refind_NVs(Script, QThread):
 
         self._abort = False
         self.current_stage = None
-
-        self.data = {'baseline_image': [],
-                     'baseline_extent': [],
-                     'new_image': [],
-                     'baseline_nv_locs': [],
-                     'new_nv_locs': []}
 
         if self.settings['save']:
             # create and save images
@@ -108,13 +108,13 @@ class Refind_NVs(Script, QThread):
             # pt = self.scripts['Correlate_Images'].shift_coordinates(pt)
             # self.scripts['Correlate_Images'].settings['reset'] = False
             self.log('Correlating images')
-            if not self.data['baseline_image']:
+            if self.data['baseline_image'] == []:
                 self.log('No baseline image avaliable. Script will exit.')
                 return
-            elif not self.data['baseline_extent']:
+            elif self.data['baseline_extent'] == []:
                 self.log('No image extent avaliable. Script will exit.')
                 return
-            elif not self.data['baseline_nv_locs']:
+            elif self.data['baseline_nv_locs'] == []:
                 self.log('No nv list avaliable. Script will exit.')
                 return
 

@@ -199,16 +199,8 @@ if __name__ == '__main__':
     # print(loaded_failed)
     # import src.instruments.microwave_generator MicrowaveGenerator
 
-
-
-
-
-
-
-
-
-    # mw = MicrowaveGenerator(settings = {'port':27})
-    mw = MicrowaveGenerator(settings={'enable_modulation': True, 'frequency': 3000000000.0, 'dev_width': 32000000.0, 'pulse_modulation_function': 'External', 'phase': 0, 'port': 27, 'modulation_type': 'FM', 'enable_output': False, 'GPIB_num': 0, 'amplitude': -60, 'modulation_function': 'External'})
+    mw = MicrowaveGenerator()
+    # mw = MicrowaveGenerator(settings={'enable_modulation': True, 'frequency': 3000000000.0, 'dev_width': 32000000.0, 'pulse_modulation_function': 'External', 'phase': 0, 'port': 27, 'modulation_type': 'FM', 'enable_output': False, 'GPIB_num': 0, 'amplitude': -60, 'modulation_function': 'External'})
 
     print(mw.srs)
 

@@ -1,5 +1,5 @@
 from src.core import Parameter, Script
-from src.instruments import attocube
+from src.instruments import Attocube
 
 class AttoStep(Script):
     _DEFAULT_SETTINGS = Parameter([
@@ -8,12 +8,10 @@ class AttoStep(Script):
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', True, bool, 'save data on/off'),
         Parameter('axis', 'z', ['x', 'y', 'z'], 'Axis to step on'),
-        Parameter('voltage', 30, float, 'stepping voltage'),
-        Parameter('frequency', 1000, int, 'stepping frequency'),
-        Parameter('direction', 0, [0,1], 'step direction, 0 is forwards, 1 is backwards')
+        Parameter('direction', 'Up', ['Up', 'Down'], 'step direction, up or down in voltage (or on physical switch)')
     ])
 
-    _INSTRUMENTS = {'attocube': attocube}
+    _INSTRUMENTS = {'attocube': Attocube}
     _SCRIPTS = {}
 
     def __init__(self, instruments = None, name = None, settings = None, log_function = None, data_path = None):
@@ -30,9 +28,16 @@ class AttoStep(Script):
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-        self.instruments['attocube'].update({self.settings['axis']: {'voltage': self.settings['voltage']}})
-        self.instruments['attocube'].update({self.settings['axis']: {'freq': self.settings['frequency']}})
-        self.instruments['attocube'].step(self.settings['axis'], self.settings['direction'])
+        attocube = self.instruments['attocube']['instance']
+        attocube_voltage = self.instruments['attocube']['settings'][self.settings['axis']]['voltage']
+        attocube.update({self.settings['axis']: {'voltage': attocube_voltage}})
+        attocube_freq = self.instruments['attocube']['settings'][self.settings['axis']]['freq']
+        attocube.update({self.settings['axis']: {'freq': attocube_freq}})
+        if self.settings['direction'] == 'Up':
+            dir = 0
+        elif self.settings['direction'] == 'Down':
+            dir = 1
+        self.instruments['attocube']['instance'].step(self.settings['axis'], dir)
 
 if __name__ == '__main__':
     script, failed, instr = Script.load_and_append({'AttoStep': 'AttoStep'})

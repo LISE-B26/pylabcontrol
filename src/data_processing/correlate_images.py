@@ -77,13 +77,17 @@ def create_nv_image(image, nv_size, created_pt_size = 3):
 
 def correlation(nv_pos_list, baseline_image, baseline_image_bounds, new_image, new_image_bounds, trackpy = False, nv_size = 11):
 
+    print('correlation_old_nv_list', nv_pos_list)
+
     if trackpy == True:
         baseline_image = create_nv_image(baseline_image, nv_size)
         new_image = create_nv_image(new_image, nv_size)
 
     dx_voltage, dy_voltage = find_image_shift(baseline_image, baseline_image_bounds, new_image, new_image_bounds, correlation_padding=True)
 
-    return (nv_pos_list + [dx_voltage, dy_voltage])
+    print('correlation_new_nv_list', nv_pos_list + [dx_voltage, dy_voltage])
+
+    return [[pos[0]+dx_voltage, pos[1]+dy_voltage] for pos in nv_pos_list]
 
 
 '''

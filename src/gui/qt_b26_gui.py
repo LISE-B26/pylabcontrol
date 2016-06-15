@@ -267,7 +267,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if (not (mouse_event.xdata == None)):
                 if (mouse_event.button == 1):
                     pt = np.array([mouse_event.xdata, mouse_event.ydata])
-                    self.current_script.toggle_NV(pt, self.matplotlibwidget_1.axes)
+                    self.current_script.toggle_NV(pt, self.matplotlibwidget_1.figure)
                     self.matplotlibwidget_1.draw()
 
         item = self.tree_scripts.currentItem()
