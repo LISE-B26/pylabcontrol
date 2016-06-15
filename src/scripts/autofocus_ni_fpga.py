@@ -5,6 +5,9 @@ import numpy as np
 import scipy as sp
 import os
 import time
+from copy import deepcopy
+import datetime
+from src.plotting.plots_2d import plot_fluorescence
 
 
 class AutoFocusNIFPGA(Script, QThread):
@@ -64,9 +67,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         # update instrument
         fpga_instr = self.scripts['take_image'].instruments['NI7845RGalvoScan']['instance']
-        # instr_settings = self.scripts['take_image'].instruments['NI7845RGalvoScan']['settings']
-        # del instr_settings['piezo'] # don't update piezo to avoid spikes (assume this value is 0 but the scan starts at 50V, then this would give a huge step which is not necessary)
-        # fpga_instr.update(instr_settings)
 
         self.filename_image = None
         if self.settings['save'] or self.settings['save_images']:
@@ -77,11 +77,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         sweep_voltages = np.linspace(self.settings['piezo_min_voltage'], self.settings['piezo_max_voltage'], self.settings['num_sweep_points'])
 
-        # scaling for the piezo controller
-        sweep_voltages /= self.settings['piezo_gain']
 
-
-        self.autofocus_loop(sweep_voltages, piezo=fpga_instr.piezo, tag='main_scan')
+        self.autofocus_loop(sweep_voltages, fpga_instr=fpga_instr, tag='main_scan')
 
         # check to see if data should be saved and save it
         if self.settings['save']:
@@ -96,7 +93,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             min = center - self.settings['refined_scan_range']/2.0
             max = center + self.settings['refined_scan_range'] / 2.0
             sweep_voltages = np.linspace(min, max, self.settings['refined_scan_num_pts'])
-            self.autofocus_loop(sweep_voltages, piezo=fpga_instr.piezo, tag='refined_scan')
+            self.autofocus_loop(sweep_voltages, fpga_instr=fpga_instr, tag='refined_scan')
 
             # check to see if data should be saved and save it
             if self.settings['save']:
@@ -177,13 +174,15 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         axis1.set_title('Autofocusing Routine')
 
         if figure2:
-            self.scripts['take_image'].plot(figure2)
-
+            # self.scripts['take_image'].plot(figure2)
+            # plot_fluorescence(self.data['current_image'], self.data['extent'], axis2,
+            #                   max_counts=self.settings['max_counts_plot'])
+            plot_fluorescence(self.data['current_image'], self.data['extent'], axis2)
 
     def stop(self):
         self._abort = True
 
-    def autofocus_loop(self, sweep_voltages, piezo, tag = None):
+    def autofocus_loop(self, sweep_voltages, fpga_instr, tag = None):
 
         # z_piezo = self.instruments['z_piezo']['instance']
         # z_piezo.update(self.instruments['z_piezo']['settings'])
@@ -198,23 +197,30 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
                 break
 
             # set the voltage on the piezo
-            piezo = float(voltage)
+            fpga_instr.piezo = float(voltage)
             time.sleep(self.settings['wait_time'])
 
             # take a galvo scan
+            print('start scan', datetime.datetime.now())
             self.scripts['take_image'].run()
+            self.scripts['take_image'].wait()
+
+            print('end scan', datetime.datetime.now())
+
             current_image = self.scripts['take_image'].data['image_data']
+            self.data['current_image'] = deepcopy(current_image)
+            self.data['extent'] = self.scripts['take_image'].data['extent']
             # self.log('Took image.')
 
             # calculate focusing function for this sweep
             if self.settings['focusing_optimizer'] == 'mean':
-                self.data['focus_function_result'].append(np.mean(current_image))
+                self.data[tag + '_focus_function_result'].append(np.mean(current_image))
 
             elif self.settings['focusing_optimizer'] == 'standard_deviation':
-                self.data['focus_function_result'].append(np.std(current_image))
+                self.data[tag + '_focus_function_result'].append(np.std(current_image))
 
             elif self.settings['focusing_optimizer'] == 'normalized_standard_deviation':
-                self.data['focus_function_result'].append(np.std(current_image) / np.mean(current_image))
+                self.data[tag + '_focus_function_result'].append(np.std(current_image) / np.mean(current_image))
 
             # update progress bar
             if tag == 'main_scan' and not self.settings['refined_scan']:
@@ -225,6 +231,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
                 progress = 50.0 + 99.0 * (np.where(sweep_voltages == voltage)[0] + 1) / (
                 2.0 * float(self.settings['num_sweep_points']))
             self.updateProgress.emit(progress)
+
+            print('XXXXXXX LOOP: ', self.data[tag + '_focus_function_result'])
 
             # save image if the user requests it
             if self.settings['save_images']:
@@ -249,21 +257,21 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             self.log('Found fit parameters: ' + str(p2))
 
             if p2[2] > sweep_voltages[-1]:
-                piezo = sweep_voltages[-1]
+                fpga_instr.piezo = sweep_voltages[-1]
                 self.log('Best fit found center to be above max sweep range, setting voltage to max, {0} V'.format(
                     sweep_voltages[-1]))
             elif p2[2] < sweep_voltages[0]:
-                piezo = sweep_voltages[0]
+                fpga_instr.piezo = sweep_voltages[0]
                 self.log('Best fit found center to be below min sweep range, setting voltage to min, {0} V'.format(
                     sweep_voltages[0]))
             else:
-                piezo = float(p2[2])
+                fpga_instr.piezo = float(p2[2])
         except(ValueError):
             p2 = [0, 0, 0, 0]
             average_voltage = np.mean(self.data[tag + '_sweep_voltages'])
             self.log('Could not converge to fit parameters, setting piezo to middle of sweep range, {0} V'.format(
                 average_voltage))
-            piezo = float(average_voltage)
+            fpga_instr.piezo = float(average_voltage)
 
         self.data[tag + '_focusing_fit_parameters'] = p2
 

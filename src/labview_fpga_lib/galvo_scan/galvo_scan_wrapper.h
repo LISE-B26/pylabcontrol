@@ -49,10 +49,10 @@ void set_scanmode_y(uint8_t state, NiFpga_Session* session, NiFpga_Status* statu
 void set_detector_mode(uint8_t state, NiFpga_Session* session, NiFpga_Status* status);
 void set_settle_time(uint16_t value, NiFpga_Session* session, NiFpga_Status* status);
 uint16_t read_settle_time(NiFpga_Session* session, NiFpga_Status* status);
-void set_meas_per_pt(uint8_t value, NiFpga_Session* session, NiFpga_Status* status);
-uint8_t read_meas_per_pt(NiFpga_Session* session, NiFpga_Status* status);
+void set_meas_per_pt(uint16_t value, NiFpga_Session* session, NiFpga_Status* status);
+uint16_t read_meas_per_pt(NiFpga_Session* session, NiFpga_Status* status);
 void set_piezo_voltage(int16_t value, NiFpga_Session* session, NiFpga_Status* status);
-
+int16_t read_piezo_voltage(NiFpga_Session* session, NiFpga_Status* status);
 // read parameters
 int32_t read_i(NiFpga_Session* session, NiFpga_Status* status);
 int32_t read_elements_written_to_dma(NiFpga_Session* session, NiFpga_Status* status);

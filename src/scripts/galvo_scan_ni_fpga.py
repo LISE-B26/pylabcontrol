@@ -49,7 +49,8 @@ class GalvoScanNIFpga(Script, QThread):
         """
 
         instr = self.instruments['NI7845RGalvoScan']['instance']
-        instr_settings = self.instruments['NI7845RGalvoScan']['settings']
+        instr_settings = deepcopy(self.instruments['NI7845RGalvoScan']['settings'])
+        print(instr_settings)
         del instr_settings['piezo'] # don't update piezo to avoid spikes (assume this value is 0 but the scan starts at 50V, then this would give a huge step which is not necessary)
 
         def init_scan():
@@ -61,12 +62,11 @@ class GalvoScanNIFpga(Script, QThread):
             Nx = instr_settings['num_points']['x']
             Ny = instr_settings['num_points']['y']
             time_per_pt = instr_settings['time_per_pt']
-            N_per_pt = int(time_per_pt/0.25)
             extent = instr.pts_to_extent(instr_settings['point_a'], instr_settings['point_b'], instr_settings['RoI_mode'])
 
             self.data = {'image_data': np.zeros((Nx, Ny)), 'extent': extent}
 
-            return Nx, Ny, N_per_pt
+            return Nx, Ny
 
         def print_diagnostics():
             print(unicode(datetime.datetime.now()))
@@ -94,7 +94,7 @@ class GalvoScanNIFpga(Script, QThread):
             if progress ==100:
                 progress = 99
             return progress
-        Nx, Ny, N_per_pt = init_scan()
+        Nx, Ny = init_scan()
 
         instr.start_acquire()
 
@@ -111,10 +111,12 @@ class GalvoScanNIFpga(Script, QThread):
             # print('acquiring line {:02d}/{:02d}'.format(i, Ny))
             elem_written = instr.elements_written_to_dma
             # print('elem_written ', elem_written)
-            if elem_written >= N_per_pt*Nx:
-                line_data = instr.read_fifo(N_per_pt*Nx)
-                sig = line_data['signal'].reshape(Nx,N_per_pt)
-                self.data['image_data'][i] = deepcopy(np.mean(sig,1))
+            if elem_written >= Nx:
+                line_data = instr.read_fifo(Nx)
+
+
+
+                self.data['image_data'][i] = deepcopy(line_data['signal'])
 
                 # set the remaining values to the mean so that we get a good contrast while plotting
                 mean_value = np.mean(self.data['image_data'][0:i])
@@ -130,7 +132,7 @@ class GalvoScanNIFpga(Script, QThread):
                 self.updateProgress.emit(progress)
                 t1 = t2
                 # uncomment following line to show some diagnostic values
-                print_diagnostics()
+                # print_diagnostics()
             else:
 
                 time_sleep = time_per_line_s - elapsed_time.total_seconds()

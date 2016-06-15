@@ -10,12 +10,35 @@ def volt_2_bit(volt):
     Returns:
 
     """
+    def convert(x):
+        res = int(x / 10. * 32768.)
+        res = min(res,32767) # cap at max value 32767
+        res = max(res, -32768)  # cap at min value -32768
+
+        return res
+
     if isinstance(volt, (int, float)):
-        bit = int(volt / 10. * 32768.)
+        bit =  convert(volt)
     else:
         # convert to numpy array in case we received a list
-        bit = [int(x / 10. * 32768.) for x in volt]
+        bit = [convert(x) for x in volt]
     return bit
+
+def bit_2_volt(bit):
+    """
+    converts a voltage value into a bit value
+    Args:
+        bit:
+
+    Returns:
+
+    """
+    if isinstance(bit, (int, float)):
+        volt = bit * 10. / 32768
+    else:
+        # convert to numpy array in case we received a list
+        volt = [int(x * 10./ 32768.) for x in bit]
+    return volt
 
 def seconds_to_ticks(seconds, clock_speed = 40e6):
     """
@@ -296,7 +319,7 @@ class NI7845RGalvoScan(Instrument):
         Parameter('fifo_size', int(2**12), int, 'size of fifo for data acquisition'),
         Parameter('scanmode_x', 'forward', ['forward', 'backward', 'forward-backward'], 'scan mode (x) onedirectional or bidirectional'),
         Parameter('scanmode_y', 'forward', ['forward', 'backward'], 'direction of scan (y)'),
-        Parameter('detector_mode', 'DC', ['DC', 'RMS'], 'return mean (DC) or rms of detector signal'),
+        Parameter('detector_mode', 'APD', ['APD', 'DC', 'RMS'], 'return mean (DC) or rms of detector signal'),
         Parameter('piezo', 0.0, float, 'output voltage for piezo'),
         Parameter('piezo_gain', 10.0, [1.0, 7.5, 10.0, 15.0], 'gain factor for the piezo controller ')
     ])
@@ -316,7 +339,8 @@ class NI7845RGalvoScan(Instrument):
         'DMA_elem_to_write':'DMA_elem_to_write',
         'meas_per_pt':'meas_per_pt',
         'settle_time':'settle_time',
-        'failed':'failed'
+        'failed':'failed',
+        'piezo':'piezo'
     }
     def __init__(self, name = None, settings = None):
         super(NI7845RGalvoScan, self).__init__(name, settings)
@@ -364,6 +388,22 @@ class NI7845RGalvoScan(Instrument):
             yVmax = pta['y'] + float(ptb['y']) / 2.
         return [xVmin, xVmax, yVmax, yVmin]
 
+    # explicitely write piezo as property. I think this is not needed. try to remove later..
+    @property
+    def piezo(self):
+        return bit_2_volt(self.read_probes('piezo'))
+    @piezo.setter
+    def piezo(self, value):
+        """
+
+        Args:
+            value: piezo value in V this is the value output from the FPGA and will be amplified by a piezo controller!
+
+        Returns:
+
+        """
+        self.update({'piezo':value})
+
     def update(self, settings):
         super(NI7845RGalvoScan, self).update(settings)
 
@@ -386,9 +426,9 @@ class NI7845RGalvoScan(Instrument):
                 getattr(self.FPGAlib, 'set_Ny')(Ny, self.fpga.session, self.fpga.status)
                 getattr(self.FPGAlib, 'set_dVmin_x')(dVmin_x, self.fpga.session, self.fpga.status)
                 getattr(self.FPGAlib, 'set_dVmin_y')(dVmin_y, self.fpga.session, self.fpga.status)
-            elif key in ['piezo']:
-                v = volt_2_bit(value)
-                print('voltage piezo', v)
+            elif key in ['piezo', 'piezo_gain']:
+                v = volt_2_bit(self.settings['piezo']/self.settings['piezo_gain'])
+                print('=======> voltage piezo', v)
                 getattr(self.FPGAlib, 'set_piezo_voltage')(v, self.fpga.session, self.fpga.status)
             elif key in ['scanmode_x', 'scanmode_y', 'detector_mode']:
                 index = [i for i, x in enumerate(self._DEFAULT_SETTINGS.valid_values[key]) if x == value][0]
@@ -446,6 +486,9 @@ class NI7845RGalvoScan(Instrument):
         if str(self.fpga.status.value) != '0':
             raise LabviewFPGAException(self.fpga.status)
         # print('fifo data', fifo_data)
+
+        if self.settings['detector_mode'] == 'APD':
+            fifo_data['signal'] *=  int(1e3/self.settings['time_per_pt']) # convert to counts per second
         return fifo_data
 
 
@@ -456,14 +499,17 @@ if __name__ == '__main__':
     import numpy as np
     from copy import deepcopy
 
-    fpga = NI7845RGalvoScan()
+    # fpga = NI7845RGalvoScan()
+    #
+    #
+    #
+    # fpga.fpga.start()
+    #
+    # print(fpga.FPGAlib.setter_functions)
+    # print(fpga.settings)
+    # fpga.fpga.stop()
 
 
-
-    fpga.fpga.start()
-
-    print(fpga.FPGAlib.setter_functions)
-    print(fpga.settings)
-    fpga.fpga.stop()
+    print(volt_2_bit([-10, 0, 10, 11, -12]))
 
 

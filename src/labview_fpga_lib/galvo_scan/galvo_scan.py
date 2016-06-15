@@ -23,7 +23,7 @@ setter_functions = {
     "set_scanmode_y": c_uint8,
     "set_detector_mode": c_uint8,
     "set_settle_time": c_uint16,
-    "set_meas_per_pt": c_uint8,
+    "set_meas_per_pt": c_uint16,
     'set_acquire': c_bool,
     'set_abort': c_bool,
     'set_piezo_voltage':c_uint16
@@ -57,7 +57,7 @@ getter_functions = {
     'read_abort':c_bool,
     'read_running':c_bool,
     'read_output_valid':c_bool,
-    'read_meas_per_pt':c_uint8,
+    'read_meas_per_pt':c_uint16,
     'read_settle_time':c_uint16,
     'read_failed': c_int32
 }
