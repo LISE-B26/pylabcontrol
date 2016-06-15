@@ -1,3 +1,7 @@
+import collections
+import matplotlib.pyplot as plt
+import time
+
 def plot_psd(freq, psd, axes, clear = True):
     '''
     plots the power spectral density on to the canvas axes
@@ -41,3 +45,45 @@ def plot_esr(fit_params, frequency, data, axes):
         axes.set_title('ESR')
         axes.set_xlabel('Frequency (Hz)')
         axes.set_ylabel('Kcounts/s')
+
+
+
+def plot_pulses(axis, pulse_collection):
+    """
+    creates a visualization of pulses (in pulse_collection) on a matplotlib axis (axis)
+
+    Args:
+        axis: The axis for the matplotlib plot
+        pulse_collection: a collection of pulses, named tuples (pulse_name, start_time, duration)
+
+    Returns:
+
+    """
+
+    # create a list of unique instruments from the pulses
+    instrument_names = sorted(list(set([pulse.instrument_name for pulse in pulse_collection])))
+
+    # find the maximum time from the list of pulses
+    max_time = max([pulse.start_time + pulse.duration for pulse in pulse_collection])
+
+    # set axis boundaries
+    axis.set_ylim(-0.5, len(instrument_names))
+    axis.set_xlim(0, 1.1 * max_time)
+
+    # label y axis with pulse names
+    axis.set_yticks(range(len(instrument_names)))
+    axis.set_yticklabels(instrument_names)
+
+    # create horizontal lines for each pulse
+    for i in range(0, len(instrument_names)):
+        axis.axhline(i, 0.0, max_time)
+
+    # create rectangles for the pulses
+    for pulse in pulse_collection:
+        axis.add_patch(patches.Rectangle((pulse.start_time, instrument_names.index(pulse.instrument_name)), pulse.duration, 0.5))
+
+    # label the axis
+    axis.set_title('Pulse Visualization')
+    axis.set_xlabel('time [s]')
+    axis.set_ylabel('pulse destination')
+
