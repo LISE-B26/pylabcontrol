@@ -142,7 +142,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             max = center + self.settings['refined_scan_range']/2.0
             fit_domain = np.linspace(min, max, 100)
 
-            fit = gaussian(fit_domain, self.data['refined_focusing_fit_parameters'])
+            fit = gaussian(fit_domain, self.data['refined_scan_focusing_fit_parameters'])
 
             axis1.plot(self.data['refined_scan_sweep_voltages'], self.data['refined_scan_focus_function_result'], 'b',
                        fit_domain, fit, 'r')
@@ -199,13 +199,13 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
             # calculate focusing function for this sweep
             if self.settings['focusing_optimizer'] == 'mean':
-                self.data['focus_function_result'].append(np.mean(current_image))
+                self.data[tag + '_focus_function_result'].append(np.mean(current_image))
 
             elif self.settings['focusing_optimizer'] == 'standard_deviation':
-                self.data['focus_function_result'].append(np.std(current_image))
+                self.data[tag + '_focus_function_result'].append(np.std(current_image))
 
             elif self.settings['focusing_optimizer'] == 'normalized_standard_deviation':
-                self.data['focus_function_result'].append(np.std(current_image) / np.mean(current_image))
+                self.data[tag + '_focus_function_result'].append(np.std(current_image) / np.mean(current_image))
 
             # update progress bar
             if tag == 'main_scan' and not self.settings['refined_scan']:
@@ -240,11 +240,11 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             self.log('Found fit parameters: ' + str(p2))
 
             if p2[2] > sweep_voltages[-1]:
-                z_piezo.voltage = sweep_voltages[-1]
+                z_piezo.voltage = float(sweep_voltages[-1])
                 self.log('Best fit found center to be above max sweep range, setting voltage to max, {0} V'.format(
                     sweep_voltages[-1]))
             elif p2[2] < sweep_voltages[0]:
-                z_piezo.voltage = sweep_voltages[0]
+                z_piezo.voltage = float(sweep_voltages[0])
                 self.log('Best fit found center to be below min sweep range, setting voltage to min, {0} V'.format(
                     sweep_voltages[0]))
             else:
