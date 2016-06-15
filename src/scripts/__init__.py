@@ -1,4 +1,4 @@
-# from script_dummy import ScriptDummy, ScriptDummyWithInstrument, ScriptDummyWithQtSignal
+from script_dummy import ScriptDummy, ScriptDummyWithInstrument, ScriptDummyWithQtSignal
 try:
     from script_dummy import ScriptDummyWithInstrument
 except:
@@ -14,10 +14,10 @@ try:
     from galvo_scan import GalvoScan
 except:
     print("./src/scripts/__init__ warning! GalvoScan did not load")
-try:
-    from GalvoScanWithLightControl import GalvoScanWithLightControl
-except:
-    print("./src/scripts/__init__ warning! GalvoScanWithLightControl did not load")
+# try:
+#     from GalvoScanWithLightControl import GalvoScanWithLightControl
+# except:
+#     print("./src/scripts/__init__ warning! GalvoScanWithLightControl did not load")
 try:
     from GalvoScanWithTwoRoI import GalvoScanWithTwoRoI
 except:
@@ -35,7 +35,6 @@ except:
 from Select_NVs import Select_NVs
 from Select_NVs import Select_NVs_Simple
 from set_laser import SetLaser
-from Correlate_Images import Take_And_Correlate_Images
 from center_on_NVs import Center_On_NVs
 from find_max_counts_point import FindMaxCounts
 from find_max_counts_point_2d import FindMaxCounts2D
@@ -55,7 +54,7 @@ except:
     print("./src/scripts/__init__ warning! AutoFocus did not load")
 
 try:
-    from Correlate_Images import Correlate_Images
+    from Correlate_Images import Take_And_Correlate_Images_2
 except:
     print("./src/scripts/__init__ warning! Correlate_Images did not load")
 
@@ -121,12 +120,23 @@ except:
     print("./src/scripts/__init__ warning! AutoFocusNIFPGA did not load")
 
 
+# try:
+#     from Multiple_ESR import ESR_Selected_NVs_Simple
+# except:
+#     print("./src/scripts/__init__ warning! ESR_Selected_NVs_Simple did not load")
+
+
 try:
-    from Multiple_ESR import ESR_Selected_NVs_Simple
+    from atto_scan import AttoStep
 except:
-    print("./src/scripts/__init__ warning! ESR_Selected_NVs_Simple did not load")
+    print("./src/scripts/__init__ warning! Attostep did not load")
 
+try:
+    from refind_NVs import Refind_NVs
+except:
+    print("./src/scripts/__init__ warning! Refind_NVs did not load")
 
-from atto_scan import AttoStep
-
-from refind_NVs import Refind_NVs
+try:
+    from ESR_and_push import ESR_And_Push
+except:
+    print("./src/scripts/__init__ warning! ESR_And_Push did not load")
