@@ -803,7 +803,7 @@ class Script(object):
             # return sub_scripts_dict, instruments_updated
 
         for script_name, script_class_name in script_dict.iteritems():
-            print('==== loading: ', script_name)
+
             # check if script already exists
             if script_name in scripts.keys():
                 print('WARNING: script {:s} already exists. Did not load!'.format(script_name))

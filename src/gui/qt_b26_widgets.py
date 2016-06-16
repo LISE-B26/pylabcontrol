@@ -240,6 +240,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         if isinstance(self.value, Script):
             script = self.value
             path_to_script = []
+            script_item = self
         else:
             script = None
             path_to_script = [self.name]
@@ -247,11 +248,38 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 if isinstance(parent.value, Script):
                     script = parent.value
                     parent = None
+                    script_item = parent
                 else:
                     path_to_script.append(parent.name)
                     parent = parent.parent()
 
-        return script, path_to_script
+        return script, path_to_script, script_item
+
+    def get_subscript(self, sub_script_name):
+        """
+        finds the item that contains the sub_script with name sub_script_name
+        Args:
+            sub_script_name: name of subscript
+        Returns: B26QTreeItem in QTreeWidget which is a script
+
+        """
+
+        # get tree of item
+        tree = self.treeWidget()
+
+        items = tree.findItems(sub_script_name, QtCore.Qt.MatchExactly | QtCore.Qt.MatchRecursive)
+
+        if len(items) >= 1:
+            # identify correct script by checking that it is a sub_element of the current script
+            subscript_item = [sub_item for sub_item in items if isinstance(sub_item.value, Script)
+                               and sub_item.parent() is self]
+
+            subscript_item = subscript_item[0]
+        else:
+            raise ValueError, 'several elements with name ' + sub_script_name
+
+
+        return subscript_item
 
     # @staticmethod
     def is_point(self):

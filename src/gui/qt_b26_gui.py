@@ -194,9 +194,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         print('save config to {:s}'.format(fname))
         self.save_config(fname)
 
-        # fname = self.gui_settings['tmp_folder']
-        # print('save datasets to {:s}'.format(fname))
-        # self.save_dataset(fname)
+
 
         event.accept()
 
@@ -361,8 +359,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
             if item is not None:
-                script, path_to_script = item.get_script()
-                self.update_script_from_tree(script, self.tree_scripts)
+                script, path_to_script, script_item = item.get_script()
+                self.update_script_from_item(script_item)
                 script.data_path = self.gui_settings['data_folder']
                 self.log('starting {:s}'.format(script.name))
                 # is the script is not a QThread object we use the wrapper QtSCript
@@ -442,7 +440,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 item = self.tree_scripts.currentItem()
                 if item is not None:
                     script, path_to_script = item.get_script()
-            self.update_script_from_tree(script, self.tree_scripts)
+            # self.update_script_from_selected_item(script, self.tree_scripts)# jan: not sure why this is needed here....
             self.plot_script(script)
 
         if sender is self.btn_start_script:
@@ -565,7 +563,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         elif treeWidget == self.tree_scripts:
 
             item = treeWidget.currentItem()
-            script, path_to_script = item.get_script()
+            script, path_to_script, _ = item.get_script()
 
             # check if changes value is from an instrument
             instrument, path_to_instrument = item.get_instrument()
@@ -686,46 +684,34 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 outfile = open(file_name, 'a')
             outfile.write("{:s}\n".format(",".join(map(str, new_values.values()))))
 
-    def update_script_from_tree(self, script, tree):
-        def update_script_from_item(script, item):
-            # build dictionary
-            # get full information from script
-            dictator = item.to_dict().values()[0]  # there is only one item in the dictionary
+    def update_script_from_item(self, item):
+        """
+        updates the script based on the information provided in item
 
-            for instrument in script.instruments.keys():
-                # update instrument
-                script.instruments[instrument]['settings'] = dictator[instrument]['settings']
-                # remove instrument
-                del dictator[instrument]
+        Args:
+            script: script to be updated
+            item: B26QTreeItem that contains the new settings of the script
 
-            for sub_script_name in script.scripts.keys():
+        """
 
-                items = tree.findItems(sub_script_name, QtCore.Qt.MatchExactly | QtCore.Qt.MatchRecursive)
+        script, path_to_script, script_item = item.get_script()
 
-                if len(items) >= 1:
-                    # identify correct script by checking that it is a sub_element of the current script
-                    sub_script_item = [sub_item for sub_item in items if isinstance(sub_item.value, Script)
-                                                                            and sub_item.parent() is item]
-
-
-                    sub_script_item = sub_script_item[0]
-                else:
-                    raise ValueError, 'several elements with name ' + sub_script_name
+        # build dictionary
+        # get full information from script
+        dictator = script_item.to_dict().values()[0]  # there is only one item in the dictionary
+        for instrument in script.instruments.keys():
+            # update instrument
+            script.instruments[instrument]['settings'] = dictator[instrument]['settings']
+            # remove instrument
+            del dictator[instrument]
 
 
-                sub_script = script.scripts[sub_script_name]
+        for sub_script_name in script.scripts.keys():
+            sub_script_item = script_item.get_subscript(sub_script_name)
+            self.update_script_from_item(sub_script_item)
+            del dictator[sub_script_name]
 
-                # update script
-                update_script_from_item(sub_script, sub_script_item)
-                # script.scripts[sub_script_name].update(dictator[sub_script_name])
-                # remove script
-                del dictator[sub_script_name]
-
-            script.update(dictator)
-
-        for item in tree.selectedItems():
-            if item.valid_values == type(script) and item.name == script.name:
-                update_script_from_item(script, item)
+        script.update(dictator)
 
     def fill_treewidget(self, tree, parameters):
         """
@@ -901,7 +887,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             instruments = in_data['instruments']
             scripts = in_data['scripts']
             probes = in_data['probes']
-            print('============ loading instruments ================')
+            # print('============ loading instruments ================')
             self.instruments, failed = Instrument.load_and_append(instruments)
             if failed != {}:
                 print('WARNING! Following instruments could not be loaded: ', failed)
@@ -913,7 +899,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 data_path=self.gui_settings['data_folder'])
             if failed != {}:
                 print('WARNING! Following scripts could not be loaded: ', failed)
-            print('============ loading probes not implmented ================')
+            print('INFO: ==== loading probes not implmented yet================')
             # probes = instantiate_probes(probes, instruments)
             # todo: implement probes
             self.probes = {}
@@ -937,8 +923,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         print('saving', out_file_name)
 
         # update the internal dictionaries from the trees in the gui
-        for name, script in self.scripts.iteritems():
-            self.update_script_from_tree(script, self.tree_scripts)
+        for index in range(self.tree_scripts.topLevelItemCount()):
+            script_item = self.tree_scripts.topLevelItem(index)
+            self.update_script_from_item(script_item)
 
         out_data = {'instruments': {}, 'scripts': {}, 'probes': {}}
 
