@@ -393,7 +393,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             """
             item = self.tree_scripts.currentItem()
             if item is not None:
-                script, path_to_script = item.get_script()
+                script, path_to_script, _ = item.get_script()
                 # self.data_sets.append({}
                 #     'data' : script.data,
                 # })
@@ -431,15 +431,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 model.removeRows(row,1)
 
         def plot_data(sender):
+            print(sender)
             if sender in (self.btn_plot_data, self.tree_dataset):
                 index = self.tree_dataset.selectedIndexes()[0]
                 model = index.model()
                 time_tag = str(model.itemFromIndex(model.index(index.row(), 0)).text())
                 script = self.data_sets[time_tag]
-            elif sender in (self.btn_plot_script):
+            elif sender == self.btn_plot_script:
                 item = self.tree_scripts.currentItem()
                 if item is not None:
-                    script, path_to_script = item.get_script()
+                    script, path_to_script, _ = item.get_script()
             # self.update_script_from_selected_item(script, self.tree_scripts)# jan: not sure why this is needed here....
             self.plot_script(script)
 

@@ -238,9 +238,7 @@ class Script(object):
 
         if 'scripts' in settings:
             for script_name, script_setting in settings['scripts'].iteritems():
-                print('update sub script  not implemented yet!!!')
-                raise NotImplementedError
-                self.instruments[instrument_name].update(instrument_setting)
+                self.scripts[script_name].update(script_setting)
     @property
     def end_time(self):
         '''

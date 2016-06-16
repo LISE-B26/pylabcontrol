@@ -198,7 +198,7 @@ class ScriptDummyWithSubScript(Script):
     ])
 
     _INSTRUMENTS = {}
-    _SCRIPTS = {'sub_script':ScriptDummy}
+    _SCRIPTS = {'sub_script':ScriptDummy, 'sub_script_instr':ScriptDummyWithInstrument}
 
     def __init__(self, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
@@ -243,7 +243,57 @@ class ScriptDummyWithSubScript(Script):
      for data_set in self.data['data']:
          axes.plot(data_set)
 
+class ScriptDummyWithNestedSubScript(Script):
 
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('repetitions', 0, int, 'times the subscript will be executed')
+    ])
+
+    _INSTRUMENTS = {}
+    _SCRIPTS = {'sub_script':ScriptDummy, 'sub_sub_script':ScriptDummyWithSubScript}
+
+    def __init__(self, scripts, name = None, settings = None, log_function = None, data_path = None):
+        """
+        Example of a script that makes use of an instrument
+        Args:
+            scripts: suscript that will be excecuted by this script
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+
+        # call init of superclass
+        Script.__init__(self, name, settings, scripts = scripts, log_function= log_function, data_path = data_path)
+
+    def _function(self):
+        """
+        This is the actual function that will be executed. It uses only information that is provided in _DEFAULT_SETTINGS
+        for this dummy example we just implement a counter
+        """
+
+        import time
+
+        script = self.scripts['sub_script']
+
+        N = self.settings['repetitions']
+
+        print([self.settings['repetitions'], self.scripts['sub_script'].settings['count']])
+
+        data = np.zeros([self.settings['repetitions'], self.scripts['sub_script'].settings['count']])
+
+        self.log('I am a test function runnning suscript {:s} {:d} times'.format(script.name, N))
+        for i in range(N):
+            self.log('run number {:d} / {:d}'.format(i+1, N))
+            script.run()
+            # script.wait()
+
+            data[i] = deepcopy(script.data['random data'])
+
+        self.data = {'data' : data}
+
+
+    def plot(self, axes):
+     for data_set in self.data['data']:
+         axes.plot(data_set)
 
 
 
@@ -410,28 +460,30 @@ This Dummy script is used to test saving of data, it takes a data set as input a
 if __name__ == '__main__':
     import numpy as np
 
-    data = {'array-1': 2, 'array-2': 3, 'array-3': 'd'}
-    name = 'arrays_0D'
-    script_save = ScriptDummySaveData(name=name, settings={'tag':name}, data=data)
-    script_save.run()
+    # data = {'array-1': 2, 'array-2': 3, 'array-3': 'd'}
+    # name = 'arrays_0D'
+    # script_save = ScriptDummySaveData(name=name, settings={'tag':name}, data=data)
+    # script_save.run()
+    #
+    # data = {'array0':[0.,1.,2.,3.], 'array1':[4.,5.,6.,7.]}
+    # name = '1D_arrays_same_length'
+    # script_save = ScriptDummySaveData(name = name, settings={'tag':name}, data = data)
+    # script_save.run()
+    #
+    # data = {'array0': [0., 1., 2., 3.], 'array1': [4., 5., 6.,7., 8.]}
+    # name = '1D_arrays_diff_length'
+    # script_save = ScriptDummySaveData(name=name, settings={'tag':name}, data=data)
+    # script_save.run()
+    #
+    # data = {'array0': np.array([0., 1., 2., 3.]), 'array1': [4., 5., 6.,7., 8.]}
+    # name = '1D_arrays_diff_length_np'
+    # script_save = ScriptDummySaveData(name=name, settings={'tag':name}, data=data)
+    # script_save.run()
+    #
+    # data = {'array-0D': 2, 'array-1D': [4., 5., 6.,7., 8.], 'array-2D_np': np.array([[4., 5.], [5., 6.],[7., 8.]]), 'array-2D': [[14., 15.], [15., 16.],[17., 18.]]}
+    # name = 'arrays_diff_dim'
+    # print(data['array-2D'], np.shape(data['array-2D']))
+    # script_save = ScriptDummySaveData(name=name, settings={'tag':name}, data=data)
+    # script_save.run()
 
-    data = {'array0':[0.,1.,2.,3.], 'array1':[4.,5.,6.,7.]}
-    name = '1D_arrays_same_length'
-    script_save = ScriptDummySaveData(name = name, settings={'tag':name}, data = data)
-    script_save.run()
-
-    data = {'array0': [0., 1., 2., 3.], 'array1': [4., 5., 6.,7., 8.]}
-    name = '1D_arrays_diff_length'
-    script_save = ScriptDummySaveData(name=name, settings={'tag':name}, data=data)
-    script_save.run()
-
-    data = {'array0': np.array([0., 1., 2., 3.]), 'array1': [4., 5., 6.,7., 8.]}
-    name = '1D_arrays_diff_length_np'
-    script_save = ScriptDummySaveData(name=name, settings={'tag':name}, data=data)
-    script_save.run()
-
-    data = {'array-0D': 2, 'array-1D': [4., 5., 6.,7., 8.], 'array-2D_np': np.array([[4., 5.], [5., 6.],[7., 8.]]), 'array-2D': [[14., 15.], [15., 16.],[17., 18.]]}
-    name = 'arrays_diff_dim'
-    print(data['array-2D'], np.shape(data['array-2D']))
-    script_save = ScriptDummySaveData(name=name, settings={'tag':name}, data=data)
-    script_save.run()
+    s = ScriptDummyWithSubScript()
