@@ -3,10 +3,9 @@ from PySide.QtCore import Signal, QThread
 from matplotlib import patches
 
 from src.core import Script, Parameter
-from src.instruments.NIDAQ import DAQ
 from src.plotting.plots_1d import plot_esr
 from src.plotting.plots_2d import plot_fluorescence
-from src.scripts import StanfordResearch_ESR, Take_And_Correlate_Images, AutoFocus, Select_NVs_Simple, GalvoScan, SetLaser
+from src.scripts import StanfordResearch_ESR, Select_NVs_Simple, GalvoScan, SetLaser
 from src.scripts import FindMaxCounts2D
 import os
 
@@ -25,10 +24,8 @@ class ESR_Selected_NVs(Script, QThread):
         Parameter('autofocus_size', .1, float, 'Side length of autofocusing square in Volts')
     ])
 
-    _INSTRUMENTS = {'daq':  DAQ}
+    _INSTRUMENTS = {}
     _SCRIPTS = {'StanfordResearch_ESR': StanfordResearch_ESR,
-                'Correlate_Images': Take_And_Correlate_Images,
-                'AF': AutoFocus,
                 'Find_Max': FindMaxCounts2D,
                 'select_NVs': Select_NVs_Simple,
                 'acquire_image': GalvoScan,
@@ -57,9 +54,7 @@ class ESR_Selected_NVs(Script, QThread):
 
         self.index = 0
 
-        self.scripts['AF'].log_function = self.log_function
         self.scripts['acquire_image'].log_function = self.log_function
-        self.scripts['Correlate_Images'].log_function = self.log_function
         self.scripts['Find_Max'].log_function = self.log_function
         self.scripts['StanfordResearch_ESR'].log_function = self.log_function
         self.scripts['move_to_point'].log_function = self.log_function
@@ -88,10 +83,6 @@ class ESR_Selected_NVs(Script, QThread):
         """
         self.progress = 0
 
-        self.scripts['AF'].updateProgress.connect(self._receive_signal)
-
-        self.scripts['Correlate_Images'].updateProgress.connect(self._receive_signal)
-
         self.scripts['Find_Max'].updateProgress.connect(self._receive_signal)
 
         self.scripts['StanfordResearch_ESR'].updateProgress.connect(self._receive_signal)
@@ -102,8 +93,6 @@ class ESR_Selected_NVs(Script, QThread):
         self._abort = False
         self.current_stage = None
 
-        af_index = 1
-        corr_index = 1
 
         esr_settings = self.scripts['StanfordResearch_ESR'].settings
         esr_instruments = self.scripts['StanfordResearch_ESR'].instruments
@@ -165,6 +154,7 @@ class ESR_Selected_NVs(Script, QThread):
                     self.scripts['Find_Max'].save_image_to_disk('{:s}\\NV_{:03d}.jpg'.format(filename_image, index))
 
                 self.current_stage = 'ESR'
+                self._plot_refresh = True
                 self.cur_pt = self.scripts['Find_Max'].data['maximum_point']
                 self.data['nv_locs_max'].append(self.cur_pt)
                 self.index = index
@@ -194,8 +184,6 @@ class ESR_Selected_NVs(Script, QThread):
                 # self.scripts['StanfordResearch_ESR'] = StanfordResearch_ESR(esr_instruments, settings = esr_settings)
                 # self.scripts['StanfordResearch_ESR'].updateProgress.connect(self._receive_signal)
 
-                af_index += 1
-
         self.current_stage = 'finished'
 
         self.updateProgress.emit(100)
@@ -205,10 +193,6 @@ class ESR_Selected_NVs(Script, QThread):
             self.save_data()
             self.save_image_to_disk('{:s}\\nv-map.jpg'.format(filename_image))
 
-        self.scripts['AF'].updateProgress.disconnect(self._receive_signal)
-
-        self.scripts['Correlate_Images'].updateProgress.disconnect(self._receive_signal)
-
         self.scripts['Find_Max'].updateProgress.disconnect(self._receive_signal)
 
         self.scripts['StanfordResearch_ESR'].updateProgress.disconnect(self._receive_signal)
@@ -217,8 +201,6 @@ class ESR_Selected_NVs(Script, QThread):
 
     def stop(self):
         self._abort = True
-        self.scripts['AF'].stop()
-        self.scripts['Correlate_Images'].stop()
         self.scripts['Find_Max'].stop()
         self.scripts['StanfordResearch_ESR'].stop()
 
@@ -235,7 +217,10 @@ class ESR_Selected_NVs(Script, QThread):
             extend = self.data['extent']
             plot_fluorescence(image, extend, axes_full_image)
             if self.scripts['StanfordResearch_ESR'].data:
-                plot_esr(self.scripts['StanfordResearch_ESR'].data[-1]['fit_params'], self.scripts['StanfordResearch_ESR'].data[-1]['frequency'], self.scripts['StanfordResearch_ESR'].data[-1]['data'], axes_ESR)
+                if not self.lines == []:
+                    for i in range(0,len(self.lines)):
+                        self.lines.pop(0).remove()
+                self.lines = plot_esr(self.scripts['StanfordResearch_ESR'].data[-1]['fit_params'], self.scripts['StanfordResearch_ESR'].data[-1]['frequency'], self.scripts['StanfordResearch_ESR'].data[-1]['data'], axes_ESR)
             self.scripts['select_NVs'].plot(axes_full_image)
             patch = patches.Circle((self.plot_pt[0], self.plot_pt[1]),
                                1.1 * self.scripts['select_NVs'].settings['patch_size'], fc='r', alpha=.75)
@@ -245,7 +230,7 @@ class ESR_Selected_NVs(Script, QThread):
             patch = patches.Circle((maximum_point[0], maximum_point[1]), .001, ec='r', fc = 'none')
             axes_zoomed_image.add_patch(patch)
             figure_ESR.tight_layout()
-        if self.current_stage in ('finished', 'saving'):
+        elif self.current_stage in ('finished', 'saving'):
             axes_image = self.get_axes(figure_image)
             image = self.data['image_data']
             extend = self.data['extent']
@@ -254,12 +239,22 @@ class ESR_Selected_NVs(Script, QThread):
 
     def get_axes(self, figure1, figure2 = None):
         if self.current_stage == 'ESR':
-            figure1.clf()
-            axes1 = figure1.add_subplot(111)
+            if self._plot_refresh == True:
+                print('refresh')
+                figure1.clf()
+                axes1 = figure1.add_subplot(111)
 
-            figure2.clf()
-            axes2 = figure2.add_subplot(121)
-            axes3 = figure2.add_subplot(122)
+                figure2.clf()
+                axes2 = figure2.add_subplot(121)
+                axes3 = figure2.add_subplot(122)
+
+                self._plot_refresh = False
+                self.lines = []
+
+            else:
+                axes1 = figure1.axes[0]
+                axes2 = figure2.axes[0]
+                axes3 = figure2.axes[1]
 
             return axes1, axes2, axes3
 
@@ -267,8 +262,6 @@ class ESR_Selected_NVs(Script, QThread):
             return super(ESR_Selected_NVs, self).get_axes(figure1, figure2)
 
 if __name__ == '__main__':
-    from src.core import Instrument
-
     script, failed, instruments = Script.load_and_append(script_dict={'ESR_Selected_NVs':'ESR_Selected_NVs'})
 
     print(script)

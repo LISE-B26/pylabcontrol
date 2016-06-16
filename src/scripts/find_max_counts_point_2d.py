@@ -124,7 +124,6 @@ Known issues:
             self.data['maximum_point'] = pt
         self.script_stage = 'find max'
 
-        print(self.data['maximum_point'])
         self.scripts['set_laser'].settings['point'].update({'x': self.data['maximum_point'][0],
                                                        'y': self.data['maximum_point'][1]})
         self.scripts['set_laser'].run()

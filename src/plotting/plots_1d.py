@@ -36,15 +36,16 @@ def plot_esr(fit_params, frequency, data, axes):
     else:
         fit_data = None
     if fit_data is not None:  # plot esr and fit data
-        axes.plot(frequency, data, 'b', frequency, fit_data, 'r')
+        lines = axes.plot(frequency, data, 'b', frequency, fit_data, 'r')
         axes.set_title('ESR fo = {:0.2e}, wo = {:0.2e}'.format(fit_params[2], fit_params[1]))
         axes.set_xlabel('Frequency (Hz)')
         axes.set_ylabel('Kcounts/s')
     else:  # plot just esr data
-        axes.plot(frequency, data, 'b')
+        lines = axes.plot(frequency, data, 'b')
         axes.set_title('ESR')
         axes.set_xlabel('Frequency (Hz)')
         axes.set_ylabel('Kcounts/s')
+    return lines
 
 
 

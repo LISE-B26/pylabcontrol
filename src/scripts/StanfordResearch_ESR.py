@@ -55,6 +55,7 @@ class StanfordResearch_ESR(Script, QThread):
         will be overwritten in the __init__
         """
         self._abort = False
+        self.lines = []
         freq_values = np.linspace(self.settings['freq_start'], self.settings['freq_stop'], self.settings['freq_points'])
         freq_range = max(freq_values) - min(freq_values)
         num_freq_sections = int(freq_range) / int(self.instruments['microwave_generator']['instance'].settings['dev_width']*2) + 1
@@ -163,7 +164,10 @@ class StanfordResearch_ESR(Script, QThread):
     def plot(self, figure):
         if self.data:
             axes = self.get_axes(figure)
-            plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
+            if not self.lines == []:
+                for i in range(0, len(self.lines)):
+                    self.lines.pop(0).remove()
+            self.lines = plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
             figure.tight_layout()
         # if self.data:
         #     fit_params = self.data[-1]['fit_params']

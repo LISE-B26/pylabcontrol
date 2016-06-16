@@ -83,7 +83,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
             self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
 
-        if self.settings['refined_scan']:
+        if self.settings['refined_scan'] and not self._abort:
             center = self.data['main_scan_focusing_fit_parameters'][2]
             min = center - self.settings['refined_scan_range']/2.0
             max = center + self.settings['refined_scan_range'] / 2.0
@@ -203,6 +203,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
             elif self.settings['focusing_optimizer'] == 'standard_deviation':
                 self.data[tag + '_focus_function_result'].append(np.std(current_image))
+                print('appended',  self.data[tag + '_focus_function_result'])
 
             elif self.settings['focusing_optimizer'] == 'normalized_standard_deviation':
                 self.data[tag + '_focus_function_result'].append(np.std(current_image) / np.mean(current_image))
@@ -224,6 +225,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         # fit the data and set piezo to focus spot
         gaussian = lambda x, noise, amp, center, width: noise + amp * np.exp(
             -1.0 * (np.square((x - center)) / (2 * (width ** 2))))
+
+        print('tag', tag, 'focus_function_result', self.data[tag + '_focus_function_result'])
 
         noise_guess = np.min(self.data[tag + '_focus_function_result'])
         amplitude_guess = np.max(self.data[tag + '_focus_function_result']) - noise_guess
