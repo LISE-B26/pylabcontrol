@@ -201,11 +201,9 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             time.sleep(self.settings['wait_time'])
 
             # take a galvo scan
-            print('start scan', datetime.datetime.now())
             self.scripts['take_image'].run()
             self.scripts['take_image'].wait()
 
-            print('end scan', datetime.datetime.now())
 
             current_image = self.scripts['take_image'].data['image_data']
             self.data['current_image'] = deepcopy(current_image)
@@ -231,8 +229,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
                 progress = 50.0 + 99.0 * (np.where(sweep_voltages == voltage)[0] + 1) / (
                 2.0 * float(self.settings['num_sweep_points']))
             self.updateProgress.emit(progress)
-
-            print('XXXXXXX LOOP: ', self.data[tag + '_focus_function_result'])
 
             # save image if the user requests it
             if self.settings['save_images']:
