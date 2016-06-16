@@ -1,6 +1,7 @@
-from src.core import Instrument, Parameter
+from src.core import Instrument, Parameter, Pulse
 from collections import namedtuple
 import numpy as np
+import itertools
 
 class PulseBlaster(Instrument):
 
@@ -36,7 +37,7 @@ class PulseBlaster(Instrument):
 
     def __init__(self, name = None, settings = None):
         super(PulseBlaster, self).__init__(name, settings)
-        self.Pulse = namedtuple('Pulse', ('instrument_name', 'start_time', 'duration'))
+        self.Pulse = namedtuple('Pulse', ('channel_id', 'start_time', 'duration'))
         self.PBStateChange = namedtuple('PBStateChange', ('channel_bits', 'time'))
 
 
@@ -57,6 +58,31 @@ class PulseBlaster(Instrument):
 
         raise AttributeError('Could not find delay of channel name or number: {s}'.format(str(channel_name_or_int)))
 
+    @staticmethod
+    def find_overlapping_pulses(pulse_collection):
+        pulse_dict = {}
+        for pulse in pulse_collection:
+            pulse_dict.setdefault(pulse.channel_id, []).append((pulse.start_time,
+                                                                pulse.start_time + pulse.duration))
+
+        overlapping_pulses = []
+        for pulse_id, time_interval_list in pulse_dict.iteritems():
+            for time_interval_pair in itertools.combinations(time_interval_list, 2):
+                if time_interval_pair[0][0] < time_interval_pair[1][1] and time_interval_pair[1][0] < \
+                        time_interval_pair[0][1]:
+                    overlapping_pulse_1 = Pulse(pulse_id, time_interval_pair[0][0],
+                                                time_interval_pair[0][1] - time_interval_pair[0][0])
+                    overlapping_pulse_2 = Pulse(pulse_id, time_interval_pair[1][0],
+                                                time_interval_pair[1][1] - time_interval_pair[1][0])
+
+                    if overlapping_pulse_1.start_time < overlapping_pulse_2.start_time:
+                        overlapping_pulses.append((overlapping_pulse_1, overlapping_pulse_2))
+                    else:
+                        overlapping_pulses.append((overlapping_pulse_2, overlapping_pulse_1))
+
+        return overlapping_pulses
+
+
     def create_physical_pulse_seq(self, pulse_collection):
         """
 
@@ -67,8 +93,11 @@ class PulseBlaster(Instrument):
 
         """
 
-        delayed_pulse_collection = [self.Pulse(pulse.instrument_name,
-                                               pulse.start_time - self.get_delay(pulse.instrument_name),
+        overlapping_pulses = B26PulseBlaster.find_overlapping_pulses(pulse_collection)
+        assert len(overlapping_pulses) == 0, "Could not proceed, found overlapping pulses: {0}".format(str(overlapping_pulses))
+
+        delayed_pulse_collection = [self.Pulse(pulse.channel_id,
+                                               pulse.start_time - self.get_delay(pulse.channel_id),
                                                pulse.duration)
                                     for pulse in pulse_collection]
 
@@ -76,7 +105,7 @@ class PulseBlaster(Instrument):
         min_pulse_time = min(map(lambda pulse: pulse.start_time, delayed_pulse_collection))
 
         if min_pulse_time < 0:
-            delayed_pulse_collection = [self.Pulse(pulse.instrument_name,
+            delayed_pulse_collection = [self.Pulse(pulse.channel_id,
                                                    pulse.start_time - min_pulse_time,
                                                    pulse.duration)
                                         for pulse in delayed_pulse_collection]
@@ -88,12 +117,12 @@ class PulseBlaster(Instrument):
 
         pb_command_dict = {}
         for pulse in pulse_collection:
-            pb_command_dict.setdefault(pulse.start_time, default = []).append(1 << self.settings[pulse.name]['channel'])
+            pb_command_dict.setdefault(pulse.start_time, []).append(1 << self.settings[pulse.name]['channel'])
             pulse_end_time = pulse.start_time + pulse.duration
-            pb_command_dict.setdefault(pulse.end_time, default = []).append(1 << self.settings[pulse.name]['channel'])
+            pb_command_dict.setdefault(pulse.end_time,  []).append(1 << self.settings[pulse.name]['channel'])
 
         pb_command_list = []
-        for time, bit_strings  in pb_state_changes_dict:
+        for time, bit_strings  in pb_command_dict:
             channel_bits = np.bitwise_or.reduce(bit_strings)
             pb_command_list.append(self.PBStateChange(channel_bits, time))
 
@@ -174,23 +203,20 @@ class B26PulseBlaster(PulseBlaster):
 
         raise AttributeError('Could not find instrument name attached to channel {s}'.format(channel))
 
-    def get_channel(self, instrument_name):
-        if instrument_name in self.settings.keys():
-            return self.settings[instrument_name]['channel']
+    def get_channel(self, channel_id):
+        if channel_id in self.settings.keys():
+            return self.settings[channel_id]['channel']
 
         else:
-            raise AttributeError('Could not find channel for instrument {s}'.format(instrument_name))
+            raise AttributeError('Could not find channel for instrument {s}'.format(channel_id))
 
-    def get_delay(self, chan_num_or_instrument_name):
-        if isinstance(chan_num_or_instrument_name, str):
-            return self.settings[chan_num_or_instrument_name]['delay_time']
+    def get_delay(self, channel_id):
+        if isinstance(channel_id, str):
+            return self.settings[channel_id]['delay_time']
         else:
             for key, value in self.settings:
-                if 'channel' in value.keys() and value['channel'] == chan_num_or_instrument_name:
-                    return self.settings[chan_num_or_instrument_name]['delay_time']
-
-
-
+                if 'channel' in value.keys() and value['channel'] == channel_id:
+                    return self.settings[channel_id]['delay_time']
 
 if __name__=='__main__':
 
