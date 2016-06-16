@@ -888,13 +888,13 @@ class Script(object):
 
         return script_instance
 
-    def plot(self, axes):
+    def plot(self, figure):
         """
         plots the data contained in self.data, which should be a dictionary or a deque of dictionaries
         for the latter use the last entry
 
         """
-
+        axes = self.get_axes(figure)
         if isinstance(self.data, deque):
             data = self.data[-1]
         elif isinstance(self.data, dict):
