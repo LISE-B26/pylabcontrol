@@ -1,13 +1,11 @@
 from src.core import Script, Parameter
 from PySide.QtCore import Signal, QThread
 import numpy as np
-from collections import deque
 from src.instruments.NIDAQ import DAQ
 from src.plotting.plots_2d import plot_fluorescence
+import time
 
 import datetime as dt
-import time
-import threading
 import Queue
 
 
@@ -59,17 +57,22 @@ class GalvoScan(Script, QThread):
 
         self.queue = Queue.Queue()
 
-        #self.plotting_data = None
+        self._plotting = False
 
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
+        update_time = dt.datetime.now()
+
+        self.updateProgress.emit(1)
+        time.sleep(.1)
+
+        self._plotting = True
 
         def init_scan():
             self._recording = False
-            #self._plotting = False
             self._abort = False
 
             self.clockAdjust = int(
@@ -126,11 +129,16 @@ class GalvoScan(Script, QThread):
             # self.data.append(image_data)
 
             # sending updates every cycle leads to invalid task errors, so wait and don't overload gui
-            progress = int(float(yNum + 1) / len(self.y_array) * 100)
-            self.updateProgress.emit(progress)
+            current_time = dt.datetime.now()
+            if ((current_time - update_time).total_seconds() > 0.1):
+                progress = int(float(yNum + 1) / len(self.y_array) * 100)
+                self.updateProgress.emit(progress)
+                update_time = current_time
 
         progress = 100
         self.updateProgress.emit(progress)
+
+        self._plotting = False
 
         if self.settings['save']:
             self.save_b26()
@@ -166,8 +174,10 @@ class GalvoScan(Script, QThread):
         return [xVmin, xVmax, yVmax, yVmin]
 
     def plot(self, image_figure, axes_colorbar = None):
-        axes_image = self.get_axes(image_figure)
-        plot_fluorescence(self.data['image_data'], self.data['extent'], axes_image, max_counts = self.settings['max_counts_plot'], axes_colorbar=axes_colorbar)
+
+        self.axes_image = self.get_axes(image_figure)
+        if 'image_data' in self.data.keys() and not self.data['image_data'] == []:
+            plot_fluorescence(self.data['image_data'], self.data['extent'], self.axes_image, max_counts = self.settings['max_counts_plot'], axes_colorbar=axes_colorbar)
 
     def stop(self):
         self._abort = True

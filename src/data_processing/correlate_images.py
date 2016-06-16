@@ -5,7 +5,7 @@ from src.core import Script
 import matplotlib.pyplot as plt
 import trackpy as tp
 
-def find_image_shift(reference_image, reference_image_bounds, shifted_image, shifted_image_bounds, correlation_padding = False):
+def find_image_shift(reference_image, reference_image_extent, shifted_image, shifted_image_extent, correlation_padding = False):
     """
     Takes two images and finds the necessary translation of the second image to match the first.
 
@@ -22,8 +22,9 @@ def find_image_shift(reference_image, reference_image_bounds, shifted_image, shi
     """
 
     # get pixel-to-voltage conversion for each image
-    shifted_img_pix2vol = pixel_to_voltage_conversion_factor(shifted_image.shape, shifted_image_bounds)
-    ref_img_pix2vol = pixel_to_voltage_conversion_factor(reference_image.shape, reference_image_bounds)
+    print('shifted_image', shifted_image)
+    shifted_img_pix2vol = pixel_to_voltage_conversion_factor(shifted_image.shape, shifted_image_extent)
+    ref_img_pix2vol = pixel_to_voltage_conversion_factor(reference_image.shape, reference_image_extent)
 
     # subtract average from images for later correlation calculations
     shifted_image = shifted_image - shifted_image.mean()
@@ -46,19 +47,19 @@ def find_image_shift(reference_image, reference_image_bounds, shifted_image, shi
     # get correlation function, find max, return it
 
     if correlation_padding:
-        correlation = signal.correlate2d(reference_image, shifted_image, mode='full')
+        correlation_image = signal.correlate2d(reference_image, shifted_image, mode='full')
     else:
-        correlation = signal.correlate2d(reference_image, shifted_image, mode='valid')
+        correlation_image = signal.correlate2d(reference_image, shifted_image, mode='valid')
 
-    dy_pixel, dx_pixel = np.unravel_index(np.argmax(correlation), correlation.shape) - np.array(correlation.shape)/2
+    dy_pixel, dx_pixel = np.unravel_index(np.argmax(correlation_image), correlation_image.shape) - np.array(correlation_image.shape)/2
 
-    dx_voltage = -1.0 * ref_img_pix2vol[0] * dx_pixel - (np.mean(reference_image_bounds[0:2]) - np.mean(shifted_image_bounds[0:2]))
-    dy_voltage = -1.0 * ref_img_pix2vol[1] * dy_pixel - (np.mean(reference_image_bounds[2:4]) - np.mean(shifted_image_bounds[2:4]))
-    return dx_voltage, dy_voltage
+    dx_voltage = -1.0 * ref_img_pix2vol[0] * dx_pixel - (np.mean(reference_image_extent[0:2]) - np.mean(shifted_image_extent[0:2]))
+    dy_voltage = -1.0 * ref_img_pix2vol[1] * dy_pixel - (np.mean(reference_image_extent[2:4]) - np.mean(shifted_image_extent[2:4]))
+    return dx_voltage, dy_voltage, correlation_image
 
-def pixel_to_voltage_conversion_factor(image_shape, image_bounds):
+def pixel_to_voltage_conversion_factor(image_shape, image_extent):
     image_x_len, image_y_len = image_shape
-    image_x_min, image_x_max, image_y_min, image_y_max = image_bounds
+    image_x_min, image_x_max, image_y_max, image_y_min = image_extent
     x_voltage = (image_x_max - image_x_min) / image_x_len
     y_voltage = (image_y_max - image_y_min) / image_y_len
     return x_voltage, y_voltage
@@ -67,15 +68,16 @@ def create_nv_image(image, nv_size, created_pt_size = 3):
     y_len, x_len = image.shape
     f = tp.locate(image, nv_size)
 
-    baseline_image = np.zeros((y_len, x_len))
+    new_image = np.zeros((y_len, x_len))
     nv_locs = f.values
     for pt in nv_locs:
         for i in range(-created_pt_size, created_pt_size+1):
             for j in range(-created_pt_size, created_pt_size+1):
                 if pt[1] + j < y_len and pt[1] - j >= 0 and pt[0] + i < x_len and pt[0] - i >= 0:
-                    baseline_image[pt[1] + j, pt[0] + i] = 10
+                    new_image[pt[1] + j, pt[0] + i] = 10
+    return new_image
 
-def correlation(nv_pos_list, baseline_image, baseline_image_bounds, new_image, new_image_bounds, trackpy = False, nv_size = 11):
+def correlation(nv_pos_list, baseline_image, baseline_image_extent, new_image, new_image_extent, trackpy = False, nv_size = 11):
 
     print('correlation_old_nv_list', nv_pos_list)
 
@@ -83,11 +85,11 @@ def correlation(nv_pos_list, baseline_image, baseline_image_bounds, new_image, n
         baseline_image = create_nv_image(baseline_image, nv_size)
         new_image = create_nv_image(new_image, nv_size)
 
-    dx_voltage, dy_voltage = find_image_shift(baseline_image, baseline_image_bounds, new_image, new_image_bounds, correlation_padding=True)
+    dx_voltage, dy_voltage, correlation_image = find_image_shift(baseline_image, baseline_image_extent, new_image, new_image_extent, correlation_padding=True)
 
-    print('correlation_new_nv_list', nv_pos_list + [dx_voltage, dy_voltage])
+    print('correlation_new_nv_list', [[pos[0]+dx_voltage, pos[1]+dy_voltage] for pos in nv_pos_list])
 
-    return [[pos[0]+dx_voltage, pos[1]+dy_voltage] for pos in nv_pos_list]
+    return [[pos[0]+dx_voltage, pos[1]+dy_voltage] for pos in nv_pos_list], correlation_image
 
 
 '''

@@ -276,6 +276,7 @@ class Script(object):
         self.log_data.clear()
         self.start_time  = datetime.datetime.now()
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
+        self._plot_refresh = True # flag that requests that plot axes are refreshed when self.plot is called next time
         self._function()
 
         self.end_time  = datetime.datetime.now()
@@ -450,6 +451,7 @@ class Script(object):
                 filename_1 = self.filename('-{:s}.jpg'.format(self.plot_type))
 
             fig = Figure()
+            self._plot_refresh = True #need to set up a new plot
             canvas = FigureCanvas(fig) #need to create a canvas to have the figure be somewhere, otherwise can't save
             self.plot(fig)
             fig.savefig(filename_1)
@@ -911,12 +913,33 @@ class Script(object):
                 axes.plot(value)
 
     def get_axes(self, figure1, figure2 = None):
-        figure1.clf()
-        axes1 = figure1.add_subplot(111)
+        """
+        returns the axes objects the script needs to plot its data
+        the default creates a single axes object on each figure
+        This can/should be overwritten in a child script if more axes objects are needed
+        Args:
+            figure1:
+            figure2: (optional)
+        Returns:
 
-        if figure2:
-            figure2.clf()
-            axes2 = figure2.add_subplot(111)
+        """
+
+        # create new axes objects if script was just started (self._plot_refresh == True) or
+        # if script is not running (self.is_running == False)
+        # otherwise just return references to existing axes objects
+        if self._plot_refresh == True or self.is_running == False:
+            figure1.clf()
+            axes1 = figure1.add_subplot(111)
+
+            if figure2:
+                figure2.clf()
+                axes2 = figure2.add_subplot(111)
+
+            self._plot_refresh = False
+        else:
+            axes1 = figure1.axes[0]
+            if figure2:
+                axes2 = figure2.axes[0]
 
         if figure2:
             return axes1, axes2

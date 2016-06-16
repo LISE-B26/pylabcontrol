@@ -154,6 +154,7 @@ class ESR_Selected_NVs(Script, QThread):
                     self.scripts['Find_Max'].save_image_to_disk('{:s}\\NV_{:03d}.jpg'.format(filename_image, index))
 
                 self.current_stage = 'ESR'
+                self._plot_refresh = True
                 self.cur_pt = self.scripts['Find_Max'].data['maximum_point']
                 self.data['nv_locs_max'].append(self.cur_pt)
                 self.index = index
@@ -216,7 +217,10 @@ class ESR_Selected_NVs(Script, QThread):
             extend = self.data['extent']
             plot_fluorescence(image, extend, axes_full_image)
             if self.scripts['StanfordResearch_ESR'].data:
-                plot_esr(self.scripts['StanfordResearch_ESR'].data[-1]['fit_params'], self.scripts['StanfordResearch_ESR'].data[-1]['frequency'], self.scripts['StanfordResearch_ESR'].data[-1]['data'], axes_ESR)
+                if not self.lines == []:
+                    for i in range(0,len(self.lines)):
+                        self.lines.pop(0).remove()
+                self.lines = plot_esr(self.scripts['StanfordResearch_ESR'].data[-1]['fit_params'], self.scripts['StanfordResearch_ESR'].data[-1]['frequency'], self.scripts['StanfordResearch_ESR'].data[-1]['data'], axes_ESR)
             self.scripts['select_NVs'].plot(axes_full_image)
             patch = patches.Circle((self.plot_pt[0], self.plot_pt[1]),
                                1.1 * self.scripts['select_NVs'].settings['patch_size'], fc='r', alpha=.75)
@@ -235,12 +239,22 @@ class ESR_Selected_NVs(Script, QThread):
 
     def get_axes(self, figure1, figure2 = None):
         if self.current_stage == 'ESR':
-            figure1.clf()
-            axes1 = figure1.add_subplot(111)
+            if self._plot_refresh == True:
+                print('refresh')
+                figure1.clf()
+                axes1 = figure1.add_subplot(111)
 
-            figure2.clf()
-            axes2 = figure2.add_subplot(121)
-            axes3 = figure2.add_subplot(122)
+                figure2.clf()
+                axes2 = figure2.add_subplot(121)
+                axes3 = figure2.add_subplot(122)
+
+                self._plot_refresh = False
+                self.lines = []
+
+            else:
+                axes1 = figure1.axes[0]
+                axes2 = figure2.axes[0]
+                axes3 = figure2.axes[1]
 
             return axes1, axes2, axes3
 

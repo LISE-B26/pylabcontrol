@@ -115,7 +115,7 @@ class ESR_And_Push(Script, QThread):
             self.scripts['Refind_NVs'].wait()
 
             self.current_stage = 'ESR_Selected_NVs'
-            self.scripts['ESR_Selected_NVs'].data['image_data'] = self.scripts['Refind_NVs'].data['new_image']
+            self.scripts['ESR_Selected_NVs'].scripts['acquire_image'].data['image_data'] = self.scripts['Refind_NVs'].data['new_image']
             self.scripts['ESR_Selected_NVs'].scripts['select_NVs'].data['nv_locations'] = self.scripts['Refind_NVs'].data['new_nv_locs']
             self.scripts['ESR_Selected_NVs'].run()
             self.scripts['ESR_Selected_NVs'].wait()
@@ -147,7 +147,6 @@ class ESR_And_Push(Script, QThread):
     def plot(self, figure_image, figure_ESR):
         if self.current_stage in ['ESR_Selected_NVs', 'finished', 'saving']:
             self.scripts['ESR_Selected_NVs'].plot(figure_image, figure_ESR)
-
         elif self.current_stage == 'Refind_NVs':
             self.scripts['Refind_NVs'].plot(figure_image, figure_ESR)
 

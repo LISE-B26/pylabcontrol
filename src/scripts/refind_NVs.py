@@ -1,6 +1,7 @@
 import numpy as np
 from PySide.QtCore import Signal, QThread
 from matplotlib import patches
+import time
 
 from src.core import Script, Parameter
 from src.instruments.NIDAQ import DAQ
@@ -127,6 +128,11 @@ class Refind_NVs(Script, QThread):
 
             self.data['new_nv_locs'] = self.scripts['Correlate_Images'].data['new_NV_list']
             self.data['new_image'] = self.scripts['Correlate_Images'].data['new_image']
+
+            # print('refind baseline_image', self.data['baseline_image'])
+            # print('refind new_image', self.data['new_image'])
+            # print('here')
+            # time.sleep(10)
 
         self.current_stage = 'finished'
 
