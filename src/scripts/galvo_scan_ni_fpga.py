@@ -116,7 +116,7 @@ class GalvoScanNIFpga(Script, QThread):
 
 
 
-                self.data['image_data'][i] = deepcopy(line_data['signal'])
+                self.data['image_data'][i] = deepcopy(line_data['signal'])/1e3
 
                 # set the remaining values to the mean so that we get a good contrast while plotting
                 mean_value = np.mean(self.data['image_data'][0:i])
@@ -132,7 +132,7 @@ class GalvoScanNIFpga(Script, QThread):
                 self.updateProgress.emit(progress)
                 t1 = t2
                 # uncomment following line to show some diagnostic values
-                # print_diagnostics()
+                print_diagnostics()
             else:
 
                 time_sleep = time_per_line_s - elapsed_time.total_seconds()

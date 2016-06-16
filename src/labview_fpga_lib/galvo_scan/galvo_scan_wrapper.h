@@ -56,7 +56,7 @@ int16_t read_piezo_voltage(NiFpga_Session* session, NiFpga_Status* status);
 // read parameters
 int32_t read_i(NiFpga_Session* session, NiFpga_Status* status);
 int32_t read_elements_written_to_dma(NiFpga_Session* session, NiFpga_Status* status);
-int16_t read_detector_signal(NiFpga_Session* session, NiFpga_Status* status);
+int32_t read_detector_signal(NiFpga_Session* session, NiFpga_Status* status);
 int32_t read_ix(NiFpga_Session* session, NiFpga_Status* status);
 int32_t read_iy(NiFpga_Session* session, NiFpga_Status* status);
 int32_t read_failed(NiFpga_Session* session, NiFpga_Status* status)

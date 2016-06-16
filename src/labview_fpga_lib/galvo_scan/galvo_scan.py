@@ -48,7 +48,7 @@ getter_functions = {
     "read_DMA_elem_to_write": c_uint32,
     "read_DMATimeOut": c_bool,
     "read_elements_written_to_dma": c_int32,
-    "read_detector_signal": c_int16,
+    "read_detector_signal": c_int32,
     "read_ix": c_int32,
     "read_iy": c_int32,
     "read_Nx": c_int32,
@@ -92,14 +92,14 @@ def stop_FIFO(session, status):
 
 
 # read FIFO
-_libfpga.read_FIFO.argtypes = [POINTER(c_int16), c_uint32,
+_libfpga.read_FIFO.argtypes = [POINTER(c_int32), c_uint32,
                                POINTER(c_uint32), POINTER(c_int32),
                                POINTER(c_uint32)]
 
 _libfpga.read_FIFO.restype = None
 
 def read_FIFO(size, session, status):
-    Signal = (c_int16*size)()
+    Signal = (c_int32*size)()
     elements_remaining = c_uint32()
 
     _libfpga.read_FIFO(Signal, size, byref(session), byref(status), byref(elements_remaining))

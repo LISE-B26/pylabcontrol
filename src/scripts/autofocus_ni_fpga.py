@@ -257,11 +257,11 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             self.log('Found fit parameters: ' + str(p2))
 
             if p2[2] > sweep_voltages[-1]:
-                fpga_instr.piezo = sweep_voltages[-1]
+                fpga_instr.piezo = float(sweep_voltages[-1])
                 self.log('Best fit found center to be above max sweep range, setting voltage to max, {0} V'.format(
                     sweep_voltages[-1]))
             elif p2[2] < sweep_voltages[0]:
-                fpga_instr.piezo = sweep_voltages[0]
+                fpga_instr.piezo = float(sweep_voltages[0])
                 self.log('Best fit found center to be below min sweep range, setting voltage to min, {0} V'.format(
                     sweep_voltages[0]))
             else:
