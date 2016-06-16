@@ -234,8 +234,13 @@ class Script(object):
 
         if 'instruments' in settings:
             for instrument_name, instrument_setting in settings['instruments'].iteritems():
-                self.instruments[instrument_name].update(instrument_setting)
+                self.instruments[instrument_name]['settings'].update(instrument_setting['settings'])
 
+        if 'scripts' in settings:
+            for script_name, script_setting in settings['scripts'].iteritems():
+                print('update sub script  not implemented yet!!!')
+                raise NotImplementedError
+                self.instruments[instrument_name].update(instrument_setting)
     @property
     def end_time(self):
         '''
@@ -485,7 +490,7 @@ class Script(object):
         """
         if filename is None:
             filename = self.filename('.b26s')
-        print('savingg', filename)
+        print('saving', filename)
         with open(filename, 'w') as outfile:
             outfile.write(cPickle.dumps(self.__dict__))
 
@@ -516,8 +521,6 @@ class Script(object):
 
         script_instance, _, updated_instruments = Script.load_and_append({'script': script_class}, instruments = instruments)
         script_instance = script_instance['script']
-
-        print(script_instance.instruments)
 
         # save references to instruments
         instruments = script_instance._instruments
@@ -753,7 +756,6 @@ class Script(object):
                 if len(instrument) == 0:
                     # create new instance of instrument
                     instruments_updated, __ = Instrument.load_and_append({instrument_name: instrument_class.__name__}, instruments_updated)
-
                 if script_instruments is not None and instrument_name in script_instruments:
                     instrument_settings_dict = script_instruments[instrument_name]['settings']
                 else:
@@ -791,7 +793,6 @@ class Script(object):
             #
             # create instruments that script needs
             sub_scripts = {}
-
             sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments)
 
             if sub_scripts_dict is not None:
@@ -799,11 +800,11 @@ class Script(object):
                     #update settings, updates instrument and settings
                     sub_scripts[k].update(v)
 
+
             return sub_scripts, instruments_updated
+            # return sub_scripts_dict, instruments_updated
 
         for script_name, script_class_name in script_dict.iteritems():
-
-            print('script_name', script_name)
 
             # check if script already exists
             if script_name in scripts.keys():
@@ -879,7 +880,6 @@ class Script(object):
             class_creation_string += ', data_path = data_path'
         class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
         # create instance
-        print(class_creation_string)
         script_instance = eval(class_creation_string)
 
         # copy some other properties that might be checked later for the duplicated script

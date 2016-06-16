@@ -184,8 +184,43 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
     def autofocus_loop(self, sweep_voltages, fpga_instr, tag = None):
 
-        # z_piezo = self.instruments['z_piezo']['instance']
-        # z_piezo.update(self.instruments['z_piezo']['settings'])
+        def fit_focus():
+            # fit the data and set piezo to focus spot
+            gaussian = lambda x, noise, amp, center, width: noise + amp * np.exp(
+                -1.0 * (np.square((x - center)) / (2 * (width ** 2))))
+
+            noise_guess = np.min(self.data[tag + '_focus_function_result'])
+            amplitude_guess = np.max(self.data[tag + '_focus_function_result']) - noise_guess
+            center_guess = np.mean(self.data[tag + '_sweep_voltages'])
+            width_guess = 0.8
+
+            reasonable_params = [noise_guess, amplitude_guess, center_guess, width_guess]
+
+            try:
+                p2, success = sp.optimize.curve_fit(gaussian, self.data[tag + '_sweep_voltages'],
+                                                    self.data[tag + '_focus_function_result'], p0=reasonable_params,
+                                                    bounds=([0, [np.inf, np.inf, 100., 100.]]), max_nfev=2000)
+
+                self.log('Found fit parameters: ' + str(p2))
+
+                if p2[2] > sweep_voltages[-1]:
+                    fpga_instr.piezo = float(sweep_voltages[-1])
+                    self.log('Best fit found center to be above max sweep range, setting voltage to max, {0} V'.format(
+                        sweep_voltages[-1]))
+                elif p2[2] < sweep_voltages[0]:
+                    fpga_instr.piezo = float(sweep_voltages[0])
+                    self.log('Best fit found center to be below min sweep range, setting voltage to min, {0} V'.format(
+                        sweep_voltages[0]))
+                else:
+                    fpga_instr.piezo = float(p2[2])
+            except(ValueError):
+                p2 = [0, 0, 0, 0]
+                average_voltage = np.mean(self.data[tag + '_sweep_voltages'])
+                self.log('Could not converge to fit parameters, setting piezo to middle of sweep range, {0} V'.format(
+                    average_voltage))
+                fpga_instr.piezo = float(average_voltage)
+
+            return p2
 
         self.data[tag + '_sweep_voltages'] = sweep_voltages
         self.data[tag + '_focus_function_result'] = []
@@ -234,41 +269,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             if self.settings['save_images']:
                 self.scripts['take_image'].save_image_to_disk('{:s}\\image_{:03d}.jpg'.format(self.filename_image, index))
 
-        # fit the data and set piezo to focus spot
-        gaussian = lambda x, noise, amp, center, width: noise + amp * np.exp(
-            -1.0 * (np.square((x - center)) / (2 * (width ** 2))))
-
-        noise_guess = np.min(self.data[tag + '_focus_function_result'])
-        amplitude_guess = np.max(self.data[tag + '_focus_function_result']) - noise_guess
-        center_guess = np.mean(self.data[tag + '_sweep_voltages'])
-        width_guess = 0.8
-
-        reasonable_params = [noise_guess, amplitude_guess, center_guess, width_guess]
-
-        try:
-            p2, success = sp.optimize.curve_fit(gaussian, self.data[tag + '_sweep_voltages'],
-                                                self.data[tag + '_focus_function_result'], p0=reasonable_params,
-                                                bounds=([0, [np.inf, np.inf, 100., 100.]]), max_nfev=2000)
-
-            self.log('Found fit parameters: ' + str(p2))
-
-            if p2[2] > sweep_voltages[-1]:
-                fpga_instr.piezo = float(sweep_voltages[-1])
-                self.log('Best fit found center to be above max sweep range, setting voltage to max, {0} V'.format(
-                    sweep_voltages[-1]))
-            elif p2[2] < sweep_voltages[0]:
-                fpga_instr.piezo = float(sweep_voltages[0])
-                self.log('Best fit found center to be below min sweep range, setting voltage to min, {0} V'.format(
-                    sweep_voltages[0]))
-            else:
-                fpga_instr.piezo = float(p2[2])
-        except(ValueError):
-            p2 = [0, 0, 0, 0]
-            average_voltage = np.mean(self.data[tag + '_sweep_voltages'])
-            self.log('Could not converge to fit parameters, setting piezo to middle of sweep range, {0} V'.format(
-                average_voltage))
-            fpga_instr.piezo = float(average_voltage)
-
+        p2 = [0, 0, 0, 0] # dont' fit for now
+        # p2 = fit_focus()
         self.data[tag + '_focusing_fit_parameters'] = p2
 
 
