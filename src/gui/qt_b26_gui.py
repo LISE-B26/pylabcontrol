@@ -484,7 +484,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if sender is self.btn_load_instruments:
 
-                dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments, filename=self.gui_settings['instrument_folder'])
+                if 'instrument_folder' in self.gui_settings:
+                    dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments,
+                                        filename=self.gui_settings['instrument_folder'])
+
+                else:
+                    dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments)
+
 
                 if dialog.exec_():
                     self.gui_settings['instrument_folder'] = str(dialog.txt_probe_log_path.text())
