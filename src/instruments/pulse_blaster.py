@@ -37,7 +37,6 @@ class PulseBlaster(Instrument):
 
     def __init__(self, name = None, settings = None):
         super(PulseBlaster, self).__init__(name, settings)
-        self.Pulse = namedtuple('Pulse', ('channel_id', 'start_time', 'duration'))
         self.PBStateChange = namedtuple('PBStateChange', ('channel_bits', 'time'))
 
 
@@ -48,13 +47,13 @@ class PulseBlaster(Instrument):
     def get_delay(self, channel_name_or_int):
         if isinstance(channel_name_or_int, str):
             channel_name = channel_name_or_int
-            return self.settings[channel_name][delay_time]
+            return self.settings[channel_name]['delay_time']
 
         elif isinstance(channel_name_or_int, int):
             channel_num = channel_name_or_int
             for key, value in self.settings:
                 if isinstance(value, dict) and 'channel' in value.keys() and value['channel'] == channel_num:
-                    return self.settings[key][delay_time]
+                    return self.settings[key]['delay_time']
 
         raise AttributeError('Could not find delay of channel name or number: {s}'.format(str(channel_name_or_int)))
 
@@ -119,7 +118,7 @@ class PulseBlaster(Instrument):
         assert min_pulse_time >= 0, 'pulse with negative start time detected, that is not a valid pulse'
 
         # add delays to each pulse
-        delayed_pulse_collection = [self.Pulse(pulse.channel_id,
+        delayed_pulse_collection = [Pulse(pulse.channel_id,
                                                pulse.start_time - self.get_delay(pulse.channel_id),
                                                pulse.duration)
                                     for pulse in pulse_collection]
@@ -127,7 +126,7 @@ class PulseBlaster(Instrument):
         # make sure the pulses start at same time as min_pulse_time
         delayed_min_pulse_time = np.min([pulse.start_time for pulse in delayed_pulse_collection])
         if delayed_min_pulse_time < min_pulse_time:
-            delayed_pulse_collection = [self.Pulse(pulse.channel_id,
+            delayed_pulse_collection = [Pulse(pulse.channel_id,
                                                    pulse.start_time - delayed_min_pulse_time + min_pulse_time,
                                                    pulse.duration)
                                         for pulse in delayed_pulse_collection]
@@ -240,38 +239,12 @@ class B26PulseBlaster(PulseBlaster):
     def read_probes(self):
         pass
 
-
-    def include_delays(self, pulse_collection):
-        pass
-
-    def run_program(self):
-        pass
-
-    # def create_physical_pulse_seq(self, pulse_collection):
-    #
-    #     return self.channel2name(super(B26PulseBlaster, self).create_physical_pulse_seq(pulse_collection))
-
     def get_name(self, channel):
         for key, value in self.settings:
             if 'channel' in value.keys() and value['channel'] == channel:
                 return key
 
         raise AttributeError('Could not find instrument name attached to channel {s}'.format(channel))
-
-    def get_channel(self, channel_id):
-        if channel_id in self.settings.keys():
-            return self.settings[channel_id]['channel']
-
-        else:
-            raise AttributeError('Could not find channel for instrument {s}'.format(channel_id))
-
-    def get_delay(self, channel_id):
-        if isinstance(channel_id, str):
-            return self.settings[channel_id]['delay_time']
-        else:
-            for key, value in self.settings:
-                if 'channel' in value.keys() and value['channel'] == channel_id:
-                    return self.settings[channel_id]['delay_time']
 
 if __name__=='__main__':
 

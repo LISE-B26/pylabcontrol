@@ -96,4 +96,13 @@ class TestPulseBlaster(TestCase):
                     self.assertTrue(pulse_2.start_time < pulse_1.start_time + pulse_1.duration)
 
     def test_pulseblaster_conversion(self):
-        print(self.pb.generate_pb_sequence(self.pulses))
+        correct_commands = [self.pb.PBStateChange(channel_bits=1, time=1000.0),
+                            self.pb.PBStateChange(channel_bits=0, time=500.0),
+                            self.pb.PBStateChange(channel_bits=20, time=100.0),
+                            self.pb.PBStateChange(channel_bits=0, time=150.0),
+                            self.pb.PBStateChange(channel_bits=24, time=100),
+                            self.pb.PBStateChange(channel_bits=0, time=150.0),
+                            self.pb.PBStateChange(channel_bits=3, time=10.0),
+                            self.pb.PBStateChange(channel_bits=1, time=990.0)]
+
+        self.assertEqual(self.pb.generate_pb_sequence(self.pulses), correct_commands)
