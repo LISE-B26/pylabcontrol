@@ -5,6 +5,13 @@ from src.core import Probe
 import inspect
 
 def export_default_probes(path):
+    """
+    NOT IMPLEMENTED YET
+    tries to instantiate all the instruments that are imported in /instruments/__init__.py
+    and the probes of each instrument that could be instantiated into a .b26 file in the folder path
+    Args:
+        path: target path for .b26 files
+    """
     import src.instruments as instruments
     import inspect
 
@@ -22,6 +29,12 @@ def export_default_probes(path):
 
 
 def export_default_instruments(path):
+    """
+    tries to instantiate all the instruments that are imported in /instruments/__init__.py
+    and saves instruments that could be instantiate into a .b2 file in the folder path
+    Args:
+        path: target path for .b26 files
+    """
     import src.instruments as instruments
     import inspect
 
@@ -38,7 +51,12 @@ def export_default_instruments(path):
                 print('failed to create instrument file for: {:s}'.format(obj.__name__))
 
 def export_default_scripts(path):
-
+    """
+    tries to instantiate all the scripts that are imported in /scripts/__init__.py
+    saves each script that could be instantiated into a .b26 file in the folder path
+    Args:
+        path: target path for .b26 files
+    """
     loaded_instruments = {}
     loaded_scripts = {}
 
@@ -58,4 +76,4 @@ def export_default_scripts(path):
 
 if __name__ == '__main__':
     export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments_auto_generated\\')
-    #export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_auto_generated\\')
+    export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_auto_generated\\')

@@ -213,14 +213,14 @@ uint16_t read_settle_time(NiFpga_Session* session, NiFpga_Status* status)
 	return value;
 }
 
-void set_meas_per_pt(uint8_t value, NiFpga_Session* session, NiFpga_Status* status)
+void set_meas_per_pt(uint16_t value, NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_WriteU8(*session,NiFpga_GalvoScan_ControlU8_measurements_per_pt,value));
+	NiFpga_MergeStatus(status, NiFpga_WriteU16(*session,NiFpga_GalvoScan_ControlU16_measurements_per_pt,value));
 }
-uint8_t read_meas_per_pt(NiFpga_Session* session, NiFpga_Status* status)
+uint16_t read_meas_per_pt(NiFpga_Session* session, NiFpga_Status* status)
 {
-	uint8_t value;
-	NiFpga_MergeStatus(status, NiFpga_ReadU8(*session,NiFpga_GalvoScan_ControlU8_measurements_per_pt,&value));
+	uint16_t value;
+	NiFpga_MergeStatus(status, NiFpga_ReadU16(*session,NiFpga_GalvoScan_ControlU16_measurements_per_pt,&value));
 	return value;
 }
 
@@ -228,6 +228,14 @@ void set_piezo_voltage(int16_t value, NiFpga_Session* session, NiFpga_Status* st
 {
 	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_GalvoScan_ControlI16_Connector1AO2,value));
 }
+int16_t read_piezo_voltage(NiFpga_Session* session, NiFpga_Status* status)
+{
+	int16_t value;
+
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_GalvoScan_ControlI16_Connector1AO2,&value));
+	return value;
+}
+
 // read parameters
 int32_t read_i(NiFpga_Session* session, NiFpga_Status* status)
 {
@@ -245,11 +253,11 @@ int32_t read_elements_written_to_dma(NiFpga_Session* session, NiFpga_Status* sta
 	return value;
 }
 
-int16_t read_detector_signal(NiFpga_Session* session, NiFpga_Status* status)
+int32_t read_detector_signal(NiFpga_Session* session, NiFpga_Status* status)
 {
-	int16_t value;
+	int32_t value;
 
-	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_GalvoScan_IndicatorI16_Detectorsignal,&value));
+	NiFpga_MergeStatus(status, NiFpga_ReadI32(*session,NiFpga_GalvoScan_IndicatorI32_Detectorsignal,&value));
 	return value;
 }
 
@@ -284,27 +292,27 @@ int32_t read_failed(NiFpga_Session* session, NiFpga_Status* status)
 size_t configure_FIFO(size_t requestedDepth, NiFpga_Session* session, NiFpga_Status* status)
 {
 	size_t actualDepth;
-	NiFpga_MergeStatus(status, NiFpga_ConfigureFifo2(*session, NiFpga_GalvoScan_TargetToHostFifoI16_DMA, requestedDepth, &actualDepth));
+	NiFpga_MergeStatus(status, NiFpga_ConfigureFifo2(*session, NiFpga_GalvoScan_TargetToHostFifoI32_DMA, requestedDepth, &actualDepth));
 	return actualDepth;
 }
 
 void start_FIFO(NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_StartFifo(*session, NiFpga_GalvoScan_TargetToHostFifoI16_DMA));
+	NiFpga_MergeStatus(status, NiFpga_StartFifo(*session, NiFpga_GalvoScan_TargetToHostFifoI32_DMA));
 }
 
 void stop_FIFO(NiFpga_Session* session, NiFpga_Status* status)
 {
-	NiFpga_MergeStatus(status, NiFpga_StopFifo(*session, NiFpga_GalvoScan_TargetToHostFifoI16_DMA));
+	NiFpga_MergeStatus(status, NiFpga_StopFifo(*session, NiFpga_GalvoScan_TargetToHostFifoI32_DMA));
 }
 
 
-void read_FIFO(int16_t* input, size_t size, NiFpga_Session* session, NiFpga_Status* status,size_t* elementsRemaining)
+void read_FIFO(int32_t* input, size_t size, NiFpga_Session* session, NiFpga_Status* status,size_t* elementsRemaining)
 {
 	/* copy FIFO data from the FPGA */
 	NiFpga_MergeStatus(status,
-					   NiFpga_ReadFifoI16(*session,
-							   	   	   	  NiFpga_GalvoScan_TargetToHostFifoI16_DMA,
+					   NiFpga_ReadFifoI32(*session,
+							   	   	   	  NiFpga_GalvoScan_TargetToHostFifoI32_DMA,
 										  input,
 										  size,
 										  NiFpga_InfiniteTimeout,

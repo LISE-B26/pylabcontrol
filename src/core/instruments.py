@@ -165,7 +165,6 @@ class Instrument(object):
         Args:
             filename: path of file
         """
-        print('ZZZ', filename)
         save_b26_file(filename, instruments = self.to_dict())
 
     @staticmethod

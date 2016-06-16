@@ -120,6 +120,12 @@ except:
     print("./src/scripts/__init__ warning! AutoFocusNIFPGA did not load")
 
 
+try:
+    from galvo_scan_ni_fpga_loop import GalvoScanNIFPGALoop
+except:
+    print("./src/scripts/__init__ warning! GalvoScanNIFPGALoop did not load")
+
+
 # try:
 #     from Multiple_ESR import ESR_Selected_NVs_Simple
 # except:
