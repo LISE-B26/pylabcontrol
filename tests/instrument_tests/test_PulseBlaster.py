@@ -10,15 +10,13 @@ class TestPulseBlaster(TestCase):
     def setUp(self):
         self.pb = B26PulseBlaster()
 
-        self.Pulse = namedtuple('Pulse', ('channel_id', 'start_time', 'duration'))
-
-        self.pulses = [self.Pulse('laser', 0, 1E3),
-                       self.Pulse('microwave_switch', 1.5E3, 100),
-                       self.Pulse('microwave_p', 1.5E3, 100),
-                       self.Pulse('microwave_switch', 1750, 100),
-                       self.Pulse('microwave_q', 1750, 100),
-                       self.Pulse('laser', 2E3, 1E3),
-                       self.Pulse('apd_readout', 2E3, 10)]
+        self.pulses = [Pulse('laser', 0, 1E3),
+                       Pulse('microwave_switch', 1.5E3, 100),
+                       Pulse('microwave_p', 1.5E3, 100),
+                       Pulse('microwave_switch', 1750, 100),
+                       Pulse('microwave_q', 1750, 100),
+                       Pulse('laser', 2E3, 1E3),
+                       Pulse('apd_readout', 2E3, 10)]
 
     def tearDown(self):
         pass
@@ -56,7 +54,7 @@ class TestPulseBlaster(TestCase):
             pulses = []
             instrument_choices = ['laser', 'microwave_switch', 'microwave_q', 'microwave_p', 'apd_readout']
             while len(pulses) < num_pulses:
-                new_pulse = self.Pulse(np.random.choice(instrument_choices), np.random.randint(0,2000), np.random.randint(0,2000))
+                new_pulse = Pulse(np.random.choice(instrument_choices), np.random.randint(0,2000), np.random.randint(0,2000))
 
                 pulses.append(new_pulse)
 
@@ -68,13 +66,13 @@ class TestPulseBlaster(TestCase):
     def test_overlapping_pulses_finding(self):
         self.assertFalse(B26PulseBlaster.find_overlapping_pulses(self.pulses))
 
-        pulses = [self.Pulse('laser', 0, 1E3),
-                  self.Pulse('microwave_switch', 1.5E3, 100),
-                  self.Pulse('microwave_p', 1.5E3, 100),
-                  self.Pulse('microwave_switch', 1750, 100),
-                  self.Pulse('microwave_q', 1750, 100),
-                  self.Pulse('laser', 0.5E3, 1E3),
-                  self.Pulse('apd_readout', 2E3, 10)]
+        pulses = [Pulse('laser', 0, 1E3),
+                  Pulse('microwave_switch', 1.5E3, 100),
+                  Pulse('microwave_p', 1.5E3, 100),
+                  Pulse('microwave_switch', 1750, 100),
+                  Pulse('microwave_q', 1750, 100),
+                  Pulse('laser', 0.5E3, 1E3),
+                  Pulse('apd_readout', 2E3, 10)]
 
         self.assertEqual(B26PulseBlaster.find_overlapping_pulses(pulses), [(pulses[0], pulses[5])])
 
@@ -83,7 +81,7 @@ class TestPulseBlaster(TestCase):
             pulses = []
             instrument_choices = ['laser', 'microwave_switch', 'microwave_q', 'microwave_p', 'apd_readout']
             for j in range(num_pulses):
-                new_pulse = self.Pulse(channel_id=np.random.choice(instrument_choices),
+                new_pulse = Pulse(channel_id=np.random.choice(instrument_choices),
                                        start_time=np.random.randint(0, 2000),
                                        duration=np.random.randint(0, 2000))
 
@@ -96,3 +94,6 @@ class TestPulseBlaster(TestCase):
                     self.assertTrue(pulse_2 in pulses)
                     self.assertTrue(pulse_1.start_time < pulse_2.start_time + pulse_2.duration)
                     self.assertTrue(pulse_2.start_time < pulse_1.start_time + pulse_1.duration)
+
+    def test_pulseblaster_conversion(self):
+        print(self.pb.generate_pb_sequence(self.pulses))

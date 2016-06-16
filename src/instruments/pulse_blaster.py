@@ -72,14 +72,18 @@ class PulseBlaster(Instrument):
             position
 
         """
+        # put pulses into a dictionary, where key=channel_id and value = list of (start_time, end_time) for each pulse
         pulse_dict = {}
         for pulse in pulse_collection:
             pulse_dict.setdefault(pulse.channel_id, []).append((pulse.start_time,
                                                                 pulse.start_time + pulse.duration))
 
+        # for every channel_id, check every pair of pulses to see if they overlap
         overlapping_pulses = []
         for pulse_id, time_interval_list in pulse_dict.iteritems():
             for time_interval_pair in itertools.combinations(time_interval_list, 2):
+
+                #this is the overlap condition for two pulses
                 if time_interval_pair[0][0] < time_interval_pair[1][1] and time_interval_pair[1][0] < \
                         time_interval_pair[0][1]:
                     overlapping_pulse_1 = Pulse(pulse_id, time_interval_pair[0][0],
@@ -87,6 +91,7 @@ class PulseBlaster(Instrument):
                     overlapping_pulse_2 = Pulse(pulse_id, time_interval_pair[1][0],
                                                 time_interval_pair[1][1] - time_interval_pair[1][0])
 
+                    # if we find an overlap, add them to our list in ascending order of start_time
                     if overlapping_pulse_1.start_time < overlapping_pulse_2.start_time:
                         overlapping_pulses.append((overlapping_pulse_1, overlapping_pulse_2))
                     else:
@@ -108,18 +113,19 @@ class PulseBlaster(Instrument):
 
         """
 
+        # find the start time of the earliest pulse
         min_pulse_time = np.min([pulse.start_time for pulse in pulse_collection])
 
         assert min_pulse_time >= 0, 'pulse with negative start time detected, that is not a valid pulse'
 
+        # add delays to each pulse
         delayed_pulse_collection = [self.Pulse(pulse.channel_id,
                                                pulse.start_time - self.get_delay(pulse.channel_id),
                                                pulse.duration)
                                     for pulse in pulse_collection]
 
-        # make sure the pulses start at 0 time
+        # make sure the pulses start at same time as min_pulse_time
         delayed_min_pulse_time = np.min([pulse.start_time for pulse in delayed_pulse_collection])
-
         if delayed_min_pulse_time < min_pulse_time:
             delayed_pulse_collection = [self.Pulse(pulse.channel_id,
                                                    pulse.start_time - delayed_min_pulse_time + min_pulse_time,
@@ -130,35 +136,62 @@ class PulseBlaster(Instrument):
         return delayed_pulse_collection
 
     def generate_pb_sequence(self, pulse_collection):
+        """
+        Creates a (ordered) list of PBStateChange objects for use with the pulseblaster API from a collection
+        of Pulse's. Specifically, generate_pb_sequence generates a corresponding sequence of (bitstring, duration)
+        objects that indicate the channels to keep on and for how long before the next instruction.
 
+        Args:
+            pulse_collection: An iterable collection of Pulse's
+
+        Returns:
+            A (ordered) list of PBStateChange objects that indicate what bitstrings to turn on at what times.
+
+        """
+
+        # Create a dictionary with key=time and val=list of channels to toggle at that time
+        # Note: we do not specifically keep track of whether we toggle on or off at a given time (is not necessary)
         pb_command_dict = {}
         for pulse in pulse_collection:
-            pb_command_dict.setdefault(pulse.start_time, []).append(1 << self.settings[pulse.name]['channel'])
+            pb_command_dict.setdefault(pulse.start_time, []).append(1 << self.settings[pulse.channel_id]['channel'])
             pulse_end_time = pulse.start_time + pulse.duration
-            pb_command_dict.setdefault(pulse_end_time, []).append(1 << self.settings[pulse.name]['channel'])
+            pb_command_dict.setdefault(pulse_end_time, []).append(1 << self.settings[pulse.channel_id]['channel'])
 
+        # Make sure we have a command at time=0, teh command to have nothing on.
         if 0 not in pb_command_dict.keys():
             pb_commend_dict[0] = 0
 
+        # For each time, combine all of the channels we need to toggle into a single bit string, and add it to a
+        # command list of PBStateChange objects
         pb_command_list = []
         for time, bit_strings  in pb_command_dict.iteritems():
             channel_bits = np.bitwise_or.reduce(bit_strings)
             pb_command_list.append(self.PBStateChange(channel_bits, time))
 
-
-
+        # sort the list by the time a command needs to be placed
         pb_command_list.sort(key=lambda x: x.time)
 
-        def change_to_propogating_signal(self, state_change_collection):
+        def change_to_propogating_signal(state_change_collection):
 
-            for i in range(1, len(state_change_collection)):
-                new_channel_bits = state_change_collection[i-1].channel_bits ^ state_change_collection[i].channel_bits
-                time_between_change = state_change_collection[i].time - state_change_collection[i-1].time
-                state_change_collection[i] = self.StateChange(time_between_change, new_channel_bits)
+            propogating_state_changes = []
+            for i in range(0, len(state_change_collection)-1):
 
-            return state_change_collection
+                # for the first command, just take the bitstring of the first element
+                if i == 0:
+                    new_channel_bits = state_change_collection[0].channel_bits
 
+                # otherwise, xor with the previous bitstring we computed (in propogating_state_changes)
+                else:
+                    new_channel_bits = propogating_state_changes[i-1].channel_bits ^ state_change_collection[i].channel_bits
 
+                time_between_change = state_change_collection[i+1].time - state_change_collection[i].time
+                propogating_state_changes.append(self.PBStateChange(new_channel_bits, time_between_change))
+
+            return propogating_state_changes
+
+        # change this list so that instead of absolute times, they are durations, and the bitstrings properly propogate
+        # i.e., if we want to keep channel 0 on at t = 1000 but now want to turn on channel 4, our bitstring would be
+        # 10001 = 17 for the command at this time.
         pb_command_list = change_to_propogating_signal(pb_command_list)
 
         return pb_command_list
