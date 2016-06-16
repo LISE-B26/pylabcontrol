@@ -1,6 +1,5 @@
 from src.core import Instrument, Parameter
 from collections import namedtuple
-import Queue.PriorityQueue as PriorityQueue
 import numpy as np
 
 class PulseBlaster(Instrument):
@@ -37,8 +36,8 @@ class PulseBlaster(Instrument):
 
     def __init__(self, name = None, settings = None):
         super(PulseBlaster, self).__init__(name, settings)
-        self.Pulse = namedtuple('Pulse', ('instrument_name', 'start_time', 'pulse_duration'))
-        self.PBStateChange = namedtuple(PBStateChange, ('channel_bits', 'time'))
+        self.Pulse = namedtuple('Pulse', ('instrument_name', 'start_time', 'duration'))
+        self.PBStateChange = namedtuple('PBStateChange', ('channel_bits', 'time'))
 
 
     def update(self, settings):
@@ -68,14 +67,16 @@ class PulseBlaster(Instrument):
 
         """
 
-        delayed_pulse_collection = [self.Pulse(pulse.name, pulse.start_time - self.get_delay(pulse.name), pulse.duration)
+        delayed_pulse_collection = [self.Pulse(pulse.instrument_name,
+                                               pulse.start_time - self.get_delay(pulse.instrument_name),
+                                               pulse.duration)
                                     for pulse in pulse_collection]
 
         # make sure the pulses start at 0 time
         min_pulse_time = min(map(lambda pulse: pulse.start_time, delayed_pulse_collection))
 
         if min_pulse_time < 0:
-            delayed_pulse_collection = [self.Pulse(pulse.name,
+            delayed_pulse_collection = [self.Pulse(pulse.instrument_name,
                                                    pulse.start_time - min_pulse_time,
                                                    pulse.duration)
                                         for pulse in delayed_pulse_collection]
@@ -84,8 +85,8 @@ class PulseBlaster(Instrument):
         return delayed_pulse_collection
 
     def generate_pb_sequence(self, pulse_collection):
-        pb_command_dict = {}
 
+        pb_command_dict = {}
         for pulse in pulse_collection:
             pb_command_dict.setdefault(pulse.start_time, default = []).append(1 << self.settings[pulse.name]['channel'])
             pulse_end_time = pulse.start_time + pulse.duration
@@ -110,21 +111,6 @@ class PulseBlaster(Instrument):
         pb_command_list = change_to_propogating_signal(pb_command_list)
 
         return pb_command_list
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class B26PulseBlaster(PulseBlaster):
@@ -202,14 +188,6 @@ class B26PulseBlaster(PulseBlaster):
             for key, value in self.settings:
                 if 'channel' in value.keys() and value['channel'] == chan_num_or_instrument_name:
                     return self.settings[chan_num_or_instrument_name]['delay_time']
-
-    def name2channel(self, pulse_collection):
-        return [self.Pulse(self.get_channel(pulse.name), pulse.start_time, pulse.duration)
-                            for pulse in pulse_collection]
-
-    def channel2name(self, pulse_collection):
-        return [self.Pulse(self.get_name(pulse.name), pulse.start_time, pulse.duration)
-                            for pulse in pulse_collection]
 
 
 
