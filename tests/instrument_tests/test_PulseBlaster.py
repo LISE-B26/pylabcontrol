@@ -38,8 +38,9 @@ class TestPulseBlaster(TestCase):
                             'apd_readout':{'delay_time': delay['apd_readout']},
                             'microwave_q':{'delay_time': delay['microwave_q']}})
 
+            previous_start_time = np.min([pulse.start_time for pulse in pulses])
             earliest_pulse_time = np.min([pulse.start_time - delay[pulse.channel_id] for pulse in pulses])
-            global_shift = -1.0 * np.min([0, earliest_pulse_time])
+            global_shift = -1.0 * np.min([0, earliest_pulse_time]) + previous_start_time
 
             physical_pulse_seq = self.pb.create_physical_pulse_seq(pulses)
 
@@ -51,21 +52,20 @@ class TestPulseBlaster(TestCase):
         test_delays(delay, self.pulses)
 
         for i in range(10):
-            num_pulses = 10
+            num_pulses = 12
             pulses = []
             instrument_choices = ['laser', 'microwave_switch', 'microwave_q', 'microwave_p', 'apd_readout']
-            while len(pulses) < 10:
+            while len(pulses) < num_pulses:
                 new_pulse = self.Pulse(np.random.choice(instrument_choices), np.random.randint(0,2000), np.random.randint(0,2000))
 
-                if len(B26PulseBlaster.find_overlapping_pulses(pulses + [new_pulse])) == 0:
-                    pulses.append(new_pulse)
+                pulses.append(new_pulse)
 
             for instrument in instrument_choices:
                 delay[instrument] = np.random.randint(0,2000)
 
             test_delays(delay, pulses)
 
-    def test_overlapping_pulses(self):
+    def test_overlapping_pulses_finding(self):
         self.assertFalse(B26PulseBlaster.find_overlapping_pulses(self.pulses))
 
         pulses = [self.Pulse('laser', 0, 1E3),
@@ -82,9 +82,10 @@ class TestPulseBlaster(TestCase):
             num_pulses = 12
             pulses = []
             instrument_choices = ['laser', 'microwave_switch', 'microwave_q', 'microwave_p', 'apd_readout']
-            while len(pulses) < num_pulses:
-                new_pulse = self.Pulse(np.random.choice(instrument_choices), np.random.randint(0, 2000),
-                                       np.random.randint(0, 2000))
+            for j in range(num_pulses):
+                new_pulse = self.Pulse(channel_id=np.random.choice(instrument_choices),
+                                       start_time=np.random.randint(0, 2000),
+                                       duration=np.random.randint(0, 2000))
 
                 pulses.append(new_pulse)
 
@@ -93,3 +94,5 @@ class TestPulseBlaster(TestCase):
                 for pulse_1, pulse_2 in overlapping_pulses:
                     self.assertTrue(pulse_1 in pulses)
                     self.assertTrue(pulse_2 in pulses)
+                    self.assertTrue(pulse_1.start_time < pulse_2.start_time + pulse_2.duration)
+                    self.assertTrue(pulse_2.start_time < pulse_1.start_time + pulse_1.duration)

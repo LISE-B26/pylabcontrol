@@ -60,6 +60,18 @@ class PulseBlaster(Instrument):
 
     @staticmethod
     def find_overlapping_pulses(pulse_collection):
+        """
+        Finds all overlapping pulses in a collection of pulses, and returns the clashing pulses. Note that only pulses
+        with the same channel_id can be overlapping.
+
+        Args:
+            pulse_collection: An iterable collection of Pulse objects
+
+        Returns:
+            A list of length-2 tuples of overlapping pulses. Each pair of pulses has the earlier pulse in the first
+            position
+
+        """
         pulse_dict = {}
         for pulse in pulse_collection:
             pulse_dict.setdefault(pulse.channel_id, []).append((pulse.start_time,
@@ -85,16 +97,20 @@ class PulseBlaster(Instrument):
 
     def create_physical_pulse_seq(self, pulse_collection):
         """
+        Creates the physical pulse sequence from a pulse_collection, adding delays to each pulse, and ensuring the first
+        pulse starts at time = 0.
 
         Args:
-            pulse_collection: A collection of pulses, named tuples with (name, start_time, pulse_duration)
+            pulse_collection: An iterable collection of pulses, named tuples with (name, start_time, pulse_duration)
 
         Returns:
+            A list of pulses.
 
         """
 
-        overlapping_pulses = B26PulseBlaster.find_overlapping_pulses(pulse_collection)
-        assert len(overlapping_pulses) == 0, "Could not proceed, found overlapping pulses: {0}".format(str(overlapping_pulses))
+        min_pulse_time = np.min([pulse.start_time for pulse in pulse_collection])
+
+        assert min_pulse_time >= 0, 'pulse with negative start time detected, that is not a valid pulse'
 
         delayed_pulse_collection = [self.Pulse(pulse.channel_id,
                                                pulse.start_time - self.get_delay(pulse.channel_id),
@@ -102,11 +118,11 @@ class PulseBlaster(Instrument):
                                     for pulse in pulse_collection]
 
         # make sure the pulses start at 0 time
-        min_pulse_time = min(map(lambda pulse: pulse.start_time, delayed_pulse_collection))
+        delayed_min_pulse_time = np.min([pulse.start_time for pulse in delayed_pulse_collection])
 
-        if min_pulse_time < 0:
+        if delayed_min_pulse_time < min_pulse_time:
             delayed_pulse_collection = [self.Pulse(pulse.channel_id,
-                                                   pulse.start_time - min_pulse_time,
+                                                   pulse.start_time - delayed_min_pulse_time + min_pulse_time,
                                                    pulse.duration)
                                         for pulse in delayed_pulse_collection]
 
@@ -119,20 +135,26 @@ class PulseBlaster(Instrument):
         for pulse in pulse_collection:
             pb_command_dict.setdefault(pulse.start_time, []).append(1 << self.settings[pulse.name]['channel'])
             pulse_end_time = pulse.start_time + pulse.duration
-            pb_command_dict.setdefault(pulse.end_time,  []).append(1 << self.settings[pulse.name]['channel'])
+            pb_command_dict.setdefault(pulse_end_time, []).append(1 << self.settings[pulse.name]['channel'])
+
+        if 0 not in pb_command_dict.keys():
+            pb_commend_dict[0] = 0
 
         pb_command_list = []
-        for time, bit_strings  in pb_command_dict:
+        for time, bit_strings  in pb_command_dict.iteritems():
             channel_bits = np.bitwise_or.reduce(bit_strings)
             pb_command_list.append(self.PBStateChange(channel_bits, time))
+
+
 
         pb_command_list.sort(key=lambda x: x.time)
 
         def change_to_propogating_signal(self, state_change_collection):
 
             for i in range(1, len(state_change_collection)):
-                new_channel_bits = state_change_collection[i - 1] ^ state_change_collection[i]
-                state_change_collection[i] = self.StateChange(state_change_collection[i].time, new_channel_bits)
+                new_channel_bits = state_change_collection[i-1].channel_bits ^ state_change_collection[i].channel_bits
+                time_between_change = state_change_collection[i].time - state_change_collection[i-1].time
+                state_change_collection[i] = self.StateChange(time_between_change, new_channel_bits)
 
             return state_change_collection
 
