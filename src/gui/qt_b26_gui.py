@@ -360,6 +360,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if item is not None:
                 script, path_to_script, script_item = item.get_script()
+
                 self.update_script_from_item(script_item)
                 script.data_path = self.gui_settings['data_folder']
                 self.log('starting {:s}'.format(script.name))

@@ -247,12 +247,11 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             while parent is not None:
                 if isinstance(parent.value, Script):
                     script = parent.value
-                    parent = None
                     script_item = parent
+                    parent = None
                 else:
                     path_to_script.append(parent.name)
                     parent = parent.parent()
-
         return script, path_to_script, script_item
 
     def get_subscript(self, sub_script_name):
