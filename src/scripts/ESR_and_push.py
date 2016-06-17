@@ -5,7 +5,8 @@ from matplotlib import patches
 from src.core import Script, Parameter
 from src.scripts import ESR_Selected_NVs, Refind_NVs, AttoStep, GalvoScanWithLightControl
 import time
-
+import os
+import psutil
 #CHANGE ALL RUN TO START
 
 class ESR_And_Push(Script, QThread):
@@ -157,6 +158,9 @@ class ESR_And_Push(Script, QThread):
             self.scripts['ESR_Selected_NVs'].updateProgress.disconnect(self._receive_signal)
 
             step_num += 1
+            process = psutil.Process(os.getpid())
+            mem = int(process.memory_info().rss)/1e3
+            self.log('current memory usage (kbytes): {:0.3e}'.format(mem))
 
 
         self.data['ESR_freqs'] = self.scripts['ESR_Selected_NVs'].data['ESR_freqs']

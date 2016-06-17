@@ -24,6 +24,11 @@ import sys
 
 import datetime
 from collections import deque
+
+
+
+
+import matplotlib._pylab_helpers
 # from src.core import instantiate_probes
 
 #from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, StanfordResearch_ESR, Find_Points, Select_NVs, ESR_Selected_NVs
@@ -220,7 +225,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             except RuntimeError:
                 pass
 
-        # following is outdated: now we want to have independent instrument settings in the scripts
+        if current_tab == 'Instruments':
+            self.refresh_instruments()
+        #     # rebuild script- tree because intruments might have changed
+        #     self.tree_scripts.itemChanged.disconnect()
+        #     self.fill_tree(self.tree_scripts, self.scripts)
+        #     self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+
+                # following is outdated: now we want to have independent instrument settings in the scripts
         # if current_tab == 'Scripts':
         #     # rebuild script- tree because intruments might have changed
         #     self.tree_scripts.itemChanged.disconnect()
@@ -359,6 +371,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
             if item is not None:
+
+                # clear the figure, this is need to avoid memory problems - doesn't work
+                # self.create_figures()
+
                 script, path_to_script, script_item = item.get_script()
 
                 self.update_script_from_item(script_item)
@@ -442,7 +458,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 item = self.tree_scripts.currentItem()
                 if item is not None:
                     script, path_to_script, _ = item.get_script()
-            # self.update_script_from_selected_item(script, self.tree_scripts)# jan: not sure why this is needed here....
             self.plot_script(script)
 
         if sender is self.btn_start_script:
@@ -623,6 +638,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             message = 'property plot_type = {:s} not correct for this script ({:s})!'.format(str(script.plot_type), script.name)
             raise AttributeError(message)
 
+
     def update_status(self, progress):
         """
         waits for a signal emitted from a thread and updates the gui
@@ -655,7 +671,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if isinstance(script, QThreadWrapper):
             script = script.script
         self.plot_script(script)
-
 
         if progress == 100:
             # self.refresh_tree(self.tree_scripts, self.scripts)
@@ -1040,3 +1055,7 @@ class MatplotlibWidget(Canvas):
 
     def minimumSizeHint(self):
         return QtCore.QSize(10, 10)
+
+    # def closeEvent(self, event):
+    #     gc.collect()
+    #     event.accept()

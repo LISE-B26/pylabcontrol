@@ -3,16 +3,18 @@ from src.core import Parameter, Script
 from copy import deepcopy
 from matplotlib import patches
 from src.plotting.plots_2d import plot_fluorescence
-
+import random
 # from PyQt4 import QtCore
 import numpy as np
+import os
+import psutil
 
 try:
     from src.instruments import DummyInstrument
 except:
     print('WARNING script_dummy')
 # from PyQt4 import QtCore
-from PySide.QtCore import Signal, QThread
+from PySide.QtCore import Signal, QThread, QTimer
 
 class ScriptDummy(Script):
     #This is the signal that will be emitted during the processing.
@@ -296,6 +298,85 @@ class ScriptDummyWithNestedSubScript(Script):
          axes.plot(data_set)
 
 
+class ScriptDummyPlotMemoryTest(Script, QThread):
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('datasize', 10, int, 'number of datapoints'),
+        Parameter('repetition rate (s)', 0.1, float, 'time in between iterations'),
+        Parameter('data_type', 'line', ['line', '2D'], 'data visualization mode')
+    ])
+
+    _INSTRUMENTS = {}
+    _SCRIPTS = {}
+    updateProgress = Signal(int)
+    def __init__(self, scripts = None, name = None, settings = None, log_function = None, data_path = None):
+        """
+        Example of a script that makes use of an instrument
+        Args:
+            scripts: suscript that will be excecuted by this script
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+
+        # call init of superclass
+        Script.__init__(self, name, settings, scripts = scripts, log_function= log_function, data_path = data_path)
+
+        QThread.__init__(self)
+        self._plot_type = 'two'
+        self.data = {'data': [], 'memory': []}
+
+
+    def _function(self):
+        """
+        This is the actual function that will be executed. It uses only information that is provided in _DEFAULT_SETTINGS
+        for this dummy example we just implement a counter
+        """
+        self._abort = False
+        import time
+        memory = []
+        timestep = self.settings['repetition rate (s)']
+
+        while self._abort == False:
+            data = [random.random() for _ in range(self.settings['datasize'])]
+
+            process = psutil.Process(os.getpid())
+            memory.append(int(process.memory_info().rss))
+            self.data = {'data' : data, 'memory':memory}
+            self.updateProgress.emit(50)
+            self.msleep(1000*timestep)
+            # print(memory)
+
+
+
+        self.updateProgress.emit(100)
+
+    def stop(self):
+        self._abort = True
+    def get_axes(self, figure_data, figure_memory):
+        """
+        returns the axes objects the script needs to plot its data
+        """
+
+        figure_data.clf()
+        axes1 = figure_data.add_subplot(111)
+        figure_memory.clf()
+        axes2 = figure_memory.add_subplot(111)
+
+        return axes1, axes2
+
+    def plot(self, figure_memory, figure_data):
+        axes_data, axes_memory = self.get_axes(figure_data, figure_memory)
+
+        if self.settings['data_type'] == 'line':
+            axes_data.plot(self.data['data'])
+        elif self.settings['data_type'] == '2D':
+            Nx = int(np.sqrt(len(self.data['data'])))
+            img = np.array(self.data['data'][0:Nx**2])
+            img = img.reshape((Nx, Nx))
+            # print(img)
+            plot_fluorescence(img, [-1,1,1,-1], axes_data)
+
+        axes_memory.plot(self.data['memory']/1000)
 
 class ScriptDummySaveData(Script):
     """
