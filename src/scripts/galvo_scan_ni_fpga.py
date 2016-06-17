@@ -70,22 +70,24 @@ class GalvoScanNIFpga(Script, QThread):
 
         def print_diagnostics():
             print(unicode(datetime.datetime.now()))
-            diagnostics = {
-                'acquire': instr.acquire,
-                'elements_written_to_dma': instr.elements_written_to_dma,
-                'DMATimeOut': instr.acquire,
-                'ix': instr.ix,
-                'iy': instr.iy,
-                'detector_signal': instr.detector_signal,
-                'Nx': instr.Nx,
-                'Ny': instr.Ny,
-                'running': instr.running,
-                'DMA_elem_to_write': instr.DMA_elem_to_write,
-                'loop_time': instr.loop_time,
-                'meas_per_pt': instr.meas_per_pt,
-                'settle_time': instr.settle_time,
-                'failed': instr.failed
-            }
+            # diagnostics = {
+            #     'acquire': instr.acquire,
+            #     'elements_written_to_dma': instr.elements_written_to_dma,
+            #     'DMATimeOut': instr.acquire,
+            #     'ix': instr.ix,
+            #     'iy': instr.iy,
+            #     'detector_signal': instr.detector_signal,
+            #     'Nx': instr.Nx,
+            #     'Ny': instr.Ny,
+            #     'running': instr.running,
+            #     'DMA_elem_to_write': instr.DMA_elem_to_write,
+            #     'loop_time': instr.loop_time,
+            #     'meas_per_pt': instr.meas_per_pt,
+            #     'settle_time': instr.settle_time,
+            #     'failed': instr.failed
+            # }
+
+            diagnostics = instr.read_probes()
 
             print(diagnostics)
 
@@ -188,8 +190,8 @@ class GalvoScanNIFpga(Script, QThread):
 if __name__ == '__main__':
     script, failed, instruments = Script.load_and_append(script_dict={'GalvoScanNIFpga': 'GalvoScanNIFpga'})
 
-    print(script)
-    print(failed)
+    print('script',script)
+    print('failed', failed)
     gs = script['GalvoScanNIFpga']
     print(gs)
 

@@ -70,20 +70,34 @@ class Instrument(object):
         pass
 
     @abstractmethod
-    def read_probes(self, key):
+    def read_probes(self, key = None):
         """
-        requestes value from the instrument and returns it
+        function is overloaded:
+            - read_probes()
+            - read_probes(key)
+
         Args:
             key: name of requested value
 
-        Returns: reads values from instrument
+        Returns:
+            - if called without argument: returns the values of all probes in dictionary form
+            - if called with argument: returns the value the requested key
 
         """
-        assert key in self._PROBES.keys()
 
-        value = None
+        if key is None:
+            # return the value all probe in dictionary form
+            d = {}
+            for k in self._PROBES.keys():
+                d[k] = self.read_probes(k)
+            return d
+        else:
+            # return the value of the requested key if the key corresponds to a valid probe
+            assert key in self._PROBES.keys()
 
-        return value
+            value = None
+
+            return value
 
     # @abstractproperty
     @property

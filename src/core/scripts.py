@@ -925,7 +925,7 @@ class Script(object):
         # create new axes objects if script was just started (self._plot_refresh == True) or
         # if script is not running (self.is_running == False)
         # otherwise just return references to existing axes objects
-        if self._plot_refresh == True or self.is_running == False:
+        if self.is_running == False or self._plot_refresh == True:
             figure1.clf()
             axes1 = figure1.add_subplot(111)
 

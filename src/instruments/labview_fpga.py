@@ -321,7 +321,9 @@ class NI7845RGalvoScan(Instrument):
         Parameter('scanmode_y', 'forward', ['forward', 'backward'], 'direction of scan (y)'),
         Parameter('detector_mode', 'APD', ['APD', 'DC', 'RMS'], 'return mean (DC) or rms of detector signal'),
         Parameter('piezo', 0.0, float, 'output voltage for piezo'),
-        Parameter('piezo_gain', 10.0, [1.0, 7.5, 10.0, 15.0], 'gain factor for the piezo controller ')
+        Parameter('piezo_gain', 10.0, [1.0, 7.5, 10.0, 15.0], 'gain factor for the piezo controller '),
+        Parameter('galvo_x', 0.0, float, 'output voltage for galvo channel x'),
+        Parameter('galvo_y', 0.0, float, 'output voltage for galvo channel y'),
     ])
 
     _PROBES = {
@@ -355,11 +357,15 @@ class NI7845RGalvoScan(Instrument):
         print('stopping fpga {:s}'.format(self.name))
         #define NiFpga_GalvoScan_Bitfile "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\src\\labview_fpga_lib\\galvo_scan\\NiFpga_GalvoScan.lvbitx" stop()
 
-    def read_probes(self, key):
-        assert key in self._PROBES.keys(), "key assertion failed %s" % str(key)
-        if key == 'ElementsWritten':
-            key = 'elements_written_to_dma'
-        value = getattr(self.FPGAlib, 'read_{:s}'.format(key))(self.fpga.session, self.fpga.status)
+    def read_probes(self, key = None):
+
+        if key is None:
+            super(NI7845RGalvoScan, self).read_probes()
+        else:
+            assert key in self._PROBES.keys(), "key assertion failed %s" % str(key)
+            # if key == 'ElementsWritten':
+            #     key = 'elements_written_to_dma'
+            value = getattr(self.FPGAlib, 'read_{:s}'.format(key))(self.fpga.session, self.fpga.status)
         return value
 
     @staticmethod
@@ -428,8 +434,10 @@ class NI7845RGalvoScan(Instrument):
                 getattr(self.FPGAlib, 'set_dVmin_y')(dVmin_y, self.fpga.session, self.fpga.status)
             elif key in ['piezo', 'piezo_gain']:
                 v = volt_2_bit(self.settings['piezo']/self.settings['piezo_gain'])
-                print('=======> voltage piezo', v)
                 getattr(self.FPGAlib, 'set_piezo_voltage')(v, self.fpga.session, self.fpga.status)
+            elif key in ['galvo_x', 'galvo_x']:
+                v = volt_2_bit(self.settings[key])
+                getattr(self.FPGAlib, 'set_{:s}'.format(key))(v, self.fpga.session, self.fpga.status)
             elif key in ['scanmode_x', 'scanmode_y', 'detector_mode']:
                 index = [i for i, x in enumerate(self._DEFAULT_SETTINGS.valid_values[key]) if x == value][0]
                 getattr(self.FPGAlib, 'set_{:s}'.format(key))(index, self.fpga.session, self.fpga.status)
@@ -450,29 +458,34 @@ class NI7845RGalvoScan(Instrument):
     def stop_fifo(self):
         self.FPGAlib.stop_FIFO(self.fpga.session, self.fpga.status)
 
-    def start_acquire(self):
+    def start_acquire(self, max_attempts = 20):
         """
-        acquire a galvo scan with the parameters defined in self.settings
+        started the acquisition loop in the FPGA
+        max_attempts: maximum number of attempts to start acquisition
         Returns:
-            data of galvo scan as numpy array with dimensions Nx Ny
+            boolen that indecates wether start was successful or not
         """
 
         self.stop_fifo()
         # start fifo
         self.start_fifo()
 
-        max_attempts = 20
+
         # start scan
-        i = 0
-        while self.running == False:
+        for i in range(max_attempts):
             getattr(self.FPGAlib, 'set_acquire')(True, self.fpga.session, self.fpga.status)
-            # print('XXX', self.running)
-            i +=1
-            # wait a little before trying again
+
+            # wait a little before checking of acquisition worked
             time.sleep(0.1)
-            if i> max_attempts:
-                print('starting FPGA failed!!!')
+            started = self.running
+            if started:
+                # successfully started acquisition
                 break
+        if started == False:
+            print('starting FPGA failed after {:d} attempts!!!'.format(max_attempts))
+            print(self.read_probes())
+
+        return started
 
     def abort_acquire(self):
         getattr(self.FPGAlib, 'set_abort')(True, self.fpga.session, self.fpga.status)
@@ -509,7 +522,7 @@ if __name__ == '__main__':
     # print(fpga.settings)
     # fpga.fpga.stop()
 
+    s =NI7845RGalvoScan()
 
-    print(volt_2_bit([-10, 0, 10, 11, -12]))
 
 
