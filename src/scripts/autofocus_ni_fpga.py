@@ -206,8 +206,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             #                   max_counts=self.settings['max_counts_plot'])
             plot_fluorescence(self.data['current_image'], self.data['extent'], axis_image)
 
-        figure_focus.tight_layout()
-        figure_image.tight_layouts()
+        # figure_focus.tight_layout()
+        # figure_image.tight_layouts()
     def stop(self):
         self._abort = True
 

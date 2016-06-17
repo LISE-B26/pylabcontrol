@@ -142,7 +142,6 @@ class GalvoScanNIFpga(Script, QThread):
                 if time_sleep>0:
                     # wait time it takes acquire a point
                     time.sleep(time_sleep)
-                    print('time to sleep', time_sleep)
 
 
         if self.settings['save']:
@@ -152,7 +151,7 @@ class GalvoScanNIFpga(Script, QThread):
             self.save_image_to_disk()
 
         self.updateProgress.emit(100)
-        print(self.data)
+
     @staticmethod
     def pts_to_extent(pta, ptb, roi_mode):
         """

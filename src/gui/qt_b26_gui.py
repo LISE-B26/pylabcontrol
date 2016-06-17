@@ -363,6 +363,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 self.update_script_from_item(script_item)
                 script.data_path = self.gui_settings['data_folder']
+
                 self.log('starting {:s}'.format(script.name))
                 # is the script is not a QThread object we use the wrapper QtSCript
                 # to but it on a separate thread such that the gui remains responsive

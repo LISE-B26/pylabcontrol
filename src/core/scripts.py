@@ -277,6 +277,11 @@ class Script(object):
         '''
         self.is_running = True
         self.log_data.clear()
+
+        # update the datapath of the subscripts
+        for subscript  in self.scripts.values():
+            subscript.data_path = self.data_path
+
         self.start_time  = datetime.datetime.now()
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
         self._plot_refresh = True # flag that requests that plot axes are refreshed when self.plot is called next time
