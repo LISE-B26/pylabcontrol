@@ -130,7 +130,7 @@ class GalvoScan(Script, QThread):
 
             # sending updates every cycle leads to invalid task errors, so wait and don't overload gui
             current_time = dt.datetime.now()
-            if ((current_time - update_time).total_seconds() > 0.1):
+            if ((current_time - update_time).total_seconds() > 0.5):
                 progress = int(float(yNum + 1) / len(self.y_array) * 100)
                 self.updateProgress.emit(progress)
                 update_time = current_time

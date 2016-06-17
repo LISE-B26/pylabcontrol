@@ -27,6 +27,9 @@ class MicrowaveGenerator(Instrument):
     def __init__(self, name = None, settings = None):
 
         super(MicrowaveGenerator, self).__init__(name, settings)
+        # XXXXX MW ISSUE = START
+        #===========================================
+        # Issue where visa.ResourceManager() takes 4 minutes no longer happens after using pdb to debug (??? not sure why???)
         try:
             rm = visa.ResourceManager()
             self.srs = rm.open_resource(u'GPIB' + str(self.settings['GPIB_num']) + '::' + str(self.settings['port']) + '::INSTR')
@@ -34,8 +37,8 @@ class MicrowaveGenerator(Instrument):
         except pyvisa.errors.VisaIOError:
             print('No Microwave Controller Detected!!')
             raise
-
-
+        #XXXXX MW ISSUE = END
+        #===========================================
 
     #Doesn't appear to be necessary, can't manually make two sessions conflict, rms may share well
     # def __del__(self):
@@ -43,6 +46,8 @@ class MicrowaveGenerator(Instrument):
 
     def update(self, settings):
         super(MicrowaveGenerator, self).update(settings)
+        # XXXXX MW ISSUE = START
+        # ===========================================
         for key, value in settings.iteritems():
             if not (key == 'port' or key == 'GPIB_num'):
                 if self.settings.valid_values[key] == bool: #converts booleans, which are more natural to store for on/off, to
@@ -61,6 +66,8 @@ class MicrowaveGenerator(Instrument):
                 # only send update to instrument if connection to instrument has been established
                 if self._initialized:
                     self.srs.write(key + ' ' + str(value))
+        # XXXXX MW ISSUE = END
+        # ===========================================
 
     @property
     def _PROBES(self):

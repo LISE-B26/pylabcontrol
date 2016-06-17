@@ -5,7 +5,7 @@ from matplotlib import patches
 from src.core import Script, Parameter
 from src.plotting.plots_1d import plot_esr
 from src.plotting.plots_2d import plot_fluorescence
-from src.scripts import StanfordResearch_ESR, Select_NVs_Simple, GalvoScan, SetLaser
+from src.scripts import StanfordResearch_ESR, Select_NVs_Simple, GalvoScanWithLightControl, SetLaser
 from src.scripts import FindMaxCounts2D
 import os
 
@@ -28,7 +28,7 @@ class ESR_Selected_NVs(Script, QThread):
     _SCRIPTS = {'StanfordResearch_ESR': StanfordResearch_ESR,
                 'Find_Max': FindMaxCounts2D,
                 'select_NVs': Select_NVs_Simple,
-                'acquire_image': GalvoScan,
+                'acquire_image': GalvoScanWithLightControl,
                 'move_to_point': SetLaser}
 
     #updateProgress = Signal(int)
@@ -99,7 +99,7 @@ class ESR_Selected_NVs(Script, QThread):
 
         nv_locs = self.scripts['select_NVs'].data['nv_locations']
 
-        acquire_image = self.scripts['acquire_image']
+        acquire_image = self.scripts['acquire_image'].scripts['acquire_image']
 
         if 'image_data' not in acquire_image.data.keys():
             self.log('no image acquired!! Run subscript acquire_image first!!')
@@ -231,6 +231,7 @@ class ESR_Selected_NVs(Script, QThread):
             axes_zoomed_image.add_patch(patch)
             figure_ESR.tight_layout()
         elif self.current_stage in ('finished', 'saving'):
+            self._plot_refresh = True
             axes_image = self.get_axes(figure_image)
             image = self.data['image_data']
             extend = self.data['extent']

@@ -3,8 +3,10 @@ from PySide.QtCore import Signal, QThread
 from matplotlib import patches
 
 from src.core import Script, Parameter
-from src.scripts import ESR_Selected_NVs, Refind_NVs, AttoStep
+from src.scripts import ESR_Selected_NVs, Refind_NVs, AttoStep, GalvoScanWithLightControl
 import time
+
+#CHANGE ALL RUN TO START
 
 class ESR_And_Push(Script, QThread):
     updateProgress = Signal(int)
@@ -14,15 +16,15 @@ class ESR_And_Push(Script, QThread):
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', True, bool, 'save data on/off'),
         Parameter('number_of_step_instances', 0, int, 'number of times to do steps_per_instance steps'),
-        Parameter('steps_per_instance', 1, int, 'number of steps in between each ESR')
+        Parameter('steps_per_instance', 1, int, 'number of steps in between each ESR'),
+        Parameter('take_reflection_images', True, bool, 'Take reflection images between pushes for post processing correlation')
     ])
 
     _INSTRUMENTS = {}
     _SCRIPTS = {'ESR_Selected_NVs': ESR_Selected_NVs,
                 'AttoStep': AttoStep,
-                'Refind_NVs': Refind_NVs}
-
-    #updateProgress = Signal(int)
+                'Refind_NVs': Refind_NVs,
+                'Reflect_scan': GalvoScanWithLightControl}
 
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
@@ -48,6 +50,9 @@ class ESR_And_Push(Script, QThread):
         self.scripts['ESR_Selected_NVs'].log_function = self.log_function
         self.scripts['AttoStep'].log_function = self.log_function
         self.scripts['Refind_NVs'].log_function = self.log_function
+        self.scripts['Reflect_scan'].log_function = self.log_function
+
+        self.scripts['Reflect_scan'].settings['light_mode'] = 'reflection'
 
     def _receive_signal(self, progress_sub_script):
         # calculate progress of this script based on progress in subscript
@@ -67,39 +72,58 @@ class ESR_And_Push(Script, QThread):
         self.progress = 0
         self.current_stage = None
 
-        self.scripts['ESR_Selected_NVs'].updateProgress.connect(self._receive_signal)
-        self.scripts['Refind_NVs'].updateProgress.connect(self._receive_signal)
-
         self.data = {'baseline_image': [],
                      'baseline_extent': [],
                      'baseline_nv_locs': [],
                      'ESR_freqs': [],
                      'ESR_data': []}
 
-        acquire_image = self.scripts['ESR_Selected_NVs'].scripts['acquire_image']
+        acquire_image = self.scripts['ESR_Selected_NVs'].scripts['acquire_image'].scripts['acquire_image']
         if 'image_data' not in acquire_image.data.keys():
-            self.log('no image acquired!! Run subscript ESR_Selected_NVs.acquire_image first!!')
+            self.log('no image acquired! Run subscript ESR_Selected_NVs.acquire_image first!!')
+            self.updateProgress.emit(100)
             return
 
-        if self.scripts['ESR_Selected_NVs'].scripts['select_NVs'].data['nv_locations'] == []:
-            self.log('no points selected!! Run subscript ESR_Selected_NVs.select_NVs first!!')
+        if not self.scripts['ESR_Selected_NVs'].scripts['select_NVs'].data['nv_locations']:
+            self.log('no points selected! Run subscript ESR_Selected_NVs.select_NVs first!!')
+            self.updateProgress.emit(100)
             return
 
         self.data['baseline_image'] = acquire_image.data['image_data']
+
+        #take from acquire_image.data['extent'] instead
         self.data['baseline_extent'] = acquire_image.pts_to_extent(acquire_image.settings['point_a'],
                                                                    acquire_image.settings['point_b'],
                                                                    acquire_image.settings['RoI_mode'])
         self.data['baseline_nv_locs'] = self.scripts['ESR_Selected_NVs'].scripts['select_NVs'].data['nv_locations']
 
+        self.current_stage = 'take_reflection_image'
+        if self.settings['take_reflection_images']:
+            acquire_reflect_image = self.scripts['Reflect_scan'].scripts['acquire_image']
+            acquire_reflect_image.settings['point_a']['x'] = self.data['baseline_extent'][0]
+            acquire_reflect_image.settings['point_b']['x'] = self.data['baseline_extent'][1]
+            acquire_reflect_image.settings['point_a']['y'] = self.data['baseline_extent'][3]
+            acquire_reflect_image.settings['point_b']['y'] = self.data['baseline_extent'][2]
+
+            self.scripts['Reflect_scan'].updateProgress.connect(self._receive_signal)
+            self.scripts['Reflect_scan'].run()
+            self.scripts['Reflect_scan'].wait()
+            self.scripts['Reflect_scan'].updateProgress.disconnect(self._receive_signal)
+
         self.current_stage = 'ESR_Selected_NVs'
 
+        self.scripts['ESR_Selected_NVs'].updateProgress.connect(self._receive_signal)
         self.scripts['ESR_Selected_NVs'].run()
+        print('ESR Running!')
+        print time.time()
         self.scripts['ESR_Selected_NVs'].wait()
+        print('ESR Ended')
+        print time.time()
+        self.scripts['ESR_Selected_NVs'].updateProgress.disconnect(self._receive_signal)
 
         self.scripts['Refind_NVs'].data['baseline_image'] = self.data['baseline_image']
         self.scripts['Refind_NVs'].data['baseline_extent'] = self.data['baseline_extent']
         self.scripts['Refind_NVs'].data['baseline_nv_locs'] = self.data['baseline_nv_locs']
-
 
         step_num = 0
 
@@ -108,17 +132,29 @@ class ESR_And_Push(Script, QThread):
             self.log('Push number ' + str(step_num + 1) + ' of ' + str(self.settings['number_of_step_instances']))
             for i in range(0,self.settings['steps_per_instance']):
                 self.scripts['AttoStep'].run()
+                #change to parameter for settling time
                 time.sleep(1)
 
             self.current_stage = 'Refind_NVs'
+            self.scripts['Refind_NVs'].updateProgress.connect(self._receive_signal)
             self.scripts['Refind_NVs'].run()
             self.scripts['Refind_NVs'].wait()
+            self.scripts['Refind_NVs'].updateProgress.disconnect(self._receive_signal)
+
+            self.current_stage = 'take_reflection_image'
+            if self.settings['take_reflection_images']:
+                self.scripts['Reflect_scan'].updateProgress.connect(self._receive_signal)
+                self.scripts['Reflect_scan'].run()
+                self.scripts['Reflect_scan'].wait()
+                self.scripts['Reflect_scan'].updateProgress.disconnect(self._receive_signal)
 
             self.current_stage = 'ESR_Selected_NVs'
-            self.scripts['ESR_Selected_NVs'].scripts['acquire_image'].data['image_data'] = self.scripts['Refind_NVs'].data['new_image']
+            self.scripts['ESR_Selected_NVs'].scripts['acquire_image'].scripts['acquire_image'].data['image_data'] = self.scripts['Refind_NVs'].data['new_image']
             self.scripts['ESR_Selected_NVs'].scripts['select_NVs'].data['nv_locations'] = self.scripts['Refind_NVs'].data['new_nv_locs']
+            self.scripts['ESR_Selected_NVs'].updateProgress.connect(self._receive_signal)
             self.scripts['ESR_Selected_NVs'].run()
             self.scripts['ESR_Selected_NVs'].wait()
+            self.scripts['ESR_Selected_NVs'].updateProgress.disconnect(self._receive_signal)
 
             step_num += 1
 
@@ -126,25 +162,24 @@ class ESR_And_Push(Script, QThread):
         self.data['ESR_freqs'] = self.scripts['ESR_Selected_NVs'].data['ESR_freqs']
         self.data['ESR_data'] = self.scripts['ESR_Selected_NVs'].data['ESR_data']
 
-
         self.current_stage = 'finished'
 
-        self.updateProgress.emit(100)
         if self.settings['save']:
             self.current_stage = 'saving'
             self.save_b26()
             self.save_data()
 
-        self.scripts['ESR_Selected_NVs'].updateProgress.disconnect(self._receive_signal)
-        self.scripts['Refind_NVs'].updateProgress.disconnect(self._receive_signal)
-
+        self.updateProgress.emit(100)
 
     def stop(self):
         self._abort = True
         self.scripts['ESR_Selected_NVs'].stop()
         self.scripts['Refind_NVs'].stop()
+        self.scripts['Reflect_scan'].stop()
 
     def plot(self, figure_image, figure_ESR):
+        if self.current_stage == 'take_reflection_image':
+            self.scripts['Reflect_scan'].plot(figure_image)
         if self.current_stage in ['ESR_Selected_NVs', 'finished', 'saving']:
             self.scripts['ESR_Selected_NVs'].plot(figure_image, figure_ESR)
         elif self.current_stage == 'Refind_NVs':

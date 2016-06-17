@@ -164,6 +164,7 @@ class StanfordResearch_ESR(Script, QThread):
     def plot(self, figure):
         if self.data:
             axes = self.get_axes(figure)
+            #TODO: move line removal into get_axes
             if not self.lines == []:
                 for i in range(0, len(self.lines)):
                     self.lines.pop(0).remove()

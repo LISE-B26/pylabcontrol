@@ -21,6 +21,7 @@ from matplotlib.figure import Figure
 # It is many times faster than the Python implementation, but does not allow the user to subclass from Pickle.
 import cPickle
 
+
 class Script(object):
     # __metaclass__ = ABCMeta
 
@@ -43,15 +44,15 @@ class Script(object):
     # ======= Following old_functions are generic ================================================
     # ========================================================================================
 
-    def __init__(self, name = None, settings = None, instruments = None, scripts = None, log_function = None, data_path = None):
+    def __init__(self, name=None, settings=None, instruments=None, scripts=None, log_function=None, data_path=None):
         """
         executes scripts and stores script parameters and settings
         Args:
-            name (optinal):  name of script, if not provided take name of function
-            settings (optinal): a Parameter object that contains all the information needed in the script
-            instruments (optinal): instruments used in the script
-            scripts (optinal):  sub_scripts used in the script
-            log_function(optinal): function reference that takes a string
+            name (optional):  name of script, if not provided take name of function
+            settings (optional): a Parameter object that contains all the information needed in the script
+            instruments (optional): instruments used in the script
+            scripts (optional):  sub_scripts used in the script
+            log_function(optional): function reference that takes a string
         """
 
         self._script_class = self.__class__.__name__
@@ -100,6 +101,7 @@ class Script(object):
     @property
     def data_path(self):
         return self._data_path
+
     @data_path.setter
     def data_path(self, path):
         # check is path is a valid path string
@@ -136,6 +138,7 @@ class Script(object):
         returns the default parameter_list of the script this function should be over written in any subclass
         """
         raise NotImplementedError("Subclass did not implement _DEFAULT_SETTINGS")
+
     @property
     def _INSTRUMENTS(self):
         """
@@ -145,11 +148,12 @@ class Script(object):
 
         """
         raise NotImplementedError("Subclass did not implement _INSTRUMENTS")
+
     @property
     def _SCRIPTS(self):
         """
 
-        Returns: a dictionary of the instruments, were key is the instrument name and value is the instrument class
+        Returns: a dictionary of the instruments, where the key is the instrument name and value is the instrument class
         if there is not instrument it should return an empty dict
 
         """
@@ -163,9 +167,11 @@ class Script(object):
         for key, value in self.settings.iteritems():
             output_string += "{:s} : {:s}\n".format(key, str(value))
         return output_string
+
     @property
     def name(self):
         return self._name
+
     @name.setter
     def name(self, value):
         if isinstance(value, unicode):
@@ -201,6 +207,7 @@ class Script(object):
     @property
     def scripts(self):
         return self._scripts
+
     @scripts.setter
     def scripts(self, script_dict):
         assert isinstance(script_dict, dict)
@@ -239,13 +246,15 @@ class Script(object):
         if 'scripts' in settings:
             for script_name, script_setting in settings['scripts'].iteritems():
                 self.scripts[script_name].update(script_setting)
+
     @property
     def end_time(self):
-        '''
+        """
         time when script execution started
         :return:
-        '''
+        """
         return self._time_stop
+
     @end_time.setter
     def end_time(self, value):
         assert isinstance(value, datetime.datetime)
@@ -253,10 +262,10 @@ class Script(object):
 
     @property
     def start_time(self):
-        '''
+        """
         time when script execution started
         :return:
-        '''
+        """
         return self._time_start
     @start_time.setter
     def start_time(self, value):
@@ -265,16 +274,16 @@ class Script(object):
 
     @property
     def excecution_time(self):
-        '''
+        """
         :return: script excecition time as time_delta object to get time in seconds use .total_seconds()
-        '''
+        """
         return self.end_time - self.start_time
 
     def run(self):
-        '''
+        """
         executes the script
         :return: boolean if execution of script finished succesfully
-        '''
+        """
         self.is_running = True
         self.log_data.clear()
 
@@ -289,7 +298,7 @@ class Script(object):
 
         self.end_time  = datetime.datetime.now()
         self.log('script {:s} finished at {:s} on {:s}'.format(self.name, self.end_time.strftime('%H:%M:%S'),self.end_time.strftime('%d/%m/%y')))
-        success = self._abort == False
+        success = not self._abort
         self.is_running = False
         return success
 
@@ -824,29 +833,49 @@ class Script(object):
                 class_of_script = getattr(module, script_class_name)
 
                 #  ========= get the instruments that are needed by the script =========
-                try:
-                    script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
+                # try:
+                #     script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
+                # #  ========= create the scripts that are needed by the script =========
+                #
+                #     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
+                #
+                #     class_creation_string = ''
+                #     if script_instruments:
+                #         class_creation_string += ', instruments = script_instruments'
+                #     if sub_scripts:
+                #         class_creation_string += ', scripts = sub_scripts'
+                #     if script_settings:
+                #         class_creation_string += ', settings = script_settings'
+                #     if log_function:
+                #         class_creation_string += ', log_function = log_function'
+                #     if data_path:
+                #         class_creation_string += ', data_path = data_path'
+                #     class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
+                #
+                #     script_instance = eval(class_creation_string)
+                #     updated_scripts.update({script_name :script_instance})
+                # except Exception, e:
+                #     load_failed[script_name] = e
+                script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
                 #  ========= create the scripts that are needed by the script =========
 
-                    sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
+                sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
 
-                    class_creation_string = ''
-                    if script_instruments:
-                        class_creation_string += ', instruments = script_instruments'
-                    if sub_scripts:
-                        class_creation_string += ', scripts = sub_scripts'
-                    if script_settings:
-                        class_creation_string += ', settings = script_settings'
-                    if log_function:
-                        class_creation_string += ', log_function = log_function'
-                    if data_path:
-                        class_creation_string += ', data_path = data_path'
-                    class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
+                class_creation_string = ''
+                if script_instruments:
+                    class_creation_string += ', instruments = script_instruments'
+                if sub_scripts:
+                    class_creation_string += ', scripts = sub_scripts'
+                if script_settings:
+                    class_creation_string += ', settings = script_settings'
+                if log_function:
+                    class_creation_string += ', log_function = log_function'
+                if data_path:
+                    class_creation_string += ', data_path = data_path'
+                class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
-                    script_instance = eval(class_creation_string)
-                    updated_scripts.update({script_name :script_instance})
-                except Exception, e:
-                    load_failed[script_name] = e
+                script_instance = eval(class_creation_string)
+                updated_scripts.update({script_name :script_instance})
 
 
         return updated_scripts, load_failed, updated_instruments

@@ -1,6 +1,6 @@
 from src.core import Script, Parameter
 from PySide.QtCore import Signal, QThread
-from src.scripts import GalvoScan, SetLaser
+from src.scripts import GalvoScanWithLightControl, SetLaser
 import numpy as np
 from matplotlib import patches
 import trackpy as tp
@@ -35,7 +35,7 @@ Known issues:
     # todo: make minmass and nv_size more intelligent, i.e. uses extend to calculate the expected size and brightness
     _INSTRUMENTS = {}
 
-    _SCRIPTS = {'take_image': GalvoScan, 'set_laser': SetLaser}
+    _SCRIPTS = {'take_image': GalvoScanWithLightControl, 'set_laser': SetLaser}
 
     def __init__(self, scripts, name = None, settings = None, log_function = None, timeout = 1000000000, data_path = None):
 
@@ -45,7 +45,7 @@ Known issues:
 
         self._plot_type = 'aux'
 
-        self.scripts['take_image'].settings['time_per_pt'] = .01
+        self.scripts['take_image'].scripts['acquire_image'].settings['time_per_pt'] = .01
 
         self.scripts['take_image'].updateProgress.connect(self._receive_signal)
 
@@ -99,16 +99,16 @@ Known issues:
         self.script_stage = 'take image'
 
         # self.scripts['take_image'].update({'point_a': {'x': initial_point[0], 'y': initial_point[1]}})
-        self.scripts['take_image'].settings['point_a'].update({'x': self.settings['initial_point']['x'], 'y': self.settings['initial_point']['y']})
-        self.scripts['take_image'].settings['point_b'].update({'x': self.settings['sweep_range'], 'y': self.settings['sweep_range']})
-        self.scripts['take_image'].update({'RoI_mode': 'center'})
-        self.scripts['take_image'].settings['num_points'].update({'x': self.settings['num_points'], 'y': self.settings['num_points']})
+        self.scripts['take_image'].scripts['acquire_image'].settings['point_a'].update({'x': self.settings['initial_point']['x'], 'y': self.settings['initial_point']['y']})
+        self.scripts['take_image'].scripts['acquire_image'].settings['point_b'].update({'x': self.settings['sweep_range'], 'y': self.settings['sweep_range']})
+        self.scripts['take_image'].scripts['acquire_image'].update({'RoI_mode': 'center'})
+        self.scripts['take_image'].scripts['acquire_image'].settings['num_points'].update({'x': self.settings['num_points'], 'y': self.settings['num_points']})
 
         self.scripts['take_image'].run()
         self.scripts['take_image'].wait()
 
-        self.data['image_data'] = deepcopy(self.scripts['take_image'].data['image_data'])
-        self.data['extent'] = deepcopy(self.scripts['take_image'].data['extent'])
+        self.data['image_data'] = deepcopy(self.scripts['take_image'].scripts['acquire_image'].data['image_data'])
+        self.data['extent'] = deepcopy(self.scripts['take_image'].scripts['acquire_image'].data['extent'])
 
         f = tp.locate(self.data['image_data'], nv_size, minmass=min_mass)
 

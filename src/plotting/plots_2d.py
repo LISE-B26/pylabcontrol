@@ -23,9 +23,9 @@ def plot_fluorescence(image_data, extent, axes_image, max_counts = -1, axes_colo
         implot = axes_image.imshow(image_data, cmap='pink', interpolation="nearest", extent=extent, vmax = max_counts)
     else:
         implot = axes_image.imshow(image_data, cmap='pink', interpolation="nearest", extent=extent)
-    axes_image.set_xlabel('Vx')
-    axes_image.set_ylabel('Vy')
-    axes_image.set_title('Confocal Image')
+    # axes_image.set_xlabel('Vx')
+    # axes_image.set_ylabel('Vy')
+    # axes_image.set_title('Confocal Image')
 
     if axes_colorbar is None:
         fig.colorbar(implot, label='kcounts/sec')

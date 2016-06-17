@@ -14,10 +14,10 @@ try:
     from galvo_scan import GalvoScan
 except:
     print("./src/scripts/__init__ warning! GalvoScan did not load")
-# try:
-#     from GalvoScanWithLightControl import GalvoScanWithLightControl
-# except:
-#     print("./src/scripts/__init__ warning! GalvoScanWithLightControl did not load")
+try:
+    from GalvoScanWithLightControl import GalvoScanWithLightControl
+except:
+    print("./src/scripts/__init__ warning! GalvoScanWithLightControl did not load")
 try:
     from GalvoScanWithTwoRoI import GalvoScanWithTwoRoI
 except:

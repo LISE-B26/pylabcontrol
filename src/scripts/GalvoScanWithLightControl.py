@@ -84,12 +84,6 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
 
 
     def plot(self, image_figure, axes_colorbar = None):
-        axes_image = self.get_axes(image_figure)
-        if self.is_running:
-            self.scripts['acquire_image'].plot(axes_image, axes_colorbar = axes_colorbar)
-        else:
-            plot_fluorescence(self.data['image_data'], self.data['extent'], axes_image,
-                              max_counts=self.scripts['acquire_image'].settings['max_counts_plot'],
-                              axes_colorbar = axes_colorbar)
+        self.scripts['acquire_image'].plot(image_figure, axes_colorbar = axes_colorbar)
 
 

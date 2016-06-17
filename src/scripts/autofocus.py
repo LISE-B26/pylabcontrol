@@ -1,7 +1,7 @@
 from src.core import Parameter, Script
 from PySide.QtCore import Signal, QThread
 from src.instruments import PiezoController
-from src.scripts import GalvoScan
+from src.scripts import GalvoScanWithLightControl
 import numpy as np
 import scipy as sp
 import os
@@ -34,7 +34,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         'z_piezo': PiezoController
     }
     _SCRIPTS = {
-        'take_image': GalvoScan
+        'take_image': GalvoScanWithLightControl
     }
 
     #This is the signal that will be emitted during the processing.
@@ -55,7 +55,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         self._plot_type = 'two'
 
-        self.scripts['take_image'].settings['num_points'].update({'x': 30, 'y': 30})
+        self.scripts['take_image'].scripts['acquire_image'].settings['num_points'].update({'x': 30, 'y': 30})
 
     def _function(self):
         """

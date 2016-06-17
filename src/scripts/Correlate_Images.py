@@ -6,7 +6,7 @@ from scipy import signal
 import time
 from src.core import Script, Parameter
 from src.plotting.plots_2d import plot_fluorescence
-from src.scripts.galvo_scan import GalvoScan
+from src.scripts import GalvoScanWithLightControl
 from src.data_processing.correlate_images import correlation
 
 
@@ -25,7 +25,7 @@ class Take_And_Correlate_Images(Script, QThread):
     ])
 
     _INSTRUMENTS = {}
-    _SCRIPTS = {'GalvoScan': GalvoScan}
+    _SCRIPTS = {'GalvoScan': GalvoScanWithLightControl}
 
     def __init__(self, instruments = None, name = None, settings = None, scripts = None, log_function = None, data_path = None):
         """
@@ -186,7 +186,7 @@ class Take_And_Correlate_Images_2(Script, QThread):
     ])
 
     _INSTRUMENTS = {}
-    _SCRIPTS = {'GalvoScan': GalvoScan}
+    _SCRIPTS = {'GalvoScan': GalvoScanWithLightControl}
 
     def __init__(self, instruments = None, name = None, settings = None, scripts = None, log_function = None, data_path = None):
         """
@@ -222,14 +222,15 @@ class Take_And_Correlate_Images_2(Script, QThread):
             self.log('No nv list avaliable. Scipt may have been run in error.')
 
         if not self.data['baseline_image'] == []:
-            self.scripts['GalvoScan'].settings['point_a']['x'] = self.data['image_extent'][0]
-            self.scripts['GalvoScan'].settings['point_b']['x'] = self.data['image_extent'][1]
-            self.scripts['GalvoScan'].settings['point_a']['y'] = self.data['image_extent'][3]
-            self.scripts['GalvoScan'].settings['point_b']['y'] = self.data['image_extent'][2]
+            scan = self.scripts['GalvoScan'].scripts['acquire_image']
+            scan.settings['point_a']['x'] = self.data['image_extent'][0]
+            scan.settings['point_b']['x'] = self.data['image_extent'][1]
+            scan.settings['point_a']['y'] = self.data['image_extent'][3]
+            scan.settings['point_b']['y'] = self.data['image_extent'][2]
 
             self.scripts['GalvoScan'].run()
             self.scripts['GalvoScan'].wait()  #wait for scan to complete
-            self.data['new_image'] = self.scripts['GalvoScan'].data['image_data']
+            self.data['new_image'] = self.scripts['GalvoScan'].scripts['acquire_image'].data['image_data']
 
             self.data['new_NV_list'], self.data['correlation_image'] = correlation(self.data['old_nv_list'], self.data['baseline_image'],
                                                    self.data['image_extent'], self.data['new_image'],
@@ -239,8 +240,6 @@ class Take_And_Correlate_Images_2(Script, QThread):
             self.scripts['GalvoScan'].run()
             self.scripts['GalvoScan'].wait()  #wait for scan to complete
             self.data['baseline_image'] = self.scripts['GalvoScan'].data['image_data']
-
-        time.sleep(30)
 
         self.updateProgress.emit(100)
 

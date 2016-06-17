@@ -37,7 +37,7 @@ class AttoStep(Script):
             dir = 0
         elif self.settings['direction'] == 'Down':
             dir = 1
-        self.instruments['attocube']['instance'].step(self.settings['axis'], dir)
+        # self.instruments['attocube']['instance'].step(self.settings['axis'], dir)
 
 if __name__ == '__main__':
     script, failed, instr = Script.load_and_append({'AttoStep': 'AttoStep'})
