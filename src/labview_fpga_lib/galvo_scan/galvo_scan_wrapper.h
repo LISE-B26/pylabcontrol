@@ -61,7 +61,15 @@ int32_t read_ix(NiFpga_Session* session, NiFpga_Status* status);
 int32_t read_iy(NiFpga_Session* session, NiFpga_Status* status);
 int32_t read_failed(NiFpga_Session* session, NiFpga_Status* status)
 
+
+
 // set analog outputs
+
+void set_galvo_x(uint16_t value, NiFpga_Session* session, NiFpga_Status* status);
+int16_t read_galvo_x(NiFpga_Session* session, NiFpga_Status* status);
+void set_galvo_y(uint16_t value, NiFpga_Session* session, NiFpga_Status* status);
+int16_t read_galvo_y(NiFpga_Session* session, NiFpga_Status* status);
+
 //_Bool read_DIO12(NiFpga_Session* session, NiFpga_Status* status);
 
 // ====== FIFO ===

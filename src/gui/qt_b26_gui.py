@@ -432,7 +432,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 model.removeRows(row,1)
 
         def plot_data(sender):
-            print(sender)
             if sender in (self.btn_plot_data, self.tree_dataset):
                 index = self.tree_dataset.selectedIndexes()[0]
                 model = index.model()

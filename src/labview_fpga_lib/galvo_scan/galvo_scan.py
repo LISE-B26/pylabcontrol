@@ -26,7 +26,9 @@ setter_functions = {
     "set_meas_per_pt": c_uint16,
     'set_acquire': c_bool,
     'set_abort': c_bool,
-    'set_piezo_voltage':c_uint16
+    'set_piezo_voltage':c_uint16,
+    'set_galvo_x':c_uint16,
+    'set_galvo_y':c_uint16
 }
 
 for fun_name in setter_functions:
@@ -59,7 +61,9 @@ getter_functions = {
     'read_output_valid':c_bool,
     'read_meas_per_pt':c_uint16,
     'read_settle_time':c_uint16,
-    'read_failed': c_int32
+    'read_failed': c_int32,
+    'read_galvo_x': c_uint16,
+    'read_galvo_y': c_uint16
 }
 
 for fun_name in getter_functions:

@@ -110,14 +110,41 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         self._abort = False
 
-    def plot(self, figure1, figure2 = None):
-        axis1, axis2 = self.get_axes(figure1, figure2)
+    def get_axes(self, figure_focus, figure_image):
+        """
+        returns the axes objects the script needs to plot its data
+        the default creates a single axes object on each figure
+        This can/should be overwritten in a child script if more axes objects are needed
+        Args:
+            figure_focus:
+            figure_image: (optional)
+        Returns:
+
+        """
+        figure_focus.clf()
+        axis_focus = figure_focus.add_subplot(111)
+        # create new axes objects if script was just started (self._plot_refresh == True) or
+        # if script is not running (self.is_running == False)
+        # otherwise just return references to existing axes objects
+        if self.is_running == False or self._plot_refresh == True:
+            if figure_image:
+                figure_image.clf()
+                axis_image = figure_image.add_subplot(111)
+            self._plot_refresh = False
+        else:
+            if figure_image:
+                axis_image = figure_image.axes[0]
+
+        return axis_focus, axis_image
+
+    def plot(self, figure_focus, figure_image = None):
+        axis_focus, axis_image = self.get_axes(figure_focus, figure_image)
         # plot current focusing data
-        axis1.plot(self.data['main_scan_sweep_voltages'][0:len(self.data['main_scan_focus_function_result'])],
+        axis_focus.plot(self.data['main_scan_sweep_voltages'][0:len(self.data['main_scan_focus_function_result'])],
                    self.data['main_scan_focus_function_result'])
 
         if 'refined_scan_sweep_voltages' in self.data.keys():
-            axis1.plot(self.data['refined_scan_sweep_voltages'][0:len(self.data['refined_scan_focus_function_result'])],
+            axis_focus.plot(self.data['refined_scan_sweep_voltages'][0:len(self.data['refined_scan_focus_function_result'])],
                        self.data['refined_scan_focus_function_result'])
 
 
@@ -131,9 +158,9 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             fit_domain = np.linspace(self.settings['piezo_min_voltage'], self.settings['piezo_max_voltage'], 100)
             fit = gaussian(fit_domain, self.data['main_scan_focusing_fit_parameters'])
 
-            axis1.plot(self.data['main_scan_sweep_voltages'], self.data['main_scan_focus_function_result'], 'b',
+            axis_focus.plot(self.data['main_scan_sweep_voltages'], self.data['main_scan_focus_function_result'], 'b',
                        fit_domain, fit, 'r')
-            axis1.legend(['data', 'best_fit'])
+            axis_focus.legend(['data', 'best_fit'])
 
 
         # plot best fit
@@ -149,14 +176,14 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
             fit = gaussian(fit_domain, self.data['refined_focusing_fit_parameters'])
 
-            axis1.plot(self.data['refined_scan_sweep_voltages'], self.data['refined_scan_focus_function_result'], 'b',
+            axis_focus.plot(self.data['refined_scan_sweep_voltages'], self.data['refined_scan_focus_function_result'], 'b',
                        fit_domain, fit, 'r')
-            axis1.legend(['data', 'best_fit'])
+            axis_focus.legend(['data', 'best_fit'])
 
 
         # format plot
-        axis1.set_xlim([self.data['main_scan_sweep_voltages'][0], self.data['main_scan_sweep_voltages'][-1]])
-        axis1.set_xlabel('Piezo Voltage [V]')
+        axis_focus.set_xlim([self.data['main_scan_sweep_voltages'][0], self.data['main_scan_sweep_voltages'][-1]])
+        axis_focus.set_xlabel('Piezo Voltage [V]')
 
         if self.settings['focusing_optimizer'] == 'mean':
             ylabel = 'Image Mean [kcounts]'
@@ -170,15 +197,17 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         else:
             ylabel = self.settings['focusing_optimizer']
 
-        axis1.set_ylabel(ylabel)
-        axis1.set_title('Autofocusing Routine')
+        axis_focus.set_ylabel(ylabel)
+        axis_focus.set_title('Autofocusing Routine')
 
-        if figure2:
+        if figure_image:
             # self.scripts['take_image'].plot(figure2)
-            # plot_fluorescence(self.data['current_image'], self.data['extent'], axis2,
+            # plot_fluorescence(self.data['current_image'], self.data['extent'], axis_image,
             #                   max_counts=self.settings['max_counts_plot'])
-            plot_fluorescence(self.data['current_image'], self.data['extent'], axis2)
+            plot_fluorescence(self.data['current_image'], self.data['extent'], axis_image)
 
+        figure_focus.tight_layout()
+        figure_image.tight_layouts()
     def stop(self):
         self._abort = True
 

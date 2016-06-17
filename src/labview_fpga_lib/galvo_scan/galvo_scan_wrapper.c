@@ -236,6 +236,30 @@ int16_t read_piezo_voltage(NiFpga_Session* session, NiFpga_Status* status)
 	return value;
 }
 
+
+void set_galvo_x(uint16_t value, NiFpga_Session* session, NiFpga_Status* status)
+{
+	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_GalvoScan_ControlI16_AO0,value));
+}
+int16_t read_galvo_x(NiFpga_Session* session, NiFpga_Status* status)
+{
+	int16_t value;
+
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_GalvoScan_ControlI16_AO0,&value));
+	return value;
+}
+void set_galvo_y(uint16_t value, NiFpga_Session* session, NiFpga_Status* status)
+{
+	NiFpga_MergeStatus(status, NiFpga_WriteI16(*session,NiFpga_GalvoScan_ControlI16_AO1,value));
+}
+int16_t read_galvo_y(NiFpga_Session* session, NiFpga_Status* status)
+{
+	int16_t value;
+
+	NiFpga_MergeStatus(status, NiFpga_ReadI16(*session,NiFpga_GalvoScan_ControlI16_AO1,&value));
+	return value;
+}
+
 // read parameters
 int32_t read_i(NiFpga_Session* session, NiFpga_Status* status)
 {
