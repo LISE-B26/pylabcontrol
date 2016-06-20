@@ -360,10 +360,11 @@ class Script(object):
         dictator[self.name]['settings'] = self.settings
 
         return dictator
-    def save_data(self, filename = None):
+    def save_data(self, filename = None, data_tag = None):
         """
-        saves the script data to a file: filename is filename is not provided, it is created from internal function
-
+        saves the script data to a file
+        filename: target filename, if not provided, it is created from internal function
+        data_tag: string, if provided save only the data that matches the tag, otherwise save all data
         Returns:
 
         """
@@ -400,30 +401,36 @@ class Script(object):
         else:
             raise TypeError("script data variable has an invalid datatype! Must be deque or dict.")
 
-        if len(set([len(v) for v in data.values()])) == 1 and len(np.shape(data.values()[0])) in [0, 1]:
-            # if all entries of the dictionary are the same length and single column we can write the data into a single file
-            if len(np.shape(data.values()[0]))==1:
-                df = pd.DataFrame(data)
+
+        if data_tag is None:
+            if len(set([len(v) for v in data.values()])) == 1 and len(np.shape(data.values()[0])) in [0, 1]:
+                # if all entries of the dictionary are the same length and single column we can write the data into a single file
+                if len(np.shape(data.values()[0]))==1:
+                    df = pd.DataFrame(data)
+                else:
+                    df = pd.DataFrame.from_records([data])
+                df.to_csv(filename, index=False)
+
             else:
-                df = pd.DataFrame.from_records([data])
-            df.to_csv(filename, index=False)
+                # otherwise, we write each entry into a separate file
+                for key, value in data.iteritems():
+                    if len(value) == 0:
+                        df = pd.DataFrame([value])
+                    else:
+                        df = pd.DataFrame(value)
+
+                    df.to_csv(filename.replace('.csv', '-{:s}.csv'.format(key)), index=False)
 
         else:
-            # otherwise, we write each entry into a separate file
-            for key, value in data.iteritems():
-                print value
-                if len(value) == 0:
-                    df = pd.DataFrame([value])
-                else:
-                    df = pd.DataFrame(value)
+            # save only the data for which a key has been provided
+            assert data_tag in data.keys()
+            value = data[data_tag]
+            if len(value) == 0:
+                df = pd.DataFrame([value])
+            else:
+                df = pd.DataFrame(value)
+            df.to_csv(filename, index=False)
 
-                # filename_new = os.path.join(os.path.dirname(filename),
-                #       os.path.basename(filename).replace('.csv', '-{:s}.csv'.format(key)))
-                #
-                # if not os.path.exists(os.path.dirname(filename_new)):
-                #     os.makedirs(os.path.dirname(filename_new))
-
-                df.to_csv(filename.replace('.csv', '-{:s}.csv'.format(key)), index=False)
     def save_log(self, filename = None):
         """
         save log to file
@@ -960,6 +967,7 @@ class Script(object):
         # if script is not running (self.is_running == False)
         # otherwise just return references to existing axes objects
         if self.is_running == False or self._plot_refresh == True:
+
             figure1.clf()
             axes1 = figure1.add_subplot(111)
 

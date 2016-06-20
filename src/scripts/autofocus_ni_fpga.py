@@ -133,7 +133,12 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             self._plot_refresh = False
         else:
             if figure_image:
-                axis_image = figure_image.axes[0]
+                if len(figure_image.axes)>1:
+                    axis_image = figure_image.axes[0]
+                else:
+                    figure_image.clf()
+                    axis_image = figure_image.add_subplot(111)
+
 
         return axis_focus, axis_image
 
@@ -297,6 +302,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             # save image if the user requests it
             if self.settings['save_images']:
                 self.scripts['take_image'].save_image_to_disk('{:s}\\image_{:03d}.jpg'.format(self.filename_image, index))
+                self.scripts['take_image'].save_data('{:s}\\image_{:03d}.csv'.format(self.filename_image, index), 'image_data')
 
         p2 = [0, 0, 0, 0] # dont' fit for now
         # p2 = fit_focus()

@@ -1,4 +1,4 @@
-from script_dummy import ScriptDummy, ScriptDummyWithInstrument, ScriptDummyWithQtSignal, ScriptDummyWithSubScript, ScriptDummyWithNestedSubScript
+from script_dummy import ScriptDummyPlotMemoryTest, ScriptDummy, ScriptDummyWithInstrument, ScriptDummyWithQtSignal, ScriptDummyWithSubScript, ScriptDummyWithNestedSubScript
 try:
     from script_dummy import ScriptDummyWithInstrument
 except:

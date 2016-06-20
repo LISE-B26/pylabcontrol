@@ -10,6 +10,8 @@ import threading
 import Queue
 import datetime
 
+
+
 class GalvoScanNIFpga(Script, QThread):
 # class GalvoScanNIFpga(Script):
     """
@@ -115,8 +117,6 @@ class GalvoScanNIFpga(Script, QThread):
             # print('elem_written ', elem_written)
             if elem_written >= Nx:
                 line_data = instr.read_fifo(Nx)
-
-
 
                 self.data['image_data'][i] = deepcopy(line_data['signal'])/1e3
 
