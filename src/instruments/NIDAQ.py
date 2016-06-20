@@ -202,7 +202,6 @@ class DAQ(Instrument):
 
         # set up clock
         self._dig_pulse_train_cont(self.DI_sample_rate, 0.5, self.DI_sampleNum)
-        self._check_error(self.nidaq.DAQmxStartTask(self.DI_taskHandleClk))
         # set up counter using clock as reference
         self._check_error(self.nidaq.DAQmxCreateTask("", ctypes.byref(self.DI_taskHandleCtr)))
         self._check_error(self.nidaq.DAQmxCreateCICountEdgesChan(self.DI_taskHandleCtr,
@@ -215,6 +214,10 @@ class DAQ(Instrument):
         # if (self.settings['override_buffer_size'] > 0):
         #     self._check_error(self.nidaq.DAQmxCfgInputBuffer(self.DI_taskHandleCtr, uInt64(self.settings['override_buffer_size'])))
         # self._check_error(self.nidaq.DAQmxCfgInputBuffer(self.DI_taskHandleCtr, uInt64(sampleNum)))
+
+        self._check_error(self.nidaq.DAQmxStartTask(self.DI_taskHandleCtr))
+
+        return self.counter_out_PFI_str
 
 
     # initialize reference clock output
@@ -230,7 +233,8 @@ class DAQ(Instrument):
     # start reading sampleNum values from counter into buffer
     # todo: AK - should this be threaded? original todo: is this actually blocking? Is the threading actually doing anything? see nidaq cookbook
     def DI_run(self):
-        self._check_error(self.nidaq.DAQmxStartTask(self.DI_taskHandleCtr))
+        self._check_error(self.nidaq.DAQmxStartTask(self.DI_taskHandleClk))
+
 
     # read sampleNum previously generated values from a buffer, and return the
     # corresponding 1D array of ctypes.c_double values
@@ -259,7 +263,7 @@ class DAQ(Instrument):
         self.nidaq.DAQmxStopTask(self.DI_taskHandleCtr)
         self.nidaq.DAQmxClearTask(self.DI_taskHandleCtr)
 
-    def AO_init(self, channels, waveform, sample_rate_multiplier = 1):
+    def AO_init(self, channels, waveform, clk_source):
         for c in channels:
             if not c in self.settings['analog_output'].keys():
                 raise KeyError('This is not a valid analog output channel')
@@ -301,9 +305,8 @@ class DAQ(Instrument):
                                                               float64(10.0),
                                                               DAQmx_Val_Volts,
                                                               None))
-
         self._check_error(self.nidaq.DAQmxCfgSampClkTiming(self.AO_taskHandle,
-                                             "",
+                                             clk_source,
                                                            float64(self.AO_sample_rate),
                                                            DAQmx_Val_Rising,
                                                            DAQmx_Val_FiniteSamps,
@@ -332,6 +335,12 @@ class DAQ(Instrument):
         self.running = False
         self.nidaq.DAQmxStopTask(self.AO_taskHandle)
         self.nidaq.DAQmxClearTask(self.AO_taskHandle)
+
+    # def trigger_AO_on_DI(self):
+    #     self._check_error(self.nidaq.DAQmxCfgDigEdgeStartTrig(self.AO_taskHandle, "di/StartTrigger", DAQmx_Val_Rising))
+    #
+    # def trigger_DI_on_AO(self):
+    #     self._check_error(self.nidaq.DAQmxCfgDigEdgeStartTrig(self.DI_taskHandleCtr, "ao/StartTrigger", DAQmx_Val_Rising))
 
     # def AO_set_pt(self, xVolt, yVolt):
     #     pt = numpy.transpose(numpy.column_stack((xVolt,yVolt)))
@@ -369,6 +378,9 @@ class DAQ(Instrument):
             self.nidaq.DAQmxStopTask(self.AI_taskHandle)
             self.nidaq.DAQmxClearTask(self.AI_taskHandle)
         return self.data
+
+    def triggered_DI_init(self):
+        pass
 
     def _check_error(self, err):
         """

@@ -1,11 +1,10 @@
 from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread
+from PySide.QtCore import Signal, QThread, QReadWriteLock
 import numpy as np
 from src.instruments.NIDAQ import DAQ
 from src.plotting.plots_2d import plot_fluorescence
 import time
-
-import datetime as dt
+import datetime
 import Queue
 
 
@@ -15,7 +14,7 @@ class GalvoScan(Script, QThread):
     resulting in an image in the current field of view of the objective.
     """
     updateProgress = Signal(int)
-    saveFigure = Signal(str)
+    lock = QReadWriteLock()
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),
@@ -45,11 +44,12 @@ class GalvoScan(Script, QThread):
 
     _SCRIPTS = {}
 
-    def __init__(self, instruments, name = None, settings = None, log_function = None, timeout = 1000000000, data_path = None):
+    def __init__(self, instruments, name=None, settings=None, log_function=None, timeout=1000000000, data_path=None):
         self.timeout = timeout
         self.plot_widget = None
 
-        Script.__init__(self, name, settings=settings, instruments=instruments, log_function=log_function, data_path = data_path)
+        Script.__init__(self, name, settings=settings, instruments=instruments, log_function=log_function,
+                        data_path = data_path)
 
         QThread.__init__(self)
 
@@ -64,10 +64,9 @@ class GalvoScan(Script, QThread):
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-        update_time = dt.datetime.now()
+        update_time = datetime.datetime.now()
 
         self.updateProgress.emit(1)
-        time.sleep(.1)
 
         self._plotting = True
 
@@ -78,7 +77,9 @@ class GalvoScan(Script, QThread):
             self.clockAdjust = int(
                 (self.settings['time_per_pt'] + self.settings['settle_time']) / self.settings['settle_time'])
 
-            [self.xVmin, self.xVmax, self.yVmax, self.yVmin] = self.pts_to_extent(self.settings['point_a'], self.settings['point_b'], self.settings['RoI_mode'])
+            [self.xVmin, self.xVmax, self.yVmax, self.yVmin] = self.pts_to_extent(self.settings['point_a'],
+                                                                                  self.settings['point_b'],
+                                                                                  self.settings['RoI_mode'])
 
 
             self.x_array = np.repeat(np.linspace(self.xVmin, self.xVmax, self.settings['num_points']['x']),
@@ -88,7 +89,8 @@ class GalvoScan(Script, QThread):
             self.instruments['daq']['instance'].settings['analog_output']['ao0']['sample_rate'] = sample_rate
             self.instruments['daq']['instance'].settings['analog_output']['ao1']['sample_rate'] = sample_rate
             self.instruments['daq']['instance'].settings['digital_input']['ctr0']['sample_rate'] = sample_rate
-            self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x'])), 'bounds': [self.xVmin, self.xVmax, self.yVmin, self.yVmax]}
+            self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x'])),
+                         'bounds': [self.xVmin, self.xVmax, self.yVmin, self.yVmax]}
 
         init_scan()
         self.data['extent'] = [self.xVmin, self.xVmax, self.yVmax, self.yVmin]
@@ -98,20 +100,25 @@ class GalvoScan(Script, QThread):
             if self._abort:
                 break
             # initialize APD thread
-            self.instruments['daq']['instance'].DI_init("ctr0", len(self.x_array) + 1)
+            clk_source = self.instruments['daq']['instance'].DI_init("ctr0", len(self.x_array) + 1)
             self.initPt = np.transpose(np.column_stack((self.x_array[0],
                                           self.y_array[yNum])))
             self.initPt = (np.repeat(self.initPt, 2, axis=1))
 
             # move galvo to first point in line
-            self.instruments['daq']['instance'].AO_init(["ao0", "ao1"], self.initPt)
+            self.instruments['daq']['instance'].AO_init(["ao0", "ao1"], self.initPt, "")
             self.instruments['daq']['instance'].AO_run()
             self.instruments['daq']['instance'].AO_waitToFinish()
             self.instruments['daq']['instance'].AO_stop()
-            self.instruments['daq']['instance'].AO_init(["ao0"], self.x_array)
+            self.instruments['daq']['instance'].AO_init(["ao0"], self.x_array, clk_source)
             # start counter and scanning sequence
-            self.instruments['daq']['instance'].DI_run()
+            t1 = time.clock()
+            # self.instruments['daq']['instance'].trigger_AO_on_DI()
+            # self.instruments['daq']['instance'].trigger_DI_on_AO()
             self.instruments['daq']['instance'].AO_run()
+            self.instruments['daq']['instance'].DI_run()
+            t2 = time.clock()
+            print('TIME TO CALL DAQQQQ:', (t2-t1)*1e6)
             self.instruments['daq']['instance'].AO_waitToFinish()
             self.instruments['daq']['instance'].AO_stop()
             xLineData,_ = self.instruments['daq']['instance'].DI_read()
@@ -125,15 +132,13 @@ class GalvoScan(Script, QThread):
             self.data['image_data'][yNum] = summedData * (.001/self.settings['time_per_pt'])
 
 
-            # image_data[:, yNum] = self.summedData * (self.settings['time_per_pt'])
-            # self.data.append(image_data)
 
-            # sending updates every cycle leads to invalid task errors, so wait and don't overload gui
-            current_time = dt.datetime.now()
-            if ((current_time - update_time).total_seconds() > 0.5):
+            current_time = datetime.datetime.now()
+            if ((current_time - update_time).total_seconds() > 0.1):
                 progress = int(float(yNum + 1) / len(self.y_array) * 100)
                 self.updateProgress.emit(progress)
                 update_time = current_time
+
 
         progress = 100
         self.updateProgress.emit(progress)
@@ -177,7 +182,9 @@ class GalvoScan(Script, QThread):
 
         self.axes_image = self.get_axes(image_figure)
         if 'image_data' in self.data.keys() and not self.data['image_data'] == []:
-            plot_fluorescence(self.data['image_data'], self.data['extent'], self.axes_image, max_counts = self.settings['max_counts_plot'], axes_colorbar=axes_colorbar)
+            plot_fluorescence(self.data['image_data'], self.data['extent'], self.axes_image,
+                              max_counts=self.settings['max_counts_plot'],
+                              axes_colorbar=axes_colorbar)
 
     def stop(self):
         self._abort = True
