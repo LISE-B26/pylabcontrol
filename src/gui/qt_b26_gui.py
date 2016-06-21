@@ -186,12 +186,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.probes = {}
             self.gui_settings = {'scripts_folder': '', 'data_folder': ''}
 
-        self.data_sets = {} # todo: load datasets from tmp folder
+        self.data_sets = {}  # todo: load datasets from tmp folder
         self.read_probes = ReadProbes(self.probes)
 
     def closeEvent(self, event):
 
-        fname =  os.path.join(self.gui_settings['tmp_folder'],'gui_settings.b26')
+        fname = os.path.join(self.gui_settings['tmp_folder'], 'gui_settings.b26')
         print('save settings to {:s}'.format(fname))
         self.save_settings(fname)
 

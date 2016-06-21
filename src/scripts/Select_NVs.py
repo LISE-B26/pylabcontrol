@@ -45,7 +45,7 @@ class Select_NVs(Script, QThread):
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-        self.scripts['Find_Points'].run()
+        self.scripts['Find_Points'].start()
         self.coordinates = self.scripts['Find_Points'].data['NV_positions']
         self.patches = []
         self.data = {'nv_locations': []}

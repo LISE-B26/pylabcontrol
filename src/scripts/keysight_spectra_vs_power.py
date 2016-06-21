@@ -79,7 +79,7 @@ class KeysightSpectrumVsPower(Script, QThread):
             time.sleep(self.settings['wait_time'])  #since the spectrum analyzer takes a full second =)
 
             self.scripts['get_spectrum'].update({'output_power': power})
-            self.scripts['get_spectrum'].run()
+            self.scripts['get_spectrum'].start()
 
             freq = self.scripts['get_spectrum'].data['frequency']
             transmission = self.scripts['get_spectrum'].data['spectrum']

@@ -107,14 +107,14 @@ class ESR_And_Push(Script, QThread):
             acquire_reflect_image.settings['point_b']['y'] = self.data['baseline_extent'][2]
 
             self.scripts['Reflect_scan'].updateProgress.connect(self._receive_signal)
-            self.scripts['Reflect_scan'].run()
+            self.scripts['Reflect_scan'].start()
             self.scripts['Reflect_scan'].wait()
             self.scripts['Reflect_scan'].updateProgress.disconnect(self._receive_signal)
 
         self.current_stage = 'ESR_Selected_NVs'
 
         self.scripts['ESR_Selected_NVs'].updateProgress.connect(self._receive_signal)
-        self.scripts['ESR_Selected_NVs'].run()
+        self.scripts['ESR_Selected_NVs'].start()
         print('ESR Running!')
         print time.time()
         self.scripts['ESR_Selected_NVs'].wait()
@@ -132,20 +132,20 @@ class ESR_And_Push(Script, QThread):
 
             self.log('Push number ' + str(step_num + 1) + ' of ' + str(self.settings['number_of_step_instances']))
             for i in range(0,self.settings['steps_per_instance']):
-                self.scripts['AttoStep'].run()
+                self.scripts['AttoStep'].start()
                 #change to parameter for settling time
                 time.sleep(1)
 
             self.current_stage = 'Refind_NVs'
             self.scripts['Refind_NVs'].updateProgress.connect(self._receive_signal)
-            self.scripts['Refind_NVs'].run()
+            self.scripts['Refind_NVs'].start()
             self.scripts['Refind_NVs'].wait()
             self.scripts['Refind_NVs'].updateProgress.disconnect(self._receive_signal)
 
             self.current_stage = 'take_reflection_image'
             if self.settings['take_reflection_images']:
                 self.scripts['Reflect_scan'].updateProgress.connect(self._receive_signal)
-                self.scripts['Reflect_scan'].run()
+                self.scripts['Reflect_scan'].start()
                 self.scripts['Reflect_scan'].wait()
                 self.scripts['Reflect_scan'].updateProgress.disconnect(self._receive_signal)
 
@@ -153,7 +153,7 @@ class ESR_And_Push(Script, QThread):
             self.scripts['ESR_Selected_NVs'].scripts['acquire_image'].scripts['acquire_image'].data['image_data'] = self.scripts['Refind_NVs'].data['new_image']
             self.scripts['ESR_Selected_NVs'].scripts['select_NVs'].data['nv_locations'] = self.scripts['Refind_NVs'].data['new_nv_locs']
             self.scripts['ESR_Selected_NVs'].updateProgress.connect(self._receive_signal)
-            self.scripts['ESR_Selected_NVs'].run()
+            self.scripts['ESR_Selected_NVs'].start()
             self.scripts['ESR_Selected_NVs'].wait()
             self.scripts['ESR_Selected_NVs'].updateProgress.disconnect(self._receive_signal)
 

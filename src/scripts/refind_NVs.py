@@ -91,7 +91,7 @@ class Refind_NVs(Script, QThread):
         if self.settings['activate_autofocus']:
             self.current_stage = 'Autofocus'
 
-            self.scripts['AF'].run()
+            self.scripts['AF'].start()
             self.scripts['AF'].wait()
 
             self.updateProgress.emit(50)
@@ -123,7 +123,7 @@ class Refind_NVs(Script, QThread):
             self.scripts['Correlate_Images'].data['image_extent'] = self.data['baseline_extent']
             self.scripts['Correlate_Images'].data['old_nv_list'] = self.data['baseline_nv_locs']
 
-            self.scripts['Correlate_Images'].run()
+            self.scripts['Correlate_Images'].start()
             self.scripts['Correlate_Images'].wait()
 
             self.data['new_nv_locs'] = self.scripts['Correlate_Images'].data['new_NV_list']

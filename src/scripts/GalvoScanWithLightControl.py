@@ -67,7 +67,7 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
 
         self.instruments['MaestroLightControl']['instance'].update(instrument_settings)
 
-        self.scripts['acquire_image'].run()
+        self.scripts['acquire_image'].start()
         self.scripts['acquire_image'].wait()
 
         self.data = deepcopy(self.scripts['acquire_image'].data)

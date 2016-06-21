@@ -98,7 +98,7 @@ class Take_And_Correlate_Images(Script, QThread):
         self.scripts['GalvoScan'].settings['point_a']['y'] = new_y_min
         self.scripts['GalvoScan'].settings['point_b']['y'] = new_y_max
 
-        self.scripts['GalvoScan'].run()
+        self.scripts['GalvoScan'].start()
         self.scripts['GalvoScan'].wait()  #wait for scan to complete
         self.new_image = self.scripts['GalvoScan'].data['image_data']
 
@@ -228,7 +228,7 @@ class Take_And_Correlate_Images_2(Script, QThread):
             scan.settings['point_a']['y'] = self.data['image_extent'][3]
             scan.settings['point_b']['y'] = self.data['image_extent'][2]
 
-            self.scripts['GalvoScan'].run()
+            self.scripts['GalvoScan'].start()
             self.scripts['GalvoScan'].wait()  #wait for scan to complete
             self.data['new_image'] = self.scripts['GalvoScan'].scripts['acquire_image'].data['image_data']
 
@@ -237,7 +237,7 @@ class Take_And_Correlate_Images_2(Script, QThread):
                                                    self.data['image_extent'], self.settings['trackpy'])
 
         else:
-            self.scripts['GalvoScan'].run()
+            self.scripts['GalvoScan'].start()
             self.scripts['GalvoScan'].wait()  #wait for scan to complete
             self.data['baseline_image'] = self.scripts['GalvoScan'].data['image_data']
 

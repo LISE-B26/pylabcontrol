@@ -233,7 +233,7 @@ class ScriptDummyWithSubScript(Script):
         self.log('I am a test function runnning suscript {:s} {:d} times'.format(script.name, N))
         for i in range(N):
             self.log('run number {:d} / {:d}'.format(i+1, N))
-            script.run()
+            script.start()
             # script.wait()
 
             data[i] = deepcopy(script.data['random data'])
@@ -285,7 +285,7 @@ class ScriptDummyWithNestedSubScript(Script):
         self.log('I am a test function runnning suscript {:s} {:d} times'.format(script.name, N))
         for i in range(N):
             self.log('run number {:d} / {:d}'.format(i+1, N))
-            script.run()
+            script.start()
             # script.wait()
 
             data[i] = deepcopy(script.data['random data'])

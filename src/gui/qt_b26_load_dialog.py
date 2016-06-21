@@ -33,11 +33,13 @@ ControlMainWindow(settings_file)
 Returns:
     """
 
-    def __init__(self, elements_type, elements_old = {}, filename = ''):
+    def __init__(self, elements_type, elements_old={}, filename=None):
         super(LoadDialog, self).__init__()
         self.setupUi(self)
 
         self.elements_type = elements_type
+        if filename is None:
+            filename = ''
         self.txt_probe_log_path.setText(filename)
 
         # create models for tree structures, the models reflect the data

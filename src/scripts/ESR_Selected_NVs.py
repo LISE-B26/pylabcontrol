@@ -142,7 +142,7 @@ class ESR_Selected_NVs(Script, QThread):
                 self.scripts['Find_Max'].settings['initial_point'].update({'x': pt[0], 'y': pt[1]-.002})
                 if self._abort:
                     break
-                self.scripts['Find_Max'].run()
+                self.scripts['Find_Max'].start()
                 self.scripts['Find_Max'].wait()
                 self.updateProgress.emit(self.progress)
                 self.data['NV_image_data'][index] = np.array(self.scripts['Find_Max'].data['image_data'].flatten())
@@ -162,13 +162,13 @@ class ESR_Selected_NVs(Script, QThread):
                 #set laser to new point
 
                 self.scripts['move_to_point'].settings['point'].update({'x': self.cur_pt[0], 'y': self.cur_pt[1]})
-                self.scripts['move_to_point'].run()
+                self.scripts['move_to_point'].start()
 
                 #run the ESR
                 # self.scripts['StanfordResearch_ESR']['instance'].tag = self.scripts['StanfordResearch_ESR']['instance'].tag + '_NV_no_' + index
                 if self._abort:
                     break
-                self.scripts['StanfordResearch_ESR'].run()
+                self.scripts['StanfordResearch_ESR'].start()
                 self.scripts['StanfordResearch_ESR'].wait() #wait for previous ESR thread to complete
                 self.updateProgress.emit(self.progress)
 

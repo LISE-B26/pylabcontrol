@@ -104,7 +104,7 @@ Known issues:
         self.scripts['take_image'].scripts['acquire_image'].update({'RoI_mode': 'center'})
         self.scripts['take_image'].scripts['acquire_image'].settings['num_points'].update({'x': self.settings['num_points'], 'y': self.settings['num_points']})
 
-        self.scripts['take_image'].run()
+        self.scripts['take_image'].start()
         self.scripts['take_image'].wait()
 
         self.data['image_data'] = deepcopy(self.scripts['take_image'].scripts['acquire_image'].data['image_data'])
@@ -126,7 +126,7 @@ Known issues:
 
         self.scripts['set_laser'].settings['point'].update({'x': self.data['maximum_point'][0],
                                                        'y': self.data['maximum_point'][1]})
-        self.scripts['set_laser'].run()
+        self.scripts['set_laser'].start()
 
         if self.settings['save']:
             self.save_b26()

@@ -105,7 +105,7 @@ class Script(object):
     @data_path.setter
     def data_path(self, path):
         # check is path is a valid path string
-        if path is not None:
+        if path is not None and path is not '':
             assert os.path.isabs(path)
         self._data_path = path
 
@@ -1005,7 +1005,7 @@ class QThreadWrapper(QThread):
 
         self._running = True
         self.updateProgress.emit(1)
-        self.script.run()
+        self.script.start()
         self.updateProgress.emit(100)
 
 

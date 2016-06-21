@@ -108,7 +108,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
             # acquire_image.settings['point_b']['y'] = self.settings['RoI_1']['point_b']['y']
 
 
-            self.scripts['acquire_image'].run()
+            self.scripts['acquire_image'].start()
             self.scripts['acquire_image'].wait()
 
             self.data.update({
@@ -132,8 +132,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
             }
             acquire_image.scripts['acquire_image'].settings.update(dictator)
 
-
-            self.scripts['acquire_image'].run()
+            self.scripts['acquire_image'].start()
             self.scripts['acquire_image'].wait()
 
             self.data.update({

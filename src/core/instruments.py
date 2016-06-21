@@ -5,7 +5,6 @@ from copy import deepcopy
 import yaml
 from src.core.parameter import Parameter
 from src.core.read_write_functions import save_b26_file
-import pyvisa
 
 class Instrument(object):
     '''
@@ -275,7 +274,7 @@ class Instrument(object):
                 except AttributeError as e:
                     print(e.message)
                 except Exception as e2:
-                    raise e2
+                    # raise e2
                     pass
                     # catches when we try to create an instrument of a class that doesn't exist!
                     # raise AttributeError
