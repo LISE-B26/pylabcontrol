@@ -44,8 +44,18 @@ class GalvoScan(Script, QThread):
 
     _SCRIPTS = {}
 
-    def __init__(self, instruments, name=None, settings=None, log_function=None, timeout=1000000000, data_path=None):
-        self.timeout = timeout
+    def __init__(self, instruments, name=None, settings=None, log_function=None, data_path=None):
+        '''
+        Initializes GalvoScan script for use in gui
+
+        Args:
+            instruments: list of instrument objects
+            name: name to give to instantiated script object
+            settings: dictionary of new settings to pass in to override defaults
+            log_function: log function passed from the gui to direct log calls to the gui log
+            data_path: path to save data
+
+        '''
         self.plot_widget = None
 
         Script.__init__(self, name, settings=settings, instruments=instruments, log_function=log_function,
@@ -61,8 +71,7 @@ class GalvoScan(Script, QThread):
 
     def _function(self):
         """
-        This is the actual function that will be executed. It uses only information that is provided in the settings property
-        will be overwritten in the __init__
+        Executes threaded galvo scan
         """
         update_time = datetime.datetime.now()
 
@@ -112,13 +121,8 @@ class GalvoScan(Script, QThread):
             self.instruments['daq']['instance'].AO_stop()
             self.instruments['daq']['instance'].AO_init(["ao0"], self.x_array, clk_source)
             # start counter and scanning sequence
-            t1 = time.clock()
-            # self.instruments['daq']['instance'].trigger_AO_on_DI()
-            # self.instruments['daq']['instance'].trigger_DI_on_AO()
             self.instruments['daq']['instance'].AO_run()
             self.instruments['daq']['instance'].DI_run()
-            t2 = time.clock()
-            print('TIME TO CALL DAQQQQ:', (t2-t1)*1e6)
             self.instruments['daq']['instance'].AO_waitToFinish()
             self.instruments['daq']['instance'].AO_stop()
             xLineData,_ = self.instruments['daq']['instance'].DI_read()
@@ -134,6 +138,7 @@ class GalvoScan(Script, QThread):
 
 
             current_time = datetime.datetime.now()
+            #prevents emits to the gui too often, which seems to slow it down
             if ((current_time - update_time).total_seconds() > 0.1):
                 progress = int(float(yNum + 1) / len(self.y_array) * 100)
                 self.updateProgress.emit(progress)
@@ -145,6 +150,7 @@ class GalvoScan(Script, QThread):
 
         self._plotting = False
 
+        #saves standard values and the galvo image plot
         if self.settings['save']:
             self.save_b26()
             self.save_data()
@@ -179,6 +185,13 @@ class GalvoScan(Script, QThread):
         return [xVmin, xVmax, yVmax, yVmin]
 
     def plot(self, image_figure, axes_colorbar = None):
+        '''
+        Plots the galvo scan image to the input figure, clearing the figure and creating new axes if necessary
+        Args:
+            image_figure: figure to plot onto
+            axes_colorbar: axes with a colorbar to overwrite with the new colorbar
+
+        '''
 
         self.axes_image = self.get_axes(image_figure)
         if 'image_data' in self.data.keys() and not self.data['image_data'] == []:
@@ -187,6 +200,9 @@ class GalvoScan(Script, QThread):
                               axes_colorbar=axes_colorbar)
 
     def stop(self):
+        '''
+        Stops galvo scan
+        '''
         self._abort = True
 
 

@@ -30,6 +30,14 @@ class PositionerInfo(ctypes.Structure):
     _fields_ = [(("id"), ctypes.c_int32), (("locked"), ctypes.c_bool)]
 
 class Attocube(Instrument):
+    '''
+    Class to control an attocube using a supplied controller. Has been tested on an
+    ANC350 controlling a stack of two ANPx101res and one ANPz101res, but it should
+    work with any controllers supporting the same low level dll commands if the path
+    to the dll is reset.
+    Note that we use the 1.5 version of the dll, the 2.0 version cannot be read properly
+    and may be written in a non-ctypes compatible language
+    '''
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('x',
@@ -77,6 +85,12 @@ class Attocube(Instrument):
                 print('Attocube not detected. Check connection.')
 
     def update(self, settings):
+        '''
+        Updates the internal settings, as well as turning the attocube channel on or off, updating
+        voltage or frequency, or moving to the given position
+        Args:
+            settings: a dictionary in the same form as settings with the new values
+        '''
         super(Attocube, self).update(settings)
         for key, value in settings.iteritems():
             if isinstance(value, dict) and key in ['x', 'y', 'z']:
@@ -127,6 +141,12 @@ class Attocube(Instrument):
 
     @property
     def is_connected(self):
+        '''
+        Check if attocube controller is connected
+        Returns: True if controller is connected, false otherwise
+
+        '''
+        #connecting fails if device is not connected, so this catches that error
         try:
             device_handle = int32()
             self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
@@ -234,7 +254,7 @@ class Attocube(Instrument):
 
     def step(self, axis, dir):
         '''
-
+        Move a single step on the given axis in the given direction
         Args:
             axis: 'x', 'y', or 'z'
             dir: 0 for forwards, 1 for backwards
