@@ -24,7 +24,6 @@ class StanfordResearch_ESR(Script, QThread):
         Parameter('freq_points', 100, int, 'number of frequencies in scan'),
         Parameter('integration_time', 0.01, float, 'measurement time of fluorescent counts'),
         Parameter('settle_time', .0002, float, 'time to allow system to equilibrate after changing microwave powers')
-        # Parameter('runs_between_focusing', 10, int, 'runs after which we refocus - not implemented yet!!!')
     ])
 
     _INSTRUMENTS = {

@@ -1,5 +1,6 @@
 from src.core import Script, Parameter
 from PySide.QtCore import Signal, QThread
+# from PyQt4.QtCore import SIGNAL, QThread
 from src.scripts import GalvoScanWithLightControl, SetLaser
 import numpy as np
 from matplotlib import patches

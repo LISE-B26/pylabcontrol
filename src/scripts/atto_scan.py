@@ -7,7 +7,7 @@ class AttoStep(Script):
         Parameter('path', 'Z:/Lab/Cantilever/Measurements/__test_data_for_coding/', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', True, bool, 'save data on/off'),
-        Parameter('axis', 'z', ['x', 'y', 'z'], 'Axis to step on'),
+        Parameter('axis', 'x', ['x', 'y', 'z'], 'Axis to step on'),
         Parameter('direction', 'Up', ['Up', 'Down'], 'step direction, up or down in voltage (or on physical switch)')
     ])
 
@@ -25,8 +25,7 @@ class AttoStep(Script):
 
     def _function(self):
         """
-        This is the actual function that will be executed. It uses only information that is provided in the settings property
-        will be overwritten in the __init__
+        Updates the voltage and frequency on the attocube, and then does a single step in the specified direction
         """
         attocube = self.instruments['attocube']['instance']
         attocube_voltage = self.instruments['attocube']['settings'][self.settings['axis']]['voltage']
@@ -37,7 +36,7 @@ class AttoStep(Script):
             dir = 0
         elif self.settings['direction'] == 'Down':
             dir = 1
-        # self.instruments['attocube']['instance'].step(self.settings['axis'], dir)
+        self.instruments['attocube']['instance'].step(self.settings['axis'], dir)
 
 if __name__ == '__main__':
     script, failed, instr = Script.load_and_append({'AttoStep': 'AttoStep'})
@@ -45,25 +44,4 @@ if __name__ == '__main__':
     print(script)
     print(failed)
     print(instr)
-    # fp = Find_Points(settings={'path': 'Z:/Lab/Cantilever/Measurements/__tmp__', 'tag':'nvs'})
-    # fp.run()
-
-    # plt.pcolor(fp.data['image'])
-    # print(fp.data['image_gaussian'].shape)
-    # plt.pcolor(fp.data['image'])
-    # plt.imshow(fp.data['image'], cmap = 'pink', interpolation = 'nearest')
-    #
-    #
-    # for x in fp.data['NV_positions']:
-    #     plt.plot(x[0],x[1],'ro')
-    #
-    # plt.show()
-
-    # plt.figure()
-    # plt.imshow(fp.data['image_gaussian'])
-    # Axes3D.plot(fp.data['image_gaussian'])
-    # plt.show()
-    # print(max(fp.data['image']))
-    # print(max(fp.data['image_gaussian'].flatten()))
-    # print('NV_positions', fp.data['NV_positions'])
 

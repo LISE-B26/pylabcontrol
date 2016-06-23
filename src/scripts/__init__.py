@@ -26,6 +26,34 @@ try:
     from Find_Points import Find_Points
 except:
     print("./src/scripts/__init__ warning! Find_Points did not load")
+
+
+try:
+    from labview_fpga_get_timetrace import LabviewFpgaTimetrace
+except:
+    print("./src/scripts/__init__ warning! LabviewFpgaTimetrace did not load")
+
+try:
+    from FPGA_PolarizationController import FPGA_PolarizationController
+except:
+    print("./src/scripts/__init__ warning! FPGA_PolarizationController did not load")
+
+try:
+    from FPGA_PolarizationController import FPGA_PolarizationSignalMap
+except:
+    print("./src/scripts/__init__ warning! FPGA_PolarizationSignalMap did not load")
+
+try:
+    from FPGA_PolarizationController import FPGA_PolarizationSignalScan
+except:
+    print("./src/scripts/__init__ warning! FPGA_PolarizationSignalScan did not load")
+try:
+    from FPGA_PolarizationController import FPGA_BalancePolarization
+except:
+    print("./src/scripts/__init__ warning! FPGA_BalancePolarization did not load")
+
+
+
 # from StanfordResearch_ESR import StanfordResearch_ESR
 try:
     from autofocus import AutoFocus
@@ -89,25 +117,7 @@ except:
     print("./src/scripts/__init__ warning! ESR_Selected_NVs did not load")
 
 # from labview_fpga_get_timetrace import LabviewFpgaTimetrace
-try:
-    from labview_fpga_get_timetrace import LabviewFpgaTimetrace
-except:
-    print("./src/scripts/__init__ warning! LabviewFpgaTimetrace did not load")
 
-try:
-    from FPGA_PolarizationController import FPGA_PolarizationController
-except:
-    print("./src/scripts/__init__ warning! FPGA_PolarizationController did not load")
-
-try:
-    from FPGA_PolarizationController import FPGA_PolarizationSignalMap
-except:
-    print("./src/scripts/__init__ warning! FPGA_PolarizationSignalMap did not load")
-
-try:
-    from FPGA_PolarizationController import FPGA_PolarizationSignalScan
-except:
-    print("./src/scripts/__init__ warning! FPGA_PolarizationSignalScan did not load")
 
 try:
     from galvo_scan_ni_fpga import GalvoScanNIFpga

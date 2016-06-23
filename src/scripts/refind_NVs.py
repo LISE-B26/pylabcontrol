@@ -19,9 +19,7 @@ class Refind_NVs(Script, QThread):
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', True, bool, 'save data on/off'),
         Parameter('activate_correlation', True, bool, 'perform correlation'),
-        Parameter('trackpy_correlation', False, bool, 'Use trackpy to create an artificial image of just the NVs to filter a noisy background'),
-        Parameter('activate_autofocus', True, bool, 'perform autofocus'),
-        Parameter('autofocus_size', .1, float, 'Side length of autofocusing square in Volts')
+        Parameter('activate_autofocus', True, bool, 'perform autofocus')
     ])
 
     _INSTRUMENTS = {}
