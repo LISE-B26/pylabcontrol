@@ -2,6 +2,7 @@ from src.core import Instrument, Parameter, Pulse
 from collections import namedtuple
 import numpy as np
 import itertools
+import ctypes
 
 class PulseBlaster(Instrument):
 
@@ -35,22 +36,64 @@ class PulseBlaster(Instrument):
         ])
     ])
 
+    PB_INSTRUCTIONS = {
+        'CONTINUE': 0,
+        'STOP': 1,
+        'LOOP': 2,
+        'END_LOOP': 3,
+        'BRANCH': 6,
+        'LONG_DELAY': 7
+    }
     def __init__(self, name = None, settings = None):
         super(PulseBlaster, self).__init__(name, settings)
         self.PBStateChange = namedtuple('PBStateChange', ('channel_bits', 'time'))
+        pb = ctypes.windll('spinapi64')
+        self.update(_DEFAULT_SETTINGS)
 
 
     def update(self, settings):
         # call the update_parameter_list to update the parameter list
         super(PulseBlaster, self).update(settings)
 
-    def get_delay(self, channel_name_or_int):
-        if isinstance(channel_name_or_int, str):
-            channel_name = channel_name_or_int
+        for key, value in settings.iteritems():
+            if isinstance(value, dict) and 'status' in value.keys():
+                assert pb.pb_init() == 0, 'Could not initialize the pulseblsater on pb_init() command.'
+                pb.pb_core_clock(400.0) == 0
+                pb.start_programming(PULSE_PROGRAM)
+                pb.pb_inst(self.settings2bits(), PB_INSTRUCTIONS['BRANCH'], 0, 100000)
+                pb.pb_stop_programming()
+                pb.pb_start()
+                assert pb.pb_read_status() & 0b100 == 0b100, 'pulseblaster did not begin running after start() called.'
+                break
+
+
+    def settings2bits(self):
+        bits = 0
+        for output, output_params in self.settings.iteritems():
+            if isinstance(output_params, dict) and 'channel' in output_params and 'status' in ouput_params:
+                if output_params['status']:
+                    bits += 1 << output_params['channel']
+
+        return bits
+
+
+
+    def get_delay(self, channel_id):
+        """
+        Gets the delay for an inputted channel id, a name or number.
+        Args:
+            channel_id: channel for which you want the delay. Must be an integer or string
+
+        Returns:
+            the delay, in ns, for a given channel id
+
+        """
+        if isinstance(channel_id, str):
+            channel_name = channel_id
             return self.settings[channel_name]['delay_time']
 
-        elif isinstance(channel_name_or_int, int):
-            channel_num = channel_name_or_int
+        elif isinstance(channel_id, int):
+            channel_num = channel_id
             for key, value in self.settings:
                 if isinstance(value, dict) and 'channel' in value.keys() and value['channel'] == channel_num:
                     return self.settings[key]['delay_time']
@@ -194,6 +237,31 @@ class PulseBlaster(Instrument):
         pb_command_list = change_to_propogating_signal(pb_command_list)
 
         return pb_command_list
+
+    def program_pb(self, pulse_collection, num_loops=1):
+        assert len(pulse_collection) > 1, 'pulse program must have at least 2 pulses'
+
+        delayed_pulse_collection = create_physical_pulse_seq(pulse_collection)
+        pb_commands = generate_pq_sequence(delayed_pulse_collection)
+
+
+        assert pb.pb_init() == 0, 'Could not initialize the pulseblsater on pb_init() command.'
+        pb.pb_core_clock(400.0) == 0
+        pb.start_programming(PULSE_PROGRAM)
+
+
+        pb.pb_inst(pb_commands[0].channel_bits, PB_INSTRUCTIONS['LOOP'], num_loops, pb_commands[0].time)
+
+        for index in range(1, len(pb_commands)-1):
+            pb.pb_inst(pb_commands[index].channel_bits, PB_INSTRUCTIONS['CONTINUE'], 0, pb_commands[index].time)
+
+        pb.pb_inst(pb_commands[len(pb_commands)-1].channel_bits, PB_INSTRUCTIONS['END_LOOP'], 0,  pb_commands[len(pb_commands)-1].time)
+
+        pb.pb_stop_programming()
+
+    def start_pulse_seq(self):
+        pb.pb_start()
+
 
 
 class B26PulseBlaster(PulseBlaster):
