@@ -10,9 +10,9 @@ class MWSpectraVsPower(Script, QThread):
 
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/', str, 'path for data'),
+        Parameter('path', '', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off'),
+        Parameter('save', False, bool, 'save data on/off'),
         # Parameter('start_frequency', 2.7e9, float, 'start frequency of spectrum'),
         # Parameter('end_frequency', 3e9, float, 'end frequency of spectrum'),
         Parameter('uwave_power_min', -45.0, float, 'microwave power min (dBm)'),

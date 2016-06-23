@@ -10,9 +10,9 @@ class ZISweeper(Script, QThread):
     updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
+        Parameter('path',  '', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
-        Parameter('save', True, bool,'check to automatically save data'),
+        Parameter('save', False, bool,'check to automatically save data'),
         Parameter('start', 1.8e6, float, 'start value of sweep'),
         Parameter('stop', 1.9e6, float, 'end value of sweep'),
         Parameter('samplecount', 101, int, 'number of data points'),

@@ -5,11 +5,7 @@ except:
     print("./src/scripts/__init__ warning! ScriptDummyWithInstrument did not load")
 
 from script_dummy import  ScriptDummy, ScriptDummyWithQtSignal, ScriptDummyPlotting
-# from zi_sweeper import ZISweeper
-# from zi_high_res_sweep import ZISweeperHighResolution
-# from MWSpectraVsPower import MWSpectraVsPower
-# from keysight_get_spectrum import KeysightGetSpectrum
-# from keysight_spectra_vs_power import KeysightSpectrumVsPower
+
 try:
     from galvo_scan import GalvoScan
 except:
@@ -60,10 +56,8 @@ try:
 except:
     print("./src/scripts/__init__ warning! AutoFocus did not load")
 # from light_control import CameraOn
-from Select_NVs import Select_NVs
 from Select_NVs import Select_NVs_Simple
 from set_laser import SetLaser
-from center_on_NVs import Center_On_NVs
 from find_max_counts_point import FindMaxCounts
 from find_max_counts_point_2d import FindMaxCounts2D
 try:
@@ -85,12 +79,6 @@ try:
     from Correlate_Images import Take_And_Correlate_Images_2
 except:
     print("./src/scripts/__init__ warning! Correlate_Images did not load")
-
-try:
-    from center_on_NVs import Center_On_NVs
-except:
-    print("./src/scripts/__init__ warning! Center_On_NVs did not load")
-
 
 try:
     from find_max_counts_point import FindMaxCounts

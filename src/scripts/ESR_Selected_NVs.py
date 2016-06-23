@@ -14,9 +14,9 @@ class ESR_Selected_NVs(Script, QThread):
     updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/', str, 'path for data'),
+        Parameter('path', '', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off')
+        Parameter('save', False, bool, 'save data on/off')
     ])
 
     _INSTRUMENTS = {}

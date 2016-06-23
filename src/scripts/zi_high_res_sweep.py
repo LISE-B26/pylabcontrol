@@ -13,9 +13,9 @@ class ZISweeperHighResolution(Script, QThread):
     updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data\\fast', str, 'path to folder where data is saved'),
+        Parameter('path',  '', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
-        Parameter('save', True, bool,'check to automatically save data'),
+        Parameter('save', False, bool,'check to automatically save data'),
         Parameter('high_res_df', 1000, float, 'frequency step of high res. scan'),
         Parameter('high_res_N', 21, int, 'number of data points of high res. scan'),
     ])

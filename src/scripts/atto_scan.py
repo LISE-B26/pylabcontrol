@@ -3,10 +3,6 @@ from src.instruments import Attocube
 
 class AttoStep(Script):
     _DEFAULT_SETTINGS = Parameter([
-
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/__test_data_for_coding/', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off'),
         Parameter('axis', 'x', ['x', 'y', 'z'], 'Axis to step on'),
         Parameter('direction', 'Up', ['Up', 'Down'], 'step direction, up or down in voltage (or on physical switch)')
     ])

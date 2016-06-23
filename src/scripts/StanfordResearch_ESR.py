@@ -14,9 +14,9 @@ from src.plotting.plots_1d import plot_esr
 class StanfordResearch_ESR(Script, QThread):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/----data_tmp_default----', str, 'path for data'),
+        Parameter('path', '', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off'),
+        Parameter('save', False, bool, 'save data on/off'),
         Parameter('power_out', -45.0, float, 'output power (dBm)'),
         Parameter('esr_avg', 50, int, 'number of esr averages'),
         Parameter('freq_start', 2.82e9, float, 'start frequency of scan'),
@@ -31,9 +31,7 @@ class StanfordResearch_ESR(Script, QThread):
         'daq': DAQ
     }
 
-    _SCRIPTS = {
-
-    }
+    _SCRIPTS = {}
     updateProgress = Signal(int)
 
     def __init__(self, instruments, scripts = None, name=None, settings=None, log_function=None, data_path = None):
