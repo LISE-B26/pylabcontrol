@@ -588,14 +588,14 @@ class Script(object):
         for data_file in data_files:
 
             # get data name, read the data from the csv, and save it to dictionary
-            data_name = data_file.split('-')[-1][0:-4]
+            data_name = data_file.split('-')[-1][0:-4] # JG: why do we strip of the date?
             imported_data_df = pd.read_csv(os.path.join(path, data_file))
 
 
             # check if there are headers, i.e. check if all headers are of type str
             column_headers = list(imported_data_df.columns.values)
             if sum([int(isinstance(x, str)) for x in column_headers]) == len(column_headers):
-                    data[data_name] = {h: imported_data_df[h].as_matrix() for h in column_headers}
+                    data = {h: imported_data_df[h].as_matrix() for h in column_headers}
             else:
                 # note, np.squeeze removes extraneous length-1 dimensions from the returned 'matrix' from the dataframe
                 data[data_name] = np.squeeze(imported_data_df.as_matrix())

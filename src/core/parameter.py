@@ -1,6 +1,6 @@
 
 class Parameter(dict):
-    def __init__(self, name, value = None, valid_values = None, info = None):
+    def __init__(self, name, value = None, valid_values = None, info = None, hidden = False):
         """
 
         Parameter(name, value, valid_values, info)
@@ -39,18 +39,20 @@ class Parameter(dict):
                 self._valid_values = {name: {k: v for d in value for k, v in d.valid_values.iteritems()}}
                 self.update({name: {k: v for d in value for k, v in d.iteritems()}})
                 self._info = {name: {k: v for d in value for k, v in d.info.iteritems()}}
+                self._hidden = {name: {k: v for d in value for k, v in d.hidden.iteritems()}}
 
             else:
                 self._valid_values = {name: valid_values}
                 self.update({name: value})
                 self._info = {name: info}
+                self._hidden = {name: hidden}
 
         elif isinstance(name, (list, dict)) and value is None:
 
             self._valid_values = {}
             self._info = {}
+            self._hidden = {}
             if isinstance(name, dict):
-                # print('1FFF', name)
                 for k, v in name.iteritems():
                     # convert to Parameter if value is a dict
                     if isinstance(v, dict):
@@ -58,29 +60,14 @@ class Parameter(dict):
                     self._valid_values.update({k: type(v)})
                     self.update({k: v})
                     self._info.update({k: ''})
+                    self._hidden.update({k: hidden})
             elif isinstance(name, list) and isinstance(name[0], Parameter):
-                # print('2FFF', name)
                 for p in name:
-
-                    c= 0
                     for k, v in p.iteritems():
-                        c+=1
-
                         self._valid_values.update({k: p.valid_values[k]})
                         self.update({k: v})
                         self._info.update({k: p.info[k]})
-
-
-                        # print('d', c, k, v, p.valid_values[k], type(v))
-                        # self.update(Parameter({k: v}))
-                        # self.update({k: v})
-                        # # self.update(Parameter(k, v))
-                        #
-                        # self._valid_values.update({k: p.valid_values[k]})
-                        # self.update(Parameter({k: v}))
-
-
-                        # self._info.update({k: p.info[k]})
+                        self._hidden.update({k: p.hidden[k]})
             else:
                 raise TypeError('unknown input: ', name)
 
@@ -99,6 +86,9 @@ class Parameter(dict):
         for d in args:
             for key, value in d.iteritems():
                 self.__setitem__(key, value)
+    @property
+    def hidden(self):
+        return self._hidden
 
     @property
     def valid_values(self):
