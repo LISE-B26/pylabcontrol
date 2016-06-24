@@ -37,12 +37,12 @@ class PulseBlaster(Instrument):
     ])
 
     PB_INSTRUCTIONS = {
-        'CONTINUE': 0,
-        'STOP': 1,
-        'LOOP': 2,
-        'END_LOOP': 3,
-        'BRANCH': 6,
-        'LONG_DELAY': 7
+        'CONTINUE': ctypes.c_int32(0),
+        'STOP': ctypes.c_int(1),
+        'LOOP': ctypes.c_int(2),
+        'END_LOOP': ctypes.c_int(3),
+        'BRANCH': ctypes.c_int(6),
+        'LONG_DELAY': ctypes.c_int(7)
     }
     def __init__(self, name = None, settings = None):
         super(PulseBlaster, self).__init__(name, settings)
@@ -58,25 +58,27 @@ class PulseBlaster(Instrument):
         for key, value in settings.iteritems():
             if isinstance(value, dict) and 'status' in value.keys():
                 assert self.pb.pb_init() == 0, 'Could not initialize the pulseblsater on pb_init() command.'
-                self.pb.pb_core_clock(ctypes.c_float(400.0))
-                self.pb.pb_start_programming(0)
-                self.pb.pb_inst(self.settings2bits() | 0xE00000, self.PB_INSTRUCTIONS['BRANCH'], 0, 100000)
+                print(self.pb.pb_core_clock(ctypes.c_double(100.0)), 'clock')
+                print(self.pb.pb_start_programming(ctypes.c_int(0)), 'start programming')
+                print(self.pb.pb_inst_pbonly(ctypes.c_int32(self.settings2bits() | 0xE00000), self.PB_INSTRUCTIONS['CONTINUE'], ctypes.c_int32(0), ctypes.c_double(100)))
+                print(self.pb.pb_inst_pbonly(ctypes.c_int(self.settings2bits() | 0xE00000), self.PB_INSTRUCTIONS['BRANCH'],
+                                             ctypes.c_int(0), ctypes.c_double(100)))
                 self.pb.pb_stop_programming()
                 self.pb.pb_start()
                 assert self.pb.pb_read_status() & 0b100 == 0b100, 'pulseblaster did not begin running after start() called.'
+                self.pb.pb_close()
+
                 break
 
 
     def settings2bits(self):
         bits = 0
         for output, output_params in self.settings.iteritems():
-            if isinstance(output_params, dict) and 'channel' in output_params and 'status' in ouput_params:
+            if isinstance(output_params, dict) and 'channel' in output_params and 'status' in output_params:
                 if output_params['status']:
-                    bits += 1 << output_params['channel']
+                    bits |= 1 << output_params['channel']
 
         return bits
-
-
 
     def get_delay(self, channel_id):
         """
@@ -250,12 +252,12 @@ class PulseBlaster(Instrument):
         pb.start_programming(self.PULSE_PROGRAM)
 
 
-        pb.pb_inst(pb_commands[0].channel_bits, self.PB_INSTRUCTIONS['LOOP'], num_loops, pb_commands[0].time)
+        pb.pb_inst_pbonly(pb_commands[0].channel_bits, self.PB_INSTRUCTIONS['LOOP'], num_loops, pb_commands[0].time)
 
         for index in range(1, len(pb_commands)-1):
-            pb.pb_inst(pb_commands[index].channel_bits, self.PB_INSTRUCTIONS['CONTINUE'], 0, pb_commands[index].time)
+            pb.pb_inst_pbonly(pb_commands[index].channel_bits, self.PB_INSTRUCTIONS['CONTINUE'], 0, pb_commands[index].time)
 
-        pb.pb_inst(pb_commands[len(pb_commands)-1].channel_bits, self.PB_INSTRUCTIONS['END_LOOP'], 0,  pb_commands[len(pb_commands)-1].time)
+        pb.pb_inst_pbonly(pb_commands[len(pb_commands)-1].channel_bits, self.PB_INSTRUCTIONS['END_LOOP'], 0,  pb_commands[len(pb_commands)-1].time)
 
         pb.pb_stop_programming()
 
