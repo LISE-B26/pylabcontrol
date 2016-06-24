@@ -11,7 +11,7 @@ class Focusing(Script, QThread):
     updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
+        Parameter('path', '', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
         Parameter('save', False, bool, 'check to automatically save data'),
         Parameter('point_a', (0.0, 0.0), tuple, 'top left corner point of scan region'),

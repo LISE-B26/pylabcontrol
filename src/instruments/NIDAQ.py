@@ -16,6 +16,7 @@ int64 = ctypes.c_longlong
 uInt32 = ctypes.c_ulong
 uInt64 = ctypes.c_ulonglong
 float64 = ctypes.c_double
+bool32 = ctypes.c_bool
 TaskHandle = uInt64
 # Analog constants
 DAQmx_Val_Cfg_Default = int32(-1)
@@ -27,8 +28,11 @@ DAQmx_Val_GroupByChannel = 0
 
 # DI constants
 DAQmx_Val_CountUp = 10128
-DAQmx_Val_Hz = 10373; #Hz
-DAQmx_Val_Low =10214; #Low
+DAQmx_Val_Hz = 10373 #Hz
+DAQmx_Val_Low =10214 #Low
+DAQmx_Val_Seconds =10364
+DAQmx_Val_Ticks =10304 #specifies units as timebse ticks
+
 
 
 # =============== NI DAQ 6259======= =======================
@@ -146,9 +150,10 @@ class DAQ(Instrument):
                   [
                       Parameter('ctr0',
                                 [
-                                    Parameter('input_channel', 0, range(0, 32), 'input channel'),
-                                    Parameter('clock_PFI_channel', 13, range(0, 32), 'PFI output clock channel'),
-                                    Parameter('clock_counter_channel', 1, [0, 1], 'counter output clock channel'),
+                                    Parameter('input_channel', 0, range(0, 32), 'channel for counter signal input'),
+                                    Parameter('counter_PFI_channel', 8, 'PFI for counter channel input'),
+                                    Parameter('clock_PFI_channel', 13, range(0, 32), 'PFI for clock channel output'),
+                                    Parameter('clock_counter_channel', 1, [0, 1], 'channel for clock output'),
                                     Parameter('sample_rate', 1000.0, float, 'input sample rate (Hz)')
                                 ]
                                 )
@@ -322,6 +327,64 @@ class DAQ(Instrument):
         self.nidaq.DAQmxStopTask(self.DI_taskHandleCtr)
         self.nidaq.DAQmxClearTask(self.DI_taskHandleCtr)
 
+    def gated_DI_init(self, channel, num_samples):
+        if not channel in self.settings['digital_input'].keys():
+            raise KeyError('This is not a valid digital input channel')
+        channel_settings = self.settings['digital_input'][channel]
+
+        input_channel_str_gated = self.settings['device'] + '/' + channel
+        counter_out_PFI_str_gated = '/' + self.settings['device'] + '/PFI' + str(channel_settings['counter_PFI_channel'])  # initial / required only here, see NIDAQ documentation
+
+        self.gated_DI_taskHandle = TaskHandle(0)
+
+        MIN_TICKS = 0;
+        MAX_TICKS = 100E3;
+
+        #setup counter to measure pulse widths
+        self._check_error(self.nidaq.DAQmxCreateCIPulseWidthChan(self.gated_DI_taskHandle, channel, '', MIN_TICKS, MAX_TICKS, DAQmx_Val_Ticks,DAQmx_Val_Rising,''))
+
+        #specify number of samples to acquire
+        self._check_error(self.nidaq.DAQmxCfgImplicitTiming(self.gated_DI_taskHandle,
+                                                            DAQmx_Val_FiniteSamps, uInt64(num_samples)))
+
+        #set the terminal for the counter timebase source to the APD source
+        #in B26, this is the ctr0 source PFI8, but this will vary from daq to daq
+        self._check_error(self.nidaq.DAQmxSetCICtrTimebaseSrc(self.gated_DI_taskHandle, input_channel_str_gated, counter_out_PFI_str_gated))
+
+        #turn on duplicate count prevention (allows 0 counts to be a valid count for clock ticks during a gate, even
+        #though the timebase never went high and thus nothing would normally progress, by also referencing to the internal
+        #clock at max frequency, see http://zone.ni.com/reference/en-XX/help/370466AC-01/mxdevconsid/dupcountprevention/
+        #for more details)
+        self._check_error(self.nidaq.DAQmxSetCIDupCountPrevent(self.gated_DI_taskHandle, input_channel_str_gated, bool32(True)))
+
+    def gated_DI_run(self):
+        '''
+        start reading sampleNum values from counter into buffer
+        '''
+        self._check_error(self.nidaq.DAQmxStartTask(self.gated_DI_taskHandle))
+
+    def gated_DI_read(self, timeout = -1):
+        '''
+        read sampleNum previously generated values from a buffer, and return the
+        corresponding 1D array of ctypes.c_double values
+        Returns: 1d array of ctypes.c_double values with the requested counts
+
+        '''
+        # initialize array and integer to pass as pointers
+        self.data = (float64 * self.DI_sampleNum)()
+        self.samplesPerChanRead = int32()
+        self._check_error(self.nidaq.DAQmxReadCounterF64(self.gated_DI_taskHandle,
+                                                         int32(self.numSampsPerChan), float64(timeout),
+                                                         ctypes.byref(self.data),
+                                                         uInt32(self.DI_sampleNum),
+                                                         ctypes.byref(self.samplesPerChanRead),
+                                                         None))
+        return self.data, self.samplesPerChanRead
+
+    def gated_DI_stop(self):
+        self.nidaq.DAQmxStopTask(self.gated_DI_taskHandle)
+        self.nidaq.DAQmxClearTask(self.gated_DI_taskHandle)
+
     def AO_init(self, channels, waveform, clk_source = ""):
         '''
         Initializes a arbitrary number of analog output channels to output an arbitrary waveform
@@ -463,9 +526,6 @@ class DAQ(Instrument):
             self.nidaq.DAQmxClearTask(self.AI_taskHandle)
         return self.data
 
-    def triggered_DI_init(self):
-        pass
-
     def _check_error(self, err):
         """
         Error Checking Routine for DAQmx functions. Pass in the returned values form DAQmx functions (the errors) to get
@@ -485,7 +545,7 @@ class DAQ(Instrument):
             buffer_size = 100
             buffer = ctypes.create_string_buffer('\000' * buffer_size)
             self.nidaq.DAQmxGetErrorString(err,ctypes.byref(buffer), buffer_size)
-            raise RuntimeError('nidaq generated warning %d: %s'%(err,repr(buf.value)))
+            raise RuntimeError('nidaq generated warning %d: %s'%(err,repr(buffer.value)))
 
 if __name__ == '__main__':
 

@@ -14,14 +14,9 @@ class ESR_Selected_NVs(Script, QThread):
     updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/', str, 'path for data'),
+        Parameter('path', '', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off'),
-        Parameter('save_subscripts', False, bool, 'save subscripts for troubleshooting'),
-        Parameter('num_between_correlate', -1, int, 'Number of ESRs between correlations, -1 to deactivate correlation'),
-        Parameter('trackpy_correlation', False, bool, 'Use trackpy to create an artificial image of just the NVs to filter a noisy background'),
-        Parameter('num_between_autofocus', -1, int, 'Number of ESRs between autofocuses, -1 to deactivate autofocus'),
-        Parameter('autofocus_size', .1, float, 'Side length of autofocusing square in Volts')
+        Parameter('save', False, bool, 'save data on/off')
     ])
 
     _INSTRUMENTS = {}

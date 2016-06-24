@@ -5,11 +5,7 @@ except:
     print("./src/scripts/__init__ warning! ScriptDummyWithInstrument did not load")
 
 from script_dummy import  ScriptDummy, ScriptDummyWithQtSignal, ScriptDummyPlotting
-# from zi_sweeper import ZISweeper
-# from zi_high_res_sweep import ZISweeperHighResolution
-# from MWSpectraVsPower import MWSpectraVsPower
-# from keysight_get_spectrum import KeysightGetSpectrum
-# from keysight_spectra_vs_power import KeysightSpectrumVsPower
+
 try:
     from galvo_scan import GalvoScan
 except:
@@ -26,16 +22,42 @@ try:
     from Find_Points import Find_Points
 except:
     print("./src/scripts/__init__ warning! Find_Points did not load")
+
+
+try:
+    from labview_fpga_get_timetrace import LabviewFpgaTimetrace
+except:
+    print("./src/scripts/__init__ warning! LabviewFpgaTimetrace did not load")
+
+try:
+    from FPGA_PolarizationController import FPGA_PolarizationController
+except:
+    print("./src/scripts/__init__ warning! FPGA_PolarizationController did not load")
+
+try:
+    from FPGA_PolarizationController import FPGA_PolarizationSignalMap
+except:
+    print("./src/scripts/__init__ warning! FPGA_PolarizationSignalMap did not load")
+
+try:
+    from FPGA_PolarizationController import FPGA_PolarizationSignalScan
+except:
+    print("./src/scripts/__init__ warning! FPGA_PolarizationSignalScan did not load")
+try:
+    from FPGA_PolarizationController import FPGA_BalancePolarization
+except:
+    print("./src/scripts/__init__ warning! FPGA_BalancePolarization did not load")
+
+
+
 # from StanfordResearch_ESR import StanfordResearch_ESR
 try:
     from autofocus import AutoFocus
 except:
     print("./src/scripts/__init__ warning! AutoFocus did not load")
 # from light_control import CameraOn
-from Select_NVs import Select_NVs
 from Select_NVs import Select_NVs_Simple
 from set_laser import SetLaser
-from center_on_NVs import Center_On_NVs
 from find_max_counts_point import FindMaxCounts
 from find_max_counts_point_2d import FindMaxCounts2D
 try:
@@ -57,12 +79,6 @@ try:
     from Correlate_Images import Take_And_Correlate_Images_2
 except:
     print("./src/scripts/__init__ warning! Correlate_Images did not load")
-
-try:
-    from center_on_NVs import Center_On_NVs
-except:
-    print("./src/scripts/__init__ warning! Center_On_NVs did not load")
-
 
 try:
     from find_max_counts_point import FindMaxCounts
@@ -89,25 +105,7 @@ except:
     print("./src/scripts/__init__ warning! ESR_Selected_NVs did not load")
 
 # from labview_fpga_get_timetrace import LabviewFpgaTimetrace
-try:
-    from labview_fpga_get_timetrace import LabviewFpgaTimetrace
-except:
-    print("./src/scripts/__init__ warning! LabviewFpgaTimetrace did not load")
 
-try:
-    from FPGA_PolarizationController import FPGA_PolarizationController
-except:
-    print("./src/scripts/__init__ warning! FPGA_PolarizationController did not load")
-
-try:
-    from FPGA_PolarizationController import FPGA_PolarizationSignalMap
-except:
-    print("./src/scripts/__init__ warning! FPGA_PolarizationSignalMap did not load")
-
-try:
-    from FPGA_PolarizationController import FPGA_PolarizationSignalScan
-except:
-    print("./src/scripts/__init__ warning! FPGA_PolarizationSignalScan did not load")
 
 try:
     from galvo_scan_ni_fpga import GalvoScanNIFpga

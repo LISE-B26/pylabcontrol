@@ -9,12 +9,14 @@ import numpy as np
 import os
 import psutil
 
+import Queue
+
 try:
     from src.instruments import DummyInstrument
 except:
     print('WARNING script_dummy')
-# from PyQt4 import QtCore
-from PySide.QtCore import Signal, QThread, QTimer
+from PySide.QtCore import Signal, QThread
+# from PyQt4.QtCore import SIGNAL, QThread
 
 class ScriptDummy(Script):
     #This is the signal that will be emitted during the processing.
@@ -23,7 +25,7 @@ class ScriptDummy(Script):
     # updateProgress = QtCore.Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data'),
+        Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data',),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', False, bool, 'save data on/off'),
         Parameter('count', 3, int),
@@ -348,7 +350,7 @@ class ScriptDummyPlotMemoryTest(Script, QThread):
 
         QThread.__init__(self)
         self._plot_type = 'two'
-        self.data = {'data': [], 'memory': []}
+        self.data = {'data': [], 'memory': Queue.Queue(maxsize=5)}
 
 
     def _function(self):
@@ -363,7 +365,7 @@ class ScriptDummyPlotMemoryTest(Script, QThread):
 
         while self._abort == False:
             data = [random.random() for _ in range(self.settings['datasize'])]
-
+            # todo: use queue!!
             process = psutil.Process(os.getpid())
             memory.append(int(process.memory_info().rss))
             self.data = {'data' : data, 'memory':memory}
@@ -401,7 +403,7 @@ class ScriptDummyPlotMemoryTest(Script, QThread):
             # print(img)
             plot_fluorescence(img, [-1,1,1,-1], axes_data)
 
-        axes_memory.plot(self.data['memory']/1000)
+        axes_memory.plot(np.array(self.data['memory'])/1000)
 
 class ScriptDummySaveData(Script):
     """

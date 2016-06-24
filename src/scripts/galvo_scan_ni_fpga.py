@@ -1,5 +1,6 @@
 from src.core import Script, Parameter
 from PySide.QtCore import Signal, QThread
+# from PyQt4.QtCore import SIGNAL, QThread
 import numpy as np
 from collections import deque
 from src.instruments.labview_fpga import NI7845RGalvoScan

@@ -26,9 +26,9 @@ class Find_Points(Script):
     _DEFAULT_SETTINGS = Parameter([
         Parameter('image_path', 'Z:/Lab/Cantilever/Measurements/__test_data_for_coding/', str, 'path for data'),
         Parameter('image_tag', 'some_name', str, 'some_name'),
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/__test_data_for_coding/', str, 'path for data'),
+        Parameter('path', '', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off'),
+        Parameter('save', False, bool, 'save data on/off'),
         Parameter('fit_values',[
             Parameter('min_separation', 2.0, float, 'minimum seperation between adjacent points in um'),
             Parameter('point_size', 0.5, float, 'size of point in um'),

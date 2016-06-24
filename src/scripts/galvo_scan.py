@@ -17,7 +17,7 @@ class GalvoScan(Script, QThread):
     lock = QReadWriteLock()
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),
+        Parameter('path',  '', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
         Parameter('save', False, bool,'check to automatically save data'),
         Parameter('point_a',

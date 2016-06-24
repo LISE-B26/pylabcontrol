@@ -5,6 +5,7 @@ from src.instruments import NI7845RReadWrite
 import time
 import numpy as np
 import pandas as pd
+from scipy.optimize import curve_fit
 
 class FPGA_PolarizationController(Script, QThread):
     """
@@ -425,7 +426,13 @@ this gives a one dimensional dataset
         Parameter('channel_OnOff', 4, [4,5,6,7], 'digital channel that turns polarization controller on/off'),
         Parameter('channel_detector', 0, range(4), 'analog input channel of the detector signal'),
         Parameter('V_1', 2.4, float, 'voltage applied to waveplate 1'),
-        Parameter('V_3', 2.4, float, 'voltage applied to waveplate 3')
+        Parameter('V_3', 2.4, float, 'voltage applied to waveplate 3'),
+        Parameter('V_2',
+                  [Parameter('min', 0, float, 'min voltage applied to waveplate 2'),
+                   Parameter('max', 5.0, float, 'max voltage applied to waveplate 2'),
+                   Parameter('number', 10, int, 'number of voltage steps applied to waveplate 2')]
+                  ),
+        Parameter('settle_time', 1.0, float, 'settle time in seconds between voltage steps')
     ])
 
     _INSTRUMENTS = {
@@ -455,7 +462,7 @@ this gives a one dimensional dataset
         will be overwritten in the __init__
         """
 
-
+        self._plot_refresh
         def calc_progress(v2, volt_range):
             dV = np.mean(np.diff(volt_range))
             progress = (v2 - min(volt_range)) / (max(volt_range) - min(volt_range))
@@ -478,16 +485,34 @@ this gives a one dimensional dataset
         signal_1 = float(self.settings['V_1'])
         signal_3 = float(self.settings['V_3'])
 
-        volt_range = np.arange(0, 5, 0.2)
-        data = []
-        for v2 in volt_range:
+        signal_2_min = self.settings['V_2']['min']
+        signal_2_max = self.settings['V_2']['max']
+        signal_2_steps = self.settings['V_2']['number']
+        volt_range = np.linspace(signal_2_min, signal_2_max, signal_2_steps)
+
+        settle_time = 1e3* self.settings['settle_time']
+
+        fpga_io.update({channel_out_1: signal_1, channel_out_2: signal_3})
+        self.msleep(settle_time)
+
+        data = np.zeros((len(volt_range), 4))
+        for i, v2 in enumerate(volt_range):
+            if self._abort:
+                break
             signal_2 = float(v2)
             fpga_io.update({channel_out_2: signal_2})
-            time.sleep(1)
+            self.msleep(settle_time)
             detector_value = getattr(fpga_io, channel_in)
-            data.append(detector_value)
+            data[i,:] = np.array([signal_1, signal_2, signal_3, detector_value])
             progress = calc_progress(v2, volt_range)
-            self.data.update({'WP1 = {:0.2f}V, WP3 = {:0.2f}V'.format(signal_1, signal_3): data})
+
+
+
+            self.data['WP1 (V)'] =  data[0:i,0]
+            self.data['WP2 (V)'] = data[0:i, 1]
+            self.data['WP3 (V)'] = data[0:i, 2]
+            self.data['Det. Signal'] = data[0:i, 3]
+
             self.updateProgress.emit(progress)
 
         if self.settings['save']:
@@ -496,12 +521,229 @@ this gives a one dimensional dataset
             self.save_log()
 
         self.updateProgress.emit(100)
+    def get_axes(self, figure1):
+        """
+        returns the axes objects the script needs to plot its data
+        the default creates a single axes object on each figure
+        This can/should be overwritten in a child script if more axes objects are needed
+        Args:
+            figure1:
+        Returns:
 
+        """
+
+        figure1.clf()
+        axes1 = figure1.add_subplot(111)
+
+        return axes1
     def plot(self, figure):
-        axes1 = self.get_axes_layout(figure)
-        last_key = sorted(self.data.keys())[-1]
-        volt_range = np.arange(0, 5, 0.2)
-        axes1.plot(volt_range[0:len(self.data[last_key])], self.data[last_key], '-o')
+
+        if self.data != {}:
+            axes1 = self.get_axes(figure)
+
+            volt_range = self.data['WP2 (V)']
+            signal = self.data['Det. Signal']
+
+            def func(x, a, b):
+                return a * x + b
+
+            popt, pcov = curve_fit(func, volt_range, signal)
+
+
+            axes1.plot(volt_range, signal, '-o')
+
+            axes1.plot(volt_range, func(volt_range, popt[0], popt[1]), 'k-')
+            axes1.set_title('setpoint = {:0.2f}V'.format(-popt[1] / popt[0]))
+
+    def stop(self):
+        self._abort = True
+
+
+class FPGA_BalancePolarization(Script, QThread):
+    """
+    script to bring the detector response to zero
+    two channels are set to a fixed voltage while the signal of the third channel is varied until the detector response is zero
+    """
+
+    updateProgress = Signal(int)
+    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
+        Parameter('tag', 'some_name'),
+        Parameter('save', True, bool, 'check to automatically save data'),
+        Parameter('channel_WP_1', 5, range(8), 'analog channel that controls waveplate 1'),
+        Parameter('channel_WP_2', 6, range(8), 'analog channel that controls waveplate 2'),
+        Parameter('channel_WP_3', 7, range(8), 'analog channel that controls waveplate 3'),
+        Parameter('channel_OnOff', 4, [4,5,6,7], 'digital channel that turns polarization controller on/off'),
+        Parameter('channel_detector', 0, range(4), 'analog input channel of the detector signal'),
+        Parameter('V_1', 2.4, float, 'voltage applied to waveplate 1'),
+        Parameter('V_3', 2.4, float, 'voltage applied to waveplate 3'),
+        Parameter('V_2',
+                  [Parameter('min', 0, float, 'starting min voltage applied to waveplate 2'),
+                   Parameter('max', 5.0, float, 'max voltage applied to waveplate 2'),
+                   Parameter('number', 10, int, 'NOT IN USE!! number of voltage steps applied to waveplate 2')]
+                  ),
+        Parameter('settle_time', 1.0, float, 'settle time in seconds between voltage steps'),
+        Parameter('V_2_min', False, bool, 'if true set V2 to the min value and don\'t update')
+    ])
+
+    _INSTRUMENTS = {
+        'FPGA_IO': NI7845RReadWrite
+    }
+
+    _SCRIPTS = {
+
+    }
+
+    def __init__(self, instruments, scripts = None, name=None, settings=None, log_function=None, data_path = None):
+        """
+        Example of a script that emits a QT signal for the gui
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+        self._abort = False
+        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
+        QThread.__init__(self)
+
+        self._plot_type = 'two'
+
+    def _function(self):
+        """
+        This is the actual function that will be executed. It uses only information that is provided in the settings property
+        will be overwritten in the __init__
+        """
+
+        self._plot_refresh
+
+        self.data = {}
+        fpga_io = self.instruments['FPGA_IO']['instance']
+        # fpga_io.update(self.instruments['FPGA_IO']['settings'])
+
+        # turn controller on
+        control_channel = 'DIO{:d}'.format(self.settings['channel_OnOff'])
+        instrument_settings = {control_channel: True}
+        fpga_io.update(instrument_settings)
+
+        channel_out_1 = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(1)])
+        channel_out_2 = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(2)])
+        channel_out_3 = 'AO{:d}'.format(self.settings['channel_WP_{:d}'.format(3)])
+        channel_in = 'AI{:d}'.format(self.settings['channel_detector'])
+
+        signal_1 = float(self.settings['V_1'])
+        signal_3 = float(self.settings['V_3'])
+
+        signal_2_min = self.settings['V_2']['min']
+        signal_2_max = self.settings['V_2']['max']
+        signal_2_steps = self.settings['V_2']['number']
+        volt_range = np.linspace(signal_2_min, signal_2_max, signal_2_steps)
+
+        settle_time = 1e3*self.settings['settle_time']
+
+        fpga_io.update({channel_out_1: signal_1, channel_out_2: signal_3})
+        self.msleep(settle_time)
+
+        self.data['WP2 (V)'] = []
+        self.data['Det. Signal'] = []
+        reached_zero = False
+
+        v2 = signal_2_min
+        self.log('STARTING....')
+        while reached_zero is False:
+            if self._abort:
+                break
+            signal_2 = float(v2)
+            fpga_io.update({channel_out_2: signal_2})
+            self.msleep(settle_time)
+            detector_value = getattr(fpga_io, channel_in)
+
+            self.data['WP2 (V)'].append(v2)
+            self.data['Det. Signal'].append(detector_value)
+
+            v2 = self.calc_zero_pos()
+
+            self.updateProgress.emit(50)
+
+        if self.settings['save']:
+            self.save_b26()
+            self.save_data()
+            self.save_log()
+
+        self.updateProgress.emit(100)
+
+    def calc_zero_pos(self):
+        """
+        calculates the WP voltage for which the detector signal reaches zero
+        Returns:
+
+        """
+
+        signal_2_min = self.settings['V_2']['min']
+        signal_2_max = self.settings['V_2']['max']
+
+        if self.settings['V_2_min']:
+            return signal_2_min
+
+
+        volt_range = self.data['WP2 (V)']
+        signal = self.data['Det. Signal']
+        if len(volt_range)<2:
+            zero_pos = volt_range[-1]+0.1
+        else:
+            dx = volt_range[-1] - volt_range[-2]
+            dy = signal[-1] - signal[-2]
+            zero_pos =  signal[-1] / dy * dx + volt_range[-1]
+            print('dx{:0.2f}\t,dy {:0.2f}'.format(dx,dy))
+
+        # now check that zero_pos is a reasonable value
+
+        if zero_pos< signal_2_min:
+            zero_pos = signal_2_min
+
+        if zero_pos > signal_2_max:
+            zero_pos = signal_2_max
+
+        print('old signal{:0.2f}\t, new signal {:0.2f}'.format(volt_range[-1], zero_pos))
+
+        return zero_pos
+
+    def get_axes(self, figure1, figure2):
+        """
+        returns the axes objects the script needs to plot its data
+        the default creates a single axes object on each figure
+        This can/should be overwritten in a child script if more axes objects are needed
+        Args:
+            figure1:
+        Returns:
+
+        """
+
+        figure1.clf()
+        axes1 = figure1.add_subplot(111)
+
+        figure2.clf()
+        axes2 = figure2.add_subplot(111)
+        return axes1, axes2
+    def plot(self, figure1, figure2):
+
+        if self.data != {}:
+            axes1, axes2 = self.get_axes(figure1, figure2)
+
+            volt_range = self.data['WP2 (V)']
+            signal = self.data['Det. Signal']
+            #
+            # def func(x, a, b):
+            #     return a * x + b
+            #
+            # popt, pcov = curve_fit(func, volt_range, signal)
+
+
+            axes1.plot(signal, '-o')
+            axes1.set_title('detector signal')
+            axes2.plot(volt_range, '-o')
+            axes2.set_title('WP2 voltage')
+            # axes1.plot(volt_range, func(volt_range, popt[0], popt[1]), 'k-')
+            # axes1.set_title('setpoint = {:0.2f}V'.format(-popt[1] / popt[0]))
 
     def stop(self):
         self._abort = True

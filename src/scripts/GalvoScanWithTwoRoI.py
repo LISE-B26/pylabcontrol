@@ -15,7 +15,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '\\tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
-        Parameter('save', True, bool, 'check to automatically save data'),
+        Parameter('save', False, bool, 'check to automatically save data'),
         Parameter('RoI_1',[
             Parameter('point_a',
                     [Parameter('x', -0.4, float, 'x-coordinate'),
