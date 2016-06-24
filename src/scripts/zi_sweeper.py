@@ -117,7 +117,7 @@ class ZISweeper(Script, QThread):
 
 
     def plot(self, figure):
-        axes = self.get_axes(figure)
+        axes = self.get_axes_layout(figure)
 
         r = self.data[-1]['r']
         freq = self.data[-1]['frequency']

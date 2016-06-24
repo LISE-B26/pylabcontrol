@@ -143,7 +143,7 @@ Known issues:
             self.scripts['take_image'].plot(figure)
 
         if self.script_stage != 'take image':
-            axes = self.get_axes(figure)
+            axes = self.get_axes_layout(figure)
 
             plot_fluorescence(self.data['image_data'], self.data['extent'], axes, axes_colorbar=axes_colorbar)
 

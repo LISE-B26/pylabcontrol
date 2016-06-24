@@ -170,7 +170,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
         #     axes2b = fig.axes[3]
         #     # axes2.clear()
 
-        axes1, axes1b, axes2, axes2b = self.get_axes(figure)
+        axes1, axes1b, axes2, axes2b = self.get_axes_layout(figure)
 
         image_data_roi_1 = None
         image_data_roi_2 = None
@@ -195,7 +195,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
 
         figure.tight_layout()
 
-    def get_axes(self, figure):
+    def get_axes_layout(self, figure):
         figure.clf()
 
         axes1 = figure.add_subplot(141)

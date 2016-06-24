@@ -104,7 +104,7 @@ class LabviewFpgaTimetrace(Script, QThread):
 
 
     def plot(self, figure):
-        axes = self.get_axes(image_figure)
+        axes = self.get_axes_layout(image_figure)
 
 
         r = self.data[-1]['AI1']

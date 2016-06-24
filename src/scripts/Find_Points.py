@@ -113,7 +113,7 @@ class Find_Points(Script):
         #self.save_data()
 
     def plot(self, figure):
-        axes = self.get_axes(figure)
+        axes = self.get_axes_layout(figure)
         image  = self.data['image']
         extend = [self.x_min, self.x_max, self.y_max, self.y_min]
         plot_fluorescence(image, extend, axes)

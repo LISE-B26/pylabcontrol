@@ -145,7 +145,7 @@ class Daq_Read_Cntr(Script, QThread):
 
     def plot(self, figure):
         if self.data:
-            axes = self.get_axes(figure)
+            axes = self.get_axes_layout(figure)
             plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
             # if self.data:
             #     fit_params = self.data[-1]['fit_params']

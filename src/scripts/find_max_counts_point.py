@@ -164,7 +164,7 @@ Known issues:
         def gaussian(x, constant_offset, amplitude, center, width):
             return constant_offset + amplitude * np.exp(-1.0 * (np.square((x - center)) / (2 * (width ** 2))))
 
-        axes, axes2 = self.get_axes(figure)
+        axes, axes2 = self.get_axes_layout(figure)
 
         if self.x_sweeps:
             axes.plot(self.x_sweep_domains[-1], self.x_sweeps[-1], self.x_sweep_domains[-1], gaussian(self.x_sweep_domains[-1], self.fit_params_x[0], self.fit_params_x[1], self.fit_params_x[2], self.fit_params_x[3]))
@@ -181,7 +181,7 @@ Known issues:
 
         fig.tight_layout()
 
-    def get_axes(self, figure):
+    def get_axes_layout(self, figure):
         figure.clf()
         axes = figure.add_subplot(121)
         axes2 = figure.add_subplot(122)

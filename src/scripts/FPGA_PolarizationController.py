@@ -498,7 +498,7 @@ this gives a one dimensional dataset
         self.updateProgress.emit(100)
 
     def plot(self, figure):
-        axes1 = self.get_axes(figure)
+        axes1 = self.get_axes_layout(figure)
         last_key = sorted(self.data.keys())[-1]
         volt_range = np.arange(0, 5, 0.2)
         axes1.plot(volt_range[0:len(self.data[last_key])], self.data[last_key], '-o')

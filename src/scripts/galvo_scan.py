@@ -193,7 +193,7 @@ class GalvoScan(Script, QThread):
 
         '''
 
-        self.axes_image = self.get_axes(image_figure)
+        self.axes_image = self.get_axes_layout(image_figure)
         if 'image_data' in self.data.keys() and not self.data['image_data'] == []:
             plot_fluorescence(self.data['image_data'], self.data['extent'], self.axes_image,
                               max_counts=self.settings['max_counts_plot'],

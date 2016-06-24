@@ -167,7 +167,7 @@ class Take_And_Correlate_Images(Script, QThread):
             raise ValueError
 
     def plot(self, figure, figure2):
-        axes, axes_2 = self.get_axes(figure, figure2)
+        axes, axes_2 = self.get_axes_layout(figure, figure2)
         plot_fluorescence(self.data['baseline_image'], [self.bounds[0][0], self.bounds[1][0], self.bounds[3][0], self.bounds[2][0]], axes)
         new_center = ((self.settings['new_image_center'][0] + self.data['x_shift'] - self.settings['new_image_width']/2, self.settings['new_image_center'][1] + self.data['y_shift'] - self.settings['new_image_width']/2))
         patch = patches.Rectangle(new_center, self.settings['new_image_width'], self.settings['new_image_width'], fill = False)
@@ -245,7 +245,7 @@ class Take_And_Correlate_Images_2(Script, QThread):
 
 
     def plot(self, figure, figure2):
-        axes, axes_2 = self.get_axes(figure, figure2)
+        axes, axes_2 = self.get_axes_layout(figure, figure2)
         # plot_fluorescence(self.data['baseline_image'], [self.data['image_extent'][0], self.data['image_extent'][1], self.data['image_extent'][3], self.data['image_extent'][2]], axes_2)
         # new_center = ((self.settings['new_image_center'][0] + self.data['x_shift'] - self.settings['new_image_width']/2, self.settings['new_image_center'][1] + self.data['y_shift'] - self.settings['new_image_width']/2))
         # patch = patches.Rectangle(new_center, self.settings['new_image_width'], self.settings['new_image_width'], fill = False)

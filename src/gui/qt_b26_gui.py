@@ -622,21 +622,25 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             script: script to be plotted
 
         """
-        if script.plot_type == 'main':
-            script.plot(self.matplotlibwidget_1.figure)
-            self.matplotlibwidget_1.draw()
-        elif script.plot_type == 'aux':
-            script.plot(self.matplotlibwidget_2.figure)
-            self.matplotlibwidget_2.draw()
-        elif script.plot_type == 'two':
-            script.plot(self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure)
-            self.matplotlibwidget_1.draw()
-            self.matplotlibwidget_2.draw()
-        elif script.plot_type == 'none':
-            pass
-        else:
-            message = 'property plot_type = {:s} not correct for this script ({:s})!'.format(str(script.plot_type), script.name)
-            raise AttributeError(message)
+
+        script.plot([self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure])
+        self.matplotlibwidget_1.draw()
+        self.matplotlibwidget_2.draw()
+        # if script.plot_type == 'main':
+        #     script.plot(self.matplotlibwidget_1.figure)
+        #     self.matplotlibwidget_1.draw()
+        # elif script.plot_type == 'aux':
+        #     script.plot(self.matplotlibwidget_2.figure)
+        #     self.matplotlibwidget_2.draw()
+        # elif script.plot_type == 'two':
+        #     script.plot(self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure)
+        #     self.matplotlibwidget_1.draw()
+        #     self.matplotlibwidget_2.draw()
+        # elif script.plot_type == 'none':
+        #     pass
+        # else:
+        #     message = 'property plot_type = {:s} not correct for this script ({:s})!'.format(str(script.plot_type), script.name)
+        #     raise AttributeError(message)
 
 
     def update_status(self, progress):
