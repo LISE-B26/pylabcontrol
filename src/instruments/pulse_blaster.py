@@ -47,8 +47,8 @@ class PulseBlaster(Instrument):
     def __init__(self, name = None, settings = None):
         super(PulseBlaster, self).__init__(name, settings)
         self.PBStateChange = namedtuple('PBStateChange', ('channel_bits', 'time'))
-        pb = ctypes.windll('spinapi64')
-        self.update(_DEFAULT_SETTINGS)
+        self.pb = ctypes.windll.LoadLibrary('C:\\Windows\\System32\\spinapi64.dll')
+        self.update(self._DEFAULT_SETTINGS)
 
 
     def update(self, settings):
@@ -57,13 +57,13 @@ class PulseBlaster(Instrument):
 
         for key, value in settings.iteritems():
             if isinstance(value, dict) and 'status' in value.keys():
-                assert pb.pb_init() == 0, 'Could not initialize the pulseblsater on pb_init() command.'
-                pb.pb_core_clock(400.0) == 0
-                pb.start_programming(PULSE_PROGRAM)
-                pb.pb_inst(self.settings2bits(), PB_INSTRUCTIONS['BRANCH'], 0, 100000)
-                pb.pb_stop_programming()
-                pb.pb_start()
-                assert pb.pb_read_status() & 0b100 == 0b100, 'pulseblaster did not begin running after start() called.'
+                assert self.pb.pb_init() == 0, 'Could not initialize the pulseblsater on pb_init() command.'
+                self.pb.pb_core_clock(ctypes.c_float(400.0))
+                self.pb.pb_start_programming(0)
+                self.pb.pb_inst(self.settings2bits() | 0xE00000, self.PB_INSTRUCTIONS['BRANCH'], 0, 100000)
+                self.pb.pb_stop_programming()
+                self.pb.pb_start()
+                assert self.pb.pb_read_status() & 0b100 == 0b100, 'pulseblaster did not begin running after start() called.'
                 break
 
 
@@ -98,7 +98,7 @@ class PulseBlaster(Instrument):
                 if isinstance(value, dict) and 'channel' in value.keys() and value['channel'] == channel_num:
                     return self.settings[key]['delay_time']
 
-        raise AttributeError('Could not find delay of channel name or number: {s}'.format(str(channel_name_or_int)))
+        raise AttributeError('Could not find delay of channel name or number: {s}'.format(str(channel_id)))
 
     @staticmethod
     def find_overlapping_pulses(pulse_collection):
@@ -199,9 +199,9 @@ class PulseBlaster(Instrument):
             pulse_end_time = pulse.start_time + pulse.duration
             pb_command_dict.setdefault(pulse_end_time, []).append(1 << self.settings[pulse.channel_id]['channel'])
 
-        # Make sure we have a command at time=0, teh command to have nothing on.
+        # Make sure we have a command at time=0, the command to have nothing on.
         if 0 not in pb_command_dict.keys():
-            pb_commend_dict[0] = 0
+            pb_command_dict[0] = 0
 
         # For each time, combine all of the channels we need to toggle into a single bit string, and add it to a
         # command list of PBStateChange objects
@@ -241,21 +241,21 @@ class PulseBlaster(Instrument):
     def program_pb(self, pulse_collection, num_loops=1):
         assert len(pulse_collection) > 1, 'pulse program must have at least 2 pulses'
 
-        delayed_pulse_collection = create_physical_pulse_seq(pulse_collection)
-        pb_commands = generate_pq_sequence(delayed_pulse_collection)
+        delayed_pulse_collection = self.create_physical_pulse_seq(pulse_collection)
+        pb_commands = self.generate_pq_sequence(delayed_pulse_collection)
 
 
         assert pb.pb_init() == 0, 'Could not initialize the pulseblsater on pb_init() command.'
         pb.pb_core_clock(400.0) == 0
-        pb.start_programming(PULSE_PROGRAM)
+        pb.start_programming(self.PULSE_PROGRAM)
 
 
-        pb.pb_inst(pb_commands[0].channel_bits, PB_INSTRUCTIONS['LOOP'], num_loops, pb_commands[0].time)
+        pb.pb_inst(pb_commands[0].channel_bits, self.PB_INSTRUCTIONS['LOOP'], num_loops, pb_commands[0].time)
 
         for index in range(1, len(pb_commands)-1):
-            pb.pb_inst(pb_commands[index].channel_bits, PB_INSTRUCTIONS['CONTINUE'], 0, pb_commands[index].time)
+            pb.pb_inst(pb_commands[index].channel_bits, self.PB_INSTRUCTIONS['CONTINUE'], 0, pb_commands[index].time)
 
-        pb.pb_inst(pb_commands[len(pb_commands)-1].channel_bits, PB_INSTRUCTIONS['END_LOOP'], 0,  pb_commands[len(pb_commands)-1].time)
+        pb.pb_inst(pb_commands[len(pb_commands)-1].channel_bits, self.PB_INSTRUCTIONS['END_LOOP'], 0,  pb_commands[len(pb_commands)-1].time)
 
         pb.pb_stop_programming()
 
