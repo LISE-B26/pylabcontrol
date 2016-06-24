@@ -57,9 +57,18 @@ except:
     print("./src/scripts/__init__ warning! AutoFocus did not load")
 # from light_control import CameraOn
 from Select_NVs import Select_NVs_Simple
-from set_laser import SetLaser
-from find_max_counts_point import FindMaxCounts
-from find_max_counts_point_2d import FindMaxCounts2D
+try:
+    from set_laser import SetLaser
+except:
+    print("./src/scripts/__init__ warning! SetLaser did not load")
+try:
+    from find_max_counts_point import FindMaxCounts
+except:
+    print("./src/scripts/__init__ warning! FindMaxCounts did not load")
+try:
+    from find_max_counts_point_2d import FindMaxCounts2D
+except:
+    print("./src/scripts/__init__ warning! FindMaxCounts2D did not load")
 try:
     from Select_NVs import Select_NVs
 except:

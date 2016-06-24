@@ -74,35 +74,69 @@ class ScriptDummy(Script):
             self.log('count {:02d}'.format(i))
             data.append(random.random())
 
+
         self.data = {'random data':data}
+
+
+        # create image data
+        Nx = int(np.sqrt(len(self.data['random data'])))
+        img = np.array(self.data['random data'][0:Nx ** 2])
+        img = img.reshape((Nx, Nx))
+        self.data.update({'image data': img})
 
         if self.settings['save']:
             self.save_data()
             self.save_b26()
             self.save_log()
 
+
     def _plot(self, axes_list):
 
         plot_type = self.settings['plot_style']
+
+
         if plot_type == 'main':
             axes_list[0].plot(self.data['random data'])
-            self.log('PLOTTING main')
+            axes_list[0].hold(False)
         elif plot_type == 'aux':
             axes_list[1].plot(self.data['random data'])
+            axes_list[1].hold(False)
             self.log('PLOTTING aux')
         elif plot_type == 'two':
             axes_list[0].plot(self.data['random data'])
             axes_list[1].plot(self.data['random data'])
+            axes_list[0].hold(False)
+            axes_list[1].hold(False)
             self.log('PLOTTING aux')
 
         elif plot_type == '2D':
-            Nx = int(np.sqrt(len(self.data['random data'])))
-            img = np.array(self.data['random data'][0:Nx**2])
-            img = img.reshape((Nx, Nx))
-            plot_fluorescence(img, [-1,1,1,-1], axes_list[0])
+            plot_fluorescence(self.data['image data'], [-1,1,1,-1], axes_list[0])
             axes_list[1].plot(self.data['random data'])
 
+    def _update(self, axes_list):
+        """
+        For better performance we do not recreate image plots but rather update the data
+        Args:
+            axes_list:
 
+        Returns:
+
+        """
+        plot_type = self.settings['plot_style']
+        if plot_type == '2D':
+            # # excplitely implement updating
+            # if 'image data' in self.data.keys() and not self.data['image_data'] == []:
+            #     self.implot, self.cbar = plot_fluorescence(self.data['image_data'], self.data['extent'],
+            #                                                self.axes_image,
+            #                                                implot=self.implot, cbar=self.cbar,
+            #                                                max_counts=self.settings['max_counts_plot'],
+            #                                                axes_colorbar=axes_colorbar)
+
+            pass
+            # todo: implement update: move update out of plot_fluorescence
+        else:
+            # fall back to default behaviour
+            Script._update(self, axes_list)
 
 # class ScriptDummyWithQtSignal(Script, QtCore.QThread):
 class ScriptDummyWithQtSignal(Script, QThread):

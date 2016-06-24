@@ -997,6 +997,7 @@ class Script(object):
                 fig.clf()
                 axes_list.append(fig.add_subplot(111))
                 self.log('REFRESHED')
+                self._plot_refresh = False
         else:
             for fig in figure_list:
                 axes_list.append(fig.axes[0])

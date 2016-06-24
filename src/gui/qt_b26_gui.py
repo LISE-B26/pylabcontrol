@@ -25,16 +25,13 @@ import sys
 import datetime
 from collections import deque
 
-
-
-
 import matplotlib._pylab_helpers
 # from src.core import instantiate_probes
 
 #from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, StanfordResearch_ESR, Find_Points, Select_NVs, ESR_Selected_NVs
 
 ###AARON_PC REMOVE
-from src.scripts.Select_NVs import Select_NVs, Select_NVs_Simple
+# from src.scripts.Select_NVs import Select_NVs, Select_NVs_Simple
 
 from src.core.read_write_functions import load_b26_file
 # load the basic old_gui either from .ui file or from precompiled .py file
@@ -209,9 +206,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns:
 
         """
-        fname = self.gui_settings['tmp_folder']
-        print('save datasets to {:s}'.format(fname))
-        self.save_dataset(fname)
+        self.log("recreating figures")
+        self.create_figures()
+
+
 
     def switch_tab(self):
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
@@ -320,10 +318,25 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.history_model.insertRow(0,QtGui.QStandardItem(msg))
 
     def create_figures(self):
+        """
+        creates the maplotlib figures]
+        self.matplotlibwidget_1
+        self.matplotlibwidget_2
+        and toolbars
+        self.mpl_toolbar_1
+        self.mpl_toolbar_2
+        Returns:
+
+        """
+
+
         try:
-            self.horizontalLayout_15.removeWidget(self.matplotlibwidget_2)
             self.horizontalLayout_14.removeWidget(self.matplotlibwidget_1)
             self.matplotlibwidget_1.close()
+        except AttributeError:
+            pass
+        try:
+            self.horizontalLayout_15.removeWidget(self.matplotlibwidget_2)
             self.matplotlibwidget_2.close()
         except AttributeError:
             pass
