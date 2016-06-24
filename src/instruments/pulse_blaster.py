@@ -58,16 +58,15 @@ class PulseBlaster(Instrument):
         for key, value in settings.iteritems():
             if isinstance(value, dict) and 'status' in value.keys():
                 assert self.pb.pb_init() == 0, 'Could not initialize the pulseblsater on pb_init() command.'
-                print(self.pb.pb_core_clock(ctypes.c_double(100.0)), 'clock')
-                print(self.pb.pb_start_programming(ctypes.c_int(0)), 'start programming')
-                print(self.pb.pb_inst_pbonly(ctypes.c_int32(self.settings2bits() | 0xE00000), self.PB_INSTRUCTIONS['CONTINUE'], ctypes.c_int32(0), ctypes.c_double(100)))
-                print(self.pb.pb_inst_pbonly(ctypes.c_int(self.settings2bits() | 0xE00000), self.PB_INSTRUCTIONS['BRANCH'],
-                                             ctypes.c_int(0), ctypes.c_double(100)))
+                self.pb.pb_core_clock(ctypes.c_double(100.0))
+                self.pb.pb_start_programming(ctypes.c_int(0))
+                #self.pb.pb_inst_pbonly(ctypes.c_int32(self.settings2bits() | 0xE00000), self.PB_INSTRUCTIONS['CONTINUE'], ctypes.c_int32(0), ctypes.c_double(100))
+                self.pb.pb_inst_pbonly(ctypes.c_int(self.settings2bits() | 0xE00000), self.PB_INSTRUCTIONS['BRANCH'],
+                                             ctypes.c_int(0), ctypes.c_double(100))
                 self.pb.pb_stop_programming()
                 self.pb.pb_start()
                 assert self.pb.pb_read_status() & 0b100 == 0b100, 'pulseblaster did not begin running after start() called.'
                 self.pb.pb_close()
-
                 break
 
 
