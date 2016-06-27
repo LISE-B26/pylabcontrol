@@ -88,3 +88,9 @@ def plot_pulses(axis, pulse_collection):
     axis.set_xlabel('time [s]')
     axis.set_ylabel('pulse destination')
 
+def plot_counts(axis, data):
+    axis.plot(data)
+
+    axis.set_xlabel('time')
+    axis.set_ylabel('kCounts/sec')
+

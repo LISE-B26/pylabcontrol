@@ -4,14 +4,7 @@ from src.instruments import DAQ
 from collections import deque
 
 from PySide.QtCore import Signal, QThread
-
-# import standard libraries
-import numpy as np
-import matplotlib.pyplot as plt
-import scipy.optimize as opt
-import time
-import pandas as pd
-from PyQt4 import QtGui
+from src.plotting.plots_1d import plot_counts
 
 
 class Daq_Read_Cntr(Script, QThread):
@@ -48,148 +41,47 @@ class Daq_Read_Cntr(Script, QThread):
         self._abort = False
 
         sample_rate = 1/self.settings['integration_time']
+        normalization = self.settings['integration_time']/.001
         self.instruments['daq']['instance'].settings['digital_input']['ctr0']['sample_rate'] = sample_rate
 
         self.data = {'counts': deque()}
 
-        # run sweeps
+        sample_num = 1
+
+        self.instruments['daq']['instance'].DI_init("ctr0", sample_num, continuous_acquisition=True)
+
+        # start counter and scanning sequence
+        self.instruments['daq']['instance'].DI_run()
+
         while True:
             if self._abort:
                 break
-            esr_data_pos = 0
-            self.instruments['microwave_generator']['instance'].update({'enable_output': True})
-            for sec_num in xrange(0, num_freq_sections):
-                # initialize APD thread
 
-                # calculate the minimum ad and max frequency of current section
-                sec_min = min(freq_values) + self.instruments['microwave_generator']['instance'].settings[
-                                                 'dev_width'] * 2 * sec_num
-                sec_max = sec_min + self.instruments['microwave_generator']['instance'].settings['dev_width'] * 2
+            raw_data, _ = self.instruments['daq']['instance'].DI_read()
 
-                # make freq. array for current section
-                freq_section_array = freq_array[np.where(np.logical_and(freq_array >= sec_min,
-                                                                        freq_array < sec_max))]
-                # if section is empty skip
-                if len(freq_section_array) == 0:
-                    continue
-                center_freq = (sec_max + sec_min) / 2.0
-                freq_voltage_array = ((
-                                          freq_section_array - sec_min) / (
-                                      self.instruments['microwave_generator']['instance'].settings[
-                                          'dev_width'] * 2)) * 2 - 1  # normalize voltages to +-1 range
+            self.data['counts'].append((raw_data/normalization))
 
-                self.instruments['microwave_generator']['instance'].update({'frequency': float(center_freq)})
+            self.updateProgress.emit(50)
 
-                self.instruments['daq']['instance'].DI_init("ctr0", len(freq_voltage_array) + 1,
-                                                            sample_rate_multiplier=(clock_adjust - 1))
-                self.instruments['daq']['instance'].AO_init(["ao2"], freq_voltage_array)
-
-                # start counter and scanning sequence
-                self.instruments['daq']['instance'].DI_run()
-                self.instruments['daq']['instance'].AO_run()
-                self.instruments['daq']['instance'].AO_waitToFinish()
-                self.instruments['daq']['instance'].AO_stop()
-
-                raw_data, _ = self.instruments['daq']['instance'].DI_read()
-
-                # raw_data = sweep_mw_and_count_APD(freq_voltage_array, dt)
-                # counter counts continiously so we take the difference to get the counts per time interval
-                diff_data = np.diff(raw_data)
-                summed_data = np.zeros(len(freq_voltage_array) / clock_adjust)
-                for i in range(0, int((len(freq_voltage_array) / clock_adjust))):
-                    summed_data[i] = np.sum(diff_data[(i * clock_adjust + 1):(i * clock_adjust + clock_adjust - 1)])
-                # also normalizing to kcounts/sec
-                esr_data[scan_num, esr_data_pos:(esr_data_pos + len(summed_data))] = summed_data * (
-                .001 / self.settings['integration_time'])
-                esr_data_pos += len(summed_data)
-
-                # clean up APD tasks
-                self.instruments['daq']['instance'].DI_stop()
-
-            esr_avg = np.mean(esr_data[0:(scan_num + 1)], axis=0)
-            fit_params, _ = self.fit_esr(freq_values, esr_avg)
-            self.data.append({'frequency': freq_values, 'data': esr_avg, 'fit_params': fit_params})
-
-            progress = int(float(scan_num) / self.settings['esr_avg'] * 100)
-            self.updateProgress.emit(progress)
-
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
-
-            self.save_image_to_disk()
-            # # create and save images
-            # filename = self.filename('-esr.jpg')
-            # fig = Figure()
-            # canvas = FigureCanvas(fig)
-            # ax = fig.add_subplot(1, 1, 1)
-            # plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], ax)
-            # fig.savefig(filename)
-
-        def calc_progress():
-            return np.round(scan_num / self.settings['esr_avg'])
+        # clean up APD tasks
+        self.instruments['daq']['instance'].DI_stop()
 
         # send 100 to signal that script is finished
         self.updateProgress.emit(100)
 
-    # def save_image_to_disk(self, filename = None):
-    #     # create and save images
-    #     if filename is None:
-    #         filename = self.filename('-esr.jpg')
-    #     fig = Figure()
-    #     canvas = FigureCanvas(fig)
-    #     ax = fig.add_subplot(1, 1, 1)
-    #     plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], ax)
-    #     fig.savefig(filename)
-
     def plot(self, figure):
-        if self.data:
+        data = self.data['counts']
+        if data:
             axes = self.get_axes_layout(figure)
-            plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
-            # if self.data:
-            #     fit_params = self.data[-1]['fit_params']
-            #     if not fit_params[0] == -1:  # check if fit failed
-            #         fit_data = self.lorentzian(self.data[-1]['frequency'], fit_params[0], fit_params[1], fit_params[2], fit_params[3])
-            #     else:
-            #         fit_data = None
-            #     if fit_data is not None: # plot esr and fit data
-            #         axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b', self.data[-1]['frequency'], fit_data, 'r')
-            #         axes.set_title('ESR')
-            #         axes.set_xlabel('Frequency (Hz)')
-            #         axes.set_ylabel('Kcounts/s')
-            #     else: #plot just esr data
-            #         axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b')
-            #         axes.set_title('ESR')
-            #         axes.set_xlabel('Frequency (Hz)')
-            #         axes.set_ylabel('Kcounts/s')
+            plot_counts(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
 
     def stop(self):
         self._abort = True
 
-    # fit ESR curve to lorentzian and return fit parameters. If initial guess known, put in fit_start_params, otherwise
-    # guesses reasonable initial values.
-    def fit_esr(self, freq_values, esr_data, fit_start_params=None):
-        if (fit_start_params is None):
-            offset = np.mean(esr_data)
-            amplitude = np.max(esr_data) - np.min(esr_data)
-            center = freq_values[esr_data.argmin()]
-            width = 10000000  # 10 MHz arbitrarily chosen as reasonable
-            fit_start_params = [amplitude, width, center, offset]
-        try:
-            return opt.curve_fit(self.lorentzian, freq_values, esr_data, fit_start_params)
-        except RuntimeError:
-            self.log('Lorentzian fit failed')
-            return [-1, -1, -1, -1], 'Ignore'
-
-    # defines a lorentzian with some amplitude, width, center, and offset to use with opt.curve_fit
-    def lorentzian(self, x, amplitude, width, center, offset):
-        return (-(amplitude * (.5 * width) ** 2) / ((x - center) ** 2 + (.5 * width) ** 2)) + offset
-
 if __name__ == '__main__':
     script = {}
     instr = {}
-    script, failed, instr = Script.load_and_append({'StanfordResearch_ESR': 'StanfordResearch_ESR'}, script, instr)
+    script, failed, instr = Script.load_and_append({'Daq_Read_Cntr': 'Daq_Read_Cntr'}, script, instr)
 
     print(script)
     print(failed)
