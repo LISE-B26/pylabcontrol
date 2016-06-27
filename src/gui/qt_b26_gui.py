@@ -716,13 +716,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
         if self.chk_probe_log.isChecked():
-            file_name  = str(self.txt_probe_log_path.text())
-            if os.path.isfile(file_name) == False:
-                outfile = open(file_name, 'w')
-                outfile.write("{:s}\n".format(",".join(new_values.keys())))
-            else:
-                outfile = open(file_name, 'a')
-            outfile.write("{:s}\n".format(",".join(map(str, new_values.values()))))
+            self.log("probelogging not implemented!!")
+            # file_name  = str(self.txt_probe_log_path.text())
+            # if os.path.isfile(file_name) == False:
+            #     outfile = open(file_name, 'w')
+            #     outfile.write("{:s}\n".format(",".join(new_values.keys())))
+            # else:
+            #     outfile = open(file_name, 'a')
+            # outfile.write("{:s}\n".format(",".join(map(str, new_values.values()))))
 
     def update_script_from_item(self, item):
         """

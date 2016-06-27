@@ -1,6 +1,6 @@
 
 from PyQt4 import QtCore
-from abc import ABCMeta, abstractmethod, abstractproperty
+
 from copy import deepcopy
 import yaml
 from src.core.parameter import Parameter
@@ -17,7 +17,7 @@ class Instrument(object):
         - get_values => function that actually requests the values from the instrument
         - is_connected => property that checks if instrument is actually connected
     '''
-    __metaclass__ = ABCMeta
+
     _is_connected = False #internal flag that indicated if instrument is actually connected
     _initialized = False
 
@@ -39,14 +39,12 @@ class Instrument(object):
 
     # apply settings to instrument should be carried out in derived class
 
-    @abstractproperty
     def _DEFAULT_SETTINGS(self):
         """
         returns the default parameter_list of the instrument this function should be over written in any subclass
         """
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
     def update(self, settings):
         '''
         updates the internal dictionary and sends changed values to instrument
@@ -58,7 +56,6 @@ class Instrument(object):
         '''
         self._settings.update(settings)
 
-    @abstractproperty
     def _PROBES(self):
         """
 
@@ -66,9 +63,8 @@ class Instrument(object):
         the key is the name of the value and the value of the dictionary is an info
 
         """
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
     def read_probes(self, key = None):
         """
         function is overloaded:
@@ -98,7 +94,6 @@ class Instrument(object):
 
             return value
 
-    # @abstractproperty
     @property
     def is_connected(self):
         '''

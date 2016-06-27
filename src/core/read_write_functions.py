@@ -44,18 +44,20 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
             data_dict['instruments'].update(instruments)
         else:
             data_dict['instruments'] = instruments
+
     if scripts is not None:
         if 'scripts' in data_dict:
             data_dict['scripts'].update(scripts)
         else:
             data_dict['scripts'] = scripts
+
     if probes is not None:
         if 'probes' in data_dict:
             data_dict['probes'].update(probes)
         else:
             data_dict['probes'] = probes
 
-
+    if 'instruments' in data_dict:
         data_dict['instruments'].update(data_dict['instruments'])
     if 'scripts' in data_dict:
         data_dict['scripts'].update(data_dict['scripts'])

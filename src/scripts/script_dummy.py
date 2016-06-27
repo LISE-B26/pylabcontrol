@@ -124,16 +124,11 @@ class ScriptDummy(Script):
         """
         plot_type = self.settings['plot_style']
         if plot_type == '2D':
-            # # excplitely implement updating
-            # if 'image data' in self.data.keys() and not self.data['image_data'] == []:
-            #     self.implot, self.cbar = plot_fluorescence(self.data['image_data'], self.data['extent'],
-            #                                                self.axes_image,
-            #                                                implot=self.implot, cbar=self.cbar,
-            #                                                max_counts=self.settings['max_counts_plot'],
-            #                                                axes_colorbar=axes_colorbar)
+            # we expect exactely one image in the axes object (see ScriptDummy.plot)
+            implot = axes_list[1].get_images()[0]
+            # now update the data
+            implot.set_data(self.data['random data'])
 
-            pass
-            # todo: implement update: move update out of plot_fluorescence
         else:
             # fall back to default behaviour
             Script._update(self, axes_list)
