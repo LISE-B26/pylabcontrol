@@ -1,6 +1,6 @@
 from src.core import Instrument, Parameter
-
-
+import threading
+import random, time
 
 class DummyInstrument(Instrument):
     '''
@@ -78,9 +78,60 @@ class DummyInstrument(Instrument):
         '''
         return self._is_connected
 
+
+class DummyInstrumentThreaded(threading.Thread, Instrument):
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('update frequency', 2.0, float, 'update frequency of signal in Hz'),
+        Parameter('signal_range',
+                  [Parameter('min', 0.0, float, 'minimum output signal (float)'),
+                   Parameter('max', 0.0, float, 'maximum output signal (float)')
+                   ])
+    ])
+
+    _PROBES = {'output': 'this is some random output signal (float)'
+               }
+
+    def __init__(self, name =  None, settings = None):
+
+        threading.Thread.__init__(self)
+        Instrument.__init__(self, name, settings)
+        self._is_connected = True
+        self.start()
+
+    def run(self):
+        dt = 1./self.settings['update frequency']
+        while self._is_connected:
+            self._output = random.random()
+            time.sleep(dt)
+
+    def read_probes(self, key):
+        """
+        requestes value from the instrument and returns it
+        Args:
+            key: name of requested value
+
+        Returns: reads values from instrument
+
+        """
+        assert key in self._PROBES.keys()
+
+        if key == 'output':
+            value = self._output
+
+        return value
+
+    @property
+    def is_connected(self):
+        '''
+        check if instrument is active and connected and return True in that case
+        :return: bool
+        '''
+        return self._is_connected
+
 if __name__ == '__main__':
 
-    d = DummyInstrument
-    print(issubclass(d, Instrument))
-    print(d)
-    print(d.__name__)
+    d = DummyInstrumentThreaded()
+    for i in range(15):
+        time.sleep(0.1)
+        print(d.read_probes('output'))
