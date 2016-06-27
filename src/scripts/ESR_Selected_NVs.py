@@ -14,14 +14,9 @@ class ESR_Selected_NVs(Script, QThread):
     updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/', str, 'path for data'),
+        Parameter('path', '', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off'),
-        Parameter('save_subscripts', False, bool, 'save subscripts for troubleshooting'),
-        Parameter('num_between_correlate', -1, int, 'Number of ESRs between correlations, -1 to deactivate correlation'),
-        Parameter('trackpy_correlation', False, bool, 'Use trackpy to create an artificial image of just the NVs to filter a noisy background'),
-        Parameter('num_between_autofocus', -1, int, 'Number of ESRs between autofocuses, -1 to deactivate autofocus'),
-        Parameter('autofocus_size', .1, float, 'Side length of autofocusing square in Volts')
+        Parameter('save', False, bool, 'save data on/off')
     ])
 
     _INSTRUMENTS = {}
@@ -206,13 +201,13 @@ class ESR_Selected_NVs(Script, QThread):
 
     def plot(self, figure_image, figure_ESR):
         if self.current_stage == 'Find_Max':
-            axes_image = self.get_axes(figure_image)
+            axes_image = self.get_axes_layout(figure_image)
             image = self.data['image_data']
             extend = self.data['extent']
             plot_fluorescence(image, extend, axes_image)
             self.scripts['Find_Max'].plot(figure_ESR)
         elif self.current_stage == 'ESR':
-            axes_full_image, axes_ESR, axes_zoomed_image = self.get_axes(figure_image, figure_ESR)
+            axes_full_image, axes_ESR, axes_zoomed_image = self.get_axes_layout(figure_image, figure_ESR)
             image = self.data['image_data']
             extend = self.data['extent']
             plot_fluorescence(image, extend, axes_full_image)
@@ -232,13 +227,13 @@ class ESR_Selected_NVs(Script, QThread):
             figure_ESR.tight_layout()
         elif self.current_stage in ('finished', 'saving'):
             self._plot_refresh = True
-            axes_image = self.get_axes(figure_image)
+            axes_image = self.get_axes_layout(figure_image)
             image = self.data['image_data']
             extend = self.data['extent']
             plot_fluorescence(image, extend, axes_image)
             self.scripts['select_NVs'].plot(axes_image)
 
-    def get_axes(self, figure1, figure2 = None):
+    def get_axes_layout(self, figure1, figure2 = None):
         if self.current_stage == 'ESR':
             if self._plot_refresh == True:
                 print('refresh')
@@ -260,7 +255,7 @@ class ESR_Selected_NVs(Script, QThread):
             return axes1, axes2, axes3
 
         else:
-            return super(ESR_Selected_NVs, self).get_axes(figure1, figure2)
+            return super(ESR_Selected_NVs, self).get_axes_layout(figure1, figure2)
 
 if __name__ == '__main__':
     script, failed, instruments = Script.load_and_append(script_dict={'ESR_Selected_NVs':'ESR_Selected_NVs'})

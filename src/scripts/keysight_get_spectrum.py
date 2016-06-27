@@ -9,9 +9,9 @@ class KeysightGetSpectrum(Script):
 
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/----data_tmp_default----', str, 'path for data'),
+        Parameter('path', '', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off')
+        Parameter('save', False, bool, 'save data on/off')
         # Parameter('start_frequency', 2.7e9, float, 'start frequency of spectrum'),
         # Parameter('stop_frequency', 3e9, float, 'end frequency of spectrum'),
         # Parameter('output_power',0.0, float, 'output power (dBm)'),
@@ -57,7 +57,7 @@ class KeysightGetSpectrum(Script):
 
 
     def plot(self, figure):
-        axes = self.get_axes(figure)
+        axes = self.get_axes_layout(figure)
 
         spectrum = self.data['amplitudes']
         freq = self.data['frequencies']

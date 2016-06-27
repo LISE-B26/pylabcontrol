@@ -45,6 +45,10 @@ void start_fpga(NiFpga_Session* session, NiFpga_Status* status)
 												"RIO0",
 												NiFpga_OpenAttribute_NoRun,
 												session));
+												
+		// reset
+		NiFpga_MergeStatus(status, NiFpga_Reset(*session));
+		
 		if (NiFpga_IsNotError(*status))
 		{
 			// run the FPGA application 

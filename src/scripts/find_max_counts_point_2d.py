@@ -1,5 +1,6 @@
 from src.core import Script, Parameter
 from PySide.QtCore import Signal, QThread
+# from PyQt4.QtCore import SIGNAL, QThread
 from src.scripts import GalvoScanWithLightControl, SetLaser
 import numpy as np
 from matplotlib import patches
@@ -29,7 +30,8 @@ Known issues:
         Parameter('sweep_range', .02, float, 'voltage range to sweep over to find a max'),
         Parameter('num_points', 40, int, 'number of points to sweep in the sweep range'),
         Parameter('nv_size', 11, int, 'TEMP: size of nv in pixels - need to be refined!!'),
-        Parameter('min_mass', 180, int, 'TEMP: brightness of nv - need to be refined!!')
+        Parameter('min_mass', 180, int, 'TEMP: brightness of nv - need to be refined!!'),
+        Parameter('number_of_attempts', 1, int, 'Number of times to decrease min_mass if an NV is not found')
     ])
 
     # todo: make minmass and nv_size more intelligent, i.e. uses extend to calculate the expected size and brightness
@@ -61,6 +63,8 @@ Known issues:
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
+
+        attempt_num = 1
 
         initial_point = self.settings['initial_point']
         nv_size = self.settings['nv_size']
@@ -96,6 +100,9 @@ Known issues:
 
             return [V_x, V_y]
 
+        def min_mass_adjustment(min_mass):
+            return (min_mass - 40)
+
         self.script_stage = 'take image'
 
         # self.scripts['take_image'].update({'point_a': {'x': initial_point[0], 'y': initial_point[1]}})
@@ -110,18 +117,28 @@ Known issues:
         self.data['image_data'] = deepcopy(self.scripts['take_image'].scripts['acquire_image'].data['image_data'])
         self.data['extent'] = deepcopy(self.scripts['take_image'].scripts['acquire_image'].data['extent'])
 
-        f = tp.locate(self.data['image_data'], nv_size, minmass=min_mass)
+        while True:
 
-        if len(f) == 0:
-            self.data['maximum_point'] = [self.data['initial_point']['x'], self.data['initial_point']['y']]
+            f = tp.locate(self.data['image_data'], nv_size, minmass=min_mass)
 
-            self.log('pytrack failed to find NV --- setting laser to initial point instead')
-        else:
+            if len(f) == 0:
+                self.data['maximum_point'] = [self.data['initial_point']['x'], self.data['initial_point']['y']]
 
-            pt = pixel_to_voltage(f[['x','y']].iloc[0].as_matrix(),
-                                                          self.data['extent'],
-                                                          np.shape(self.data['image_data']))
-            self.data['maximum_point'] = pt
+                self.log('pytrack failed to find NV --- setting laser to initial point instead')
+            else:
+
+                pt = pixel_to_voltage(f[['x','y']].iloc[0].as_matrix(),
+                                                              self.data['extent'],
+                                                              np.shape(self.data['image_data']))
+                self.data['maximum_point'] = pt
+                break
+
+            if attempt_num <= self.settings['number_of_attempts']:
+                min_mass = min_mass_adjustment(min_mass)
+                attempt_num += 1
+            else:
+                break
+
         self.script_stage = 'find max'
 
         self.scripts['set_laser'].settings['point'].update({'x': self.data['maximum_point'][0],
@@ -143,7 +160,7 @@ Known issues:
             self.scripts['take_image'].plot(figure)
 
         if self.script_stage != 'take image':
-            axes = self.get_axes(figure)
+            axes = self.get_axes_layout(figure)
 
             plot_fluorescence(self.data['image_data'], self.data['extent'], axes, axes_colorbar=axes_colorbar)
 

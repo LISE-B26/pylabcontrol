@@ -15,7 +15,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '\\tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
-        Parameter('save', True, bool, 'check to automatically save data'),
+        Parameter('save', False, bool, 'check to automatically save data'),
         Parameter('RoI_1',[
             Parameter('point_a',
                     [Parameter('x', -0.4, float, 'x-coordinate'),
@@ -170,7 +170,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
         #     axes2b = fig.axes[3]
         #     # axes2.clear()
 
-        axes1, axes1b, axes2, axes2b = self.get_axes(figure)
+        axes1, axes1b, axes2, axes2b = self.get_axes_layout(figure)
 
         image_data_roi_1 = None
         image_data_roi_2 = None
@@ -195,7 +195,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
 
         figure.tight_layout()
 
-    def get_axes(self, figure):
+    def get_axes_layout(self, figure):
         figure.clf()
 
         axes1 = figure.add_subplot(141)

@@ -13,9 +13,9 @@ class ESR_And_Push(Script, QThread):
     updateProgress = Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/', str, 'path for data'),
+        Parameter('path', '', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off'),
+        Parameter('save', False, bool, 'save data on/off'),
         Parameter('number_of_step_instances', 0, int, 'number of times to do steps_per_instance steps'),
         Parameter('steps_per_instance', 1, int, 'number of steps in between each ESR'),
         Parameter('take_reflection_images', True, bool, 'Take reflection images between pushes for post processing correlation')

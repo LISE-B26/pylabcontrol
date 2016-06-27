@@ -14,9 +14,9 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
     saveFigure = Signal(str)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
+        Parameter('path', '', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
-        Parameter('save', True, bool, 'check to automatically save data'),
+        Parameter('save', False, bool, 'check to automatically save data'),
         Parameter('light_mode','fluorescence', ['fluorescence', 'reflection'])
     ])
 

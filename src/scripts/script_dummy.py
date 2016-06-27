@@ -9,12 +9,14 @@ import numpy as np
 import os
 import psutil
 
+import Queue
+
 try:
     from src.instruments import DummyInstrument
 except:
     print('WARNING script_dummy')
-# from PyQt4 import QtCore
-from PySide.QtCore import Signal, QThread, QTimer
+from PySide.QtCore import Signal, QThread
+# from PyQt4.QtCore import SIGNAL, QThread
 
 class ScriptDummy(Script):
     #This is the signal that will be emitted during the processing.
@@ -23,16 +25,17 @@ class ScriptDummy(Script):
     # updateProgress = QtCore.Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data'),
+        Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data',),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off'),
+        Parameter('save', False, bool, 'save data on/off'),
         Parameter('count', 3, int),
         Parameter('name', 'this is a counter'),
         Parameter('wait_time', 0.1, float),
         Parameter('point2',
                   [Parameter('x', 0.1, float, 'x-coordinate'),
                   Parameter('y', 0.1, float, 'y-coordinate')
-                  ])
+                  ]),
+        Parameter('plot_style', 'main', ['main', 'aux', '2D', 'two'])
     ])
 
     _INSTRUMENTS = {}
@@ -46,7 +49,8 @@ class ScriptDummy(Script):
             settings (optional): settings for this script, if empty same as default settings
         """
         Script.__init__(self, name, settings, log_function= log_function, data_path = data_path)
-        self._plot_type = 'main'
+        # self._plot_type = 'main'
+        self.data['random data'] = []
 
 
     def _function(self):
@@ -70,12 +74,69 @@ class ScriptDummy(Script):
             self.log('count {:02d}'.format(i))
             data.append(random.random())
 
+
         self.data = {'random data':data}
+
+
+        # create image data
+        Nx = int(np.sqrt(len(self.data['random data'])))
+        img = np.array(self.data['random data'][0:Nx ** 2])
+        img = img.reshape((Nx, Nx))
+        self.data.update({'image data': img})
 
         if self.settings['save']:
             self.save_data()
             self.save_b26()
             self.save_log()
+
+
+    def _plot(self, axes_list):
+
+        plot_type = self.settings['plot_style']
+
+
+        if plot_type == 'main':
+            axes_list[0].plot(self.data['random data'])
+            axes_list[0].hold(False)
+        elif plot_type == 'aux':
+            axes_list[1].plot(self.data['random data'])
+            axes_list[1].hold(False)
+            self.log('PLOTTING aux')
+        elif plot_type == 'two':
+            axes_list[0].plot(self.data['random data'])
+            axes_list[1].plot(self.data['random data'])
+            axes_list[0].hold(False)
+            axes_list[1].hold(False)
+            self.log('PLOTTING aux')
+
+        elif plot_type == '2D':
+            plot_fluorescence(self.data['image data'], [-1,1,1,-1], axes_list[0])
+            axes_list[1].plot(self.data['random data'])
+
+    def _update(self, axes_list):
+        """
+        For better performance we do not recreate image plots but rather update the data
+        Args:
+            axes_list:
+
+        Returns:
+
+        """
+        plot_type = self.settings['plot_style']
+        if plot_type == '2D':
+            # # excplitely implement updating
+            # if 'image data' in self.data.keys() and not self.data['image_data'] == []:
+            #     self.implot, self.cbar = plot_fluorescence(self.data['image_data'], self.data['extent'],
+            #                                                self.axes_image,
+            #                                                implot=self.implot, cbar=self.cbar,
+            #                                                max_counts=self.settings['max_counts_plot'],
+            #                                                axes_colorbar=axes_colorbar)
+
+            pass
+            # todo: implement update: move update out of plot_fluorescence
+        else:
+            # fall back to default behaviour
+            Script._update(self, axes_list)
 
 # class ScriptDummyWithQtSignal(Script, QtCore.QThread):
 class ScriptDummyWithQtSignal(Script, QThread):
@@ -323,7 +384,7 @@ class ScriptDummyPlotMemoryTest(Script, QThread):
 
         QThread.__init__(self)
         self._plot_type = 'two'
-        self.data = {'data': [], 'memory': []}
+        self.data = {'data': [], 'memory': Queue.Queue(maxsize=5)}
 
 
     def _function(self):
@@ -338,7 +399,7 @@ class ScriptDummyPlotMemoryTest(Script, QThread):
 
         while self._abort == False:
             data = [random.random() for _ in range(self.settings['datasize'])]
-
+            # todo: use queue!!
             process = psutil.Process(os.getpid())
             memory.append(int(process.memory_info().rss))
             self.data = {'data' : data, 'memory':memory}
@@ -352,7 +413,7 @@ class ScriptDummyPlotMemoryTest(Script, QThread):
 
     def stop(self):
         self._abort = True
-    def get_axes(self, figure_data, figure_memory):
+    def get_axes_layout(self, figure_data, figure_memory):
         """
         returns the axes objects the script needs to plot its data
         """
@@ -365,7 +426,7 @@ class ScriptDummyPlotMemoryTest(Script, QThread):
         return axes1, axes2
 
     def plot(self, figure_memory, figure_data):
-        axes_data, axes_memory = self.get_axes(figure_data, figure_memory)
+        axes_data, axes_memory = self.get_axes_layout(figure_data, figure_memory)
 
         if self.settings['data_type'] == 'line':
             axes_data.plot(self.data['data'])
@@ -376,7 +437,7 @@ class ScriptDummyPlotMemoryTest(Script, QThread):
             # print(img)
             plot_fluorescence(img, [-1,1,1,-1], axes_data)
 
-        axes_memory.plot(self.data['memory']/1000)
+        axes_memory.plot(np.array(self.data['memory'])/1000)
 
 class ScriptDummySaveData(Script):
     """
@@ -471,7 +532,7 @@ This Dummy script is used to test saving of data, it takes a data set as input a
 
     def plot(self, figure1, figure2 = None):
         if self.settings['plotting_mode'] == 0:
-            axes1, axes2, axes3 = self.get_axes(figure1, figure2)
+            axes1, axes2, axes3 = self.get_axes_layout(figure1, figure2)
             print('plotting_0')
             image = np.random.rand(120,120)
             plot_fluorescence(image, [-1,1,1,-1], axes1)
@@ -494,7 +555,7 @@ This Dummy script is used to test saving of data, it takes a data set as input a
 
         elif self.settings['plotting_mode'] == 1:
             print('plotting_1')
-            axes = super(ScriptDummyPlotting, self).get_axes(figure1)
+            axes = super(ScriptDummyPlotting, self).get_axes_layout(figure1)
             image = np.random.rand(120,120)
             plot_fluorescence(image, [-1,1,1,-1], axes)
             figure1.tight_layout()
@@ -506,7 +567,7 @@ This Dummy script is used to test saving of data, it takes a data set as input a
 
         elif self.settings['plotting_mode'] == 3:
             print('plotting_3')
-            axes1 = super(ScriptDummyPlotting, self).get_axes(figure1)
+            axes1 = super(ScriptDummyPlotting, self).get_axes_layout(figure1)
             plot = np.random.rand(100)
             axes1.plot(plot)
             axes1.set_title('meep')
@@ -517,7 +578,7 @@ This Dummy script is used to test saving of data, it takes a data set as input a
         elif self.settings['plotting_mode'] ==  10:
             print('plotting_4')
 
-    def get_axes(self, figure1, figure2):
+    def get_axes_layout(self, figure1, figure2):
         if self.settings['plotting_mode'] == 0:
             figure1.clf()
             axes1 = figure1.add_subplot(111)
@@ -529,10 +590,10 @@ This Dummy script is used to test saving of data, it takes a data set as input a
             return axes1, axes2, axes3
 
         elif self.settings['plotting_mode'] == 1:
-            return Script.get_axes(figure1)
+            return Script.get_axes_layout(figure1)
 
         elif self.settings['plotting_mode'] == 3:
-            return Script.get_axes(figure1)
+            return Script.get_axes_layout(figure1)
 
         else:
             pass

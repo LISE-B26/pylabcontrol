@@ -10,9 +10,9 @@ class MWSpectraVsPower(Script, QThread):
 
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:/Lab/Cantilever/Measurements/', str, 'path for data'),
+        Parameter('path', '', str, 'path for data'),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off'),
+        Parameter('save', False, bool, 'save data on/off'),
         # Parameter('start_frequency', 2.7e9, float, 'start frequency of spectrum'),
         # Parameter('end_frequency', 3e9, float, 'end frequency of spectrum'),
         Parameter('uwave_power_min', -45.0, float, 'microwave power min (dBm)'),
@@ -115,7 +115,7 @@ class MWSpectraVsPower(Script, QThread):
         self.settings_for_save.update({'save_data':False, 'save_instrumets':False, 'save_log':True, 'save_settings':False})
         self.updateProgress.emit(100)
     def plot(self, figure):
-        axes = self.get_axes(figure)
+        axes = self.get_axes_layout(figure)
 
         spectrum = self.data['spectrum']
         freq = self.data['frequency']

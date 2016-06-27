@@ -96,7 +96,8 @@ class Script(object):
         self.log_function = log_function
 
         # default value is 'none', overwrite this in script if it has plotting capabilities
-        self._plot_type = 'none'
+        # self._plot_type = 'none'
+        self._plot_refresh = True
 
     @property
     def data_path(self):
@@ -588,10 +589,17 @@ class Script(object):
         for data_file in data_files:
 
             # get data name, read the data from the csv, and save it to dictionary
-            data_name = data_file.split('-')[-1][0:-4]
+            data_name = data_file.split('-')[-1][0:-4] # JG: why do we strip of the date?
             imported_data_df = pd.read_csv(os.path.join(path, data_file))
-            # note, np.squeeze removes extraneous length-1 dimensions from the returned 'matrix' from the dataframe
-            data[data_name] = np.squeeze(imported_data_df.as_matrix())
+
+
+            # check if there are headers, i.e. check if all headers are of type str
+            column_headers = list(imported_data_df.columns.values)
+            if sum([int(isinstance(x, str)) for x in column_headers]) == len(column_headers):
+                    data = {h: imported_data_df[h].as_matrix() for h in column_headers}
+            else:
+                # note, np.squeeze removes extraneous length-1 dimensions from the returned 'matrix' from the dataframe
+                data[data_name] = np.squeeze(imported_data_df.as_matrix())
 
         return data
 
@@ -929,62 +937,73 @@ class Script(object):
 
         return script_instance
 
-    def plot(self, figure):
+    def _plot(self, axes_list):
+        """
+        plots the data only the axes objects that are provided in axes_list
+        Args:
+            axes_list: a list of axes objects, this should be implemented in each subscript
+
+        Returns: None
+
+        """
+        pass
+
+        # add following line in self._plot if you don't want plots to refresh after first plot
+        # self._plot_refresh = False
+
+    def _update_plot(self, axes_list):
+        """
+        updates the data in already existing plots. the axes objects are provided in axes_list
+        Args:
+            axes_list: a list of axes objects, this should be implemented in each subscript
+
+        Returns: None
+
+        """
+
+        # default behaviour just calls the standard plot function that creates a new image everytime it is called
+        # for heavier plots such as images implement a function here that updates only the date of the plot
+        # but doesn't create a whole new image
+        self._plot(axes_list)
+
+    def plot(self, figure_list):
         """
         plots the data contained in self.data, which should be a dictionary or a deque of dictionaries
         for the latter use the last entry
 
         """
-        axes = self.get_axes(figure)
-        if isinstance(self.data, deque):
-            data = self.data[-1]
-        elif isinstance(self.data, dict):
-            data = self.data
+
+        axes_list = self.get_axes_layout(figure_list)
+        if self._plot_refresh is True:
+            self._plot(axes_list)
         else:
-            data = {}
+            self._update_plot(axes_list)
 
-        assert isinstance(data, dict)
 
-        if data == {}:
-            self.log("warning, not data found that can be plotted")
-        else:
-            for key, value in data.iteritems():
-                axes.plot(value)
-
-    def get_axes(self, figure1, figure2 = None):
+    def get_axes_layout(self, figure_list):
         """
         returns the axes objects the script needs to plot its data
         the default creates a single axes object on each figure
         This can/should be overwritten in a child script if more axes objects are needed
         Args:
-            figure1:
-            figure2: (optional)
+            figure_list: a list of figure objects
         Returns:
+            axes_list: a list of axes objects
 
         """
-
-        # create new axes objects if script was just started (self._plot_refresh == True) or
-        # if script is not running (self.is_running == False)
-        # otherwise just return references to existing axes objects
-        if self.is_running == False or self._plot_refresh == True:
-
-            figure1.clf()
-            axes1 = figure1.add_subplot(111)
-
-            if figure2:
-                figure2.clf()
-                axes2 = figure2.add_subplot(111)
-
-            self._plot_refresh = False
+        axes_list = []
+        if self._plot_refresh is True:
+            for fig in figure_list:
+                fig.clf()
+                axes_list.append(fig.add_subplot(111))
+                self.log('REFRESHED')
+                self._plot_refresh = False
         else:
-            axes1 = figure1.axes[0]
-            if figure2:
-                axes2 = figure2.axes[0]
+            for fig in figure_list:
+                axes_list.append(fig.axes[0])
+                self.log('NOT REFRESHED')
 
-        if figure2:
-            return axes1, axes2
-        else:
-            return axes1
+        return axes_list
 
 class QThreadWrapper(QThread):
 
@@ -1005,7 +1024,7 @@ class QThreadWrapper(QThread):
 
         self._running = True
         self.updateProgress.emit(1)
-        self.script.start()
+        self.script.run()
         self.updateProgress.emit(100)
 
 

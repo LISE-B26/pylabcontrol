@@ -1,5 +1,6 @@
 from src.core import Script, Parameter
 from PySide.QtCore import Signal, QThread
+# from PyQt4.QtCore import SIGNAL, QThread
 import numpy as np
 from collections import deque
 from src.instruments.labview_fpga import NI7845RGalvoScan
@@ -179,7 +180,7 @@ class GalvoScanNIFpga(Script, QThread):
         return [xVmin, xVmax, yVmax, yVmin]
 
     def plot(self, image_figure, axes_colorbar = None):
-        axes_image = self.get_axes(image_figure)
+        axes_image = self.get_axes_layout(image_figure)
         plot_fluorescence(self.data['image_data'], self.data['extent'], axes_image, max_counts = self.settings['max_counts_plot'], axes_colorbar=axes_colorbar)
 
     def stop(self):

@@ -17,7 +17,7 @@ class GalvoScan(Script, QThread):
     lock = QReadWriteLock()
 
     _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),
+        Parameter('path',  '', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
         Parameter('save', False, bool,'check to automatically save data'),
         Parameter('point_a',
@@ -193,7 +193,7 @@ class GalvoScan(Script, QThread):
 
         '''
 
-        self.axes_image = self.get_axes(image_figure)
+        self.axes_image = self.get_axes_layout(image_figure)
         if 'image_data' in self.data.keys() and not self.data['image_data'] == []:
             plot_fluorescence(self.data['image_data'], self.data['extent'], self.axes_image,
                               max_counts=self.settings['max_counts_plot'],

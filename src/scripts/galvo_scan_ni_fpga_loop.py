@@ -88,7 +88,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         self._abort = False
 
     def plot(self, figure1, figure2 = None):
-        axis1 = self.get_axes(figure1)
+        axis1 = self.get_axes_layout(figure1)
         plot_fluorescence(self.data['current_image'], self.data['extent'], axis1)
 
     def stop(self):

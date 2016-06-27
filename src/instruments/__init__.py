@@ -1,3 +1,17 @@
+
+try:
+    from Virtual_PI_Controler import PIControler
+except:
+    print("./src/instrument/__init__ warning! PIControler did not load")
+
+
+
+try:
+    from instrument_dummy import DummyInstrument
+except:
+    print("./src/instrument/__init__ warning! DummyInstrument did not load")
+
+
 try:
     from gauge_controller import PressureGauge
 except:
@@ -58,11 +72,6 @@ except:
 #     from spectrum_analyzer import SpectrumAnalyzer
 # except:
 #     print("./src/instrument/__init__ warning! SpectrumAnalyzer did not load")
-
-try:
-    from instrument_dummy import DummyInstrument
-except:
-    print("./src/instrument/__init__ warning! DummyInstrument did not load")
 
 try:
     from microwave_generator import MicrowaveGenerator

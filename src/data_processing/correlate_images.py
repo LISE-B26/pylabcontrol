@@ -1,9 +1,8 @@
 import numpy as np
 from PIL import Image as im
 from scipy import signal
-from src.core import Script
-import matplotlib.pyplot as plt
 import trackpy as tp
+from skimage.filters import sobel
 
 def find_image_shift(reference_image, reference_image_extent, shifted_image, shifted_image_extent, correlation_padding = False):
     """
@@ -22,7 +21,7 @@ def find_image_shift(reference_image, reference_image_extent, shifted_image, shi
     """
 
     # get pixel-to-voltage conversion for each image
-    print('shifted_image', shifted_image)
+    # print('shifted_image', shifted_image)
     shifted_img_pix2vol = pixel_to_voltage_conversion_factor(shifted_image.shape, shifted_image_extent)
     ref_img_pix2vol = pixel_to_voltage_conversion_factor(reference_image.shape, reference_image_extent)
 
@@ -64,7 +63,7 @@ def pixel_to_voltage_conversion_factor(image_shape, image_extent):
     y_voltage = (image_y_max - image_y_min) / image_y_len
     return x_voltage, y_voltage
 
-def create_nv_image(image, nv_size, created_pt_size = 3):
+def _create_nv_image(image, nv_size, created_pt_size = 3):
     y_len, x_len = image.shape
     f = tp.locate(image, nv_size)
 
@@ -77,19 +76,63 @@ def create_nv_image(image, nv_size, created_pt_size = 3):
                     new_image[pt[1] + j, pt[0] + i] = 10
     return new_image
 
-def correlation(nv_pos_list, baseline_image, baseline_image_extent, new_image, new_image_extent, trackpy = False, nv_size = 11):
+def _create_edge_image(image):
+    '''
+    Creates an image identifying the edges in the input image using Sobel's algorithm. This convolves the original image
+    with the kernels Gx = {{1,2,1},{0,0,0},{-1,-2,-1}} and Gy = {{-1,0,1},{-2,0,2},{-1,0,1}} to create an image that is
+    the discrete gradient of the original. It responds strongest to vertical or horizonal features.
+    This was originally necessary to track resonators in reflection images, as the significant changes in brightness
+    as we pushed the resonators (massively changed background, magnet coming into and out of focus and thus going from
+    bright to dark) made a naive correlation fail. Looking instead for the edges, and thus basically creating a
+    brightness-independent resonator image, allowed correlation to succeed.
+    Args:
+        image: image to find edges of
+    '''
+    return sobel(image)
 
-    print('correlation_old_nv_list', nv_pos_list)
+def correlation(baseline_image, baseline_image_extent, new_image, new_image_extent, use_trackpy = False, use_edge_detection = False, nv_size = 11):
+    '''
 
-    if trackpy == True:
-        baseline_image = create_nv_image(baseline_image, nv_size)
-        new_image = create_nv_image(new_image, nv_size)
+    Args:
+        baseline_image: original image before shifting
+        baseline_image_extent: extent of that image
+        new_image: final image after shifting
+        new_image_extent: extent of that image
+        use_trackpy: if true, creates a 'dummy image' of just NVs (a pixel block where trackpy find each NV)
+            which filters out the background and allows determination of NV shift even if the structure on which the
+            diamond rests is moving
+        use_edge_detection: if true, creates a 'dummy image' that identifies the edges of the image. Used to filter out
+            backgrounds that drastically change in brightness, or highlight features that change in brightness but keep
+            the same shape
+        nv_size: only used if use_trackpy is selected, gives the expected NV size in
+
+    Returns: the x and y shifts in voltage, and the correlation image
+
+    '''
+    if use_edge_detection:
+        baseline_image = _create_edge_image(baseline_image)
+        new_image = _create_edge_image(new_image)
+
+    if use_trackpy:
+        baseline_image = _create_nv_image(baseline_image, nv_size)
+        new_image = _create_nv_image(new_image, nv_size)
 
     dx_voltage, dy_voltage, correlation_image = find_image_shift(baseline_image, baseline_image_extent, new_image, new_image_extent, correlation_padding=True)
 
-    print('correlation_new_nv_list', [[pos[0]+dx_voltage, pos[1]+dy_voltage] for pos in nv_pos_list])
+    return dx_voltage, dy_voltage, correlation_image
 
-    return [[pos[0]+dx_voltage, pos[1]+dy_voltage] for pos in nv_pos_list], correlation_image
+def shift_NVs(dx_voltage, dy_voltage, nv_pos_list):
+    '''
+    Takes voltage shifts as found from the correlation function
+    Args:
+        dx_voltage:
+        dy_voltage:
+        nv_pos_list:
+
+    Returns:
+
+    '''
+    return [[pos[0]+dx_voltage, pos[1]+dy_voltage] for pos in nv_pos_list]
 
 
 '''

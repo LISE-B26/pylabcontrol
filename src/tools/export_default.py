@@ -1,8 +1,4 @@
-from src.core.scripts import Script
-import src.scripts as scripts
-from src.core import Probe
 
-import inspect
 
 def export_default_probes(path):
     """
@@ -59,6 +55,9 @@ def export_default_scripts(path):
     """
     loaded_instruments = {}
     loaded_scripts = {}
+    from src.core.scripts import Script
+    import src.scripts as scripts
+    import inspect
 
     scripts_to_load = {name:name for name, obj in inspect.getmembers(scripts) if inspect.isclass(obj)}
 
@@ -76,4 +75,4 @@ def export_default_scripts(path):
 
 if __name__ == '__main__':
     export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments_auto_generated\\')
-    export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_auto_generated\\')
+    # export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_auto_generated\\')

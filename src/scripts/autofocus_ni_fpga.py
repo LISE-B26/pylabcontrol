@@ -110,7 +110,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         self._abort = False
 
-    def get_axes(self, figure_focus, figure_image):
+    def get_axes_layout(self, figure_focus, figure_image):
         """
         returns the axes objects the script needs to plot its data
         the default creates a single axes object on each figure
@@ -143,7 +143,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         return axis_focus, axis_image
 
     def plot(self, figure_focus, figure_image = None):
-        axis_focus, axis_image = self.get_axes(figure_focus, figure_image)
+        axis_focus, axis_image = self.get_axes_layout(figure_focus, figure_image)
         # plot current focusing data
         axis_focus.plot(self.data['main_scan_sweep_voltages'][0:len(self.data['main_scan_focus_function_result'])],
                    self.data['main_scan_focus_function_result'])
