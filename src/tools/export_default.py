@@ -9,17 +9,20 @@ def export_default_probes(path):
         path: target path for .b26 files
     """
     import src.instruments as instruments
+    from src.core import Probe
     import inspect
-
+    import os
     for name, obj in inspect.getmembers(instruments):
+
         if inspect.isclass(obj):
+
             try:
                 instrument = obj()
-
+                print('--- created ', obj.__name__, ' -- ')
                 for probe_name, probe_info in instrument._PROBES.iteritems():
                     probe = Probe(instrument, probe_name, info = probe_info)
-                    filename = '{:s}/{:s}/{:s}.b26'.format(path, instrument.name, probe_name)
-                    probe.save(filename)
+                    filename = os.path.join(path, '{:s}.b26'.format(instrument.name))
+                    probe.save(filename, )
             except:
                 print('failed to create probe file for: {:s}'.format(obj.__name__))
 
@@ -37,6 +40,7 @@ def export_default_instruments(path):
     for name, obj in inspect.getmembers(instruments):
 
         if inspect.isclass(obj):
+
             try:
                 instrument = obj()
                 print('created ', name)
@@ -74,5 +78,7 @@ def export_default_scripts(path):
 
 
 if __name__ == '__main__':
-    export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments_auto_generated\\')
+    # export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments_auto_generated\\')
     # export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_auto_generated\\')
+
+    export_default_probes('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\probes_auto_generated\\')
