@@ -1,7 +1,6 @@
 from unittest import TestCase
-from src.instruments import B26PulseBlaster
+from src.instruments import B26PulseBlaster, Pulse
 from collections import namedtuple
-from src.core import Pulse
 import numpy as np
 
 
@@ -106,3 +105,6 @@ class TestPulseBlaster(TestCase):
                             self.pb.PBStateChange(channel_bits=1, time=990.0)]
 
         self.assertEqual(self.pb.generate_pb_sequence(self.pulses), correct_commands)
+
+    def test_long_delay_breakdown(self):
+        pass

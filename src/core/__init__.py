@@ -11,7 +11,6 @@ from instruments import Instrument
 from parameter import Parameter
 from probe import Probe
 from scripts import Script, QThreadWrapper
-from pulse import Pulse
 
 try:
     from read_probes import ReadProbes

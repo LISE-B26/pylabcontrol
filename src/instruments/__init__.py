@@ -38,7 +38,7 @@ except:
     print("./src/instrument/__init__ warning! ZIHF2 did not load")
 
 try:
-    from pulse_blaster import B26PulseBlaster
+    from pulse_blaster import B26PulseBlaster, Pulse
 except:
     print("./src/instrument/__init__ warning! PulseBlaster did not load")
 
