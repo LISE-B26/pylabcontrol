@@ -94,3 +94,10 @@ def plot_counts(axis, data):
     axis.set_xlabel('time')
     axis.set_ylabel('kCounts/sec')
 
+
+def plot_delay_counts(axis, times, counts):
+    axis.plot(times, counts)
+
+    axis.set_xlabel('time (ns)')
+    axis.set_ylabel('total counts per delay')
+
