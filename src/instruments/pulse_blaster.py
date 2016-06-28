@@ -462,7 +462,14 @@ class PulseBlaster(Instrument):
         if isinstance(channel_id, (int, float)):
             return channel_id
         elif isinstance(channel_id, str):
-            return self.settings[channel_id]['channel']
+            if channel_id in self.settings.keys() and isinstance(self.settings[channel_id], dict) and 'channel' in \
+                    self.settings[channel_id].keys():
+                return self.settings[channel_id]['channel']
+            else:
+                raise AttributeError('Could not find channel with the following id: {0}'.format(channel_id))
+
+        raise AttributeError(
+            'channel id must be either an integer or a string. Instead, this was passed in: {0}'.format(channel_id))
 
 
 class B26PulseBlaster(PulseBlaster):
