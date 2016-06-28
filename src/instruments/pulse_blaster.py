@@ -105,7 +105,7 @@ class PulseBlaster(Instrument):
 
         elif isinstance(channel_id, int):
             channel_num = channel_id
-            for key, value in self.settings:
+            for key, value in self.settings.iteritems():
                 if isinstance(value, dict) and 'channel' in value.keys() and value['channel'] == channel_num:
                     return self.settings[key]['delay_time']
 
@@ -204,9 +204,10 @@ class PulseBlaster(Instrument):
         # Note: we do not specifically keep track of whether we toggle on or off at a given time (is not necessary)
         pb_command_dict = {}
         for pulse in pulses:
-            pb_command_dict.setdefault(pulse.start_time, []).append(1 << self.settings[pulse.channel_id]['channel'])
+            pulse_channel = self._get_channel(pulse.channel_id)
+            pb_command_dict.setdefault(pulse.start_time, []).append(1 << pulse_channel)
             pulse_end_time = pulse.start_time + pulse.duration
-            pb_command_dict.setdefault(pulse_end_time, []).append(1 << self.settings[pulse.channel_id]['channel'])
+            pb_command_dict.setdefault(pulse_end_time, []).append(1 << pulse_channel)
 
         # Make sure we have a command at time=0, the command to have nothing on.
         if 0 not in pb_command_dict.keys():
@@ -314,6 +315,8 @@ class PulseBlaster(Instrument):
                                self.LONG_DELAY_THRESHOLD / 2 + remainder, command, command_arg))
             return instruction_list
 
+        # stupidly, you cannot call LONG_DELAY once, so youhave to call two CONTINUE instead of you were going to
+        # have it loop only once.
         elif num_long_delays == 1:
             instruction_list.append(
                 self.PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD / 2,
@@ -455,6 +458,12 @@ class PulseBlaster(Instrument):
         self.estimated_runtime = None
         self.sequence_start_time = None
 
+    def _get_channel(self, channel_id):
+        if isinstance(channel_id, (int, float)):
+            return channel_id
+        elif isinstance(channel_id, str):
+            return self.settings[channel_id]['channel']
+
 
 class B26PulseBlaster(PulseBlaster):
     _DEFAULT_SETTINGS = Parameter([
@@ -507,12 +516,13 @@ class B26PulseBlaster(PulseBlaster):
 
         raise AttributeError('Could not find instrument name attached to channel {s}'.format(channel))
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
 
     pb = B26PulseBlaster()
-    pulse_collection = [Pulse(channel_id='laser', start_time=0, duration=2000),
-                        Pulse(channel_id='apd_readout', start_time=2000, duration=2000)]
-    pulse_collection = [Pulse('apd_readout', i, 100) for i in range(0, 2000, 200)]
+    pulse_collection = [Pulse(channel_id=0, start_time=0, duration=2000),
+                        Pulse(channel_id=1, start_time=2000, duration=2000)]
+    # pulse_collection = [Pulse('apd_readout', i, 100) for i in range(0, 2000, 200)]
     pb.program_pb(pulse_collection, num_loops=1E6)
     pb.start_pulse_seq()
     pb.wait()
