@@ -79,6 +79,7 @@ class PulseBlaster(Instrument):
                 self.pb.pb_stop_programming()
                 self.pb.pb_start()
                 assert self.pb.pb_read_status() & 0b100 == 0b100, 'pulseblaster did not begin running after start() called.'
+                self.pb.pb_stop()
                 self.pb.pb_close()
                 break
 
@@ -334,7 +335,7 @@ class PulseBlaster(Instrument):
         pb_commands += list(reversed(self._get_long_delay_breakdown(pb_state_changes[0], command='LOOP', command_arg=num_loops)))
 
         for index in range(1, len(pb_state_changes)-1):
-            pb_commands += list(reversed(self._get_long_delay_breakdown(pb_state_changes[index], command='LOOP')))
+            pb_commands += list(reversed(self._get_long_delay_breakdown(pb_state_changes[index], command='CONTINUE')))
 
         pb_commands += self._get_long_delay_breakdown(pb_state_changes[-1], command='END_LOOP', command_arg=0)
         pb_commands.append(PBCommand(self.settings2bits(), 100, command='BRANCH', command_arg=len(pb_commands)))
@@ -355,30 +356,51 @@ class PulseBlaster(Instrument):
         return float(num_loops * max([pulse.start_time + pulse.duration for pulse in pulse_collection]))/1E6
 
     def program_pb(self, pulse_collection, num_loops=1):
+        """
+        programs the pulseblaster to perform the pulses in the given pulse_collection on the next time start_pulse_seq()
+        is called. The pulse collection must contain at least 2 pulses. Currently, we do not support time resolution below
+        15 ns.
+
+        Args:
+            pulse_collection: A collection of Pulse objects
+            num_loops: The number of times to perform the given pulse collection
+
+        Returns:
+
+        """
+
+        # check for errors in the given pulse_collection
         assert len(pulse_collection) > 1, 'pulse program must have at least 2 pulses'
         assert num_loops < (1 << 20), 'cannot have more than 2^20 (approx 1 million) loop iterations'
+        if self.find_overlapping_pulses(pulse_collection):
+            raise AttributeError('found overlapping pulses in given pulse collection')
+        for pulse in pulse_collection:
+            assert pulse.start_time == 0 or pulse.start_time > 1, \
+                'found a start time that was between 0 and 1. Remember pulses are in nanoseconds!'
+            assert pulse.duration == 0 or pulse.duration > 1, \
+                'found a pulse duration between 0 and 1. Remember pulses are in nanoseconds!'
 
+        # process the pulse collection into a format that is designed to deal with the low-level spincore API
         delayed_pulse_collection = self.create_physical_pulse_seq(pulse_collection)
         self.estimated_runtime = self.estimate_runtime(delayed_pulse_collection, num_loops)
         pb_state_changes = self.generate_pb_sequence(delayed_pulse_collection)
         pb_commands = self.create_commands(pb_state_changes, num_loops)
+        for command in pb_commands:
+            if command.duration < 15:
+                print('Warning, detected pulseblaster commands requiring a duration < 15 ns. The PB will likely round up'
+                      'to 15 ns.')
 
-        print self.pb.pb_stop()
-
+        # begin programming the pulseblaster
         assert self.pb.pb_init() == 0, 'Could not initialize the pulseblsater on pb_init() command.'
         self.pb.pb_core_clock(ctypes.c_double(self.settings['clock_speed']))
         self.pb.pb_start_programming(self.PULSE_PROGRAM)
 
         for pbinstruction in pb_commands:
-            print pbinstruction
-            print ctypes.c_int(pbinstruction.channel_bits | 0xE00000)
-            print self.PB_INSTRUCTIONS[pbinstruction.command]
-            print ctypes.c_int(pbinstruction.command_arg)
-            print ctypes.c_double(pbinstruction.duration)
-
+            # note that change types to the appropriate c type, as well as set certain bits in the channel bits to 1 in
+            # order to properly output the signal
             return_value = self.pb.pb_inst_pbonly(ctypes.c_int(pbinstruction.channel_bits | 0xE00000),
                                                   self.PB_INSTRUCTIONS[pbinstruction.command],
-                                                  ctypes.c_int(pbinstruction.command_arg),
+                                                  ctypes.c_int(int(pbinstruction.command_arg)),
                                                   ctypes.c_double(pbinstruction.duration))
 
             assert return_value >=0, 'There was an error while programming the pulseblaster'
@@ -461,8 +483,9 @@ class B26PulseBlaster(PulseBlaster):
 if __name__=='__main__':
 
     pb = B26PulseBlaster()
-    pulse_collection = [Pulse('laser', 0, 100E-9), Pulse('apd_readout', 100E-9, 100E-9)]
-    pb.program_pb(pulse_collection, num_loops=1000)
+    #pulse_collection = [Pulse('laser', 0, 100), Pulse('apd_readout', 100, 100)]
+    pulse_collection = [Pulse('laser', i, 1000) for i in range(0,10000,2000)]
+    pb.program_pb(pulse_collection, num_loops=1000000)
     pb.start_pulse_seq()
     pb.wait()
 
