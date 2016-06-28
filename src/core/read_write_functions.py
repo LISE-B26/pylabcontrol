@@ -27,7 +27,7 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
         filename:
         instruments:
         scripts:
-        probes:
+        probes: dictionary of the form {instrument_name : probe_1_of_intrument, probe_2_of_intrument, ...}
 
     Returns:
 
@@ -52,19 +52,19 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
             data_dict['scripts'] = scripts
 
     if probes is not None:
+        probe_instruments = probes.keys()
         if 'probes' in data_dict:
-            for k, v in data_dict['probes'].iteritems():
-                if k in probes:
-                    data_dict['probes'][k].update(probes[k])
+            # all the instruments required for old and new probes
+            probe_instruments= set(probe_instruments + data_dict['probes'].keys())
         else:
-            data_dict['probes'] = probes
+            data_dict.update({'probes':{}})
 
-    # if 'instruments' in data_dict:
-    #     data_dict['instruments'].update(data_dict['instruments'])
-    # if 'scripts' in data_dict:
-    #     data_dict['scripts'].update(data_dict['scripts'])
-    # if 'probes' in data_dict:
-    #     data_dict['probes'].update(data_dict['probes'])
+        for instrument in probe_instruments:
+            if instrument in data_dict['probes'] and instrument in probes:
+                # update the data_dict
+                data_dict['probes'][instrument] = ','.join(set(data_dict['probes'][instrument].split(',') + probes[instrument].split(',')))
+            else:
+                data_dict['probes'].update(probes)
 
     if data_dict != {}:
         with open(filename, 'w') as outfile:

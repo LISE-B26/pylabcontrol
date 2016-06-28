@@ -9,7 +9,7 @@ import os.path
 import numpy as np
 import json as json
 from PySide.QtCore import QThread
-from src.gui import LoadDialog
+from src.gui import LoadDialog, LoadDialogProbes
 from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as Canvas,
                                                 NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.backend_bases import key_press_handler
@@ -553,14 +553,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             elif sender is self.btn_load_probes:
 
-                dialog = LoadDialog(elements_type="probes", elements_old=self.probes,
-                                    filename=self.gui_settings['probes_folder'])
+                dialog = LoadDialogProbes(elements_old=self.probes, filename=self.gui_settings['probes_folder'])
                 if dialog.exec_():
                     self.gui_settings['probes_folder'] = str(dialog.txt_probe_log_path.text())
                     probes = dialog.getValues()
-                    added_probes = set(probes.keys()) - set(self.probes.keys())
-                    removed_probes = set(self.probes.keys()) - set(probes.keys())
-
+                    added_instruments = set(probes.keys()) - set(self.probes.keys())
+                    removed_instruments = set(self.probes.keys()) - set(probes.keys())
+                    print('XXX', added_instruments, removed_instruments)
                     # create instances of new probes
                     self.probes, loaded_failed, self.instruments = Probe.load_and_append(
                         probe_dict= {name: probes[name] for name in added_probes},
