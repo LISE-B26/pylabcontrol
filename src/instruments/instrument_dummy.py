@@ -99,6 +99,9 @@ class DummyInstrumentThreaded(threading.Thread, Instrument):
         self._is_connected = True
         self.start()
 
+    def __del__(self):
+        self._is_connected = False
+
     def run(self):
         dt = 1./self.settings['update frequency']
         while self._is_connected:

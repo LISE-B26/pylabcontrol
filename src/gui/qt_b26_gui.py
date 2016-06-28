@@ -1,15 +1,9 @@
 """
 Basic gui class designed with QT designer
 """
-# import sip
-# try:
-#     import sip
-#     sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
-# except ValueError:
-#     pass
 from PyQt4 import QtGui, QtCore
 from PyQt4.uic import loadUiType
-from src.core import Parameter, Instrument, Script, ReadProbes, QThreadWrapper
+from src.core import Parameter, Instrument, Script, ReadProbes, QThreadWrapper, Probe
 from src.gui import B26QTreeItem
 import os.path
 import numpy as np
@@ -25,13 +19,8 @@ import sys
 import datetime
 from collections import deque
 
-import matplotlib._pylab_helpers
-# from src.core import instantiate_probes
 
 #from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, StanfordResearch_ESR, Find_Points, Select_NVs, ESR_Selected_NVs
-
-###AARON_PC REMOVE
-# from src.scripts.Select_NVs import Select_NVs, Select_NVs_Simple
 
 from src.core.read_write_functions import load_b26_file
 # load the basic old_gui either from .ui file or from precompiled .py file
@@ -77,8 +66,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # self.tree_scripts.setColumnWidth(0, 300)
             self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
-            # self.tree_monitor.setColumnWidth(0, 300)
-            self.tree_monitor.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            self.tree_probes.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
             # self.tree_dataset.setColumnWidth(0, 100)
             # self.tree_dataset.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
@@ -133,6 +121,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             self.btn_load_instruments.clicked.connect(self.btn_clicked)
             self.btn_load_scripts.clicked.connect(self.btn_clicked)
+            self.btn_load_probes.clicked.connect(self.btn_clicked)
 
             # Helper function to make only column 1 editable
             def onScriptParamClick(item, column):
@@ -477,7 +466,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             start_button()
         elif sender is self.btn_stop_script:
             stop_button()
-        # elif sender is self.btn_plot_data or sender is self.btn_plot_script or sender is self.tree_dataset:
         elif sender in (self.btn_plot_data, self.btn_plot_script, self.tree_dataset):
             plot_data(sender)
         elif sender is self.btn_store_script_data:
@@ -487,7 +475,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         elif sender is self.btn_delete_data:
             delete_data()
         elif sender is self.btn_plot_probe:
-            item = self.tree_monitor.currentItem()
+            item = self.tree_probes.currentItem()
             if item is not None:
                 self.probe_to_plot = self.probes[item.name]
             else:
@@ -510,8 +498,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             msg.setStandardButtons(QtGui.QMessageBox.Ok)
             # msg.buttonClicked.connect(msgbtn)
             retval = msg.exec_()
-        elif (sender is self.btn_load_instruments) or (sender is self.btn_load_scripts):
-
+        # elif (sender is self.btn_load_instruments) or (sender is self.btn_load_scripts):
+        elif sender in (self.btn_load_instruments, self.btn_load_scripts, self.btn_load_probes):
             if sender is self.btn_load_instruments:
 
                 if 'instrument_folder' in self.gui_settings:
@@ -562,6 +550,27 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     # delete instances of new instruments/scripts that have been deselected
                     for name in removed_scripts:
                         del self.scripts[name]
+
+            elif sender is self.btn_load_probes:
+
+                dialog = LoadDialog(elements_type="probes", elements_old=self.probes,
+                                    filename=self.gui_settings['probes_folder'])
+                if dialog.exec_():
+                    self.gui_settings['probes_folder'] = str(dialog.txt_probe_log_path.text())
+                    probes = dialog.getValues()
+                    added_probes = set(probes.keys()) - set(self.probes.keys())
+                    removed_probes = set(self.probes.keys()) - set(probes.keys())
+
+                    # create instances of new probes
+                    self.probes, loaded_failed, self.instruments = Probe.load_and_append(
+                        probe_dict= {name: probes[name] for name in added_probes},
+                        probes=self.probes,
+                        instruments=self.instruments)
+                    if loaded_failed != []:
+                        print('WARNING following probes could not be loaded', loaded_failed)
+                    # delete instances of new instruments/scripts that have been deselected
+                    for name in removed_probes:
+                        del self.probes[name]
             # refresh trees
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
@@ -702,12 +711,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         new_values = self.read_probes.probes_values
         probe_count = len(self.read_probes.probes)
 
-        if probe_count > self.tree_monitor.topLevelItemCount():
+        if probe_count > self.tree_probes.topLevelItemCount():
             # when run for the first time, there are no probes in the tree, so we have to fill it first
-            self.fill_treewidget(self.tree_monitor, self.read_probes.probes_values)
+            self.fill_treewidget(self.tree_probes, self.read_probes.probes_values)
         else:
             for x in range(0 , probe_count):
-                topLvlItem = self.tree_monitor.topLevelItem(x)
+                topLvlItem = self.tree_probes.topLevelItem(x)
                 topLvlItem.value = new_values[topLvlItem.name]
                 topLvlItem.setText(1, unicode(topLvlItem.value))
         if self.probe_to_plot is not None:
@@ -928,11 +937,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             instruments = in_data['instruments']
             scripts = in_data['scripts']
             probes = in_data['probes']
-            # print('============ loading instruments ================')
+            print('=============================================')
+            print('============ loading instruments ============')
+            print('=============================================')
             self.instruments, failed = Instrument.load_and_append(instruments)
             if failed != {}:
                 print('WARNING! Following instruments could not be loaded: ', failed)
+            print('=============================================')
             print('============ loading scripts ================')
+            print('=============================================')
             self.scripts, failed, self.instruments = Script.load_and_append(
                 script_dict=scripts,
                 instruments=self.instruments,
@@ -940,14 +953,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 data_path=self.gui_settings['data_folder'])
             if failed != {}:
                 print('WARNING! Following scripts could not be loaded: ', failed)
-            print('INFO: ==== loading probes not implmented yet================')
-            # probes = instantiate_probes(probes, instruments)
+            print('=============================================')
+            print('============ loading probes =================')
+            print('=============================================')
+            self.probes, failed, self.instruments = Probe.load_and_append(
+                probe_dict=probes,
+                probes=self.probes,
+                instruments=self.instruments)
             # todo: implement probes
-            self.probes = {}
             # refresh trees
             self.refresh_tree(self.tree_scripts, self.scripts)
-
-
             self.refresh_tree(self.tree_settings, self.instruments)
         else:
             self.instruments = {}

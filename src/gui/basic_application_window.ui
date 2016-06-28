@@ -48,7 +48,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab_scripts">
            <attribute name="title">
@@ -252,9 +252,9 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_monitor">
+          <widget class="QWidget" name="tab_probes">
            <attribute name="title">
-            <string>Monitor</string>
+            <string>Probes</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_7">
             <item>
@@ -274,31 +274,19 @@
                  </widget>
                 </item>
                 <item>
+                 <widget class="QPushButton" name="btn_load_probes">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>load probe</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <layout class="QHBoxLayout" name="horizontalLayout">
-                  <item>
-                   <widget class="QLabel" name="lbl_probe_log_path">
-                    <property name="font">
-                     <font>
-                      <pointsize>10</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Path</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLineEdit" name="txt_probe_log_path">
-                    <property name="font">
-                     <font>
-                      <pointsize>10</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Z:\Lab\Cantilever\Measurements</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item>
                    <widget class="QCheckBox" name="chk_probe_log">
                     <property name="font">
@@ -316,7 +304,7 @@
                </layout>
               </item>
               <item>
-               <widget class="QTreeWidget" name="tree_monitor">
+               <widget class="QTreeWidget" name="tree_probes">
                 <property name="enabled">
                  <bool>true</bool>
                 </property>
@@ -524,7 +512,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">

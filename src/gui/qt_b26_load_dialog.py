@@ -45,12 +45,16 @@ Returns:
         # create models for tree structures, the models reflect the data
         self.tree_infile_model = QtGui.QStandardItemModel()
         self.tree_infile.setModel(self.tree_infile_model)
-        self.tree_infile_model.setHorizontalHeaderLabels([self.elements_type, 'Value'])
-
+        if self.elements_type in ('instruments', 'scripts'):
+            self.tree_infile_model.setHorizontalHeaderLabels([self.elements_type, 'Value'])
+        elif self.elements_type in ('probes'):
+            self.tree_infile_model.setHorizontalHeaderLabels(['Instrument', 'Probe'])
         self.tree_loaded_model = QtGui.QStandardItemModel()
         self.tree_loaded.setModel(self.tree_loaded_model)
-        self.tree_loaded_model.setHorizontalHeaderLabels([self.elements_type, 'Value'])
-
+        if self.elements_type in ('instruments', 'scripts'):
+            self.tree_loaded_model.setHorizontalHeaderLabels([self.elements_type, 'Value'])
+        elif self.elements_type in ('probes'):
+            self.tree_loaded_model.setHorizontalHeaderLabels(['Instrument', 'Probe'])
         # connect the buttons
         self.btn_open.clicked.connect(self.open_file_dialog)
 
@@ -81,13 +85,14 @@ Returns:
     def name_changed(self, changed_item):
         name = str(changed_item.text())
 
-        # if the item has been moved we ignore this because the item only went from one tree to the other without changing names
-        if name != '':
-            print('new:',name,'old:', self.selected_element_name)
-            if name != self.selected_element_name:
-                self.elements_from_file[name] = self.elements_from_file[self.selected_element_name]
-                del self.elements_from_file[self.selected_element_name]
-                self.selected_element_name = name
+        if self.elements_type in ('instruments', 'scripts'):
+            # if the item has been moved we ignore this because the item only went from one tree to the other without changing names
+            if name != '':
+                print('new:',name,'old:', self.selected_element_name)
+                if name != self.selected_element_name:
+                    self.elements_from_file[name] = self.elements_from_file[self.selected_element_name]
+                    del self.elements_from_file[self.selected_element_name]
+                    self.selected_element_name = name
 
 
     def show_info(self):
@@ -163,7 +168,7 @@ Returns:
 
         """
 
-        def add_elemet(item, key, value):
+        def add_elemet(item, key, value = None):
             child_name = QtGui.QStandardItem(key)
             child_name.setDragEnabled(False)
             child_name.setSelectable(False)
@@ -173,57 +178,94 @@ Returns:
                 for ket_child, value_child in value.iteritems():
                     add_elemet(child_name, ket_child, value_child)
                 item.appendRow(child_name)
+            elif value is None:
+                child_name = QtGui.QStandardItem(key)
+                item.appendRow(child_name)
             else:
                 child_value = QtGui.QStandardItem(unicode(value))
                 child_value.setDragEnabled(False)
                 child_value.setSelectable(False)
                 child_value.setEditable(False)
-
+                print([child_name, child_value])
                 item.appendRow([child_name, child_value])
 
-        for index, (instrument, instrument_settings) in enumerate(input_dict.iteritems()):
-            item = QtGui.QStandardItem(instrument)
+        if self.elements_type in ('instruments', 'scripts'):
+            for index, (instrument, element_settings) in enumerate(input_dict.iteritems()):
+                item = QtGui.QStandardItem(instrument)
 
-            for key, value in instrument_settings['settings'].iteritems():
-                add_elemet(item, key, value)
+                for key, value in element_settings['settings'].iteritems():
+                    add_elemet(item, key, value)
 
-            tree.model().appendRow(item)
-            if tree == self.tree_loaded:
-                item.setEditable(False)
-            tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
+                tree.model().appendRow(item)
+                if tree == self.tree_loaded:
+                    item.setEditable(False)
+                tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
+        elif self.elements_type in ('probes'):
+            for index, (instrument, probes) in enumerate(input_dict.iteritems()):
+                item = QtGui.QStandardItem(instrument)
 
+                for key, value in probes.iteritems():
+                    add_elemet(item, key, value)
+                tree.model().appendRow(item)
+
+                if tree == self.tree_loaded:
+                    item.setEditable(False)
+                tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
     def getValues(self):
         """
-        Returns: the selected instruments
+        Returns: the selected elements
         """
+        print('aasadsad')
         elements_selected = {}
+        # if self.elements_type in ('instruments', 'scripts'):
         for index in range(self.tree_loaded_model.rowCount()):
             element_name = str(self.tree_loaded_model.item(index).text())
             if element_name in self.elements_old:
                 elements_selected.update({element_name: self.elements_old[element_name]})
             elif element_name in self.elements_from_file:
                 elements_selected.update({element_name: self.elements_from_file[element_name]})
+        # elif self.elements_type in ('probes'):
+        #     for index in range(self.tree_loaded_model.rowCount()):
+        #         instrument_name = str(self.tree_loaded_model.item(index).text())
+        #         probe_name = str(self.tree_loaded_model.item(index).text())
+        #         if instrument_name in self.elements_old:
+        #             if instrument_name in self.elements_old:
+        else:
+            raise TypeError('unknown element type (should be one of (instruments, scripts, probes)')
 
         return elements_selected
 
 if __name__ == '__main__':
     import sys
-    from src.core.loading import instantiate_instruments
-    instuments = instantiate_instruments({'inst_dummy': 'DummyInstrument'})
-    print(instuments)
     app = QtGui.QApplication(sys.argv)
-    # ex = LoadDialog(elements_type = 'instruments', elements_old=instuments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
-    # ex = LoadDialog(elements_type='scripts', elements_old=instuments)
-    ex = LoadDialog(elements_type='scripts')
+    folder = "C:/Users/Experiment/PycharmProjects/PythonLab/b26_files/probes_auto_generated/"
+    dialog = LoadDialog(elements_type="probes", elements_old={},
+                        filename=folder)
+    dialog.show()
+    dialog.raise_()
+    if dialog.exec_():
+        probes = dialog.getValues()
 
-    ex.show()
-    ex.raise_()
-
-    print('asda')
-    if ex.exec_():
-        values = ex.getValues()
-        print(values)
-
-    sys.exit(app.exec_())
+        print(probes.keys())
+        # added_probes = set(probes.keys()) - set(self.probes.keys())
+        # removed_probes = set(self.probes.keys()) - set(probes.keys())
+        sys.exit(app.exec_())
 
 
+
+
+
+    # import sys
+    # app = QtGui.QApplication(sys.argv)
+    # folder = "C:/Users/Experiment/PycharmProjects/PythonLab/b26_files/instruments_auto_generated/"
+    # dialog = LoadDialog(elements_type="instruments", elements_old={},
+    #                     filename=folder)
+    # dialog.show()
+    # dialog.raise_()
+    # if dialog.exec_():
+    #     probes = dialog.getValues()
+    #
+    #     print(probes)
+    #     # added_probes = set(probes.keys()) - set(self.probes.keys())
+    #     # removed_probes = set(self.probes.keys()) - set(probes.keys())
+    #     sys.exit(app.exec_())
