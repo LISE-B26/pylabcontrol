@@ -425,13 +425,13 @@ class PulseBlaster(Instrument):
         self.pb.pb_core_clock(ctypes.c_double(self.settings['clock_speed']))
         self.pb.pb_start_programming(self.PULSE_PROGRAM)
 
-        for pbinstruction in pb_commands:
+        for pb_instruction in pb_commands:
             # note that change types to the appropriate c type, as well as set certain bits in the channel bits to 1 in
             # order to properly output the signal
-            return_value = self.pb.pb_inst_pbonly(ctypes.c_int(pbinstruction.channel_bits | 0xE00000),
-                                                  self.PB_INSTRUCTIONS[pbinstruction.command],
-                                                  ctypes.c_int(int(pbinstruction.command_arg)),
-                                                  ctypes.c_double(pbinstruction.duration))
+            return_value = self.pb.pb_inst_pbonly(ctypes.c_int(pb_instruction.channel_bits | 0xE00000),
+                                                  self.PB_INSTRUCTIONS[pb_instruction.command],
+                                                  ctypes.c_int(int(pb_instruction.command_arg)),
+                                                  ctypes.c_double(pb_instruction.duration))
 
             assert return_value >=0, 'There was an error while programming the pulseblaster'
         self.pb.pb_stop_programming()
