@@ -103,22 +103,19 @@ Returns:
                 probe_names = [str(index.model().itemFromIndex(index).text())]
 
             if not instrument_name in dict_target.keys():
-                dict_target.update({instrument_name: {probe_name:instrument_name for probe_name in probe_names}})
-                for probe_name in probe_names:
-                    del dict_source[instrument_name][probe_name]
+                dict_target.update({instrument_name: ','.join(probe_names)})
+                dict_source[instrument_name] = ','.join(set(dict_source[instrument_name].split(',')) - set(probe_names))
             else:
-                for probe_name in probe_names:
-                    if not probe_name in dict_target[instrument_name].keys():
-                        dict_target[instrument_name].update({probe_name: instrument_name})
-                        del dict_source[instrument_name][probe_name]
+                dict_target[instrument_name] = ','.join(set(dict_target[instrument_name].split(',') + probe_names))
+                dict_source[instrument_name] = ','.join(set(dict_source[instrument_name].split(',')) - set(probe_names))
 
-            if instrument_name in dict_source and  dict_source[instrument_name] == {}:
+            if instrument_name in dict_source and  dict_source[instrument_name] == '':
                 del dict_source[instrument_name]
-            if instrument_name in dict_target and dict_target[instrument_name] == {}:
+            if instrument_name in dict_target and dict_target[instrument_name] == '':
                 del dict_target[instrument_name]
 
         else:
-            #
+            # this case should never happen but if it does raise an error
             raise TypeError
 
         self.fill_tree(self.tree_loaded, self.elements_selected)
@@ -130,7 +127,7 @@ Returns:
         """
         displays the doc string of the selected element
         """
-        # print('INFO NOT IMPLEMENTED YET. Check back later....')
+
         sender = self.sender()
         tree = sender.parent()
         index = tree.selectedIndexes()
@@ -205,8 +202,9 @@ Returns:
         def add_probe(tree, instrument, probes):
             item = QtGui.QStandardItem(instrument)
             item.setEditable(False)
-            for key, value in probes.iteritems():
-                child_name = QtGui.QStandardItem(key)
+
+            for probe in probes.split(','):
+                child_name = QtGui.QStandardItem(probe)
                 child_name.setDragEnabled(True)
                 child_name.setSelectable(True)
                 child_name.setEditable(False)
@@ -218,6 +216,7 @@ Returns:
         for index, (instrument, probes) in enumerate(input_dict.iteritems()):
             add_probe(tree, instrument, probes)
             # tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
+        tree.expandAll()
 
     def getValues(self):
         """
@@ -243,20 +242,3 @@ if __name__ == '__main__':
         sys.exit(app.exec_())
 
 
-
-
-
-    # import sys
-    # app = QtGui.QApplication(sys.argv)
-    # folder = "C:/Users/Experiment/PycharmProjects/PythonLab/b26_files/instruments_auto_generated/"
-    # dialog = LoadDialog(elements_type="instruments", elements_old={},
-    #                     filename=folder)
-    # dialog.show()
-    # dialog.raise_()
-    # if dialog.exec_():
-    #     probes = dialog.getValues()
-    #
-    #     print(probes)
-    #     # added_probes = set(probes.keys()) - set(self.probes.keys())
-    #     # removed_probes = set(self.probes.keys()) - set(probes.keys())
-    #     sys.exit(app.exec_())

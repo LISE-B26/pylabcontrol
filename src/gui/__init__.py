@@ -1,2 +1,3 @@
 from qt_b26_widgets import B26QTreeItem
 from qt_b26_load_dialog import LoadDialog
+from qt_b26_load_dialog_probes import LoadDialogProbes

@@ -69,7 +69,7 @@ class Probe(object):
         """
 
         # dictator = {self.name: {'probe_name': self.probe_name, 'instrument_name': self.instrument.name}}
-        dictator = {self.instrument.name:{self.probe_name: self.instrument.name}}
+        dictator = {self.instrument.name: self.probe_name}
 
         return dictator
 
@@ -245,18 +245,29 @@ class Probe(object):
 
 
 if __name__ == '__main__':
-    # from src.core import instantiate_instruments
-    instruments = {'inst_dummy': 'DummyInstrument'}
+    probe_dict = {"DummyInstrument": {
+        "deep_internal": "DummyInstrument",
+        "internal": "DummyInstrument"}
+    }
 
-    instrument = instantiate_instruments(instruments)['inst_dummy']
 
-    p = Probe(instrument, 'value1', 'random')
 
-    print(instruments['inst_dummy'])
-
-    print(p.name)
-    print(p.value)
-    print(p.value)
+    # Probe.load_and_append(
+    #     probe_dict={name: probes[name] for name in added_probes},
+    #     probes=self.probes,
+    #     instruments=self.instruments)
+    # # from src.core import instantiate_instruments
+    # instruments = {'inst_dummy': 'DummyInstrument'}
+    #
+    # instrument = instantiate_instruments(instruments)['inst_dummy']
+    #
+    # p = Probe(instrument, 'value1', 'random')
+    #
+    # print(instruments['inst_dummy'])
+    #
+    # print(p.name)
+    # print(p.value)
+    # print(p.value)
 
 
 
