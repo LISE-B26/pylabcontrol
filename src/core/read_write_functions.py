@@ -53,16 +53,18 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
 
     if probes is not None:
         if 'probes' in data_dict:
-            data_dict['probes'].update(probes)
+            for k, v in data_dict['probes'].iteritems():
+                if k in probes:
+                    data_dict['probes'][k].update(probes[k])
         else:
             data_dict['probes'] = probes
 
-    if 'instruments' in data_dict:
-        data_dict['instruments'].update(data_dict['instruments'])
-    if 'scripts' in data_dict:
-        data_dict['scripts'].update(data_dict['scripts'])
-    if 'probes' in data_dict:
-        data_dict['probes'].update(data_dict['probes'])
+    # if 'instruments' in data_dict:
+    #     data_dict['instruments'].update(data_dict['instruments'])
+    # if 'scripts' in data_dict:
+    #     data_dict['scripts'].update(data_dict['scripts'])
+    # if 'probes' in data_dict:
+    #     data_dict['probes'].update(data_dict['probes'])
 
     if data_dict != {}:
         with open(filename, 'w') as outfile:

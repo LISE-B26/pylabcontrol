@@ -22,7 +22,7 @@ def export_default_probes(path):
                 for probe_name, probe_info in instrument._PROBES.iteritems():
                     probe = Probe(instrument, probe_name, info = probe_info)
                     filename = os.path.join(path, '{:s}.b26'.format(instrument.name))
-                    probe.save(filename, )
+                    probe.save(filename)
             except:
                 print('failed to create probe file for: {:s}'.format(obj.__name__))
 

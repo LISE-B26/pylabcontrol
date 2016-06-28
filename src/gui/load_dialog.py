@@ -2,8 +2,7 @@
 
 # Form implementation generated from reading ui file 'load_dialog.ui'
 #
-# Created: Fri Apr 22 14:53:04 2016
-#      by: PyQt4 UI code generator 4.10.4
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -36,15 +35,32 @@ class Ui_Dialog(object):
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 310, 841, 31))
         self.horizontalLayoutWidget.setObjectName(_fromUtf8("horizontalLayoutWidget"))
         self.horizontalLayout = QtGui.QHBoxLayout(self.horizontalLayoutWidget)
-        self.horizontalLayout.setMargin(0)
+        self.horizontalLayout.setSizeConstraint(QtGui.QLayout.SetMaximumSize)
+        self.horizontalLayout.setContentsMargins(1, 4, -1, 4)
+        self.horizontalLayout.setSpacing(7)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.lbl_probe_log_path = QtGui.QLabel(self.horizontalLayoutWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Ignored)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.lbl_probe_log_path.sizePolicy().hasHeightForWidth())
+        self.lbl_probe_log_path.setSizePolicy(sizePolicy)
         self.lbl_probe_log_path.setObjectName(_fromUtf8("lbl_probe_log_path"))
         self.horizontalLayout.addWidget(self.lbl_probe_log_path)
         self.txt_probe_log_path = QtGui.QLineEdit(self.horizontalLayoutWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Ignored)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.txt_probe_log_path.sizePolicy().hasHeightForWidth())
+        self.txt_probe_log_path.setSizePolicy(sizePolicy)
         self.txt_probe_log_path.setObjectName(_fromUtf8("txt_probe_log_path"))
         self.horizontalLayout.addWidget(self.txt_probe_log_path)
         self.btn_open = QtGui.QPushButton(self.horizontalLayoutWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Ignored)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.btn_open.sizePolicy().hasHeightForWidth())
+        self.btn_open.setSizePolicy(sizePolicy)
         self.btn_open.setObjectName(_fromUtf8("btn_open"))
         self.horizontalLayout.addWidget(self.btn_open)
         self.tree_infile = QtGui.QTreeView(Dialog)
@@ -85,7 +101,7 @@ class Ui_Dialog(object):
         self.lbl_probe_log_path.setText(_translate("Dialog", "Path", None))
         self.txt_probe_log_path.setText(_translate("Dialog", "Z:\\Lab\\Cantilever\\Measurements", None))
         self.btn_open.setText(_translate("Dialog", "open", None))
-        self.lbl_info.setText(_translate("Dialog", "Highlighted scripts will show a description here. Try it!", None))
+        self.lbl_info.setText(_translate("Dialog", "info", None))
         self.label.setText(_translate("Dialog", "Selected", None))
         self.label_2.setText(_translate("Dialog", "Not Selected", None))
 

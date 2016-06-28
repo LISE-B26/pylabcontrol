@@ -68,7 +68,8 @@ class Probe(object):
 
         """
 
-        dictator = {self.name: {'probe_name': self.probe_name, 'instrument_name': self.instrument.name}}
+        # dictator = {self.name: {'probe_name': self.probe_name, 'instrument_name': self.instrument.name}}
+        dictator = {self.instrument.name:{self.probe_name: self.instrument.name}}
 
         return dictator
 
@@ -126,9 +127,9 @@ class Probe(object):
                 ...
                 }
      Returns:
-                dictionary of form
                 probe_dict = { name_of_probe_1 : probe_1_instance, name_of_probe_2 : probe_2_instance, ...}
                 loaded_failed = {name_of_probe_1: exception_1, name_of_probe_2: exception_2, ....}
+                updated_instruments
         """
 
 
