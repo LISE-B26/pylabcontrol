@@ -171,8 +171,7 @@ class PulseBlaster(Instrument):
 
         # add delays to each pulse
         delayed_pulse_collection = [Pulse(pulse.channel_id,
-                                               pulse.start_time - self.get_delay(pulse.channel_id),
-                                               pulse.duration)
+                                          pulse.start_time - self.get_delay(pulse.channel_id), pulse.duration)
                                     for pulse in pulse_collection]
 
         # make sure the pulses start at same time as min_pulse_time
@@ -217,8 +216,9 @@ class PulseBlaster(Instrument):
         # command list of PBStateChange objects
         pb_command_list = []
         for instruction_time, bit_strings in pb_command_dict.iteritems():
-            channel_bits = np.bitwise_or.reduce(bit_strings)
-            pb_command_list.append(self.PBStateChange(channel_bits, instruction_time))
+            channel_bits = np.bitwise_xor.reduce(bit_strings)
+            if channel_bits != 0:
+                pb_command_list.append(self.PBStateChange(channel_bits, instruction_time))
 
         # sort the list by the time a command needs to be placed
         pb_command_list.sort(key=lambda x: x.time)
@@ -232,7 +232,7 @@ class PulseBlaster(Instrument):
                 if idx == 0:
                     new_channel_bits = state_change_collection[0].channel_bits
 
-                # otherwise, xor with the previous bitstring we computed (in propogating_state_changes)
+                # otherwise, xor with the previous bitstring we computed (in propagating_state_changes)
                 else:
                     new_channel_bits = propagating_state_changes[idx - 1].channel_bits ^ state_change_collection[
                         idx].channel_bits
@@ -403,14 +403,15 @@ class PulseBlaster(Instrument):
             raise AttributeError('found overlapping pulses in given pulse collection')
         for pulse in pulse_collection:
             assert pulse.start_time == 0 or pulse.start_time > 1, \
-                'found a start time that was between 0 and 1. Remember pulses are in nanoseconds!'
-            assert pulse.duration == 0 or pulse.duration > 1, \
-                'found a pulse duration between 0 and 1. Remember pulses are in nanoseconds!'
+                'found a start time that was between 0 and 1. Remember pulse times are in nanoseconds!'
+            assert pulse.duration > 1, \
+                'found a pulse duration less than 1. Remember durations are in nanoseconds, and you can\'t have a 0 duration pulse'
 
         # process the pulse collection into a format that is designed to deal with the low-level spincore API
         delayed_pulse_collection = self.create_physical_pulse_seq(pulse_collection)
         self.estimated_runtime = self.estimate_runtime(delayed_pulse_collection, num_loops)
         pb_state_changes = self.generate_pb_sequence(delayed_pulse_collection)
+        print pb_state_changes
         pb_commands = self.create_commands(pb_state_changes, num_loops)
 
         assert len(pb_commands) < 4096, "Generated a number of commands too long for the pulseblaster!"
@@ -427,7 +428,6 @@ class PulseBlaster(Instrument):
         for pbinstruction in pb_commands:
             # note that change types to the appropriate c type, as well as set certain bits in the channel bits to 1 in
             # order to properly output the signal
-            print pbinstruction
             return_value = self.pb.pb_inst_pbonly(ctypes.c_int(pbinstruction.channel_bits | 0xE00000),
                                                   self.PB_INSTRUCTIONS[pbinstruction.command],
                                                   ctypes.c_int(int(pbinstruction.command_arg)),
@@ -527,11 +527,14 @@ class B26PulseBlaster(PulseBlaster):
 if __name__ == '__main__':
 
     pb = B26PulseBlaster()
-    pulse_collection = [Pulse(channel_id=0, start_time=0, duration=2000),
-                        Pulse(channel_id=1, start_time=2000, duration=2000)]
-    # pulse_collection = [Pulse('apd_readout', i, 100) for i in range(0, 2000, 200)]
-    pb.program_pb(pulse_collection, num_loops=1E6)
-    pb.start_pulse_seq()
-    pb.wait()
 
-
+    for i in range(5):
+        pulse_collection = [Pulse(channel_id=1, start_time=0, duration=2000),
+                            Pulse(channel_id=1, start_time=2000, duration=2000),
+                            Pulse(channel_id=1, start_time=4000, duration=2000),
+                            Pulse(channel_id=0, start_time=6000, duration=2000)]
+        # pulse_collection = [Pulse('apd_readout', i, 100) for i in range(0, 2000, 200)]
+        pb.program_pb(pulse_collection, num_loops=5E5)
+        pb.start_pulse_seq()
+        pb.wait()
+        print 'finished #{0}!'.format(i)
