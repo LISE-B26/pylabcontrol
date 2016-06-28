@@ -137,6 +137,7 @@ class ESR_Selected_NVs(Script, QThread):
                 self.scripts['Find_Max'].settings['initial_point'].update({'x': pt[0], 'y': pt[1]-.002})
                 if self._abort:
                     break
+                self._plot_refresh = True
                 self.scripts['Find_Max'].start()
                 self.scripts['Find_Max'].wait()
                 self.updateProgress.emit(self.progress)
@@ -157,7 +158,7 @@ class ESR_Selected_NVs(Script, QThread):
                 #set laser to new point
 
                 self.scripts['move_to_point'].settings['point'].update({'x': self.cur_pt[0], 'y': self.cur_pt[1]})
-                self.scripts['move_to_point'].start()
+                self.scripts['move_to_point'].run()
 
                 #run the ESR
                 # self.scripts['StanfordResearch_ESR']['instance'].tag = self.scripts['StanfordResearch_ESR']['instance'].tag + '_NV_no_' + index
@@ -172,6 +173,8 @@ class ESR_Selected_NVs(Script, QThread):
 
                 if self.settings['save']:
                     # create and save images
+                    print('SAVING')
+                    print(filename_image)
                     self.scripts['StanfordResearch_ESR'].save_image_to_disk('{:s}\\esr-point_{:03d}.jpg'.format(filename_image, index))
 
                 #can't call run twice on the same object, so start a new, identical ESR script for the next run
@@ -199,24 +202,24 @@ class ESR_Selected_NVs(Script, QThread):
         self.scripts['Find_Max'].stop()
         self.scripts['StanfordResearch_ESR'].stop()
 
-    def plot(self, figure_image, figure_ESR):
+    def _plot(self, axes_list):
         if self.current_stage == 'Find_Max':
-            axes_image = self.get_axes_layout(figure_image)
+            axes_image = axes_list[2]
             image = self.data['image_data']
             extend = self.data['extent']
-            plot_fluorescence(image, extend, axes_image)
-            self.scripts['Find_Max'].plot(figure_ESR)
+            self.implot, self.cbar = plot_fluorescence(image, extend, axes_image)
+
         elif self.current_stage == 'ESR':
-            axes_full_image, axes_ESR, axes_zoomed_image = self.get_axes_layout(figure_image, figure_ESR)
+            [axes_full_image, axes_ESR, axes_zoomed_image] = axes_list
             image = self.data['image_data']
             extend = self.data['extent']
             plot_fluorescence(image, extend, axes_full_image)
             if self.scripts['StanfordResearch_ESR'].data:
-                if not self.lines == []:
-                    for i in range(0,len(self.lines)):
-                        self.lines.pop(0).remove()
-                self.lines = plot_esr(self.scripts['StanfordResearch_ESR'].data[-1]['fit_params'], self.scripts['StanfordResearch_ESR'].data[-1]['frequency'], self.scripts['StanfordResearch_ESR'].data[-1]['data'], axes_ESR)
-            self.scripts['select_NVs'].plot(axes_full_image)
+                plot_esr(self.scripts['StanfordResearch_ESR'].data[-1]['fit_params'],
+                         self.scripts['StanfordResearch_ESR'].data[-1]['frequency'],
+                         self.scripts['StanfordResearch_ESR'].data[-1]['data'], axes_ESR)
+            axes_ESR.get_figure().tight_layout()
+            self.scripts['select_NVs'].plot([axes_full_image.get_figure()])
             patch = patches.Circle((self.plot_pt[0], self.plot_pt[1]),
                                1.1 * self.scripts['select_NVs'].settings['patch_size'], fc='r', alpha=.75)
             axes_full_image.add_patch(patch)
@@ -224,38 +227,49 @@ class ESR_Selected_NVs(Script, QThread):
             maximum_point = self.scripts['Find_Max'].data['maximum_point']
             patch = patches.Circle((maximum_point[0], maximum_point[1]), .001, ec='r', fc = 'none')
             axes_zoomed_image.add_patch(patch)
-            figure_ESR.tight_layout()
         elif self.current_stage in ('finished', 'saving'):
-            self._plot_refresh = True
-            axes_image = self.get_axes_layout(figure_image)
+            axes_image = axes_list[0]
             image = self.data['image_data']
             extend = self.data['extent']
             plot_fluorescence(image, extend, axes_image)
-            self.scripts['select_NVs'].plot(axes_image)
+            self.scripts['select_NVs'].plot([axes_image.get_figure()])
+        else:
+            print('current_stage FAILED', self.current_stage)
+            raise KeyError
 
-    def get_axes_layout(self, figure1, figure2 = None):
-        if self.current_stage == 'ESR':
-            if self._plot_refresh == True:
-                print('refresh')
-                figure1.clf()
-                axes1 = figure1.add_subplot(111)
+    def _update_plot(self, axes_list):
+        if self.current_stage == 'Find_Max':
+            axes_image = axes_list[0]
+            image = self.data['image_data']
+            extend = self.data['extent']
+            plot_fluorescence(image, extend, axes_image, implot=self.implot, cbar=self.cbar)
 
+        elif self.current_stage == 'ESR':
+            [_, axes_ESR, _] = axes_list
+            if self.scripts['StanfordResearch_ESR'].data:
+                plot_esr(self.scripts['StanfordResearch_ESR'].data[-1]['fit_params'],
+                         self.scripts['StanfordResearch_ESR'].data[-1]['frequency'],
+                         self.scripts['StanfordResearch_ESR'].data[-1]['data'], axes_ESR)
+                axes_ESR.get_figure().tight_layout()
+        elif self.current_stage in ('finished', 'saving'):
+            pass  # should never update in the saving/finished stage
+
+    def get_axes_layout(self, figure_list):
+        if self.current_stage in ('Find_Max', 'ESR'):
+            axes1 = figure_list[0].axes[0]
+            figure2 = figure_list[1]
+            if self._plot_refresh is True:
                 figure2.clf()
                 axes2 = figure2.add_subplot(121)
                 axes3 = figure2.add_subplot(122)
-
-                self._plot_refresh = False
-                self.lines = []
-
             else:
-                axes1 = figure1.axes[0]
                 axes2 = figure2.axes[0]
                 axes3 = figure2.axes[1]
 
-            return axes1, axes2, axes3
+            return [axes1, axes2, axes3]
 
         else:
-            return super(ESR_Selected_NVs, self).get_axes_layout(figure1, figure2)
+            return super(ESR_Selected_NVs, self).get_axes_layout([figure_list[0]])
 
 if __name__ == '__main__':
     script, failed, instruments = Script.load_and_append(script_dict={'ESR_Selected_NVs':'ESR_Selected_NVs'})

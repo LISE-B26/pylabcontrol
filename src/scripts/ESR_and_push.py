@@ -132,7 +132,7 @@ class ESR_And_Push(Script, QThread):
 
             self.log('Push number ' + str(step_num + 1) + ' of ' + str(self.settings['number_of_step_instances']))
             for i in range(0,self.settings['steps_per_instance']):
-                self.scripts['AttoStep'].start()
+                # self.scripts['AttoStep'].run()
                 #change to parameter for settling time
                 time.sleep(1)
 
@@ -181,13 +181,13 @@ class ESR_And_Push(Script, QThread):
         self.scripts['Refind_NVs'].stop()
         self.scripts['Reflect_scan'].stop()
 
-    def plot(self, figure_image, figure_ESR):
+    def plot(self, figure_list):
         if self.current_stage == 'take_reflection_image':
-            self.scripts['Reflect_scan'].plot(figure_image)
+            self.scripts['Reflect_scan'].plot(figure_list)
         if self.current_stage in ['ESR_Selected_NVs', 'finished', 'saving']:
-            self.scripts['ESR_Selected_NVs'].plot(figure_image, figure_ESR)
+            self.scripts['ESR_Selected_NVs'].plot(figure_list)
         elif self.current_stage == 'Refind_NVs':
-            self.scripts['Refind_NVs'].plot(figure_image, figure_ESR)
+            self.scripts['Refind_NVs'].plot(figure_list)
 
 if __name__ == '__main__':
     script, failed, instruments = Script.load_and_append(script_dict={'ESR_And_Push':'ESR_And_Push'})

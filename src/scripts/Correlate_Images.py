@@ -249,16 +249,19 @@ class Take_And_Correlate_Images_2(Script, QThread):
 
         self.updateProgress.emit(100)
 
-
-    def plot(self, figure, figure2):
-        axes, axes_2 = self.get_axes(figure, figure2)
-        # plot_fluorescence(self.data['baseline_image'], [self.data['image_extent'][0], self.data['image_extent'][1], self.data['image_extent'][3], self.data['image_extent'][2]], axes_2)
-        # new_center = ((self.settings['new_image_center'][0] + self.data['x_shift'] - self.settings['new_image_width']/2, self.settings['new_image_center'][1] + self.data['y_shift'] - self.settings['new_image_width']/2))
-        # patch = patches.Rectangle(new_center, self.settings['new_image_width'], self.settings['new_image_width'], fill = False)
-        # axes.add_patch(patch)
-        self.scripts['GalvoScan'].plot(figure2)
+    def _plot(self, axes_list):
+        data = self.scripts['GalvoScan'].data['image_data']
+        extent = self.scripts['GalvoScan'].data['extent']
+        self.implot, self.cbar = plot_fluorescence(data, extent, axes_list[1])
         if not self.data['correlation_image'] == []:
-            axes.imshow(self.data['correlation_image'])
+            axes_list[0].imshow(self.data['correlation_image'])
+
+    def _update_plot(self, axes_list):
+        data = self.scripts['GalvoScan'].data['image_data']
+        extent = self.scripts['GalvoScan'].data['extent']
+        plot_fluorescence(data, extent, axes_list[1], implot=self.implot, cbar=self.cbar)
+        if not self.data['correlation_image'] == []:
+            axes_list[0].imshow(self.data['correlation_image'])
 
     def stop(self):
         self.scripts['GalvoScan'].stop()

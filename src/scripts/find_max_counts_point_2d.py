@@ -1,6 +1,5 @@
 from src.core import Script, Parameter
 from PySide.QtCore import Signal, QThread
-# from PyQt4.QtCore import SIGNAL, QThread
 from src.scripts import GalvoScanWithLightControl, SetLaser
 import numpy as np
 from matplotlib import patches
@@ -116,21 +115,24 @@ Known issues:
 
         self.data['image_data'] = deepcopy(self.scripts['take_image'].scripts['acquire_image'].data['image_data'])
         self.data['extent'] = deepcopy(self.scripts['take_image'].scripts['acquire_image'].data['extent'])
-
         while True:
-
             f = tp.locate(self.data['image_data'], nv_size, minmass=min_mass)
 
+            po = [self.data['initial_point']['x'], self.data['initial_point']['y']]
             if len(f) == 0:
-                self.data['maximum_point'] = [self.data['initial_point']['x'], self.data['initial_point']['y']]
+                self.data['maximum_point'] = po
 
                 self.log('pytrack failed to find NV --- setting laser to initial point instead')
             else:
 
-                pt = pixel_to_voltage(f[['x','y']].iloc[0].as_matrix(),
-                                                              self.data['extent'],
-                                                              np.shape(self.data['image_data']))
-                self.data['maximum_point'] = pt
+                # todo: find the point that is closest to the original point!
+                # all the points that have been identified as valid NV centers
+                pts = [pixel_to_voltage(p, self.data['extent'], np.shape(self.data['image_data'])) for p in
+                       f[['x', 'y']].as_matrix()]
+                if len(pts) > 1:
+                    self.log('Info!! Found more than one NV. Selecting the one closest to initial point!')
+                # pick the one that is closest to the original one
+                self.data['maximum_point'] = pts[np.argmin(np.array([np.linalg.norm(p - np.array(po)) for p in pts]))]
                 break
 
             if attempt_num <= self.settings['number_of_attempts']:
@@ -143,7 +145,7 @@ Known issues:
 
         self.scripts['set_laser'].settings['point'].update({'x': self.data['maximum_point'][0],
                                                        'y': self.data['maximum_point'][1]})
-        self.scripts['set_laser'].start()
+        self.scripts['set_laser'].run()
 
         if self.settings['save']:
             self.save_b26()
@@ -153,21 +155,39 @@ Known issues:
 
         self.updateProgress.emit(100)
 
-
-    def plot(self, figure, axes_colorbar = None):
+    def _plot(self, axes_list):
         # plot image
+        axes = axes_list[0]
         if self.script_stage == 'take image':
-            self.scripts['take_image'].plot(figure)
+            self.implot, self.cbar = plot_fluorescence(self.scripts['take_image'].data['image_data'],
+                                                       self.scripts['take_image'].data['extent'], axes)
 
         if self.script_stage != 'take image':
-            axes = self.get_axes_layout(figure)
-
-            plot_fluorescence(self.data['image_data'], self.data['extent'], axes, axes_colorbar=axes_colorbar)
+            plot_fluorescence(self.data['image_data'], self.data['extent'], axes)
 
             # plot marker
             maximum_point = self.data['maximum_point']
             patch = patches.Circle((maximum_point[0], maximum_point[1]), .001, ec='r', fc = 'none')
             axes.add_patch(patch)
+
+    def _update_plot(self, axes_list):
+        self.implot, self.cbar = plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
+                                                   max_counts=self.settings['max_counts_plot'], implot=self.implot,
+                                                   cbar=self.cbar)
+
+    def get_axes_layout(self, figure_list):
+        """
+        returns the axes objects the script needs to plot its data
+        the default creates a single axes object on each figure
+        This can/should be overwritten in a child script if more axes objects are needed
+        Args:
+            figure_list: a list of figure objects
+        Returns:
+            axes_list: a list of axes objects
+
+        """
+        new_figure_list = [figure_list[0]]
+        return super(FindMaxCounts2D, self).get_axes_layout(new_figure_list)
 
 
 

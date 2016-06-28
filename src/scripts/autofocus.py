@@ -2,6 +2,7 @@ from src.core import Parameter, Script
 from PySide.QtCore import Signal, QThread
 from src.instruments import PiezoController
 from src.scripts import GalvoScanWithLightControl
+from src.plotting import plot_fluorescence
 import numpy as np
 import scipy as sp
 import os
@@ -83,12 +84,16 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
             self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
 
+            self.current_image = None
+
         if self.settings['refined_scan'] and not self._abort:
             center = self.data['main_scan_focusing_fit_parameters'][2]
             min = center - self.settings['refined_scan_range']/2.0
             max = center + self.settings['refined_scan_range'] / 2.0
             sweep_voltages = np.linspace(min, max, self.settings['refined_scan_num_pts'])
             self.autofocus_loop(sweep_voltages, tag='refined_scan')
+
+            self.current_image = None
 
             # check to see if data should be saved and save it
             if self.settings['save']:
@@ -105,8 +110,9 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         self._abort = False
 
-    def plot(self, figure1, figure2 = None):
-        axis1, axis2 = self.get_axes_layout(figure1, figure2)
+    def _plot(self, axes_list):
+        axis1 = axes_list[0]
+        axis2 = axes_list[1]
         # plot current focusing data
         axis1.plot(self.data['main_scan_sweep_voltages'][0:len(self.data['main_scan_focus_function_result'])],
                    self.data['main_scan_focus_function_result'])
@@ -168,9 +174,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         axis1.set_ylabel(ylabel)
         axis1.set_title('Autofocusing Routine')
 
-        if figure2:
-            self.scripts['take_image'].plot(figure2)
-
+        if self.current_image is not None:
+            plot_fluorescence(self.current_image, self.extent, axis2)
 
     def stop(self):
         self._abort = True
@@ -194,19 +199,22 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
             # take a galvo scan
             self.scripts['take_image'].start()
-            current_image = self.scripts['take_image'].data['image_data']
+            self.scripts['take_image'].wait()
+            self.current_image = self.scripts['take_image'].data['image_data']
+            self.extent = self.scripts['take_image'].data['extent']
             # self.log('Took image.')
 
             # calculate focusing function for this sweep
             if self.settings['focusing_optimizer'] == 'mean':
-                self.data[tag + '_focus_function_result'].append(np.mean(current_image))
+                self.data[tag + '_focus_function_result'].append(np.mean(self.current_image))
 
             elif self.settings['focusing_optimizer'] == 'standard_deviation':
-                self.data[tag + '_focus_function_result'].append(np.std(current_image))
+                self.data[tag + '_focus_function_result'].append(np.std(self.current_image))
                 print('appended',  self.data[tag + '_focus_function_result'])
 
             elif self.settings['focusing_optimizer'] == 'normalized_standard_deviation':
-                self.data[tag + '_focus_function_result'].append(np.std(current_image) / np.mean(current_image))
+                self.data[tag + '_focus_function_result'].append(
+                    np.std(self.current_image) / np.mean(self.current_image))
 
             # update progress bar
             if tag == 'main_scan' and not self.settings['refined_scan']:

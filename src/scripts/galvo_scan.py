@@ -14,7 +14,6 @@ class GalvoScan(Script, QThread):
     resulting in an image in the current field of view of the objective.
     """
     updateProgress = Signal(int)
-    lock = QReadWriteLock()
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  '', str, 'path to folder where data is saved'),
@@ -75,6 +74,8 @@ class GalvoScan(Script, QThread):
         """
         update_time = datetime.datetime.now()
 
+        self._plot_refresh = True
+
         self.updateProgress.emit(1)
 
         self._plotting = True
@@ -96,7 +97,7 @@ class GalvoScan(Script, QThread):
             self.y_array = np.linspace(self.yVmin, self.yVmax, self.settings['num_points']['y'], endpoint=True)
             sample_rate = float(1) / self.settings['settle_time']
             self.instruments['daq']['instance'].settings['analog_output']['ao0']['sample_rate'] = sample_rate
-            self.instruments['daq']['instance'].settings['analog_output']['ao1']['sample_rate'] = sample_rate
+            self.instruments['daq']['instance'].settings['analog_output']['ao3']['sample_rate'] = sample_rate
             self.instruments['daq']['instance'].settings['digital_input']['ctr0']['sample_rate'] = sample_rate
             self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x'])),
                          'bounds': [self.xVmin, self.xVmax, self.yVmin, self.yVmax]}
@@ -115,7 +116,7 @@ class GalvoScan(Script, QThread):
             self.initPt = (np.repeat(self.initPt, 2, axis=1))
 
             # move galvo to first point in line
-            self.instruments['daq']['instance'].AO_init(["ao0", "ao1"], self.initPt, "")
+            self.instruments['daq']['instance'].AO_init(["ao0", "ao3"], self.initPt, "")
             self.instruments['daq']['instance'].AO_run()
             self.instruments['daq']['instance'].AO_waitToFinish()
             self.instruments['daq']['instance'].AO_stop()
@@ -144,7 +145,6 @@ class GalvoScan(Script, QThread):
                 self.updateProgress.emit(progress)
                 update_time = current_time
 
-
         progress = 100
         self.updateProgress.emit(progress)
 
@@ -155,6 +155,7 @@ class GalvoScan(Script, QThread):
             self.save_b26()
             self.save_data()
             self.save_log()
+            self._plot_refresh = True
             self.save_image_to_disk()
 
 
@@ -184,7 +185,7 @@ class GalvoScan(Script, QThread):
             yVmax = pta['y'] + float(ptb['y']) / 2.
         return [xVmin, xVmax, yVmax, yVmin]
 
-    def plot(self, image_figure, axes_colorbar = None):
+    def _plot(self, axes_list, axes_colorbar=None):
         '''
         Plots the galvo scan image to the input figure, clearing the figure and creating new axes if necessary
         Args:
@@ -192,12 +193,28 @@ class GalvoScan(Script, QThread):
             axes_colorbar: axes with a colorbar to overwrite with the new colorbar
 
         '''
+        # if 'image_data' in self.data.keys() and not self.data['image_data'] == []:
+        self.implot, self.cbar = plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
+                                                   max_counts=self.settings['max_counts_plot'],
+                                                   axes_colorbar=axes_colorbar)
 
-        self.axes_image = self.get_axes_layout(image_figure)
-        if 'image_data' in self.data.keys() and not self.data['image_data'] == []:
-            plot_fluorescence(self.data['image_data'], self.data['extent'], self.axes_image,
-                              max_counts=self.settings['max_counts_plot'],
-                              axes_colorbar=axes_colorbar)
+    def _update_plot(self, axes_list):
+        plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
+                          max_counts=self.settings['max_counts_plot'], implot=self.implot, cbar=self.cbar)
+
+    def get_axes_layout(self, figure_list):
+        """
+        returns the axes objects the script needs to plot its data
+        the default creates a single axes object on each figure
+        This can/should be overwritten in a child script if more axes objects are needed
+        Args:
+            figure_list: a list of figure objects
+        Returns:
+            axes_list: a list of axes objects
+
+        """
+        new_figure_list = [figure_list[0]]
+        return super(GalvoScan, self).get_axes_layout(new_figure_list)
 
     def stop(self):
         '''

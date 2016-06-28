@@ -46,14 +46,14 @@ class SetLaser(Script):
         pt = np.transpose(np.column_stack((pt[0],pt[1])))
         pt = (np.repeat(pt, 2, axis=1))
 
-        self.instruments['daq']['instance'].AO_init(["ao0","ao1"], pt)
+        self.instruments['daq']['instance'].AO_init(["ao0", "ao3"], pt)
         self.instruments['daq']['instance'].AO_run()
         self.instruments['daq']['instance'].AO_waitToFinish()
         self.instruments['daq']['instance'].AO_stop()
 
     #must be passed figure with galvo plot on first axis
-    def plot(self, figure):
-        axes_Image = figure.axes[0]
+    def plot(self, figure_list):
+        axes_Image = figure_list[0].axes[0]
         patch = patches.Circle((self.settings['point']['x'], self.settings['point']['y']), .0005, fc='r')
         axes_Image.add_patch(patch)
 

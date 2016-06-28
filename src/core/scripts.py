@@ -296,7 +296,6 @@ class Script(object):
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
         self._plot_refresh = True # flag that requests that plot axes are refreshed when self.plot is called next time
         self._function()
-
         self.end_time  = datetime.datetime.now()
         self.log('script {:s} finished at {:s} on {:s}'.format(self.name, self.end_time.strftime('%H:%M:%S'),self.end_time.strftime('%d/%m/%y')))
         success = not self._abort
@@ -469,38 +468,39 @@ class Script(object):
         Returns: None
 
         """
-        if self.plot_type in ('main', 'aux'):
+        # if self.plot_type in ('main', 'aux'):
+        #
+        #     # create and save images
+        #     if filename_1 is None:
+        #         filename_1 = self.filename('-{:s}.jpg'.format(self.plot_type))
+        #
+        #     fig = Figure()
+        #     self._plot_refresh = True #need to set up a new plot
+        #     canvas = FigureCanvas(fig) #need to create a canvas to have the figure be somewhere, otherwise can't save
+        #     self.plot([fig])
+        #     fig.savefig(filename_1)
+        #
+        # elif self.plot_type in ('two'):
 
-            # create and save images
-            if filename_1 is None:
-                filename_1 = self.filename('-{:s}.jpg'.format(self.plot_type))
+        # create and save images
+        if (filename_1 is None) and (filename_2 is None):
+            filename_1 = self.filename('-plt1.jpg')
+            filename_2 = self.filename('-plt2.jpg')
 
-            fig = Figure()
-            self._plot_refresh = True #need to set up a new plot
-            canvas = FigureCanvas(fig) #need to create a canvas to have the figure be somewhere, otherwise can't save
-            self.plot(fig)
-            fig.savefig(filename_1)
+        fig_1 = Figure()
+        canvas_1 = FigureCanvas(fig_1)
 
-        elif self.plot_type in ('two'):
+        fig_2 = Figure()
+        canvas_2 = FigureCanvas(fig_2)
 
-            # create and save images
-            if (filename_1 is None) and (filename_2 is None):
-                filename_1 = self.filename('-main.jpg')
-                filename_2 = self.filename('-aux.jpg')
+        self._plot_refresh = True
+        self.plot([fig_1, fig_2])
 
-            fig_1 = Figure()
-            canvas_1 = FigureCanvas(fig_1)
+        if filename_1 is not None and not fig_1.axes == []:
+            fig_1.savefig(filename_1)
+        if filename_2 is not None and not fig_2.axes == []:
+            fig_2.savefig(filename_2)
 
-            fig_2 = Figure()
-            canvas_2 = FigureCanvas(fig_2)
-
-
-            self.plot(fig_1, fig_2)
-
-            if filename_1 is not None:
-                fig_1.savefig(filename_1)
-            if filename_2 is not None:
-                fig_2.savefig(filename_2)
     def save(self, filename):
         """
         saves the instance of the script to a file using pickle
@@ -972,10 +972,10 @@ class Script(object):
         for the latter use the last entry
 
         """
-
         axes_list = self.get_axes_layout(figure_list)
         if self._plot_refresh is True:
             self._plot(axes_list)
+            self._plot_refresh = False
         else:
             self._update_plot(axes_list)
 
@@ -997,7 +997,6 @@ class Script(object):
                 fig.clf()
                 axes_list.append(fig.add_subplot(111))
                 self.log('REFRESHED')
-                self._plot_refresh = False
         else:
             for fig in figure_list:
                 axes_list.append(fig.axes[0])

@@ -158,31 +158,25 @@ class StanfordResearch_ESR(Script, QThread):
     #     plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], ax)
     #     fig.savefig(filename)
 
-    def plot(self, figure):
-        if self.data:
-            axes = self.get_axes_layout(figure)
-            #TODO: move line removal into get_axes
-            if not self.lines == []:
-                for i in range(0, len(self.lines)):
-                    self.lines.pop(0).remove()
-            self.lines = plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
-            figure.tight_layout()
-        # if self.data:
-        #     fit_params = self.data[-1]['fit_params']
-        #     if not fit_params[0] == -1:  # check if fit failed
-        #         fit_data = self.lorentzian(self.data[-1]['frequency'], fit_params[0], fit_params[1], fit_params[2], fit_params[3])
-        #     else:
-        #         fit_data = None
-        #     if fit_data is not None: # plot esr and fit data
-        #         axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b', self.data[-1]['frequency'], fit_data, 'r')
-        #         axes.set_title('ESR')
-        #         axes.set_xlabel('Frequency (Hz)')
-        #         axes.set_ylabel('Kcounts/s')
-        #     else: #plot just esr data
-        #         axes.plot(self.data[-1]['frequency'], self.data[-1]['data'], 'b')
-        #         axes.set_title('ESR')
-        #         axes.set_xlabel('Frequency (Hz)')
-        #         axes.set_ylabel('Kcounts/s')
+    def _plot(self, axes_list):
+        plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes_list[0])
+
+    def _update_plot(self, axes_list):
+        plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes_list[0])
+
+    def get_axes_layout(self, figure_list):
+        """
+        returns the axes objects the script needs to plot its data
+        the default creates a single axes object on each figure
+        This can/should be overwritten in a child script if more axes objects are needed
+        Args:
+            figure_list: a list of figure objects
+        Returns:
+            axes_list: a list of axes objects
+
+        """
+        new_figure_list = [figure_list[1]]
+        return super(StanfordResearch_ESR, self).get_axes_layout(new_figure_list)
 
     def stop(self):
         self._abort = True

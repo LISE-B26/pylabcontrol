@@ -6,10 +6,12 @@ except:
 
 from script_dummy import  ScriptDummy, ScriptDummyWithQtSignal, ScriptDummyPlotting
 
-try:
-    from galvo_scan import GalvoScan
-except:
-    print("./src/scripts/__init__ warning! GalvoScan did not load")
+# try:
+#     from galvo_scan import GalvoScan
+# except:
+#     print("./src/scripts/__init__ warning! GalvoScan did not load")
+from galvo_scan import GalvoScan
+
 try:
     from GalvoScanWithLightControl import GalvoScanWithLightControl
 except:
@@ -153,3 +155,9 @@ try:
     from ESR_and_push import ESR_And_Push
 except:
     print("./src/scripts/__init__ warning! ESR_And_Push did not load")
+
+# try:
+#     from pulse_delays import PulseDelays
+# except:
+#     print("./src/scripts/__init__ warning! PulseDelays did not load")
+from pulse_delays import PulseDelays

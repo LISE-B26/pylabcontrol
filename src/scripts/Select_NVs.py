@@ -149,10 +149,9 @@ class Select_NVs_Simple(Script, QThread):
         self._abort = True
 
     #must be passed figure with galvo plot on first axis
-    def plot(self, figure):
-        axes = figure.axes
-        if type(axes) is list:
-            axes = axes[0]
+    def plot(self, figure_list):
+        print(figure_list)
+        axes = figure_list[0].axes[0]
         patch_size = self.settings['patch_size']
 
         # delete all previous patches

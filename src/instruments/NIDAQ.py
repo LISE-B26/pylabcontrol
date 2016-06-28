@@ -31,7 +31,7 @@ DAQmx_Val_CountUp = 10128
 DAQmx_Val_Hz = 10373 #Hz
 DAQmx_Val_Low =10214 #Low
 DAQmx_Val_Seconds =10364
-DAQmx_Val_Ticks =10304 #specifies units as timebse ticks
+DAQmx_Val_Ticks = 10304  # specifies units as timebase ticks
 
 
 
@@ -151,7 +151,7 @@ class DAQ(Instrument):
                       Parameter('ctr0',
                                 [
                                     Parameter('input_channel', 0, range(0, 32), 'channel for counter signal input'),
-                                    Parameter('counter_PFI_channel', 8, 'PFI for counter channel input'),
+                                    Parameter('counter_PFI_channel', 8, range(0, 32), 'PFI for counter channel input'),
                                     Parameter('clock_PFI_channel', 13, range(0, 32), 'PFI for clock channel output'),
                                     Parameter('clock_counter_channel', 1, [0, 1], 'channel for clock output'),
                                     Parameter('sample_rate', 1000.0, float, 'input sample rate (Hz)')
@@ -303,6 +303,7 @@ class DAQ(Instrument):
                                                          int32(self.numSampsPerChan), float64(-1), ctypes.byref(self.data),
                                                          uInt32(self.DI_sampleNum), ctypes.byref(self.samplesPerChanRead),
                                                          None))
+        print(type(self.data))
         return self.data, self.samplesPerChanRead
 
     def DI_stop(self):
@@ -335,13 +336,19 @@ class DAQ(Instrument):
         input_channel_str_gated = self.settings['device'] + '/' + channel
         counter_out_PFI_str_gated = '/' + self.settings['device'] + '/PFI' + str(channel_settings['counter_PFI_channel'])  # initial / required only here, see NIDAQ documentation
 
+        self.gated_DI_sampleNum = num_samples
+
         self.gated_DI_taskHandle = TaskHandle(0)
 
+        self._check_error(self.nidaq.DAQmxCreateTask("", ctypes.byref(self.gated_DI_taskHandle)))
+
         MIN_TICKS = 0;
-        MAX_TICKS = 100E3;
+        MAX_TICKS = 100000;
 
         #setup counter to measure pulse widths
-        self._check_error(self.nidaq.DAQmxCreateCIPulseWidthChan(self.gated_DI_taskHandle, channel, '', MIN_TICKS, MAX_TICKS, DAQmx_Val_Ticks,DAQmx_Val_Rising,''))
+        self._check_error(
+            self.nidaq.DAQmxCreateCIPulseWidthChan(self.gated_DI_taskHandle, input_channel_str_gated, '', MIN_TICKS,
+                                                   MAX_TICKS, DAQmx_Val_Ticks, DAQmx_Val_Rising, ''))
 
         #specify number of samples to acquire
         self._check_error(self.nidaq.DAQmxCfgImplicitTiming(self.gated_DI_taskHandle,
@@ -371,14 +378,15 @@ class DAQ(Instrument):
 
         '''
         # initialize array and integer to pass as pointers
-        self.data = (float64 * self.DI_sampleNum)()
+        self.data = (float64 * self.gated_DI_sampleNum)()
         self.samplesPerChanRead = int32()
         self._check_error(self.nidaq.DAQmxReadCounterF64(self.gated_DI_taskHandle,
-                                                         int32(self.numSampsPerChan), float64(timeout),
+                                                         int32(self.gated_DI_sampleNum), float64(timeout),
                                                          ctypes.byref(self.data),
-                                                         uInt32(self.DI_sampleNum),
+                                                         uInt32(self.gated_DI_sampleNum),
                                                          ctypes.byref(self.samplesPerChanRead),
                                                          None))
+        print(type(self.data))
         return self.data, self.samplesPerChanRead
 
     def gated_DI_stop(self):
