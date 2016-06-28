@@ -1,15 +1,22 @@
 
 try:
+    from instrument_dummy import DummyInstrument
+except:
+    print("./src/instrument/__init__ warning! DummyInstrument did not load")
+
+try:
+    from instrument_dummy import DummyInstrumentThreaded
+except:
+    print("./src/instrument/__init__ warning! DummyInstrumentThreaded did not load")
+
+
+try:
     from Virtual_PI_Controler import PIControler
 except:
     print("./src/instrument/__init__ warning! PIControler did not load")
 
 
 
-try:
-    from instrument_dummy import DummyInstrument
-except:
-    print("./src/instrument/__init__ warning! DummyInstrument did not load")
 
 
 try:
@@ -38,7 +45,7 @@ except:
     print("./src/instrument/__init__ warning! ZIHF2 did not load")
 
 try:
-    from pulse_blaster import B26PulseBlaster
+    from pulse_blaster import B26PulseBlaster, Pulse
 except:
     print("./src/instrument/__init__ warning! PulseBlaster did not load")
 
@@ -104,6 +111,6 @@ except:
 #     from montana import CryoStation
 # except:
 #     print("./src/instrument/__init__ warning! CryoStation did not load")
-
-    # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']
-# __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']
+#
+#     # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']
+# # __all__ = ['PressureGauge', 'DAQ', 'PiezoController', 'SpectrumAnalyzer', 'Attocube', 'MaestroBeamBlock', 'MaestroController', 'ZIHF2']

@@ -61,8 +61,6 @@ class Probe(object):
     def plot(self, axes):
         axes.plot(self.buffer)
 
-
-
     def to_dict(self):
         """
 
@@ -81,8 +79,7 @@ class Probe(object):
         Args:
             filename: path of file
         """
-
-        save_b26_file(filename, probes=self.to_dict())
+        save_b26_file( filename, probes=self.to_dict())
 
 
     @staticmethod
@@ -246,13 +243,8 @@ class Probe(object):
 
 
 
-
-
-
-
-
 if __name__ == '__main__':
-    from src.core import instantiate_instruments
+    # from src.core import instantiate_instruments
     instruments = {'inst_dummy': 'DummyInstrument'}
 
     instrument = instantiate_instruments(instruments)['inst_dummy']

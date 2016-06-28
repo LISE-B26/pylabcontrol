@@ -102,6 +102,14 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 item = B26QTreeItem(self, key, self.value.scripts[key],  type(self.value.scripts[key]), '', visible = True)
                 # item.setDisabled(True)
 
+            # set the font to bold
+            print(self.font(0))
+            font = self.font(0)
+            font.setBold(True)
+            print("SET FONT!!", self.name)
+            self.setFont(0, font)
+
+
         else:
             self.setData(1, 0, self.value)
             self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)

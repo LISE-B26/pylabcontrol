@@ -28,7 +28,6 @@ class ReadProbes(QThread):
 
 
     def run(self):
-        import time
         self._running = True
         while self._running:
 
@@ -36,7 +35,7 @@ class ReadProbes(QThread):
 
             self.updateProgress.emit(1)
 
-            #time.sleep(self.refresh_interval)
+            self.sleep(self.refresh_interval)
 
 
     def stop(self):

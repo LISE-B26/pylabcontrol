@@ -1,8 +1,8 @@
 from unittest import TestCase
-from src.instruments import B26PulseBlaster
+from src.instruments import B26PulseBlaster, Pulse
 from collections import namedtuple
-from src.core import Pulse
 import numpy as np
+from src.instruments.pulse_blaster import PBStateChange, PBCommand
 
 
 class TestPulseBlaster(TestCase):
@@ -96,13 +96,64 @@ class TestPulseBlaster(TestCase):
                     self.assertTrue(pulse_2.start_time < pulse_1.start_time + pulse_1.duration)
 
     def test_pulseblaster_conversion(self):
-        correct_commands = [self.pb.PBStateChange(channel_bits=1, time=1000.0),
-                            self.pb.PBStateChange(channel_bits=0, time=500.0),
-                            self.pb.PBStateChange(channel_bits=20, time=100.0),
-                            self.pb.PBStateChange(channel_bits=0, time=150.0),
-                            self.pb.PBStateChange(channel_bits=24, time=100),
-                            self.pb.PBStateChange(channel_bits=0, time=150.0),
-                            self.pb.PBStateChange(channel_bits=3, time=10.0),
-                            self.pb.PBStateChange(channel_bits=1, time=990.0)]
+        correct_commands = [PBStateChange(channel_bits=1, time=1000.0),
+                            PBStateChange(channel_bits=0, time=500.0),
+                            PBStateChange(channel_bits=20, time=100.0),
+                            PBStateChange(channel_bits=0, time=150.0),
+                            PBStateChange(channel_bits=24, time=100),
+                            PBStateChange(channel_bits=0, time=150.0),
+                            PBStateChange(channel_bits=3, time=10.0),
+                            PBStateChange(channel_bits=1, time=990.0)]
 
         self.assertEqual(self.pb.generate_pb_sequence(self.pulses), correct_commands)
+
+    def test_long_delay_breakdown(self):
+        command = PBStateChange(channel_bits=1, time=1000.0)
+        correct_breakdown = [PBCommand(1, 640, 'LONG_DELAY', 1), PBCommand(1, 360, 'CONTINUE', 0)]
+        generated_breakdown = self.pb._get_long_delay_breakdown(command, 'CONTINUE', 0)
+        self.assertEqual(len(correct_breakdown), len(generated_breakdown))
+        for correct_breakdown_item, generated_breakdown_item in zip(correct_breakdown, generated_breakdown):
+            self.assertEqual(correct_breakdown_item, generated_breakdown_item)
+
+        command = PBStateChange(channel_bits=1, time=600)
+        correct_breakdown = [PBCommand(1, 600, 'CONTINUE', 0)]
+        generated_breakdown = self.pb._get_long_delay_breakdown(command, 'CONTINUE', 0)
+        self.assertEqual(len(correct_breakdown), len(generated_breakdown))
+        for correct_breakdown_item, generated_breakdown_item in zip(correct_breakdown, generated_breakdown):
+            self.assertEqual(correct_breakdown_item, generated_breakdown_item)
+
+        command = PBStateChange(channel_bits=1, time=640)
+        correct_breakdown = [PBCommand(1, 320, 'CONTINUE', 0), PBCommand(1, 320, 'CONTINUE', 0)]
+        generated_breakdown = self.pb._get_long_delay_breakdown(command, 'CONTINUE', 0)
+        self.assertEqual(len(correct_breakdown), len(generated_breakdown))
+        for correct_breakdown_item, generated_breakdown_item in zip(correct_breakdown, generated_breakdown):
+            self.assertEqual(correct_breakdown_item, generated_breakdown_item)
+
+        command = PBStateChange(channel_bits=1, time=1000.0)
+        correct_breakdown = [PBCommand(1, 640, 'LONG_DELAY', 1), PBCommand(1, 360, 'LOOP', 10)]
+        generated_breakdown = self.pb._get_long_delay_breakdown(command, 'LOOP', 10)
+        self.assertEqual(len(correct_breakdown), len(generated_breakdown))
+        for correct_breakdown_item, generated_breakdown_item in zip(correct_breakdown, generated_breakdown):
+            self.assertEqual(correct_breakdown_item, generated_breakdown_item)
+
+        command = PBStateChange(channel_bits=1, time=650)
+        correct_breakdown = [PBCommand(1, 320, 'CONTINUE', 0), PBCommand(1, 330, 'LOOP', 10)]
+        generated_breakdown = self.pb._get_long_delay_breakdown(command, 'LOOP', 10)
+        self.assertEqual(len(correct_breakdown), len(generated_breakdown))
+        for correct_breakdown_item, generated_breakdown_item in zip(correct_breakdown, generated_breakdown):
+            self.assertEqual(correct_breakdown_item, generated_breakdown_item)
+
+        command = PBStateChange(channel_bits=1, time=2000)
+        correct_breakdown = [PBCommand(1, 640, 'LONG_DELAY', 3), PBCommand(1, 80, 'CONTINUE', 0)]
+        generated_breakdown = self.pb._get_long_delay_breakdown(command, 'CONTINUE')
+        self.assertEqual(len(correct_breakdown), len(generated_breakdown))
+        for correct_breakdown_item, generated_breakdown_item in zip(correct_breakdown, generated_breakdown):
+            self.assertEqual(correct_breakdown_item, generated_breakdown_item)
+
+        command = PBStateChange(channel_bits=1, time=1930)
+        correct_breakdown = [PBCommand(1, 640, 'LONG_DELAY', 2), PBCommand(1, 320, 'CONTINUE', 0),
+                             PBCommand(1, 330, 'LOOP', 10)]
+        generated_breakdown = self.pb._get_long_delay_breakdown(command, 'LOOP', 10)
+        self.assertEqual(len(correct_breakdown), len(generated_breakdown))
+        for correct_breakdown_item, generated_breakdown_item in zip(correct_breakdown, generated_breakdown):
+            self.assertEqual(correct_breakdown_item, generated_breakdown_item)
