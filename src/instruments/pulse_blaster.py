@@ -1,16 +1,14 @@
 from src.core import Instrument, Parameter
 from collections import namedtuple
 import numpy as np
-import itertools
-import ctypes
-import datetime, time
+import itertools, ctypes, datetime, time, warnings
 
 Pulse = namedtuple('Pulse', ('channel_id', 'start_time', 'duration'))
-PBStateChange = namedtuple('PBStateChange', ('channel_bits', 'time'))
-PBCommand = namedtuple('PBCommand', ('channel_bits', 'duration', 'command', 'command_arg'))
 
 
 class PulseBlaster(Instrument):
+    PBStateChange = namedtuple('PBStateChange', ('channel_bits', 'time'))
+    PBCommand = namedtuple('PBCommand', ('channel_bits', 'duration', 'command', 'command_arg'))
 
     _PROBES = {}
 
@@ -40,7 +38,7 @@ class PulseBlaster(Instrument):
             Parameter('status', False, bool, 'True if voltage is high to the microwave switch, false otherwise'),
             Parameter('delay_time', 0.2, float, 'delay time between pulse sending time and microwave switch [ns]')
         ]),
-        Parameter('clock_speed', 100, [100, 400], 'Clock speed of the pulse blaster [MHz]')
+        Parameter('clock_speed', 400, [100, 400], 'Clock speed of the pulse blaster [MHz]')
     ])
 
     PULSE_PROGRAM = ctypes.c_int(0)
@@ -222,7 +220,7 @@ class PulseBlaster(Instrument):
         pb_command_list = []
         for time, bit_strings in pb_command_dict.iteritems():
             channel_bits = np.bitwise_or.reduce(bit_strings)
-            pb_command_list.append(PBStateChange(channel_bits, time))
+            pb_command_list.append(self.PBStateChange(channel_bits, time))
 
         # sort the list by the time a command needs to be placed
         pb_command_list.sort(key=lambda x: x.time)
@@ -241,7 +239,7 @@ class PulseBlaster(Instrument):
                     new_channel_bits = propogating_state_changes[i-1].channel_bits ^ state_change_collection[i].channel_bits
 
                 time_between_change = state_change_collection[i+1].time - state_change_collection[i].time
-                propogating_state_changes.append(PBStateChange(new_channel_bits, time_between_change))
+                propogating_state_changes.append(self.PBStateChange(new_channel_bits, time_between_change))
 
             return propogating_state_changes
 
@@ -250,7 +248,6 @@ class PulseBlaster(Instrument):
         # 10001 = 17 for the command at this time.
         pb_command_list = change_to_propogating_signal(pb_command_list)
 
-        print pb_command_list
         return pb_command_list
 
     def _get_long_delay_breakdown(self, pb_state_change, command='CONTINUE', command_arg=0):
@@ -271,7 +268,8 @@ class PulseBlaster(Instrument):
 
         # if the state duration is less than the LONG_DELAY threshold, return the normally formatted command
         if pb_state_change.time < self.LONG_DELAY_THRESHOLD:
-            instruction_list = [PBCommand(pb_state_change.channel_bits, pb_state_change.time, command, command_arg)]
+            instruction_list = [
+                self.PBCommand(pb_state_change.channel_bits, pb_state_change.time, command, command_arg)]
             return instruction_list
 
         instruction_list = []
@@ -279,36 +277,63 @@ class PulseBlaster(Instrument):
 
         # If the remaining time after filling with LONG_DELAYs is smaller than the minimum instruction duration,
         # split one LONG_DELAY command into one 'CONTINUE' command and one command of the type passed in
-        if remainder < self.MIN_DURATION and num_long_delays > 1:
+        if remainder < self.MIN_DURATION and num_long_delays > 2:
             num_long_delays -= 1
             instruction_list.append(
-                PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD,
+                self.PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD,
                                command='LONG_DELAY', command_arg=num_long_delays))
             instruction_list.append(
-                PBCommand(pb_state_change.channel_bits , self.LONG_DELAY_THRESHOLD / 2,
+                self.PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD / 2,
                                command='CONTINUE', command_arg=0))
             instruction_list.append(
-                PBCommand(pb_state_change.channel_bits,
+                self.PBCommand(pb_state_change.channel_bits,
+                               self.LONG_DELAY_THRESHOLD / 2 + remainder, command, command_arg))
+            return instruction_list
+
+        # if there aren't any more LONG_DELAYs after doing this, just send in two commands
+        elif remainder < self.MIN_DURATION and num_long_delays == 2:
+            instruction_list.append(
+                self.PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD / 2,
+                               command='CONTINUE', command_arg=0))
+            instruction_list.append(
+                self.PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD / 2,
+                               command='CONTINUE', command_arg=0))
+            instruction_list.append(
+                self.PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD / 2,
+                               command='CONTINUE', command_arg=0))
+            instruction_list.append(
+                self.PBCommand(pb_state_change.channel_bits,
                                self.LONG_DELAY_THRESHOLD / 2 + remainder, command, command_arg))
             return instruction_list
 
         # if there aren't any more LONG_DELAYs after doing this, just send in two commands
         elif remainder < self.MIN_DURATION and num_long_delays == 1:
             instruction_list.append(
-                PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD / 2,
+                self.PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD / 2,
                                command='CONTINUE', command_arg=0))
             instruction_list.append(
-                PBCommand(pb_state_change.channel_bits,
+                self.PBCommand(pb_state_change.channel_bits,
                                self.LONG_DELAY_THRESHOLD / 2 + remainder, command, command_arg))
+            return instruction_list
+
+        elif num_long_delays == 1:
+            instruction_list.append(
+                self.PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD / 2,
+                               command='CONTINUE', command_arg=0))
+            instruction_list.append(
+                self.PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD / 2,
+                               command='CONTINUE', command_arg=0))
+            instruction_list.append(
+                self.PBCommand(pb_state_change.channel_bits, remainder, command, command_arg))
             return instruction_list
 
         # Otherwise, just use the LONG_DELAYs command followed by the given command for a duration given by remainder
         else:
             instruction_list.append(
-                PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD,
+                self.PBCommand(pb_state_change.channel_bits, self.LONG_DELAY_THRESHOLD,
                                command='LONG_DELAY', command_arg=num_long_delays))
             instruction_list.append(
-                PBCommand(pb_state_change.channel_bits, remainder, command, command_arg))
+                self.PBCommand(pb_state_change.channel_bits, remainder, command, command_arg))
             return instruction_list
 
     def create_commands(self, pb_state_changes, num_loops=1):
@@ -338,7 +363,7 @@ class PulseBlaster(Instrument):
             pb_commands += list(reversed(self._get_long_delay_breakdown(pb_state_changes[index], command='CONTINUE')))
 
         pb_commands += self._get_long_delay_breakdown(pb_state_changes[-1], command='END_LOOP', command_arg=0)
-        pb_commands.append(PBCommand(self.settings2bits(), 100, command='BRANCH', command_arg=len(pb_commands)))
+        pb_commands.append(self.PBCommand(self.settings2bits(), 100, command='BRANCH', command_arg=len(pb_commands)))
         return pb_commands
 
     @staticmethod
@@ -385,10 +410,12 @@ class PulseBlaster(Instrument):
         self.estimated_runtime = self.estimate_runtime(delayed_pulse_collection, num_loops)
         pb_state_changes = self.generate_pb_sequence(delayed_pulse_collection)
         pb_commands = self.create_commands(pb_state_changes, num_loops)
+
+        assert len(pb_commands) < 4096, "Generated a number of commands too long for the pulseblaster!"
+
         for command in pb_commands:
             if command.duration < 15:
-                print('Warning, detected pulseblaster commands requiring a duration < 15 ns. The PB will likely round up'
-                      'to 15 ns.')
+                warnings.warn("Detected command with duration <15ns. PB will likely roung up to 15ns.", RuntimeWarning)
 
         # begin programming the pulseblaster
         assert self.pb.pb_init() == 0, 'Could not initialize the pulseblsater on pb_init() command.'
@@ -398,6 +425,7 @@ class PulseBlaster(Instrument):
         for pbinstruction in pb_commands:
             # note that change types to the appropriate c type, as well as set certain bits in the channel bits to 1 in
             # order to properly output the signal
+            print pbinstruction
             return_value = self.pb.pb_inst_pbonly(ctypes.c_int(pbinstruction.channel_bits | 0xE00000),
                                                   self.PB_INSTRUCTIONS[pbinstruction.command],
                                                   ctypes.c_int(int(pbinstruction.command_arg)),
@@ -438,7 +466,7 @@ class B26PulseBlaster(PulseBlaster):
         ]),
         Parameter('apd_readout', [
             Parameter('channel', 1, int, 'channel to which the daq is connected to'),
-            Parameter('status', False, bool, 'True if voltage is high to the daq, false otherwise'),
+            Parameter('status', True, bool, 'True if voltage is high to the daq, false otherwise'),
             Parameter('delay_time', 0.2, float, 'delay time between pulse sending time and daq acknowledgement [ns]')
         ]),
         Parameter('microwave_p', [
@@ -456,7 +484,7 @@ class B26PulseBlaster(PulseBlaster):
             Parameter('status', False, bool, 'True if voltage is high to the microwave switch, false otherwise'),
             Parameter('delay_time', 0.2, float, 'delay time between pulse sending time and microwave switch [ns]')
         ]),
-        Parameter('clock_speed', 100, [100, 400], 'Clock speed of the pulse blaster [MHz]')
+        Parameter('clock_speed', 400, [100, 400], 'Clock speed of the pulse blaster [MHz]')
     ])
 
     _PROBES = {}
@@ -483,9 +511,10 @@ class B26PulseBlaster(PulseBlaster):
 if __name__=='__main__':
 
     pb = B26PulseBlaster()
-    #pulse_collection = [Pulse('laser', 0, 100), Pulse('apd_readout', 100, 100)]
-    pulse_collection = [Pulse('laser', i, 1000) for i in range(0,10000,2000)]
-    pb.program_pb(pulse_collection, num_loops=1000000)
+    pulse_collection = [Pulse(channel_id='laser', start_time=0, duration=2000),
+                        Pulse(channel_id='apd_readout', start_time=2000, duration=2000)]
+    pulse_collection = [Pulse('apd_readout', i, 100) for i in range(0, 2000, 200)]
+    pb.program_pb(pulse_collection, num_loops=1E6)
     pb.start_pulse_seq()
     pb.wait()
 
