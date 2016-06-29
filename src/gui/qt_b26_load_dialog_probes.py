@@ -223,7 +223,7 @@ Returns:
         """
         Returns: the selected elements
         """
-
+        print('self.elements_selected', self.elements_selected)
         return self.elements_selected
 
 if __name__ == '__main__':

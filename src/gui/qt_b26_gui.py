@@ -174,6 +174,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.data_sets = {}  # todo: load datasets from tmp folder
         self.read_probes = ReadProbes(self.probes)
+        self.tabWidget.setCurrentIndex(0) # always show the script tab
 
     def closeEvent(self, event):
 
@@ -203,13 +204,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     def switch_tab(self):
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
         if current_tab == 'Probes':
-            print('AA---AAA')
             self.read_probes.start()
             self.read_probes.updateProgress.connect(self.update_probes)
         else:
             try:
                 self.read_probes.updateProgress.disconnect()
-                self.read_probes.stop()
+                self.read_probes.quit()
+                # self.read_probes.stop()
             except RuntimeError:
                 pass
 
@@ -445,7 +446,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             try:
                 self.read_probes.updateProgress.disconnect()
                 self.read_probes.quit()
-                self.read_probes.stop()
+                # self.read_probes.stop()
             except RuntimeError:
                 pass
             dialog = LoadDialogProbes(probes_old=self.probes, filename=self.gui_settings['probes_folder'])
@@ -457,17 +458,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # create instances of new probes
                 self.probes, loaded_failed, self.instruments = Probe.load_and_append(
                     probe_dict=probes,
-                    probes=self.probes,
+                    probes={},
                     instruments=self.instruments)
                 if loaded_failed != []:
                     print('WARNING following probes could not be loaded', loaded_failed)
-                print('D', self.probes, loaded_failed, self.instruments)
+
 
                 # restart the readprobes thread
                 del self.read_probes
                 self.read_probes = ReadProbes(self.probes)
                 self.read_probes.start()
+                self.tree_probes.clear() # clear tree because the probe might have changed
                 self.read_probes.updateProgress.connect(self.update_probes)
+                self.tree_probes.expandAll()
         def load_scripts():
             dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts,
                                 filename=self.gui_settings['scripts_folder'])
@@ -710,10 +713,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
         update the probe tree
         """
-        print('udatinnggggg')
+        # print('udatinnggggg')
         new_values = self.read_probes.probes_values
         probe_count = len(self.read_probes.probes)
-        print('new_values', new_values)
+
         if probe_count > self.tree_probes.topLevelItemCount():
             # when run for the first time, there are no probes in the tree, so we have to fill it first
             self.fill_treewidget(self.tree_probes, new_values)
@@ -731,14 +734,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         if self.chk_probe_log.isChecked():
             self.log("probelogging not implemented!!")
-            # file_name  = str(self.txt_probe_log_path.text())
-            # if os.path.isfile(file_name) == False:
-            #     outfile = open(file_name, 'w')
-            #     outfile.write("{:s}\n".format(",".join(new_values.keys())))
-            # else:
-            #     outfile = open(file_name, 'a')
+            file_name  = os.path.join(self.gui_settings['probes_folder'], '{:s}_probes.csv'.format(datetime.datetime.now().strftime('%y%m%d-%H_%M_%S')))
+            if os.path.isfile(file_name) == False:
+                outfile = open(file_name, 'w')
+                # outfile.write("{:s}\n".format(",".join(new_values.keys())))
+                header = ','.join(list(np.array([['{:s} ({:s})'.format(p, instr) for p in p_dict.keys()] for instr, p_dict in new_values.iteritems()]).flatten()))
+                outfile.write(header)
+            else:
+                outfile = open(file_name, 'a')
+            data = ','.join(list(np.array([[str(p) for p in p_dict.values()] for instr, p_dict in new_values.iteritems()]).flatten()))
             # outfile.write("{:s}\n".format(",".join(map(str, new_values.values()))))
-
+            outfile.write(data)
     def update_script_from_item(self, item):
         """
         updates the script based on the information provided in item
@@ -996,13 +1002,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         for script in self.scripts.itervalues():
             out_data['scripts'].update(script.to_dict())
 
-        for probe in self.probes.itervalues():
-            out_data['probes'].update(probe.to_dict())
+        for instrument, probe_dict in self.probes.iteritems():
+            out_data['probes'].update({instrument: ','.join(probe_dict.keys())})
 
         if not os.path.exists(os.path.dirname(out_file_name)):
             print('creating: ', out_file_name)
             os.makedirs(os.path.dirname(out_file_name))
-
         with open(out_file_name, 'w') as outfile:
             tmp = json.dump(out_data, outfile, indent=4)
 
