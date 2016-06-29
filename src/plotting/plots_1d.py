@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import time
 from matplotlib.collections import PatchCollection
 import matplotlib.patches as patches
+import numpy as np
 
 def plot_psd(freq, psd, axes, clear = True):
     '''

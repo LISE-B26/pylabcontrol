@@ -411,7 +411,6 @@ class PulseBlaster(Instrument):
         delayed_pulse_collection = self.create_physical_pulse_seq(pulse_collection)
         self.estimated_runtime = self.estimate_runtime(delayed_pulse_collection, num_loops)
         pb_state_changes = self.generate_pb_sequence(delayed_pulse_collection)
-        print pb_state_changes
         pb_commands = self.create_commands(pb_state_changes, num_loops)
 
         assert len(pb_commands) < 4096, "Generated a number of commands too long for the pulseblaster!"
@@ -481,7 +480,7 @@ class B26PulseBlaster(PulseBlaster):
         ]),
         Parameter('apd_readout', [
             Parameter('channel', 1, int, 'channel to which the daq is connected to'),
-            Parameter('status', True, bool, 'True if voltage is high to the daq, false otherwise'),
+            Parameter('status', False, bool, 'True if voltage is high to the daq, false otherwise'),
             Parameter('delay_time', 0.2, float, 'delay time between pulse sending time and daq acknowledgement [ns]')
         ]),
         Parameter('microwave_p', [

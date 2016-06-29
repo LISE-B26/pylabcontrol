@@ -4,7 +4,7 @@ from src.instruments import DAQ, B26PulseBlaster, Pulse
 from collections import deque
 
 from PySide.QtCore import Signal, QThread
-from src.plotting.plots_1d import plot_delay_counts
+from src.plotting.plots_1d import plot_delay_counts, plot_pulses
 import numpy as np
 
 
@@ -58,15 +58,19 @@ class PulseDelays(Script, QThread):
                 break
 
             #define PB pulses
-            pulse_collection = [Pulse('laser', reset_time, self.settings['count_source_pulse_width']),
-                                Pulse('apd_readout', delay + reset_time, self.settings['measurement_gate_pulse_width'])
-                                ]
+            self.pulse_collection = [Pulse('laser', reset_time, self.settings['count_source_pulse_width']),
+                                     Pulse('apd_readout', delay + reset_time, self.settings['measurement_gate_pulse_width'])
+                                     ]
+
+            print(self.pulse_collection)
 
             self.instruments['daq']['instance'].gated_DI_init('ctr0', self.settings['num_averages'])
-            self.instruments['PB']['instance'].program_pb(pulse_collection, num_loops=self.settings['num_averages'] + 1)
+
+            self.instruments['PB']['instance'].program_pb(self.pulse_collection,
+                                                          num_loops=self.settings['num_averages'])
             self.instruments['daq']['instance'].gated_DI_run()
             self.instruments['PB']['instance'].start_pulse_seq()
-            result_array = self.instruments['daq']['instance'].gated_DI_read(
+            result_array, _ = self.instruments['daq']['instance'].gated_DI_read(
                 timeout=5)  # thread waits on DAQ getting the right number of gates
             result = np.sum(result_array)
             self.data['counts'].append(result)
@@ -86,14 +90,15 @@ class PulseDelays(Script, QThread):
         # send 100 to signal that script is finished
         self.updateProgress.emit(100)
 
-    def plot(self, figure_list):
-        super(PulseDelays, self).plot([figure_list[0]])
-
     def _plot(self, axes_list):
-        data = self.data['counts']
-        axis = axes_list[0]
-        if data:
-            plot_delay_counts()
+        counts = self.data['counts']
+        delays = self.data['delays']
+        axis1 = axes_list[0]
+        if counts:
+            plot_delay_counts(axis1, delays, counts)
+        axis2 = axes_list[1]
+        plot_pulses(axis2, self.pulse_collection)
+
 
     def stop(self):
         self._abort = True
