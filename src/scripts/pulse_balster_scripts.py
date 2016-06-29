@@ -34,7 +34,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
         pass
     def get_axes_layout(self, figure_list):
         pass
-
+# NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
 class OptimizeRabi(Script, QThread):
     """
 This script runs a Rabi script, fits the result to a sin wave to retrieve the Rabi oscillation frequency.
@@ -67,7 +67,6 @@ After that it again runs a the Rabi script with the optimized microwave power to
 
     def get_axes_layout(self, figure_list):
         pass
-
 # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
 class CalibrateMeasurementWindow(Script, QThread):
     """
@@ -101,7 +100,7 @@ It applies a pi-pulse and measured the fluorescence counts after for a varying t
 
     def get_axes_layout(self, figure_list):
         pass
-
+# NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
 class CPMG(Script, QThread):
     """
 This script runs a CPMG pulse sequence.
@@ -137,7 +136,7 @@ This script runs a CPMG pulse sequence.
 
     def get_axes_layout(self, figure_list):
         pass
-
+# NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
 class HahnEcho(Script, QThread):
     """
 This script runs a Hahn-echo sequence for different number of pi pulse. Without pi-pulse this is a Ramsey sequence.

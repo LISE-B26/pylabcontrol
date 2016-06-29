@@ -202,7 +202,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def switch_tab(self):
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
-        if current_tab == 'Monitor':
+        if current_tab == 'Probes':
+            print('AA---AAA')
             self.read_probes.start()
             self.read_probes.updateProgress.connect(self.update_probes)
         else:
@@ -214,17 +215,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         if current_tab == 'Instruments':
             self.refresh_instruments()
-        #     # rebuild script- tree because intruments might have changed
-        #     self.tree_scripts.itemChanged.disconnect()
-        #     self.fill_tree(self.tree_scripts, self.scripts)
-        #     self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
-
-                # following is outdated: now we want to have independent instrument settings in the scripts
-        # if current_tab == 'Scripts':
-        #     # rebuild script- tree because intruments might have changed
-        #     self.tree_scripts.itemChanged.disconnect()
-        #     self.fill_tree(self.tree_scripts, self.scripts)
-        #     self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
 
     def refresh_instruments(self):
         """
@@ -449,6 +439,82 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 del self.data_sets[time_tag]
 
                 model.removeRows(row,1)
+        def load_probes():
+
+            # if the probe has never been started it can not be disconnected so we catch that error
+            try:
+                self.read_probes.updateProgress.disconnect()
+                self.read_probes.quit()
+                self.read_probes.stop()
+            except RuntimeError:
+                pass
+            dialog = LoadDialogProbes(probes_old=self.probes, filename=self.gui_settings['probes_folder'])
+            if dialog.exec_():
+                self.gui_settings['probes_folder'] = str(dialog.txt_probe_log_path.text())
+                probes = dialog.getValues()
+                added_instruments = list(set(probes.keys()) - set(self.probes.keys()))
+                removed_instruments = list(set(self.probes.keys()) - set(probes.keys()))
+                # create instances of new probes
+                self.probes, loaded_failed, self.instruments = Probe.load_and_append(
+                    probe_dict=probes,
+                    probes=self.probes,
+                    instruments=self.instruments)
+                if loaded_failed != []:
+                    print('WARNING following probes could not be loaded', loaded_failed)
+                print('D', self.probes, loaded_failed, self.instruments)
+
+                # restart the readprobes thread
+                del self.read_probes
+                self.read_probes = ReadProbes(self.probes)
+                self.read_probes.start()
+                self.read_probes.updateProgress.connect(self.update_probes)
+        def load_scripts():
+            dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts,
+                                filename=self.gui_settings['scripts_folder'])
+            if dialog.exec_():
+                self.gui_settings['scripts_folder'] = str(dialog.txt_probe_log_path.text())
+                scripts = dialog.getValues()
+                added_scripts = set(scripts.keys()) - set(self.scripts.keys())
+                removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
+
+                if 'data_folder' in self.gui_settings.keys() and os.path.exists(self.gui_settings['data_folder']):
+                    data_folder_name = self.gui_settings['data_folder']
+                else:
+                    data_folder_name = None
+
+                # create instances of new instruments/scripts
+                self.scripts, loaded_failed, self.instruments = Script.load_and_append(
+                    script_dict={name: scripts[name] for name in added_scripts},
+                    scripts=self.scripts,
+                    instruments=self.instruments,
+                    log_function=self.log,
+                    data_path=data_folder_name)
+                # delete instances of new instruments/scripts that have been deselected
+                for name in removed_scripts:
+                    del self.scripts[name]
+        def load_instruments():
+            if 'instrument_folder' in self.gui_settings:
+                dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments,
+                                    filename=self.gui_settings['instrument_folder'])
+
+            else:
+                dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments)
+
+            if dialog.exec_():
+                self.gui_settings['instrument_folder'] = str(dialog.txt_probe_log_path.text())
+                instruments = dialog.getValues()
+                added_instruments = set(instruments.keys()) - set(self.instruments.keys())
+                removed_instruments = set(self.instruments.keys()) - set(instruments.keys())
+                print('added_instruments', {name: instruments[name] for name in added_instruments})
+
+                # create instances of new instruments
+                self.instruments, loaded_failed = Instrument.load_and_append(
+                    {name: instruments[name] for name in added_instruments}, self.instruments)
+                if loaded_failed != []:
+                    print('WARNING following instrument could not be loaded', loaded_failed)
+                # delete instances of new instruments/scripts that have been deselected
+                for name in removed_instruments:
+                    del self.instruments[name]
 
         def plot_data(sender):
             if sender in (self.btn_plot_data, self.tree_dataset):
@@ -501,78 +567,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # elif (sender is self.btn_load_instruments) or (sender is self.btn_load_scripts):
         elif sender in (self.btn_load_instruments, self.btn_load_scripts, self.btn_load_probes):
             if sender is self.btn_load_instruments:
-
-                if 'instrument_folder' in self.gui_settings:
-                    dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments,
-                                        filename=self.gui_settings['instrument_folder'])
-
-                else:
-                    dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments)
-
-
-                if dialog.exec_():
-                    self.gui_settings['instrument_folder'] = str(dialog.txt_probe_log_path.text())
-                    instruments = dialog.getValues()
-                    added_instruments = set(instruments.keys())-set(self.instruments.keys())
-                    removed_instruments = set(self.instruments.keys()) - set(instruments.keys())
-                    print('added_instruments', {name: instruments[name] for name in added_instruments})
-
-                    # create instances of new instruments
-                    self.instruments, loaded_failed = Instrument.load_and_append(
-                        {name: instruments[name] for name in added_instruments}, self.instruments)
-                    if loaded_failed != []:
-                        print('WARNING following instrument could not be loaded', loaded_failed)
-                    # delete instances of new instruments/scripts that have been deselected
-                    for name in removed_instruments:
-                        del self.instruments[name]
-
+                load_instruments()
             elif sender is self.btn_load_scripts:
-
-                dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts, filename=self.gui_settings['scripts_folder'])
-                if dialog.exec_():
-                    self.gui_settings['scripts_folder'] = str(dialog.txt_probe_log_path.text())
-                    scripts = dialog.getValues()
-                    added_scripts = set(scripts.keys())-set(self.scripts.keys())
-                    removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
-
-
-                    if 'data_folder' in self.gui_settings.keys() and os.path.exists(self.gui_settings['data_folder']):
-                        data_folder_name = self.gui_settings['data_folder']
-                    else:
-                        data_folder_name = None
-
-                    # create instances of new instruments/scripts
-                    self.scripts, loaded_failed, self.instruments = Script.load_and_append(script_dict = {name: scripts[name] for name in added_scripts},
-                                                                                           scripts = self.scripts,
-                                                                                           instruments = self.instruments,
-                                                                                           log_function = self.log,
-                                                                                           data_path = data_folder_name)
-                    # delete instances of new instruments/scripts that have been deselected
-                    for name in removed_scripts:
-                        del self.scripts[name]
-
+                load_scripts()
             elif sender is self.btn_load_probes:
-
-                dialog = LoadDialogProbes(elements_old=self.probes, filename=self.gui_settings['probes_folder'])
-                if dialog.exec_():
-                    self.gui_settings['probes_folder'] = str(dialog.txt_probe_log_path.text())
-                    probes = dialog.getValues()
-                    added_instruments = set(probes.keys()) - set(self.probes.keys())
-                    removed_instruments = set(self.probes.keys()) - set(probes.keys())
-                    print('XXX', added_instruments, removed_instruments)
-                    # create instances of new probes
-                    self.probes, loaded_failed, self.instruments = Probe.load_and_append(
-                        probe_dict= {name: probes[name] for name in added_probes},
-                        probes=self.probes,
-                        instruments=self.instruments)
-                    if loaded_failed != []:
-                        print('WARNING following probes could not be loaded', loaded_failed)
-                    # delete instances of new instruments/scripts that have been deselected
-                    for name in removed_probes:
-                        del self.probes[name]
+                load_probes()
             # refresh trees
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
+            # print('self.probes', self.probes)
+            # self.refresh_tree(self.tree_probes, self.probes)
 
     def update_parameters(self, treeWidget):
 
@@ -704,20 +708,22 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def update_probes(self, progress):
         """
-        update the probe monitor tree
+        update the probe tree
         """
-
+        print('udatinnggggg')
         new_values = self.read_probes.probes_values
         probe_count = len(self.read_probes.probes)
-
+        print('new_values', new_values)
         if probe_count > self.tree_probes.topLevelItemCount():
             # when run for the first time, there are no probes in the tree, so we have to fill it first
-            self.fill_treewidget(self.tree_probes, self.read_probes.probes_values)
+            self.fill_treewidget(self.tree_probes, new_values)
         else:
-            for x in range(0 , probe_count):
+            for x in range(probe_count):
                 topLvlItem = self.tree_probes.topLevelItem(x)
-                topLvlItem.value = new_values[topLvlItem.name]
-                topLvlItem.setText(1, unicode(topLvlItem.value))
+                for child_id in range(topLvlItem.childCount()):
+                    child = topLvlItem.child(child_id)
+                    child.value = new_values[topLvlItem.name][child.name]
+                    child.setText(1, unicode(child.value))
         if self.probe_to_plot is not None:
             self.probe_to_plot.plot(self.matplotlibwidget_1.axes)
             self.matplotlibwidget_1.draw()

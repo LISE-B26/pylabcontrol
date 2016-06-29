@@ -14,7 +14,6 @@ class Probe(object):
         """
 
 
-
         assert isinstance(instrument, Instrument)
         assert isinstance(probe_name, str)
         assert probe_name in instrument._PROBES
@@ -92,32 +91,34 @@ class Probe(object):
             probe_dict: dictionary of form
 
                 probe_dict = {
-                name_of_probe_1 :
-                    {'instrument_class': value_inst_class, optional aguments..}
-                name_of_probe_2 :
-                    {'instrument_class': value_inst_class, optional aguments..}
-                ...
-                }
-            where name_of_probe_1 is a valid name of a probe in instrument of class value_inst_class
-
-            optional arguments (as key value pairs):
-                probe_name
-                instrument_name
-                probe_info
-                buffer_length
-
-
-            or
-                probe_dict = {
-                name_of_probe_1 : instrument_class_1
-                name_of_probe_2 : instrument_class_2
-                ...
+                    instrument1_name : probe1_of_instrument1, probe2_of_instrument1, ...
+                    instrument2_name : probe1_of_instrument2, probe2_of_instrument2, ...
                 }
 
+            where probe1_of_instrument1 is a valid name of a probe in instrument of class instrument1_name
+
+            # optional arguments (as key value pairs):
+            #     probe_name
+            #     instrument_name
+            #     probe_info
+            #     buffer_length
+            #
+            #
+            # or
+            #     probe_dict = {
+            #     name_of_probe_1 : instrument_class_1
+            #     name_of_probe_2 : instrument_class_2
+            #     ...
+            #     }
 
 
             probes: dictionary of form
-                probe_dict = { name_of_probe_1 : probe_1_instance, name_of_probe_2 : probe_2_instance, ...}
+                probe_dict = {
+                    instrument1_name:
+                        {name_of_probe_1_of_instrument1 : probe_1_instance,
+                         name_of_probe_2_instrument1 : probe_2_instance
+                         }
+                         , ...}
 
             instruments: dictionary of form
 
@@ -126,114 +127,48 @@ class Probe(object):
                 name_of_instrument_2 : instance_of_instrument_2,
                 ...
                 }
-     Returns:
-                probe_dict = { name_of_probe_1 : probe_1_instance, name_of_probe_2 : probe_2_instance, ...}
+    Returns:
+                updated_probes = { name_of_probe_1 : probe_1_instance, name_of_probe_2 : probe_2_instance, ...}
                 loaded_failed = {name_of_probe_1: exception_1, name_of_probe_2: exception_2, ....}
                 updated_instruments
         """
-
-
-        def get_instrument(instrument_class, instruments):
-            """
-
-            Args:
-                instrument_class: name of instrument (str)
-                instruments: dictionary of instruments where key is name of instrument and value is instance
-
-            Returns:
-
-            """
-
-
-            instrument = {}
-
-            for k, v in instruments.iteritems():
-                if v.__class__ == instrument_class:
-                    instrument[k] = v
-
-            return instrument
 
 
         loaded_failed = {}
         updated_probes = {}
         updated_probes.update(probes)
         updated_instruments = {}
+        print(instruments)
         updated_instruments.update(instruments)
 
-        for key, value in probe_dict.iteritems():
+        # =====  load new instruments =======
+        new_instruments = list(set(probe_dict.keys())-set(probes.keys()))
+        if new_instruments != []:
+            updated_instruments, failed = Instrument.load_and_append({instrument_name: instrument_name for instrument_name in new_instruments}, instruments)
 
-            if isinstance(value, str):
-                instrument_class = value
-                probe_name = key
-                instrument_name = instrument_class
-                probe_info = None
-                buffer_length = None
-            elif issubclass(value, Instrument):
-                instrument_class = value.__class__.name
-                probe_name = key
-                instrument_name = instrument_class
-                probe_info = None
-                buffer_length = None
-            elif isinstance(value, dict):
-                instrument_class  = value['instrument_class']
 
-                if 'probe_name' in value:
-                    probe_name = value['probe_name']
+            if failed != []:
+                # if loading an instrument fails all the probes that depend on that instrument also fail
+                # ignore the failed instrument that did exist already because they failed because they did exist
+                for failed_instrument in set(failed) - set(instruments.keys()):
+                    for probe_name in probe_dict[failed_instrument]:
+                        loaded_failed[probe_name] = ValueError('failed to load instrument {:s} already exists. Did not load!'.format(failed_instrument))
+                    del probe_dict[failed_instrument]
+
+        # =====  now we are sure that all the instruments that we need for the probes already exist
+        print('new_instruments', new_instruments)
+
+
+        for instrument_name, probe_names in probe_dict.iteritems():
+            if not instrument_name in updated_probes:
+                updated_probes.update({instrument_name:{}})
+
+            for probe_name in probe_names.split(','):
+                if probe_name in updated_probes[instrument_name]:
+                    loaded_failed[probe_name] = ValueError('failed to load probe {:s} already exists. Did not load!'.format(probe_name))
                 else:
-                    probe_name = key
-                if 'instrument_name' in value:
-                    instrument_name = value['instrument_name']
-                else:
-                    instrument_name = instrument_class
-                if 'probe_info' in value:
-                    probe_info = value['probe_info']
-                else:
-                    probe_info = None
-                if 'buffer_length' in value:
-                    buffer_length = value['buffer_length']
-                else:
-                    buffer_length = None
-
-            else:
-                raise TypeError('wrong dictionary values ')
-
-
-            # check if probe already exists
-            if probe_name in probes.keys():
-                print('WARNING: probe {:s} already exists. Did not load!'.format(probe_name))
-                loaded_failed[probe_name] = ValueError('probe {:s} already exists. Did not load!'.format(probe_name))
-            else:
-
-                probe_instance = None
-
-                # check if instrument already exists
-                instrument = get_instrument(instrument_class, instruments)
-
-                if instrument == {}:
-                    instruments, __ = Instrument.load_and_append({instrument_name: instrument_class}, instruments)
-                    instrument = {instrument_name: instruments[instrument_name]}
-
-                #  ========= create probes =========
-
-                try:
-
-                    class_creation_string = ''
-                    if probe_name !=  key:
-                        class_creation_string += ', name = probe_name'
-                    if buffer_length is not None:
-                        class_creation_string += ', buffer_length = buffer_length'
-                    if probe_info is not None:
-                        class_creation_string += ', probe_info = probe_info'
-                    if instrument_name != instrument_class:
-                        class_creation_string += ', instrument_name = instrument_name'
-
-                    class_creation_string = 'class_of_script(instrument=instrument[instrument_name], probe_name = key)'.format(class_creation_string)
-
-                    probe_instance = eval(class_creation_string)
-                    updated_probes.update({key: probe_instance})
-                except Exception as inst:
-                    loaded_failed[key] = inst
-
+                    probe_instance = Probe(updated_instruments[instrument_name], probe_name)
+                    updated_probes[instrument_name].update({probe_name: probe_instance})
 
         return updated_probes, loaded_failed, updated_instruments
 
@@ -245,13 +180,14 @@ class Probe(object):
 
 
 if __name__ == '__main__':
-    probe_dict = {"DummyInstrument": {
-        "deep_internal": "DummyInstrument",
-        "internal": "DummyInstrument"}
-    }
-
-
-
+    probe_dict = {'DummyInstrument': 'internal,value1'}
+    instruments, __ = Instrument.load_and_append({'DummyInstrument': 'DummyInstrument'})
+    print('instrumentsxx', instruments)
+    probes_obj, failed, instruments = Probe.load_and_append(
+        probe_dict=probe_dict,
+        probes={},
+        instruments=instruments)
+    print('fffff', probes_obj)
     # Probe.load_and_append(
     #     probe_dict={name: probes[name] for name in added_probes},
     #     probes=self.probes,

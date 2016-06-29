@@ -33,7 +33,7 @@ ControlMainWindow(settings_file)
 Returns:
     """
 
-    def __init__(self, elements_old={}, filename=None):
+    def __init__(self, probes_old={}, filename=None):
         super(LoadDialogProbes, self).__init__()
         self.setupUi(self)
 
@@ -56,9 +56,10 @@ Returns:
         # create the dictionaries that hold the data
         #   - elements_old: the old elements (scripts, instruments) that have been passed to the dialog
         #   - elements_from_file: the elements from the file that had been opened
+        print('adsada', probes_old)
         self.elements_selected = {}
-        for element_name, element in elements_old.iteritems():
-            self.elements_selected.update( {element_name: {'class': element.__class__.__name__ , 'settings':element.settings}})
+        for instrument_name, p in probes_old.iteritems():
+            self.elements_selected.update( {instrument_name: ','.join(p.keys())})
         if os.path.isfile(filename):
             self.elements_from_file = self.load_elements(filename)
         else:
@@ -227,18 +228,22 @@ Returns:
 
 if __name__ == '__main__':
     import sys
+    from src.core import Probe
     app = QtGui.QApplication(sys.argv)
     folder = "C:/Users/Experiment/PycharmProjects/PythonLab/b26_files/probes_auto_generated/"
-    dialog = LoadDialogProbes(elements_old={},
-                              filename=folder)
+    dialog = LoadDialogProbes(probes_old={}, filename=folder)
     dialog.show()
     dialog.raise_()
     if dialog.exec_():
         probes = dialog.getValues()
 
         print(probes)
-        # added_probes = set(probes.keys()) - set(self.probes.keys())
-        # removed_probes = set(self.probes.keys()) - set(probes.keys())
-        sys.exit(app.exec_())
+
+        probes_obj, failed, instruments = Probe.load_and_append(
+            probe_dict=probes,
+            probes={},
+            instruments={})
+        print(probes_obj, failed, instruments)
+    sys.exit(app.exec_())
 
 
