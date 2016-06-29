@@ -1,6 +1,8 @@
 import collections
 import matplotlib.pyplot as plt
 import time
+from matplotlib.collections import PatchCollection
+import matplotlib.patches as patches
 
 def plot_psd(freq, psd, axes, clear = True):
     '''
@@ -55,14 +57,14 @@ def plot_pulses(axis, pulse_collection):
 
     Args:
         axis: The axis for the matplotlib plot
-        pulse_collection: a collection of pulses, named tuples (pulse_name, start_time, duration)
+        pulse_collection: a collection of pulses, named tuples (channel_id, start_time, duration)
 
     Returns:
 
     """
 
     # create a list of unique instruments from the pulses
-    instrument_names = sorted(list(set([pulse.instrument_name for pulse in pulse_collection])))
+    instrument_names = sorted(list(set([pulse.channel_id for pulse in pulse_collection])))
 
     # find the maximum time from the list of pulses
     max_time = max([pulse.start_time + pulse.duration for pulse in pulse_collection])
@@ -80,13 +82,49 @@ def plot_pulses(axis, pulse_collection):
         axis.axhline(i, 0.0, max_time)
 
     # create rectangles for the pulses
+    patch_list = []
     for pulse in pulse_collection:
-        axis.add_patch(patches.Rectangle((pulse.start_time, instrument_names.index(pulse.instrument_name)), pulse.duration, 0.5))
+        patch_list.append(patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id)), pulse.duration, 0.5))
+
+    patch_collection = PatchCollection(patch_list)
+    axis.add_collection(patch_collection)
 
     # label the axis
     axis.set_title('Pulse Visualization')
-    axis.set_xlabel('time [s]')
+    axis.set_xlabel('time [ns]')
     axis.set_ylabel('pulse destination')
+
+def update_pulse_plot(axis, pulse_collection):
+    """
+    updates a previously created plot of pulses, removing the previous ones and adding ones corresponding to
+    pulse_collection. The new pulse collection must only contain channel_ids already present on the passed axis
+
+    Args:
+        axis: The axis for the matplotlib plot
+        pulse_collection: a collection of pulses, named tuples (channel_id, start_time, duration)
+
+    Returns:
+
+    """
+
+    # get a list of unique instruments from the pulses
+    instrument_names = [str(label.get_text()) for label in axis.get_yticklabels()]
+
+    # find the maximum time from the list of pulses
+    max_time = max([pulse.start_time + pulse.duration for pulse in pulse_collection])
+
+    axis.set_xlim(0, 1.1 * max_time)
+
+    # remove the previous pulses
+    [child.remove() for child in axis.get_children() if isinstance(child, PatchCollection)]
+
+    # create rectangles for the pulses
+    patch_list = []
+    for pulse in pulse_collection:
+        patch_list.append(patches.Rectangle((pulse.start_time, instrument_names.index(pulse.instrument_name)), pulse.duration, 0.5))
+
+    patch_collection = PatchCollection(patch_list)
+    axis.add_collection(patch_collection)
 
 def plot_counts(axis, data):
     axis.plot(data)
