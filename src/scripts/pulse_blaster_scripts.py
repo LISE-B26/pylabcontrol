@@ -1,7 +1,8 @@
 from src.core import Parameter, Script
 from PySide.QtCore import QThread, Signal
 from src.instruments import DAQ
-from src.instruments import B26PulseBlaster
+from src.instruments import B26PulseBlaster, Pulse
+import numpy as np
 
 
 # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
@@ -12,9 +13,10 @@ This script applies a microwave pulse at fixed power for varying durations to me
     _DEFAULT_SETTINGS = Parameter([
         Parameter('mw_power', -45.0, float, 'microwave power in dB'),
         Parameter('time_step', 5, [5, 10, 20, 50, 100], 'time step increment of rabi pulse duration (in ns)'),
-        Parameter('time', 15, float, 'total time of rabi oscillations (in ns)'),
+        Parameter('time', 200, float, 'total time of rabi oscillations (in ns)'),
         Parameter('meas_time', 300, float, 'measurement time after rabi sequence (in ns)'),
-        Parameter('number_avrgs', 1E3, int, 'number of averages (should be less than a million)')
+        Parameter('number_avrgs', 1000000, int, 'number of averages (should be less than a million)'),
+        Parameter('reset_time', 1000000, int, 'time with laser on at the beginning to reset state')
     ])
 
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
@@ -29,7 +31,53 @@ This script applies a microwave pulse at fixed power for varying durations to me
         QThread.__init__(self)
         
     def _function(self):
-        pass
+        # First point cannot be earlier than 15 ns
+        gate_delays = range(max(self.settings['time_step'], 15), self.settings['time'], self.settings['time_step'])
+
+        self.data = {'delays': gate_delays, 'counts': np.zeros(len(gate_delays))}
+
+        def test_single_delay(num_loops, delay):
+            reset_time = self.settings['reset_time']
+            self.pulse_collection = [Pulse('laser', 0, reset_time),
+                                     Pulse('microwave_i', reset_time, delay),
+                                     Pulse('laser', delay + reset_time, self.settings['meas_time'] * 2),
+                                     Pulse('apd_readout', delay + reset_time, self.settings['meas_time'])]
+
+            self.instruments['daq']['instance'].gated_DI_init('ctr0', int(num_loops))
+
+            self.instruments['PB']['instance'].program_pb(self.pulse_collection,
+                                                          num_loops=num_loops)
+            self.instruments['daq']['instance'].gated_DI_run()
+            self.instruments['PB']['instance'].start_pulse_seq()
+            result_array, _ = self.instruments['daq']['instance'].gated_DI_read(
+                timeout=5)  # thread waits on DAQ getting the right number of gates
+            # for i in range(0,99):
+            #     print(result_array[i])
+            # clean up APD tasks
+            result = np.sum(result_array)
+            self.instruments['daq']['instance'].gated_DI_stop()
+            return result
+
+        delay_data = np.zeros(len(gate_delays))
+
+        for index, delay in enumerate(gate_delays):
+            if self._abort:
+                break
+            delay_data[index] = delay_data[index] + test_single_delay(self.settings['numer_avrgs'], delay)
+            self.data['counts'][index] = delay_data[index]
+            self.updateProgress.emit(50)
+
+        if self.settings['save']:
+            self.save_b26()
+            self.save_data()
+            self.save_log()
+            self.save_image_to_disk()
+
+        # send 100 to signal that script is finished
+        self.updateProgress.emit(100)
+
+
+
     def _plot(self, axes_list, axes_colorbar=None):
         pass
     def get_axes_layout(self, figure_list):

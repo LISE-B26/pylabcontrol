@@ -1,10 +1,9 @@
 from src.core.scripts import Script
 from src.core import Parameter
-from src.instruments import DAQ, B26PulseBlaster, Pulse
-from collections import deque
+from src.instruments import Pulse
+from src.scripts import ExecutePulseBlasterSequence
 
 from PySide.QtCore import Signal, QThread
-from src.plotting.plots_1d import plot_delay_counts, plot_pulses, update_pulse_plot
 import numpy as np
 
 AVERAGES_PER_SCAN = 1000000  # 1E6
@@ -24,124 +23,28 @@ class PulseDelays(Script, QThread):
         Parameter('reset_time', 10000, int, 'How long to wait for laser to turn off and reach steady state')
     ])
 
-    _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
+    _INSTRUMENTS = {}
 
-    _SCRIPTS = {}
+    _SCRIPTS = {'ExecuteSequence': ExecutePulseBlasterSequence}
     updateProgress = Signal(int)
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
-        """
-        Example of a script that emits a QT signal for the gui
-        Args:
-            name (optional): name of script, if empty same as class name
-            settings (optional): settings for this script, if empty same as default settings
-        """
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
                         log_function=log_function, data_path=data_path)
+
         QThread.__init__(self)
-        count_source = 'laser'
-        measurement_gate = 'apd_readout'
 
-    def _function(self):
-        """
-        This is the actual function that will be executed. It uses only information that is provided in the settings property
-        will be overwritten in the __init__
-        """
-        self._abort = False
-
+    def _create_pulse_sequences(self):
+        pulse_sequences = []
         gate_delays = range(self.settings['min_delay'], self.settings['max_delay'], self.settings['delay_interval_step_size'])
-
-        self.data = {'counts': np.zeros(len(gate_delays)), 'delays': gate_delays}
-
         reset_time = self.settings['reset_time']
-
-        (num_1E6_avg_pb_programs, remainder) = divmod(self.settings['num_averages'], AVERAGES_PER_SCAN)
-
-        delay_data = np.zeros(len(gate_delays))
-
-        def test_single_delay(num_loops, delay):
-            self.pulse_collection = [Pulse('laser', reset_time, self.settings['count_source_pulse_width']),
-                                     Pulse('apd_readout', delay + reset_time,
+        for delay in gate_delays:
+            pulse_sequences.append([Pulse('laser', reset_time, self.settings['count_source_pulse_width']),
+                                    Pulse('apd_readout', delay + reset_time,
                                            self.settings['measurement_gate_pulse_width'])
-                                     ]
+                                    ])
+        return pulse_sequences, self.settings['num_averages'], gate_delays
 
-            self.instruments['daq']['instance'].gated_DI_init('ctr0', int(num_loops))
-
-            self.instruments['PB']['instance'].program_pb(self.pulse_collection,
-                                                          num_loops=num_loops)
-            self.instruments['daq']['instance'].gated_DI_run()
-            self.instruments['PB']['instance'].start_pulse_seq()
-            result_array, _ = self.instruments['daq']['instance'].gated_DI_read(
-                timeout=5)  # thread waits on DAQ getting the right number of gates
-            # for i in range(0,99):
-            #     print(result_array[i])
-            # clean up APD tasks
-            result = np.sum(result_array)
-            self.instruments['daq']['instance'].gated_DI_stop()
-
-            self.pulse_collection = [Pulse('laser', reset_time, self.settings['count_source_pulse_width']),
-                                     Pulse('apd_readout', delay + reset_time,
-                                           self.settings['measurement_gate_pulse_width'])
-                                     ]
-            # self.updateProgress.emit(int(99 * (index + 1.0) / len(gate_delays)))
-            return result
-
-        for average_loop in range(int(num_1E6_avg_pb_programs)):
-            print('loop ' + str(average_loop))
-            if self._abort:
-                break
-
-            total_time = self.settings['measurement_gate_pulse_width'] * AVERAGES_PER_SCAN * (average_loop + 1)
-            normalization = 1E6 / total_time
-
-            for index, delay in enumerate(gate_delays):
-                if self._abort:
-                    break
-                delay_data[index] = delay_data[index] + (test_single_delay(AVERAGES_PER_SCAN, delay))
-                self.data['counts'][index] = delay_data[index] * normalization
-                self.updateProgress.emit(int(99 * (index + 1.0) / len(gate_delays) / num_1E6_avg_pb_programs + (
-                99 * (average_loop / num_1E6_avg_pb_programs))))
-
-        total_time = self.settings['measurement_gate_pulse_width'] * self.settings['num_averages']
-        normalization = 1E6 / total_time
-        if remainder != 0:
-            for index, delay in enumerate(gate_delays):
-                if self._abort:
-                    break
-                delay_data[index] = delay_data[index] + test_single_delay(remainder, delay)
-                self.data['counts'][index] = delay_data[index] * normalization
-                self.updateProgress.emit(99)
-
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
-            self.save_image_to_disk()
-
-        # send 100 to signal that script is finished
-        self.updateProgress.emit(100)
-
-    def _plot(self, axes_list):
-        counts = self.data['counts']
-        delays = self.data['delays']
-        axis1 = axes_list[0]
-        if not counts == []:
-            plot_delay_counts(axis1, delays, counts)
-        axis2 = axes_list[1]
-        plot_pulses(axis2, self.pulse_collection)
-
-    def _update_plot(self, axes_list):
-        counts = self.data['counts']
-        delays = self.data['delays']
-        axis1 = axes_list[0]
-        if not counts == []:
-            plot_delay_counts(axis1, delays, counts)
-        axis2 = axes_list[1]
-        update_pulse_plot(axis2, self.pulse_collection)
-
-
-    def stop(self):
-        self._abort = True
 
 if __name__ == '__main__':
     script = {}

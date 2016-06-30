@@ -484,7 +484,7 @@ class B26PulseBlaster(PulseBlaster):
             Parameter('status', False, bool, 'True if voltage is high to the daq, false otherwise'),
             Parameter('delay_time', 0.2, float, 'delay time between pulse sending time and daq acknowledgement [ns]')
         ]),
-        Parameter('microwave_p', [
+        Parameter('microwave_i', [
             Parameter('channel', 2, int, 'channel to which the the microwave p trigger is connected to'),
             Parameter('status', False, bool, 'True if voltage is high to the microwave p trigger, false otherwise'),
             Parameter('delay_time', 0.2, float, 'delay time between pulse sending time and microwave p trigger [ns]')
