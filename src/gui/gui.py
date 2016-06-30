@@ -14,15 +14,17 @@ from src.gui import qt_b26_gui
 
 app = QtGui.QApplication(sys.argv)
 fname = None
-fname = 'c:\\b26_tmp\\pythonlab_config.b26'
+fname = 'c:\\b26_tmp\\pythonlab_config.b26A'
 
 # fname = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\pythonlab_config.b26"
+try:
+    ex = qt_b26_gui.ControlMainWindow(fname)
 
-ex = qt_b26_gui.ControlMainWindow(fname)
+    app.setWindowIcon(QtGui.QIcon('magnet_and_nv.ico'))
 
-app.setWindowIcon(QtGui.QIcon('magnet_and_nv.ico'))
-
-ex.show()
-ex.raise_()
-sys.exit(app.exec_())
+    ex.show()
+    ex.raise_()
+    sys.exit(app.exec_())
  
+except Exception:
+    pass

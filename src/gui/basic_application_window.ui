@@ -286,6 +286,18 @@
                  </widget>
                 </item>
                 <item>
+                 <widget class="QCheckBox" name="chk_probe_plot">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>plotting on</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <layout class="QHBoxLayout" name="horizontalLayout">
                   <item>
                    <widget class="QCheckBox" name="chk_probe_log">
