@@ -12,7 +12,8 @@
                 }, 
                 "tag": "dummy_tag", 
                 "path": "Z:\\Lab\\Cantilever\\Measurements\\__tmp", 
-                "save": true
+                "save": false, 
+                "plot_style": "main"
             }
         }
     }

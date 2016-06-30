@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import time
 from matplotlib.collections import PatchCollection
 import matplotlib.patches as patches
+import numpy as np
 
 def plot_psd(freq, psd, axes, clear = True):
     '''
@@ -121,7 +122,8 @@ def update_pulse_plot(axis, pulse_collection):
     # create rectangles for the pulses
     patch_list = []
     for pulse in pulse_collection:
-        patch_list.append(patches.Rectangle((pulse.start_time, instrument_names.index(pulse.instrument_name)), pulse.duration, 0.5))
+        patch_list.append(
+            patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id)), pulse.duration, 0.5))
 
     patch_collection = PatchCollection(patch_list)
     axis.add_collection(patch_collection)
@@ -135,7 +137,7 @@ def plot_counts(axis, data):
 
 def plot_delay_counts(axis, times, counts):
     axis.plot(times, counts)
+    axis.hold(False)
 
     axis.set_xlabel('time (ns)')
-    axis.set_ylabel('total counts per delay')
-
+    axis.set_ylabel('kCounts/sec')

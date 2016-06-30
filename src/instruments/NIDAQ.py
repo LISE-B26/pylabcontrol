@@ -303,7 +303,6 @@ class DAQ(Instrument):
                                                          int32(self.numSampsPerChan), float64(-1), ctypes.byref(self.data),
                                                          uInt32(self.DI_sampleNum), ctypes.byref(self.samplesPerChanRead),
                                                          None))
-        print(type(self.data))
         return self.data, self.samplesPerChanRead
 
     def DI_stop(self):
@@ -386,7 +385,6 @@ class DAQ(Instrument):
                                                          uInt32(self.gated_DI_sampleNum),
                                                          ctypes.byref(self.samplesPerChanRead),
                                                          None))
-        print(type(self.data))
         return self.data, self.samplesPerChanRead
 
     def gated_DI_stop(self):

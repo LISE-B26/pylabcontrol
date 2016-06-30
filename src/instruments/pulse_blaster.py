@@ -204,7 +204,8 @@ class PulseBlaster(Instrument):
         pb_command_dict = {}
         for pulse in pulses:
             pulse_channel = self._get_channel(pulse.channel_id)
-            pb_command_dict.setdefault(pulse.start_time, []).append(1 << pulse_channel)
+            pb_command_dict.setdefault(pulse.start_time, []).append(
+                1 << pulse_channel)  # bitshifts by channel number to create array of 1 (0) for each channel on (off)
             pulse_end_time = pulse.start_time + pulse.duration
             pb_command_dict.setdefault(pulse_end_time, []).append(1 << pulse_channel)
 
@@ -217,7 +218,7 @@ class PulseBlaster(Instrument):
         pb_command_list = []
         for instruction_time, bit_strings in pb_command_dict.iteritems():
             channel_bits = np.bitwise_xor.reduce(bit_strings)
-            if channel_bits != 0:
+            if channel_bits != 0 or instruction_time == 0:
                 pb_command_list.append(self.PBStateChange(channel_bits, instruction_time))
 
         # sort the list by the time a command needs to be placed
@@ -411,14 +412,13 @@ class PulseBlaster(Instrument):
         delayed_pulse_collection = self.create_physical_pulse_seq(pulse_collection)
         self.estimated_runtime = self.estimate_runtime(delayed_pulse_collection, num_loops)
         pb_state_changes = self.generate_pb_sequence(delayed_pulse_collection)
-        print pb_state_changes
         pb_commands = self.create_commands(pb_state_changes, num_loops)
 
         assert len(pb_commands) < 4096, "Generated a number of commands too long for the pulseblaster!"
 
         for command in pb_commands:
             if command.duration < 15:
-                warnings.warn("Detected command with duration <15ns. PB will likely roung up to 15ns.", RuntimeWarning)
+                raise RuntimeError("Detected command with duration <15ns.")
 
         # begin programming the pulseblaster
         assert self.pb.pb_init() == 0, 'Could not initialize the pulseblsater on pb_init() command.'
@@ -481,7 +481,7 @@ class B26PulseBlaster(PulseBlaster):
         ]),
         Parameter('apd_readout', [
             Parameter('channel', 1, int, 'channel to which the daq is connected to'),
-            Parameter('status', True, bool, 'True if voltage is high to the daq, false otherwise'),
+            Parameter('status', False, bool, 'True if voltage is high to the daq, false otherwise'),
             Parameter('delay_time', 0.2, float, 'delay time between pulse sending time and daq acknowledgement [ns]')
         ]),
         Parameter('microwave_p', [
