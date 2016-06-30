@@ -71,9 +71,13 @@ def export_default_scripts(path):
         filename = '{:s}{:s}.b26'.format(path, name)
         value.save_b26(filename)
 
+    print('\n================================================')
+    print('================================================')
+    print('saved {:d} scripts, {:d} failed'.format(len(loaded_scripts), len(failed)))
     if failed != {}:
         for error_name, error in failed.iteritems():
-            print('failed to create script: ', error_name)
+            print('failed to create script: ', error_name, error)
+
             # raise error
 
 

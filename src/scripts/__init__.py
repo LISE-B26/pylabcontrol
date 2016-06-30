@@ -160,4 +160,7 @@ except:
 #     from pulse_delays import PulseDelays
 # except:
 #     print("./src/scripts/__init__ warning! PulseDelays did not load")
-from pulse_delays import PulseDelays
+# try:
+#     from pulse_delays import PulseDelays
+# except:
+#     print("./src/scripts/__init__ warning! PulseDelays did not load")

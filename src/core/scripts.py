@@ -187,7 +187,8 @@ class Script(object):
     @instrumets.setter
     def instruments(self, instrument_dict):
         assert isinstance(instrument_dict, dict)
-        assert set(self._INSTRUMENTS.keys()) <= set(instrument_dict.keys()), "keys in{:s}\nkeys expected{:s}".format(str(instrument_dict.keys()), str( self._INSTRUMENTS.keys()))
+        # checks if all the keys in _INSTRUMENTS are contained in instrument_dict
+        assert set(self._INSTRUMENTS.keys()) <= set(instrument_dict.keys()), "{:s}: needs instruments {:s} but received {:s}".format(self.name, str( self._INSTRUMENTS.keys()), str(instrument_dict.keys()))
         for key, value in self._INSTRUMENTS.iteritems():
             self._instruments.update({key: instrument_dict[key]})
 
@@ -212,7 +213,7 @@ class Script(object):
     @scripts.setter
     def scripts(self, script_dict):
         assert isinstance(script_dict, dict)
-        assert set(script_dict.keys()) == set(self._SCRIPTS.keys()), "keys in{:s}\nkeys expected{:s}".format(str(script_dict.keys()), str( self._SCRIPTS.keys()))
+        assert set(script_dict.keys()) == set(self._SCRIPTS.keys()), "{:s}: set subscripts {:s}, received {:s}".format(self.name, str(script_dict.keys()), str( self._SCRIPTS.keys()))
 
         for key, value in self._SCRIPTS.iteritems():
             assert isinstance(script_dict[key], self._SCRIPTS[key])
@@ -827,7 +828,8 @@ class Script(object):
                     #update settings, updates instrument and settings
                     sub_scripts[k].update(v)
 
-
+            if len(scripts_failed)>0:
+                raise ImportError('script {:s}: failed to load subscripts'.format(class_of_script))
             return sub_scripts, instruments_updated
             # return sub_scripts_dict, instruments_updated
 
@@ -847,35 +849,21 @@ class Script(object):
                 # this returns the name of the module that was imported.
                 class_of_script = getattr(module, script_class_name)
 
-                #  ========= get the instruments that are needed by the script =========
-                # try:
-                #     script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
-                # #  ========= create the scripts that are needed by the script =========
-                #
-                #     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
-                #
-                #     class_creation_string = ''
-                #     if script_instruments:
-                #         class_creation_string += ', instruments = script_instruments'
-                #     if sub_scripts:
-                #         class_creation_string += ', scripts = sub_scripts'
-                #     if script_settings:
-                #         class_creation_string += ', settings = script_settings'
-                #     if log_function:
-                #         class_creation_string += ', log_function = log_function'
-                #     if data_path:
-                #         class_creation_string += ', data_path = data_path'
-                #     class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
-                #
-                #     script_instance = eval(class_creation_string)
-                #     updated_scripts.update({script_name :script_instance})
-                # except Exception, e:
-                #     load_failed[script_name] = e
-                script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
-                #  ========= create the scripts that are needed by the script =========
-
-                sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
-
+                #  ========= create the instruments that are needed by the script =========
+                try:
+                    script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
+                except Exception, err:
+                    print('loading script {:s} failed. Could not load instruments!'.format(script_name))
+                    load_failed[script_name] = err
+                    break
+                #  ========= create the subscripts that are needed by the script =========
+                try:
+                    sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
+                except Exception, err:
+                    print('loading script {:s} failed. Could not load subscripts!'.format(script_name))
+                    load_failed[script_name] = err
+                    break
+                print('==> {:s}: start creation'.format(script_name))
                 class_creation_string = ''
                 if script_instruments:
                     class_creation_string += ', instruments = script_instruments'
@@ -889,7 +877,13 @@ class Script(object):
                     class_creation_string += ', data_path = data_path'
                 class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
-                script_instance = eval(class_creation_string)
+                try:
+                    script_instance = eval(class_creation_string)
+                except Exception, err:
+                    print('loading script {:s} failed. Could not create script!'.format(script_name))
+                    print(script_instruments, sub_scripts)
+                    load_failed[script_name] = err
+                    break
                 updated_scripts.update({script_name :script_instance})
 
 
