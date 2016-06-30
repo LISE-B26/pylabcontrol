@@ -119,6 +119,12 @@ class ExecutePulseBlasterSequence(Script, QThread):
 
     # MUST BE IMPLEMENTED IN INHERITING SCRIPT
     def _create_pulse_sequences(self):
+        '''
+        A function to create the pulse sequence. This must be overwritten in scripts inheriting from this script
+
+        Returns: pulse_sequences,
+
+        '''
         raise NotImplementedError
 
     def _calc_progress(self):
