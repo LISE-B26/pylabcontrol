@@ -52,7 +52,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns:
 
         """
-
+        self.config_filename = None
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
 
@@ -119,9 +119,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_about.triggered.connect(self.btn_clicked)
             self.btn_exit.triggered.connect(self.close)
 
-            self.btn_test_2.triggered.connect(self.test)
-
-
             self.btn_load_instruments.clicked.connect(self.btn_clicked)
             self.btn_load_scripts.clicked.connect(self.btn_clicked)
             self.btn_load_probes.clicked.connect(self.btn_clicked)
@@ -164,36 +161,39 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         setup_trees()
 
         connect_controls()
+        if os.path.exists(filename) == False:
+            filename = str(QtGui.QFileDialog.getOpenFileName(self, 'Unvalid Config File. Select Config.'))
 
-        if filename is not None and os.path.exists(filename):
-            try:
-                self.config_filename = filename
-                self.load_config(self.config_filename)
-                self.load_settings(os.path.join(self.gui_settings['tmp_folder'],'gui_settings.b26'))
-            except KeyError:
-                print('Did not pre-load scripts! Issue: {:s}'.format(str(sys.exc_info())))
-            except AssertionError:
-                print('Did not pre-load scripts! Issue: {:s}'.format(str(sys.exc_info())))
+            if not filename:
+                raise Exception
 
-        else:
+            print('config', filename)
+
             self.instruments = {}
             self.scripts = {}
             self.probes = {}
             self.gui_settings = {'scripts_folder': '', 'data_folder': ''}
+
+        self.config_filename = filename
+
+        self.load_config(self.config_filename)
+        self.load_settings(os.path.join(self.gui_settings['tmp_folder'], 'gui_settings.b26'))
+
 
         self.data_sets = {}  # todo: load datasets from tmp folder
         self.read_probes = ReadProbes(self.probes)
         self.tabWidget.setCurrentIndex(0) # always show the script tab
 
     def closeEvent(self, event):
+        print('CLOSING GUI')
+        if self.config_filename:
+            fname = os.path.join(self.gui_settings['tmp_folder'], 'gui_settings.b26')
+            print('save settings to {:s}'.format(fname))
+            self.save_settings(fname)
 
-        fname = os.path.join(self.gui_settings['tmp_folder'], 'gui_settings.b26')
-        print('save settings to {:s}'.format(fname))
-        self.save_settings(fname)
-
-        fname =  self.config_filename
-        print('save config to {:s}'.format(fname))
-        self.save_config(fname)
+            fname =  self.config_filename
+            print('save config to {:s}'.format(fname))
+            self.save_config(fname)
 
 
 
@@ -211,15 +211,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.probe_file.write('{:s}\n'.format(header))
         else:
             self.probe_file.close()
-
-    def test(self):
-        """
-        just for testing
-        Returns:
-
-        """
-        self.log("recreating figures")
-        self.create_figures()
 
 
 
@@ -744,7 +735,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
         update the probe tree
         """
-        # print('udatinnggggg')
         new_values = self.read_probes.probes_values
         probe_count = len(self.read_probes.probes)
 
@@ -888,9 +878,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 key = str(model.itemFromIndex(model.index(index.row(), 0)).text())
 
                 if path != "":
-                    self.gui_settings.update({key:path})
+                    self.gui_settings.update({key : str(path)})
                     self.fill_treeview(tree, self.gui_settings)
-
 
     def refresh_tree(self, tree, items):
         """
@@ -1035,6 +1024,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Args:
             out_file_name: name of file
         """
+        out_file_name = str(out_file_name)
         if not os.path.exists(os.path.dirname(out_file_name)):
             os.makedirs(os.path.dirname(out_file_name))
 
