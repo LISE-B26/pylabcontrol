@@ -198,7 +198,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # filename = str(dialog.open())
             # print(filename)
             # === end custom dialog ====
-            
+
             # if not filename:
             #     raise ValueError('No config file was provided. abort loading gui...')
             self.instruments = {}
