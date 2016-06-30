@@ -1,5 +1,6 @@
 from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread
+# from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from src.scripts import GalvoScanWithLightControl, SetLaser
 import numpy as np
 from matplotlib import patches
@@ -16,7 +17,7 @@ resulting in an image in the current field of view of the objective.
 Known issues:
     1.) if fits are poor, check  sweep_range. It should extend significantly beyond end of NV on both sides.
     """
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  '', str, 'path to folder where data is saved'),

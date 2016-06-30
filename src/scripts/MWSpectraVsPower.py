@@ -1,5 +1,6 @@
 from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread
+# from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from src.instruments import SpectrumAnalyzer, MicrowaveGenerator, CryoStation
 from collections import deque
 import time
@@ -32,7 +33,7 @@ class MWSpectraVsPower(Script, QThread):
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
     def __init__(self, instruments = None, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui

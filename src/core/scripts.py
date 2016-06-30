@@ -10,7 +10,9 @@ import os
 import pandas as pd
 import glob
 import json as json
-from PySide.QtCore import Signal, QThread
+
+from PyQt4.QtCore import pyqtSignal, QThread
+
 from src.core.read_write_functions import save_b26_file
 import numpy as np
 from __builtin__ import len as builtin_len
@@ -107,7 +109,11 @@ class Script(object):
     def data_path(self, path):
         # check is path is a valid path string
         if path is not None and path is not '':
-            assert os.path.isabs(path)
+            # assert os.path.isdir(path)
+            if not os.path.isdir(path):
+                print('{:s} created'.format(path))
+                os.mkdir(path)
+
         self._data_path = path
 
 
@@ -512,7 +518,7 @@ class Script(object):
         """
         if filename is None:
             filename = self.filename('.b26s')
-        print('saving', filename)
+        # print('saving', filename)
         with open(filename, 'w') as outfile:
             outfile.write(cPickle.dumps(self.__dict__))
 
@@ -856,16 +862,15 @@ class Script(object):
                 except Exception, err:
                     print('loading script {:s} failed. Could not load instruments!'.format(script_name))
                     load_failed[script_name] = err
-                    raise
-                    break
+                    continue
                 #  ========= create the subscripts that are needed by the script =========
                 try:
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
                 except Exception, err:
                     print('loading script {:s} failed. Could not load subscripts!'.format(script_name))
                     load_failed[script_name] = err
-                    break
-                print('==> {:s}: start creation'.format(script_name))
+                    continue
+                # print('==> {:s}: start creation'.format(script_name))
                 class_creation_string = ''
                 if script_instruments:
                     class_creation_string += ', instruments = script_instruments'
@@ -883,11 +888,9 @@ class Script(object):
                     script_instance = eval(class_creation_string)
                 except Exception, err:
                     print('loading script {:s} failed. Could not create script!'.format(script_name))
-                    print(script_instruments, sub_scripts)
                     load_failed[script_name] = err
-                    break
+                    continue
                 updated_scripts.update({script_name :script_instance})
-
 
         return updated_scripts, load_failed, updated_instruments
 
@@ -1005,7 +1008,7 @@ class Script(object):
 class QThreadWrapper(QThread):
 
 
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     def __init__(self, script):
         """

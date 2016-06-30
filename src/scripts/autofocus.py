@@ -1,5 +1,5 @@
 from src.core import Parameter, Script
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from src.instruments import PiezoController
 from src.scripts import GalvoScanWithLightControl
 from src.plotting import plot_fluorescence
@@ -41,7 +41,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
-    updateProgress = Signal(float)
+    updateProgress = pyqtSignal(int)
 
     def __init__(self, instruments, scripts, name = None, settings = None, log_function = None, data_path = None):
         """

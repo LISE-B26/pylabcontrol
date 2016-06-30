@@ -8,7 +8,7 @@ from src.gui import B26QTreeItem
 import os.path
 import numpy as np
 import json as json
-from PySide.QtCore import QThread
+from PyQt4.QtCore import QThread
 from src.gui import LoadDialog, LoadDialogProbes
 from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as Canvas,
                                                 NavigationToolbar2QT as NavigationToolbar)
@@ -65,6 +65,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns:
 
         """
+
+        print('\n\n======================================================')
+        print('=============== Starting B26 Python LAB  =============')
+        print('======================================================\n\n')
         self.config_filename = None
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
@@ -220,8 +224,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.read_probes = ReadProbes(self.probes)
         self.tabWidget.setCurrentIndex(0) # always show the script tab
 
+
     def closeEvent(self, event):
-        print('CLOSING GUI')
         if self.config_filename:
             fname = os.path.join(self.gui_settings['tmp_folder'], 'gui_settings.b26')
             print('save settings to {:s}'.format(fname))
@@ -235,11 +239,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         event.accept()
 
+        print('\n\n======================================================')
+        print('================= Closing B26 Python LAB =============')
+        print('======================================================\n\n')
+
 
     def set_probe_file_name(self, checked):
         if checked:
             file_name = os.path.join(self.gui_settings['probes_log_folder'], '{:s}_probes.csv'.format(datetime.datetime.now().strftime('%y%m%d-%H_%M_%S')))
-            print(file_name)
             if os.path.isfile(file_name) == False:
                 self.probe_file = open(file_name, 'a')
                 new_values = self.read_probes.probes_values
@@ -260,7 +267,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.read_probes.updateProgress.disconnect()
                 self.read_probes.quit()
                 # self.read_probes.stop()
-            except RuntimeError:
+            except TypeError:
                 pass
 
         if current_tab == 'Instruments':
@@ -281,12 +288,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         value = instrument.settings
                         for elem in path_to_instrument:
                             value = value[elem]
-                        print('{:s}:\t {:s} |\t {:s}'.format(child.name, str(child.value), str(value)))
+                        # print('{:s}:\t {:s} |\t {:s}'.format(child.name, str(child.value), str(value)))
                     else:
                         update(child)
 
 
-        print('---- updating instruments (compare values from instr to values in tree) ----')
+        # print('---- updating instruments (compare values from instr to values in tree) ----')
         for index in range(self.tree_settings.topLevelItemCount()):
             instrument = self.tree_settings.topLevelItem(index)
             update(instrument)
@@ -485,7 +492,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             for row in rows:
                 time_tag = str(model.itemFromIndex(model.index(row, 0)).text())
-                print(self.data_sets.keys())
                 del self.data_sets[time_tag]
 
                 model.removeRows(row,1)
@@ -509,8 +515,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     probe_dict=probes,
                     probes={},
                     instruments=self.instruments)
-                if loaded_failed != []:
-                    print('WARNING following probes could not be loaded', loaded_failed)
+                if not loaded_failed:
+                    print('WARNING following probes could not be loaded', loaded_failed, len(loaded_failed))
 
 
                 # restart the readprobes thread
@@ -557,12 +563,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 instruments = dialog.getValues()
                 added_instruments = set(instruments.keys()) - set(self.instruments.keys())
                 removed_instruments = set(self.instruments.keys()) - set(instruments.keys())
-                print('added_instruments', {name: instruments[name] for name in added_instruments})
+                # print('added_instruments', {name: instruments[name] for name in added_instruments})
 
                 # create instances of new instruments
                 self.instruments, loaded_failed = Instrument.load_and_append(
                     {name: instruments[name] for name in added_instruments}, self.instruments)
-                if loaded_failed != []:
+                if len(loaded_failed)>0:
                     print('WARNING following instrument could not be loaded', loaded_failed)
                 # delete instances of new instruments/scripts that have been deselected
                 for name in removed_instruments:
@@ -636,8 +642,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # refresh trees
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
-            # print('self.probes', self.probes)
-            # self.refresh_tree(self.tree_probes, self.probes)
 
     def update_parameters(self, treeWidget):
 
@@ -677,15 +681,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # check if changes value is from an instrument
             instrument, path_to_instrument = item.get_instrument()
             if instrument is not None:
-                print('INSTUMENT PARAMETER CHANGED in', script.instruments[instrument.name])
-
-                # just check if value is valid without actually sending a command to the instrument
-
-                # # get old value from script.instrument
-                # old_value = script.instruments[instrument.name].settings
-                # path_to_instrument.reverse()
-                # for element in path_to_instrument:
-                #     old_value = old_value[element]
 
                 new_value = item.value
 
@@ -693,7 +688,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 msg = "changed parameter {:s} to {:s} on {:s}".format(item.name,
                                                                                 str(new_value),
                                                                                 script.name)
-                print(msg)
             else:
                 new_value = item.value
                 msg = "changed parameter {:s} to {:s} on {:s}".format(item.name,
@@ -968,7 +962,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         try:
             config = load_b26_file(file_name)['gui_settings']
-            print(config)
             for x in self._DEFAULT_CONFIG.keys():
                 if x in config:
                     if not os.path.exists(config[x]):
@@ -1004,7 +997,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.instruments = {}
         self.probes = {}
         self.scripts = {}
-        print('loading config file: ', in_file_name)
+        print('loading config from {:s}'.format(in_file_name))
 
         # assert os.path.isfile(in_file_name), in_file_name
 
@@ -1016,30 +1009,30 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             instruments = in_data['instruments']
             scripts = in_data['scripts']
             probes = in_data['probes']
-            print('=============================================')
-            print('============ loading instruments ============')
-            print('=============================================')
+            # print('=============================================')
+            # print('============ loading instruments ============')
+            # print('=============================================')
             self.instruments, failed = Instrument.load_and_append(instruments)
-            if failed != {}:
+            if len(failed)>0:
                 print('WARNING! Following instruments could not be loaded: ', failed)
-            print('=============================================')
-            print('============ loading scripts ================')
-            print('=============================================')
+            # print('=============================================')
+            # print('============ loading scripts ================')
+            # print('=============================================')
             self.scripts, failed, self.instruments = Script.load_and_append(
                 script_dict=scripts,
                 instruments=self.instruments,
                 log_function=self.log,
                 data_path=self.gui_settings['data_folder'])
-            if failed != {}:
+
+            if len(failed)>0:
                 print('WARNING! Following scripts could not be loaded: ', failed)
-            print('=============================================')
-            print('============ loading probes =================')
-            print('=============================================')
+            # print('=============================================')
+            # print('============ loading probes =================')
+            # print('=============================================')
             self.probes, failed, self.instruments = Probe.load_and_append(
                 probe_dict=probes,
                 probes=self.probes,
                 instruments=self.instruments)
-            # todo: implement probes
             # refresh trees
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
@@ -1055,7 +1048,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
         out_file_name = str(out_file_name)
 
-        print('saving', out_file_name)
 
         # update the internal dictionaries from the trees in the gui
         for index in range(self.tree_scripts.topLevelItemCount()):
@@ -1100,7 +1092,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
 
         for time_tag, script in self.data_sets.iteritems():
-            print(time_tag, script)
             script.save(os.path.join(out_file_name, '{:s}.b26s'.format(time_tag)))
 
 

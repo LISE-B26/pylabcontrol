@@ -1,5 +1,5 @@
 import numpy as np
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from matplotlib import patches
 import time
 
@@ -12,7 +12,7 @@ import os
 
 
 class Refind_NVs(Script, QThread):
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '', str, 'path for data'),

@@ -1,5 +1,5 @@
 from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from src.instruments import SpectrumAnalyzer, CryoStation
 from src.scripts import KeysightGetSpectrum
 import numpy as np
@@ -26,7 +26,7 @@ class KeysightSpectrumVsPower(Script, QThread):
     _SCRIPTS = {
         'get_spectrum' : KeysightGetSpectrum
     }
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
     def __init__(self, instruments, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui

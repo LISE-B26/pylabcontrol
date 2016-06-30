@@ -15,8 +15,8 @@ try:
     from src.instruments import DummyInstrument
 except:
     print('WARNING script_dummy')
-from PySide.QtCore import Signal, QThread
-# from PyQt4.QtCore import SIGNAL, QThread
+# from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 
 class ScriptDummy(Script):
     #This is the signal that will be emitted during the processing.
@@ -148,7 +148,7 @@ class ScriptDummyWithQtSignal(Script, QThread):
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
     def __init__(self, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
@@ -364,7 +364,7 @@ class ScriptDummyPlotMemoryTest(Script, QThread):
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
     def __init__(self, scripts = None, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that makes use of an instrument
@@ -488,7 +488,7 @@ This Dummy script is used to test saving of data, it takes a data set as input a
     _INSTRUMENTS = {}
     _SCRIPTS = {}
 
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     def __init__(self, name=None, settings=None, log_function=None, data=None, data_path=None):
         """
@@ -597,30 +597,6 @@ This Dummy script is used to test saving of data, it takes a data set as input a
 if __name__ == '__main__':
     import numpy as np
 
-    # data = {'array-1': 2, 'array-2': 3, 'array-3': 'd'}
-    # name = 'arrays_0D'
-    # script_save = ScriptDummySaveData(name=name, settings={'tag':name}, data=data)
-    # script_save.run()
-    #
-    # data = {'array0':[0.,1.,2.,3.], 'array1':[4.,5.,6.,7.]}
-    # name = '1D_arrays_same_length'
-    # script_save = ScriptDummySaveData(name = name, settings={'tag':name}, data = data)
-    # script_save.run()
-    #
-    # data = {'array0': [0., 1., 2., 3.], 'array1': [4., 5., 6.,7., 8.]}
-    # name = '1D_arrays_diff_length'
-    # script_save = ScriptDummySaveData(name=name, settings={'tag':name}, data=data)
-    # script_save.run()
-    #
-    # data = {'array0': np.array([0., 1., 2., 3.]), 'array1': [4., 5., 6.,7., 8.]}
-    # name = '1D_arrays_diff_length_np'
-    # script_save = ScriptDummySaveData(name=name, settings={'tag':name}, data=data)
-    # script_save.run()
-    #
-    # data = {'array-0D': 2, 'array-1D': [4., 5., 6.,7., 8.], 'array-2D_np': np.array([[4., 5.], [5., 6.],[7., 8.]]), 'array-2D': [[14., 15.], [15., 16.],[17., 18.]]}
-    # name = 'arrays_diff_dim'
-    # print(data['array-2D'], np.shape(data['array-2D']))
-    # script_save = ScriptDummySaveData(name=name, settings={'tag':name}, data=data)
-    # script_save.run()
 
-    s = ScriptDummyWithSubScript()
+    s = ScriptDummyWithQtSignal()
+    print(s)

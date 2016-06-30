@@ -1,5 +1,5 @@
 from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from src.instruments import MaestroLightControl
 from src.scripts import GalvoScan
 from copy import deepcopy
@@ -10,8 +10,7 @@ class GalvoScanWithLightControl(Script, QThread):
 Takes an image based in galvo scan script and controls light with MaestroLightControl instrument
     """
 
-    updateProgress = Signal(int)
-    saveFigure = Signal(str)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '', str, 'path to folder where data is saved'),

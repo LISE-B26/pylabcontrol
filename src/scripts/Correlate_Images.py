@@ -1,7 +1,7 @@
 import matplotlib.patches as patches
 import numpy as np
 from PIL import Image as im
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from scipy import signal
 import time
 from src.core import Script, Parameter
@@ -180,7 +180,7 @@ class Take_And_Correlate_Images_2(Script, QThread):
     Takes a galvo scan, compares it to a previous galvo scan to find the relative shift, and then updates a list of
     nvs based on this shift so that they will give the current coordinates of those nvs
     '''
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '', str, 'path for data'),

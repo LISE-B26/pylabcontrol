@@ -1,5 +1,5 @@
 import numpy as np
-from PySide.QtCore import Signal
+from PyQt4.QtCore import pyqtSignal
 from matplotlib import patches
 
 from src.core import Script, Parameter
@@ -7,7 +7,7 @@ from src.instruments.NIDAQ import DAQ
 
 
 class SetLaser(Script):
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('point',

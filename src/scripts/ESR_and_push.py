@@ -1,5 +1,5 @@
 import numpy as np
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from matplotlib import patches
 
 from src.core import Script, Parameter
@@ -10,7 +10,7 @@ import psutil
 #CHANGE ALL RUN TO START
 
 class ESR_And_Push(Script, QThread):
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '', str, 'path for data'),

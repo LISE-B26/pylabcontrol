@@ -1,5 +1,6 @@
 from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread, QReadWriteLock
+# from PySide.QtCore import Signal, QThread, QReadWriteLock
+from PyQt4.QtCore import pyqtSignal, QThread
 import numpy as np
 from src.instruments.NIDAQ import DAQ
 from src.plotting.plots_2d import plot_fluorescence
@@ -13,7 +14,7 @@ class GalvoScan(Script, QThread):
     GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,
     resulting in an image in the current field of view of the objective.
     """
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  '', str, 'path to folder where data is saved'),

@@ -1,5 +1,5 @@
 from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from src.scripts import GalvoScan, SetLaser
 from src.data_processing.fit_functions import fit_gaussian
 import numpy as np
@@ -14,7 +14,7 @@ resulting in an image in the current field of view of the objective.
 Known issues:
     1.) if fits are poor, check  sweep_range. It should extend significantly beyond end of NV on both sides.
     """
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),
@@ -179,7 +179,7 @@ Known issues:
             axes2.set_ylabel('counts [kcounts/s]')
             #fig.subplots_adjust(top=0.85)
 
-        fig.tight_layout()
+        figure.tight_layout()
 
     def get_axes_layout(self, figure):
         figure.clf()
@@ -198,9 +198,10 @@ Known issues:
     #         filename = self.filename('.jpg')
     #     # self.saveFigure.emit(filename)
 
-    if __name__ == '__main__':
-        script, failed, instruments = Script.load_and_append(script_dict={'FindMaxCounts': 'FindMaxCounts'})
+if __name__ == '__main__':
+    print('aa')
+    script, failed, instruments = Script.load_and_append(script_dict={'FindMaxCounts': 'FindMaxCounts'})
 
-        print(script)
-        print(failed)
-        print(instruments)
+    print(script)
+    print(failed)
+    print(instruments)

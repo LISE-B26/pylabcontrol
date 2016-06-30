@@ -139,7 +139,6 @@ class Probe(object):
         updated_probes = {}
         updated_probes.update(probes)
         updated_instruments = {}
-        print(instruments)
         updated_instruments.update(instruments)
 
         # =====  load new instruments =======
@@ -157,7 +156,6 @@ class Probe(object):
                     del probe_dict[failed_instrument]
 
         # =====  now we are sure that all the instruments that we need for the probes already exist
-        print('new_instruments', new_instruments)
 
 
         for instrument_name, probe_names in probe_dict.iteritems():
@@ -183,7 +181,7 @@ class Probe(object):
 if __name__ == '__main__':
     probe_dict = {'DummyInstrument': 'internal,value1'}
     instruments, __ = Instrument.load_and_append({'DummyInstrument': 'DummyInstrument'})
-    print('instrumentsxx', instruments)
+
     probes_obj, failed, instruments = Probe.load_and_append(
         probe_dict=probe_dict,
         probes={},
