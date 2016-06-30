@@ -156,9 +156,10 @@ try:
 except:
     print("./src/scripts/__init__ warning! ESR_And_Push did not load")
 
-try:
-    from pulse_delays import PulseDelays
-except:
-    print("./src/scripts/__init__ warning! PulseDelays did not load")
-
+# try:
+#     from pulse_delays import PulseDelays
+# except:
+#     print("./src/scripts/__init__ warning! PulseDelays did not load")
 from exec_pulse_blaster_sequence import ExecutePulseBlasterSequence
+
+from pulse_delays import PulseDelays

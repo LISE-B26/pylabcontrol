@@ -78,7 +78,7 @@ class TestPulseBlaster(TestCase):
         for i in range(10):
             num_pulses = 12
             pulses = []
-            instrument_choices = ['laser', 'microwave_switch', 'microwave_q', 'microwave_p', 'apd_readout']
+            instrument_choices = ['laser', 'microwave_switch', 'microwave_q', 'microwave_i', 'apd_readout']
             for j in range(num_pulses):
                 new_pulse = Pulse(channel_id=np.random.choice(instrument_choices),
                                        start_time=np.random.randint(0, 2000),

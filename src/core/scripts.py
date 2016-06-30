@@ -295,6 +295,7 @@ class Script(object):
 
         self.start_time  = datetime.datetime.now()
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
+        self._abort = False
         self._plot_refresh = True # flag that requests that plot axes are refreshed when self.plot is called next time
         self._function()
         self.end_time  = datetime.datetime.now()
@@ -304,7 +305,7 @@ class Script(object):
         return success
 
     def stop(self):
-        self._abort == True
+        self._abort = True
 
     def filename(self, appendix = None):
         """
@@ -855,6 +856,7 @@ class Script(object):
                 except Exception, err:
                     print('loading script {:s} failed. Could not load instruments!'.format(script_name))
                     load_failed[script_name] = err
+                    raise
                     break
                 #  ========= create the subscripts that are needed by the script =========
                 try:

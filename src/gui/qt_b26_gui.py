@@ -42,13 +42,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     _DEFAULT_CONFIG = {
-        "tmp_folder": "../../b26_tmp",
-        "data_folder": "../../b26_tmp/data",
-        "probes_folder": "../../b26_files/probes_auto_generated/DummyInstrument.b26",
-        "instrument_folder": "../../b26_files/instruments_auto_generated/DummyInstrument.b26",
-        "scripts_folder": "../../b26_files/scripts_auto_generated/ScriptDummy.b26",
+        "tmp_folder": "C:/b26_tmp",
+        "data_folder": "Z:/Lab/Cantilever/Measurements",
+        "probes_folder": "../../b26_files/probes_auto_generated",
+        "instrument_folder": "../../b26_files/instruments_auto_generated",
+        "scripts_folder": "../../b26_files/scripts_auto_generated",
         "probes_log_folder": "../../b26_tmp",
-        "settings_file": '../../b26_tmp/pythonlab_config.b26'
+        "settings_file": 'C:/b26_tmp/gui_settings.b26'
     }
 
 

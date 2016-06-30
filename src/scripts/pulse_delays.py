@@ -8,7 +8,8 @@ import numpy as np
 
 AVERAGES_PER_SCAN = 1000000  # 1E6
 
-class PulseDelays(Script, QThread):
+
+class PulseDelays(ExecutePulseBlasterSequence):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('save', False, bool, 'Save data?'),
@@ -22,17 +23,6 @@ class PulseDelays(Script, QThread):
         Parameter('num_averages', 1000, int, 'number of times to average for each delay'),
         Parameter('reset_time', 10000, int, 'How long to wait for laser to turn off and reach steady state')
     ])
-
-    _INSTRUMENTS = {}
-
-    _SCRIPTS = {'ExecuteSequence': ExecutePulseBlasterSequence}
-    updateProgress = Signal(int)
-
-    def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
-        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
-                        log_function=log_function, data_path=data_path)
-
-        QThread.__init__(self)
 
     def _create_pulse_sequences(self):
         pulse_sequences = []
@@ -52,5 +42,5 @@ if __name__ == '__main__':
     script, failed, instr = Script.load_and_append({'PulseDelays': 'PulseDelays'}, script, instr)
 
     print(script)
-    print(failed)
+    print('failed', failed)
     print(instr)

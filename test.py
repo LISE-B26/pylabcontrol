@@ -1,7 +1,11 @@
-import itertools
+import numpy as np
 
-a = [1, 2, 3, 4, 5, 6]
+num_daq_reads = 3
+reps = 10
 
-multiple = 6
-for start in range(multiple):
-    print sum(itertools.islice(a, start, None, multiple))
+signal = [0]
+norms = np.repeat([1], (num_daq_reads - 1))
+count_data = np.repeat([np.append(signal, norms)], reps, axis=0)
+print(np.append(signal, norms))
+print(count_data)
+print(count_data[5] + [1, 1, 1])

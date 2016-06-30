@@ -144,4 +144,9 @@ def plot_delay_counts(axis, times, counts):
 
 
 def update_delay_counts(axis, times, counts):
-    axis.lines[0].set_ydata(counts)
+    # axis.lines[0].set_ydata(counts)
+    axis.plot(times, counts)
+    axis.hold(False)
+
+    axis.set_xlabel('time (ns)')
+    axis.set_ylabel('kCounts/sec')
