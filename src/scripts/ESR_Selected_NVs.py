@@ -1,5 +1,6 @@
 import numpy as np
-from PySide.QtCore import Signal, QThread
+# from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from matplotlib import patches
 
 from src.core import Script, Parameter
@@ -11,7 +12,7 @@ import os
 
 
 class ESR_Selected_NVs(Script, QThread):
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '', str, 'path for data'),
@@ -25,8 +26,6 @@ class ESR_Selected_NVs(Script, QThread):
                 'select_NVs': Select_NVs_Simple,
                 'acquire_image': GalvoScanWithLightControl,
                 'move_to_point': SetLaser}
-
-    #updateProgress = Signal(int)
 
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect

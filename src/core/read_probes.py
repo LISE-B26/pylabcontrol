@@ -1,6 +1,6 @@
 # from src.core import Script
-from PySide.QtCore import Signal, QThread
-
+# from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 class ReadProbes(QThread):
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
@@ -9,7 +9,7 @@ class ReadProbes(QThread):
 
     _DEFAULT_SETTINGS = None
 
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     def __init__(self, probes, refresh_interval = 2.0 ):
         """
@@ -45,7 +45,7 @@ class ReadProbes(QThread):
 
             self.updateProgress.emit(1)
 
-            self.msleep(1e3*self.refresh_interval)
+            self.msleep(int(1e3*self.refresh_interval))
 
     def start(self, *args, **kwargs):
         self._stop = False

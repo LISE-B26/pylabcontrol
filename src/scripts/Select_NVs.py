@@ -1,7 +1,8 @@
 import numpy as np
 import scipy.spatial
 import time
-from PySide.QtCore import Signal, QThread
+# from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from matplotlib import patches
 
 from src.core import Script, Parameter
@@ -101,7 +102,7 @@ from src.scripts import Find_Points
 
 
 class Select_NVs_Simple(Script, QThread):
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter('patch_size', 0.003)
 

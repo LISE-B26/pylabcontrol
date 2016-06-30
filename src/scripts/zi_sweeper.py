@@ -1,5 +1,5 @@
 import numpy as np
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from collections import deque
 
 from src.core import Script, Parameter
@@ -7,7 +7,7 @@ from src.plotting import plotting
 
 
 class ZISweeper(Script, QThread):
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  '', str, 'path to folder where data is saved'),

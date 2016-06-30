@@ -1,5 +1,5 @@
 from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 #from src.instruments import SpectrumAnalyzer, MicrowaveGenerator, CryoStation
 from collections import deque
 import time

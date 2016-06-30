@@ -1,5 +1,5 @@
 from src.core.scripts import Script
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from src.core import Parameter
 from src.instruments import NI7845RReadWrite
 import time
@@ -11,7 +11,7 @@ class FPGA_PolarizationController(Script, QThread):
     """
 script to balance photodetector to zero by adjusting polarization controller voltages
     """
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
@@ -142,7 +142,7 @@ the script scans the voltage of all three channels from 0 to 5 volt and records 
 this gives a three dimensional dataset
     """
 
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
@@ -414,7 +414,7 @@ the script scans the voltage of  channel 2 from 0 to 5 volt and records the dete
 this gives a one dimensional dataset
     """
 
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
@@ -565,7 +565,7 @@ class FPGA_BalancePolarization(Script, QThread):
     two channels are set to a fixed voltage while the signal of the third channel is varied until the detector response is zero
     """
 
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),

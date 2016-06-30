@@ -1,6 +1,6 @@
 import numpy as np
 import time
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from collections import deque
 from copy import deepcopy
 
@@ -10,7 +10,7 @@ from src.scripts import ZISweeper
 
 
 class ZISweeperHighResolution(Script, QThread):
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  '', str, 'path to folder where data is saved'),

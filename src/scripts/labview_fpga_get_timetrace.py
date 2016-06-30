@@ -1,5 +1,5 @@
 from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from collections import deque
 import numpy as np
 from src.instruments import NI7845RReadFifo
@@ -8,7 +8,7 @@ from copy import deepcopy
 from src.labview_fpga_lib.labview_fpga_error_codes import LabviewFPGAException
 
 class LabviewFpgaTimetrace(Script, QThread):
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),

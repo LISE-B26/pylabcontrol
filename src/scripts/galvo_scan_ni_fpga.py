@@ -1,6 +1,6 @@
 from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread
-# from PyQt4.QtCore import SIGNAL, QThread
+# from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 import numpy as np
 from collections import deque
 from src.instruments.labview_fpga import NI7845RGalvoScan
@@ -19,7 +19,7 @@ class GalvoScanNIFpga(Script, QThread):
     GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,
     resulting in an image in the current field of view of the objective.
     """
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),

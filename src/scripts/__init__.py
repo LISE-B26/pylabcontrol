@@ -1,15 +1,17 @@
 from script_dummy import ScriptDummyPlotMemoryTest, ScriptDummy, ScriptDummyWithInstrument, ScriptDummyWithQtSignal, ScriptDummyWithSubScript, ScriptDummyWithNestedSubScript
-try:
-    from script_dummy import ScriptDummyWithInstrument
-except:
-    print("./src/scripts/__init__ warning! ScriptDummyWithInstrument did not load")
 
-from script_dummy import  ScriptDummy, ScriptDummyWithQtSignal, ScriptDummyPlotting
+# try:
+#     from script_dummy import ScriptDummyWithInstrument
+# except:
+#     print("./src/scripts/__init__ warning! ScriptDummyWithInstrument did not load")
+
+# from script_dummy import  ScriptDummy, ScriptDummyWithQtSignal, ScriptDummyPlotting
 
 # try:
 #     from galvo_scan import GalvoScan
 # except:
 #     print("./src/scripts/__init__ warning! GalvoScan did not load")
+
 from galvo_scan import GalvoScan
 
 try:

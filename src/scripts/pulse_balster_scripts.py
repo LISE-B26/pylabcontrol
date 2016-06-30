@@ -1,5 +1,5 @@
 from src.core import Parameter, Script
-from PySide.QtCore import QThread, Signal
+from PyQt4.QtCore import pyqtSignal, QThread
 from src.instruments import DAQ
 from src.instruments import B26PulseBlaster
 
@@ -20,7 +20,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
     _SCRIPTS = {}
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
 
@@ -52,7 +52,7 @@ After that it again runs a the Rabi script with the optimized microwave power to
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
     _SCRIPTS = {'rabi':Rabi}
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
@@ -85,7 +85,7 @@ It applies a pi-pulse and measured the fluorescence counts after for a varying t
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
     _SCRIPTS = {}
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
@@ -117,7 +117,7 @@ This script runs a CPMG pulse sequence.
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
     _SCRIPTS = {}
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
@@ -153,7 +153,7 @@ This script runs a Hahn-echo sequence for different number of pi pulse. Without 
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
     _SCRIPTS = {}
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):

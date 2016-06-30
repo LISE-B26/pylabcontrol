@@ -3,7 +3,8 @@ from src.core import Parameter
 from src.instruments import DAQ, B26PulseBlaster, Pulse
 from collections import deque
 
-from PySide.QtCore import Signal, QThread
+# from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from src.plotting.plots_1d import plot_delay_counts, plot_pulses, update_pulse_plot
 import numpy as np
 
@@ -27,7 +28,7 @@ class PulseDelays(Script, QThread):
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
     _SCRIPTS = {}
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         """

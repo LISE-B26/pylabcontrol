@@ -1,5 +1,5 @@
 from src.core import Script, Parameter
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from src.scripts import GalvoScanWithLightControl
 from copy import deepcopy
 from src.plotting.plots_2d import plot_fluorescence
@@ -10,7 +10,7 @@ Select two regions of interest (RoI) and the light mode for each (fluorescence o
 Takes an image based on GalvoScanWithLightControl script which takes image based in GalvoScan script and controls light with MaestroLightControl instrument
     """
 
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '\\tmp_data', str, 'path to folder where data is saved'),

@@ -3,7 +3,8 @@ from src.core import Parameter
 from src.instruments import DAQ
 from collections import deque
 
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
+
 from src.plotting.plots_1d import plot_counts
 
 
@@ -18,7 +19,7 @@ class Daq_Read_Cntr(Script, QThread):
     _SCRIPTS = {
 
     }
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         """

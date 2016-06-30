@@ -3,7 +3,7 @@ from src.core.scripts import Script
 # import standard libraries
 import numpy as np
 import scipy.optimize as opt
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from src.core import Parameter
 from src.instruments import MicrowaveGenerator, DAQ
 from collections import deque
@@ -32,7 +32,7 @@ class StanfordResearch_ESR(Script, QThread):
     }
 
     _SCRIPTS = {}
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     def __init__(self, instruments, scripts = None, name=None, settings=None, log_function=None, data_path = None):
         """

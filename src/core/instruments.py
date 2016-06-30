@@ -220,7 +220,6 @@ class Instrument(object):
         if instruments is None:
             instruments = {}
 
-        print instruments
         updated_instruments = {}
         updated_instruments.update(instruments)
         loaded_failed = []
@@ -258,16 +257,14 @@ class Instrument(object):
                     # this returns the name of the module that was imported.
                     class_of_instrument = getattr(module, instrument_class_name)
                     if instrument_settings is None:
-                        # print('FF -- mss')
                         # this creates an instance of the class with default settings
                         instrument_instance = class_of_instrument(name=instrument_name)
                     else:
-                        # print('FF -- m', class_of_instrument, instrument_name, instrument_settings)
                         # this creates an instance of the class with custom settings
                         instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
 
                 except AttributeError as e:
-                    print(e.message)
+                    print('XX', e.message)
                 except Exception as e2:
                     # raise e2
                     pass

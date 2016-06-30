@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from copy import deepcopy
 from matplotlib import patches
 
@@ -15,7 +15,7 @@ class ESR_Selected_NVs_Simple(Script, QThread):
 script that allows to select several NVs and run ESR on the selected points.
 To select points, first run subscript Select_NVs_Simple
     """
-    updateProgress = Signal(int)
+    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '', str, 'path for data'),

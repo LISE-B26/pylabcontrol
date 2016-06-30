@@ -64,7 +64,7 @@ def export_default_scripts(path):
     import inspect
 
     scripts_to_load = {name:name for name, obj in inspect.getmembers(scripts) if inspect.isclass(obj)}
-
+    print('attempt to load {:d} scripts: '.format(len(scripts_to_load)))
     loaded_scripts, failed, loaded_instruments = Script.load_and_append(scripts_to_load)
 
     for name, value in loaded_scripts.iteritems():

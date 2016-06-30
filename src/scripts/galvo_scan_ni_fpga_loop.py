@@ -1,5 +1,6 @@
 from src.core import Parameter, Script
-from PySide.QtCore import Signal, QThread
+# from PySide.QtCore import Signal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread
 from src.scripts import GalvoScanNIFpga
 import numpy as np
 import scipy as sp
@@ -30,7 +31,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
-    updateProgress = Signal(float)
+    updateProgress = pyqtSignal(float)
 
     def __init__(self, scripts, instruments = None, name = None, settings = None, log_function = None, data_path = None):
         """
