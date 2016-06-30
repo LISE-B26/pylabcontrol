@@ -104,7 +104,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_start_script.clicked.connect(self.btn_clicked)
             self.btn_stop_script.clicked.connect(self.btn_clicked)
             self.btn_plot_script.clicked.connect(self.btn_clicked)
-            self.btn_plot_probe.clicked.connect(self.btn_clicked)
+            # self.btn_plot_probe.clicked.connect(self.btn_clicked)
             self.btn_store_script_data.clicked.connect(self.btn_clicked)
             self.btn_plot_data.clicked.connect(self.btn_clicked)
             self.btn_save_data.clicked.connect(self.btn_clicked)
@@ -141,6 +141,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # plots
             self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_1_clicked)
             self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_2_clicked)
+
+
+            # set the log_filename when checking loggin
+            self.chk_probe_log.toggled.connect(lambda: self.set_probe_file_name(self.chk_probe_log.isChecked()))
+            self.chk_probe_plot.toggled.connect(self.btn_clicked)
+
 
         self.create_figures()
         self.tree_scripts.setColumnWidth(0, 250)
@@ -189,6 +195,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
         event.accept()
+
+
+    def set_probe_file_name(self, checked):
+        if checked:
+            file_name = os.path.join(self.gui_settings['probes_log_folder'], '{:s}_probes.csv'.format(datetime.datetime.now().strftime('%y%m%d-%H_%M_%S')))
+            print(file_name)
+            if os.path.isfile(file_name) == False:
+                self.probe_file = open(file_name, 'a')
+                new_values = self.read_probes.probes_values
+                header = ','.join(list(np.array([['{:s} ({:s})'.format(p, instr) for p in p_dict.keys()] for instr, p_dict in new_values.iteritems()]).flatten()))
+                self.probe_file.write('{:s}\n'.format(header))
+        else:
+            self.probe_file.close()
 
     def test(self):
         """
@@ -543,12 +562,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             save_data()
         elif sender is self.btn_delete_data:
             delete_data()
-        elif sender is self.btn_plot_probe:
-            item = self.tree_probes.currentItem()
-            if item is not None:
-                self.probe_to_plot = self.probes[item.name]
+        # elif sender is self.btn_plot_probe:
+        elif sender is self.chk_probe_plot:
+            if self.chk_probe_plot.isChecked():
+                item = self.tree_probes.currentItem()
+                if item is not None:
+                    if item.name in self.probes:
+                        #selected item is an instrument not a probe, maybe plot all the probes...
+                        self.log('Can\'t plot, No probe selected. Select probe and try again!')
+                    else:
+                        instrument = item.parent().name
+                        self.probe_to_plot = self.probes[instrument][item.name]
+                else:
+                    self.log('Can\'t plot, No probe selected. Select probe and try again!')
             else:
-                self.log('Can\'t plot, No probe selected. Select probe and try again!')
+                self.probe_to_plot = None
         elif sender is self.btn_save_gui:
             # get filename
             fname = QtGui.QFileDialog.getSaveFileName(self, 'Save gui settings to file', self.gui_settings['data_folder']) # filter = '.b26gui'
@@ -727,24 +755,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     child = topLvlItem.child(child_id)
                     child.value = new_values[topLvlItem.name][child.name]
                     child.setText(1, unicode(child.value))
+
         if self.probe_to_plot is not None:
             self.probe_to_plot.plot(self.matplotlibwidget_1.axes)
             self.matplotlibwidget_1.draw()
 
 
         if self.chk_probe_log.isChecked():
-            self.log("probelogging not implemented!!")
-            file_name  = os.path.join(self.gui_settings['probes_folder'], '{:s}_probes.csv'.format(datetime.datetime.now().strftime('%y%m%d-%H_%M_%S')))
-            if os.path.isfile(file_name) == False:
-                outfile = open(file_name, 'w')
-                # outfile.write("{:s}\n".format(",".join(new_values.keys())))
-                header = ','.join(list(np.array([['{:s} ({:s})'.format(p, instr) for p in p_dict.keys()] for instr, p_dict in new_values.iteritems()]).flatten()))
-                outfile.write(header)
-            else:
-                outfile = open(file_name, 'a')
             data = ','.join(list(np.array([[str(p) for p in p_dict.values()] for instr, p_dict in new_values.iteritems()]).flatten()))
-            # outfile.write("{:s}\n".format(",".join(map(str, new_values.values()))))
-            outfile.write(data)
+            self.probe_file.write('{:s}\n'.format(data))
+
     def update_script_from_item(self, item):
         """
         updates the script based on the information provided in item
@@ -837,11 +857,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 item_value.setEditable(True)
                 item_value.setSelectable(True)
                 tree.model().appendRow([item, item_value])
-
-
-            # if tree == self.tree_loaded:
-            #     item.setEditable(False)
-            # tree.setFirstColumnSpanned(index, tree.rootIndex(), True)
 
     def edit_tree_item(self):
 

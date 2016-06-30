@@ -59,6 +59,7 @@ class Probe(object):
 
     def plot(self, axes):
         axes.plot(self.buffer)
+        axes.hold(False)
 
     def to_dict(self):
         """
