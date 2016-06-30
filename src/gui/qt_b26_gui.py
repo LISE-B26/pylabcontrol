@@ -39,6 +39,19 @@ except (ImportError, IOError):
 
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
+
+
+    _DEFAULT_CONFIG = {
+        "tmp_folder": "../../b26_tmp",
+        "data_folder": "../../b26_tmp/data",
+        "probes_folder": "../../b26_files/probes_auto_generated/DummyInstrument.b26",
+        "instrument_folder": "../../b26_files/instruments_auto_generated/DummyInstrument.b26",
+        "scripts_folder": "../../b26_files/scripts_auto_generated/ScriptDummy.b26",
+        "probes_log_folder": "../../b26_tmp",
+        "settings_file": '../../b26_tmp/pythonlab_config.b26'
+    }
+
+
     def __init__(self, filename = None):
         """
         ControlMainWindow(intruments, scripts, probes)
@@ -162,13 +175,32 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         connect_controls()
         if os.path.exists(filename) == False:
-            filename = str(QtGui.QFileDialog.getOpenFileName(self, 'Unvalid Config File. Select Config.'))
+            dialog_dir = ''
+            for x in ['HOME', 'HOMEPATH']:
+                if x in os.environ:
+                    dialog_dir = os.environ[x]
+            # we use the save dialog here so that we can also create a new file (the default config)
+            # however, as a consequence if the user selects a file that already exists, such as a valid config file
+            # the dialog asks if the file should be over-written (I guess that is ok, because this is what happens
+            # when you close the gui)
+            filename = str(QtGui.QFileDialog.getSaveFileName(self, 'Unvalid Config File. Select Config.',
+                                                             dialog_dir,'b26 files (*.b26)'))
+            # started to work on custom dialog, but this is not finished yet
+            # keep the code for now:
 
-            if not filename:
-                raise Exception
+            # === begin custom dialog ====
+            # dialog = QtGui.QFileDialog(self)
+            # dialog.setNameFilter('b26 files (*.b26)')
+            # dialog.setFileMode(QtGui.QFileDialog.AnyFile)
+            # dialog.setDirectory(dialog_dir)
+            # dialog.setWindowTitle('Unvalid Config File. Select Config.')
+            # dialog.setParent(self)
+            # filename = str(dialog.open())
+            # print(filename)
+            # === end custom dialog ====
 
-            print('config', filename)
-
+            # if not filename:
+            #     raise ValueError('No config file was provided. abort loading gui...')
             self.instruments = {}
             self.scripts = {}
             self.probes = {}
@@ -176,7 +208,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.config_filename = filename
 
-        self.load_config(self.config_filename)
+        if not self.validate_config(self.config_filename):
+            self.gui_settings = self._DEFAULT_CONFIG
+            self.refresh_tree(self.tree_gui_settings, self.gui_settings)
+        else:
+            self.load_config(self.config_filename)
         self.load_settings(os.path.join(self.gui_settings['tmp_folder'], 'gui_settings.b26'))
 
 
@@ -918,6 +954,31 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             item_type.setEditable(False)
 
             tree.model().appendRow([item_time, item_name, item_type])
+
+    def validate_config(self, file_name):
+        """
+        checks if the file is a valid config file
+        Args:
+            file_name:
+
+        Returns:
+
+        """
+        valid = True
+
+        try:
+            config = load_b26_file(file_name)['gui_settings']
+            print(config)
+            for x in self._DEFAULT_CONFIG.keys():
+                if x in config:
+                    if not os.path.exists(config[x]):
+                        valid = False
+                else:
+                    valid = False
+        except Exception:
+            valid = False
+        return valid
+
 
 
     def load_config(self, file_name):
