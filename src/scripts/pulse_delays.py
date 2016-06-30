@@ -7,6 +7,7 @@ from PySide.QtCore import Signal, QThread
 from src.plotting.plots_1d import plot_delay_counts, plot_pulses, update_pulse_plot
 import numpy as np
 
+AVERAGES_PER_SCAN = 1000000  # 1E6
 
 class PulseDelays(Script, QThread):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
@@ -50,14 +51,11 @@ class PulseDelays(Script, QThread):
 
         gate_delays = range(self.settings['min_delay'], self.settings['max_delay'], self.settings['delay_interval_step_size'])
 
-        self.data = {'counts': [], 'delays': gate_delays}
+        self.data = {'counts': np.zeros(len(gate_delays)), 'delays': gate_delays}
 
         reset_time = self.settings['reset_time']
 
-        total_time = self.settings['measurement_gate_pulse_width'] * self.settings['num_averages']
-        normalization = 10E6 / total_time
-
-        (num_1E6_avg_pb_programs, remainder) = divmod(self.settings['num_averages'], 1E6)
+        (num_1E6_avg_pb_programs, remainder) = divmod(self.settings['num_averages'], AVERAGES_PER_SCAN)
 
         delay_data = np.zeros(len(gate_delays))
 
@@ -86,7 +84,6 @@ class PulseDelays(Script, QThread):
                                            self.settings['measurement_gate_pulse_width'])
                                      ]
             # self.updateProgress.emit(int(99 * (index + 1.0) / len(gate_delays)))
-            self.updateProgress.emit(50)
             return result
 
         for average_loop in range(int(num_1E6_avg_pb_programs)):
@@ -94,16 +91,26 @@ class PulseDelays(Script, QThread):
             if self._abort:
                 break
 
-            for index, delay in enumerate(gate_delays):
-                delay_data[index] = delay_data[index] + (test_single_delay(1E6, delay))
-                self.data['counts'] = delay_data
+            total_time = self.settings['measurement_gate_pulse_width'] * AVERAGES_PER_SCAN * (average_loop + 1)
+            normalization = 1E6 / total_time
 
+            for index, delay in enumerate(gate_delays):
+                if self._abort:
+                    break
+                delay_data[index] = delay_data[index] + (test_single_delay(AVERAGES_PER_SCAN, delay))
+                self.data['counts'][index] = delay_data[index] * normalization
+                self.updateProgress.emit(int(99 * (index + 1.0) / len(gate_delays) / num_1E6_avg_pb_programs + (
+                99 * (average_loop / num_1E6_avg_pb_programs))))
+
+        total_time = self.settings['measurement_gate_pulse_width'] * self.settings['num_averages']
+        normalization = 1E6 / total_time
         if remainder != 0:
             for index, delay in enumerate(gate_delays):
+                if self._abort:
+                    break
                 delay_data[index] = delay_data[index] + test_single_delay(remainder, delay)
-                self.data['counts'] = delay_data
-
-        self.updateProgress.emit(50)
+                self.data['counts'][index] = delay_data[index] * normalization
+                self.updateProgress.emit(99)
 
         if self.settings['save']:
             self.save_b26()
