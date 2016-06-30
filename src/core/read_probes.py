@@ -11,9 +11,9 @@ class ReadProbes(QThread):
 
     updateProgress = Signal(int)
 
-    def __init__(self, probes, refresh_interval = 0.5):
+    def __init__(self, probes, refresh_interval = 2.0 ):
         """
-        probes: dictionary of probes where keys are names and values are Probe objects
+        probes: dictionary of probes where keys are instrument names and values are dictonaries where key is probe name and value is Probe objects
         refresh_interval: time between reads in s
         """
         assert isinstance(probes, dict)
@@ -28,18 +28,33 @@ class ReadProbes(QThread):
 
 
     def run(self):
-        self._running = True
-        while self._running:
+        if self.probes is None:
+            # print('no probes, stop thread')
+            self._stop = True
+        while True:
 
-            self.probes_values = {key: probe.value for key, probe in self.probes.iteritems()}
+            if self._stop:
+                break
+
+            self.probes_values = {
+                instrument_name:
+                    {probe_name: probe_instance.value for probe_name, probe_instance in probe.iteritems()}
+                for instrument_name, probe in self.probes.iteritems()
+                }
+            # print('still running self.probes_values', self.probes_values)
 
             self.updateProgress.emit(1)
 
-            self.sleep(self.refresh_interval)
+            self.msleep(1e3*self.refresh_interval)
+
+    def start(self, *args, **kwargs):
+        self._stop = False
+        super(ReadProbes, self).start(*args, **kwargs)
 
 
-    def stop(self):
-        self._running == False
+    def quit(self, *args, **kwargs):  # real signature unknown
+        self._stop = True
+        super(ReadProbes, self).quit(*args, **kwargs)
 
 if __name__ == '__main__':
 
