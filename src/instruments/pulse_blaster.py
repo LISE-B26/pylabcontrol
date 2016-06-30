@@ -204,7 +204,8 @@ class PulseBlaster(Instrument):
         pb_command_dict = {}
         for pulse in pulses:
             pulse_channel = self._get_channel(pulse.channel_id)
-            pb_command_dict.setdefault(pulse.start_time, []).append(1 << pulse_channel)
+            pb_command_dict.setdefault(pulse.start_time, []).append(
+                1 << pulse_channel)  # bitshifts by channel number to create array of 1 (0) for each channel on (off)
             pulse_end_time = pulse.start_time + pulse.duration
             pb_command_dict.setdefault(pulse_end_time, []).append(1 << pulse_channel)
 
@@ -217,7 +218,7 @@ class PulseBlaster(Instrument):
         pb_command_list = []
         for instruction_time, bit_strings in pb_command_dict.iteritems():
             channel_bits = np.bitwise_xor.reduce(bit_strings)
-            if channel_bits != 0:
+            if channel_bits != 0 or instruction_time == 0:
                 pb_command_list.append(self.PBStateChange(channel_bits, instruction_time))
 
         # sort the list by the time a command needs to be placed
@@ -417,7 +418,7 @@ class PulseBlaster(Instrument):
 
         for command in pb_commands:
             if command.duration < 15:
-                warnings.warn("Detected command with duration <15ns. PB will likely roung up to 15ns.", RuntimeWarning)
+                raise RuntimeError("Detected command with duration <15ns.")
 
         # begin programming the pulseblaster
         assert self.pb.pb_init() == 0, 'Could not initialize the pulseblsater on pb_init() command.'

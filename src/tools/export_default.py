@@ -79,6 +79,6 @@ def export_default_scripts(path):
 
 if __name__ == '__main__':
     # export_default_instruments('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments_auto_generated\\')
-    # export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_auto_generated\\')
+    export_default_scripts('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts_auto_generated\\')
 
-    export_default_probes('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\probes_auto_generated\\')
+    # export_default_probes('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\probes_auto_generated\\')
