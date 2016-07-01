@@ -1,12 +1,11 @@
 from src.core import Parameter, Script
 from PyQt4.QtCore import pyqtSignal, QThread
-from src.instruments import DAQ
-from src.instruments import B26PulseBlaster, Pulse
-import numpy as np
+from src.instruments import DAQ, B26PulseBlaster, MicrowaveGenerator, Pulse
+from src.scripts import ExecutePulseBlasterSequence
 
 
 # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
-class Rabi(Script, QThread):
+class Rabi(ExecutePulseBlasterSequence):
     """
 This script applies a microwave pulse at fixed power for varying durations to measure Rabi Oscillations
     """
@@ -15,74 +14,46 @@ This script applies a microwave pulse at fixed power for varying durations to me
         Parameter('time_step', 5, [5, 10, 20, 50, 100], 'time step increment of rabi pulse duration (in ns)'),
         Parameter('time', 200, float, 'total time of rabi oscillations (in ns)'),
         Parameter('meas_time', 300, float, 'measurement time after rabi sequence (in ns)'),
-        Parameter('number_avrgs', 1000000, int, 'number of averages (should be less than a million)'),
+        Parameter('num_averages', 1000000, int, 'number of averages'),
         Parameter('reset_time', 1000000, int, 'time with laser on at the beginning to reset state')
     ])
 
-    _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
+    _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster, 'mw_gen': MicrowaveGenerator}
 
     _SCRIPTS = {}
     updateProgress = pyqtSignal(int)
 
-    def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
-
-        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
-                        log_function=log_function, data_path=data_path)
-        QThread.__init__(self)
-        
     def _function(self):
-        # First point cannot be earlier than 15 ns
-        gate_delays = range(max(self.settings['time_step'], 15), self.settings['time'], self.settings['time_step'])
+        self.instruments['mw_gen']['instance'].update({'amplitude': self.settings['mw_power']})
+        self.instruments['mw_gen']['instance'].update[{'modulation_type': 'IQ'}]
+        super(Rabi, self)._function()
 
-        self.data = {'delays': gate_delays, 'counts': np.zeros(len(gate_delays))}
+    def _create_pulse_sequences(self):
+        '''
 
-        def test_single_delay(num_loops, delay):
-            reset_time = self.settings['reset_time']
-            self.pulse_collection = [Pulse('laser', 0, reset_time),
-                                     Pulse('microwave_i', reset_time, delay),
-                                     Pulse('laser', delay + reset_time, self.settings['meas_time'] * 2),
-                                     Pulse('apd_readout', delay + reset_time, self.settings['meas_time'])]
-
-            self.instruments['daq']['instance'].gated_DI_init('ctr0', int(num_loops))
-
-            self.instruments['PB']['instance'].program_pb(self.pulse_collection,
-                                                          num_loops=num_loops)
-            self.instruments['daq']['instance'].gated_DI_run()
-            self.instruments['PB']['instance'].start_pulse_seq()
-            result_array, _ = self.instruments['daq']['instance'].gated_DI_read(
-                timeout=5)  # thread waits on DAQ getting the right number of gates
-            # for i in range(0,99):
-            #     print(result_array[i])
-            # clean up APD tasks
-            result = np.sum(result_array)
-            self.instruments['daq']['instance'].gated_DI_stop()
-            return result
-
-        delay_data = np.zeros(len(gate_delays))
-
-        for index, delay in enumerate(gate_delays):
-            if self._abort:
-                break
-            delay_data[index] = delay_data[index] + test_single_delay(self.settings['numer_avrgs'], delay)
-            self.data['counts'][index] = delay_data[index]
-            self.updateProgress.emit(50)
-
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
-            self.save_image_to_disk()
-
-        # send 100 to signal that script is finished
-        self.updateProgress.emit(100)
+        Returns: pulse_sequences, num_averages, tau_list
+            pulse_sequences: a list of pulse sequences, each corresponding to a different time 'tau' that is to be
+            scanned over. Each pulse sequence is a list of pulse objects containing the desired pulses. Each pulse
+            sequence must have the same number of daq read pulses
+            num_averages: the number of times to repeat each pulse sequence
+            tau_list: the list of times tau, with each value corresponding to a pulse sequence in pulse_sequences
 
 
+        '''
+        pulse_sequences = []
+        tau_list = range(max(15, self.settings['time_step']), self.settings['time'], self.settings['time_step'])
+        reset_time = self.settings['reset_time']
+        for tau in tau_list:
+            pulse_sequences.append([Pulse('laser', 0, reset_time),
+                                    Pulse('microwave_i', reset_time, tau),
+                                    Pulse('laser', reset_time+tau, self.settings['meas_time']),
+                                    Pulse('apd_readout', reset_time+tau, self.settings['meas_time'])
+                                    ])
+        return pulse_sequences, self.settings['num_averages'], tau_list
 
-    def _plot(self, axes_list, axes_colorbar=None):
-        pass
-    def get_axes_layout(self, figure_list):
-        pass
+
 # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
+
 class OptimizeRabi(Script, QThread):
     """
 This script runs a Rabi script, fits the result to a sin wave to retrieve the Rabi oscillation frequency.
@@ -220,3 +191,12 @@ This script runs a Hahn-echo sequence for different number of pi pulse. Without 
 
     def get_axes_layout(self, figure_list):
         pass
+
+if __name__ == '__main__':
+    script = {}
+    instr = {}
+    script, failed, instr = Script.load_and_append({'Rabi': 'Rabi'}, script, instr)
+
+    print(script)
+    print('failed', failed)
+    print(instr)
