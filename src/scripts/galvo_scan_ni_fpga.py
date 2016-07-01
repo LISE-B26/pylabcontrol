@@ -13,13 +13,12 @@ import datetime
 
 
 
-class GalvoScanNIFpga(Script, QThread):
+class GalvoScanNIFpga(Script):
 # class GalvoScanNIFpga(Script):
     """
     GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,
     resulting in an image in the current field of view of the objective.
     """
-    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),
@@ -38,8 +37,6 @@ class GalvoScanNIFpga(Script, QThread):
 
         Script.__init__(self, name, settings=settings, instruments=instruments, log_function=log_function, data_path = data_path)
 
-        QThread.__init__(self)
-
         self._plot_type = 'main'
 
         self.queue = Queue.Queue()
@@ -53,7 +50,6 @@ class GalvoScanNIFpga(Script, QThread):
 
         instr = self.instruments['NI7845RGalvoScan']['instance']
         instr_settings = deepcopy(self.instruments['NI7845RGalvoScan']['settings'])
-        print(instr_settings)
         del instr_settings['piezo'] # don't update piezo to avoid spikes (assume this value is 0 but the scan starts at 50V, then this would give a huge step which is not necessary)
 
         def init_scan():
@@ -99,6 +95,7 @@ class GalvoScanNIFpga(Script, QThread):
             if progress ==100:
                 progress = 99
             return progress
+
         Nx, Ny = init_scan()
 
         instr.start_acquire()
@@ -113,12 +110,12 @@ class GalvoScanNIFpga(Script, QThread):
             if self._abort:
                 instr.abort_acquire()
                 break
-            # print('acquiring line {:02d}/{:02d}'.format(i, Ny))
+            print('acquiring line {:02d}/{:02d}'.format(i, Ny))
             elem_written = instr.elements_written_to_dma
-            # print('elem_written ', elem_written)
+
             if elem_written >= Nx:
                 line_data = instr.read_fifo(Nx)
-
+                print('elem_written ', elem_written, line_data['signal'])
                 self.data['image_data'][i] = deepcopy(line_data['signal'])/1e3
 
                 # set the remaining values to the mean so that we get a good contrast while plotting
@@ -151,8 +148,6 @@ class GalvoScanNIFpga(Script, QThread):
             self.save_log()
             self.save_image_to_disk()
 
-        self.updateProgress.emit(100)
-
     @staticmethod
     def pts_to_extent(pta, ptb, roi_mode):
         """
@@ -179,9 +174,23 @@ class GalvoScanNIFpga(Script, QThread):
             yVmax = pta['y'] + float(ptb['y']) / 2.
         return [xVmin, xVmax, yVmax, yVmin]
 
-    def plot(self, image_figure, axes_colorbar = None):
-        axes_image = self.get_axes_layout(image_figure)
-        plot_fluorescence(self.data['image_data'], self.data['extent'], axes_image, max_counts = self.settings['max_counts_plot'], axes_colorbar=axes_colorbar)
+
+    def _plot(self, axes_list, axes_colorbar=None):
+        '''
+        Plots the galvo scan image to the input figure, clearing the figure and creating new axes if necessary
+        Args:
+            image_figure: figure to plot onto
+            axes_colorbar: axes with a colorbar to overwrite with the new colorbar
+
+        '''
+        # if 'image_data' in self.data.keys() and not self.data['image_data'] == []:
+        self.implot, self.cbar = plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
+                                                   max_counts=self.settings['max_counts_plot'],
+                                                   axes_colorbar=axes_colorbar)
+
+    def _update_plot(self, axes_list):
+        plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
+                          max_counts=self.settings['max_counts_plot'], implot=self.implot, cbar=self.cbar)
 
     def stop(self):
         self._abort = True

@@ -3,7 +3,7 @@ Basic gui class designed with QT designer
 """
 from PyQt4 import QtGui, QtCore
 from PyQt4.uic import loadUiType
-from src.core import Parameter, Instrument, Script, ReadProbes, QThreadWrapper, Probe
+from src.core import Parameter, Instrument, Script, ReadProbes, Probe
 from src.gui import B26QTreeItem
 import os.path
 import numpy as np
@@ -763,10 +763,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         #     script = script.script
         self.plot_script(script)
 
-        # if progress == 100:
-            # self.refresh_tree(self.tree_scripts, self.scripts)
-            # self.btn_start_script.setEnabled(True)
-            # self.current_script.updateProgress.disconnect(self.update_status)
 
     @pyqtSlot()
     def script_finished(self):
@@ -777,6 +773,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         script.finished.disconnect()
 
         self.current_script = None
+
+        self.plot_script(script)
+        self.progressBar.setValue(100)
 
     def update_probes(self, progress):
         """

@@ -1,5 +1,4 @@
 from src.core import Parameter, Script
-from PyQt4.QtCore import pyqtSignal, QThread
 from src.instruments import PiezoController
 from src.scripts import GalvoScanWithLightControl
 from src.plotting import plot_fluorescence
@@ -9,7 +8,7 @@ import os
 import time
 
 
-class AutoFocus(Script, QThread):
+class AutoFocus(Script):
     """
 Autofocus: Takes images at different piezo voltages and uses a heuristic to figure out the point at which the objective
             is focused.
@@ -38,11 +37,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         'take_image': GalvoScanWithLightControl
     }
 
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = pyqtSignal(int)
-
     def __init__(self, instruments, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
@@ -52,9 +46,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         """
         Script.__init__(self, name, settings, instruments, scripts, log_function= log_function, data_path = data_path)
         # QtCore.QThread.__init__(self)
-        QThread.__init__(self)
-
-        self._plot_type = 'two'
 
         self.scripts['take_image'].scripts['acquire_image'].settings['num_points'].update({'x': 30, 'y': 30})
 
@@ -105,10 +96,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
                 self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
 
-        # update progress bar to show fit, reset _abort if it was triggered
-        self.updateProgress.emit(100.0)
-
-        self._abort = False
 
     def _plot(self, axes_list):
         axis1 = axes_list[0]
@@ -198,8 +185,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             time.sleep(self.settings['wait_time'])
 
             # take a galvo scan
-            self.scripts['take_image'].start()
-            self.scripts['take_image'].wait()
+            self.scripts['take_image'].run()
             self.current_image = self.scripts['take_image'].data['image_data']
             self.extent = self.scripts['take_image'].data['extent']
             # self.log('Took image.')

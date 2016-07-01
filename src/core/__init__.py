@@ -10,7 +10,7 @@
 from instruments import Instrument
 from parameter import Parameter
 from probe import Probe
-from scripts import Script, QThreadWrapper
+from scripts import Script
 
 try:
     from read_probes import ReadProbes

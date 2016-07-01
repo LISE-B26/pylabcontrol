@@ -11,7 +11,7 @@ import pandas as pd
 import glob
 import json as json
 
-from PyQt4.QtCore import pyqtSignal, QThread, QObject
+from PyQt4.QtCore import pyqtSignal, QObject, pyqtSlot
 
 from src.core.read_write_functions import save_b26_file
 import numpy as np
@@ -259,6 +259,19 @@ class Script(QObject):
         """
         return self.end_time - self.start_time
 
+    @pyqtSlot(int)
+    def _receive_signal(self, progress):
+        """
+        this function takes care of signals emitted by the subscripts
+
+        Args:
+            progress: progress of subscript
+        Returns:
+
+        """
+        # if self.scripts:
+        #     raise NotImplementedError
+        self.updateProgress.emit(progress)
     def run(self):
         """
         executes the script
@@ -267,9 +280,11 @@ class Script(QObject):
         self.is_running = True
         self.log_data.clear()
 
-        # update the datapath of the subscripts
+        # update the datapath of the subscripts and connect
         for subscript  in self.scripts.values():
             subscript.data_path = self.data_path
+            subscript.updateProgress.connect(self._receive_signal)
+
 
         self.start_time  = datetime.datetime.now()
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
@@ -977,30 +992,6 @@ class Script(QObject):
                 # self.log('NOT REFRESHED')
 
         return axes_list
-
-class QThreadWrapper(QThread):
-
-
-    updateProgress = pyqtSignal(int)
-
-    def __init__(self, script):
-        """
-        This is a wrapper for scripts that are not QThread, to execute them on a different thread than the gui
-        Args:
-            script: script to be executed
-
-        """
-        self.script = script
-        QThread.__init__(self)
-
-    def run(self):
-
-        self._running = True
-        self.updateProgress.emit(1)
-        self.script.run()
-        self.updateProgress.emit(100)
-
-
 
 
 if __name__ == '__main__':
