@@ -11,7 +11,7 @@ import pandas as pd
 import glob
 import json as json
 
-from PyQt4.QtCore import pyqtSignal, QThread
+from PyQt4.QtCore import pyqtSignal, QThread, QObject
 
 from src.core.read_write_functions import save_b26_file
 import numpy as np
@@ -24,28 +24,12 @@ from matplotlib.figure import Figure
 import cPickle
 
 
-class Script(object):
-    # __metaclass__ = ABCMeta
-
-    # ========================================================================================
-    # ======= Following old_functions have to be customized for each instrument subclass =========
-    # ========================================================================================
-
-    # '''
-    # returns the default settings of the script
-    # settings contain Parameters, Instruments and Scripts
-    # :return:
-    # '''
-    # _DEFAULT_SETTINGS = Parameter([
-    #     Parameter('parameter', 1),
-    #     Parameter('file_path', './some/path')
-    # ])
-    #
-
-    # ========================================================================================
-    # ======= Following old_functions are generic ================================================
-    # ========================================================================================
-
+class Script(QObject):
+    #This is the signal that will be emitted during the processing.
+    #By including int as an argument, it lets the signal know to expect
+    #an integer argument when emitting.
+    updateProgress = pyqtSignal(int)
+    finished = pyqtSignal()
     def __init__(self, name=None, settings=None, instruments=None, scripts=None, log_function=None, data_path=None):
         """
         executes scripts and stores script parameters and settings
@@ -56,6 +40,7 @@ class Script(object):
             scripts (optional):  sub_scripts used in the script
             log_function(optional): function reference that takes a string
         """
+        QObject.__init__(self)
 
         self._script_class = self.__class__.__name__
 
@@ -198,19 +183,6 @@ class Script(object):
         for key, value in self._INSTRUMENTS.iteritems():
             self._instruments.update({key: instrument_dict[key]})
 
-    @property
-    def plot_type(self):
-        """
-        overwrite this function if script has plotting abilities
-        Returns: the type of plot the script produces
-            'none' - no plot (script doesn't produce any plottable data)
-            'main' - single plot on main plot
-            'aux' -  single plot on auxilary plot
-            'two' -  two plots, typically a main plot and a small plot that shows some intermediate data
-
-        """
-
-        return self._plot_type
 
     @property
     def scripts(self):
@@ -307,7 +279,12 @@ class Script(object):
         self.log('script {:s} finished at {:s} on {:s}'.format(self.name, self.end_time.strftime('%H:%M:%S'),self.end_time.strftime('%d/%m/%y')))
         success = not self._abort
         self.is_running = False
-        return success
+
+        print(self.name, ' FINISHED!!!!!')
+
+        self.finished.emit()
+
+
 
     def stop(self):
         self._abort == True
@@ -559,8 +536,6 @@ class Script(object):
         script_instance._instruments = instruments
 
         return script_instance, updated_instruments
-
-
 
     @staticmethod
     def load_data(path):
@@ -979,7 +954,6 @@ class Script(object):
         else:
             self._update_plot(axes_list)
 
-
     def get_axes_layout(self, figure_list):
         """
         returns the axes objects the script needs to plot its data
@@ -996,11 +970,11 @@ class Script(object):
             for fig in figure_list:
                 fig.clf()
                 axes_list.append(fig.add_subplot(111))
-                self.log('REFRESHED')
+                # self.log('REFRESHED')
         else:
             for fig in figure_list:
                 axes_list.append(fig.axes[0])
-                self.log('NOT REFRESHED')
+                # self.log('NOT REFRESHED')
 
         return axes_list
 
@@ -1025,8 +999,6 @@ class QThreadWrapper(QThread):
         self.updateProgress.emit(1)
         self.script.run()
         self.updateProgress.emit(100)
-
-
 
 
 

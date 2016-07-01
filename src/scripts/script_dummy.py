@@ -22,7 +22,6 @@ class ScriptDummy(Script):
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
-    # updateProgress = QtCore.Signal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data',),
@@ -72,6 +71,7 @@ class ScriptDummy(Script):
         for i in range(count):
             time.sleep(wait_time)
             self.log('count {:02d}'.format(i))
+            print('count {:02d}'.format(i))
             data.append(random.random())
 
 
@@ -134,7 +134,7 @@ class ScriptDummy(Script):
             Script._update(self, axes_list)
 
 # class ScriptDummyWithQtSignal(Script, QtCore.QThread):
-class ScriptDummyWithQtSignal(Script, QThread):
+class ScriptDummyWithQtSignal(Script):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('count', 10, int),
@@ -145,10 +145,6 @@ class ScriptDummyWithQtSignal(Script, QThread):
     _INSTRUMENTS = {}
     _SCRIPTS = {}
 
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = pyqtSignal(int)
     def __init__(self, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
@@ -157,10 +153,6 @@ class ScriptDummyWithQtSignal(Script, QThread):
             settings (optional): settings for this script, if empty same as default settings
         """
         Script.__init__(self, name, settings, log_function= log_function, data_path = data_path)
-        # QtCore.QThread.__init__(self)
-        QThread.__init__(self)
-        self._plot_type = 'main'
-
 
     def _function(self):
         """
@@ -184,7 +176,7 @@ class ScriptDummyWithQtSignal(Script, QThread):
             time.sleep(wait_time)
             progress = int(100* (i+1) / count)
             self.updateProgress.emit(progress)
-
+            print('scruots', i)
             data.append(random.random())
 
         self.data = {'random data': data}
