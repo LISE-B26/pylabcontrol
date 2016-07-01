@@ -3,6 +3,7 @@ from src.core import Parameter
 from src.instruments import DAQ, B26PulseBlaster
 import itertools
 from copy import deepcopy
+import time
 
 from PySide.QtCore import Signal, QThread
 from src.plotting.plots_1d import plot_delay_counts, plot_pulses, update_pulse_plot, update_delay_counts
@@ -53,7 +54,7 @@ for a given experiment
              normalization)
 
         '''
-        self.pulse_sequences, self.num_averages, tau_list = self._create_pulse_sequences()
+        self.pulse_sequences, self.num_averages, tau_list, self.measurement_gate_width = self._create_pulse_sequences()
 
         #calculates the number of daq reads per loop requested in the pulse sequence by asking how many apd reads are
         #called for. if this is not calculated properly, daq will either end too early (number too low) or hang since it
@@ -143,7 +144,8 @@ for a given experiment
                 break
             result = self._single_sequence(sequence, num_loops_sweep, num_daq_reads)  # keep entire array
             self.count_data[index] = self.count_data[index] + result
-            self.data['counts'][index] = self._normalize_to_kCounts(self.count_data[index])  # make function
+            self.data['counts'][index] = self._normalize_to_kCounts(self.count_data[index], self.measurement_gate_width,
+                                                                    self.num_averages)  # make function
             self.sequence_index = index
             # self.updateProgress.emit(int(99 * (index + 1.0) / len(self.pulse_sequences) / num_1E6_avg_pb_programs + (99 * (average_loop / num_1E6_avg_pb_programs))))
             self.updateProgress.emit(self._calc_progress())
@@ -162,13 +164,14 @@ for a given experiment
         '''
         self.instruments['PB']['instance'].program_pb(pulse_sequence,
                                                       num_loops=num_loops)
+        timeout = 2 * self.instruments['PB']['instance'].estimated_runtime
         if num_daq_reads != 0:
             self.instruments['daq']['instance'].gated_DI_init('ctr0', int(num_loops * num_daq_reads))
             self.instruments['daq']['instance'].gated_DI_run()
         self.instruments['PB']['instance'].start_pulse_seq()
         if num_daq_reads != 0:
             result_array, _ = self.instruments['daq']['instance'].gated_DI_read(
-                timeout=5)  # thread waits on DAQ getting the right number of gates
+                timeout=timeout)  # thread waits on DAQ getting the right number of gates
             for i in range(num_daq_reads):
                 result = sum(itertools.islice(result_array, i, None, num_daq_reads))
         # clean up APD tasks
@@ -194,6 +197,7 @@ for a given experiment
         raise NotImplementedError
 
     def _calc_progress(self):
+
         self.updateProgress.emit(50)
 
     def _normalize(self, signal, baseline_max=0, baseline_min=0):
@@ -213,8 +217,24 @@ for a given experiment
         else:
             return ((signal - baseline_min) / (baseline_max - baseline_min))
 
-    def _normalize_to_kCounts(self, signal):
-        return signal
+    def _normalize_to_kCounts(self, signal, gate_width=1, num_averages=1):
+        return (signal * (10E9 / (gate_width * num_averages)))
+
+    def validate(self):
+        self.pulse_sequences_preview = self._create_pulse_sequences()
+        failure_list = []
+        for sequence_index, pulse_sequence in enumerate(self.pulse_sequences_preview[0]):
+            for pulse_index, pulse in enumerate(pulse_sequence):
+                print(pulse.duration)
+                if pulse.duration < 15:
+                    print('FAILURE', sequence_index, pulse_index)
+
+    def _plot_validate(self, axes_list):
+        axis1 = axes_list[0]
+        axis2 = axes_list[1]
+        plot_pulses(axis2, self.pulse_sequences_preview[0][0])
+        plot_pulses(axis1, self.pulse_sequences_preview[0][-1])
+
 
 
 if __name__ == '__main__':

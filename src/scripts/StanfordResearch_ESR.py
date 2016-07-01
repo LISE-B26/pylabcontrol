@@ -59,6 +59,7 @@ class StanfordResearch_ESR(Script, QThread):
         clock_adjust = int((self.settings['integration_time'] + self.settings['settle_time']) / self.settings['settle_time'])
         freq_array = np.repeat(freq_values, clock_adjust)
         self.instruments['microwave_generator']['instance'].update({'amplitude': self.settings['power_out']})
+        self.instruments['mw_gen']['instance'].update({'modulation_type': 'FM'})
 
         sample_rate = float(1) / self.settings['settle_time']
         self.instruments['daq']['instance'].settings['analog_output']['ao2']['sample_rate'] = sample_rate

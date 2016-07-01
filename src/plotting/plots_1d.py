@@ -48,6 +48,7 @@ def plot_esr(fit_params, frequency, data, axes):
         axes.set_title('ESR')
         axes.set_xlabel('Frequency (Hz)')
         axes.set_ylabel('Kcounts/s')
+    axes.hold(False)
     return lines
 
 

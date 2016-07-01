@@ -48,7 +48,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_scripts">
            <attribute name="title">
@@ -188,6 +188,18 @@
                   </property>
                   <property name="text">
                    <string>stop</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btn_validate_script">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>validate</string>
                   </property>
                  </widget>
                 </item>

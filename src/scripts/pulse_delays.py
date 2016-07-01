@@ -30,12 +30,13 @@ class PulseDelays(ExecutePulseBlasterSequence):
         The daq measurement window is then swept across the laser pulse window to measure counts from min_delay
         (can be negative) to max_delay, which are both defined with the laser on at 0.
 
-        Returns: pulse_sequences, num_averages, tau_list
+        Returns: pulse_sequences, num_averages, tau_list, measurement_gate_width
             pulse_sequences: a list of pulse sequences, each corresponding to a different time 'tau' that is to be
             scanned over. Each pulse sequence is a list of pulse objects containing the desired pulses. Each pulse
             sequence must have the same number of daq read pulses
             num_averages: the number of times to repeat each pulse sequence
             tau_list: the list of times tau, with each value corresponding to a pulse sequence in pulse_sequences
+            measurement_gate_width: the width (in ns) of the daq measurement
 
 
         '''
@@ -47,7 +48,8 @@ class PulseDelays(ExecutePulseBlasterSequence):
                                     Pulse('apd_readout', delay + reset_time,
                                            self.settings['measurement_gate_pulse_width'])
                                     ])
-        return pulse_sequences, self.settings['num_averages'], gate_delays
+        return pulse_sequences, self.settings['num_averages'], gate_delays, self.settings[
+            'measurement_gate_pulse_width']
 
 
 if __name__ == '__main__':
@@ -58,3 +60,5 @@ if __name__ == '__main__':
     print(script)
     print('failed', failed)
     print(instr)
+
+    print(isinstance(script['PulseDelays'], QThread))

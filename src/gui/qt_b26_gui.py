@@ -123,6 +123,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # link buttons to old_functions
             self.btn_start_script.clicked.connect(self.btn_clicked)
             self.btn_stop_script.clicked.connect(self.btn_clicked)
+            self.btn_validate_script.clicked.connect(self.btn_clicked)
             self.btn_plot_script.clicked.connect(self.btn_clicked)
             # self.btn_plot_probe.clicked.connect(self.btn_clicked)
             self.btn_store_script_data.clicked.connect(self.btn_clicked)
@@ -421,18 +422,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if item is not None:
 
-                # clear the figure, this is need to avoid memory problems - doesn't work
-                # self.create_figures()
-
                 script, path_to_script, script_item = item.get_script()
 
                 self.update_script_from_item(script_item)
                 script.data_path = self.gui_settings['data_folder']
 
                 self.log('starting {:s}'.format(script.name))
-                # is the script is not a QThread object we use the wrapper QtSCript
+                # is the script is not a QThread object we use the wrapper QtScript
                 # to but it on a separate thread such that the gui remains responsive
-                if not isinstance(script, QThread):
+
+                from src.scripts import ExecutePulseBlasterSequence
+                if not isinstance(script, QThread) and not isinstance(script, ExecutePulseBlasterSequence):
                     script = QThreadWrapper(script)
 
                 script.updateProgress.connect(self.update_status)
@@ -452,6 +452,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.log('User clicked stop, but there isn\'t anything running...this is awkward. Re-enabling start button anyway.')
             self.btn_start_script.setEnabled(True)
+
+        def validate_button():
+            item = self.tree_scripts.currentItem()
+
+            if item is not None:
+                script, path_to_script, script_item = item.get_script()
+                self.update_script_from_item(script_item)
+                script.validate()
+                script.plot_validate([self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure])
+                self.matplotlibwidget_1.draw()
+                self.matplotlibwidget_2.draw()
         def store_script_data():
             """
             send selected script to dataset tab
@@ -590,6 +601,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             start_button()
         elif sender is self.btn_stop_script:
             stop_button()
+        elif sender is self.btn_validate_script:
+            validate_button()
         elif sender in (self.btn_plot_data, self.btn_plot_script, self.tree_dataset):
             plot_data(sender)
         elif sender is self.btn_store_script_data:
@@ -760,6 +773,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # self.refresh_tree(self.tree_scripts, self.scripts)
             self.btn_start_script.setEnabled(True)
             self.current_script.updateProgress.disconnect(self.update_status)
+
+    def plot_script_validate(self, script):
+        """
+        checks the plottype of the script and plots it accordingly
+        Args:
+            script: script to be plotted
+
+        """
+
+        script.plot_validate([self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure])
+        self.matplotlibwidget_1.draw()
+        self.matplotlibwidget_2.draw()
 
     def update_probes(self, progress):
         """

@@ -165,3 +165,5 @@ except:
 from exec_pulse_blaster_sequence import ExecutePulseBlasterSequence
 
 from pulse_delays import PulseDelays
+
+from pulse_blaster_scripts import Rabi

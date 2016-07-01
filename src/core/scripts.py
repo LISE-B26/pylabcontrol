@@ -313,6 +313,9 @@ class Script(object):
     def stop(self):
         self._abort = True
 
+    def validate(self):
+        pass
+
     def filename(self, appendix = None):
         """
         creates a filename based
@@ -1004,6 +1007,23 @@ class Script(object):
                 self.log('NOT REFRESHED')
 
         return axes_list
+
+    def plot_validate(self, figure_list):
+        """
+        plots the data contained in self.data, which should be a dictionary or a deque of dictionaries
+        for the latter use the last entry
+
+        """
+        axes_list = self.get_axes_layout_validate(figure_list)
+        self._plot_validate(axes_list)
+
+    def _plot_validate(self, axes_list):
+        pass
+
+    def get_axes_layout_validate(self, figure_list):
+        return self.get_axes_layout(figure_list)
+
+
 
 class QThreadWrapper(QThread):
 
