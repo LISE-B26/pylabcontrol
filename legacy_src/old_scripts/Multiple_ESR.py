@@ -129,8 +129,7 @@ To select points, first run subscript Select_NVs_Simple
                 self.instruments['daq']['instance'].AO_stop()
 
                 #run the ESR
-                self.scripts['StanfordResearch_ESR'].start()
-                self.scripts['StanfordResearch_ESR'].wait() #wait for previous ESR thread to complete
+                self.scripts['StanfordResearch_ESR'].run()
 
                 self.data['ESR_freqs'] = self.scripts['StanfordResearch_ESR'].data[-1]['frequency']
 

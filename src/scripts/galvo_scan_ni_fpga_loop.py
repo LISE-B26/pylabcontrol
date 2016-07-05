@@ -56,8 +56,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             if self._abort:
                 self.log('Leaving autofocusing loop')
                 break
-            self.scripts['take_image'].start()
-            self.scripts['take_image'].wait()
+            self.scripts['take_image'].run()
+
             current_image = self.scripts['take_image'].data['image_data']
             self.data['current_image'] = deepcopy(current_image)
             self.data['extent'] = self.scripts['take_image'].data['extent']

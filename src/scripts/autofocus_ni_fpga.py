@@ -213,8 +213,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             time.sleep(self.settings['wait_time'])
 
             # take a galvo scan
-            self.scripts['take_image'].start()
-            self.scripts['take_image'].wait()
+            self.scripts['take_image'].run()
 
 
             current_image = self.scripts['take_image'].data['image_data']

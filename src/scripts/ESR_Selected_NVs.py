@@ -124,8 +124,7 @@ class ESR_Selected_NVs(Script):
                 if self._abort:
                     break
                 self._plot_refresh = True
-                self.scripts['Find_Max'].start()
-                self.scripts['Find_Max'].wait()
+                self.scripts['Find_Max'].run()
                 self.updateProgress.emit(self.progress)
                 self.data['NV_image_data'][index] = np.array(self.scripts['Find_Max'].data['image_data'].flatten())
                 self.data['NV_image_extents'][index] = self.scripts['Find_Max'].data['extent']
@@ -150,8 +149,7 @@ class ESR_Selected_NVs(Script):
                 # self.scripts['StanfordResearch_ESR']['instance'].tag = self.scripts['StanfordResearch_ESR']['instance'].tag + '_NV_no_' + index
                 if self._abort:
                     break
-                self.scripts['StanfordResearch_ESR'].start()
-                self.scripts['StanfordResearch_ESR'].wait() #wait for previous ESR thread to complete
+                self.scripts['StanfordResearch_ESR'].run()
                 self.updateProgress.emit(self.progress)
 
                 self.data['ESR_freqs'] = self.scripts['StanfordResearch_ESR'].data[-1]['frequency']

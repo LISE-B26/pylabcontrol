@@ -76,7 +76,7 @@ Known issues:
             self.scripts['take_sweep'].settings['num_points'].update({'x': self.settings['num_points'], 'y': 1})
             print('points', {'x': initial_point[0], 'y': initial_point[1]}, {'x': self.settings['sweep_range'], 'y': 0})
 
-            self.scripts['take_sweep'].start()
+            self.scripts['take_sweep'].run()
 
             self.x_sweeps.append(np.array(self.scripts['take_sweep'].data['image_data']).flatten())
             self.x_sweep_domains.append(np.linspace(initial_point[0] - self.settings['sweep_range'] / 2.0,
@@ -115,7 +115,7 @@ Known issues:
 
             print('points', {'x': initial_point[0], 'y': initial_point[1]}, {'x': self.settings['sweep_range'], 'y': 0})
 
-            self.scripts['take_sweep'].start()
+            self.scripts['take_sweep'].run()
 
             self.y_sweeps.append(np.array(self.scripts['take_sweep'].data['image_data']).flatten())
             self.y_sweep_domains.append(np.linspace(initial_point[1] - self.settings['sweep_range'] / 2.0,

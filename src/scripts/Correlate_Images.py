@@ -5,7 +5,7 @@ from PIL import Image as im
 from scipy import signal
 import time
 from src.core import Script, Parameter
-from src.plotting.plots_2d import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence_new, update_fluorescence
 from src.scripts import GalvoScanWithLightControl
 from src.data_processing.correlate_images import correlation, shift_NVs
 
@@ -228,8 +228,8 @@ class Take_And_Correlate_Images_2(Script):
             scan.settings['point_a']['y'] = self.data['image_extent'][3]
             scan.settings['point_b']['y'] = self.data['image_extent'][2]
 
-            self.scripts['GalvoScan'].start()
-            self.scripts['GalvoScan'].wait()  #wait for scan to complete
+            self.scripts['GalvoScan'].run()
+
             self.data['new_image'] = self.scripts['GalvoScan'].scripts['acquire_image'].data['image_data']
 
             dx_voltage, dy_voltage, self.data['correlation_image'] = correlation(self.data['baseline_image'],
@@ -239,25 +239,25 @@ class Take_And_Correlate_Images_2(Script):
             self.data['new_NV_list'] = shift_NVs(dx_voltage, dy_voltage, self.data['old_nv_list'])
 
         else:
-            self.scripts['GalvoScan'].start()
-            self.scripts['GalvoScan'].wait()  #wait for scan to complete
+            self.scripts['GalvoScan'].run()
             self.data['baseline_image'] = self.scripts['GalvoScan'].data['image_data']
 
     def _plot(self, axes_list):
         data = self.scripts['GalvoScan'].data['image_data']
         extent = self.scripts['GalvoScan'].data['extent']
-        self.implot, self.cbar = plot_fluorescence(data, extent, axes_list[1])
+        self.implot, self.cbar = plot_fluorescence_new(data, extent, axes_list[1])
         if not self.data['correlation_image'] == []:
             axes_list[0].imshow(self.data['correlation_image'])
 
     def _update_plot(self, axes_list):
         data = self.scripts['GalvoScan'].data['image_data']
         extent = self.scripts['GalvoScan'].data['extent']
-        plot_fluorescence(data, extent, axes_list[1], implot=self.implot, cbar=self.cbar)
+        update_fluorescence(data, axes_list[1])
         if not self.data['correlation_image'] == []:
             axes_list[0].imshow(self.data['correlation_image'])
 
     def stop(self):
+        self._abort = True
         self.scripts['GalvoScan'].stop()
 
 if __name__ == '__main__':

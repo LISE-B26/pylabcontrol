@@ -74,8 +74,7 @@ class Refind_NVs(Script):
         if self.settings['activate_autofocus']:
             self.current_stage = 'Autofocus'
 
-            self.scripts['AF'].start()
-            self.scripts['AF'].wait()
+            self.scripts['AF'].run()
 
             self.updateProgress.emit(50)
 
@@ -106,8 +105,7 @@ class Refind_NVs(Script):
             self.scripts['Correlate_Images'].data['image_extent'] = self.data['baseline_extent']
             self.scripts['Correlate_Images'].data['old_nv_list'] = self.data['baseline_nv_locs']
 
-            self.scripts['Correlate_Images'].start()
-            self.scripts['Correlate_Images'].wait()
+            self.scripts['Correlate_Images'].run()
 
             self.data['new_nv_locs'] = self.scripts['Correlate_Images'].data['new_NV_list']
             self.data['new_image'] = self.scripts['Correlate_Images'].data['new_image']
