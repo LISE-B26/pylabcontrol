@@ -66,7 +66,7 @@ class ScriptDummy(Script):
         self.log('I am a test function counting to {:d} and creating random values'.format(count))
         for i in range(count):
             time.sleep(wait_time)
-            self.log('count {:02d}'.format(i))
+            self.log('{:s} count {:02d}'.format(self.name, i))
             print('count X {:02d}'.format(i))
             data.append(random.random())
             progress = int(100 * (i + 1) / count)
@@ -174,7 +174,6 @@ class ScriptDummyWithQtSignal(Script):
             time.sleep(wait_time)
             progress = int(100* (i+1) / count)
             self.updateProgress.emit(progress)
-            print('scruots', i)
             data.append(random.random())
 
         self.data = {'random data': data}
@@ -290,9 +289,10 @@ class ScriptDummyWithSubScript(Script):
 
 
     def _plot(self, axes_list):
-     for data_set in self.data['data']:
-         axes_list[0].plot(data_set)
-         axes_list[0].hold(False)
+        if 'data' in self.data:
+            for data_set in self.data['data']:
+                axes_list[0].plot(data_set)
+                axes_list[0].hold(False)
 
 class ScriptDummyWithNestedSubScript(Script):
 

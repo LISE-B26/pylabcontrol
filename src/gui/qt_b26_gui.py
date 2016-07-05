@@ -419,37 +419,29 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
             if item is not None:
-
-                # clear the figure, this is need to avoid memory problems - doesn't work
-                # self.create_figures()
-
+                # get script and update settings from tree
                 script, path_to_script, script_item = item.get_script()
-
                 self.update_script_from_item(script_item)
 
                 self.log('starting {:s}'.format(script.name))
-                # # is the script is not a QThread object we use the wrapper QtSCript
-                # # to but it on a separate thread such that the gui remains responsive
-                # if not isinstance(script, QThread):
-                #     script = QThreadWrapper(script)
+
 
                 # put script onto script thread
                 print('===== start ====')
                 script_thread = self.script_thread
                 script.moveToThread(script_thread)
-                # script.updateProgress.disconnect() # disconnect all earlier connections
-                script.updateProgress.connect(self.update_status)
+
+                script.updateProgress.connect(self.update_status) # connect update signal of script to update slot of gui
                 script_thread.started.connect(script.run) # causes the script to start upon starting the thread
                 script.finished.connect(script_thread.quit)  # clean up. quit thread after script is finished
-                script.finished.connect(self.script_finished)
-                # script.finished.connect(script_thread.deleteLater)  # clean up. mark for delete
-                # script_thread.finished.connect(script_thread.deleteLater)  # This will cause the thread to be deleted only after it has fully shut down.
+                script.finished.connect(self.script_finished) # connect finished signal of script to finished slot of gui
+
+                # start thread, i.e. script
                 script_thread.start()
 
                 self.current_script = script
                 self.btn_start_script.setEnabled(False)
 
-                # self.script_thread.start()
 
             else:
                 self.log('User stupidly tried to run a script without one selected.')
@@ -713,21 +705,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         script.plot([self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure])
         self.matplotlibwidget_1.draw()
         self.matplotlibwidget_2.draw()
-        # if script.plot_type == 'main':
-        #     script.plot(self.matplotlibwidget_1.figure)
-        #     self.matplotlibwidget_1.draw()
-        # elif script.plot_type == 'aux':
-        #     script.plot(self.matplotlibwidget_2.figure)
-        #     self.matplotlibwidget_2.draw()
-        # elif script.plot_type == 'two':
-        #     script.plot(self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure)
-        #     self.matplotlibwidget_1.draw()
-        #     self.matplotlibwidget_2.draw()
-        # elif script.plot_type == 'none':
-        #     pass
-        # else:
-        #     message = 'property plot_type = {:s} not correct for this script ({:s})!'.format(str(script.plot_type), script.name)
-        #     raise AttributeError(message)
+
 
     @pyqtSlot(int)
     def update_status(self, progress):

@@ -263,14 +263,10 @@ class Script(QObject):
     def _receive_signal(self, progress):
         """
         this function takes care of signals emitted by the subscripts
-
+        the default behaviour is that it just reemits the signal
         Args:
             progress: progress of subscript
-        Returns:
-
         """
-        # if self.scripts:
-        #     raise NotImplementedError
         self.updateProgress.emit(progress)
     def run(self):
         """
@@ -280,11 +276,10 @@ class Script(QObject):
         self.is_running = True
         self.log_data.clear()
 
-        # update the datapath of the subscripts and connect
+        # update the datapath of the subscripts and connect their progress signal to the receive slot
         for subscript  in self.scripts.values():
             subscript.data_path = self.data_path
             subscript.updateProgress.connect(self._receive_signal)
-
 
         self.start_time  = datetime.datetime.now()
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
