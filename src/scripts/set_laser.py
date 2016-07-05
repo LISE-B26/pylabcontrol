@@ -1,5 +1,4 @@
 import numpy as np
-from PyQt4.QtCore import pyqtSignal
 from matplotlib import patches
 
 from src.core import Script, Parameter
@@ -7,7 +6,9 @@ from src.instruments.NIDAQ import DAQ
 
 
 class SetLaser(Script):
-    updateProgress = pyqtSignal(int)
+    """
+This script points the laser to a point
+    """
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('point',
@@ -20,11 +21,6 @@ class SetLaser(Script):
 
     _SCRIPTS = {}
 
-    #updateProgress = Signal(int)
-
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
 
     def __init__(self, instruments = None, scripts = None, name = None, settings = None, log_function = None, data_path = None):
         """
@@ -34,8 +30,6 @@ class SetLaser(Script):
             settings (optional): settings for this script, if empty same as default settings
         """
         Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
-
-        self._plot_type = 'main'
 
     def _function(self):
         """

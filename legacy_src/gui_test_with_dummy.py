@@ -23,7 +23,7 @@ scripts= {
         'instruments': {'dummy_instrument': 'inst_dummy'}
     },
 
-    'QT counter' : 'ScriptDummyWithQtSignal',
+    'QT counter' : 'ScriptDummyCounter',
 
     'dummy script with sub script': {
         'script_class': 'ScriptDummyWithSubScript',

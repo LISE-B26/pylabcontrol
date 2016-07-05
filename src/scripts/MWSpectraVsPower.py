@@ -1,8 +1,5 @@
 from src.core import Script, Parameter
-# from PySide.QtCore import Signal, QThread
-from PyQt4.QtCore import pyqtSignal, QThread
 from src.instruments import SpectrumAnalyzer, MicrowaveGenerator, CryoStation
-from collections import deque
 import time
 import numpy as np
 from copy import deepcopy
@@ -30,10 +27,6 @@ class MWSpectraVsPower(Script, QThread):
 
     _SCRIPTS = {}
 
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = pyqtSignal(int)
     def __init__(self, instruments = None, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
@@ -42,9 +35,6 @@ class MWSpectraVsPower(Script, QThread):
             settings (optional): settings for this script, if empty same as default settings
         """
         Script.__init__(self, name, settings = settings, instruments = instruments, log_function= log_function, data_path = data_path)
-        # QtCore.QThread.__init__(self)
-        QThread.__init__(self)
-        # self.data = deque()
 
     def _function(self):
         """
@@ -60,15 +50,11 @@ class MWSpectraVsPower(Script, QThread):
             return progress
 
         # set up instruments
-
         self.save_b26(save_data=False, save_instrumets=True, save_log=False, save_settings=True)
 
 
         power_values = [float(power) for power in np.arange(self.settings['uwave_power_min'], self.settings['uwave_power_max'], self.settings['uwave_power_step'])]
 
-        # stage_1_temp = []
-        # stage_2_temp = []
-        # platform_temp = []
         times = []
         spectrum = []
         uwave_power = []
@@ -114,14 +100,14 @@ class MWSpectraVsPower(Script, QThread):
         self.instruments['microwave_generator'].update({'enable_output': False})
 
         self.settings_for_save.update({'save_data':False, 'save_instrumets':False, 'save_log':True, 'save_settings':False})
-        self.updateProgress.emit(100)
-    def plot(self, figure):
+
+    def _plot(self, axes_list):
         axes = self.get_axes_layout(figure)
 
         spectrum = self.data['spectrum']
         freq = self.data['frequency']
 
-        #axes.plot(freq, spectrum)
+        axes_list[0].plot(freq, spectrum)
 
 
 

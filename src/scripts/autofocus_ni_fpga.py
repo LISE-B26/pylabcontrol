@@ -1,5 +1,4 @@
 from src.core import Parameter, Script
-from PyQt4.QtCore import pyqtSignal, QThread
 from src.scripts import GalvoScanNIFpga
 import numpy as np
 import scipy as sp
@@ -10,7 +9,7 @@ import datetime
 from src.plotting.plots_2d import plot_fluorescence
 
 
-class AutoFocusNIFPGA(Script, QThread):
+class AutoFocusNIFPGA(Script):
     """
 Autofocus: Takes images at different piezo voltages and uses a heuristic to figure out the point at which the objective
             is focused.
@@ -37,10 +36,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
     }
 
     _INSTRUMENTS = {}
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = pyqtSignal(int)
 
     def __init__(self, scripts, instruments = None, name = None, settings = None, log_function = None, data_path = None):
         """
@@ -50,12 +45,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             settings (optional): settings for this script, if empty same as default settings
         """
         Script.__init__(self, name, settings, instruments, scripts, log_function= log_function, data_path = data_path)
-        # QtCore.QThread.__init__(self)
-        QThread.__init__(self)
-
-        self._plot_type = 'two'
-
-        # self.scripts['take_image'].settings['num_points'].update({'x': 30, 'y': 30})
 
     def _function(self):
         """
@@ -105,12 +94,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
                 self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
 
-        # update progress bar to show fit, reset _abort if it was triggered
-        self.updateProgress.emit(100)
-
-        self._abort = False
-
-    def get_axes_layout(self, figure_focus, figure_image):
+    def get_axes_layout(self, figure_list):
         """
         returns the axes objects the script needs to plot its data
         the default creates a single axes object on each figure
@@ -121,6 +105,8 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         Returns:
 
         """
+
+        figure_focus, figure_image = figure_list[0], figure_list[1]
         figure_focus.clf()
         axis_focus = figure_focus.add_subplot(111)
         # create new axes objects if script was just started (self._plot_refresh == True) or
@@ -140,10 +126,10 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
                     axis_image = figure_image.add_subplot(111)
 
 
-        return axis_focus, axis_image
+        return [axis_focus, axis_image]
 
-    def plot(self, figure_focus, figure_image = None):
-        axis_focus, axis_image = self.get_axes_layout(figure_focus, figure_image)
+    def _plot(self, axes_list):
+        axis_focus, axis_image = axes_list
         # plot current focusing data
         axis_focus.plot(self.data['main_scan_sweep_voltages'][0:len(self.data['main_scan_focus_function_result'])],
                    self.data['main_scan_focus_function_result'])
@@ -205,16 +191,15 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         axis_focus.set_ylabel(ylabel)
         axis_focus.set_title('Autofocusing Routine')
 
-        if figure_image:
-            # self.scripts['take_image'].plot(figure2)
-            # plot_fluorescence(self.data['current_image'], self.data['extent'], axis_image,
-            #                   max_counts=self.settings['max_counts_plot'])
-            plot_fluorescence(self.data['current_image'], self.data['extent'], axis_image)
+        # if figure_image:
+        #     # self.scripts['take_image'].plot(figure2)
+        #     # plot_fluorescence(self.data['current_image'], self.data['extent'], axis_image,
+        #     #                   max_counts=self.settings['max_counts_plot'])
+        #     plot_fluorescence(self.data['current_image'], self.data['extent'], axis_image)
+        #
+        # # figure_focus.tight_layout()
+        # # figure_image.tight_layouts()
 
-        # figure_focus.tight_layout()
-        # figure_image.tight_layouts()
-    def stop(self):
-        self._abort = True
 
     def autofocus_loop(self, sweep_voltages, fpga_instr, tag = None):
 

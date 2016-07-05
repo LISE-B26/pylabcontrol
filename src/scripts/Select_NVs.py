@@ -1,8 +1,6 @@
 import numpy as np
 import scipy.spatial
 import time
-# from PySide.QtCore import Signal, QThread
-from PyQt4.QtCore import pyqtSignal, QThread
 from matplotlib import patches
 
 from src.core import Script, Parameter
@@ -100,10 +98,8 @@ from src.scripts import Find_Points
 #             axes.add_patch(circ)
 #             self.patches.append(circ)
 
-
-class Select_NVs_Simple(Script, QThread):
-    updateProgress = pyqtSignal(int)
-
+# todo: rename script to Select_NVs (first make sure it works with the new plotting)
+class Select_NVs_Simple(Script):
     _DEFAULT_SETTINGS = Parameter('patch_size', 0.003)
 
     _INSTRUMENTS = {}
@@ -122,10 +118,6 @@ class Select_NVs_Simple(Script, QThread):
         """
         Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
 
-        QThread.__init__(self)
-
-        self._plot_type = 'main'
-
         self.data = {'nv_locations': []}
 
     def _function(self):
@@ -139,19 +131,17 @@ class Select_NVs_Simple(Script, QThread):
         self.data = {'nv_locations': []}
 
         self.updateProgress.emit(50)
-
+        # keep script alive while NVs are selected
         while not self._abort:
             time.sleep(1)
         print('FINISEHD selection .... ')
 
 
     def stop(self):
-        self.updateProgress.emit(100)
         self._abort = True
 
     #must be passed figure with galvo plot on first axis
     def plot(self, figure_list):
-        print(figure_list)
         axes = figure_list[0].axes[0]
         patch_size = self.settings['patch_size']
 

@@ -1,14 +1,14 @@
 import numpy as np
-from PyQt4.QtCore import pyqtSignal, QThread
 from collections import deque
 
 from src.core import Script, Parameter
 from src.plotting import plotting
 
 
-class ZISweeper(Script, QThread):
-    updateProgress = pyqtSignal(int)
-
+class ZISweeper(Script):
+    """
+This script performs a frequency sweep with the Zurich Instrument HF2 Series Lock-in amplifier
+    """
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  '', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
@@ -35,7 +35,6 @@ class ZISweeper(Script, QThread):
         self._timeout = timeout
 
         Script.__init__(self, name, settings, instruments, log_function= log_function, data_path = data_path)
-        QThread.__init__(self)
 
         self.sweeper = self.instruments['zihf2'].daq.sweep(self._timeout)
         self.sweeper.set('sweep/device', self.instruments['zihf2'].device)
@@ -108,7 +107,6 @@ class ZISweeper(Script, QThread):
             print('len data: ',len(self.data))
         if self.sweeper.finished():
             self._recording = False
-            progress = 100 # make sure that progess is set 1o 100 because we check that in the old_gui
 
             if self.settings['save']:
                 self.save_b26()
@@ -116,8 +114,8 @@ class ZISweeper(Script, QThread):
                 self.save_log()
 
 
-    def plot(self, figure):
-        axes = self.get_axes_layout(figure)
+    def _plot(self, axes_list):
+        axes = axes_list[0]
 
         r = self.data[-1]['r']
         freq = self.data[-1]['frequency']

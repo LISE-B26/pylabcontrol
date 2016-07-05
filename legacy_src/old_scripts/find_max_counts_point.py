@@ -1,12 +1,11 @@
 from src.core import Script, Parameter
-from PyQt4.QtCore import pyqtSignal, QThread
 from src.scripts import GalvoScan, SetLaser
 from src.data_processing.fit_functions import fit_gaussian
 import numpy as np
 import time
 
 
-class FindMaxCounts(Script, QThread):
+class FindMaxCounts(Script):
     """
 GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,
 resulting in an image in the current field of view of the objective.
@@ -14,7 +13,6 @@ resulting in an image in the current field of view of the objective.
 Known issues:
     1.) if fits are poor, check  sweep_range. It should extend significantly beyond end of NV on both sides.
     """
-    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),

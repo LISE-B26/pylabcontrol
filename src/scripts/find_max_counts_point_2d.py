@@ -1,6 +1,4 @@
 from src.core import Script, Parameter
-# from PySide.QtCore import Signal, QThread
-from PyQt4.QtCore import pyqtSignal, QThread
 from src.scripts import GalvoScanWithLightControl, SetLaser
 import numpy as np
 from matplotlib import patches
@@ -9,7 +7,7 @@ from copy import deepcopy
 from src.plotting.plots_2d import plot_fluorescence
 
 
-class FindMaxCounts2D(Script, QThread):
+class FindMaxCounts2D(Script):
     """
 GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,
 resulting in an image in the current field of view of the objective.
@@ -17,7 +15,6 @@ resulting in an image in the current field of view of the objective.
 Known issues:
     1.) if fits are poor, check  sweep_range. It should extend significantly beyond end of NV on both sides.
     """
-    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  '', str, 'path to folder where data is saved'),
@@ -43,20 +40,16 @@ Known issues:
 
         Script.__init__(self, name, scripts = scripts, settings=settings, log_function=log_function, data_path = data_path)
 
-        QThread.__init__(self)
-
-        self._plot_type = 'aux'
-
         self.scripts['take_image'].scripts['acquire_image'].settings['time_per_pt'] = .01
 
-        self.scripts['take_image'].updateProgress.connect(self._receive_signal)
+        # self.scripts['take_image'].updateProgress.connect(self._receive_signal)
 
-        self.scripts['take_image'].log_function = self.log_function
+        # self.scripts['take_image'].log_function = self.log_function
 
-    def _receive_signal(self, progress_sub_script):
-        # calculate progress of this script based on progress in subscript
-
-        self.updateProgress.emit(progress_sub_script)
+    # def _receive_signal(self, progress_sub_script):
+    #     # calculate progress of this script based on progress in subscript
+    #
+    #     self.updateProgress.emit(progress_sub_script)
 
     def _function(self):
         """
@@ -101,6 +94,7 @@ Known issues:
             return [V_x, V_y]
 
         def min_mass_adjustment(min_mass):
+            # todo: write a docstring. What does this function do?
             return (min_mass - 40)
 
         self.script_stage = 'take image'
@@ -111,8 +105,7 @@ Known issues:
         self.scripts['take_image'].scripts['acquire_image'].update({'RoI_mode': 'center'})
         self.scripts['take_image'].scripts['acquire_image'].settings['num_points'].update({'x': self.settings['num_points'], 'y': self.settings['num_points']})
 
-        self.scripts['take_image'].start()
-        self.scripts['take_image'].wait()
+        self.scripts['take_image'].run()
 
         self.data['image_data'] = deepcopy(self.scripts['take_image'].scripts['acquire_image'].data['image_data'])
         self.data['extent'] = deepcopy(self.scripts['take_image'].scripts['acquire_image'].data['extent'])
@@ -126,7 +119,6 @@ Known issues:
                 self.log('pytrack failed to find NV --- setting laser to initial point instead')
             else:
 
-                # todo: find the point that is closest to the original point!
                 # all the points that have been identified as valid NV centers
                 pts = [pixel_to_voltage(p, self.data['extent'], np.shape(self.data['image_data'])) for p in
                        f[['x', 'y']].as_matrix()]
@@ -154,9 +146,9 @@ Known issues:
             self.save_log()
             self.save_image_to_disk()
 
-        self.updateProgress.emit(100)
 
     def _plot(self, axes_list):
+        # todo: remove reference to self.implot, self.cbar
         # plot image
         axes = axes_list[0]
         if self.script_stage == 'take image':
@@ -187,7 +179,7 @@ Known issues:
             axes_list: a list of axes objects
 
         """
-        new_figure_list = [figure_list[0]]
+        new_figure_list = [figure_list[0]] # todo: what is this? why using a nested list here?
         return super(FindMaxCounts2D, self).get_axes_layout(new_figure_list)
 
 

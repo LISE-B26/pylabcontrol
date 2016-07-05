@@ -3,12 +3,10 @@ from src.core import Parameter
 from src.instruments import DAQ
 from collections import deque
 
-from PyQt4.QtCore import pyqtSignal, QThread
-
 from src.plotting.plots_1d import plot_counts
 
 
-class Daq_Read_Cntr(Script, QThread):
+class Daq_Read_Counter(Script):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('integration_time', .25, float, 'Time per data point')
@@ -19,7 +17,6 @@ class Daq_Read_Cntr(Script, QThread):
     _SCRIPTS = {
 
     }
-    updateProgress = pyqtSignal(int)
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         """
@@ -28,18 +25,14 @@ class Daq_Read_Cntr(Script, QThread):
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        self._abort = False
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
                         log_function=log_function, data_path=data_path)
-        QThread.__init__(self)
-        self._plot_type = 'aux'
 
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-        self._abort = False
 
         sample_rate = 1/self.settings['integration_time']
         normalization = self.settings['integration_time']/.001
@@ -67,17 +60,11 @@ class Daq_Read_Cntr(Script, QThread):
         # clean up APD tasks
         self.instruments['daq']['instance'].DI_stop()
 
-        # send 100 to signal that script is finished
-        self.updateProgress.emit(100)
 
-    def plot(self, figure):
+    def _plot(self, axes_list):
         data = self.data['counts']
         if data:
-            axes = self.get_axes_layout(figure)
-            plot_counts(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes)
-
-    def stop(self):
-        self._abort = True
+            plot_counts(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes_list[0])
 
 if __name__ == '__main__':
     script = {}

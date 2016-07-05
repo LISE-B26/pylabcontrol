@@ -1,12 +1,11 @@
 from src.core import Script, Parameter
-from PyQt4.QtCore import pyqtSignal, QThread
 from src.instruments import SpectrumAnalyzer, CryoStation
 from src.scripts import KeysightGetSpectrum
 import numpy as np
 import time
 
 
-class KeysightSpectrumVsPower(Script, QThread):
+class KeysightSpectrumVsPower(Script):
 
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
@@ -26,7 +25,6 @@ class KeysightSpectrumVsPower(Script, QThread):
     _SCRIPTS = {
         'get_spectrum' : KeysightGetSpectrum
     }
-    updateProgress = pyqtSignal(int)
     def __init__(self, instruments, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
@@ -35,7 +33,6 @@ class KeysightSpectrumVsPower(Script, QThread):
             settings (optional): settings for this script, if empty same as default settings
         """
         Script.__init__(self, name, settings = settings, scripts =scripts, instruments = instruments, log_function= log_function, data_path = data_path)
-        QThread.__init__(self)
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property
@@ -107,10 +104,7 @@ class KeysightSpectrumVsPower(Script, QThread):
         self.save_b26(save_data=False, save_instrumets=False, save_log=True, save_settings=False)
 
         spectrum_analyzer.output_power = initial_power
-        # send 100 to signal that script is finished
-        self.updateProgress.emit(100)
 
 
-    def plot(self, figure):
-        axes = self.get_axes_layout(figure)
-        self.scripts['get_spectrum'].plot(axes)
+    def _plot(self, axes_list):
+        self.scripts['get_spectrum'].plot(axes_list)

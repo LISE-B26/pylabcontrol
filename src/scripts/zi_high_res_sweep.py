@@ -1,6 +1,5 @@
 import numpy as np
 import time
-from PyQt4.QtCore import pyqtSignal, QThread
 from collections import deque
 from copy import deepcopy
 
@@ -9,9 +8,11 @@ from src.plotting import plotting
 from src.scripts import ZISweeper
 
 
-class ZISweeperHighResolution(Script, QThread):
-    updateProgress = pyqtSignal(int)
-
+class ZISweeperHighResolution(Script):
+    """
+This script takes a high resolution frequency sweep with the Zurich Instrument HF2 Lock-in amplifier.
+First it acquires a sweep over a larger frequecy range. Then it finds the maximum signal and performs a second sweep with high resolution around that maximum.
+    """
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  '', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
@@ -29,7 +30,6 @@ class ZISweeperHighResolution(Script, QThread):
         self._timeout = timeout
 
         Script.__init__(self, name, settings, scripts = scripts, log_function= log_function, data_path = data_path)
-        QThread.__init__(self)
 
         self.data = deque()
 
@@ -53,7 +53,7 @@ class ZISweeperHighResolution(Script, QThread):
         if progress is not None:
             self.updateProgress.emit(progress)
 
-        if progess_sub_script == 100:
+        if not progess_sub_script.is_running:
             self.current_subscript = None
 
     def _function(self):
@@ -167,12 +167,10 @@ class ZISweeperHighResolution(Script, QThread):
 
         # set the sweeper script back to initial settings
         sweeper_script.update(initial_settings)
-        # make sure that progess is set 1o 100 because we check that in the old_gui
-        self.updateProgress.emit(100)
 
 
-    def plot(self, figure):
-        axes = self.get_axes_layout(figure)
+    def _plot(self, axes_list):
+        axes = axes_list[0]
         if self.current_subscript == 'quick scan' and self.scripts['zi sweep'].data:
             self.scripts['zi sweep'].plot(axes)
         elif self.current_subscript in ('high res scan', None) and self.data:

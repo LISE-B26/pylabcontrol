@@ -56,8 +56,8 @@ class KeysightGetSpectrum(Script):
 
 
 
-    def plot(self, figure):
-        axes = self.get_axes_layout(figure)
+    def _plot(self, axes_list):
+        axes = axes_list[0]
 
         spectrum = self.data['amplitudes']
         freq = self.data['frequencies']

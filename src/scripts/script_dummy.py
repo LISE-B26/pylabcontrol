@@ -125,7 +125,7 @@ class ScriptDummy(Script):
             # fall back to default behaviour
             Script._update(self, axes_list)
 
-class ScriptDummyWithQtSignal(Script):
+class ScriptDummyCounter(Script):
     """
     legacy script: now QT signals are not used anymorein scripts
     """
@@ -239,7 +239,7 @@ class ScriptDummyWithSubScript(Script):
 
     _INSTRUMENTS = {}
     _SCRIPTS = {'sub_script':ScriptDummy, 'sub_script_instr':ScriptDummyWithInstrument,
-                'sub_script_with_sign': ScriptDummyWithQtSignal}
+                'sub_script_with_sign': ScriptDummyCounter}
 
     def __init__(self, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
@@ -363,7 +363,6 @@ class ScriptDummyPlotMemoryTest(Script):
         # call init of superclass
         Script.__init__(self, name, settings, scripts = scripts, log_function= log_function, data_path = data_path)
 
-        self._plot_type = 'two'
         self.data = {'data': [], 'memory': Queue.Queue(maxsize=5)}
 
 
@@ -570,5 +569,5 @@ if __name__ == '__main__':
     import numpy as np
 
 
-    s = ScriptDummyWithQtSignal()
+    s = ScriptDummyCounter()
     print(s)

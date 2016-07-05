@@ -1,13 +1,10 @@
 from src.core import Script, Parameter
-# from PySide.QtCore import Signal, QThread
-from PyQt4.QtCore import pyqtSignal, QThread
 import numpy as np
 from collections import deque
 from src.instruments.labview_fpga import NI7845RGalvoScan
 from src.plotting.plots_2d import plot_fluorescence
 from copy import deepcopy
 import time
-import threading
 import Queue
 import datetime
 
@@ -36,8 +33,6 @@ class GalvoScanNIFpga(Script):
         self.plot_widget = None
 
         Script.__init__(self, name, settings=settings, instruments=instruments, log_function=log_function, data_path = data_path)
-
-        self._plot_type = 'main'
 
         self.queue = Queue.Queue()
 
@@ -175,7 +170,7 @@ class GalvoScanNIFpga(Script):
         return [xVmin, xVmax, yVmax, yVmin]
 
 
-    def _plot(self, axes_list, axes_colorbar=None):
+    def _plot(self, axes_list):
         '''
         Plots the galvo scan image to the input figure, clearing the figure and creating new axes if necessary
         Args:
@@ -185,15 +180,11 @@ class GalvoScanNIFpga(Script):
         '''
         # if 'image_data' in self.data.keys() and not self.data['image_data'] == []:
         self.implot, self.cbar = plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
-                                                   max_counts=self.settings['max_counts_plot'],
-                                                   axes_colorbar=axes_colorbar)
+                                                   max_counts=self.settings['max_counts_plot'])
 
     def _update_plot(self, axes_list):
         plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
                           max_counts=self.settings['max_counts_plot'], implot=self.implot, cbar=self.cbar)
-
-    def stop(self):
-        self._abort = True
 
 
 if __name__ == '__main__':
