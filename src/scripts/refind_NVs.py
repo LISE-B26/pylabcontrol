@@ -1,5 +1,4 @@
 import numpy as np
-from PyQt4.QtCore import pyqtSignal, QThread
 from matplotlib import patches
 import time
 
@@ -11,8 +10,7 @@ from src.scripts import Take_And_Correlate_Images_2, AutoFocus
 import os
 
 
-class Refind_NVs(Script, QThread):
-    updateProgress = pyqtSignal(int)
+class Refind_NVs(Script):
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '', str, 'path for data'),
@@ -26,12 +24,6 @@ class Refind_NVs(Script, QThread):
     _SCRIPTS = {'Correlate_Images': Take_And_Correlate_Images_2,
                 'AF': AutoFocus}
 
-    #updateProgress = Signal(int)
-
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-
     def __init__(self, instruments = None, scripts = None, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
@@ -39,13 +31,7 @@ class Refind_NVs(Script, QThread):
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        self._abort = False
-
         Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
-
-        QThread.__init__(self)
-
-        self._plot_type = 'two'
 
         self.index = 0
 
@@ -77,7 +63,6 @@ class Refind_NVs(Script, QThread):
 
         self.scripts['Correlate_Images'].updateProgress.connect(self._receive_signal)
 
-        self._abort = False
         self.current_stage = None
 
         if self.settings['save']:
@@ -127,14 +112,9 @@ class Refind_NVs(Script, QThread):
             self.data['new_nv_locs'] = self.scripts['Correlate_Images'].data['new_NV_list']
             self.data['new_image'] = self.scripts['Correlate_Images'].data['new_image']
 
-            # print('refind baseline_image', self.data['baseline_image'])
-            # print('refind new_image', self.data['new_image'])
-            # print('here')
-            # time.sleep(10)
 
         self.current_stage = 'finished'
 
-        self.updateProgress.emit(100)
         if self.settings['save']:
             self.current_stage = 'saving'
             self.save_b26()
@@ -150,11 +130,11 @@ class Refind_NVs(Script, QThread):
         self.scripts['AF'].stop()
         self.scripts['Correlate_Images'].stop()
 
-    def plot(self, figure_image, figure_ESR):
+    def plot(self, figure_list):
         if self.current_stage == 'Autofocus':
-            self.scripts['AF'].plot(figure_image, figure_ESR)
+            self.scripts['AF'].plot(figure_list)
         elif self.current_stage == 'Correlate':
-            self.scripts['Correlate_Images'].plot(figure_image, figure_ESR)
+            self.scripts['Correlate_Images'].plot(figure_list)
 
 if __name__ == '__main__':
     from src.core import Instrument

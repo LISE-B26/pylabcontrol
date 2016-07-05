@@ -94,40 +94,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
                 self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
 
-    def get_axes_layout(self, figure_list):
-        """
-        returns the axes objects the script needs to plot its data
-        the default creates a single axes object on each figure
-        This can/should be overwritten in a child script if more axes objects are needed
-        Args:
-            figure_focus:
-            figure_image: (optional)
-        Returns:
-
-        """
-
-        figure_focus, figure_image = figure_list[0], figure_list[1]
-        figure_focus.clf()
-        axis_focus = figure_focus.add_subplot(111)
-        # create new axes objects if script was just started (self._plot_refresh == True) or
-        # if script is not running (self.is_running == False)
-        # otherwise just return references to existing axes objects
-        if self.is_running == False or self._plot_refresh == True:
-            if figure_image:
-                figure_image.clf()
-                axis_image = figure_image.add_subplot(111)
-            self._plot_refresh = False
-        else:
-            if figure_image:
-                if len(figure_image.axes)>1:
-                    axis_image = figure_image.axes[0]
-                else:
-                    figure_image.clf()
-                    axis_image = figure_image.add_subplot(111)
-
-
-        return [axis_focus, axis_image]
-
     def _plot(self, axes_list):
         axis_focus, axis_image = axes_list
         # plot current focusing data
@@ -191,14 +157,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         axis_focus.set_ylabel(ylabel)
         axis_focus.set_title('Autofocusing Routine')
 
-        # if figure_image:
-        #     # self.scripts['take_image'].plot(figure2)
-        #     # plot_fluorescence(self.data['current_image'], self.data['extent'], axis_image,
-        #     #                   max_counts=self.settings['max_counts_plot'])
-        #     plot_fluorescence(self.data['current_image'], self.data['extent'], axis_image)
-        #
-        # # figure_focus.tight_layout()
-        # # figure_image.tight_layouts()
 
 
     def autofocus_loop(self, sweep_voltages, fpga_instr, tag = None):

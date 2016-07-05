@@ -1,5 +1,4 @@
 import numpy as np
-from PyQt4.QtCore import pyqtSignal, QThread
 from matplotlib import patches
 
 from src.core import Script, Parameter
@@ -7,10 +6,8 @@ from src.scripts import ESR_Selected_NVs, Refind_NVs, AttoStep, GalvoScanWithLig
 import time
 import os
 import psutil
-#CHANGE ALL RUN TO START
 
-class ESR_And_Push(Script, QThread):
-    updateProgress = pyqtSignal(int)
+class ESR_And_Push(Script):
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '', str, 'path for data'),
@@ -27,10 +24,6 @@ class ESR_And_Push(Script, QThread):
                 'Refind_NVs': Refind_NVs,
                 'Reflect_scan': GalvoScanWithLightControl}
 
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-
     def __init__(self, instruments = None, scripts = None, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
@@ -38,13 +31,8 @@ class ESR_And_Push(Script, QThread):
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        self._abort = False
 
         Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
-
-        QThread.__init__(self)
-
-        self._plot_type = 'two'
 
         self.index = 0
 
@@ -68,8 +56,6 @@ class ESR_And_Push(Script, QThread):
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-        self._abort = False
-
         self.progress = 0
         self.current_stage = None
 
@@ -173,7 +159,6 @@ class ESR_And_Push(Script, QThread):
             self.save_b26()
             self.save_data()
 
-        self.updateProgress.emit(100)
 
     def stop(self):
         self._abort = True

@@ -8,7 +8,7 @@ import os
 import psutil
 import numpy as np
 import Queue
-from PyQt4.QtCore import QThread
+
 try:
     from src.instruments import DummyInstrument
 except:

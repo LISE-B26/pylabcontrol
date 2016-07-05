@@ -1,10 +1,7 @@
 from src.core import Parameter, Script
-from PyQt4.QtCore import pyqtSignal, QThread
 from src.instruments import DAQ, B26PulseBlaster, MicrowaveGenerator, Pulse
 from src.scripts import ExecutePulseBlasterSequence
 
-
-# NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
 class Rabi(ExecutePulseBlasterSequence):
     """
 This script applies a microwave pulse at fixed power for varying durations to measure Rabi Oscillations
@@ -53,9 +50,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
         return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
 
 
-# NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
-
-class OptimizeRabi(Script, QThread):
+class OptimizeRabi(Script):
     """
 This script runs a Rabi script, fits the result to a sin wave to retrieve the Rabi oscillation frequency.
 Then it increases the power of the microwave pulse such that the time for a Rabi-oscilation is a multiple of 5ns.
@@ -72,12 +67,10 @@ After that it again runs a the Rabi script with the optimized microwave power to
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
     _SCRIPTS = {'rabi':Rabi}
-    updateProgress = pyqtSignal(int)
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
                         log_function=log_function, data_path=data_path)
-        QThread.__init__(self)
 
     def _function(self):
         pass
@@ -87,8 +80,8 @@ After that it again runs a the Rabi script with the optimized microwave power to
 
     def get_axes_layout(self, figure_list):
         pass
-# NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
-class CalibrateMeasurementWindow(Script, QThread):
+
+class CalibrateMeasurementWindow(Script):
     """
 This script find the optimal duration of the measurment window.
 It applies a pi-pulse and measured the fluorescence counts after for a varying time duration.
@@ -105,12 +98,10 @@ It applies a pi-pulse and measured the fluorescence counts after for a varying t
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
     _SCRIPTS = {}
-    updateProgress = pyqtSignal(int)
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
                         log_function=log_function, data_path=data_path)
-        QThread.__init__(self)
 
     def _function(self):
         pass
@@ -120,8 +111,8 @@ It applies a pi-pulse and measured the fluorescence counts after for a varying t
 
     def get_axes_layout(self, figure_list):
         pass
-# NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
-class CPMG(Script, QThread):
+
+class CPMG(Script):
     """
 This script runs a CPMG pulse sequence.
     """
@@ -137,14 +128,11 @@ This script runs a CPMG pulse sequence.
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
     _SCRIPTS = {}
-    updateProgress = pyqtSignal(int)
 
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
                         log_function=log_function, data_path=data_path)
-        QThread.__init__(self)
-
 
     def _function(self):
         pass
@@ -156,8 +144,8 @@ This script runs a CPMG pulse sequence.
 
     def get_axes_layout(self, figure_list):
         pass
-# NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
-class HahnEcho(Script, QThread):
+
+class HahnEcho(Script):
     """
 This script runs a Hahn-echo sequence for different number of pi pulse. Without pi-pulse this is a Ramsey sequence.
     """
@@ -173,14 +161,10 @@ This script runs a Hahn-echo sequence for different number of pi pulse. Without 
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
     _SCRIPTS = {}
-    updateProgress = pyqtSignal(int)
-
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
                         log_function=log_function, data_path=data_path)
-        QThread.__init__(self)
-
 
     def _function(self):
         pass

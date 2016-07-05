@@ -1,7 +1,7 @@
 import matplotlib.patches as patches
 import numpy as np
 from PIL import Image as im
-from PyQt4.QtCore import pyqtSignal, QThread
+
 from scipy import signal
 import time
 from src.core import Script, Parameter
@@ -175,12 +175,11 @@ from src.data_processing.correlate_images import correlation, shift_NVs
 #         self.scripts['GalvoScan'].plot(axes_2)
 
 
-class Take_And_Correlate_Images_2(Script, QThread):
+class Take_And_Correlate_Images_2(Script):
     '''
     Takes a galvo scan, compares it to a previous galvo scan to find the relative shift, and then updates a list of
     nvs based on this shift so that they will give the current coordinates of those nvs
     '''
-    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '', str, 'path for data'),
@@ -200,13 +199,10 @@ class Take_And_Correlate_Images_2(Script, QThread):
             settings (optional): settings for this script, if empty same as default settings
         """
         Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
-        QThread.__init__(self)
 
         self.data = {'baseline_image': [], 'new_image': [], 'image_extent': [], 'old_nv_list':[], 'new_NV_list': [], 'correlation_image': []}
         #forward the galvo scan progress to the top layer
         self.scripts['GalvoScan'].updateProgress.connect(lambda x: self.updateProgress.emit(x/2))
-
-        self._plot_type = 'two'
 
     # Parameter('baseline_image', [], list, 'Baseline image for correlation'),
     # Parameter('image_extent', [], list, 'Extent of baseline image'),
@@ -246,8 +242,6 @@ class Take_And_Correlate_Images_2(Script, QThread):
             self.scripts['GalvoScan'].start()
             self.scripts['GalvoScan'].wait()  #wait for scan to complete
             self.data['baseline_image'] = self.scripts['GalvoScan'].data['image_data']
-
-        self.updateProgress.emit(100)
 
     def _plot(self, axes_list):
         data = self.scripts['GalvoScan'].data['image_data']

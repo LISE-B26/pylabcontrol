@@ -1,16 +1,13 @@
 from src.core import Script, Parameter
-from PyQt4.QtCore import pyqtSignal, QThread
 from src.scripts import GalvoScanWithLightControl
 from copy import deepcopy
 from src.plotting.plots_2d import plot_fluorescence
 
-class GalvoScanWithTwoRoI(Script, QThread):
+class GalvoScanWithTwoRoI(Script):
     """
 Select two regions of interest (RoI) and the light mode for each (fluorescence or reflection).
 Takes an image based on GalvoScanWithLightControl script which takes image based in GalvoScan script and controls light with MaestroLightControl instrument
     """
-
-    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '\\tmp_data', str, 'path to folder where data is saved'),
@@ -63,16 +60,10 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
 
         Script.__init__(self, name, settings=settings, scripts = scripts, log_function=log_function, data_path=data_path)
 
-        QThread.__init__(self)
-
-        self._plot_type = 'aux'
-
-        self.scripts['acquire_image'].updateProgress.connect(self._receive_signal)
 
         self.progress_details = 'initialized'
         self.data = {}
 
-        self._abort = False
 
     def _receive_signal(self, progress_sub_script):
         # calculate progress of this script based on progress in subscript
@@ -147,14 +138,12 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
             self.save_data()
             self.save_log()
 
-        self.updateProgress.emit(100)
 
     def stop(self):
-        self._abort = True
         self.scripts['acquire_image'].stop()
 
 
-    def plot(self, figure):
+    def _plot(self, axes_list):
 
         # we need two axes object to plot both plots, if there is only one, create another
         # fig = axes1.get_figure()
@@ -170,7 +159,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
         #     axes2b = fig.axes[3]
         #     # axes2.clear()
 
-        axes1, axes1b, axes2, axes2b = self.get_axes_layout(figure)
+        axes1, axes1b, axes2, axes2b = axes_list
 
         image_data_roi_1 = None
         image_data_roi_2 = None
@@ -193,9 +182,8 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
         if image_data_roi_2 is not None:
             plot_fluorescence(image_data_roi_2, extent_roi_2, axes2, axes_colorbar=axes2b)
 
-        figure.tight_layout()
-
-    def get_axes_layout(self, figure):
+    def get_axes_layout(self, figure_list):
+        figure = figure_list[0]
         figure.clf()
 
         axes1 = figure.add_subplot(141)
@@ -203,7 +191,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
         axes2 = figure.add_subplot(143)
         axes2b = figure.add_subplot(144)
 
-        return axes1, axes1b, axes2, axes2b
+        return [axes1, axes1b, axes2, axes2b]
 
 
 

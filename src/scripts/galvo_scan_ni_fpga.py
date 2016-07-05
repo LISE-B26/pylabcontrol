@@ -1,20 +1,16 @@
 from src.core import Script, Parameter
 import numpy as np
-from collections import deque
 from src.instruments.labview_fpga import NI7845RGalvoScan
-from src.plotting.plots_2d import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence_new, update_fluorescence
 from copy import deepcopy
-import time
-import Queue
 import datetime
 
 
 
 class GalvoScanNIFpga(Script):
-# class GalvoScanNIFpga(Script):
     """
-    GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,
-    resulting in an image in the current field of view of the objective.
+GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,
+resulting in an image in the current field of view of the objective.
     """
 
     _DEFAULT_SETTINGS = Parameter([
@@ -29,12 +25,8 @@ class GalvoScanNIFpga(Script):
     _SCRIPTS = {}
 
     def __init__(self, instruments, name = None, settings = None, log_function = None, timeout = 1000000000, data_path = None):
-        self.timeout = timeout
-        self.plot_widget = None
 
         Script.__init__(self, name, settings=settings, instruments=instruments, log_function=log_function, data_path = data_path)
-
-        self.queue = Queue.Queue()
 
 
     def _function(self):
@@ -48,9 +40,7 @@ class GalvoScanNIFpga(Script):
         del instr_settings['piezo'] # don't update piezo to avoid spikes (assume this value is 0 but the scan starts at 50V, then this would give a huge step which is not necessary)
 
         def init_scan():
-            self._recording = False
-            #self._plotting = False
-            self._abort = False
+            # self._recording = False
             instr.update(instr_settings)
 
             Nx = instr_settings['num_points']['x']
@@ -81,15 +71,12 @@ class GalvoScanNIFpga(Script):
             #     'failed': instr.failed
             # }
 
-            diagnostics = instr.read_probes()
-
-            print(diagnostics)
+            # diagnostics = instr.read_probes()
+            #
+            # print(diagnostics)
 
         def calc_progress(i, Ny):
-            progress = int(float(i + 1) / Ny * 100)
-            if progress ==100:
-                progress = 99
-            return progress
+            return int(float(i + 1) / Ny * 100)
 
         Nx, Ny = init_scan()
 
@@ -97,44 +84,24 @@ class GalvoScanNIFpga(Script):
 
         i = 0
 
-        t1 = datetime.datetime.now()
-        # expecte time to acquire a line in seconds
-        time_per_line_s = Nx*(instr_settings['time_per_pt']+instr_settings['settle_time'])/1e3
-
         while i < Ny:
             if self._abort:
                 instr.abort_acquire()
                 break
-            print('acquiring line {:02d}/{:02d}'.format(i, Ny))
+
             elem_written = instr.elements_written_to_dma
 
             if elem_written >= Nx:
                 line_data = instr.read_fifo(Nx)
-                print('elem_written ', elem_written, line_data['signal'])
-                self.data['image_data'][i] = deepcopy(line_data['signal'])/1e3
+                self.data['image_data'][:,i] = deepcopy(line_data['signal'])/1e3
 
                 # set the remaining values to the mean so that we get a good contrast while plotting
-                mean_value = np.mean(self.data['image_data'][0:i])
-                self.data['image_data'][i+1:, :] = mean_value*np.ones((Ny-(i+1), Nx))
+                mean_value = np.mean(self.data['image_data'][0:i+1])
+                self.data['image_data'][:,i+1:] = mean_value*np.ones((Nx, Ny-(i+1)))
 
                 i +=1
-
-            t2 = datetime.datetime.now()
-            elapsed_time = t2 - t1
-            # if acquisition is too fast wait to not drive gui crazy, we choose 2 updates per second
-            if elapsed_time > datetime.timedelta(seconds=0.5):
-                progress = calc_progress(i,Ny)
+                progress  = calc_progress(i, Ny)
                 self.updateProgress.emit(progress)
-                t1 = t2
-                # uncomment following line to show some diagnostic values
-                # print_diagnostics()
-            else:
-
-                time_sleep = time_per_line_s - elapsed_time.total_seconds()
-
-                if time_sleep>0:
-                    # wait time it takes acquire a point
-                    time.sleep(time_sleep)
 
 
         if self.settings['save']:
@@ -178,14 +145,33 @@ class GalvoScanNIFpga(Script):
             axes_colorbar: axes with a colorbar to overwrite with the new colorbar
 
         '''
-        # if 'image_data' in self.data.keys() and not self.data['image_data'] == []:
-        self.implot, self.cbar = plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
-                                                   max_counts=self.settings['max_counts_plot'])
+        plot_fluorescence_new(self.data['image_data'].transpose(), self.data['extent'], axes_list[0],max_counts=self.settings['max_counts_plot'])
 
     def _update_plot(self, axes_list):
-        plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
-                          max_counts=self.settings['max_counts_plot'], implot=self.implot, cbar=self.cbar)
+        """
+        updates the image data. This is more efficient than replotting from scratch
+        Args:
+            axes_list:
+        Returns:
 
+        """
+        axes_image = axes_list[0]
+        update_fluorescence(self.data['image_data'].transpose(), axes_image, self.settings['max_counts_plot'])
+
+    def get_axes_layout(self, figure_list):
+        """
+        returns the axes objects the script needs to plot its data
+        the default creates a single axes object on each figure
+        This can/should be overwritten in a child script if more axes objects are needed
+        Args:
+            figure_list: a list of figure objects
+        Returns:
+            axes_list: a list of axes objects
+
+        """
+
+        # only pick the first figure from the figure list, this avoids that get_axes_layout clears all the figures
+        return Script.get_axes_layout(self, [figure_list[0]])
 
 if __name__ == '__main__':
     script, failed, instruments = Script.load_and_append(script_dict={'GalvoScanNIFpga': 'GalvoScanNIFpga'})

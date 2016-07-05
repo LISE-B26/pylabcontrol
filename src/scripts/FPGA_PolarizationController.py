@@ -1,5 +1,4 @@
 from src.core.scripts import Script
-from PyQt4.QtCore import pyqtSignal, QThread
 from src.core import Parameter
 from src.instruments import NI7845RReadWrite
 import time
@@ -7,12 +6,10 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 
-class FPGA_PolarizationController(Script, QThread):
+class FPGA_PolarizationController(Script):
     """
 script to balance photodetector to zero by adjusting polarization controller voltages
     """
-    updateProgress = pyqtSignal(int)
-    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
@@ -42,12 +39,7 @@ script to balance photodetector to zero by adjusting polarization controller vol
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        self._abort = False
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
-        QThread.__init__(self)
-
-        self._plot_type = 'two'
-
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property
@@ -63,7 +55,6 @@ script to balance photodetector to zero by adjusting polarization controller vol
 
         self.data = {'WP1_volt': [], 'det_signal': []}
         fpga_io = self.instruments['FPGA_IO']['instance']
-        # fpga_io.update(self.instruments['FPGA_IO']['settings'])
 
         # turn controller on
         control_channel = 'DIO{:d}'.format(self.settings['channel_OnOff'])
@@ -89,21 +80,16 @@ script to balance photodetector to zero by adjusting polarization controller vol
         dV = 0.1
         self.data = {'WP1_volt':[], 'det_signal':[]}
 
-
         signal = float(self.settings['V_{:d}'.format(c)])
         searching = True
         while searching:
             if self._abort:
                 break
-            # print(dV)
             signal += dV
             fpga_io.update({channel_out:signal})
             detector_value = getattr(fpga_io, channel_in)
-            print(channel_out, signal, detector_value)
             self.data['WP1_volt'].append(signal)
             self.data['det_signal'].append(detector_value)
-
-
 
             time.sleep(0.2)
             # progress = calc_progress(dV, volt_range)
@@ -120,30 +106,21 @@ script to balance photodetector to zero by adjusting polarization controller vol
             self.save_data()
             self.save_log()
 
-        self.updateProgress.emit(100)
 
 
-
-
-
-    def plot(self, axes1, axes2):
+    def _plot(self, axes_list):
+        axes1, axes2 = axes_list
         axes1.plot(self.data['WP1_volt'], self.data['det_signal'], '-o')
 
         axes2.plot(self.data['WP1_volt'][0:-1], np.diff(self.data['det_signal']), '-o')
 
-    def stop(self):
-        self._abort = True
-
-
-class FPGA_PolarizationSignalMap(Script, QThread):
+class FPGA_PolarizationSignalMap(Script):
     """
 script to map out detector response as a function of polarization controller voltages
 the script scans the voltage of all three channels from 0 to 5 volt and records the detector response
 this gives a three dimensional dataset
     """
 
-    updateProgress = pyqtSignal(int)
-    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
@@ -188,11 +165,7 @@ this gives a three dimensional dataset
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        self._abort = False
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
-        QThread.__init__(self)
-
-        self._plot_type = 'main'
 
     def _function(self):
         """
@@ -252,7 +225,6 @@ this gives a three dimensional dataset
             self.save_data()
             self.save_log()
 
-        self.updateProgress.emit(100)
 
 
     @staticmethod
@@ -407,15 +379,13 @@ this gives a three dimensional dataset
     def stop(self):
         self._abort = True
 
-class FPGA_PolarizationSignalScan(Script, QThread):
+class FPGA_PolarizationSignalScan(Script):
     """
 script to map out detector response as a function of polarization controller voltage WP2
 the script scans the voltage of  channel 2 from 0 to 5 volt and records the detector response
 this gives a one dimensional dataset
     """
 
-    updateProgress = pyqtSignal(int)
-    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
@@ -450,11 +420,8 @@ this gives a one dimensional dataset
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        self._abort = False
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
-        QThread.__init__(self)
 
-        self._plot_type = 'main'
 
     def _function(self):
         """
@@ -462,7 +429,6 @@ this gives a one dimensional dataset
         will be overwritten in the __init__
         """
 
-        self._plot_refresh
         def calc_progress(v2, volt_range):
             dV = np.mean(np.diff(volt_range))
             progress = (v2 - min(volt_range)) / (max(volt_range) - min(volt_range))
@@ -520,26 +486,10 @@ this gives a one dimensional dataset
             self.save_data()
             self.save_log()
 
-        self.updateProgress.emit(100)
-    def get_axes(self, figure1):
-        """
-        returns the axes objects the script needs to plot its data
-        the default creates a single axes object on each figure
-        This can/should be overwritten in a child script if more axes objects are needed
-        Args:
-            figure1:
-        Returns:
-
-        """
-
-        figure1.clf()
-        axes1 = figure1.add_subplot(111)
-
-        return axes1
-    def plot(self, figure):
+    def _plot(self, axes_list):
 
         if self.data != {}:
-            axes1 = self.get_axes(figure)
+            axes = axes_list[0]
 
             volt_range = self.data['WP2 (V)']
             signal = self.data['Det. Signal']
@@ -550,23 +500,18 @@ this gives a one dimensional dataset
             popt, pcov = curve_fit(func, volt_range, signal)
 
 
-            axes1.plot(volt_range, signal, '-o')
+            axes.plot(volt_range, signal, '-o')
 
-            axes1.plot(volt_range, func(volt_range, popt[0], popt[1]), 'k-')
-            axes1.set_title('setpoint = {:0.2f}V'.format(-popt[1] / popt[0]))
-
-    def stop(self):
-        self._abort = True
+            axes.plot(volt_range, func(volt_range, popt[0], popt[1]), 'k-')
+            axes.set_title('setpoint = {:0.2f}V'.format(-popt[1] / popt[0]))
 
 
-class FPGA_BalancePolarization(Script, QThread):
+class FPGA_BalancePolarization(Script):
     """
     script to bring the detector response to zero
     two channels are set to a fixed voltage while the signal of the third channel is varied until the detector response is zero
     """
 
-    updateProgress = pyqtSignal(int)
-    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
         Parameter('tag', 'some_name'),
@@ -602,19 +547,14 @@ class FPGA_BalancePolarization(Script, QThread):
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        self._abort = False
-        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
-        QThread.__init__(self)
 
-        self._plot_type = 'two'
+        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
 
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-
-        self._plot_refresh
 
         self.data = {}
         fpga_io = self.instruments['FPGA_IO']['instance']
@@ -669,8 +609,6 @@ class FPGA_BalancePolarization(Script, QThread):
             self.save_data()
             self.save_log()
 
-        self.updateProgress.emit(100)
-
     def calc_zero_pos(self):
         """
         calculates the WP voltage for which the detector signal reaches zero
@@ -707,27 +645,11 @@ class FPGA_BalancePolarization(Script, QThread):
 
         return zero_pos
 
-    def get_axes(self, figure1, figure2):
-        """
-        returns the axes objects the script needs to plot its data
-        the default creates a single axes object on each figure
-        This can/should be overwritten in a child script if more axes objects are needed
-        Args:
-            figure1:
-        Returns:
 
-        """
-
-        figure1.clf()
-        axes1 = figure1.add_subplot(111)
-
-        figure2.clf()
-        axes2 = figure2.add_subplot(111)
-        return axes1, axes2
-    def plot(self, figure1, figure2):
+    def _plot(self, axes_list):
 
         if self.data != {}:
-            axes1, axes2 = self.get_axes(figure1, figure2)
+            axes1, axes2 = axes_list
 
             volt_range = self.data['WP2 (V)']
             signal = self.data['Det. Signal']
@@ -745,8 +667,6 @@ class FPGA_BalancePolarization(Script, QThread):
             # axes1.plot(volt_range, func(volt_range, popt[0], popt[1]), 'k-')
             # axes1.set_title('setpoint = {:0.2f}V'.format(-popt[1] / popt[0]))
 
-    def stop(self):
-        self._abort = True
 if __name__ == '__main__':
     script = {}
     instr = {}

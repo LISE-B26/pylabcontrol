@@ -1,6 +1,4 @@
 from src.core import Parameter, Script
-# from PySide.QtCore import Signal, QThread
-from PyQt4.QtCore import pyqtSignal, QThread
 from src.scripts import GalvoScanNIFpga
 import numpy as np
 import scipy as sp
@@ -8,10 +6,10 @@ import os
 import time
 from copy import deepcopy
 import datetime
-from src.plotting.plots_2d import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence_new, update_fluorescence
 
 
-class GalvoScanNIFPGALoop(Script, QThread):
+class GalvoScanNIFPGALoop(Script):
     """
 Autofocus: Takes images at different piezo voltages and uses a heuristic to figure out the point at which the objective
             is focused.
@@ -28,10 +26,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
     }
 
     _INSTRUMENTS = {}
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-    updateProgress = pyqtSignal(float)
 
     def __init__(self, scripts, instruments = None, name = None, settings = None, log_function = None, data_path = None):
         """
@@ -41,12 +35,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             settings (optional): settings for this script, if empty same as default settings
         """
         Script.__init__(self, name, settings, instruments, scripts, log_function= log_function, data_path = data_path)
-        # QtCore.QThread.__init__(self)
-        QThread.__init__(self)
-
-        self._plot_type = 'two'
-
-        # self.scripts['take_image'].settings['num_points'].update({'x': 30, 'y': 30})
 
     def _function(self):
         """
@@ -83,20 +71,39 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
             self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
 
-        # update progress bar to show fit, reset _abort if it was triggered
-        self.updateProgress.emit(100)
-
-        self._abort = False
-
-    def plot(self, figure1, figure2 = None):
-        axis1 = self.get_axes_layout(figure1)
-        plot_fluorescence(self.data['current_image'], self.data['extent'], axis1)
-
-    def stop(self):
-        self._abort = True
+    def _plot(self, axes_list):
+        max_counts_plot = self.scripts['take_image'].settings['max_counts_plot']
+        extent =  self.scripts['take_image'].settings['extent']
+        plot_fluorescence_new(self.data['current_image'].transpose(), extent, axes_list[0], max_counts=max_counts_plot)
 
 
+    def _update_plot(self, axes_list):
+        """
+        updates the image data. This is more efficient than replotting from scratch
+        Args:
+            axes_list:
+        Returns:
 
+        """
+        axes_image = axes_list[0]
+        max_counts_plot = self.scripts['take_image'].settings['max_counts_plot']
+        update_fluorescence(self.data['current_image'].transpose(), axes_image, max_counts_plot)
+
+
+    def get_axes_layout(self, figure_list):
+        """
+        returns the axes objects the script needs to plot its data
+        the default creates a single axes object on each figure
+        This can/should be overwritten in a child script if more axes objects are needed
+        Args:
+            figure_list: a list of figure objects
+        Returns:
+            axes_list: a list of axes objects
+
+        """
+
+        # only pick the first figure from the figure list, this avoids that get_axes_layout clears all the figures
+        return Script.get_axes_layout(self, [figure_list[0]])
 if __name__ == '__main__':
 
 

@@ -3,7 +3,6 @@ from src.core.scripts import Script
 # import standard libraries
 import numpy as np
 import scipy.optimize as opt
-from PyQt4.QtCore import pyqtSignal, QThread
 from src.core import Parameter
 from src.instruments import MicrowaveGenerator, DAQ
 from collections import deque
@@ -11,7 +10,7 @@ from collections import deque
 from src.plotting.plots_1d import plot_esr
 
 
-class StanfordResearch_ESR(Script, QThread):
+class StanfordResearch_ESR(Script):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '', str, 'path for data'),
@@ -32,7 +31,6 @@ class StanfordResearch_ESR(Script, QThread):
     }
 
     _SCRIPTS = {}
-    updateProgress = pyqtSignal(int)
 
     def __init__(self, instruments, scripts = None, name=None, settings=None, log_function=None, data_path = None):
         """
@@ -41,17 +39,13 @@ class StanfordResearch_ESR(Script, QThread):
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        self._abort = False
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
-        QThread.__init__(self)
-        self._plot_type = 'aux'
 
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-        self._abort = False
         self.lines = []
         freq_values = np.linspace(self.settings['freq_start'], self.settings['freq_stop'], self.settings['freq_points'])
         freq_range = max(freq_values) - min(freq_values)
@@ -146,9 +140,6 @@ class StanfordResearch_ESR(Script, QThread):
         def calc_progress():
             return np.round(scan_num/self.settings['esr_avg'])
 
-        # send 100 to signal that script is finished
-        self.updateProgress.emit(100)
-
     # def save_image_to_disk(self, filename = None):
     #     # create and save images
     #     if filename is None:
@@ -178,9 +169,6 @@ class StanfordResearch_ESR(Script, QThread):
         """
         new_figure_list = [figure_list[1]]
         return super(StanfordResearch_ESR, self).get_axes_layout(new_figure_list)
-
-    def stop(self):
-        self._abort = True
 
     # fit ESR curve to lorentzian and return fit parameters. If initial guess known, put in fit_start_params, otherwise
     # guesses reasonable initial values.

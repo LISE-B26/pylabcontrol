@@ -1,16 +1,13 @@
 from src.core import Script, Parameter
-from PyQt4.QtCore import pyqtSignal, QThread
 from src.instruments import MaestroLightControl
 from src.scripts import GalvoScan
 from copy import deepcopy
 from src.plotting.plots_2d import plot_fluorescence
 
-class GalvoScanWithLightControl(Script, QThread):
+class GalvoScanWithLightControl(Script):
     """
 Takes an image based in galvo scan script and controls light with MaestroLightControl instrument
     """
-
-    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '', str, 'path to folder where data is saved'),
@@ -27,10 +24,6 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
     def __init__(self, instruments, scripts, name=None, settings=None, log_function=None, data_path=None):
 
         Script.__init__(self, name, settings=settings, instruments=instruments, scripts = scripts, log_function=log_function, data_path=data_path)
-
-        QThread.__init__(self)
-
-        self._plot_type = 'main'
 
         self.scripts['acquire_image'].updateProgress.connect(self._receive_signal)
 
@@ -75,8 +68,6 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
             self.save_b26()
             self.save_data()
             self.save_log()
-
-        self.updateProgress.emit(100)
 
     def stop(self):
         self.scripts['acquire_image'].stop()

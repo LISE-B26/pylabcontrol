@@ -2,8 +2,6 @@ from src.core.scripts import Script
 from src.core import Parameter
 from src.instruments import Pulse
 from src.scripts import ExecutePulseBlasterSequence
-
-from PySide.QtCore import Signal, QThread
 import numpy as np
 
 AVERAGES_PER_SCAN = 1000000  # 1E6
@@ -61,4 +59,3 @@ if __name__ == '__main__':
     print('failed', failed)
     print(instr)
 
-    print(isinstance(script['PulseDelays'], QThread))

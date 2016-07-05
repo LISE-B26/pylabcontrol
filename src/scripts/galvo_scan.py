@@ -1,6 +1,4 @@
 from src.core import Script, Parameter
-# from PySide.QtCore import Signal, QThread, QReadWriteLock
-from PyQt4.QtCore import pyqtSignal, QThread
 import numpy as np
 from src.instruments.NIDAQ import DAQ
 from src.plotting.plots_2d import plot_fluorescence
@@ -9,12 +7,11 @@ import datetime
 import Queue
 
 
-class GalvoScan(Script, QThread):
+class GalvoScan(Script):
     """
     GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,
     resulting in an image in the current field of view of the objective.
     """
-    updateProgress = pyqtSignal(int)
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  '', str, 'path to folder where data is saved'),
@@ -56,30 +53,20 @@ class GalvoScan(Script, QThread):
             data_path: path to save data
 
         '''
-        self.plot_widget = None
-
         Script.__init__(self, name, settings=settings, instruments=instruments, log_function=log_function,
                         data_path = data_path)
-
-        QThread.__init__(self)
-
-        self._plot_type = 'main'
-
-        self.queue = Queue.Queue()
-
-        self._plotting = False
 
     def _function(self):
         """
         Executes threaded galvo scan
         """
-        update_time = datetime.datetime.now()
+        # update_time = datetime.datetime.now()
 
-        self._plot_refresh = True
+        # self._plot_refresh = True
 
         self.updateProgress.emit(1)
 
-        self._plotting = True
+        # self._plotting = True
 
         def init_scan():
             self._recording = False
@@ -138,25 +125,23 @@ class GalvoScan(Script, QThread):
             self.data['image_data'][yNum] = summedData * (.001/self.settings['time_per_pt'])
 
 
+            # JG: this should not be necessary anymore because the gui ignores frequently fired signals
+            # current_time = datetime.datetime.now()
+            # #prevents emits to the gui too often, which seems to slow it down
+            # if ((current_time - update_time).total_seconds() > 0.1):
+            #     progress = int(float(yNum + 1) / len(self.y_array) * 100)
+            #     self.updateProgress.emit(progress)
+            #     update_time = current_time
 
-            current_time = datetime.datetime.now()
-            #prevents emits to the gui too often, which seems to slow it down
-            if ((current_time - update_time).total_seconds() > 0.1):
-                progress = int(float(yNum + 1) / len(self.y_array) * 100)
-                self.updateProgress.emit(progress)
-                update_time = current_time
 
-        progress = 100
-        self.updateProgress.emit(progress)
-
-        self._plotting = False
+        # self._plotting = False
 
         #saves standard values and the galvo image plot
         if self.settings['save']:
             self.save_b26()
             self.save_data()
             self.save_log()
-            self._plot_refresh = True
+            # self._plot_refresh = True
             self.save_image_to_disk()
 
 
@@ -200,8 +185,10 @@ class GalvoScan(Script, QThread):
                                                    axes_colorbar=axes_colorbar)
 
     def _update_plot(self, axes_list):
+        axes = axes_list[0]
+        implot = axes.images
         plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
-                          max_counts=self.settings['max_counts_plot'], implot=self.implot, cbar=self.cbar)
+                          max_counts=self.settings['max_counts_plot'], implot=implot, cbar=self.cbar)
 
     def get_axes_layout(self, figure_list):
         """
@@ -214,15 +201,9 @@ class GalvoScan(Script, QThread):
             axes_list: a list of axes objects
 
         """
-        new_figure_list = [figure_list[0]]
-        return super(GalvoScan, self).get_axes_layout(new_figure_list)
 
-    def stop(self):
-        '''
-        Stops galvo scan
-        '''
-        self._abort = True
-
+        # only pick the first figure from the figure list, this avoids that get_axes_layout clears all the figures
+        return super(GalvoScan, self).get_axes_layout([figure_list[0]])
 
 if __name__ == '__main__':
     script, failed, instruments = Script.load_and_append(script_dict={'GalvoScan': 'GalvoScan'})

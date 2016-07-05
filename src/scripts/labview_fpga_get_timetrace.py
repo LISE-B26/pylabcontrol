@@ -1,5 +1,4 @@
 from src.core import Script, Parameter
-from PyQt4.QtCore import pyqtSignal, QThread
 from collections import deque
 import numpy as np
 from src.instruments import NI7845RReadFifo
@@ -7,8 +6,7 @@ import time
 from copy import deepcopy
 from src.labview_fpga_lib.labview_fpga_error_codes import LabviewFPGAException
 
-class LabviewFpgaTimetrace(Script, QThread):
-    updateProgress = pyqtSignal(int)
+class LabviewFpgaTimetrace(Script):
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
@@ -26,10 +24,7 @@ class LabviewFpgaTimetrace(Script, QThread):
 
     def __init__(self, instruments, name = None, settings = None, log_function = None, data_path = None):
 
-        self._recording = False
-
         Script.__init__(self, name, settings, instruments, log_function= log_function, data_path = data_path)
-        QThread.__init__(self)
 
         self.data = deque()
 
@@ -97,14 +92,13 @@ class LabviewFpgaTimetrace(Script, QThread):
                 self.updateProgress.emit(progress)
 
         self._recording = False
-        progress = 100 # make sure that progess is set 1o 100 because we check that in the old_gui
 
         if self.settings['save']:
             self.save_b26()
 
 
-    def plot(self, figure):
-        axes = self.get_axes_layout(image_figure)
+    def _plot(self, axes_list):
+        axes = axes_list[0]
 
 
         r = self.data[-1]['AI1']

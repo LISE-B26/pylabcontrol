@@ -4,7 +4,7 @@ import time
 import numpy as np
 from copy import deepcopy
 
-class MWSpectraVsPower(Script, QThread):
+class MWSpectraVsPower(Script):
 
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = Parameter([

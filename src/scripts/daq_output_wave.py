@@ -1,5 +1,4 @@
 import ctypes
-from PyQt4.QtCore import pyqtSignal, QThread
 
 from src.core import Script, Parameter
 from src.instruments import NIDAQ
@@ -29,8 +28,7 @@ DAQmx_Val_CountUp = 10128
 DAQmx_Val_Hz = 10373; #Hz
 DAQmx_Val_Low =10214; #Low
 
-class Daq_Output_Wave(Script, QThread):
-    updateProgress = pyqtSignal(int)
+class Daq_Output_Wave(Script):
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),

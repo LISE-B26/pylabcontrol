@@ -1,6 +1,4 @@
 import numpy as np
-# from PySide.QtCore import Signal, QThread
-from PyQt4.QtCore import pyqtSignal, QThread
 from matplotlib import patches
 
 from src.core import Script, Parameter
@@ -11,8 +9,7 @@ from src.scripts import FindMaxCounts2D
 import os
 
 
-class ESR_Selected_NVs(Script, QThread):
-    updateProgress = pyqtSignal(int)
+class ESR_Selected_NVs(Script):
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('path', '', str, 'path for data'),
@@ -27,9 +24,6 @@ class ESR_Selected_NVs(Script, QThread):
                 'acquire_image': GalvoScanWithLightControl,
                 'move_to_point': SetLaser}
 
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
 
     def __init__(self, instruments = None, scripts = None, name = None, settings = None, log_function = None, data_path = None):
         """
@@ -38,13 +32,8 @@ class ESR_Selected_NVs(Script, QThread):
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        self._abort = False
 
         Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
-
-        QThread.__init__(self)
-
-        self._plot_type = 'two'
 
         self.index = 0
 
@@ -83,8 +72,6 @@ class ESR_Selected_NVs(Script, QThread):
 
         self.scripts['acquire_image'].updateProgress.connect(self._receive_signal_2)
 
-
-        self._abort = False
         self.current_stage = None
 
 
@@ -183,7 +170,6 @@ class ESR_Selected_NVs(Script, QThread):
 
         self.current_stage = 'finished'
 
-        self.updateProgress.emit(100)
         if self.settings['save']:
             self.current_stage = 'saving'
             self.save_b26()
