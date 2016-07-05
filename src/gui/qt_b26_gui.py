@@ -224,6 +224,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # == create a thread for the scripts ==
         self.script_thread = QThread()
+        self._last_progress_update = None # used to keep track of status updates, to block updates when they occur to often
 
     def closeEvent(self, event):
         if self.config_filename:
@@ -426,9 +427,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 self.log('starting {:s}'.format(script.name))
 
-
                 # put script onto script thread
                 print('===== start ====')
+                # self.script_thread = QThread()
                 script_thread = self.script_thread
                 script.moveToThread(script_thread)
 
@@ -727,11 +728,20 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         waits for a signal emitted from a thread and updates the gui
         Args:
             progress:
-
         Returns:
 
         """
-        # print('SIGNAL')
+
+        # interval at which the gui will be updated, if requests come in faster than they will be ignored
+        update_interval = 0.2
+
+        now = datetime.datetime.now()
+
+        if not self._last_progress_update is None and now-self._last_progress_update < datetime.timedelta(seconds=update_interval):
+            return
+
+        self._last_progress_update = now
+
         self.progressBar.setValue(progress)
 
         # Estimate remaining time if progress has been made

@@ -8,7 +8,7 @@ import os
 import psutil
 import numpy as np
 import Queue
-
+from PyQt4.QtCore import QThread
 try:
     from src.instruments import DummyInstrument
 except:
@@ -44,8 +44,7 @@ class ScriptDummy(Script):
             settings (optional): settings for this script, if empty same as default settings
         """
         Script.__init__(self, name, settings, log_function= log_function, data_path = data_path)
-        # self._plot_type = 'main'
-        self.data['random data'] = []
+
 
 
     def _function(self):
@@ -57,7 +56,8 @@ class ScriptDummy(Script):
         # some generic function
         import time
         import random
-
+        self.data['random data'] = None
+        self.data['image data'] = None
         count = self.settings['count']
         name = self.settings['name']
         wait_time = self.settings['wait_time']
@@ -91,24 +91,19 @@ class ScriptDummy(Script):
 
         plot_type = self.settings['plot_style']
 
+        self.log('PLOTTING {:s}'.format(plot_type))
+        if plot_type in ('main', 'two'):
+            if not self.data['random data'] is None:
+                axes_list[0].plot(self.data['random data'])
+                axes_list[0].hold(False)
+        if plot_type in ('aux', 'two', '2D'):
+            if not self.data['random data'] is None:
+                axes_list[1].plot(self.data['random data'])
+                axes_list[1].hold(False)
+        if plot_type == '2D':
+            if not self.data['image data'] is None:
+                plot_fluorescence(self.data['image data'], [-1,1,1,-1], axes_list[0])
 
-        if plot_type == 'main':
-            axes_list[0].plot(self.data['random data'])
-            axes_list[0].hold(False)
-        elif plot_type == 'aux':
-            axes_list[1].plot(self.data['random data'])
-            axes_list[1].hold(False)
-            self.log('PLOTTING aux')
-        elif plot_type == 'two':
-            axes_list[0].plot(self.data['random data'])
-            axes_list[1].plot(self.data['random data'])
-            axes_list[0].hold(False)
-            axes_list[1].hold(False)
-            self.log('PLOTTING aux')
-
-        elif plot_type == '2D':
-            plot_fluorescence(self.data['image data'], [-1,1,1,-1], axes_list[0])
-            axes_list[1].plot(self.data['random data'])
 
     def _update(self, axes_list):
         """
