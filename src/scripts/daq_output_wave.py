@@ -30,13 +30,10 @@ DAQmx_Val_Low =10214; #Low
 
 class Daq_Output_Wave(Script):
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', True, bool,'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('sample_rate', 1000, int, 'sample rate of output waveform'),
         Parameter('waveform', [0], float, 'waveform to output on run')
-    ])
+    ]
 
     _INSTRUMENTS = {'daq':  NIDAQ}
 

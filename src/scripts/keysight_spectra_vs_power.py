@@ -8,15 +8,12 @@ import time
 class KeysightSpectrumVsPower(Script):
 
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', '', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', False, bool, 'save data on/off'),
+    _DEFAULT_SETTINGS = [
         Parameter('power_out_min',-45.0, float, 'output power (dBm) min'),
         Parameter('power_out_step',5.0, float, 'output power (dBm) step'),
         Parameter('power_out_max',-15.0, float, 'output power (dBm) max'),
         Parameter('wait_time',2.0, float, 'wait time in seconds')
-    ])
+    ]
 
     _INSTRUMENTS = {
         'cryo_station' : CryoStation

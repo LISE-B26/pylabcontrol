@@ -4,9 +4,9 @@ from src.instruments import MaestroLightControl
 
 class CameraOn(Script):
 
-    _DEFAULT_SETTINGS = Parameter([
+    _DEFAULT_SETTINGS = [
         Parameter('On', True, bool, '')
-    ])
+    ]
 
     _INSTRUMENTS = {
         'light_control' : MaestroLightControl

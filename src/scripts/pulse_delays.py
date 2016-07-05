@@ -9,10 +9,7 @@ AVERAGES_PER_SCAN = 1000000  # 1E6
 
 class PulseDelays(ExecutePulseBlasterSequence):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('save', False, bool, 'Save data?'),
-        Parameter('path', '', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
+    _DEFAULT_SETTINGS = [
         Parameter('count_source_pulse_width', 10000, int, 'How long to pulse the count source (in ns)'),
         Parameter('measurement_gate_pulse_width', 15, int, 'How long to have the DAQ acquire data (in ns)'),
         Parameter('min_delay', 0, int, 'minimum delay over which to scan'),
@@ -20,7 +17,7 @@ class PulseDelays(ExecutePulseBlasterSequence):
         Parameter('delay_interval_step_size', 15, int, 'Amount delay is increased for each new run'),
         Parameter('num_averages', 1000, int, 'number of times to average for each delay'),
         Parameter('reset_time', 10000, int, 'How long to wait for laser to turn off and reach steady state')
-    ])
+    ]
 
     def _create_pulse_sequences(self):
         '''

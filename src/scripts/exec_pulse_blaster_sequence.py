@@ -21,7 +21,7 @@ standard Script such as plotting.
 To use this class, the inheriting class need only overwrite _create_pulse_sequences to create the proper pulse sequence
 for a given experiment
     '''
-    _DEFAULT_SETTINGS = Parameter(None)
+    _DEFAULT_SETTINGS = []
 
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 

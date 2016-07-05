@@ -8,15 +8,12 @@ from src.labview_fpga_lib.labview_fpga_error_codes import LabviewFPGAException
 
 class LabviewFpgaTimetrace(Script):
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', False, bool,'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('dt', 200, int, 'sample period of acquisition loop in ticks (40 MHz)'),
         Parameter('N', 10000, int, 'numer of samples'),
         # Parameter('TimeoutBuffer', 0, int, 'time after which buffer times out in clock ticks (40MHz)'),
         Parameter('BlockSize', 1000, int, 'block size of chunks that are read from FPGA'),
-    ])
+    ]
 
     _INSTRUMENTS = {'fpga' : NI7845RReadFifo}
 

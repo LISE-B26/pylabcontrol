@@ -8,12 +8,9 @@ class GalvoScanWithLightControl(Script):
 Takes an image based in galvo scan script and controls light with MaestroLightControl instrument
     """
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', '', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', False, bool, 'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('light_mode','fluorescence', ['fluorescence', 'reflection'])
-    ])
+    ]
 
     _INSTRUMENTS = {'MaestroLightControl': MaestroLightControl}
 

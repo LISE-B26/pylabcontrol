@@ -7,17 +7,14 @@ from copy import deepcopy
 class MWSpectraVsPower(Script):
 
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', '', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', False, bool, 'save data on/off'),
+    _DEFAULT_SETTINGS = [
         # Parameter('start_frequency', 2.7e9, float, 'start frequency of spectrum'),
         # Parameter('end_frequency', 3e9, float, 'end frequency of spectrum'),
         Parameter('uwave_power_min', -45.0, float, 'microwave power min (dBm)'),
         Parameter('uwave_power_max', -12.0, float,'microwave power max (dBm)'),
         Parameter('uwave_power_step', 2.0, float,'microwave power step (dBm)'),
         Parameter('wait_time', 2.0, float,'time to wait after change in power (seconds)')
-    ])
+    ]
 
     _INSTRUMENTS = {
         'microwave_generator' : MicrowaveGenerator,

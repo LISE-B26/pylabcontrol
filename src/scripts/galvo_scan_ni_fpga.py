@@ -13,12 +13,9 @@ GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting p
 resulting in an image in the current field of view of the objective.
     """
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', False, bool,'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('max_counts_plot', -1, int, 'Rescales colorbar with this as the maximum counts on replotting')
-    ])
+    ]
 
     _INSTRUMENTS = {'NI7845RGalvoScan':  NI7845RGalvoScan}
 

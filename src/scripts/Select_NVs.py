@@ -100,7 +100,7 @@ from src.scripts import Find_Points
 
 # todo: rename script to Select_NVs (first make sure it works with the new plotting)
 class Select_NVs_Simple(Script):
-    _DEFAULT_SETTINGS = Parameter('patch_size', 0.003)
+    _DEFAULT_SETTINGS = [Parameter('patch_size', 0.003)]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}

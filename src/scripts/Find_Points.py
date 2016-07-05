@@ -23,19 +23,16 @@ import skimage.feature as feature
 from src.plotting.plots_2d import plot_fluorescence_new
 
 class Find_Points(Script):
-    _DEFAULT_SETTINGS = Parameter([
+    _DEFAULT_SETTINGS = [
         Parameter('image_path', 'Z:/Lab/Cantilever/Measurements/__test_data_for_coding/', str, 'path for data'),
         Parameter('image_tag', 'some_name', str, 'some_name'),
-        Parameter('path', '', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', False, bool, 'save data on/off'),
         Parameter('fit_values',[
             Parameter('min_separation', 2.0, float, 'minimum seperation between adjacent points in um'),
             Parameter('point_size', 0.5, float, 'size of point in um'),
             Parameter('min_NV_counts', 0.015, float, 'the minimum of NV counts (in kCounts) to be considered a valid NV'),
             Parameter('image_size', 15.0, float, 'size of image in (um)')
         ])
-    ])
+    ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}

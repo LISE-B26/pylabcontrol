@@ -19,7 +19,7 @@ class ScriptDummy(Script):
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
 
-    _DEFAULT_SETTINGS = Parameter([
+    _DEFAULT_SETTINGS = [
         Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data',),
         Parameter('tag', 'dummy_tag', str, 'tag for data'),
         Parameter('save', False, bool, 'save data on/off'),
@@ -31,7 +31,7 @@ class ScriptDummy(Script):
                   Parameter('y', 0.1, float, 'y-coordinate')
                   ]),
         Parameter('plot_style', 'main', ['main', 'aux', '2D', 'two'])
-    ])
+    ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}
@@ -130,11 +130,11 @@ class ScriptDummyCounter(Script):
     """
     legacy script: now QT signals are not used anymorein scripts
     """
-    _DEFAULT_SETTINGS = Parameter([
+    _DEFAULT_SETTINGS = [
         Parameter('count', 10, int),
         Parameter('name', 'this is a counter'),
         Parameter('wait_time', 0.1, float)
-    ])
+    ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}
@@ -176,14 +176,11 @@ class ScriptDummyCounter(Script):
 
 class ScriptDummyWithInstrument(Script):
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', True, bool, 'save data on/off'),
+    _DEFAULT_SETTINGS = [
         Parameter('count', 0, int),
         Parameter('name', 'this is a counter'),
         Parameter('wait_time', 0.1, float)
-    ])
+    ]
 
     _INSTRUMENTS = {
         'dummy_instrument' : DummyInstrument
@@ -234,9 +231,9 @@ class ScriptDummyWithInstrument(Script):
 
 class ScriptDummyWithSubScript(Script):
 
-    _DEFAULT_SETTINGS = Parameter([
+    _DEFAULT_SETTINGS = [
         Parameter('repetitions', 0, int, 'times the subscript will be executed')
-    ])
+    ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {'sub_script':ScriptDummy, 'sub_script_instr':ScriptDummyWithInstrument,
@@ -292,9 +289,9 @@ class ScriptDummyWithSubScript(Script):
 
 class ScriptDummyWithNestedSubScript(Script):
 
-    _DEFAULT_SETTINGS = Parameter([
+    _DEFAULT_SETTINGS = [
         Parameter('repetitions', 0, int, 'times the subscript will be executed')
-    ])
+    ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {'sub_script':ScriptDummy, 'sub_sub_script':ScriptDummyWithSubScript}
@@ -344,11 +341,11 @@ class ScriptDummyWithNestedSubScript(Script):
 
 class ScriptDummyPlotMemoryTest(Script):
 
-    _DEFAULT_SETTINGS = Parameter([
+    _DEFAULT_SETTINGS = [
         Parameter('datasize', 10, int, 'number of datapoints'),
         Parameter('repetition rate (s)', 0.1, float, 'time in between iterations'),
         Parameter('data_type', 'line', ['line', '2D'], 'data visualization mode')
-    ])
+    ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}
@@ -414,10 +411,7 @@ class ScriptDummySaveData(Script):
 This Dummy script is used to test saving of data, it takes a data set as input and save it with the internal save function of the Script class
     """
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data')
-    ])
+    _DEFAULT_SETTINGS = []
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}

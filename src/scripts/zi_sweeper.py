@@ -9,10 +9,7 @@ class ZISweeper(Script):
     """
 This script performs a frequency sweep with the Zurich Instrument HF2 Series Lock-in amplifier
     """
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  '', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', False, bool,'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('start', 1.8e6, float, 'start value of sweep'),
         Parameter('stop', 1.9e6, float, 'end value of sweep'),
         Parameter('samplecount', 101, int, 'number of data points'),
@@ -22,8 +19,7 @@ This script performs a frequency sweep with the Zurich Instrument HF2 Series Loc
         Parameter('scan', 0, [0, 1, 2], 'scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)'),
         Parameter('loopcount', 1, int, 'number of times it sweeps'),
         Parameter('averaging/sample', 1, int, 'number of samples to average over')
-
-    ])
+    ]
 
     _INSTRUMENTS = {'zihf2' : ZIHF2}
 

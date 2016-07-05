@@ -11,12 +11,7 @@ import os
 
 class ESR_Selected_NVs(Script):
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', '', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', False, bool, 'save data on/off')
-    ])
-
+    _DEFAULT_SETTINGS = []
     _INSTRUMENTS = {}
     _SCRIPTS = {'StanfordResearch_ESR': StanfordResearch_ESR,
                 'Find_Max': FindMaxCounts2D,

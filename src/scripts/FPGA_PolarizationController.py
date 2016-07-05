@@ -10,10 +10,7 @@ class FPGA_PolarizationController(Script):
     """
 script to balance photodetector to zero by adjusting polarization controller voltages
     """
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', True, bool, 'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('channel_WP_1', 5, range(8), 'analog channel that controls waveplate 1'),
         Parameter('channel_WP_2', 6, range(8), 'analog channel that controls waveplate 2'),
         Parameter('channel_WP_3', 7, range(8), 'analog channel that controls waveplate 3'),
@@ -22,7 +19,7 @@ script to balance photodetector to zero by adjusting polarization controller vol
         Parameter('V_3', 2.0, float, 'voltage applied to waveplate 3'),
         Parameter('channel_OnOff', 4, [4,5,6,7], 'digital channel that turns polarization controller on/off'),
         Parameter('channel_detector', 0, range(4), 'analog input channel of the detector signal')
-    ])
+    ]
 
     _INSTRUMENTS = {
         'FPGA_IO': NI7845RReadWrite
@@ -121,10 +118,7 @@ the script scans the voltage of all three channels from 0 to 5 volt and records 
 this gives a three dimensional dataset
     """
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', True, bool, 'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('WP_1', [
             Parameter('channel', 5, range(8), 'analog channel that controls waveplate 1'),
             Parameter('V_min', 0.0, float, 'minimum voltage of scan'),
@@ -148,7 +142,7 @@ this gives a three dimensional dataset
         # Parameter('channel_WP_3', 7, range(8), 'analog channel that controls waveplate 3'),
         Parameter('channel_OnOff', 4, [4,5,6,7], 'digital channel that turns polarization controller on/off'),
         Parameter('channel_detector', 0, range(4), 'analog input channel of the detector signal')
-    ])
+    ]
 
     _INSTRUMENTS = {
         'FPGA_IO': NI7845RReadWrite
@@ -386,10 +380,7 @@ the script scans the voltage of  channel 2 from 0 to 5 volt and records the dete
 this gives a one dimensional dataset
     """
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', True, bool, 'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('channel_WP_1', 5, range(8), 'analog channel that controls waveplate 1'),
         Parameter('channel_WP_2', 6, range(8), 'analog channel that controls waveplate 2'),
         Parameter('channel_WP_3', 7, range(8), 'analog channel that controls waveplate 3'),
@@ -403,7 +394,7 @@ this gives a one dimensional dataset
                    Parameter('number', 10, int, 'number of voltage steps applied to waveplate 2')]
                   ),
         Parameter('settle_time', 1.0, float, 'settle time in seconds between voltage steps')
-    ])
+    ]
 
     _INSTRUMENTS = {
         'FPGA_IO': NI7845RReadWrite
@@ -512,10 +503,7 @@ class FPGA_BalancePolarization(Script):
     two channels are set to a fixed voltage while the signal of the third channel is varied until the detector response is zero
     """
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', 'C:\\Users\\Experiment\\Desktop\\tmp_data', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', True, bool, 'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('channel_WP_1', 5, range(8), 'analog channel that controls waveplate 1'),
         Parameter('channel_WP_2', 6, range(8), 'analog channel that controls waveplate 2'),
         Parameter('channel_WP_3', 7, range(8), 'analog channel that controls waveplate 3'),
@@ -530,7 +518,7 @@ class FPGA_BalancePolarization(Script):
                   ),
         Parameter('settle_time', 1.0, float, 'settle time in seconds between voltage steps'),
         Parameter('V_2_min', False, bool, 'if true set V2 to the min value and don\'t update')
-    ])
+    ]
 
     _INSTRUMENTS = {
         'FPGA_IO': NI7845RReadWrite

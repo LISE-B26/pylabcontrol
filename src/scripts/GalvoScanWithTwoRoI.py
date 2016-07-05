@@ -9,10 +9,7 @@ Select two regions of interest (RoI) and the light mode for each (fluorescence o
 Takes an image based on GalvoScanWithLightControl script which takes image based in GalvoScan script and controls light with MaestroLightControl instrument
     """
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', '\\tmp_data', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', False, bool, 'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('RoI_1',[
             Parameter('point_a',
                     [Parameter('x', -0.4, float, 'x-coordinate'),
@@ -49,7 +46,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
                       [Parameter('x', 20, int, 'number of x points to scan'),
                        Parameter('y', 20, int, 'number of y points to scan')
                        ])
-    ])
+    ]
 
     _INSTRUMENTS = {}
 

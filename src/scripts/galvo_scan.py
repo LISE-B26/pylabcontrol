@@ -13,10 +13,7 @@ class GalvoScan(Script):
     resulting in an image in the current field of view of the objective.
     """
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  '', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', False, bool,'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('point_a',
                   [Parameter('x', -0.4, float, 'x-coordinate'),
                    Parameter('y', -0.4, float, 'y-coordinate')
@@ -35,7 +32,7 @@ class GalvoScan(Script):
         Parameter('time_per_pt', .001, [.001, .002, .005, .01, .015, .02], 'time in s to measure at each point'),
         Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle'),
         Parameter('max_counts_plot', -1, int, 'Rescales colorbar with this as the maximum counts on replotting')
-    ])
+    ]
 
     _INSTRUMENTS = {'daq':  DAQ}
 

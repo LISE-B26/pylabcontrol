@@ -14,10 +14,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             is focused.
     """
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', '', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', False, bool, 'save data on/off'),
+    _DEFAULT_SETTINGS = [
         Parameter('save_images', False, bool, 'save image taken at each voltage'),
         Parameter('piezo_min_voltage', 45, float, 'lower bound of piezo voltage sweep'),
         Parameter('piezo_max_voltage', 60, float, 'upper bound of piezo voltage sweep'),
@@ -28,7 +25,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         Parameter('refined_scan', True, bool, 'Enable refined scan for hysteresis correction'),
         Parameter('refined_scan_range', 1.5, float, 'Width of refined scan'),
         Parameter('refined_scan_num_pts', 30, int, 'Number of points in refined scan')
-    ])
+    ]
 
     _INSTRUMENTS = {
         'z_piezo': PiezoController

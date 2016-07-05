@@ -15,11 +15,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             is focused.
     """
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', '----data_tmp_default----', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', False, bool, 'save data on/off')
-    ])
+    _DEFAULT_SETTINGS = []
 
     _SCRIPTS = {
         'take_image': GalvoScanNIFpga

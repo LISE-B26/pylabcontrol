@@ -16,10 +16,7 @@ Known issues:
     1.) if fits are poor, check  sweep_range. It should extend significantly beyond end of NV on both sides.
     """
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  '', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', False, bool,'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('initial_point',
                   [Parameter('x', 0, float, 'x-coordinate'),
                    Parameter('y', 0, float, 'y-coordinate')
@@ -29,7 +26,7 @@ Known issues:
         Parameter('nv_size', 11, int, 'TEMP: size of nv in pixels - need to be refined!!'),
         Parameter('min_mass', 180, int, 'TEMP: brightness of nv - need to be refined!!'),
         Parameter('number_of_attempts', 1, int, 'Number of times to decrease min_mass if an NV is not found')
-    ])
+    ]
 
     # todo: make minmass and nv_size more intelligent, i.e. uses extend to calculate the expected size and brightness
     _INSTRUMENTS = {}

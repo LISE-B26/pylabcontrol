@@ -9,14 +9,11 @@ import psutil
 
 class ESR_And_Push(Script):
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', '', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', False, bool, 'save data on/off'),
+    _DEFAULT_SETTINGS = [
         Parameter('number_of_step_instances', 0, int, 'number of times to do steps_per_instance steps'),
         Parameter('steps_per_instance', 1, int, 'number of steps in between each ESR'),
         Parameter('take_reflection_images', True, bool, 'Take reflection images between pushes for post processing correlation')
-    ])
+    ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {'ESR_Selected_NVs': ESR_Selected_NVs,

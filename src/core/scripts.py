@@ -30,6 +30,13 @@ class Script(QObject):
     #an integer argument when emitting.
     updateProgress = pyqtSignal(int)
     finished = pyqtSignal()
+
+    _DEFAULT_SETTINGS = [
+        Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),
+        Parameter('tag', 'some_name'),
+        Parameter('save', False, bool,'check to automatically save data'),
+    ]
+
     def __init__(self, name=None, settings=None, instruments=None, scripts=None, log_function=None, data_path=None):
         """
         executes scripts and stores script parameters and settings
@@ -68,7 +75,9 @@ class Script(QObject):
         self.start_time = datetime.datetime.now()
         self.end_time = self.start_time - datetime.timedelta(seconds=1)
 
-        self._settings = deepcopy(self._DEFAULT_SETTINGS)
+
+        # self._settings = deepcopy(self._DEFAULT_SETTINGS)
+        self._settings = Parameter(self._DEFAULT_SETTINGS+ Script._DEFAULT_SETTINGS)
 
         if settings is not None:
             self.update(settings)
@@ -125,12 +134,12 @@ class Script(QObject):
         else:
             self.log_function(string)
 
-    @property
-    def _DEFAULT_SETTINGS(self):
-        """
-        returns the default parameter_list of the script this function should be over written in any subclass
-        """
-        raise NotImplementedError("Subclass did not implement _DEFAULT_SETTINGS")
+    # @property
+    # def _DEFAULT_SETTINGS(self):
+    #     """
+    #     returns the default parameter_list of the script this function should be over written in any subclass
+    #     """
+    #     raise NotImplementedError("Subclass did not implement _DEFAULT_SETTINGS")
 
     @property
     def _INSTRUMENTS(self):

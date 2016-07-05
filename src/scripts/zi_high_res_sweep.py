@@ -13,13 +13,10 @@ class ZISweeperHighResolution(Script):
 This script takes a high resolution frequency sweep with the Zurich Instrument HF2 Lock-in amplifier.
 First it acquires a sweep over a larger frequecy range. Then it finds the maximum signal and performs a second sweep with high resolution around that maximum.
     """
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path',  '', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
-        Parameter('save', False, bool,'check to automatically save data'),
+    _DEFAULT_SETTINGS = [
         Parameter('high_res_df', 1000, float, 'frequency step of high res. scan'),
         Parameter('high_res_N', 21, int, 'number of data points of high res. scan'),
-    ])
+    ]
 
     _INSTRUMENTS = {}
 

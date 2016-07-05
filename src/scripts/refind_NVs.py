@@ -5,13 +5,10 @@ import os
 
 class Refind_NVs(Script):
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', '', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', False, bool, 'save data on/off'),
+    _DEFAULT_SETTINGS = [
         Parameter('activate_correlation', True, bool, 'perform correlation'),
         Parameter('activate_autofocus', True, bool, 'perform autofocus')
-    ])
+    ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {'Correlate_Images': Take_And_Correlate_Images_2,

@@ -12,10 +12,7 @@ from src.plotting.plots_1d import plot_esr
 
 class StanfordResearch_ESR(Script):
     # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', '', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', False, bool, 'save data on/off'),
+    _DEFAULT_SETTINGS = [
         Parameter('power_out', -45.0, float, 'output power (dBm)'),
         Parameter('esr_avg', 50, int, 'number of esr averages'),
         Parameter('freq_start', 2.82e9, float, 'start frequency of scan'),
@@ -23,7 +20,7 @@ class StanfordResearch_ESR(Script):
         Parameter('freq_points', 100, int, 'number of frequencies in scan'),
         Parameter('integration_time', 0.01, float, 'measurement time of fluorescent counts'),
         Parameter('settle_time', .0002, float, 'time to allow system to equilibrate after changing microwave powers')
-    ])
+    ]
 
     _INSTRUMENTS = {
         'microwave_generator': MicrowaveGenerator,

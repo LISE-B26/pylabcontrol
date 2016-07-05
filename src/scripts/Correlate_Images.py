@@ -181,12 +181,9 @@ class Take_And_Correlate_Images_2(Script):
     nvs based on this shift so that they will give the current coordinates of those nvs
     '''
 
-    _DEFAULT_SETTINGS = Parameter([
-        Parameter('path', '', str, 'path for data'),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', False, bool, 'save data on/off'),
+    _DEFAULT_SETTINGS = [
         Parameter('use_trackpy', False, bool, 'Use trackpy to create artificial nv-only images to filter out background')
-    ])
+    ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {'GalvoScan': GalvoScanWithLightControl}

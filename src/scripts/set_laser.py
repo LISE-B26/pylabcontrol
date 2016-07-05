@@ -10,12 +10,12 @@ class SetLaser(Script):
 This script points the laser to a point
     """
 
-    _DEFAULT_SETTINGS = Parameter([
+    _DEFAULT_SETTINGS = [
         Parameter('point',
                   [Parameter('x', -0.4, float, 'x-coordinate'),
                    Parameter('y', -0.4, float, 'y-coordinate')
                    ])
-    ])
+    ]
 
     _INSTRUMENTS = {'daq':  DAQ}
 
