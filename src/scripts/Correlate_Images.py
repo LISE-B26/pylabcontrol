@@ -245,7 +245,7 @@ class Take_And_Correlate_Images_2(Script):
     def _plot(self, axes_list):
         data = self.scripts['GalvoScan'].data['image_data']
         extent = self.scripts['GalvoScan'].data['extent']
-        self.implot, self.cbar = plot_fluorescence_new(data, extent, axes_list[1])
+        plot_fluorescence_new(data, extent, axes_list[1])
         if not self.data['correlation_image'] == []:
             axes_list[0].imshow(self.data['correlation_image'])
 

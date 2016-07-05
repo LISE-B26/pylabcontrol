@@ -2,7 +2,6 @@ from src.core import Script, Parameter
 from src.instruments import MaestroLightControl
 from src.scripts import GalvoScan
 from copy import deepcopy
-from src.plotting.plots_2d import plot_fluorescence
 
 class GalvoScanWithLightControl(Script):
     """

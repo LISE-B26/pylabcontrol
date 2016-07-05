@@ -1,7 +1,7 @@
 from src.core import Script, Parameter
 import numpy as np
 from src.instruments.NIDAQ import DAQ
-from src.plotting.plots_2d import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence_new, update_fluorescence
 import time
 import datetime
 import Queue
@@ -171,7 +171,7 @@ class GalvoScan(Script):
             yVmax = pta['y'] + float(ptb['y']) / 2.
         return [xVmin, xVmax, yVmax, yVmin]
 
-    def _plot(self, axes_list, axes_colorbar=None):
+    def _plot(self, axes_list):
         '''
         Plots the galvo scan image to the input figure, clearing the figure and creating new axes if necessary
         Args:
@@ -180,15 +180,12 @@ class GalvoScan(Script):
 
         '''
         # if 'image_data' in self.data.keys() and not self.data['image_data'] == []:
-        self.implot, self.cbar = plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
-                                                   max_counts=self.settings['max_counts_plot'],
-                                                   axes_colorbar=axes_colorbar)
+        plot_fluorescence_new(self.data['image_data'].transpose(), self.data['extent'], axes_list[0],
+                              max_counts=self.settings['max_counts_plot'])
 
     def _update_plot(self, axes_list):
-        axes = axes_list[0]
-        implot = axes.images
-        plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
-                          max_counts=self.settings['max_counts_plot'], implot=implot, cbar=self.cbar)
+        axes_image = axes_list[0]
+        update_fluorescence(self.data['image_data'].transpose(), axes_image, self.settings['max_counts_plot'])
 
     def get_axes_layout(self, figure_list):
         """

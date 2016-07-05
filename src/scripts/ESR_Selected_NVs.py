@@ -3,7 +3,7 @@ from matplotlib import patches
 
 from src.core import Script, Parameter
 from src.plotting.plots_1d import plot_esr
-from src.plotting.plots_2d import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence_new, update_fluorescence
 from src.scripts import StanfordResearch_ESR, Select_NVs_Simple, GalvoScanWithLightControl, SetLaser
 from src.scripts import FindMaxCounts2D
 import os
@@ -190,13 +190,13 @@ class ESR_Selected_NVs(Script):
             axes_image = axes_list[2]
             image = self.data['image_data']
             extend = self.data['extent']
-            self.implot, self.cbar = plot_fluorescence(image, extend, axes_image)
+            plot_fluorescence_new(image, extend, axes_image)
 
         elif self.current_stage == 'ESR':
             [axes_full_image, axes_ESR, axes_zoomed_image] = axes_list
             image = self.data['image_data']
             extend = self.data['extent']
-            plot_fluorescence(image, extend, axes_full_image)
+            plot_fluorescence_new(image, extend, axes_full_image)
             if self.scripts['StanfordResearch_ESR'].data:
                 plot_esr(self.scripts['StanfordResearch_ESR'].data[-1]['fit_params'],
                          self.scripts['StanfordResearch_ESR'].data[-1]['frequency'],
@@ -206,7 +206,7 @@ class ESR_Selected_NVs(Script):
             patch = patches.Circle((self.plot_pt[0], self.plot_pt[1]),
                                1.1 * self.scripts['select_NVs'].settings['patch_size'], fc='r', alpha=.75)
             axes_full_image.add_patch(patch)
-            plot_fluorescence(self.scripts['Find_Max'].data['image_data'], self.scripts['Find_Max'].data['extent'], axes_zoomed_image)
+            plot_fluorescence_new(self.scripts['Find_Max'].data['image_data'], self.scripts['Find_Max'].data['extent'], axes_zoomed_image)
             maximum_point = self.scripts['Find_Max'].data['maximum_point']
             patch = patches.Circle((maximum_point[0], maximum_point[1]), .001, ec='r', fc = 'none')
             axes_zoomed_image.add_patch(patch)
@@ -214,7 +214,7 @@ class ESR_Selected_NVs(Script):
             axes_image = axes_list[0]
             image = self.data['image_data']
             extend = self.data['extent']
-            plot_fluorescence(image, extend, axes_image)
+            plot_fluorescence_new(image, extend, axes_image)
             self.scripts['select_NVs'].plot([axes_image.get_figure()])
         else:
             print('current_stage FAILED', self.current_stage)
@@ -224,9 +224,7 @@ class ESR_Selected_NVs(Script):
         if self.current_stage == 'Find_Max':
             axes_image = axes_list[0]
             image = self.data['image_data']
-            extend = self.data['extent']
-            plot_fluorescence(image, extend, axes_image, implot=self.implot, cbar=self.cbar)
-
+            update_fluorescence(image, axes_image)
         elif self.current_stage == 'ESR':
             [_, axes_ESR, _] = axes_list
             if self.scripts['StanfordResearch_ESR'].data:

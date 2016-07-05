@@ -2,7 +2,7 @@ from src.core import Parameter, Script
 
 from copy import deepcopy
 from matplotlib import patches
-from src.plotting.plots_2d import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence_new, update_fluorescence
 import random
 import os
 import psutil
@@ -102,7 +102,7 @@ class ScriptDummy(Script):
                 axes_list[1].hold(False)
         if plot_type == '2D':
             if not self.data['image data'] is None:
-                plot_fluorescence(self.data['image data'], [-1,1,1,-1], axes_list[0])
+                plot_fluorescence_new(self.data['image data'], [-1,1,1,-1], axes_list[0])
 
 
     def _update(self, axes_list):
@@ -120,6 +120,7 @@ class ScriptDummy(Script):
             implot = axes_list[1].get_images()[0]
             # now update the data
             implot.set_data(self.data['random data'])
+            update_fluorescence(self.data['random data'], axes_list[1])
 
         else:
             # fall back to default behaviour
@@ -403,7 +404,7 @@ class ScriptDummyPlotMemoryTest(Script):
             img = np.array(self.data['data'][0:Nx**2])
             img = img.reshape((Nx, Nx))
             # print(img)
-            plot_fluorescence(img, [-1,1,1,-1], axes_list[0])
+            plot_fluorescence_new(img, [-1,1,1,-1], axes_list[0])
 
         axes_list[1].plot(np.array(self.data['memory'])/1000)
 

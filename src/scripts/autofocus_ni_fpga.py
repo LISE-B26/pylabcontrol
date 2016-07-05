@@ -5,8 +5,6 @@ import scipy as sp
 import os
 import time
 from copy import deepcopy
-import datetime
-from src.plotting.plots_2d import plot_fluorescence
 
 
 class AutoFocusNIFPGA(Script):

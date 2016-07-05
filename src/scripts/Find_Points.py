@@ -20,7 +20,7 @@ import skimage.feature as feature
 # REF_PIXEL_NUM = 120
 # MIN_NV_CNTS = 15
 
-from src.plotting.plots_2d import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence_new
 
 class Find_Points(Script):
     _DEFAULT_SETTINGS = Parameter([
@@ -116,7 +116,7 @@ class Find_Points(Script):
         axes = self.get_axes_layout(figure)
         image  = self.data['image']
         extend = [self.x_min, self.x_max, self.y_max, self.y_min]
-        plot_fluorescence(image, extend, axes)
+        plot_fluorescence_new(image, extend, axes)
 
         for x in self.data['NV_positions']:
             patch = patches.Circle((x[0],x[1]), .0005, fc = 'r')

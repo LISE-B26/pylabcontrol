@@ -1,7 +1,7 @@
 from src.core import Script, Parameter
 from src.scripts import GalvoScanWithLightControl
 from copy import deepcopy
-from src.plotting.plots_2d import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence_new
 
 class GalvoScanWithTwoRoI(Script):
     """
@@ -175,10 +175,13 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
             extent_roi_2 = self.data['extent_roi_2']
 
         # todo: allow user to set max_counts? Not really clear if max_counts is needed
+        # todo: maybe create a colorbar and pass it to the plot_fluorescence_new function?
         if image_data_roi_1 is not None:
-            plot_fluorescence(image_data_roi_1, extent_roi_1, axes1, axes_colorbar=axes1b)
+            # plot_fluorescence_new(image_data_roi_1, extent_roi_1, axes1, colorbar=XX)
+            plot_fluorescence_new(image_data_roi_1, extent_roi_1, axes1)
         if image_data_roi_2 is not None:
-            plot_fluorescence(image_data_roi_2, extent_roi_2, axes2, axes_colorbar=axes2b)
+            # plot_fluorescence_new(image_data_roi_2, extent_roi_2, axes2, axes_colorbar=axes2b)
+            plot_fluorescence_new(image_data_roi_2, extent_roi_2, axes2)
 
     def get_axes_layout(self, figure_list):
         figure = figure_list[0]

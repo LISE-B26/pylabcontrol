@@ -1,11 +1,4 @@
-import numpy as np
-from matplotlib import patches
-import time
-
 from src.core import Script, Parameter
-from src.instruments.NIDAQ import DAQ
-from src.plotting.plots_1d import plot_esr
-from src.plotting.plots_2d import plot_fluorescence
 from src.scripts import Take_And_Correlate_Images_2, AutoFocus
 import os
 

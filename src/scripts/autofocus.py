@@ -1,7 +1,7 @@
 from src.core import Parameter, Script
 from src.instruments import PiezoController
 from src.scripts import GalvoScanWithLightControl
-from src.plotting import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence_new
 import numpy as np
 import scipy as sp
 import os
@@ -162,7 +162,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         axis1.set_title('Autofocusing Routine')
 
         if self.current_image is not None:
-            plot_fluorescence(self.current_image, self.extent, axis2)
+            plot_fluorescence_new(self.current_image, self.extent, axis2)
 
     def stop(self):
         self._abort = True

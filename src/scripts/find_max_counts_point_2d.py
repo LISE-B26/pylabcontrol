@@ -4,7 +4,7 @@ import numpy as np
 from matplotlib import patches
 import trackpy as tp
 from copy import deepcopy
-from src.plotting.plots_2d import plot_fluorescence
+from src.plotting.plots_2d import plot_fluorescence_new, update_fluorescence
 
 
 class FindMaxCounts2D(Script):
@@ -152,11 +152,11 @@ Known issues:
         # plot image
         axes = axes_list[0]
         if self.script_stage == 'take image':
-            self.implot, self.cbar = plot_fluorescence(self.scripts['take_image'].data['image_data'],
+            self.implot, self.cbar = plot_fluorescence_new(self.scripts['take_image'].data['image_data'],
                                                        self.scripts['take_image'].data['extent'], axes)
 
         if self.script_stage != 'take image':
-            plot_fluorescence(self.data['image_data'], self.data['extent'], axes)
+            plot_fluorescence_new(self.data['image_data'], self.data['extent'], axes)
 
             # plot marker
             maximum_point = self.data['maximum_point']
@@ -164,9 +164,7 @@ Known issues:
             axes.add_patch(patch)
 
     def _update_plot(self, axes_list):
-        self.implot, self.cbar = plot_fluorescence(self.data['image_data'], self.data['extent'], axes_list[0],
-                                                   max_counts=self.settings['max_counts_plot'], implot=self.implot,
-                                                   cbar=self.cbar)
+        update_fluorescence(self.data['image_data'], axes_list[0], self.settings['max_counts_plot'])
 
     def get_axes_layout(self, figure_list):
         """
