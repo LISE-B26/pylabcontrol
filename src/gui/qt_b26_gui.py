@@ -3,12 +3,12 @@ Basic gui class designed with QT designer
 """
 from PyQt4 import QtGui, QtCore
 from PyQt4.uic import loadUiType
-from src.core import Parameter, Instrument, Script, ReadProbes, QThreadWrapper, Probe
+from src.core import Parameter, Instrument, Script, ReadProbes, Probe
 from src.gui import B26QTreeItem
 import os.path
 import numpy as np
 import json as json
-from PyQt4.QtCore import QThread
+from PyQt4.QtCore import QThread, pyqtSlot
 from src.gui import LoadDialog, LoadDialogProbes
 from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as Canvas,
                                                 NavigationToolbar2QT as NavigationToolbar)
@@ -42,13 +42,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     _DEFAULT_CONFIG = {
-        "tmp_folder": "C:/b26_tmp",
-        "data_folder": "Z:/Lab/Cantilever/Measurements",
-        "probes_folder": "../../b26_files/probes_auto_generated",
-        "instrument_folder": "../../b26_files/instruments_auto_generated",
-        "scripts_folder": "../../b26_files/scripts_auto_generated",
+        "tmp_folder": "../../b26_tmp",
+        "data_folder": "../../b26_tmp/data",
+        "probes_folder": "../../b26_files/probes_auto_generated/DummyInstrument.b26",
+        "instrument_folder": "../../b26_files/instruments_auto_generated/DummyInstrument.b26",
+        "scripts_folder": "../../b26_files/scripts_auto_generated/ScriptDummy.b26",
         "probes_log_folder": "../../b26_tmp",
-        "settings_file": 'C:/b26_tmp/gui_settings.b26'
+        "settings_file": '../../b26_tmp/pythonlab_config.b26'
     }
 
 
@@ -107,9 +107,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_gui_settings_model = QtGui.QStandardItemModel()
             self.tree_gui_settings.setModel(self.tree_gui_settings_model)
             self.tree_gui_settings_model.setHorizontalHeaderLabels(['parameter', 'value'])
-
-
-
         def connect_controls():
             # =============================================================
             # ===== LINK WIDGETS TO FUNCTIONS =============================
@@ -164,7 +161,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # set the log_filename when checking loggin
             self.chk_probe_log.toggled.connect(lambda: self.set_probe_file_name(self.chk_probe_log.isChecked()))
             self.chk_probe_plot.toggled.connect(self.btn_clicked)
-
 
         self.create_figures()
         self.tree_scripts.setColumnWidth(0, 250)
@@ -225,6 +221,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.read_probes = ReadProbes(self.probes)
         self.tabWidget.setCurrentIndex(0) # always show the script tab
 
+
+        # == create a thread for the scripts ==
+        self.script_thread = QThread()
 
     def closeEvent(self, event):
         if self.config_filename:
@@ -421,33 +420,34 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
             if item is not None:
-
+                # get script and update settings from tree
                 script, path_to_script, script_item = item.get_script()
-
                 self.update_script_from_item(script_item)
-                script.data_path = self.gui_settings['data_folder']
 
                 self.log('starting {:s}'.format(script.name))
-                # is the script is not a QThread object we use the wrapper QtScript
-                # to but it on a separate thread such that the gui remains responsive
 
-                from src.scripts import ExecutePulseBlasterSequence
-                if not isinstance(script, QThread) and not isinstance(script, ExecutePulseBlasterSequence):
-                    script = QThreadWrapper(script)
 
-                script.updateProgress.connect(self.update_status)
+                # put script onto script thread
+                print('===== start ====')
+                script_thread = self.script_thread
+                script.moveToThread(script_thread)
+
+                script.updateProgress.connect(self.update_status) # connect update signal of script to update slot of gui
+                script_thread.started.connect(script.run) # causes the script to start upon starting the thread
+                script.finished.connect(script_thread.quit)  # clean up. quit thread after script is finished
+                script.finished.connect(self.script_finished) # connect finished signal of script to finished slot of gui
+
+                # start thread, i.e. script
+                script_thread.start()
 
                 self.current_script = script
                 self.btn_start_script.setEnabled(False)
 
-                # if not isinstance(script, Select_NVs_Simple):
-                #     self.create_figures()
 
-                script.start()
             else:
                 self.log('User stupidly tried to run a script without one selected.')
         def stop_button():
-            if self.current_script is not None and self.current_script.isRunning():
+            if self.current_script is not None and self.current_script.is_running:
                 self.current_script.stop()
             else:
                 self.log('User clicked stop, but there isn\'t anything running...this is awkward. Re-enabling start button anyway.')
@@ -719,23 +719,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         script.plot([self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure])
         self.matplotlibwidget_1.draw()
         self.matplotlibwidget_2.draw()
-        # if script.plot_type == 'main':
-        #     script.plot(self.matplotlibwidget_1.figure)
-        #     self.matplotlibwidget_1.draw()
-        # elif script.plot_type == 'aux':
-        #     script.plot(self.matplotlibwidget_2.figure)
-        #     self.matplotlibwidget_2.draw()
-        # elif script.plot_type == 'two':
-        #     script.plot(self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure)
-        #     self.matplotlibwidget_1.draw()
-        #     self.matplotlibwidget_2.draw()
-        # elif script.plot_type == 'none':
-        #     pass
-        # else:
-        #     message = 'property plot_type = {:s} not correct for this script ({:s})!'.format(str(script.plot_type), script.name)
-        #     raise AttributeError(message)
 
 
+    @pyqtSlot(int)
     def update_status(self, progress):
         """
         waits for a signal emitted from a thread and updates the gui
@@ -765,14 +751,23 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                                                                                                 leftover_seconds), None))
 
         script = self.current_script
-        if isinstance(script, QThreadWrapper):
-            script = script.script
+        # if isinstance(script, QThreadWrapper):
+        #     script = script.script
         self.plot_script(script)
 
-        if progress == 100:
-            # self.refresh_tree(self.tree_scripts, self.scripts)
-            self.btn_start_script.setEnabled(True)
-            self.current_script.updateProgress.disconnect(self.update_status)
+
+    @pyqtSlot()
+    def script_finished(self):
+        self.btn_start_script.setEnabled(True)
+        script = self.current_script
+        script.updateProgress.disconnect(self.update_status)
+        self.script_thread.started.disconnect()
+        script.finished.disconnect()
+
+        self.current_script = None
+
+        self.plot_script(script)
+        self.progressBar.setValue(100)
 
     def plot_script_validate(self, script):
         """
@@ -841,6 +836,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             del dictator[sub_script_name]
 
         script.update(dictator)
+        # update datefolder path
+        script.data_path = self.gui_settings['data_folder']
 
     def fill_treewidget(self, tree, parameters):
         """
