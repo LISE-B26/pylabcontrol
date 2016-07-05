@@ -973,7 +973,8 @@ class Script(QObject):
         if self._plot_refresh is True:
             self._plot(axes_list)
             for figure in figure_list:
-                figure.tight_layout()
+                if figure.axes:
+                    figure.tight_layout()
             self._plot_refresh = False
         else:
             self._update_plot(axes_list)
