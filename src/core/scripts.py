@@ -28,8 +28,10 @@ class Script(QObject):
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
-    updateProgress = pyqtSignal(int)
-    finished = pyqtSignal()
+    updateProgress = pyqtSignal(int) # emits a progress update in percent
+    started = pyqtSignal()  # signals the begin of the script
+    finished = pyqtSignal() # signals the end of the script
+    current_subscript = pyqtSignal(str) # indicates the current subscript that is being excecuted
 
     _DEFAULT_SETTINGS = [
         Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),
@@ -111,8 +113,34 @@ class Script(QObject):
 
         self._data_path = path
 
+    @pyqtSlot(bool)
+    def _set_current_subscript(self, active):
+        """
+        sets the current subscript and keeps a counter of how ofter a particular subscript has been executed
+        this information is usefull when implementing a status update or plotting functions that depend on which subscript is being executed
+        Args:
+            active: True if the current subscript is just started, False if it just finished
+        """
+        current_subscript = self.sender()
 
-    # @abstractmethod
+        if active:
+            for subscript_name in self._current_subscript_stage['subscript_exec_count'].keys():
+                if subscript_name == current_subscript.name:
+                    self._current_subscript_stage['subscript_exec_count'][subscript_name] += 1
+            self._current_subscript_stage['current_subscript'] = current_subscript
+        else:
+            self._current_subscript_stage['current_subscript'] = current_subscript
+            for subscript_name in self._current_subscript_stage['subscript_exec_count'].keys():
+                # calculate the average duration to execute the subscript
+                if subscript_name == current_subscript.name:
+                    duration = current_subscript.end_time - current_subscript.start_time
+                    if subscript_name  in self._current_subscript_stage['subscript_exec_duration']:
+                        duration_old = self._current_subscript_stage['subscript_exec_duration'][subscript_name]
+                    else:
+                        duration_old = datetime.timedelta(0)
+                    exec_count = self._current_subscript_stage['subscript_exec_count'][subscript_name]
+                    self._current_subscript_stage['subscript_exec_duration'][subscript_name] = (duration_old*(exec_count -1)+duration)/exec_count
+
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in the settings property
@@ -283,13 +311,24 @@ class Script(QObject):
         executes the script
         :return: boolean if execution of script finished succesfully
         """
-        self.is_running = True
         self.log_data.clear()
+        self.is_running = True
+        self.started.emit()
 
-        # update the datapath of the subscripts and connect their progress signal to the receive slot
-        for subscript  in self.scripts.values():
+        self._current_subscript_stage = {
+            'current_subscript': None,
+            'subscript_exec_count':{},
+            'subscript_exec_duration':{}
+        }
+        # update the datapath of the subscripts, connect their progress signal to the receive slot
+        for subscript in self.scripts.values():
             subscript.data_path = self.data_path
             subscript.updateProgress.connect(self._receive_signal)
+            subscript.started.connect(lambda: self._set_current_subscript(True))
+            subscript.finished.connect(lambda: self._set_current_subscript(False))
+            self._current_subscript_stage['subscript_exec_count'].update({subscript.name:0})
+
+
 
         self.start_time  = datetime.datetime.now()
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
@@ -299,15 +338,23 @@ class Script(QObject):
         self.end_time  = datetime.datetime.now()
         self.log('script {:s} finished at {:s} on {:s}'.format(self.name, self.end_time.strftime('%H:%M:%S'),self.end_time.strftime('%d/%m/%y')))
         success = not self._abort
+
+
+        # print(self.name, ' FINISHED!!!!!')
+        # disconnect subscripts
+        for subscript in self.scripts.values():
+            subscript.started.disconnect()
+            subscript.updateProgress.disconnect()
+            subscript.finished.disconnect()
         self.is_running = False
-
-        print(self.name, ' FINISHED!!!!!')
-
         self.finished.emit()
 
 
 
     def stop(self):
+        # stiop all the subscript
+        for subscript in self.scripts.values():
+            subscript.stop()
         self._abort = True
 
     def validate(self):
@@ -865,7 +912,7 @@ class Script(QObject):
                 try:
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
                 except Exception, err:
-                    print('loading script {:s} failed. Could not load subscripts!'.format(script_name))
+                    print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
                     load_failed[script_name] = err
                     continue
                 # print('==> {:s}: start creation'.format(script_name))

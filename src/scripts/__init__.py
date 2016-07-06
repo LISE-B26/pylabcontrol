@@ -1,5 +1,5 @@
 from script_dummy import ScriptDummyPlotMemoryTest, ScriptDummy, ScriptDummyWithInstrument, ScriptDummyWithSubScript, \
-    ScriptDummyWithNestedSubScript
+    ScriptDummyWithNestedSubScript, ScriptDummyCounter
 
 # try:
 #     from script_dummy import ScriptDummyWithInstrument
@@ -67,10 +67,6 @@ try:
 except:
     print("./src/scripts/__init__ warning! SetLaser did not load")
 try:
-    from find_max_counts_point import FindMaxCounts
-except:
-    print("./src/scripts/__init__ warning! FindMaxCounts did not load")
-try:
     from find_max_counts_point_2d import FindMaxCounts2D
 except:
     print("./src/scripts/__init__ warning! FindMaxCounts2D did not load")
@@ -94,10 +90,6 @@ try:
 except:
     print("./src/scripts/__init__ warning! Correlate_Images did not load")
 
-try:
-    from find_max_counts_point import FindMaxCounts
-except:
-    print("./src/scripts/__init__ warning! FindMaxCounts did not load")
 
 # try:
 #     from find_max_counts_point_2d import FindMaxCounts2D

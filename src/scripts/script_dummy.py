@@ -1,5 +1,5 @@
 from src.core import Parameter, Script
-
+from PyQt4.QtCore import pyqtSlot, pyqtSignal
 from copy import deepcopy
 from matplotlib import patches
 from src.plotting.plots_2d import plot_fluorescence_new, update_fluorescence
@@ -239,6 +239,7 @@ class ScriptDummyWithSubScript(Script):
     _SCRIPTS = {'sub_script':ScriptDummy, 'sub_script_instr':ScriptDummyWithInstrument,
                 'sub_script_with_sign': ScriptDummyCounter}
 
+
     def __init__(self, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that makes use of an instrument
@@ -251,14 +252,12 @@ class ScriptDummyWithSubScript(Script):
         # call init of superclass
         Script.__init__(self, name, settings, scripts = scripts, log_function= log_function, data_path = data_path)
 
-
     def _function(self):
         """
         This is the actual function that will be executed. It uses only information that is provided in _DEFAULT_SETTINGS
         for this dummy example we just implement a counter
         """
-
-        import time
+        self.counter = 0
 
         script = self.scripts['sub_script']
 
@@ -279,6 +278,22 @@ class ScriptDummyWithSubScript(Script):
 
         self.log('run subscript which emits signals')
         self.scripts['sub_script_with_sign'].run()
+
+    @pyqtSlot(int)
+    def _receive_signal(self, progress):
+        """
+        this function takes care of signals emitted by the subscripts
+        the default behaviour is that it just reemits the signal
+        Args:
+            progress: progress of subscript
+        """
+
+
+        # if self.current_subscript is self.scripts['sub_script']:
+        #     N = self.settings['repetitions']
+        #     progress = progress / N
+
+        self.updateProgress.emit(progress)
 
 
     def _plot(self, axes_list):

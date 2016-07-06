@@ -4,7 +4,7 @@ from src.scripts import GalvoScanWithLightControl
 from src.plotting.plots_2d import plot_fluorescence_new
 import numpy as np
 import scipy as sp
-import os
+from src.data_processing.fit_functions import fit_gaussian, guess_gaussian_parameter
 import time
 
 
@@ -39,7 +39,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         Standard initialization for scripts. Also sets the number of scanning points to be 30x30 to speed autofocusing
         """
         Script.__init__(self, name, settings, instruments, scripts, log_function= log_function, data_path = data_path)
-        # QtCore.QThread.__init__(self)
 
         self.scripts['take_image'].scripts['acquire_image'].settings['num_points'].update({'x': 30, 'y': 30})
 
@@ -50,26 +49,115 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         ideal focus and to have a scan over a much smaller area to reduce the effect of piezo hysteresis
         """
 
-        assert self.settings['piezo_min_voltage'] < self.settings['piezo_max_voltage'], 'Min voltage must be less than max!'
+        def calc_focusing_optimizer(image, optimizer):
+            """
+            calculates a measure for how well the image is focused
+            Args:
+                optimizer: one of the three strings: mean, standard_deviation, normalized_standard_deviation
+            Returns:  measure for how well the image is focused
+            """
+            if optimizer == 'mean':
+                return np.mean(image)
+            elif optimizer == 'standard_deviation':
+                return np.std(image)
+            elif optimizer == 'normalized_standard_deviation':
+                return np.std(image) / np.mean(image)
+
+        def calc_progress(tag, refined_scan, i, N):
+            """
+
+            Args:
+                tag: string - the current stage ot the script
+                refined_scan: bool - if there will be a refined scan or not
+                i: current loop iteration
+                N: total number of iterations
+
+            Returns:
+
+            """
+            # if tag == 'main_scan' and not refined_scan:
+            #     progress = 99.0 * (np.where(sweep_voltages == voltage)[0] + 1) / float(self.settings['num_sweep_points'])
+            # elif tag == 'main_scan' and refined_scan:
+            #     progress = 99.0 * (np.where(sweep_voltages == voltage)[0] + 1) / (2.0 * float(self.settings['num_sweep_points']))
+            # elif tag == 'refined_scan':
+            #     progress = 50.0 + 99.0 * (np.where(sweep_voltages == voltage)[0] + 1) / (
+            #     2.0 * float(self.settings['num_sweep_points']))
+            if tag == 'main_scan' and not refined_scan:
+                progress = 99.0 * (i + 1) / N
+            elif tag == 'main_scan' and refined_scan:
+                progress = 99.0 * (i + 1) / (2.0 * N)
+            elif tag == 'refined_scan':
+                progress = 50.0 + 99.0 * (i + 1) / (2.0 * N)
+            return progress
+
+        def autofocus_loop(sweep_voltages, tag=None):
+
+            self.data[tag + '_sweep_voltages'] = sweep_voltages
+            self.data[tag + '_focus_function_result'] = []
+
+            for index, voltage in enumerate(sweep_voltages):
+
+                if self._abort:
+                    self.log('Leaving autofocusing loop')
+                    break
+
+                # set the voltage on the piezo
+                z_piezo.voltage = float(voltage)
+                time.sleep(self.settings['wait_time'])
+
+                # take a galvo scan
+                self.scripts['take_image'].run()
+                self.current_image = self.scripts['take_image'].data['image_data']
+                self.extent = self.scripts['take_image'].data['extent']
+
+                # calculate focusing function for this sweep
+                self.data[tag + '_focus_function_result'].append(
+                    calc_focusing_optimizer(self.current_image, self.settings['focusing_optimizer']))
+
+                # update progress bar
+                progress = calc_progress(tag, self.settings['refined_scan'], index, len(sweep_voltages))
+                self.updateProgress.emit(progress)
+
+                # save image if the user requests it
+                if self.settings['save_images']:
+                    self.scripts['take_image'].save_image_to_disk(
+                        '{:s}\\image_{:03d}.jpg'.format(self.filename_image, index))
+
+
+        def autofocus_fit(x_data,y_data):
+            estimate_params = guess_gaussian_parameter(x_data,y_data)
+            fit_params = fit_gaussian(x_data,y_data, starting_params=estimate_params, bounds=None)
+
+            return fit_params
+
+        if self.settings['piezo_min_voltage'] < self.settings['piezo_max_voltage']:
+            self.log('Min voltage must be less than max!')
+            return
 
         self.filename_image = None
         if self.settings['save'] or self.settings['save_images']:
             # create and save images
             self.filename_image = '{:s}\\image\\'.format(self.filename())
-            if not os.path.exists(self.filename_image):
-                os.makedirs(self.filename_image)
+            # if not os.path.exists(self.filename_image):
+            #     os.makedirs(self.filename_image)
 
         sweep_voltages = np.linspace(self.settings['piezo_min_voltage'], self.settings['piezo_max_voltage'], self.settings['num_sweep_points'])
-        self.autofocus_loop(sweep_voltages, tag='main_scan')
+
+        z_piezo = self.instruments['z_piezo']['instance']
+        z_piezo.update(self.instruments['z_piezo']['settings'])
+
+        autofocus_loop(sweep_voltages, tag='main_scan')
+
+        fit_params = autofocus_fit(self.data['main_scan_sweep_voltages'], self.data['main_scan_focus_function_result'])
+
+        self.data['main_focusing_fit_parameters'] = fit_params
 
         # check to see if data should be saved and save it
         if self.settings['save']:
             self.save_b26()
             self.save_data()
             self.save_log()
-
             self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
-
             self.current_image = None
 
         if self.settings['refined_scan'] and not self._abort:
@@ -143,13 +231,10 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         if self.settings['focusing_optimizer'] == 'mean':
             ylabel = 'Image Mean [kcounts]'
-
         elif self.settings['focusing_optimizer'] == 'standard_deviation':
             ylabel = 'Image Standard Deviation [kcounts]'
-
         elif self.settings['focusing_optimizer'] == 'normalized_standard_deviation':
             ylabel = 'Image Normalized Standard Deviation [arb]'
-
         else:
             ylabel = self.settings['focusing_optimizer']
 
@@ -158,97 +243,6 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         if self.current_image is not None:
             plot_fluorescence_new(self.current_image, self.extent, axis2)
-
-    def stop(self):
-        self._abort = True
-
-    def autofocus_loop(self, sweep_voltages, tag = None):
-        z_piezo = self.instruments['z_piezo']['instance']
-        z_piezo.update(self.instruments['z_piezo']['settings'])
-
-        self.data[tag + '_sweep_voltages'] = sweep_voltages
-        self.data[tag + '_focus_function_result'] = []
-
-        for index, voltage in enumerate(sweep_voltages):
-
-            if self._abort:
-                self.log('Leaving autofocusing loop')
-                break
-
-            # set the voltage on the piezo
-            z_piezo.voltage = float(voltage)
-            time.sleep(self.settings['wait_time'])
-
-            # take a galvo scan
-            self.scripts['take_image'].run()
-            self.current_image = self.scripts['take_image'].data['image_data']
-            self.extent = self.scripts['take_image'].data['extent']
-            # self.log('Took image.')
-
-            # calculate focusing function for this sweep
-            if self.settings['focusing_optimizer'] == 'mean':
-                self.data[tag + '_focus_function_result'].append(np.mean(self.current_image))
-
-            elif self.settings['focusing_optimizer'] == 'standard_deviation':
-                self.data[tag + '_focus_function_result'].append(np.std(self.current_image))
-                print('appended',  self.data[tag + '_focus_function_result'])
-
-            elif self.settings['focusing_optimizer'] == 'normalized_standard_deviation':
-                self.data[tag + '_focus_function_result'].append(
-                    np.std(self.current_image) / np.mean(self.current_image))
-
-            # update progress bar
-            if tag == 'main_scan' and not self.settings['refined_scan']:
-                progress = 99.0 * (np.where(sweep_voltages == voltage)[0] + 1) / float(self.settings['num_sweep_points'])
-            elif tag == 'main_scan' and self.settings['refined_scan']:
-                progress = 99.0 * (np.where(sweep_voltages == voltage)[0] + 1) / (2.0 * float(self.settings['num_sweep_points']))
-            elif tag == 'refined_scan':
-                progress = 50.0 + 99.0 * (np.where(sweep_voltages == voltage)[0] + 1) / (
-                2.0 * float(self.settings['num_sweep_points']))
-            self.updateProgress.emit(progress)
-
-            # save image if the user requests it
-            if self.settings['save_images']:
-                self.scripts['take_image'].save_image_to_disk('{:s}\\image_{:03d}.jpg'.format(self.filename_image, index))
-
-        # fit the data and set piezo to focus spot
-        gaussian = lambda x, noise, amp, center, width: noise + amp * np.exp(
-            -1.0 * (np.square((x - center)) / (2 * (width ** 2))))
-
-        print('tag', tag, 'focus_function_result', self.data[tag + '_focus_function_result'])
-
-        noise_guess = np.min(self.data[tag + '_focus_function_result'])
-        amplitude_guess = np.max(self.data[tag + '_focus_function_result']) - noise_guess
-        center_guess = np.mean(self.data[tag + '_sweep_voltages'])
-        width_guess = 0.8
-
-        reasonable_params = [noise_guess, amplitude_guess, center_guess, width_guess]
-
-        try:
-            p2, success = sp.optimize.curve_fit(gaussian, self.data[tag + '_sweep_voltages'],
-                                                self.data[tag + '_focus_function_result'], p0=reasonable_params,
-                                                bounds=([0, [np.inf, np.inf, 100., 100.]]), max_nfev=2000)
-
-            self.log('Found fit parameters: ' + str(p2))
-
-            if p2[2] > sweep_voltages[-1]:
-                z_piezo.voltage = float(sweep_voltages[-1])
-                self.log('Best fit found center to be above max sweep range, setting voltage to max, {0} V'.format(
-                    sweep_voltages[-1]))
-            elif p2[2] < sweep_voltages[0]:
-                z_piezo.voltage = float(sweep_voltages[0])
-                self.log('Best fit found center to be below min sweep range, setting voltage to min, {0} V'.format(
-                    sweep_voltages[0]))
-            else:
-                z_piezo.voltage = float(p2[2])
-        except(ValueError):
-            p2 = [0, 0, 0, 0]
-            average_voltage = np.mean(self.data[tag + '_sweep_voltages'])
-            self.log('Could not converge to fit parameters, setting piezo to middle of sweep range, {0} V'.format(
-                average_voltage))
-            z_piezo.voltage = float(average_voltage)
-
-        self.data[tag + '_focusing_fit_parameters'] = p2
 
 
 if __name__ == '__main__':
