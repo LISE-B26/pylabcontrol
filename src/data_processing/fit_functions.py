@@ -18,13 +18,37 @@ def fit_gaussian(x_values, y_values, starting_params=None, bounds=None):
     """
 
     if bounds:
-        return optimize.curve_fit(gaussian, x_values, y_values, p0=starting_params, bounds=bounds, max_nfev=2000)[0]
+        fit_params = optimize.curve_fit(gaussian, x_values, y_values, p0=starting_params, bounds=bounds, max_nfev=2000)[0]
     else:
-        return optimize.curve_fit(gaussian, x_values, y_values, p0=starting_params)[0]
+        fit_params = optimize.curve_fit(gaussian, x_values, y_values, p0=starting_params)[0]
+
+    # todo: catch if fit is not successful and return all zeros
+
+    return fit_params
 
 
 def gaussian(x, constant_offset, amplitude, center, width):
     return constant_offset + amplitude * np.exp(-1.0 * (np.square((x - center)) / (2 * (width ** 2))))
+
+
+def guess_gaussian_parameter(x_values, y_values):
+    """
+    guesses the parameters for a Gaussian dataset
+    Args:
+        x_values:
+        y_values:
+
+    Returns: estimated fit parameters for Gaussian fit
+    """
+    # todo: find a smarter algorith, in particular for the width, for now this function is only used in autofocus, but might be good to generalize
+    noise_guess = np.min(y_values)
+    amplitude_guess = np.max(y_values) - noise_guess
+    center_guess = x_values[np.argmax(y_values)]
+    width_guess = 0.8
+
+    return [noise_guess, amplitude_guess, center_guess, width_guess]
+
+
 
 
 def fit_lorentzian(x_values, y_values, starting_params=None, bounds=None):
