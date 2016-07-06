@@ -35,10 +35,11 @@
                         "override_buffer_size": -1, 
                         "digital_input": {
                             "ctr0": {
-                                "clock_PFI_channel": 13, 
+                                "counter_PFI_channel": 8, 
                                 "sample_rate": 1000.0, 
                                 "input_channel": 0, 
-                                "clock_counter_channel": 1
+                                "clock_counter_channel": 1, 
+                                "clock_PFI_channel": 13
                             }
                         }, 
                         "analog_input": {
@@ -83,18 +84,20 @@
                     "x": 120
                 }, 
                 "point_a": {
-                    "y": -0.1, 
-                    "x": -0.1
+                    "y": -0.4, 
+                    "x": -0.4
                 }, 
                 "point_b": {
-                    "y": 0.1, 
-                    "x": 0.1
+                    "y": 0.4, 
+                    "x": 0.4
                 }, 
                 "time_per_pt": 0.001, 
                 "tag": "some_name", 
+                "RoI_mode": "corner", 
+                "max_counts_plot": -1, 
                 "settle_time": 0.0002, 
-                "path": "C:\\Users\\Experiment\\Desktop\\tmp_data", 
-                "save": true
+                "path": "", 
+                "save": false
             }
         }
     }

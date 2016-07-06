@@ -8,7 +8,6 @@ AVERAGES_PER_SCAN = 1000000  # 1E6
 
 
 class PulseDelays(ExecutePulseBlasterSequence):
-    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = [
         Parameter('count_source_pulse_width', 10000, int, 'How long to pulse the count source (in ns)'),
         Parameter('measurement_gate_pulse_width', 15, int, 'How long to have the DAQ acquire data (in ns)'),

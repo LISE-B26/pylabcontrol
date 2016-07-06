@@ -70,6 +70,7 @@ class Attocube(Instrument):
         super(Attocube, self).__init__(name, settings)
         try:
             self.attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')
+            print('attocube', self.attocube)
             dll_detected = True
         except WindowsError:
             # make a fake Attocube instrument

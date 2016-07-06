@@ -1,4 +1,5 @@
-from script_dummy import ScriptDummyPlotMemoryTest, ScriptDummy, ScriptDummyWithInstrument, ScriptDummyWithQtSignal, ScriptDummyWithSubScript, ScriptDummyWithNestedSubScript
+from script_dummy import ScriptDummyPlotMemoryTest, ScriptDummy, ScriptDummyWithInstrument, ScriptDummyWithSubScript, \
+    ScriptDummyWithNestedSubScript
 
 # try:
 #     from script_dummy import ScriptDummyWithInstrument

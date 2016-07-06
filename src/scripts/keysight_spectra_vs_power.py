@@ -7,7 +7,6 @@ import time
 
 class KeysightSpectrumVsPower(Script):
 
-    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = [
         Parameter('power_out_min',-45.0, float, 'output power (dBm) min'),
         Parameter('power_out_step',5.0, float, 'output power (dBm) step'),

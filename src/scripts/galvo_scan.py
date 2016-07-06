@@ -67,7 +67,7 @@ class GalvoScan(Script):
 
         def init_scan():
             self._recording = False
-            self._abort = False
+            # self._abort = False
 
             self.clockAdjust = int(
                 (self.settings['time_per_pt'] + self.settings['settle_time']) / self.settings['settle_time'])
@@ -126,10 +126,11 @@ class GalvoScan(Script):
             # current_time = datetime.datetime.now()
             # #prevents emits to the gui too often, which seems to slow it down
             # if ((current_time - update_time).total_seconds() > 0.1):
-            #     progress = int(float(yNum + 1) / len(self.y_array) * 100)
-            #     self.updateProgress.emit(progress)
+            #     progress =
+            #
             #     update_time = current_time
-
+            progress = int(float(yNum + 1) / len(self.y_array) * 100)
+            self.updateProgress.emit(progress)
 
         # self._plotting = False
 
@@ -177,12 +178,12 @@ class GalvoScan(Script):
 
         '''
         # if 'image_data' in self.data.keys() and not self.data['image_data'] == []:
-        plot_fluorescence_new(self.data['image_data'].transpose(), self.data['extent'], axes_list[0],
+        plot_fluorescence_new(self.data['image_data'], self.data['extent'], axes_list[0],
                               max_counts=self.settings['max_counts_plot'])
 
     def _update_plot(self, axes_list):
         axes_image = axes_list[0]
-        update_fluorescence(self.data['image_data'].transpose(), axes_image, self.settings['max_counts_plot'])
+        update_fluorescence(self.data['image_data'], axes_image, self.settings['max_counts_plot'])
 
     def get_axes_layout(self, figure_list):
         """

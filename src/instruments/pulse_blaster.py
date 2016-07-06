@@ -413,6 +413,7 @@ class PulseBlaster(Instrument):
         self.estimated_runtime = self.estimate_runtime(delayed_pulse_collection, num_loops)
         pb_state_changes = self.generate_pb_sequence(delayed_pulse_collection)
         pb_commands = self.create_commands(pb_state_changes, num_loops)
+        print(pb_commands)
 
         assert len(pb_commands) < 4096, "Generated a number of commands too long for the pulseblaster!"
 
@@ -476,8 +477,8 @@ class B26PulseBlaster(PulseBlaster):
     _DEFAULT_SETTINGS = Parameter([
         Parameter('laser', [
             Parameter('channel', 0, int, 'channel to which laser is connected'),
-            Parameter('status', False, bool, 'True if voltage is high to the laser, false otherwise'),
-            Parameter('delay_time', 0.2, float, 'delay time between pulse sending time and laser switch on [ns]')
+            Parameter('status', True, bool, 'True if voltage is high to the laser, false otherwise'),
+            Parameter('delay_time', 850.2, float, 'delay time between pulse sending time and laser switch on [ns]')
         ]),
         Parameter('apd_readout', [
             Parameter('channel', 1, int, 'channel to which the daq is connected to'),

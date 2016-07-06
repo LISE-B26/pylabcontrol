@@ -308,7 +308,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.plot_clicked(mouse_event)
 
     def plot_clicked(self, mouse_event):
-        if isinstance(self.current_script, Select_NVs_Simple) and self.current_script.isRunning:
+        if isinstance(self.current_script, Select_NVs_Simple) and self.current_script.is_running:
             if (not (mouse_event.xdata == None)):
                 if (mouse_event.button == 1):
                     pt = np.array([mouse_event.xdata, mouse_event.ydata])

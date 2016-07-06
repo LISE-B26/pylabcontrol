@@ -1,5 +1,4 @@
 # from src.core import Script
-# from PySide.QtCore import Signal, QThread
 from PyQt4.QtCore import pyqtSignal, QThread
 class ReadProbes(QThread):
     #This is the signal that will be emitted during the processing.

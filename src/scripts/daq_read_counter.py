@@ -7,7 +7,6 @@ from src.plotting.plots_1d import plot_counts
 
 
 class Daq_Read_Counter(Script):
-    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = [
         Parameter('integration_time', .25, float, 'Time per data point')
     ]

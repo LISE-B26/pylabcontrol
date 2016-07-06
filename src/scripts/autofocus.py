@@ -36,10 +36,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
     def __init__(self, instruments, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
-        Example of a script that emits a QT signal for the gui
-        Args:
-            name (optional): name of script, if empty same as class name
-            settings (optional): settings for this script, if empty same as default settings
+        Standard initialization for scripts. Also sets the number of scanning points to be 30x30 to speed autofocusing
         """
         Script.__init__(self, name, settings, instruments, scripts, log_function= log_function, data_path = data_path)
         # QtCore.QThread.__init__(self)
@@ -48,8 +45,9 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
     def _function(self):
         """
-        This is the actual function that will be executed. It uses only information that is provided in the settings property
-        will be overwritten in the __init__
+        Performs an autofocus using the focusing optimizer specified in settings and the scan range and settings
+        specified in the subscript. Includes an optional 'refined scan' option to both get a better estimate of the
+        ideal focus and to have a scan over a much smaller area to reduce the effect of piezo hysteresis
         """
 
         assert self.settings['piezo_min_voltage'] < self.settings['piezo_max_voltage'], 'Min voltage must be less than max!'

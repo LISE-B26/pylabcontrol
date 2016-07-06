@@ -5,7 +5,6 @@ import itertools
 from copy import deepcopy
 import time
 
-from PySide.QtCore import Signal, QThread
 from src.plotting.plots_1d import plot_delay_counts, plot_pulses, update_pulse_plot, update_delay_counts
 import numpy as np
 
@@ -13,7 +12,7 @@ MAX_AVERAGES_PER_SCAN = 100000  # 1E6, the max number of loops per point allowed
                                  #pulseblaster stores this value in 22 bits in its register
 
 
-class ExecutePulseBlasterSequence(Script, QThread):
+class ExecutePulseBlasterSequence(Script):
     '''
 This class is a base class that should be inherited by all classes that utilize the pulseblaster for experiments. The
 _function part of this class takes care of high-level interaction with the pulseblaster for experiment control and optionally
@@ -27,7 +26,6 @@ for a given experiment
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
     _SCRIPTS = {}
-    updateProgress = Signal(int)
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         """
@@ -38,7 +36,6 @@ for a given experiment
         """
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
                         log_function=log_function, data_path=data_path)
-        QThread.__init__(self)
 
     def _function(self):
         '''

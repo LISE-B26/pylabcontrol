@@ -105,10 +105,6 @@ class Select_NVs_Simple(Script):
     _INSTRUMENTS = {}
     _SCRIPTS = {}
 
-    #This is the signal that will be emitted during the processing.
-    #By including int as an argument, it lets the signal know to expect
-    #an integer argument when emitting.
-
     def __init__(self, instruments = None, scripts = None, name = None, settings = None, log_function = None, data_path = None):
         """
         Example of a script that emits a QT signal for the gui
@@ -197,7 +193,7 @@ class Select_NVs_Simple(Script):
                 axes.add_patch(circ)
                 self.patches.append(circ)
 
-        self.plot(figure)
+        self.plot([figure])
 
 
 if __name__ == '__main__':

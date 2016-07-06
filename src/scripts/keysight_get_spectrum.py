@@ -6,7 +6,6 @@ import numpy as np
 
 class KeysightGetSpectrum(Script):
 
-    # NOTE THAT THE ORDER OF Script and QThread IS IMPORTANT!!
     _DEFAULT_SETTINGS = [
         # Parameter('start_frequency', 2.7e9, float, 'start frequency of spectrum'),
         # Parameter('stop_frequency', 3e9, float, 'end frequency of spectrum'),
