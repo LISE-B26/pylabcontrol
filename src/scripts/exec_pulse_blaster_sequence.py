@@ -5,14 +5,15 @@ import itertools
 from copy import deepcopy
 import time
 
+from PySide.QtCore import Signal, QThread
 from src.plotting.plots_1d import plot_delay_counts, plot_pulses, update_pulse_plot, update_delay_counts
 import numpy as np
 
-MAX_AVERAGES_PER_SCAN = 1000000  #1E6, the max number of loops per point allowed at one time (true max is ~4E6 since
+MAX_AVERAGES_PER_SCAN = 100000  # 1E6, the max number of loops per point allowed at one time (true max is ~4E6 since
                                  #pulseblaster stores this value in 22 bits in its register
 
 
-class ExecutePulseBlasterSequence(Script):
+class ExecutePulseBlasterSequence(Script, QThread):
     '''
 This class is a base class that should be inherited by all classes that utilize the pulseblaster for experiments. The
 _function part of this class takes care of high-level interaction with the pulseblaster for experiment control and optionally
@@ -21,11 +22,12 @@ standard Script such as plotting.
 To use this class, the inheriting class need only overwrite _create_pulse_sequences to create the proper pulse sequence
 for a given experiment
     '''
-    _DEFAULT_SETTINGS = []
+    _DEFAULT_SETTINGS = Parameter(None)
 
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
     _SCRIPTS = {}
+    updateProgress = Signal(int)
 
     def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         """
@@ -36,6 +38,7 @@ for a given experiment
         """
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
                         log_function=log_function, data_path=data_path)
+        QThread.__init__(self)
 
     def _function(self):
         '''
@@ -61,8 +64,8 @@ for a given experiment
             if pulse.channel_id == 'apd_readout':
                 num_daq_reads += 1
 
-        signal = [0]
-        norms = np.repeat([1], (num_daq_reads - 1))
+        signal = [0.0]
+        norms = np.repeat([1.0], (num_daq_reads - 1))
         self.count_data = np.repeat([np.append(signal, norms)], len(self.pulse_sequences), axis=0)
 
         self.data = {'tau': tau_list, 'counts': deepcopy(self.count_data)}
@@ -76,10 +79,15 @@ for a given experiment
             if self._abort:
                 break
             print('loop ' + str(average_loop))
+            self.current_averages = (average_loop + 1) * MAX_AVERAGES_PER_SCAN
             self._run_sweep(self.pulse_sequences, MAX_AVERAGES_PER_SCAN, num_daq_reads)
 
         if remainder != 0:
+            self.current_averages = self.num_averages
             self._run_sweep(self.pulse_sequences, remainder, num_daq_reads)
+
+        if len(self.data['counts'][0] == 1):
+            self.data['counts'] = [item for sublist in self.data['counts'] for item in sublist]
 
         if self.settings['save']:
             self.save_b26()
@@ -87,6 +95,7 @@ for a given experiment
             self.save_log()
             self.save_image_to_disk()
 
+        self.updateProgress.emit(100)
 
     def _plot(self, axes_list):
         '''
@@ -141,7 +150,7 @@ for a given experiment
             result = self._single_sequence(sequence, num_loops_sweep, num_daq_reads)  # keep entire array
             self.count_data[index] = self.count_data[index] + result
             self.data['counts'][index] = self._normalize_to_kCounts(self.count_data[index], self.measurement_gate_width,
-                                                                    self.num_averages)  # make function
+                                                                    self.current_averages)
             self.sequence_index = index
             # self.updateProgress.emit(int(99 * (index + 1.0) / len(self.pulse_sequences) / num_1E6_avg_pb_programs + (99 * (average_loop / num_1E6_avg_pb_programs))))
             self.updateProgress.emit(self._calc_progress())
@@ -214,22 +223,43 @@ for a given experiment
             return ((signal - baseline_min) / (baseline_max - baseline_min))
 
     def _normalize_to_kCounts(self, signal, gate_width=1, num_averages=1):
-        return (signal * (10E9 / (gate_width * num_averages)))
+        return (float(signal) * (1E6 / (gate_width * num_averages)))
 
     def validate(self):
-        self.pulse_sequences_preview = self._create_pulse_sequences()
+        pulse_blaster = self.instruments['PB']['instance']
+        self.pulse_sequences_preview = self._create_pulse_sequences()[0]
         failure_list = []
-        for sequence_index, pulse_sequence in enumerate(self.pulse_sequences_preview[0]):
-            for pulse_index, pulse in enumerate(pulse_sequence):
-                print(pulse.duration)
-                if pulse.duration < 15:
-                    print('FAILURE', sequence_index, pulse_index)
+        for pulse_sequence in self.pulse_sequences_preview:
+            failure_list.append(B26PulseBlaster.find_overlapping_pulses(pulse_sequence))
+            for pulse in pulse_sequence:
+                assert pulse.start_time == 0 or pulse.start_time > 1, \
+                    'found a start time that was between 0 and 1. Remember pulse times are in nanoseconds!'
+                assert pulse.duration > 1, \
+                    'found a pulse duration less than 1. Remember durations are in nanoseconds, and you can\'t have a 0 duration pulse'
+
+            # process the pulse collection into a format that is designed to deal with the low-level spincore API
+            delayed_pulse_collection = pulse_blaster.create_physical_pulse_seq(pulse_sequence)
+            pb_state_changes = pulse_blaster.generate_pb_sequence(delayed_pulse_collection)
+            pb_commands = pulse_blaster.create_commands(pb_state_changes, self.settings['num_averages'])
+
+            assert len(pb_commands) < 4096, "Generated a number of commands too long for the pulseblaster!"
+
+            for command in pb_commands:
+                if command.duration < 15:
+                    failure_list.append(command)
+
+        def isListEmpty(inList):
+            return all(map(isListEmpty, inList))
+
+        if any([isinstance(a, pulse_blaster.PBCommand) for a in failure_list]):
+            print(failure_list)
+            print('VALIDATION FAILED')
 
     def _plot_validate(self, axes_list):
         axis1 = axes_list[0]
         axis2 = axes_list[1]
-        plot_pulses(axis2, self.pulse_sequences_preview[0][0])
-        plot_pulses(axis1, self.pulse_sequences_preview[0][-1])
+        plot_pulses(axis2, self.pulse_sequences_preview[0])
+        plot_pulses(axis1, self.pulse_sequences_preview[-1])
 
 
 

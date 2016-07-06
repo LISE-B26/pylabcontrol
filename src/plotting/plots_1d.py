@@ -40,7 +40,7 @@ def plot_esr(fit_params, frequency, data, axes):
         fit_data = None
     if fit_data is not None:  # plot esr and fit data
         lines = axes.plot(frequency, data, 'b', frequency, fit_data, 'r')
-        axes.set_title('ESR fo = {:0.2e}, wo = {:0.2e}'.format(fit_params[2], fit_params[1]))
+        axes.set_title('ESR fo = {:0.4e}, wo = {:0.2e}'.format(fit_params[2], fit_params[1]))
         axes.set_xlabel('Frequency (Hz)')
         axes.set_ylabel('Kcounts/s')
     else:  # plot just esr data
@@ -83,6 +83,9 @@ def plot_pulses(axis, pulse_collection):
     for i in range(0, len(instrument_names)):
         axis.axhline(i, 0.0, max_time)
 
+    # create a vertical line denoting the end of the pulse sequence loop
+    axis.axvline(max_time, -0.5, len(instrument_names), color='r')
+
     # create rectangles for the pulses
     patch_list = []
     for pulse in pulse_collection:
@@ -115,7 +118,7 @@ def update_pulse_plot(axis, pulse_collection):
     # find the maximum time from the list of pulses
     max_time = max([pulse.start_time + pulse.duration for pulse in pulse_collection])
 
-    axis.set_xlim(0, 1.1 * max_time)
+    # axis.set_xlim(0, 1.1 * max_time)
 
     # remove the previous pulses
     [child.remove() for child in axis.get_children() if isinstance(child, PatchCollection)]

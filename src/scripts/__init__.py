@@ -1,4 +1,4 @@
-from script_dummy import ScriptDummyPlotMemoryTest, ScriptDummy, ScriptDummyWithInstrument, ScriptDummyCounter, ScriptDummyWithSubScript, ScriptDummyWithNestedSubScript
+from script_dummy import ScriptDummyPlotMemoryTest, ScriptDummy, ScriptDummyWithInstrument, ScriptDummyWithQtSignal, ScriptDummyWithSubScript, ScriptDummyWithNestedSubScript
 
 # try:
 #     from script_dummy import ScriptDummyWithInstrument
@@ -66,7 +66,7 @@ try:
 except:
     print("./src/scripts/__init__ warning! SetLaser did not load")
 try:
-    from legacy_src.old_scripts.find_max_counts_point import FindMaxCounts
+    from find_max_counts_point import FindMaxCounts
 except:
     print("./src/scripts/__init__ warning! FindMaxCounts did not load")
 try:
@@ -94,7 +94,7 @@ except:
     print("./src/scripts/__init__ warning! Correlate_Images did not load")
 
 try:
-    from legacy_src.old_scripts.find_max_counts_point import FindMaxCounts
+    from find_max_counts_point import FindMaxCounts
 except:
     print("./src/scripts/__init__ warning! FindMaxCounts did not load")
 
@@ -162,8 +162,8 @@ except:
 #     from pulse_delays import PulseDelays
 # except:
 #     print("./src/scripts/__init__ warning! PulseDelays did not load")
-# from exec_pulse_blaster_sequence import ExecutePulseBlasterSequence
-#
-# from pulse_delays import PulseDelays
-#
-# from pulse_blaster_scripts import Rabi
+from exec_pulse_blaster_sequence import ExecutePulseBlasterSequence
+
+from pulse_delays import PulseDelays
+
+from pulse_blaster_scripts import Rabi, Rabi_Troubleshoot
