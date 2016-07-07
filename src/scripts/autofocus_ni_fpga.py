@@ -1,5 +1,9 @@
 from src.core import Parameter, Script
 from src.scripts import GalvoScanNIFpga
+
+from src.instruments import PiezoController
+from src.scripts import GalvoScanWithLightControl
+
 import numpy as np
 import scipy as sp
 import os
@@ -285,6 +289,45 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         fpga_instr.piezo = float(voltage)
         time.sleep(wait_time)
 
+
+class AutoFocusDAQ(AutoFocusGeneric):
+    """
+Autofocus: Takes images at different piezo voltages and uses a heuristic to figure out the point at which the objective
+            is focused.
+    """
+
+    _INSTRUMENTS = {
+        'z_piezo': PiezoController
+    }
+    _SCRIPTS = {
+        'take_image': GalvoScanWithLightControl
+    }
+
+    def __init__(self, scripts, instruments = None, name = None, settings = None, log_function = None, data_path = None):
+        """
+        Example of a script that emits a QT signal for the gui
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+        Script.__init__(self, name, settings, instruments, scripts, log_function= log_function, data_path = data_path)
+
+    def _step_piezo(self, voltage, wait_time):
+        """
+        steps the piezo.  Has to be overwritten specifically for each different hardware realization
+        voltage: target piezo voltage
+        wait_time: settle time after voltage step
+        """
+        z_piezo = self.instruments['z_piezo']['instance']
+        # set the voltage on the piezo
+        z_piezo.voltage = float(voltage)
+        time.sleep(self.settings['wait_time'])
+
+    def _function(self):
+        #update piezo settings
+        z_piezo = self.instruments['z_piezo']['instance']
+        z_piezo.update(self.instruments['z_piezo']['settings'])
+        AutoFocusGeneric._function(self)
 if __name__ == '__main__':
 
 

@@ -57,9 +57,14 @@ except:
 
 # from StanfordResearch_ESR import StanfordResearch_ESR
 try:
-    from autofocus import AutoFocus
+    from autofocus_ni_fpga import AutoFocusDAQ
 except:
-    print("./src/scripts/__init__ warning! AutoFocus did not load")
+    print("./src/scripts/__init__ warning! AutoFocusDAQ did not load")
+
+try:
+    from autofocus_ni_fpga import AutoFocusNIFPGA
+except:
+    print("./src/scripts/__init__ warning! AutoFocusNIFPGA did not load")
 # from light_control import CameraOn
 from Select_NVs import Select_NVs_Simple
 try:
