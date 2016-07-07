@@ -335,7 +335,7 @@ class Script(QObject):
         self._abort = False
 
         self.started.emit()
-        self.updateProgress.emit(0)
+        # self.updateProgress.emit(0)
 
         self._function()
         self.end_time  = datetime.datetime.now()

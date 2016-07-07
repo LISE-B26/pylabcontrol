@@ -24,7 +24,7 @@ try:
     ex.show()
     ex.raise_()
     sys.exit(app.exec_())
- 
+
 except ValueError, e:
     print(e.message)
     if not e.message == 'No config file was provided. abort loading gui...':
