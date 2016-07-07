@@ -8,7 +8,7 @@ from copy import deepcopy
 from PyQt4.QtCore import pyqtSlot
 from src.plotting.plots_2d import plot_fluorescence_new, update_fluorescence
 
-class AutoFocusNIFPGA(Script):
+class AutoFocusGeneric(Script):
     """
 Autofocus: Takes images at different piezo voltages and uses a heuristic to figure out the point at which the objective
             is focused.
@@ -24,8 +24,9 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         Parameter('wait_time', 0.1, float)
     ]
 
+    # the take image script depends on the particular hardware, e.g. DAQ or NIFPGA
     _SCRIPTS = {
-        'take_image': GalvoScanNIFpga
+        'take_image': NotImplemented
     }
 
     _INSTRUMENTS = {}
@@ -47,7 +48,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         Args:
             progress: progress of subscript take_image
         """
-        # just ignore the signals from the subscript
+        # just ignore the signals from the subscript, we just send out our own signal
         pass
         # sender_emitter = self.sender()
         #
@@ -84,6 +85,47 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
                 return np.std(image)
             elif optimizer == 'normalized_standard_deviation':
                 return np.std(image) / np.mean(image)
+
+        def autofocus_loop(sweep_voltages):
+            """
+            this is the actual autofocus loop
+            Args:
+                sweep_voltages: array of sweep voltages
+
+            Returns:
+
+            """
+            # update instrument
+
+            for index, voltage in enumerate(sweep_voltages):
+
+                if self._abort:
+                    self.log('Leaving autofocusing loop')
+                    break
+
+                # set the voltage on the piezo
+                self._step_piezo(voltage, self.settings['wait_time'])
+
+                # take a galvo scan
+                self.scripts['take_image'].run()
+                self.data['current_image'] = deepcopy(self.scripts['take_image'].data['image_data'])
+
+                # calculate focusing function for this sweep
+                self.data['focus_function_result'].append(
+                    calc_focusing_optimizer(self.data['current_image'], self.settings['focusing_optimizer']))
+
+                # save image if the user requests it
+                if self.settings['save_images']:
+                    self.scripts['take_image'].save_image_to_disk(
+                        '{:s}\\image_{:03d}.jpg'.format(self.filename_image, index))
+                    self.scripts['take_image'].save_data('{:s}\\image_{:03d}.csv'.format(self.filename_image, index),
+                                                         'image_data')
+
+                progress = 100. * index / len(sweep_voltages)
+                self.updateProgress.emit(progress)
+            p2 = [0, 0, 0, 0]  # dont' fit for now
+            # p2 = fit_focus()
+            self.data['fit_parameters'] = p2
 
         def fit_focus():
             # fit the data and set piezo to focus spot
@@ -126,50 +168,9 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
             return p2
 
-        def autofocus_loop(sweep_voltages, fpga_instr):
-
-
-
-            for index, voltage in enumerate(sweep_voltages):
-
-                if self._abort:
-                    self.log('Leaving autofocusing loop')
-                    break
-
-                # set the voltage on the piezo
-                fpga_instr.piezo = float(voltage)
-                time.sleep(self.settings['wait_time'])
-
-                # take a galvo scan
-                self.scripts['take_image'].run()
-                self.data['current_image'] = deepcopy(self.scripts['take_image'].data['image_data'])
-
-                # calculate focusing function for this sweep
-                self.data['focus_function_result'].append(
-                    calc_focusing_optimizer(self.data['current_image'], self.settings['focusing_optimizer']))
-
-
-                # self.updateProgress.emit(progress)
-
-                # save image if the user requests it
-                if self.settings['save_images']:
-                    self.scripts['take_image'].save_image_to_disk(
-                        '{:s}\\image_{:03d}.jpg'.format(self.filename_image, index))
-                    self.scripts['take_image'].save_data('{:s}\\image_{:03d}.csv'.format(self.filename_image, index),
-                                                         'image_data')
-
-                progress = 100. * index / len(sweep_voltages)
-                self.updateProgress.emit(progress)
-            p2 = [0, 0, 0, 0]  # dont' fit for now
-            # p2 = fit_focus()
-            self.data['fit_parameters'] = p2
-
         if self.settings['piezo_min_voltage'] > self.settings['piezo_max_voltage']:
             self.log('Min voltage must be less than max!')
             return
-
-        # update instrument
-        fpga_instr = self.scripts['take_image'].instruments['NI7845RGalvoScan']['instance']
 
 
         if self.settings['save'] or self.settings['save_images']:
@@ -185,7 +186,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         self.data['current_image'] = np.zeros([1,1])
         self.data['extent'] = None
 
-        autofocus_loop(sweep_voltages, fpga_instr=fpga_instr)
+        autofocus_loop(sweep_voltages)
 
         # check to see if data should be saved and save it
         if self.settings['save']:
@@ -193,6 +194,14 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             self.save_data()
             self.save_log()
             self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
+
+    def _step_piezo(self, voltage, wait_time):
+        """
+        steps the piezo.  Has to be overwritten specifically for each different hardware realization
+        voltage: target piezo voltage
+        wait_time: settle time after voltage step
+        """
+        NotImplementedError
 
     def _plot(self, axes_list):
 
@@ -245,9 +254,42 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             axis_focus.plot(sweep_voltages[0:len(focus_data)], focus_data)
             axis_focus.hold(False)
 
+
+class AutoFocusNIFPGA(AutoFocusGeneric):
+    """
+Autofocus: Takes images at different piezo voltages and uses a heuristic to figure out the point at which the objective
+            is focused.
+    """
+
+    _SCRIPTS = {
+        'take_image': GalvoScanNIFpga
+    }
+
+    def __init__(self, scripts, instruments = None, name = None, settings = None, log_function = None, data_path = None):
+        """
+        Example of a script that emits a QT signal for the gui
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+        Script.__init__(self, name, settings, instruments, scripts, log_function= log_function, data_path = data_path)
+
+    def _step_piezo(self, voltage, wait_time):
+        """
+        steps the piezo.  Has to be overwritten specifically for each different hardware realization
+        voltage: target piezo voltage
+        wait_time: settle time after voltage step
+        """
+        fpga_instr = self.scripts['take_image'].instruments['NI7845RGalvoScan']['instance']
+        # set the voltage on the piezo
+        fpga_instr.piezo = float(voltage)
+        time.sleep(wait_time)
+
 if __name__ == '__main__':
+
+
     # from src.core.read_write_functions import load_b26_file
-    # from src.core import Instrument
+    from src.core import Instrument
     #
     # in_data = load_b26_file('C:\\b26_tmp\\gui_settings.b26')
     #
@@ -262,11 +304,11 @@ if __name__ == '__main__':
     #     data_path='c:\\')
 
 
-    scripts, loaded_failed, instruments = Script.load_and_append({"af": 'AutoFocusNIFPGA'})
-    print('===++++++===========++++++===========++++++========')
-    print(scripts)
-    print('===++++++===========++++++===========++++++========')
-    print(scripts['af'].scripts['take_image'].instruments['NI7845RGalvoScan'])
+    # scripts, loaded_failed, instruments = Script.load_and_append({"af": 'AutoFocusNIFPGA'})
+    # print('===++++++===========++++++===========++++++========')
+    # print(scripts)
+    # print('===++++++===========++++++===========++++++========')
+    # print(scripts['af'].scripts['take_image'].instruments['NI7845RGalvoScan'])
     # print(type(scripts['af'].scripts['take_image'].instruments['NI7845RGalvoScan']['settings']))
     # print(type(scripts['af'].scripts['take_image'].instruments['NI7845RGalvoScan']['instance']))
     #
@@ -275,4 +317,10 @@ if __name__ == '__main__':
     #     instruments=self.instruments,
     #     log_function=self.log,
     #     data_path=self.gui_settings['data_folder'])
+    scripts, loaded_failed, instruments = Script.load_and_append({'take_image': 'GalvoScanNIFpga'})
+    print('===++++++===========++++++===========++++++========')
+    print(scripts)
+    print('===++++++===========++++++===========++++++========')
 
+    af = AutoFocusNIFPGA(scripts=scripts)
+    print(af)

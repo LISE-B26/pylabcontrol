@@ -312,8 +312,8 @@ class Script(QObject):
         :return: boolean if execution of script finished succesfully
         """
         self.log_data.clear()
+        self._plot_refresh = True  # flag that requests that plot axes are refreshed when self.plot is called next time
         self.is_running = True
-        self.started.emit()
 
         self._current_subscript_stage = {
             'current_subscript': None,
@@ -333,7 +333,10 @@ class Script(QObject):
         self.start_time  = datetime.datetime.now()
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
         self._abort = False
-        self._plot_refresh = True # flag that requests that plot axes are refreshed when self.plot is called next time
+
+        self.started.emit()
+        self.updateProgress.emit(0)
+
         self._function()
         self.end_time  = datetime.datetime.now()
         self.log('script {:s} finished at {:s} on {:s}'.format(self.name, self.end_time.strftime('%H:%M:%S'),self.end_time.strftime('%d/%m/%y')))
@@ -1016,6 +1019,11 @@ class Script(QObject):
         for the latter use the last entry
 
         """
+        # if plot function is called when script is not running we request a plot refresh
+        if self.is_running == False:
+            print('force refresh plot!!!')
+            self._plot_refresh = True
+
         axes_list = self.get_axes_layout(figure_list)
         if self._plot_refresh is True:
             self._plot(axes_list)
