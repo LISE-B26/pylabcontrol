@@ -79,7 +79,7 @@ for a given experiment
         for average_loop in range(int(num_1E6_avg_pb_programs)):
             if self._abort:
                 break
-            print('loop ' + str(average_loop))
+            # print('loop ' + str(average_loop))
             self.current_averages = (average_loop + 1) * MAX_AVERAGES_PER_SCAN
             self._run_sweep(self.pulse_sequences, MAX_AVERAGES_PER_SCAN, num_daq_reads)
 
@@ -247,12 +247,11 @@ for a given experiment
                 if command.duration < 15:
                     failure_list.append(command)
 
-        def isListEmpty(inList):
-            return all(map(isListEmpty, inList))
-
         if any([isinstance(a, pulse_blaster.PBCommand) for a in failure_list]):
             print(failure_list)
             print('VALIDATION FAILED')
+
+        return failure_list
 
     def _plot_validate(self, axes_list):
         axis1 = axes_list[0]

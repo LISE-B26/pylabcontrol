@@ -10,6 +10,7 @@ from src.scripts import GalvoScanWithLightControl
 from src.data_processing.correlate_images import correlation, shift_NVs
 
 
+# DEPRECIATED
 # class Take_And_Correlate_Images(Script, QThread):
 #     updateProgress = Signal(int)
 #
@@ -198,18 +199,13 @@ class Take_And_Correlate_Images_2(Script):
         Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
 
         self.data = {'baseline_image': [], 'new_image': [], 'image_extent': [], 'old_nv_list':[], 'new_NV_list': [], 'correlation_image': []}
-        #forward the galvo scan progress to the top layer
-        self.scripts['GalvoScan'].updateProgress.connect(lambda x: self.updateProgress.emit(x/2))
-
-    # Parameter('baseline_image', [], list, 'Baseline image for correlation'),
-    # Parameter('image_extent', [], list, 'Extent of baseline image'),
-    # Parameter('NV_list', [], list, 'List of NVs to shift'),
 
     def _function(self):
         """
-        # Tracks drift by correlating new and old images, and returns shift in pixels
+        # Takes a new image, and correlates this with the image provided to baseline_image in self.data. It uses the
+        determined pixel shift to calculate a shift for each of the nvs in the old_nv_list, which is given to it by
+        a superscript, then store it as new_NV_list in data
         """
-        # subtracts mean to sharpen each image and sharpen correlation
 
         if self.data['baseline_image'] == []:
             self.log('No baseline image avaliable. Taking baseline.')
@@ -219,6 +215,7 @@ class Take_And_Correlate_Images_2(Script):
             self.log('No nv list avaliable. Scipt may have been run in error.')
 
         if not self.data['baseline_image'] == []:
+            #use same settings as initial image
             scan = self.scripts['GalvoScan'].scripts['acquire_image']
             scan.settings['point_a']['x'] = self.data['image_extent'][0]
             scan.settings['point_b']['x'] = self.data['image_extent'][1]
@@ -240,6 +237,12 @@ class Take_And_Correlate_Images_2(Script):
             self.data['baseline_image'] = self.scripts['GalvoScan'].data['image_data']
 
     def _plot(self, axes_list):
+        '''
+        Plots the newly taken galvo scan to axis 2, and the correlation image to axis 1
+        Args:
+            axes_list: list of axes to plot to. Uses two axes.
+
+        '''
         data = self.scripts['GalvoScan'].data['image_data']
         extent = self.scripts['GalvoScan'].data['extent']
         plot_fluorescence_new(data, extent, axes_list[1])
@@ -247,6 +250,12 @@ class Take_And_Correlate_Images_2(Script):
             axes_list[0].imshow(self.data['correlation_image'])
 
     def _update_plot(self, axes_list):
+        '''
+        Plots the newly taken galvo scan to axis 2, and the correlation image to axis 1
+        Args:
+            axes_list: list of axes to plot to. Uses two axes.
+
+        '''
         data = self.scripts['GalvoScan'].data['image_data']
         extent = self.scripts['GalvoScan'].data['extent']
         update_fluorescence(data, axes_list[1])
@@ -254,6 +263,9 @@ class Take_And_Correlate_Images_2(Script):
             axes_list[0].imshow(self.data['correlation_image'])
 
     def stop(self):
+        '''
+        Stops the script if it is taking the new image (otherwise script will soon finish)
+        '''
         self._abort = True
         self.scripts['GalvoScan'].stop()
 

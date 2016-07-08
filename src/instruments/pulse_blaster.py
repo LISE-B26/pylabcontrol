@@ -413,7 +413,7 @@ class PulseBlaster(Instrument):
         self.estimated_runtime = self.estimate_runtime(delayed_pulse_collection, num_loops)
         pb_state_changes = self.generate_pb_sequence(delayed_pulse_collection)
         pb_commands = self.create_commands(pb_state_changes, num_loops)
-        print(pb_commands)
+        # print(pb_commands)
 
         assert len(pb_commands) < 4096, "Generated a number of commands too long for the pulseblaster!"
 

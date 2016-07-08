@@ -29,15 +29,29 @@ def plot_psd(freq, psd, axes, clear = True):
     axes.set_xlabel('frequency ({:s})'.format(unit))
 
 
-def plot_esr(fit_params, frequency, data, axes):
+def plot_esr(axes, frequency, data, fit_params=None):
+    """
+    plots the esr
+    Args:
+        axes:
+        fit_params:
+        frequency: mw frequency
+        data:
 
+
+    Returns:
+
+    """
     def lorentzian(x, amplitude, width, center, offset):
         return (-(amplitude*(.5*width)**2)/((x-center)**2+(.5*width)**2))+offset
 
-    if not fit_params[0] == -1:  # check if fit failed
+    if fit_params is None:
+        fit_data = None
+    elif not fit_params[0] == -1:  # check if fit failed
         fit_data = lorentzian(frequency, fit_params[0], fit_params[1], fit_params[2], fit_params[3])
     else:
         fit_data = None
+
     if fit_data is not None:  # plot esr and fit data
         lines = axes.plot(frequency, data, 'b', frequency, fit_data, 'r')
         axes.set_title('ESR fo = {:0.4e}, wo = {:0.2e}'.format(fit_params[2], fit_params[1]))
@@ -68,6 +82,15 @@ def plot_pulses(axis, pulse_collection):
     # create a list of unique instruments from the pulses
     instrument_names = sorted(list(set([pulse.channel_id for pulse in pulse_collection])))
 
+    # asign colors for certain specific channels
+    pulse_colors = {}
+    for name in instrument_names:
+        if name == 'laser':
+            pulse_colors.update({name: 'g'})
+        elif name == 'microwave_i':
+            pulse_colors.update({name: 'r'})
+        else:
+            pulse_colors.update({name: 'k'})
     # find the maximum time from the list of pulses
     max_time = max([pulse.start_time + pulse.duration for pulse in pulse_collection])
 
@@ -89,10 +112,17 @@ def plot_pulses(axis, pulse_collection):
     # create rectangles for the pulses
     patch_list = []
     for pulse in pulse_collection:
-        patch_list.append(patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id)), pulse.duration, 0.5))
+        patch_list.append(
+            patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id)), pulse.duration, 0.5,
+                              fc=pulse_colors[pulse.channel_id]))
 
     patch_collection = PatchCollection(patch_list)
-    axis.add_collection(patch_collection)
+
+    # JG: following change is to get colors to show
+    # todo: check that this works with the update function
+    # axis.add_collection(patch_collection)
+    for p in patch_list:
+        axis.add_artist(p)
 
     # label the axis
     axis.set_title('Pulse Visualization')
@@ -134,6 +164,7 @@ def update_pulse_plot(axis, pulse_collection):
 
 def plot_counts(axis, data):
     axis.plot(data)
+    axis.hold(False)
 
     axis.set_xlabel('time')
     axis.set_ylabel('kCounts/sec')

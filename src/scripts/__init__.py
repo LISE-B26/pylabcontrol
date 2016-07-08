@@ -164,4 +164,13 @@ from exec_pulse_blaster_sequence import ExecutePulseBlasterSequence
 
 from pulse_delays import PulseDelays
 
-from pulse_blaster_scripts import Rabi, Rabi_Troubleshoot
+from pulse_blaster_scripts import Rabi, Rabi_Power_Sweep
+
+from daq_read_counter import Daq_Read_Counter
+
+from MW_Power_Broadening import MWPowerBroadening
+
+try:
+    from pulse_blaster_scripts import PulsedESR
+except:
+    print("./src/scripts/__init__ warning! Pulsed_ESR did not load")

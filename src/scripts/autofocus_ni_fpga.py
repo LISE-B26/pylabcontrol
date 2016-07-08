@@ -360,7 +360,20 @@ if __name__ == '__main__':
     #     instruments=self.instruments,
     #     log_function=self.log,
     #     data_path=self.gui_settings['data_folder'])
-    scripts, loaded_failed, instruments = Script.load_and_append({'take_image': 'GalvoScanNIFpga'})
+
+
+
+    # ========================= test explicitely loading for DAQ ========================================
+    scripts, loaded_failed, instruments = Script.load_and_append({'take_image': 'GalvoScanDAQ'})
+    print('===++++++===========++++++===========++++++========')
+    print(scripts)
+    print('===++++++===========++++++===========++++++========')
+
+    af = AutoFocusNIFPGA(scripts=scripts)
+    print(af)
+
+    # ========================= test explicitely loading for DAQ ========================================
+    scripts, loaded_failed, instruments = Script.load_and_append({'take_image': 'GalvoScanDAQ'})
     print('===++++++===========++++++===========++++++========')
     print(scripts)
     print('===++++++===========++++++===========++++++========')

@@ -4,7 +4,7 @@ from src.instruments import Pulse
 from src.scripts import ExecutePulseBlasterSequence
 import numpy as np
 
-AVERAGES_PER_SCAN = 1000000  # 1E6
+AVERAGES_PER_SCAN = 100000  # 1E6
 
 
 class PulseDelays(ExecutePulseBlasterSequence):

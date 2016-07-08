@@ -30,12 +30,6 @@ class StanfordResearch_ESR(Script):
     _SCRIPTS = {}
 
     def __init__(self, instruments, scripts = None, name=None, settings=None, log_function=None, data_path = None):
-        """
-        Example of a script that emits a QT signal for the gui
-        Args:
-            name (optional): name of script, if empty same as class name
-            settings (optional): settings for this script, if empty same as default settings
-        """
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
 
     def _function(self):
@@ -148,10 +142,10 @@ class StanfordResearch_ESR(Script):
     #     fig.savefig(filename)
 
     def _plot(self, axes_list):
-        plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes_list[0])
+        plot_esr(axes_list[0], self.data[-1]['frequency'], self.data[-1]['data'], self.data[-1]['fit_params'])
 
     def _update_plot(self, axes_list):
-        plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], axes_list[0])
+        plot_esr(axes_list[0], self.data[-1]['frequency'], self.data[-1]['data'], self.data[-1]['fit_params'])
 
     def get_axes_layout(self, figure_list):
         """

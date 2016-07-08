@@ -3,7 +3,7 @@ from src.instruments import DAQ, B26PulseBlaster, MicrowaveGenerator, Pulse
 from src.scripts import ExecutePulseBlasterSequence
 from PyQt4.QtCore import pyqtSlot
 import numpy as np
-
+from src.plotting.plots_1d import plot_esr, plot_pulses, update_pulse_plot
 
 class PulsedESR(ExecutePulseBlasterSequence):
     """
@@ -29,32 +29,18 @@ This script applies a microwave pulse at fixed power and durations for varying f
 
         assert self.settings['freq_start'] < self.settings['freq_stop']
 
-        super(PulsedESR, self).updateProgress.connect(self._receive_signal)
-
         self.data = {'mw_frequencies': np.linspace(self.settings['freq_start'], self.settings['freq_stop'],
                                                    self.settings['freq_points']), 'esr_counts': []}
+
         for i, mw_frequency in enumerate(self.data['mw_frequencies']):
+            self._loop_count = i
             self.instruments['mw_gen']['instance'].update({'frequency': float(mw_frequency)})
             super(PulsedESR, self)._function(self.data)
             self.data['esr_counts'].append(self.data['counts'])
 
-            self._loop_count = i
-
-            # self.updateProgress.emit(progress)
-
-        super(PulsedESR, self).updateProgress.disconnect()
-
-    @pyqtSlot(int)
-    def _receive_signal(self, progress):
-        """
-        this function takes care of signals emitted by the subscripts
-        the default behaviour is that it just reemits the signal
-        Args:
-            progress: progress of Parent _function
-        """
-
-        progress = int(100. * (self._loop_count + float(progress) / 100) / self.settings['freq_points'])
-        self.updateProgress.emit(progress)
+    def _calc_progress(self):
+        progress = int(100. * (self._loop_count) / self.settings['freq_points'])
+        return progress
 
     def _plot(self, axes_list):
         '''
@@ -72,28 +58,21 @@ This script applies a microwave pulse at fixed power and durations for varying f
         axis1 = axes_list[0]
         if not esr_counts == []:
             counts = esr_counts
-            axis1.plot(mw_frequencies[0:len(counts)], counts)
+            plot_esr(axis1, mw_frequencies[0:len(counts)], counts)
             axis1.hold(False)
-            # axis2 = axes_list[1]
-            # plot_pulses(axis2, self.pulse_sequences[self.sequence_index])
+        axis2 = axes_list[1]
+        plot_pulses(axis2, self.pulse_sequences[0])
 
     def _update_plot(self, axes_list):
-        self._plot(axes_list)
-
-    # def _update_plot(self, axes_list):
-    #     '''
-    #     Updates plots specified in _plot above
-    #     Args:
-    #         axes_list: list of axes to write plots to (uses first 2)
-    #
-    #     '''
-    #     counts = self.data['counts']
-    #     x_data = self.data['tau']
-    #     axis1 = axes_list[0]
-    #     if not counts == []:
-    #         update_delay_counts(axis1, x_data, counts)
-    #     axis2 = axes_list[1]
-    #     update_pulse_plot(axis2, self.pulse_sequences[self.sequence_index])
+        mw_frequencies = self.data['mw_frequencies']
+        esr_counts = self.data['esr_counts']
+        axis1 = axes_list[0]
+        if not esr_counts == []:
+            counts = esr_counts
+            plot_esr(axis1, mw_frequencies[0:len(counts)], counts)
+            axis1.hold(False)
+            # axis2 = axes_list[1]
+            # update_pulse_plot(axis2, self.pulse_sequences[0])
 
     def _create_pulse_sequences(self):
 
@@ -139,7 +118,8 @@ This script applies a microwave pulse at fixed power for varying durations to me
         Parameter('time', 200, float, 'total time of rabi oscillations (in ns)'),
         Parameter('meas_time', 300, float, 'measurement time after rabi sequence (in ns)'),
         Parameter('num_averages', 1000000, int, 'number of averages'),
-        Parameter('reset_time', 1000000, int, 'time with laser on at the beginning to reset state')
+        Parameter('reset_time', 1000000, int, 'time with laser on at the beginning to reset state'),
+        Parameter('skip_invalid_sequences', False, bool, 'Skips any sequences with <15ns commands')
     ]
 
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster, 'mw_gen': MicrowaveGenerator}
@@ -168,9 +148,9 @@ This script applies a microwave pulse at fixed power for varying durations to me
         reset_time = self.settings['reset_time']
         for tau in tau_list:
             pulse_sequences.append([Pulse('laser', 0, reset_time),
-                                    Pulse('microwave_i', reset_time, tau),
-                                    Pulse('laser', reset_time + tau, self.settings['meas_time']),
-                                    Pulse('apd_readout', reset_time + tau, self.settings['meas_time'])
+                                    Pulse('microwave_i', reset_time + 200, tau),
+                                    Pulse('laser', reset_time + tau + 300, self.settings['meas_time']),
+                                    Pulse('apd_readout', reset_time + tau + 300, self.settings['meas_time'])
                                     ])
 
         end_time_max = 0
@@ -181,6 +161,9 @@ This script applies a microwave pulse at fixed power for varying durations to me
             pulse_sequence.append(Pulse('laser', end_time_max + 1850, 15))
 
         return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
+
+    def _skip_invalid_sequences(self, pulse_sequences):
+        failure_list = self.validate()
 
 
 class Rabi_Power_Sweep(Script):

@@ -193,9 +193,10 @@ class ESR_Selected_NVs(Script):
             extend = self.data['extent']
             plot_fluorescence_new(image, extend, axes_full_image)
             if self.scripts['StanfordResearch_ESR'].data:
-                plot_esr(self.scripts['StanfordResearch_ESR'].data[-1]['fit_params'],
+                plot_esr(axes_ESR,
                          self.scripts['StanfordResearch_ESR'].data[-1]['frequency'],
-                         self.scripts['StanfordResearch_ESR'].data[-1]['data'], axes_ESR)
+                         self.scripts['StanfordResearch_ESR'].data[-1]['data'],
+                         self.scripts['StanfordResearch_ESR'].data[-1]['fit_params'])
             axes_ESR.get_figure().tight_layout()
             self.scripts['select_NVs'].plot([axes_full_image.get_figure()])
             patch = patches.Circle((self.plot_pt[0], self.plot_pt[1]),
@@ -211,6 +212,8 @@ class ESR_Selected_NVs(Script):
             extend = self.data['extent']
             plot_fluorescence_new(image, extend, axes_image)
             self.scripts['select_NVs'].plot([axes_image.get_figure()])
+        elif self.current_stage == 'init':
+            pass
         else:
             print('current_stage FAILED', self.current_stage)
             raise KeyError
@@ -223,9 +226,11 @@ class ESR_Selected_NVs(Script):
         elif self.current_stage == 'ESR':
             [_, axes_ESR, _] = axes_list
             if self.scripts['StanfordResearch_ESR'].data:
-                plot_esr(self.scripts['StanfordResearch_ESR'].data[-1]['fit_params'],
+                plot_esr(axes_ESR,
                          self.scripts['StanfordResearch_ESR'].data[-1]['frequency'],
-                         self.scripts['StanfordResearch_ESR'].data[-1]['data'], axes_ESR)
+                         self.scripts['StanfordResearch_ESR'].data[-1]['data'],
+                         self.scripts['StanfordResearch_ESR'].data[-1]['fit_params']
+                         )
                 axes_ESR.get_figure().tight_layout()
         elif self.current_stage in ('finished', 'saving'):
             pass  # should never update in the saving/finished stage

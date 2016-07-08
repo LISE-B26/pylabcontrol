@@ -246,9 +246,14 @@ class DAQ(Instrument):
                                                                  self.input_channel_str, "", DAQmx_Val_Rising, 0, DAQmx_Val_CountUp))
         # PFI13 is standard output channel for ctr1 channel used for clock and
         # is internally looped back to ctr1 input to be read
-        self._check_error(self.nidaq.DAQmxCfgSampClkTiming(self.DI_taskHandleCtr, self.counter_out_PFI_str,
-                                                           float64(self.DI_sample_rate), DAQmx_Val_Rising,
-                                                           DAQmx_Val_FiniteSamps, uInt64(self.DI_sampleNum)))
+        if not continuous_acquisition:
+            self._check_error(self.nidaq.DAQmxCfgSampClkTiming(self.DI_taskHandleCtr, self.counter_out_PFI_str,
+                                                               float64(self.DI_sample_rate), DAQmx_Val_Rising,
+                                                               DAQmx_Val_FiniteSamps, uInt64(self.DI_sampleNum)))
+        else:
+            self._check_error(self.nidaq.DAQmxCfgSampClkTiming(self.DI_taskHandleCtr, self.counter_out_PFI_str,
+                                                               float64(self.DI_sample_rate), DAQmx_Val_Rising,
+                                                               DAQmx_Val_ContSamps, uInt64(self.DI_sampleNum)))
         # if (self.settings['override_buffer_size'] > 0):
         #     self._check_error(self.nidaq.DAQmxCfgInputBuffer(self.DI_taskHandleCtr, uInt64(self.settings['override_buffer_size'])))
         # self._check_error(self.nidaq.DAQmxCfgInputBuffer(self.DI_taskHandleCtr, uInt64(sampleNum)))
