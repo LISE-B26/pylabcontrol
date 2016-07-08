@@ -21,7 +21,7 @@ standard Script such as plotting.
 To use this class, the inheriting class need only overwrite _create_pulse_sequences to create the proper pulse sequence
 for a given experiment
     '''
-    _DEFAULT_SETTINGS = Parameter(None)
+    _DEFAULT_SETTINGS = []
 
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
 
@@ -37,10 +37,12 @@ for a given experiment
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
                         log_function=log_function, data_path=data_path)
 
-    def _function(self):
+    def _function(self, in_data={}):
         '''
         This is the core loop in which the desired experiment specified by the inheriting script's pulse sequence
         is performed.
+
+        in_data: input data dictionary, caution 'tau' and 'counts' will be overwritten here!
 
         Poststate: self.data contains two key/value pairs, 'tau' and 'counts'
             'tau': a list of the times tau that are scanned over for the relative experiment (ex wait times between pulses)
@@ -51,6 +53,7 @@ for a given experiment
              normalization)
 
         '''
+        self.sequence_index = 0
         self.pulse_sequences, self.num_averages, tau_list, self.measurement_gate_width = self._create_pulse_sequences()
 
         #calculates the number of daq reads per loop requested in the pulse sequence by asking how many apd reads are
@@ -65,7 +68,8 @@ for a given experiment
         norms = np.repeat([1.0], (num_daq_reads - 1))
         self.count_data = np.repeat([np.append(signal, norms)], len(self.pulse_sequences), axis=0)
 
-        self.data = {'tau': tau_list, 'counts': deepcopy(self.count_data)}
+        self.data = in_data
+        self.data.update({'tau': tau_list, 'counts': deepcopy(self.count_data)})
 
         #divides the total number of averages requested into a number of slices of MAX_AVERAGES_PER_SCAN and a remainer.
         #This is required because the pulseblaster won't accept more than ~4E6 loops (22 bits avaliable to store loop
@@ -91,8 +95,6 @@ for a given experiment
             self.save_data()
             self.save_log()
             self.save_image_to_disk()
-
-        self.updateProgress.emit(100)
 
     def _plot(self, axes_list):
         '''
@@ -200,7 +202,7 @@ for a given experiment
 
     def _calc_progress(self):
 
-        self.updateProgress.emit(50)
+        return 50
 
     def _normalize(self, signal, baseline_max=0, baseline_min=0):
         '''
