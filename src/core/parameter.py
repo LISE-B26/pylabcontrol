@@ -1,6 +1,6 @@
 
 class Parameter(dict):
-    def __init__(self, name, value = None, valid_values = None, info = None, hidden = False):
+    def __init__(self, name, value = None, valid_values = None, info = None, visible = False):
         """
 
         Parameter(name, value, valid_values, info)
@@ -17,7 +17,7 @@ class Parameter(dict):
             value: value of parameter can be any basic type or a list
             valid_values: defines which values are accepted for value can be a type or a list if not provided => type(value)
             info: description of parameter, if not provided => empty string
-
+            visible: boolean if true always show parameter if false hide it
         """
 
 
@@ -39,19 +39,19 @@ class Parameter(dict):
                 self._valid_values = {name: {k: v for d in value for k, v in d.valid_values.iteritems()}}
                 self.update({name: {k: v for d in value for k, v in d.iteritems()}})
                 self._info = {name: {k: v for d in value for k, v in d.info.iteritems()}}
-                self._hidden = {name: {k: v for d in value for k, v in d.hidden.iteritems()}}
+                self._visible = {name: {k: v for d in value for k, v in d.visible.iteritems()}}
 
             else:
                 self._valid_values = {name: valid_values}
                 self.update({name: value})
                 self._info = {name: info}
-                self._hidden = {name: hidden}
+                self._visible = {name: visible}
 
         elif isinstance(name, (list, dict)) and value is None:
 
             self._valid_values = {}
             self._info = {}
-            self._hidden = {}
+            self._visible = {}
             if isinstance(name, dict):
                 for k, v in name.iteritems():
                     # convert to Parameter if value is a dict
@@ -60,14 +60,14 @@ class Parameter(dict):
                     self._valid_values.update({k: type(v)})
                     self.update({k: v})
                     self._info.update({k: ''})
-                    self._hidden.update({k: hidden})
+                    self._visible.update({k: visible})
             elif isinstance(name, list) and isinstance(name[0], Parameter):
                 for p in name:
                     for k, v in p.iteritems():
                         self._valid_values.update({k: p.valid_values[k]})
                         self.update({k: v})
                         self._info.update({k: p.info[k]})
-                        self._hidden.update({k: p.hidden[k]})
+                        self._visible.update({k: p.visible[k]})
             else:
                 raise TypeError('unknown input: ', name)
 
@@ -87,8 +87,8 @@ class Parameter(dict):
             for key, value in d.iteritems():
                 self.__setitem__(key, value)
     @property
-    def hidden(self):
-        return self._hidden
+    def visible(self):
+        return self._visible
 
     @property
     def valid_values(self):

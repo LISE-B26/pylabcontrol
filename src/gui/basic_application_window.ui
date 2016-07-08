@@ -108,6 +108,16 @@
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <widget class="QCheckBox" name="chk_show_all">
+                  <property name="toolTip">
+                   <string extracomment="show all parameters or only relevant ones "/>
+                  </property>
+                  <property name="text">
+                   <string>show all</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </item>
               <item>
@@ -163,6 +173,50 @@
                   <string>Value</string>
                  </property>
                 </column>
+                <column>
+                 <property name="text">
+                  <string>show</string>
+                 </property>
+                </column>
+                <item>
+                 <property name="text">
+                  <string>New Item</string>
+                 </property>
+                 <property name="checkState">
+                  <enum>Checked</enum>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>New Item</string>
+                 </property>
+                 <property name="checkState">
+                  <enum>Checked</enum>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>New Subitem</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </item>
+                </item>
                </widget>
               </item>
               <item>

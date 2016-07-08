@@ -162,8 +162,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.chk_probe_log.toggled.connect(lambda: self.set_probe_file_name(self.chk_probe_log.isChecked()))
             self.chk_probe_plot.toggled.connect(self.btn_clicked)
 
+            self.chk_show_all.toggled.connect(self._show_hide_parameter)
+
         self.create_figures()
-        self.tree_scripts.setColumnWidth(0, 250)
+
+        self.tree_scripts.header().setStretchLastSection(True)
 
         # create a "delegate" --- an editor that uses our new Editor Factory when creating editors,
         # and use that for tree_scripts
@@ -214,8 +217,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.refresh_tree(self.tree_gui_settings, self.gui_settings)
         else:
             self.load_config(self.config_filename)
-        self.load_settings(os.path.join(self.gui_settings['tmp_folder'], 'gui_settings.b26'))
 
+        self.load_settings(os.path.join(self.gui_settings['tmp_folder'], 'gui_settings.b26'))
+        # hide previously hidden parameters
+        if self.validate_config(self.config_filename):
+            self._hide_parameters(self.config_filename)
 
         self.data_sets = {}  # todo: load datasets from tmp folder
         self.read_probes = ReadProbes(self.probes)
@@ -226,7 +232,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.script_thread = QThread()
         self._last_progress_update = None # used to keep track of status updates, to block updates when they occur to often
 
+        self.chk_show_all.setChecked(True)
+
     def closeEvent(self, event):
+
+        self.script_thread.quit()
+        self.read_probes.quit()
         if self.config_filename:
             fname = os.path.join(self.gui_settings['tmp_folder'], 'gui_settings.b26')
             print('save settings to {:s}'.format(fname))
@@ -657,6 +668,40 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
 
+    def _show_hide_parameter(self):
+        """
+        shows or hides parameters
+        Returns:
+
+        """
+
+        assert isinstance(self.sender(), QtGui.QCheckBox), 'this function should be connected to a check box'
+
+        if self.sender().isChecked():
+            print("show all parameter")
+            self.tree_scripts.setColumnHidden(2, False)
+            iterator = QtGui.QTreeWidgetItemIterator(self.tree_scripts, QtGui.QTreeWidgetItemIterator.Hidden)
+            item = iterator.value()
+            while item:
+                item.setHidden(False)
+                item = iterator.value()
+                iterator += 1
+        else:
+            print("hide unselected parameters")
+            self.tree_scripts.setColumnHidden(2, True)
+
+            iterator = QtGui.QTreeWidgetItemIterator(self.tree_scripts, QtGui.QTreeWidgetItemIterator.NotHidden)
+            item = iterator.value()
+            while item:
+                if not item.visible:
+                    item.setHidden(True)
+                item = iterator.value()
+                iterator +=1
+
+
+        self.tree_scripts.setColumnWidth(0, 200)
+        self.tree_scripts.setColumnWidth(1, 400)
+        self.tree_scripts.setColumnWidth(2, 50)
     def update_parameters(self, treeWidget):
 
         if treeWidget == self.tree_settings:
@@ -855,7 +900,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Args:
             tree: QtGui.QTreeWidget
             parameters: dictionary or Parameter object
-
+            show_all: boolean if true show all parameters, if false only selected ones
         Returns:
 
         """
@@ -948,11 +993,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         refresh trees with current settings
         Args:
             tree: a QtGui.QTreeWidget object or a QtGui.QTreeView object
-
-        Returns:
-
+            items: dictionary or Parameter items with wich to populate the tree
+            show_all: boolean if true show all parameters, if false only selected ones
         """
-
 
         if tree == self.tree_scripts or tree == self.tree_settings:
             tree.itemChanged.disconnect()
@@ -997,6 +1040,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             for x in self._DEFAULT_CONFIG.keys():
                 if x in config:
                     if not os.path.exists(config[x]):
+                        print('failed validating path', config[x])
                         valid = False
                 else:
                     valid = False
@@ -1015,6 +1059,39 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.refresh_tree(self.tree_gui_settings, self.gui_settings)
 
+    def _hide_parameters(self, file_name):
+        """
+        hide the parameters that had been hidden
+        Args:
+            file_name: config file that has the information about which parameters are hidden
+
+        Returns:
+
+        """
+        assert os.path.isfile(file_name), file_name
+        in_data = load_b26_file(file_name)
+
+
+
+        def set_item_visible(item, is_visible):
+
+            if isinstance(is_visible, dict):
+                for child_id in range(item.childCount()):
+                    child = item.child(child_id)
+                    set_item_visible(child, is_visible[child.name])
+            else:
+                print('AAAA', item.name, is_visible)
+                item.visible = is_visible
+
+        if "scripts_hidden_parameters" in in_data:
+            # consistency check
+            print('XXXX', in_data["scripts_hidden_parameters"].keys(), self.tree_scripts.topLevelItemCount())
+            assert len( in_data["scripts_hidden_parameters"].keys()) == self.tree_scripts.topLevelItemCount()
+
+            for index in range(self.tree_scripts.topLevelItemCount()):
+                item = self.tree_scripts.topLevelItem(index)
+                print('set vis', item.name,in_data["scripts_hidden_parameters"][item.name])
+                set_item_visible(item, in_data["scripts_hidden_parameters"][item.name])
     def load_settings(self, in_file_name):
         """
         loads a old_gui settings file (a json dictionary)
@@ -1068,6 +1145,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # refresh trees
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
+
+
+
         else:
             self.instruments = {}
             self.scripts = {}
@@ -1109,12 +1189,36 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Args:
             out_file_name: name of file
         """
+
+        def get_hidden_parameter(item):
+
+            numer_of_sub_elements = item.childCount()
+
+            if numer_of_sub_elements == 0:
+                dictator = {item.name : item.visible}
+            else:
+                # dictator = {get_hidden_parameter(item.child(child_id)) for child_id in range(numer_of_sub_elements)}
+                dictator = {item.name:{}}
+                for child_id in range(numer_of_sub_elements):
+                    # print('FFFF', child_id, item.child(child_id).name, numer_of_sub_elements, numer_of_sub_elements == 0)
+                    dictator[item.name].update(get_hidden_parameter(item.child(child_id)))
+            return dictator
+
         out_file_name = str(out_file_name)
         if not os.path.exists(os.path.dirname(out_file_name)):
             os.makedirs(os.path.dirname(out_file_name))
 
+
+        # build a dictionary for the configuration of the hidden parameters
+        dictator = {}
+        for index in range(self.tree_scripts.topLevelItemCount()):
+            script_item = self.tree_scripts.topLevelItem(index)
+            dictator.update(get_hidden_parameter(script_item))
+
+        dictator = {"gui_settings": self.gui_settings, "scripts_hidden_parameters":dictator}
+
         with open(out_file_name, 'w') as outfile:
-            tmp = json.dump({"gui_settings":self.gui_settings}, outfile, indent=4)
+            tmp = json.dump(dictator, outfile, indent=4)
 
     def save_dataset(self, out_file_name):
         """
