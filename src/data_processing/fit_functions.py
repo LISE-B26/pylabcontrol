@@ -127,7 +127,25 @@ def get_ampfreqphase_FFT(qx, dt, n0 = 0, f_range = None, return_Spectra = False)
         return [ax, 2*np.pi*fx, phi], [Fx, Ax]
     else:
         return [ax, 2*np.pi*fx, phi]
+def A_fun(qx, w, dt):
+    '''
+    Ak = A_fun(qx, w, fs)
+    input:
+        xx: input signal vector length N
+        w: omega, w = 2*pi*k*fs / M  vector length K
+        dt: sampling interval
+    output:
+        Ak: spectrum at frequencies w
+    '''
 
+    N = len(qx)
+    j = 1j
+
+    nn = np.array( [ np.arange(N) ] ).transpose()
+
+    Ak = (1./N) * np.dot(np.array([qx]),  np.exp(-j * np.dot( nn, np.array([w]) ) * dt) )
+
+    return Ak[0]
 
 def guess_cose_parameter(t, y):
     """
@@ -136,11 +154,19 @@ def guess_cose_parameter(t, y):
         t: time vector, here we assume that t is sampled evenly
         y: data vector
 
-    Returns: estimated fit parameters for Sine fit
+    Returns: estimated fit parameters for Sine with offset fit
     """
     dt = np.mean(np.diff(t))
     offset = float(max(y) + min(y)) / 2
     [ax, wx, phi] = get_ampfreqphase_FFT(y-offset, dt)
+
+    # if the oscillation is less than a peroiod we take the average of the min and max as the offset otherwise we take the mean
+
+
+    if max(t)<2*np.pi/wx:
+        offset = float(max(y) + min(y)) / 2
+    else:
+        offset = np.mean(y)
 
     return [ax, wx, phi, offset]
 
@@ -151,7 +177,7 @@ def cose(t, a0, w0, phi0, offset):
     """
     return a0*np.cos(w0*t+phi0)+ offset
 
-def fit_cose_parameter(t, y):
+def fit_cose_parameter(t, y, verbose = False):
     """
     fits the data to a cosine
     Args:
@@ -162,7 +188,117 @@ def fit_cose_parameter(t, y):
 
     """
 
-    # todo: implement working fit algorithm, for now just take the estimate
     [ax, wx, phi, offset] = guess_cose_parameter(t, y)
+    if verbose:
+        print('initial estimates [ax, wx, phi, offset]:', [ax, wx, phi, offset])
+    def cost_function_fit(x):
+        """
+        cost function for fit to sin
+        """
+        ao, wo, po, offset = x
+        #         sig = sine(x, t)
+        sig = ao * np.cos(wo * t + po) + offset
+        return np.sum((sig - y)**2)
+
+    opt = optimize.minimize(cost_function_fit, [ax, wx, phi, offset])
+    if verbose:
+        print('optimization result:', opt)
+    [ax, wx, phi, offset] = opt.x
 
     return [ax, wx, phi, offset]
+
+def cose_with_decay(t, a0, w0, phi0, offset, tau):
+    """
+        cosine function
+    """
+    return a0*np.exp(-t/tau)*np.cos(w0*t+phi0)+ offset
+
+
+def get_decay_data(t, y, wo, verbose=False):
+    """
+        average the data y over a oscillation period to smoothout oscillations
+    returns: averaged data
+
+    """
+
+    period = 2 * np.pi / wo
+    dt = np.mean(np.diff(t))
+    index_per_interval = int(period / dt)
+
+    number_of_oscillations = int(np.floor(len(y) / index_per_interval))
+
+    if verbose:
+        print(
+        'initial estimates [index_per_interval, number_of_oscillations]:', [index_per_interval, number_of_oscillations])
+
+    decay_y = np.array(
+        [np.std(y[index_per_interval * i:index_per_interval * (i + 1)]) for i in range(number_of_oscillations)])
+    decay_t = np.array(
+        [np.mean(t[index_per_interval * i:index_per_interval * (i + 1)]) for i in range(number_of_oscillations)])
+    return np.array(decay_t), np.array(decay_y)
+
+
+def fit_exp_decay(t, y, verbose=False):
+    """
+    fits the data to a cosine
+    Args:
+        t:
+        y:
+
+    Returns:
+
+    """
+    if verbose:
+        print(' ======= fitting exponential decay =======')
+    a, off = np.polyfit(t, np.log(y), 1)
+    tau = -1. / a
+    ao = np.exp(off)
+    if verbose:
+        print('optimization result:', [ao, tau])
+
+    return [ao, tau]
+
+
+def exp(t, ao, tau):
+    return np.exp(-t / tau) * ao
+
+
+def fit_rabi_decay(t, y, verbose=False):
+    """
+    fit to a cosine with an exponential envelope
+    Args:
+        t: time in ns
+        y: counts in kilocounts
+
+    """
+
+    [ax, wx, phi, offset] = guess_cose_parameter(t, y)
+
+    # estimate the decay constant
+    t_decay, y_decay = get_decay_data(t, y, wx, verbose)
+    [_, to] = fit_exp_decay(t_decay, y_decay)
+
+    if verbose:
+        print('initial estimates [ax, wx, phi, offset, tau]:', [ax, wx, phi, offset, to])
+
+    def cost_function_fit(x):
+        """
+        cost function for fit to exponentially decaying cosine
+        """
+        ao, wo, po, offset, to = x
+        #         sig = sine(x, t)
+        sig = ao * np.exp(-t / to) * np.cos(wo * t + po) + offset
+
+        return np.sum((sig - y) ** 2)
+
+    opt = optimize.minimize(cost_function_fit, [ax, wx, phi, offset, to])
+    #     opt = optimize.minimize(cost_function_fit, [ax, wx, phi, offset, to],
+    #                             bounds=[(None, None), (1.1*wx, 2*wx), (None, None), (None, None), (None, None)])
+
+
+    [ax, wx, phi, offset, tau] = opt.x
+
+    if verbose:
+        print('optimization result:', opt)
+
+    return [ax, wx, phi, offset, tau]

@@ -910,9 +910,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         for key, value in parameters.iteritems():
             if isinstance(value, Parameter):
-                B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
+                item  = B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
+                item.setForeground(0,QtGui.QColor(255, 0, 0))
+                print(item.name)
             else:
-                B26QTreeItem(tree, key, value, type(value), '')
+                item = B26QTreeItem(tree, key, value, type(value), '')
+                item.setForeground(0,QtGui.QColor(255, 0, 0))
 
     def fill_treeview(self, tree, input_dict):
         """
@@ -1084,12 +1087,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         if "scripts_hidden_parameters" in in_data:
             # consistency check
-            print('XXXX', in_data["scripts_hidden_parameters"].keys(), self.tree_scripts.topLevelItemCount())
             assert len( in_data["scripts_hidden_parameters"].keys()) == self.tree_scripts.topLevelItemCount()
 
             for index in range(self.tree_scripts.topLevelItemCount()):
                 item = self.tree_scripts.topLevelItem(index)
-                print('set vis', item.name,in_data["scripts_hidden_parameters"][item.name])
                 set_item_visible(item, in_data["scripts_hidden_parameters"][item.name])
     def load_settings(self, in_file_name):
         """
