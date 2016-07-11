@@ -160,6 +160,14 @@ def guess_cose_parameter(t, y):
     offset = float(max(y) + min(y)) / 2
     [ax, wx, phi] = get_ampfreqphase_FFT(y-offset, dt)
 
+    # if the oscillation is less than a peroiod we take the average of the min and max as the offset otherwise we take the mean
+
+
+    if max(t)<2*np.pi/wx:
+        offset = float(max(y) + min(y)) / 2
+    else:
+        offset = np.mean(y)
+
     return [ax, wx, phi, offset]
 
 
