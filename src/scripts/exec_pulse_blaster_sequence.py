@@ -5,7 +5,7 @@ import itertools
 from copy import deepcopy
 import time
 
-from src.plotting.plots_1d import plot_delay_counts, plot_pulses, update_pulse_plot, update_delay_counts
+from src.plotting.plots_1d import plot_1d_simple, plot_pulses, update_pulse_plot, update_1d_simple
 import numpy as np
 
 MAX_AVERAGES_PER_SCAN = 100000  # 1E6, the max number of loops per point allowed at one time (true max is ~4E6 since
@@ -56,6 +56,10 @@ for a given experiment
         self.sequence_index = 0
         self.pulse_sequences, self.num_averages, tau_list, self.measurement_gate_width = self._create_pulse_sequences()
 
+        if self.settings['skip_invalid_sequences']:
+            self.pulse_sequences, delete_list = self._skip_invalid_sequences(self.pulse_sequences)
+            tau_list = np.delete(np.array(tau_list), delete_list).tolist()
+
         #calculates the number of daq reads per loop requested in the pulse sequence by asking how many apd reads are
         #called for. if this is not calculated properly, daq will either end too early (number too low) or hang since it
         #never receives the rest of the counts (number too high)
@@ -65,7 +69,7 @@ for a given experiment
                 num_daq_reads += 1
 
         signal = [0.0]
-        norms = np.repeat([1.0], (num_daq_reads - 1))
+        norms = np.repeat([0.0], (num_daq_reads - 1))
         self.count_data = np.repeat([np.append(signal, norms)], len(self.pulse_sequences), axis=0)
 
         self.data = in_data
@@ -87,7 +91,7 @@ for a given experiment
             self.current_averages = self.num_averages
             self._run_sweep(self.pulse_sequences, remainder, num_daq_reads)
 
-        if len(self.data['counts'][0] == 1):
+        if (len(self.data['counts'][0]) == 1):
             self.data['counts'] = [item for sublist in self.data['counts'] for item in sublist]
 
         if self.settings['save']:
@@ -111,7 +115,7 @@ for a given experiment
         x_data = self.data['tau']
         axis1 = axes_list[0]
         if not counts == []:
-            plot_delay_counts(axis1, x_data, counts)
+            plot_1d_simple(axis1, x_data, [counts])
         axis2 = axes_list[1]
         plot_pulses(axis2, self.pulse_sequences[self.sequence_index])
 
@@ -126,7 +130,7 @@ for a given experiment
         x_data = self.data['tau']
         axis1 = axes_list[0]
         if not counts == []:
-            update_delay_counts(axis1, x_data, counts)
+            update_1d_simple(axis1, x_data, [counts])
         axis2 = axes_list[1]
         update_pulse_plot(axis2, self.pulse_sequences[self.sequence_index])
 
@@ -173,11 +177,12 @@ for a given experiment
             self.instruments['daq']['instance'].gated_DI_init('ctr0', int(num_loops * num_daq_reads))
             self.instruments['daq']['instance'].gated_DI_run()
         self.instruments['PB']['instance'].start_pulse_seq()
+        result = []
         if num_daq_reads != 0:
             result_array, _ = self.instruments['daq']['instance'].gated_DI_read(
                 timeout=timeout)  # thread waits on DAQ getting the right number of gates
             for i in range(num_daq_reads):
-                result = sum(itertools.islice(result_array, i, None, num_daq_reads))
+                result.append(sum(itertools.islice(result_array, i, None, num_daq_reads)))
         # clean up APD tasks
         if num_daq_reads != 0:
             self.instruments['daq']['instance'].gated_DI_stop()
@@ -229,7 +234,10 @@ for a given experiment
         self.pulse_sequences_preview = self._create_pulse_sequences()[0]
         failure_list = []
         for pulse_sequence in self.pulse_sequences_preview:
-            failure_list.append(B26PulseBlaster.find_overlapping_pulses(pulse_sequence))
+            overlapping_pulses = B26PulseBlaster.find_overlapping_pulses(pulse_sequence)
+            if not overlapping_pulses == []:
+                failure_list.append(B26PulseBlaster.find_overlapping_pulses(pulse_sequence))
+                break
             for pulse in pulse_sequence:
                 assert pulse.start_time == 0 or pulse.start_time > 1, \
                     'found a start time that was between 0 and 1. Remember pulse times are in nanoseconds!'
@@ -243,13 +251,17 @@ for a given experiment
 
             assert len(pb_commands) < 4096, "Generated a number of commands too long for the pulseblaster!"
 
-            for command in pb_commands:
-                if command.duration < 15:
-                    failure_list.append(command)
+            short_pulses = [command for command in pb_commands if command.duration < 15]
+            if short_pulses:
+                failure_list.append(short_pulses[0])
+            else:
+                failure_list.append([])  # good sequence
 
         if any([isinstance(a, pulse_blaster.PBCommand) for a in failure_list]):
-            print(failure_list)
             print('VALIDATION FAILED')
+
+        else:
+            print('VALIDATION SUCCESSFUL')
 
         return failure_list
 
@@ -259,6 +271,18 @@ for a given experiment
         plot_pulses(axis2, self.pulse_sequences_preview[0])
         plot_pulses(axis1, self.pulse_sequences_preview[-1])
 
+    def _skip_invalid_sequences(self, pulse_sequences):
+        new_pulse_sequences = deepcopy(pulse_sequences)
+        failure_list = self.validate()
+        delete_list = []
+        for index, result in enumerate(failure_list):
+            if not result == []:
+                delete_list.append(index)
+        if not delete_list == []:
+            delete_list.reverse()
+            for index in delete_list:
+                new_pulse_sequences.pop(index)
+        return new_pulse_sequences, delete_list
 
 
 if __name__ == '__main__':

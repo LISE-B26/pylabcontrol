@@ -31,7 +31,7 @@ class Script(QObject):
     updateProgress = pyqtSignal(int) # emits a progress update in percent
     started = pyqtSignal()  # signals the begin of the script
     finished = pyqtSignal() # signals the end of the script
-    current_subscript = pyqtSignal(str) # indicates the current subscript that is being excecuted
+    # current_subscript = pyqtSignal(str) # indicates the current subscript that is being excecuted
 
     _DEFAULT_SETTINGS = [
         Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),
@@ -118,10 +118,23 @@ class Script(QObject):
         """
         sets the current subscript and keeps a counter of how ofter a particular subscript has been executed
         this information is usefull when implementing a status update or plotting functions that depend on which subscript is being executed
+
+        keeps track of the following dictionary:
+        self._current_subscript_stage = {
+            'current_subscript' : reference to the current subscrit
+            'subscript_exec_count' : dictionary where key is the subscript name and value how often is has been executed
+            'subscript_exec_duration' : dictionary where key is the subscript name and value the average duration of executing the subscript
+        }
+
         Args:
             active: True if the current subscript is just started, False if it just finished
         """
+
         current_subscript = self.sender()
+
+        if not isinstance(current_subscript, Script):
+            print('XXXXXXX who is this:', current_subscript)
+            return
 
         if active:
             for subscript_name in self._current_subscript_stage['subscript_exec_count'].keys():
@@ -935,6 +948,7 @@ class Script(QObject):
                 try:
                     script_instance = eval(class_creation_string)
                 except Exception, err:
+                    raise
                     print('loading script {:s} failed. Could not create script!'.format(script_name))
                     load_failed[script_name] = err
                     continue

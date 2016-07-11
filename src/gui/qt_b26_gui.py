@@ -1080,7 +1080,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     child = item.child(child_id)
                     set_item_visible(child, is_visible[child.name])
             else:
-                print('AAAA', item.name, is_visible)
                 item.visible = is_visible
 
         if "scripts_hidden_parameters" in in_data:
@@ -1106,7 +1105,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.instruments = {}
         self.probes = {}
         self.scripts = {}
-        print('loading config from {:s}'.format(in_file_name))
+        print('loading script/instrument/probes config from {:s}'.format(in_file_name))
 
         # assert os.path.isfile(in_file_name), in_file_name
 

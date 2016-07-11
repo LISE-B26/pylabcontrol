@@ -146,16 +146,13 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
     @property
     def visible(self):
-        print('aaaa', self.name)
         # if isinstance(self._visible, dict):
         if self._visible is not None:
             return self.check_show.isChecked()
 
         elif isinstance(self.value, (Parameter, dict)):
-            print('AAAA')
             # check if any of the children is visible
             for i in range(self.childCount()):
-                print('aaaa', i)
                 if self.child(i).visible:
                     return True
             # if none of the children is visible hide this parameter

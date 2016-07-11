@@ -174,3 +174,7 @@ try:
     from pulse_blaster_scripts import PulsedESR
 except:
     print("./src/scripts/__init__ warning! Pulsed_ESR did not load")
+
+from pulse_blaster_scripts import CalibrateMeasurementWindow
+
+from pulse_blaster_scripts import Rabi_Power_Sweep_Single_Tau
