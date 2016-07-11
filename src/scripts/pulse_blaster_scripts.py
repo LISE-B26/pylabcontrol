@@ -437,15 +437,21 @@ This script runs a CPMG pulse sequence.
 
 class HahnEcho(ExecutePulseBlasterSequence):
     """
-This script runs a Hahn-echo sequence for different number of pi pulse. Without pi-pulse this is a Ramsey sequence.
+This script runs a Hahn-echo sequence for different number of pi pulses. Without pi-pulse this is a Ramsey sequence.
     """
     _DEFAULT_SETTINGS = [
         Parameter('mw_power', -45.0, float, 'microwave power in dB'),
-        Parameter('pi_pulse_time', 50, float, 'time duration of pi-pulse (in ns)'),
-        Parameter('number_of__pi_pulses', 1, range(1,17), 'number of pi pulses'),
-        Parameter('delay_time', 5, float, 'free evolution time in between pulses (in ns)'),
+        Parameter('pi_half_pulse_time', 50, float, 'time duration of pi-pulse (in ns)'),
+        Parameter('number_of__pi_pulses', 0, range(0,17), 'number of pi pulses'),
+        Parameter('tau', [
+            Parameter('min', 15, float, 'min value for tau, the free evolution time in between pulses (in ns)'),
+            Parameter('max', 30, float, 'max value for tau, the free evolution time in between pulses (in ns)'),
+            Parameter('step', 5, float, 'step size for tau, the free evolution time in between pulses (in ns)'),
+        ]),
         Parameter('meas_time', 300, float, 'measurement time after CPMG sequence (in ns)'),
-        Parameter('number_avrgs', 1000, int, 'number of averages (should be less than a million)')
+        Parameter('number_avrgs', 1000, int, 'number of averages (should be less than a million)'),
+        Parameter('reset_time', 1000, int, 'time duration of the green laser to reset the spin state'),
+        Parameter('mw_delay_time', 1000, int, 'time delay  duration of the green laser to reset the spin state')
     ]
 
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
@@ -458,16 +464,65 @@ This script runs a Hahn-echo sequence for different number of pi pulse. Without 
                         log_function=log_function, data_path=data_path)
 
 
-    def _function(self):
-        pass
+    # def _function(self):
+    #     pass
+    #
+    #
+    # def _plot(self, axes_list, axes_colorbar=None):
+    #     pass
+    #
+    #
+    # def get_axes_layout(self, figure_list):
+    #     pass
 
 
-    def _plot(self, axes_list, axes_colorbar=None):
-        pass
+    def _create_pulse_sequences(self):
+        '''
+        creates the pulse sequence for the Hahn echo /
+        Returns: pulse_sequences, num_averages, tau_list
+            pulse_sequences: a list of pulse sequences, each corresponding to a different time 'tau' that is to be
+            scanned over. Each pulse sequence is a list of pulse objects containing the desired pulses. Each pulse
+            sequence must have the same number of daq read pulses
+            num_averages: the number of times to repeat each pulse sequence
+            tau_list: the list of times tau, with each value corresponding to a pulse sequence in pulse_sequences
+            meas_time: the width (in ns) of the daq measurement
 
+        '''
+        pulse_sequences = []
 
-    def get_axes_layout(self, figure_list):
-        pass
+        tau_list = range(int(max(15,self.settings['tau']['min'])), int(self.settings['tau']['max']),int(self.settings['tau']['step']))
+        reset_time = self.settings['reset_time']
+        mw_delay_time = self.settings['mw_delay_time']
+        pi_half_pulse_time = self.settings['pi_half_pulse_time']
+        meas_time  = self.settings['meas_time']
+        number_of__pi_pulses =  self.settings['number_of__pi_pulses']
+
+        for tau in tau_list:
+            if number_of__pi_pulses == 0:
+                pulse_sequences.append([Pulse('laser', 0, reset_time),
+                                        Pulse('microwave_i', reset_time+ mw_delay_time, pi_half_pulse_time),
+                                        Pulse('microwave_i', reset_time + mw_delay_time+ pi_half_pulse_time + tau, pi_half_pulse_time),
+                                        Pulse('laser', reset_time + mw_delay_time+ pi_half_pulse_time + tau + pi_half_pulse_time, meas_time),
+                                        Pulse('apd_readout', reset_time + mw_delay_time+ pi_half_pulse_time + tau + pi_half_pulse_time, meas_time)
+                                        ])
+            else:
+                pulse_sequences.append([Pulse('laser', 0, reset_time),
+                                        Pulse('microwave_i', reset_time + mw_delay_time, pi_half_pulse_time),
+                                        Pulse('microwave_i', reset_time + mw_delay_time + pi_half_pulse_time + tau,2*pi_half_pulse_time),
+                                        Pulse('microwave_i', reset_time + mw_delay_time + 3*pi_half_pulse_time + 2*tau,pi_half_pulse_time),
+                                        Pulse('laser', reset_time + mw_delay_time + 4*pi_half_pulse_time + 2*tau, meas_time),
+                                        Pulse('apd_readout',reset_time + mw_delay_time + 4*pi_half_pulse_time + 2*tau, meas_time)
+                                        ])
+        # TEMPORATTY: THIS IS TO SEE IF THE OVERALL TIME OF A SEQUENCE SHOULD ALWAYS BE THE SAME
+        # IF WE WANT TO KEEP THIS ADD ADDITIONAL PARAMETER TO THE SCRIPT SETTINGS
+        # end_time_max = 0
+        # for pulse_sequence in pulse_sequences:
+        #     for pulse in pulse_sequence:
+        #         end_time_max = max(end_time_max, pulse.start_time + pulse.duration)
+        # for pulse_sequence in pulse_sequences:
+        #     pulse_sequence.append(Pulse('laser', end_time_max + 1850, 15))
+
+        return pulse_sequences, self.settings['num_averages'], [tau], self.settings['meas_time']
 
 if __name__ == '__main__':
     script = {}
