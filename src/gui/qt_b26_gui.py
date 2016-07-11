@@ -1106,7 +1106,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.instruments = {}
         self.probes = {}
         self.scripts = {}
-        print('loading config from {:s}'.format(in_file_name))
+        print('loading script/instrument/probes config from {:s}'.format(in_file_name))
 
         # assert os.path.isfile(in_file_name), in_file_name
 

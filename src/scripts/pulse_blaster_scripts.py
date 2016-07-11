@@ -1,9 +1,11 @@
 from src.core import Parameter, Script
 from src.instruments import DAQ, B26PulseBlaster, MicrowaveGenerator, Pulse
 from src.scripts import ExecutePulseBlasterSequence
+from src.scripts import FindMaxCounts2D
 from PyQt4.QtCore import pyqtSlot
 import numpy as np
-from src.plotting.plots_1d import plot_esr, plot_pulses, update_pulse_plot
+from src.plotting.plots_1d import plot_esr, plot_pulses, update_pulse_plot, plot_1d_simple, update_1d_simple
+from src.data_processing.fit_functions import fit_cose_parameter
 
 class PulsedESR(ExecutePulseBlasterSequence):
     """
@@ -118,7 +120,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
         Parameter('time', 200, float, 'total time of rabi oscillations (in ns)'),
         Parameter('meas_time', 300, float, 'measurement time after rabi sequence (in ns)'),
         Parameter('num_averages', 1000000, int, 'number of averages'),
-        Parameter('reset_time', 1000000, int, 'time with laser on at the beginning to reset state'),
+        Parameter('reset_time', 10000, int, 'time with laser on at the beginning to reset state'),
         Parameter('skip_invalid_sequences', False, bool, 'Skips any sequences with <15ns commands')
     ]
 
@@ -162,9 +164,6 @@ This script applies a microwave pulse at fixed power for varying durations to me
 
         return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
 
-    def _skip_invalid_sequences(self, pulse_sequences):
-        failure_list = self.validate()
-
 
 class Rabi_Power_Sweep(Script):
     """
@@ -177,7 +176,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
     ]
 
     _INSTRUMENTS = {}
-    _SCRIPTS = {'Rabi': Rabi}
+    _SCRIPTS = {'Rabi': Rabi, 'Find_NV': FindMaxCounts2D}
 
     def __init__(self, instruments=None, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         """
@@ -194,19 +193,137 @@ This script applies a microwave pulse at fixed power for varying durations to me
                                     self.settings['max_mw_power'] + self.settings['mw_power_step'],
                                     self.settings['mw_power_step'])
         print(mw_power_values)
+        self.data = {'mw_power_values': mw_power_values, 'NV_points': []}
+        tag = self.settings['tag']
         for power in mw_power_values:
             if self._abort:
                 break
+            self.scripts['Find_NV'].run()
+            nv_location = self.scripts['Find_NV'].data['maximum_point']
+            # reset initial point for longer time tracking
+            self.scripts['Find_NV'].settings['initial_point']['x'] = nv_location[0]
+            self.scripts['Find_NV'].settings['initial_point']['y'] = nv_location[1]
+            if self.settings['save']:
+                self.settings['tag'] = tag + '_image_' + str(power) + 'dB'
+                self.save_image_to_disk()
+            self.data['NV_points'].append(nv_location)  # made an array to allow saving
             self.scripts['Rabi'].settings['mw_power'] = float(power)  # power is a numpy float, needs to be cast
             self.scripts['Rabi'].settings['tag'] = str(power) + 'dB'
             self.scripts['Rabi'].run()
+        if self.settings['save']:
+            self.settings['tag'] = tag
+            self.save_b26()
+            self.save_data()
+            self.save_log()
+
 
     def stop(self):
         self.scripts['Rabi'].stop()
+        self.scripts['Find_NV'].stop()
         self._abort = True
 
     def plot(self, figure_list):
-        self.scripts['Rabi'].plot(figure_list)
+        if self._current_subscript_stage['current_subscript'] == self.scripts['Find_NV']:
+            self.scripts['Find_NV'].plot(figure_list)
+        else:  # also plot Rabi if no current subscript
+            self.scripts['Rabi'].plot(figure_list)
+
+
+class Rabi_Power_Sweep_Single_Tau(ExecutePulseBlasterSequence):
+    """
+This script applies a microwave pulse at fixed power for varying durations to measure Rabi Oscillations
+    """
+    _DEFAULT_SETTINGS = [
+        Parameter('min_mw_power', -45.0, float, 'minimum microwave power in dB'),
+        Parameter('max_mw_power', -45.0, float, 'maximum microwave power in dB'),
+        Parameter('mw_power_step', 1.0, float, 'power to step by in dB'),
+        Parameter('mw_frequency', 2.87e9, float, 'microwave frequency in Hz'),
+        Parameter('mw_time', 200, float, 'total time of rabi oscillations (in ns)'),
+        Parameter('meas_time', 300, float, 'measurement time after rabi sequence (in ns)'),
+        Parameter('num_averages', 1000000, int, 'number of averages'),
+        Parameter('reset_time', 10000, int, 'time with laser on at the beginning to reset state'),
+        Parameter('skip_invalid_sequences', False, bool, 'Skips any sequences with <15ns commands')
+    ]
+
+    _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster, 'mw_gen': MicrowaveGenerator}
+
+    def _function(self):
+        self.instruments['mw_gen']['instance'].update({'modulation_type': 'IQ'})
+        self.instruments['mw_gen']['instance'].update({'frequency': self.settings['mw_frequency']})
+        mw_power_values = np.arange(self.settings['min_mw_power'],
+                                    self.settings['max_mw_power'] + self.settings['mw_power_step'],
+                                    self.settings['mw_power_step'])
+
+        print(mw_power_values)
+        self.data = {'mw_power_values': mw_power_values, 'counts_for_mw': np.zeros(len(mw_power_values))}
+        for index, power in enumerate(mw_power_values):
+            self.instruments['mw_gen']['instance'].update({'amplitude': float(power)})
+            super(Rabi_Power_Sweep_Single_Tau, self)._function(self.data)
+            self.data['counts_for_mw'][index] = self.data['counts'][0]
+
+    def _create_pulse_sequences(self):
+        '''
+
+        Returns: pulse_sequences, num_averages, tau_list
+            pulse_sequences: a list of pulse sequences, each corresponding to a different time 'tau' that is to be
+            scanned over. Each pulse sequence is a list of pulse objects containing the desired pulses. Each pulse
+            sequence must have the same number of daq read pulses
+            num_averages: the number of times to repeat each pulse sequence
+            tau_list: the list of times tau, with each value corresponding to a pulse sequence in pulse_sequences
+            meas_time: the width (in ns) of the daq measurement
+
+        '''
+        pulse_sequences = []
+        reset_time = self.settings['reset_time']
+        mw_time = self.settings['mw_time']
+        pulse_sequences.append([Pulse('laser', 0, reset_time),
+                                Pulse('microwave_i', reset_time + 200, mw_time),
+                                Pulse('laser', reset_time + mw_time + 300, self.settings['meas_time']),
+                                Pulse('apd_readout', reset_time + mw_time + 300, self.settings['meas_time'])
+                                ])
+
+        end_time_max = 0
+        for pulse_sequence in pulse_sequences:
+            for pulse in pulse_sequence:
+                end_time_max = max(end_time_max, pulse.start_time + pulse.duration)
+        for pulse_sequence in pulse_sequences:
+            pulse_sequence.append(Pulse('laser', end_time_max + 1850, 15))
+
+        return pulse_sequences, self.settings['num_averages'], [mw_time], self.settings['meas_time']
+
+    def _plot(self, axes_list):
+        '''
+        Plot 1: self.data['tau'], the list of times specified for a given experiment, verses self.data['counts'], the data
+        received for each time
+        Plot 2: the pulse sequence performed at the current time (or if plotted statically, the last pulse sequence
+        performed
+
+        Args:
+            axes_list: list of axes to write plots to (uses first 2)
+
+        '''
+        counts = self.data['counts_for_mw']
+        x_data = self.data['mw_power_values']
+        axis1 = axes_list[0]
+        if not counts == []:
+            plot_1d_simple(axis1, x_data, [counts], x_label='microwave power (dBm)')
+        axis2 = axes_list[1]
+        plot_pulses(axis2, self.pulse_sequences[self.sequence_index])
+
+    def _update_plot(self, axes_list):
+        '''
+        Updates plots specified in _plot above
+        Args:
+            axes_list: list of axes to write plots to (uses first 2)
+
+        '''
+        counts = self.data['counts_for_mw']
+        x_data = self.data['mw_power_values']
+        axis1 = axes_list[0]
+        if not counts == []:
+            update_1d_simple(axis1, x_data, [counts])
+        axis2 = axes_list[1]
+        update_pulse_plot(axis2, self.pulse_sequences[self.sequence_index])
 
 
 # class Pulsed_ESR(ExecutePulseBlasterSequence):
@@ -334,23 +451,15 @@ This script applies a microwave pulse at fixed power for varying durations to me
         return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
 
 
-
-
-class OptimizeRabi(ExecutePulseBlasterSequence):
+class OptimizeRabi(Script):
     """
 This script runs a Rabi script, fits the result to a sin wave to retrieve the Rabi oscillation frequency.
 Then it increases the power of the microwave pulse such that the time for a Rabi-oscilation is a multiple of 5ns.
 After that it again runs a the Rabi script with the optimized microwave power to double check.
     """
-    _DEFAULT_SETTINGS = [
-        Parameter('mw_power', -45.0, float, 'microwave power in dB'),
-        Parameter('time_step', 5, [5, 10, 20, 50, 100], 'time step increment of rabi pulse duration (in ns)'),
-        Parameter('time', 15, float, 'total time of rabi oscillations (in ns)'),
-        Parameter('measurement_time', 300, float, 'measurement time after rabi sequence (in ns)'),
-        Parameter('number_avrgs', 1000, int, 'number of averages (should be less than a million)')
-    ]
+    _DEFAULT_SETTINGS = []
 
-    _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
+    _INSTRUMENTS = {}
 
     _SCRIPTS = {'rabi':Rabi}
 
@@ -359,7 +468,19 @@ After that it again runs a the Rabi script with the optimized microwave power to
                         log_function=log_function, data_path=data_path)
 
     def _function(self):
-        pass
+        self.scripts['rabi'].run()
+        power_dBm = self.scripts['rabi'].settings['mw_power']
+        rabi_tau = self.scripts['rabi'].data['tau']
+        rabi_counts = self.scripts['rabi'].data['counts']
+        [_, frequency, _, _] = fit_cose_parameter(rabi_tau, rabi_counts)
+        pi_time = 1e9 / (2 * frequency)  # gives pi_time in nanoseconds
+        rounded_pi_time = ((np.ceil(pi_time / 5.0) * 5.0))  # rounds up to nearest 5 ns
+        power_linear = 10 ** (power_dBm / 10)
+        rounded_power_linear = power_linear * (
+                                              pi_time / rounded_pi_time) ** 2  # want sqrt(power)*pi_time to be constant
+        # rounded_power_dBm =
+        # self.scripts['rabi'].settings['mw_power'] =
+
 
     def _plot(self, axes_list, axes_colorbar=None):
         pass
@@ -375,30 +496,134 @@ It applies a pi-pulse and measured the fluorescence counts after for a varying t
     """
     _DEFAULT_SETTINGS = [
         Parameter('mw_power', -45.0, float, 'microwave power in dB'),
+        Parameter('mw_frequency', 2.87e9, float, 'microwave frequency in Hz'),
         Parameter('pi_pulse_time', 50, float, 'time duration of pi-pulse (in ns)'),
         Parameter('meas_time_step', 5, [5, 10, 20, 50, 100], 'time step increment of measurement duration (in ns)'),
         Parameter('meas_time_min', 15, float, 'min time of measurement duration (in ns)'),
         Parameter('meas_time_max', 15, float, 'max time of measurement duration (in ns)'),
-        Parameter('number_avrgs', 1000, int, 'number of averages (should be less than a million)')
+        Parameter('reset_time', 10000, int, 'time with laser on at the beginning to reset state'),
+        Parameter('skip_invalid_sequences', False, bool, 'Skips any sequences with <15ns commands'),
+        Parameter('num_averages', 100000, int, 'number of averages')
     ]
 
-    _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
-
-    _SCRIPTS = {}
-
-    def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
-        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
-                        log_function=log_function, data_path=data_path)
+    _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster, 'mw_gen': MicrowaveGenerator}
 
     def _function(self):
-        pass
+        self.instruments['mw_gen']['instance'].update({'modulation_type': 'IQ'})
+        self.instruments['mw_gen']['instance'].update({'amplitude': self.settings['mw_power']})
+        self.instruments['mw_gen']['instance'].update({'frequency': self.settings['mw_frequency']})
+        super(CalibrateMeasurementWindow, self)._function()
 
-    def _plot(self, axes_list, axes_colorbar=None):
-        pass
+    def _create_pulse_sequences(self):
+        '''
+
+        Returns: pulse_sequences, num_averages, tau_list
+            pulse_sequences: a list of pulse sequences, each corresponding to a different time 'tau' that is to be
+            scanned over. Each pulse sequence is a list of pulse objects containing the desired pulses. Each pulse
+            sequence must have the same number of daq read pulses
+            num_averages: the number of times to repeat each pulse sequence
+            tau_list: the list of times tau, with each value corresponding to a pulse sequence in pulse_sequences
+            meas_time: the width (in ns) of the daq measurement
+
+        '''
+        pulse_sequences = []
+        tau_list = range(int(max(15, self.settings['meas_time_min'])), int(self.settings['meas_time_max'] + 15),
+                         self.settings['meas_time_step'])
+        reset_time = self.settings['reset_time']
+        pi_pulse_time = self.settings['pi_pulse_time']
+        for tau in tau_list:
+            cycle_time = reset_time + pi_pulse_time + 300 + tau
+            pulse_sequences.append([Pulse('laser', 0, reset_time),
+                                    Pulse('microwave_i', reset_time + 200, pi_pulse_time),
+                                    Pulse('laser', reset_time + pi_pulse_time + 300, tau),
+                                    Pulse('apd_readout', reset_time + pi_pulse_time + 300, tau),
+                                    Pulse('laser', cycle_time, reset_time),
+                                    Pulse('laser', cycle_time + reset_time + pi_pulse_time + 300, tau),
+                                    Pulse('apd_readout', cycle_time + reset_time + pi_pulse_time + 300, tau),
+                                    ])
+
+        end_time_max = 0
+        for pulse_sequence in pulse_sequences:
+            for pulse in pulse_sequence:
+                end_time_max = max(end_time_max, pulse.start_time + pulse.duration)
+        for pulse_sequence in pulse_sequences:
+            pulse_sequence.append(Pulse('laser', end_time_max + 1850, 15))
+
+        return pulse_sequences, self.settings['num_averages'], tau_list, max(tau_list)
+
+    # don't normalize for this measurement
+    def _normalize_to_kCounts(self, signal, gate_width=1, num_averages=1):
+        return signal
+
+    def _plot(self, axes_list):
+        '''
+        Plot 1: self.data['tau'], the list of times specified for a given experiment, verses self.data['counts'], the data
+        received for each time
+        Plot 2: the pulse sequence performed at the current time (or if plotted statically, the last pulse sequence
+        performed
+
+        Args:
+            axes_list: list of axes to write plots to (uses first 2)
+
+        '''
+        [counts_0, counts_1] = zip(*self.data['counts'])
+        x_data = self.data['tau']
+        axis1 = axes_list[0]
+        axis2 = axes_list[1]
+        if not counts_0 == []:
+            plot_1d_simple(axis1, x_data, [counts_0, counts_1], y_label='Counts (unnormalized)')
+            contrast = (((np.array(counts_1) - np.array(counts_0)) / np.array(counts_1)) * 100).tolist()
+            contrast = [x if not np.isnan(x) else 0.0 for x in
+                        contrast]  # replaces nan with zeros for points not yet reached
+            plot_1d_simple(axis2, x_data, [contrast], y_label='Contrast (%)')
+        axis3 = axes_list[2]
+        plot_pulses(axis3, self.pulse_sequences[self.sequence_index])
 
     def get_axes_layout(self, figure_list):
-        pass
+        """
+        returns the axes objects the script needs to plot its data
+        the default creates a single axes object on each figure
+        This can/should be overwritten in a child script if more axes objects are needed
+        Args:
+            figure_list: a list of figure objects
+        Returns:
+            axes_list: a list of axes objects
 
+        """
+        figure1 = figure_list[0]
+        figure2 = figure_list[1]
+        if self._plot_refresh is True:
+            figure1.clf()
+            axes1 = figure1.add_subplot(211)
+            axes2 = figure1.add_subplot(212)
+            figure2.clf()
+            axes3 = figure2.add_subplot(111)
+        else:
+            axes1 = figure1.axes[0]
+            axes2 = figure1.axes[1]
+            axes3 = figure2.axes[0]
+
+        return [axes1, axes2, axes3]
+
+    def _update_plot(self, axes_list):
+        '''
+        Updates plots specified in _plot above
+        Args:
+            axes_list: list of axes to write plots to (uses first 2)
+
+        '''
+        [counts_0, counts_1] = zip(*self.data['counts'])
+        x_data = self.data['tau']
+        axis1 = axes_list[0]
+        axis2 = axes_list[1]
+        if not counts_0 == []:
+            update_1d_simple(axis1, x_data, [counts_0, counts_1])
+            contrast = (((np.array(counts_1) - np.array(counts_0)) / np.array(counts_1)) * 100).tolist()
+            contrast = [x if not np.isnan(x) else 0.0 for x in
+                        contrast]  # replaces nan with zeros for points not  yet reached
+            update_1d_simple(axis2, x_data, [contrast])
+        axis3 = axes_list[2]
+        update_pulse_plot(axis3, self.pulse_sequences[self.sequence_index])
 
 class CPMG(ExecutePulseBlasterSequence):
     """
@@ -527,7 +752,7 @@ This script runs a Hahn-echo sequence for different number of pi pulses. Without
 if __name__ == '__main__':
     script = {}
     instr = {}
-    script, failed, instr = Script.load_and_append({'Rabi_Power_Sweep': 'Rabi_Power_Sweep'}, script, instr)
+    script, failed, instr = Script.load_and_append({'CalibrateMeasurementWindow': 'CalibrateMeasurementWindow'}, script, instr)
 
     print(script)
     print('failed', failed)

@@ -28,7 +28,6 @@ Known issues:
         Parameter('number_of_attempts', 1, int, 'Number of times to decrease min_mass if an NV is not found')
     ]
 
-    # todo: make minmass and nv_size more intelligent, i.e. uses extend to calculate the expected size and brightness
     _INSTRUMENTS = {}
 
     _SCRIPTS = {'take_image': GalvoScanWithLightControl, 'set_laser': SetLaser}
@@ -65,7 +64,6 @@ Known issues:
                      'image_data': [],
                      'extent': []
                      }
-
 
         def pixel_to_voltage(pt, extent, image_dimensions):
             """"

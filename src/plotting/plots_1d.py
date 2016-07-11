@@ -170,18 +170,18 @@ def plot_counts(axis, data):
     axis.set_ylabel('kCounts/sec')
 
 
-def plot_delay_counts(axis, times, counts):
-    axis.plot(times, counts)
+def plot_1d_simple(axis, times, counts_list, x_label='time (ns)', y_label='kCounts/sec'):
+    for counts in counts_list:
+        axis.plot(times, counts)
+
     axis.hold(False)
 
-    axis.set_xlabel('time (ns)')
-    axis.set_ylabel('kCounts/sec')
+    axis.set_xlabel(x_label)
+    axis.set_ylabel(y_label)
 
 
-def update_delay_counts(axis, times, counts):
-    # axis.lines[0].set_ydata(counts)
-    axis.plot(times, counts)
-    axis.hold(False)
-
-    axis.set_xlabel('time (ns)')
-    axis.set_ylabel('kCounts/sec')
+def update_1d_simple(axis, times, counts_list):
+    for index, counts in enumerate(counts_list):
+        axis.lines[index].set_ydata(counts)
+    axis.relim()
+    axis.autoscale_view()

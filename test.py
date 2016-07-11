@@ -1,6 +1,4 @@
-import matplotlib.pyplot as plt
+import numpy as np
 
-a = [1, 3, 5, 7]
-
-plt.plot(a)
-plt.show()
+pi_time = 123
+print((np.ceil(pi_time / 5.0) * 5.0))
