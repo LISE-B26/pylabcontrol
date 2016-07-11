@@ -318,6 +318,8 @@ class Script(QObject):
         Args:
             progress: progress of subscript
         """
+        sender = self.sender()
+        print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name, 'received signal. emitting....')
         self.updateProgress.emit(progress)
     def run(self):
         """

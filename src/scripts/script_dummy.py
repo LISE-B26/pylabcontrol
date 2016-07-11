@@ -8,7 +8,7 @@ import os
 import psutil
 import numpy as np
 import Queue
-
+import datetime
 try:
     from src.instruments import DummyInstrument
 except:
@@ -20,9 +20,6 @@ class ScriptDummy(Script):
     #an integer argument when emitting.
 
     _DEFAULT_SETTINGS = [
-        Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data',),
-        Parameter('tag', 'dummy_tag', str, 'tag for data'),
-        Parameter('save', False, bool, 'save data on/off'),
         Parameter('count', 3, int),
         Parameter('name', 'this is a counter'),
         Parameter('wait_time', 0.1, float),
@@ -63,12 +60,13 @@ class ScriptDummy(Script):
         wait_time = self.settings['wait_time']
 
         data = []
-        self.log('I am a test function counting to {:d} and creating random values'.format(count))
+        self.log('I ({:s}) am a test function counting to {:d} and creating random values'.format(self.name, count))
         for i in range(count):
             time.sleep(wait_time)
             self.log('{:s} count {:02d}'.format(self.name, i))
             print('count X {:02d}'.format(i))
             data.append(random.random())
+            self.data = {'random data': data}
             progress = int(100 * (i + 1) / count)
             self.updateProgress.emit(progress)
 
@@ -162,13 +160,14 @@ class ScriptDummyCounter(Script):
         name = self.settings['name']
         wait_time = self.settings['wait_time']
 
-        self.log('I am a test function counting to {:d}...'.format(count))
+        self.log('I ({:s}) am a test function counting to {:d}...'.format(self.name, count))
 
 
         data = []
         for i in range(count):
             time.sleep(wait_time)
             progress = int(100* (i+1) / count)
+            # print('emitting', datetime.datetime.now())
             self.updateProgress.emit(progress)
             data.append(random.random())
 
@@ -216,7 +215,7 @@ class ScriptDummyWithInstrument(Script):
         wait_time = self.settings['wait_time']
 
 
-        self.log('I am a test function counting to {:d}...'.format(count))
+        self.log('I ({:s}) am a test function counting to {:d}...'.format(self.name, count))
         for i in range(count):
 
             self.log('signal from dummy instrument {:s}: {:0.3f}'.format(name, instrument.value1))
@@ -267,7 +266,7 @@ class ScriptDummyWithSubScript(Script):
 
         data = np.zeros([self.settings['repetitions'], self.scripts['sub_script'].settings['count']])
 
-        self.log('I am a test function runnning suscript {:s} {:d} times'.format(script.name, N))
+        self.log('I ({:s}) am a test function runnning suscript {:s} {:d} times'.format(self.name, script.name, N))
         for i in range(N):
             self.log('run number {:d} / {:d}'.format(i+1, N))
             script.run()
@@ -276,31 +275,35 @@ class ScriptDummyWithSubScript(Script):
 
         self.data = {'data' : data}
 
-        self.log('run subscript which emits signals')
+        self.log('run subscript which emits signals (sub_script_with_sign)')
         self.scripts['sub_script_with_sign'].run()
 
-    @pyqtSlot(int)
-    def _receive_signal(self, progress):
-        """
-        this function takes care of signals emitted by the subscripts
-        the default behaviour is that it just reemits the signal
-        Args:
-            progress: progress of subscript
-        """
-
-
-        # if self.current_subscript is self.scripts['sub_script']:
-        #     N = self.settings['repetitions']
-        #     progress = progress / N
-
-        self.updateProgress.emit(progress)
+    # @pyqtSlot(int)
+    # def _receive_signal(self, progress):
+    #     """
+    #     this function takes care of signals emitted by the subscripts
+    #     the default behaviour is that it just reemits the signal
+    #     Args:
+    #         progress: progress of subscript
+    #     """
+    #
+    #
+    #     # if self.current_subscript is self.scripts['sub_script']:
+    #     #     N = self.settings['repetitions']
+    #     #     progress = progress / N
+    #
+    #     self.updateProgress.emit(progress)
 
 
     def _plot(self, axes_list):
-        if 'data' in self.data:
-            for data_set in self.data['data']:
-                axes_list[0].plot(data_set)
-                axes_list[0].hold(False)
+
+        if self._current_subscript_stage['current_subscript'] == self.scripts['sub_script']:
+            self.scripts['sub_script']._plot(axes_list)
+        else:
+            if 'data' in self.data:
+                for data_set in self.data['data']:
+                    axes_list[0].plot(data_set)
+                    axes_list[0].hold(False)
 
 class ScriptDummyWithNestedSubScript(Script):
 
@@ -338,8 +341,8 @@ class ScriptDummyWithNestedSubScript(Script):
         print([self.settings['repetitions'], self.scripts['sub_script'].settings['count']])
 
         data = np.zeros([self.settings['repetitions'], self.scripts['sub_script'].settings['count']])
-
-        self.log('I am a test function runnning suscript {:s} {:d} times'.format(script.name, N))
+        self.data = {'data': data}
+        self.log('I ({:s}) am a test function runnning suscript {:s} {:d} times'.format(self.name, script.name, N))
         for i in range(N):
             self.log('run number {:d} / {:d}'.format(i+1, N))
             script.run()
@@ -347,9 +350,16 @@ class ScriptDummyWithNestedSubScript(Script):
             data[i] = deepcopy(script.data['random data'])
 
         self.data = {'data' : data}
-
+        print(' === now I am running a nested subscript ========')
+        print(' ================================================')
+        self.scripts['sub_sub_script'].run()
 
     def _plot(self, axes_list):
+        print(self._current_subscript_stage)
+        print('PLOTTING', self._current_subscript_stage['current_subscript'].name)
+        if self._current_subscript_stage['current_subscript'] == self.scripts['sub_sub_script']:
+            print('XXXX', self._current_subscript_stage['current_subscript']._current_subscript_stage['current_subscript'].name)
+            self.scripts['sub_sub_script']._plot(axes_list)
         for data_set in self.data['data']:
             axes_list[0].plot(data_set)
             axes_list[0].hold(False)

@@ -21,15 +21,15 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
 
         Script.__init__(self, name, settings=settings, instruments=instruments, scripts = scripts, log_function=log_function, data_path=data_path)
 
-        self.scripts['acquire_image'].updateProgress.connect(self._receive_signal)
+        # self.scripts['acquire_image'].updateProgress.connect(self._receive_signal)
 
-    def _receive_signal(self, progress_sub_script):
-        # calculate progress of this script based on progress in subscript
-
-        progress = progress_sub_script
-        if progress == 100:
-            progress = 99
-        self.updateProgress.emit(progress)
+    # def _receive_signal(self, progress_sub_script):
+    #     # calculate progress of this script based on progress in subscript
+    #
+    #     progress = progress_sub_script
+    #     if progress == 100:
+    #         progress = 99
+    #     self.updateProgress.emit(progress)
 
     def _function(self):
 
@@ -64,8 +64,6 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
             self.save_data()
             self.save_log()
 
-    def stop(self):
-        self.scripts['acquire_image'].stop()
 
-    def plot(self, image_figure):
-        self.scripts['acquire_image'].plot(image_figure)
+    def plot(self, figure_list):
+        self.scripts['acquire_image'].plot(figure_list)

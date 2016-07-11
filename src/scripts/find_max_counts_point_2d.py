@@ -36,16 +36,6 @@ Known issues:
 
         Script.__init__(self, name, scripts = scripts, settings=settings, log_function=log_function, data_path = data_path)
 
-        self.scripts['take_image'].scripts['acquire_image'].settings['time_per_pt'] = .01
-
-        # self.scripts['take_image'].updateProgress.connect(self._receive_signal)
-
-        # self.scripts['take_image'].log_function = self.log_function
-
-    # def _receive_signal(self, progress_sub_script):
-    #     # calculate progress of this script based on progress in subscript
-    #
-    #     self.updateProgress.emit(progress_sub_script)
 
     def _function(self):
         """
@@ -92,8 +82,6 @@ Known issues:
             # todo: write a docstring. What does this function do?
             return (min_mass - 40)
 
-        self.script_stage = 'take image'
-
         # self.scripts['take_image'].update({'point_a': {'x': initial_point[0], 'y': initial_point[1]}})
         self.scripts['take_image'].scripts['acquire_image'].settings['point_a'].update({'x': self.settings['initial_point']['x'], 'y': self.settings['initial_point']['y']})
         self.scripts['take_image'].scripts['acquire_image'].settings['point_b'].update({'x': self.settings['sweep_range'], 'y': self.settings['sweep_range']})
@@ -131,8 +119,7 @@ Known issues:
 
         self.script_stage = 'find max'
 
-        self.scripts['set_laser'].settings['point'].update({'x': self.data['maximum_point'][0],
-                                                       'y': self.data['maximum_point'][1]})
+        self.scripts['set_laser'].settings['point'].update({'x': self.data['maximum_point'][0],'y': self.data['maximum_point'][1]})
         self.scripts['set_laser'].run()
 
         if self.settings['save']:
@@ -143,23 +130,38 @@ Known issues:
 
 
     def _plot(self, axes_list):
-        # todo: remove reference to self.implot, self.cbar
+
         # plot image
-        axes = axes_list[0]
-        if self.script_stage == 'take image':
-            self.implot, self.cbar = plot_fluorescence_new(self.scripts['take_image'].data['image_data'],
-                                                       self.scripts['take_image'].data['extent'], axes)
-
-        if self.script_stage != 'take image':
-            plot_fluorescence_new(self.data['image_data'], self.data['extent'], axes)
-
+        if self._current_subscript_stage['current_subscript'] == self.scripts['take_image']:
+            print('XXX subscript running - use subscript plot function')
+            self.scripts['take_image']._plot(axes_list)
+        else:
+            plot_fluorescence_new(self.data['image_data'], self.data['extent'], axes_list[0])
             # plot marker
             maximum_point = self.data['maximum_point']
             patch = patches.Circle((maximum_point[0], maximum_point[1]), .001, ec='r', fc = 'none')
-            axes.add_patch(patch)
+            axes_list[0].add_patch(patch)
+
+
+        # axes = axes_list[0]
+        # if self.script_stage == 'take image':
+        #     self.implot, self.cbar = plot_fluorescence_new(self.scripts['take_image'].data['image_data'],
+        #                                                self.scripts['take_image'].data['extent'], axes)
+        #
+        # if self.script_stage != 'take image':
+        #     plot_fluorescence_new(self.data['image_data'], self.data['extent'], axes)
+        #
+        #     # plot marker
+        #     maximum_point = self.data['maximum_point']
+        #     patch = patches.Circle((maximum_point[0], maximum_point[1]), .001, ec='r', fc = 'none')
+        #     axes.add_patch(patch)
 
     def _update_plot(self, axes_list):
-        update_fluorescence(self.data['image_data'], axes_list[0], self.settings['max_counts_plot'])
+        if self._current_subscript_stage['current_subscript'] == self.scripts['take_image']:
+            self.scripts['take_image']._plot(axes_list)
+        else:
+            print('AAAAA: I wonder if this case will ever be called')
+            update_fluorescence(self.data['image_data'], axes_list[0], self.settings['max_counts_plot'])
 
     def get_axes_layout(self, figure_list):
         """
@@ -172,13 +174,13 @@ Known issues:
             axes_list: a list of axes objects
 
         """
-        new_figure_list = [figure_list[0]] # todo: what is this? why using a nested list here?
+
+        # create a new figure list that contains only figure 1, this assures that the super.get_axes_layout doesn't
+        # empty the plot contained on figure 2
+        new_figure_list = [figure_list[0]]
         return super(FindMaxCounts2D, self).get_axes_layout(new_figure_list)
 
 
-
-    def stop(self):
-        self.scripts['take_image'].stop()
 
 
     if __name__ == '__main__':
