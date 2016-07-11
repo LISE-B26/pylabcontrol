@@ -38,10 +38,18 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         self.info = info
         self._visible = visible
 
-        # if self.name == 'point2':
-        #     print('XXX', self._visible)
-        #     raise NotImplementedError
-        self.setData(0, 0, unicode(self.name))
+        # font = QtGui.QFont()
+        # font.setBold(True)
+        # font.setPointSize(20)
+        # font.setWeight(75)
+        # print("SET FONT!!", self.name)
+        # self.setFont(0, font)
+        self.setTextColor(1, QtGui.QColor(255,0,0))
+
+
+        # self.setData(0, 0, unicode(self.name))
+        self.setData(0, 0, self.name)
+        self.setForeground(0, QtGui.QColor(255, 0, 0))
 
         if isinstance(self.valid_values, list):
             self.combobox = QtGui.QComboBox()
@@ -110,24 +118,27 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 # item = B26QTreeItem(self, key, self.value.scripts[key], type(self.value.scripts[key]), '')
                 # item.setDisabled(True)
 
-            #todo: set the font to bold
-
+            # #todo: set the font to bold
+            #
             # print(self.font(0))
-            # font = self.font(0)
+            # font = QtGui.QFont()
             # font.setBold(True)
+            # font.setPointSize(20)
+            # font.setWeight(75)
             # print("SET FONT!!", self.name)
             # self.setFont(0, font)
-
+            #
+            # self.setForeground(0, QtGui.QBrush(QtGui.QColor("#003366")))
 
         else:
             self.setData(1, 0, self.value)
-            # self.setFlags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
+            # self.setFself.setTextColor(0, QtGui.QColor(255, 0, 0))lags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
             self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
             self._visible = False
         self.setToolTip(1, unicode(self.info if isinstance(self.info, str) else ''))
 
-        self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
-
+        # self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+        self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
         if self._visible is not None:
             self.check_show = QtGui.QCheckBox()
             self.check_show.setChecked(self.visible)
@@ -146,16 +157,12 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
     @property
     def visible(self):
-        print('aaaa', self.name)
-        # if isinstance(self._visible, dict):
         if self._visible is not None:
             return self.check_show.isChecked()
 
         elif isinstance(self.value, (Parameter, dict)):
-            print('AAAA')
             # check if any of the children is visible
             for i in range(self.childCount()):
-                print('aaaa', i)
                 if self.child(i).visible:
                     return True
             # if none of the children is visible hide this parameter
@@ -169,18 +176,18 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             self.check_show.setChecked(self._visible)
 
 
-    @property
-    def show_all(self):
-        return self._show_all
-    @show_all.setter
-    def show_all(self, value):
-        if value:
-            self.chk_visible = QtGui.QCheckBox()
-            self.chk_visible.setChecked(self.visible)
-            self.treeWidget().setItemWidget(self, 2, self.chk_visible)
-        else:
-            QtGui.QTreeWidget.removeItemWidget(self, 2, self.chk_visible)
-        self._show_all = value
+    # @property
+    # def show_all(self):
+    #     return self._show_all
+    # @show_all.setter
+    # def show_all(self, value):
+    #     if value:
+    #         self.chk_visible = QtGui.QCheckBox()
+    #         self.chk_visible.setChecked(self.visible)
+    #         self.treeWidget().setItemWidget(self, 2, self.chk_visible)
+    #     else:
+    #         QtGui.QTreeWidget.removeItemWidget(self, 2, self.chk_visible)
+    #     self._show_all = value
 
     def setData(self, column, role, value):
         assert isinstance(column, int)
@@ -225,6 +232,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             super(B26QTreeItem, self).setData(column, role, value)
         else:
             self.emitDataChanged()
+
 
     def cast_type(self, var, typ = None):
         """
