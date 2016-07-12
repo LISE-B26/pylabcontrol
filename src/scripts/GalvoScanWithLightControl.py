@@ -55,15 +55,23 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
 
         self.instruments['MaestroLightControl']['instance'].update(instrument_settings)
 
+        self.data = self.scripts['acquire_image'].data
+
         self.scripts['acquire_image'].run()
 
-        self.data = deepcopy(self.scripts['acquire_image'].data)
+        # self.data = deepcopy(self.scripts['acquire_image'].data)
 
         if self.settings['save']:
             self.save_b26()
             self.save_data()
             self.save_log()
 
+    def _plot(self, axes_list):
+        # this implementation is needed if superscript want to make use of it
+        self.scripts['acquire_image']._plot(axes_list)
 
+    def _update_plot(self, axes_list):
+        # this implementation is needed if superscript want to make use of it
+        self.scripts['acquire_image']._update_plot(axes_list)
     def plot(self, figure_list):
         self.scripts['acquire_image'].plot(figure_list)
