@@ -472,6 +472,11 @@ class PulseBlaster(Instrument):
         raise AttributeError(
             'channel id must be either an integer or a string. Instead, this was passed in: {0}'.format(channel_id))
 
+    def stop(self):
+        self.pb.pb_stop()
+        self.update(self.settings) #reset hardware to steady state
+
+
 
 class B26PulseBlaster(PulseBlaster):
     _DEFAULT_SETTINGS = Parameter([
