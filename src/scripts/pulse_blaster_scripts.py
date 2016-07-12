@@ -5,7 +5,7 @@ from src.scripts import FindMaxCounts2D
 from PyQt4.QtCore import pyqtSlot
 import numpy as np
 from src.plotting.plots_1d import plot_esr, plot_pulses, update_pulse_plot, plot_1d_simple, update_1d_simple
-from src.data_processing.fit_functions import fit_cose_parameter
+from src.data_processing.fit_functions import fit_rabi_decay
 
 class PulsedESR(ExecutePulseBlasterSequence):
     """
@@ -108,6 +108,7 @@ This script applies a microwave pulse at fixed power and durations for varying f
 
         return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
 
+
 class Rabi(ExecutePulseBlasterSequence):
     """
 This script applies a microwave pulse at fixed power for varying durations to measure Rabi Oscillations
@@ -164,6 +165,8 @@ This script applies a microwave pulse at fixed power for varying durations to me
 
         return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
 
+    def _calc_progress(self):
+        return 50
 
 class Rabi_Power_Sweep(Script):
     """
@@ -192,7 +195,6 @@ This script applies a microwave pulse at fixed power for varying durations to me
         mw_power_values = np.arange(self.settings['min_mw_power'],
                                     self.settings['max_mw_power'] + self.settings['mw_power_step'],
                                     self.settings['mw_power_step'])
-        print(mw_power_values)
         self.data = {'mw_power_values': mw_power_values, 'NV_points': []}
         tag = self.settings['tag']
         for power in mw_power_values:
@@ -215,12 +217,6 @@ This script applies a microwave pulse at fixed power for varying durations to me
             self.save_b26()
             self.save_data()
             self.save_log()
-
-
-    def stop(self):
-        self.scripts['Rabi'].stop()
-        self.scripts['Find_NV'].stop()
-        self._abort = True
 
     def plot(self, figure_list):
         if self._current_subscript_stage['current_subscript'] == self.scripts['Find_NV']:
@@ -457,13 +453,15 @@ This script runs a Rabi script, fits the result to a sin wave to retrieve the Ra
 Then it increases the power of the microwave pulse such that the time for a Rabi-oscilation is a multiple of 5ns.
 After that it again runs a the Rabi script with the optimized microwave power to double check.
     """
-    _DEFAULT_SETTINGS = []
+    _DEFAULT_SETTINGS = [
+        Parameter('tolerance', 1, float, 'tolerance in ns for new pi pulse')
+    ]
 
     _INSTRUMENTS = {}
 
     _SCRIPTS = {'rabi':Rabi}
 
-    def __init__(self, instruments, scripts=None, name=None, settings=None, log_function=None, data_path=None):
+    def __init__(self, instruments=None, scripts=None, name=None, settings=None, log_function=None, data_path=None):
         Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
                         log_function=log_function, data_path=data_path)
 
@@ -472,21 +470,30 @@ After that it again runs a the Rabi script with the optimized microwave power to
         power_dBm = self.scripts['rabi'].settings['mw_power']
         rabi_tau = self.scripts['rabi'].data['tau']
         rabi_counts = self.scripts['rabi'].data['counts']
-        [_, frequency, _, _] = fit_cose_parameter(rabi_tau, rabi_counts)
-        pi_time = 1e9 / (2 * frequency)  # gives pi_time in nanoseconds
+        [_, radial_frequency, _, _] = fit_rabi_decay(np.array(rabi_tau), np.array(rabi_counts))
+        pi_time = 1e9 / (2 * (radial_frequency * 2 * np.pi))  # gives pi_time in nanoseconds
         rounded_pi_time = ((np.ceil(pi_time / 5.0) * 5.0))  # rounds up to nearest 5 ns
         power_linear = 10 ** (power_dBm / 10)
         rounded_power_linear = power_linear * (
                                               pi_time / rounded_pi_time) ** 2  # want sqrt(power)*pi_time to be constant
-        # rounded_power_dBm =
-        # self.scripts['rabi'].settings['mw_power'] =
+        rounded_power_dBm = 10 * np.log10(rounded_power_linear)
+        print(rounded_power_dBm)
+        assert (rounded_power_dBm < -2)
+        self.scripts['rabi'].settings['mw_power'] = rounded_power_dBm
+        self.scripts['rabi'].run()
+        rabi_counts = self.scripts['rabi'].data['counts']
+        [_, radial_frequency, _, _] = fit_rabi_decay(rabi_tau, rabi_counts)
+        new_pi_time = 1e9 / (2 * (radial_frequency * 2 * np.pi))  # gives pi_time in nanoseconds
+        error = abs(new_pi_time - rounded_pi_time)
+        print('new_time', rounded_pi_time)
+        print('new_power', rounded_power_dBm)
+        if error > self.settings['tolerance']:
+            print('Optimization FAILED. Error is ' + str(error) + ' ns.')
+        else:
+            print('Optimization SUCCESS. Error is ' + str(error) + ' ns.')
 
-
-    def _plot(self, axes_list, axes_colorbar=None):
-        pass
-
-    def get_axes_layout(self, figure_list):
-        pass
+    def plot(self, figure_list):
+        self.scripts['rabi'].plot(figure_list)
 
 
 class CalibrateMeasurementWindow(ExecutePulseBlasterSequence):
@@ -651,7 +658,6 @@ This script runs a CPMG pulse sequence.
     def _function(self):
         pass
 
-
     def _plot(self, axes_list, axes_colorbar=None):
         pass
 
@@ -699,7 +705,6 @@ This script runs a Hahn-echo sequence for different number of pi pulses. Without
     #
     # def get_axes_layout(self, figure_list):
     #     pass
-
 
     def _create_pulse_sequences(self):
         '''

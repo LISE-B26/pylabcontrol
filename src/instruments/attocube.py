@@ -1,5 +1,6 @@
 import ctypes
 import time
+import warnings
 
 from src.core.instruments import Instrument, Parameter
 
@@ -70,11 +71,11 @@ class Attocube(Instrument):
         super(Attocube, self).__init__(name, settings)
         try:
             self.attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')
-            print('attocube', self.attocube)
             dll_detected = True
         except WindowsError:
             # make a fake Attocube instrument
             dll_detected = False
+            warnings.warn("Attocube DLL not found. If it should be present, check the path.")
         if dll_detected == True:
             try:
                 self.pi = PositionerInfo()
@@ -83,7 +84,7 @@ class Attocube(Instrument):
                 self._check_error(self.attocube.PositionerConnect(0, ctypes.byref(device_handle)))
                 self._check_error(self.attocube.PositionerClose(device_handle))
             except Exception:
-                print('Attocube not detected. Check connection.')
+                print('Attocube not detected. Check connection.', UserWarning)
 
     def update(self, settings):
         '''

@@ -321,6 +321,7 @@ class Script(QObject):
         sender = self.sender()
         print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name, 'received signal. emitting....')
         self.updateProgress.emit(progress)
+
     def run(self):
         """
         executes the script
@@ -337,7 +338,7 @@ class Script(QObject):
         }
         # update the datapath of the subscripts, connect their progress signal to the receive slot
         for subscript in self.scripts.values():
-            subscript.data_path = self.data_path
+            subscript.data_path = os.path.join(self.data_path, 'data_subscript_{:s}'.format(self.name))
             subscript.updateProgress.connect(self._receive_signal)
             subscript.started.connect(lambda: self._set_current_subscript(True))
             subscript.finished.connect(lambda: self._set_current_subscript(False))
@@ -1042,11 +1043,11 @@ class Script(QObject):
 
         axes_list = self.get_axes_layout(figure_list)
         if self._plot_refresh is True:
+            self._plot_refresh = False
             self._plot(axes_list)
             for figure in figure_list:
                 if figure.axes:
                     figure.tight_layout()
-            self._plot_refresh = False
         else:
             self._update_plot(axes_list)
 

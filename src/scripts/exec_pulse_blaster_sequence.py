@@ -156,7 +156,7 @@ for a given experiment
                                                                     self.current_averages)
             self.sequence_index = index
             # self.updateProgress.emit(int(99 * (index + 1.0) / len(self.pulse_sequences) / num_1E6_avg_pb_programs + (99 * (average_loop / num_1E6_avg_pb_programs))))
-            self.updateProgress.emit(self._calc_progress())
+            self.updateProgress.emit(self._calc_progress(index))
 
     def _single_sequence(self, pulse_sequence, num_loops, num_daq_reads):
         '''
@@ -205,9 +205,14 @@ for a given experiment
         '''
         raise NotImplementedError
 
-    def _calc_progress(self):
+    def _calc_progress(self, index):
+        # progress of inner loop (in _run_sweep)
+        progress_inner = float(index) / len(self.pulse_sequences)
 
-        return 50
+        # progress of outer loop (in _function)
+        progress = float(self.current_averages + (progress_inner - 1.0) * MAX_AVERAGES_PER_SCAN) / self.num_averages
+
+        return int(100.0 * progress)
 
     def _normalize(self, signal, baseline_max=0, baseline_min=0):
         '''
