@@ -96,7 +96,7 @@ Known issues:
 
             po = [self.data['initial_point']['x'], self.data['initial_point']['y']]
             if len(f) == 0:
-                self.data['maximum_point'] = {'x': po[0], 'y': po[1]}
+                self.data['maximum_point'] = {'x': float(po[0]), 'y': float(po[1])}
                 self.log('pytrack failed to find NV --- setting laser to initial point instead')
             else:
 
@@ -107,7 +107,7 @@ Known issues:
                     self.log('Info!! Found more than one NV. Selecting the one closest to initial point!')
                 # pick the one that is closest to the original one
                 pm = pts[np.argmin(np.array([np.linalg.norm(p - np.array(po)) for p in pts]))]
-                self.data['maximum_point'] = {'x': pm[0], 'y': pm[1]}
+                self.data['maximum_point'] = {'x': float(pm[0]), 'y': float(pm[1])}
                 break
 
             if attempt_num <= self.settings['number_of_attempts']:
@@ -147,14 +147,14 @@ Known issues:
         if self._current_subscript_stage['current_subscript'] == self.scripts['take_image']:
             self.scripts['take_image']._update_plot(axes_list)
 
-        # plot marker
-        maximum_point = self.data['maximum_point']
-        patch = patches.Circle((maximum_point['x'], maximum_point['y']), .001, ec='r', fc='none')
-        axes_list[0].add_patch(patch)
-
-        initial_point = self.data['initial_point']
-        patch = patches.Circle((initial_point['x'], initial_point['y']), .001, ec='g', fc='none')
-        axes_list[0].add_patch(patch)
+            # # plot marker
+            # maximum_point = self.data['maximum_point']
+            # patch = patches.Circle((maximum_point['x'], maximum_point['y']), .001, ec='r', fc='none')
+            # axes_list[0].add_patch(patch)
+            #
+            # initial_point = self.data['initial_point']
+            # patch = patches.Circle((initial_point['x'], initial_point['y']), .001, ec='g', fc='none')
+            # axes_list[0].add_patch(patch)
 
 
     def get_axes_layout(self, figure_list):

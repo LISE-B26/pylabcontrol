@@ -317,7 +317,8 @@ class Script(QObject):
         Args:
             progress: progress of subscript
         """
-        # print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name, 'received signal. emitting....')
+        print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name,
+              'received signal. emitting....')
         self.updateProgress.emit(progress)
 
     def run(self):
@@ -336,6 +337,7 @@ class Script(QObject):
         }
         # update the datapath of the subscripts, connect their progress signal to the receive slot
         for subscript in self.scripts.values():
+            print('==== connecting', subscript.name)
             subscript.data_path = os.path.join(self.filename(create_if_not_existing=False), 'data_subscripts')
             subscript.updateProgress.connect(self._receive_signal)
             subscript.started.connect(lambda: self._set_current_subscript(True))
@@ -349,15 +351,12 @@ class Script(QObject):
         self._abort = False
 
         self.started.emit()
-        # self.updateProgress.emit(0)
 
         self._function()
         self.end_time  = datetime.datetime.now()
         self.log('script {:s} finished at {:s} on {:s}'.format(self.name, self.end_time.strftime('%H:%M:%S'),self.end_time.strftime('%d/%m/%y')))
         success = not self._abort
 
-
-        # print(self.name, ' FINISHED!!!!!')
         # disconnect subscripts
         for subscript in self.scripts.values():
             subscript.started.disconnect()
@@ -523,7 +522,7 @@ class Script(QObject):
         if filename is None:
             filename = self.filename('.b26')
 
-        save_b26_file(filename, scripts=self.to_dict())
+        save_b26_file(filename, scripts=self.to_dict(), overwrite=True)
 
     def save_image_to_disk(self, filename_1 = None, filename_2 = None):
         """

@@ -73,7 +73,7 @@ for a given experiment
         self.count_data = np.repeat([np.append(signal, norms)], len(self.pulse_sequences), axis=0)
 
         self.data = in_data
-        self.data.update({'tau': tau_list, 'counts': deepcopy(self.count_data)})
+        self.data.update({'tau': np.array(tau_list), 'counts': deepcopy(self.count_data)})
 
         #divides the total number of averages requested into a number of slices of MAX_AVERAGES_PER_SCAN and a remainer.
         #This is required because the pulseblaster won't accept more than ~4E6 loops (22 bits avaliable to store loop
@@ -92,7 +92,7 @@ for a given experiment
             self._run_sweep(self.pulse_sequences, remainder, num_daq_reads)
 
         if (len(self.data['counts'][0]) == 1):
-            self.data['counts'] = [item for sublist in self.data['counts'] for item in sublist]
+            self.data['counts'] = np.array([item for sublist in self.data['counts'] for item in sublist])
 
         if self.settings['save']:
             self.save_b26()
@@ -288,6 +288,12 @@ for a given experiment
             for index in delete_list:
                 new_pulse_sequences.pop(index)
         return new_pulse_sequences, delete_list
+
+    def stop(self):
+
+        self.instruments['PB']['instance'].stop()
+        super(ExecutePulseBlasterSequence, self).stop(self)
+
 
 
 if __name__ == '__main__':

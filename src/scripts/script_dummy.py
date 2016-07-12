@@ -358,7 +358,6 @@ class ScriptDummyWithNestedSubScript(Script):
         print(self._current_subscript_stage)
         print('PLOTTING', self._current_subscript_stage['current_subscript'].name)
         if self._current_subscript_stage['current_subscript'] == self.scripts['sub_sub_script']:
-            print('XXXX', self._current_subscript_stage['current_subscript']._current_subscript_stage['current_subscript'].name)
             self.scripts['sub_sub_script']._plot(axes_list)
         for data_set in self.data['data']:
             axes_list[0].plot(data_set)
