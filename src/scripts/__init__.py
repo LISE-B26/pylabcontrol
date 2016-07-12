@@ -179,4 +179,4 @@ from pulse_blaster_scripts import CalibrateMeasurementWindow
 
 from pulse_blaster_scripts import Rabi_Power_Sweep_Single_Tau
 
-from pulse_blaster_scripts import OptimizeRabi
+from pulse_blaster_scripts import RoundPiPulseTime
