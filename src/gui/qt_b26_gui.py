@@ -808,7 +808,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         script = self.current_script
         # if isinstance(script, QThreadWrapper):
         #     script = script.script
-        self.plot_script(script)
+        if script is not None:
+            self.plot_script(script)
 
 
     @pyqtSlot()

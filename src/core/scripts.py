@@ -105,11 +105,10 @@ class Script(QObject):
     @data_path.setter
     def data_path(self, path):
         # check is path is a valid path string
-        if path is not None and path is not '':
-            # assert os.path.isdir(path)
-            if not os.path.isdir(path):
-                print('{:s} created'.format(path))
-                os.mkdir(path)
+        # if path is not None and path is not '':
+        #     if not os.path.isdir(path):
+        #         print('{:s} created'.format(path))
+        #         os.mkdir(path)
 
         self._data_path = path
 
@@ -337,7 +336,7 @@ class Script(QObject):
         }
         # update the datapath of the subscripts, connect their progress signal to the receive slot
         for subscript in self.scripts.values():
-            subscript.data_path = os.path.join(self.data_path, 'data_subscript_{:s}'.format(self.name))
+            subscript.data_path = os.path.join(self.filename(create_if_not_existing=False), 'data_subscripts')
             subscript.updateProgress.connect(self._receive_signal)
             subscript.started.connect(lambda: self._set_current_subscript(True))
             subscript.finished.connect(lambda: self._set_current_subscript(False))
@@ -378,7 +377,7 @@ class Script(QObject):
     def validate(self):
         pass
 
-    def filename(self, appendix = None):
+    def filename(self, appendix=None, create_if_not_existing=False):
         """
         creates a filename based
         Args:
@@ -398,7 +397,7 @@ class Script(QObject):
 
         filename = os.path.join(path, "{:s}_{:s}".format(self.start_time.strftime('%y%m%d-%H_%M_%S'),tag))
 
-        if os.path.exists(filename) == False:
+        if os.path.exists(filename) == False and create_if_not_existing:
             os.makedirs(filename)
 
         if appendix is not None:
@@ -659,7 +658,6 @@ class Script(QObject):
 
         # import data from each csv
         for data_file in data_files:
-            print('data_file', data_file)
             # get data name, read the data from the csv, and save it to dictionary
             data_name = data_file.split('-')[-1][0:-4] # JG: why do we strip of the date?
             imported_data_df = pd.read_csv(os.path.join(path, data_file))
