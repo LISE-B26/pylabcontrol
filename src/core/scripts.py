@@ -105,11 +105,10 @@ class Script(QObject):
     @data_path.setter
     def data_path(self, path):
         # check is path is a valid path string
-        if path is not None and path is not '':
-            # assert os.path.isdir(path)
-            if not os.path.isdir(path):
-                print('{:s} created'.format(path))
-                os.mkdir(path)
+        # if path is not None and path is not '':
+        #     if not os.path.isdir(path):
+        #         print('{:s} created'.format(path))
+        #         os.mkdir(path)
 
         self._data_path = path
 
@@ -318,7 +317,6 @@ class Script(QObject):
         Args:
             progress: progress of subscript
         """
-        sender = self.sender()
         # print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name, 'received signal. emitting....')
         self.updateProgress.emit(progress)
 
@@ -338,7 +336,7 @@ class Script(QObject):
         }
         # update the datapath of the subscripts, connect their progress signal to the receive slot
         for subscript in self.scripts.values():
-            subscript.data_path = os.path.join(self.data_path, 'data_subscript_{:s}'.format(self.name))
+            subscript.data_path = os.path.join(self.filename(create_if_not_existing=False), 'data_subscripts')
             subscript.updateProgress.connect(self._receive_signal)
             subscript.started.connect(lambda: self._set_current_subscript(True))
             subscript.finished.connect(lambda: self._set_current_subscript(False))
@@ -379,7 +377,7 @@ class Script(QObject):
     def validate(self):
         pass
 
-    def filename(self, appendix = None):
+    def filename(self, appendix=None, create_if_not_existing=False):
         """
         creates a filename based
         Args:
@@ -399,7 +397,7 @@ class Script(QObject):
 
         filename = os.path.join(path, "{:s}_{:s}".format(self.start_time.strftime('%y%m%d-%H_%M_%S'),tag))
 
-        if os.path.exists(filename) == False:
+        if os.path.exists(filename) == False and create_if_not_existing:
             os.makedirs(filename)
 
         if appendix is not None:
@@ -638,6 +636,7 @@ class Script(QObject):
             data = {param_1_name: param_1_data, ...}
         """
 
+
         # check that path exists
         if not os.path.exists(path):
             raise AttributeError('Path given does not exist!')
@@ -659,77 +658,21 @@ class Script(QObject):
 
         # import data from each csv
         for data_file in data_files:
-
             # get data name, read the data from the csv, and save it to dictionary
             data_name = data_file.split('-')[-1][0:-4] # JG: why do we strip of the date?
             imported_data_df = pd.read_csv(os.path.join(path, data_file))
 
-
-            # check if there are headers, i.e. check if all headers are of type str
+            # check if there are real headers, if the headers are digits than we ignore them because then they are just indecies
+            # real headers are strings (however, the digits are also of type str! that why we use the isdigit method)
             column_headers = list(imported_data_df.columns.values)
-            if sum([int(isinstance(x, str)) for x in column_headers]) == len(column_headers):
-                    data = {h: imported_data_df[h].as_matrix() for h in column_headers}
+            if sum([int(x.isdigit()) for x in column_headers]) != len(column_headers):
+                data[data_name] = {h: imported_data_df[h].as_matrix() for h in column_headers}
             else:
                 # note, np.squeeze removes extraneous length-1 dimensions from the returned 'matrix' from the dataframe
                 data[data_name] = np.squeeze(imported_data_df.as_matrix())
 
         return data
 
-        # else:
-        #     data_files = glob.glob(path + '*.csv')
-        #     for data_file in data_files:
-        #         time_tag = '_'.join(data_file.split('\\')[-1].split('_')[0:3])
-        #         df = pd.read_csv(data_file)
-        #         data_names = list(df)
-        #
-        #         # test if first row is a row of headers or numbers
-        #         try:
-        #             float(data_names[0])
-        #             has_header = False
-        #         except ValueError:
-        #             has_header = True
-        #             print('value_error')
-        #
-        #         if has_header:
-        #             data.update({time_tag:
-        #                              {data_name: list(df[data_name]) for data_name in data_names}
-        #                          })
-        #         else:
-        #
-        #             data_name = data_file.split('\\')[-1].split('-')[-1].split('.')[0]
-        #             if time_tag in data:
-        #                 data[time_tag].update({data_name: df})
-        #             else:
-        #                 data.update({time_tag: {data_name: df}})
-
-        # if time_tag_in:
-        #     # if user specifies a time_tag we only return that specific data set
-        #     if data_name_in ==None:
-        #         data = data[time_tag_in]
-        #     else:
-        #         data = data[time_tag_in][data_name_in]
-        # elif data_name_in:
-        #     # return data of last data set
-        #     #todo: currently broken, need to fix
-        #     #data = data[sorted(data.keys())[-1]][data_name_in]
-        #     time_keys = sorted(data.keys())
-        #     time_keys.reverse()
-        #     for time in time_keys:
-        #         try:
-        #             data = data[time][data_name_in].values
-        #             break
-        #         except KeyError:
-        #             print('key_error')
-        #             continue
-        #     if type(data) == dict and not data:
-        #         raise ValueError('Could not find a file with this name at any time_tag')
-        #
-        #
-        # elif len(data) == 1:
-        #     # if there is only one data_set, we strip of the time_tag level
-        #     data = data[data.keys()[0]]
-        #
-        # return data
     @staticmethod
     def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None):
         """
@@ -1099,30 +1042,8 @@ if __name__ == '__main__':
 
     from src.core import Script
 
-    f = 'Z:\\Lab\\Cantilever\\Measurements\\_tmp\\test.b26s'
-    script, instruments = Script.load(f)
+    folder = 'Z:\\Lab\\Cantilever\\Measurements\\20160708_Rabi_data\\160712-14_54_46_NV6_rabi'
 
-    print(script)
-
-    print('----')
-    print(instruments)
-
-    # #
-    # s, _, _ = Script.load_and_append({'s1':'ScriptDummyWithInstrument'})
-    # s = s['s1']
-    # print('------')
-    # # s = ScriptDummyWithInstrument()
-    #
-    # # print(s)
-    # s.update({'count': 55})
-    # s.save('Z:\\Lab\\Cantilever\\Measurements\\_tmp\\test.b26s')
-    # #
-    # print(s)
-
-    # s2 = ScriptDummyWithInstrument()
-    # print(s2)
-    # s2.load('Z:\\Lab\\Cantilever\\Measurements\\_tmp\\test.b26s')
-    #
-    # # print(s)
-    # print('----')
-    # print(s2)
+    data = Script.load_data(folder)
+    print(data.keys())
+    print(data['tau'])
