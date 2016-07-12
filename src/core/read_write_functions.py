@@ -72,7 +72,7 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
         # create folder if it doesn't exist
         if os.path.exists(os.path.dirname(filename)) is False:
             print('creating', os.path.dirname(filename))
-            os.mkdir(os.path.dirname(filename))
+            os.makedirs(os.path.dirname(filename))
 
         with open(filename, 'w') as outfile:
             tmp = json.dump(data_dict, outfile, indent=4)

@@ -1078,14 +1078,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 if x in config:
                     if not os.path.exists(config[x]):
                         try:
-                            os.mkdir(config[x])
+                            os.makedirs(config[x])
                         except Exception:
                             config[x] = self._DEFAULT_CONFIG[x]
-                            os.mkdir(config[x])
+                            os.makedirs(config[x])
                             print('WARNING: failed validating or creating path: set to default path'.format(config[x]))
                 else:
                     config[x] = self._DEFAULT_CONFIG[x]
-                    os.mkdir(config[x])
+                    os.makedirs(config[x])
                     print('WARNING: path {:s} not specified set to default {:s}'.format(x, config[x]))
 
         self.gui_settings = config

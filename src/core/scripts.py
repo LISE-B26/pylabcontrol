@@ -108,7 +108,7 @@ class Script(QObject):
         # if path is not None and path is not '':
         #     if not os.path.isdir(path):
         #         print('{:s} created'.format(path))
-        #         os.mkdir(path)
+        #         os.makedirs(path)
 
         self._data_path = path
 
