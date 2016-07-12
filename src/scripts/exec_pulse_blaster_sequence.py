@@ -292,7 +292,7 @@ for a given experiment
     def stop(self):
 
         self.instruments['PB']['instance'].stop()
-        super(ExecutePulseBlasterSequence, self).stop(self)
+        super(ExecutePulseBlasterSequence, self).stop()
 
 
 

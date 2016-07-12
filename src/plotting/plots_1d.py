@@ -178,6 +178,7 @@ def plot_1d_simple(axis, times, counts_list, x_label='time (ns)', y_label='kCoun
 
     axis.set_xlabel(x_label)
     axis.set_ylabel(y_label)
+    axis.set_xlim([min(times), max(times)])
 
 
 def update_1d_simple(axis, times, counts_list):

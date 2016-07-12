@@ -291,6 +291,22 @@ class Script(QObject):
         self._time_stop = value
 
     @property
+    def remaining_time(self):
+        """
+        estimates the time remaining until script is finished
+        Returns:
+
+        """
+        elapsed_time = datetime.datetime.now() - self.start_time
+
+        # timedelta can only be multiplied and divided by integers thats we multiply everything by 1e3
+        estimated_total_time = elapsed_time
+        estimated_total_time *= int(100 * 1e3)
+        estimated_total_time /= int(self.progress * 1e3)
+
+        return estimated_total_time - elapsed_time
+
+    @property
     def start_time(self):
         """
         time when script execution started
@@ -319,6 +335,8 @@ class Script(QObject):
         """
         print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name,
               'received signal. emitting....')
+
+        self.progress = progress
         self.updateProgress.emit(progress)
 
     def run(self):
@@ -557,6 +575,12 @@ class Script(QObject):
         if (filename_1 is None) and (filename_2 is None):
             filename_1 = self.filename('-plt1.jpg')
             filename_2 = self.filename('-plt2.jpg')
+
+        if os.path.exists(os.path.dirname(filename_1)) is False:
+            os.makedirs(os.path.dirname(filename_1))
+        if os.path.exists(os.path.dirname(filename_2)) is False:
+            os.makedirs(os.path.dirname(filename_2))
+
 
         fig_1 = Figure()
         canvas_1 = FigureCanvas(fig_1)
@@ -979,7 +1003,7 @@ class Script(QObject):
         """
         # if plot function is called when script is not running we request a plot refresh
         if self.is_running == False:
-            print('force refresh plot!!!')
+            print(datetime.datetime.now().strftime("%B %d, %Y %H:%M:%S"), self.name, 'force refresh plot!!!')
             self._plot_refresh = True
 
         axes_list = self.get_axes_layout(figure_list)

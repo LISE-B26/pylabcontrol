@@ -257,9 +257,9 @@ This script repeats the Rabi script N times and refocuses on the NV between ever
         # print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name, 'received signal. emitting....')
 
         print('subscript progress', progress)
-        progress = int(100. * (float(self.index) + float(progress) / 100.) / self.settings['N'])
+        self.progress = 100. * (float(self.index) + float(progress) / 100.) / self.settings['N']
         print('total progress', progress)
-        self.updateProgress.emit(progress)
+        self.updateProgress.emit(int(self.progress))
 
     # def _calc_progress(self, index):
     #
