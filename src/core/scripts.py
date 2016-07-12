@@ -319,7 +319,7 @@ class Script(QObject):
             progress: progress of subscript
         """
         sender = self.sender()
-        print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name, 'received signal. emitting....')
+        # print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name, 'received signal. emitting....')
         self.updateProgress.emit(progress)
 
     def run(self):
@@ -1011,9 +1011,8 @@ class Script(QObject):
 
         """
         pass
-
-        # add following line in self._plot if you don't want plots to refresh after first plot
-        # self._plot_refresh = False
+        # not sure if to raise a not implemented error or just give a warning. For now just warning
+        print('INFO: {:s} called _plot even though it is not implemented'.format(self.name))
 
     def _update_plot(self, axes_list):
         """
@@ -1043,8 +1042,8 @@ class Script(QObject):
 
         axes_list = self.get_axes_layout(figure_list)
         if self._plot_refresh is True:
-            self._plot_refresh = False
             self._plot(axes_list)
+            self._plot_refresh = False
             for figure in figure_list:
                 if figure.axes:
                     figure.tight_layout()

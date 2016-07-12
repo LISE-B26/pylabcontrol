@@ -61,8 +61,6 @@ class GalvoScan(Script):
 
         # self._plot_refresh = True
 
-        self.updateProgress.emit(1)
-
         # self._plotting = True
 
         def init_scan():

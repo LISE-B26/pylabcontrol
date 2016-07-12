@@ -82,7 +82,6 @@ Known issues:
             # todo: write a docstring. What does this function do?
             return (min_mass - 40)
 
-        # self.scripts['take_image'].update({'point_a': {'x': initial_point[0], 'y': initial_point[1]}})
         self.scripts['take_image'].scripts['acquire_image'].settings['point_a'].update({'x': self.settings['initial_point']['x'], 'y': self.settings['initial_point']['y']})
         self.scripts['take_image'].scripts['acquire_image'].settings['point_b'].update({'x': self.settings['sweep_range'], 'y': self.settings['sweep_range']})
         self.scripts['take_image'].scripts['acquire_image'].update({'RoI_mode': 'center'})
@@ -97,8 +96,7 @@ Known issues:
 
             po = [self.data['initial_point']['x'], self.data['initial_point']['y']]
             if len(f) == 0:
-                self.data['maximum_point'] = po
-
+                self.data['maximum_point'] = {'x': po[0], 'y': po[1]}
                 self.log('pytrack failed to find NV --- setting laser to initial point instead')
             else:
 
@@ -108,7 +106,8 @@ Known issues:
                 if len(pts) > 1:
                     self.log('Info!! Found more than one NV. Selecting the one closest to initial point!')
                 # pick the one that is closest to the original one
-                self.data['maximum_point'] = pts[np.argmin(np.array([np.linalg.norm(p - np.array(po)) for p in pts]))]
+                pm = pts[np.argmin(np.array([np.linalg.norm(p - np.array(po)) for p in pts]))]
+                self.data['maximum_point'] = {'x': pm[0], 'y': pm[1]}
                 break
 
             if attempt_num <= self.settings['number_of_attempts']:
@@ -117,9 +116,7 @@ Known issues:
             else:
                 break
 
-        self.script_stage = 'find max'
-
-        self.scripts['set_laser'].settings['point'].update({'x': self.data['maximum_point'][0],'y': self.data['maximum_point'][1]})
+        self.scripts['set_laser'].settings['point'].update(self.data['maximum_point'])
         self.scripts['set_laser'].run()
 
         if self.settings['save']:
@@ -128,40 +125,37 @@ Known issues:
             self.save_log()
             self.save_image_to_disk()
 
-
     def _plot(self, axes_list):
 
-        # plot image
         if self._current_subscript_stage['current_subscript'] == self.scripts['take_image']:
-            print('XXX subscript running - use subscript plot function')
             self.scripts['take_image']._plot(axes_list)
         else:
             plot_fluorescence_new(self.data['image_data'], self.data['extent'], axes_list[0])
-            # plot marker
-            maximum_point = self.data['maximum_point']
-            patch = patches.Circle((maximum_point[0], maximum_point[1]), .001, ec='r', fc = 'none')
-            axes_list[0].add_patch(patch)
 
+        # plot marker
+        maximum_point = self.data['maximum_point']
+        patch = patches.Circle((maximum_point['x'], maximum_point['y']), .001, ec='r', fc='none')
+        axes_list[0].add_patch(patch)
 
-        # axes = axes_list[0]
-        # if self.script_stage == 'take image':
-        #     self.implot, self.cbar = plot_fluorescence_new(self.scripts['take_image'].data['image_data'],
-        #                                                self.scripts['take_image'].data['extent'], axes)
-        #
-        # if self.script_stage != 'take image':
-        #     plot_fluorescence_new(self.data['image_data'], self.data['extent'], axes)
-        #
-        #     # plot marker
-        #     maximum_point = self.data['maximum_point']
-        #     patch = patches.Circle((maximum_point[0], maximum_point[1]), .001, ec='r', fc = 'none')
-        #     axes.add_patch(patch)
+        initial_point = self.data['initial_point']
+        patch = patches.Circle((initial_point['x'], initial_point['y']), .001, ec='g', fc='none')
+        axes_list[0].add_patch(patch)
+
 
     def _update_plot(self, axes_list):
+
         if self._current_subscript_stage['current_subscript'] == self.scripts['take_image']:
-            self.scripts['take_image']._plot(axes_list)
-        else:
-            print('AAAAA: I wonder if this case will ever be called')
-            update_fluorescence(self.data['image_data'], axes_list[0], self.settings['max_counts_plot'])
+            self.scripts['take_image']._update_plot(axes_list)
+
+        # plot marker
+        maximum_point = self.data['maximum_point']
+        patch = patches.Circle((maximum_point['x'], maximum_point['y']), .001, ec='r', fc='none')
+        axes_list[0].add_patch(patch)
+
+        initial_point = self.data['initial_point']
+        patch = patches.Circle((initial_point['x'], initial_point['y']), .001, ec='g', fc='none')
+        axes_list[0].add_patch(patch)
+
 
     def get_axes_layout(self, figure_list):
         """
@@ -177,8 +171,7 @@ Known issues:
 
         # create a new figure list that contains only figure 1, this assures that the super.get_axes_layout doesn't
         # empty the plot contained on figure 2
-        new_figure_list = [figure_list[0]]
-        return super(FindMaxCounts2D, self).get_axes_layout(new_figure_list)
+        return super(FindMaxCounts2D, self).get_axes_layout([figure_list[0]])
 
 
 
