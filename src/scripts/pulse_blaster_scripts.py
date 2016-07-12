@@ -466,23 +466,32 @@ After that it again runs a the Rabi script with the optimized microwave power to
                         log_function=log_function, data_path=data_path)
 
     def _function(self):
+        self.data = {'old_power': None, 'new_power': None, 'old_time': None, 'new_time': None, 'old_fit_params': None, 'new_fit_params': None}
         self.scripts['rabi'].run()
         power_dBm = self.scripts['rabi'].settings['mw_power']
+        self.data['old_power'] = power_dBm
         rabi_tau = self.scripts['rabi'].data['tau']
         rabi_counts = self.scripts['rabi'].data['counts']
-        [_, radial_frequency, _, _] = fit_rabi_decay(np.array(rabi_tau), np.array(rabi_counts))
-        pi_time = 1 / (2 * (radial_frequency / (2 * np.pi)))  # gives pi_time in nanoseconds
+        fit_params = fit_rabi_decay(rabi_tau, rabi_counts)
+        radial_freq = fit_params[1]
+        self.data['old_fit_params'] = fit_params
+        pi_time = 1 / (2 * (radial_freq / (2 * np.pi)))  # gives pi_time in nanoseconds
+        self.data['old_time'] = pi_time
         rounded_pi_time = ((np.ceil(pi_time / 5.0) * 5.0))  # rounds up to nearest 5 ns
+        self.data['new_time'] = rounded_pi_time
         power_linear = 10.0 ** (power_dBm / 10.0)
         rounded_power_linear = power_linear * (pi_time / rounded_pi_time) ** 2  # want sqrt(power)*pi_time to be constant
         rounded_power_dBm = 10.0 * np.log10(rounded_power_linear)
+        self.data['new_power'] = rounded_power_dBm
         print(rounded_power_dBm)
         assert (rounded_power_dBm < -2)
         self.scripts['rabi'].settings['mw_power'] = rounded_power_dBm
         self.scripts['rabi'].run()
         rabi_counts = self.scripts['rabi'].data['counts']
-        [_, radial_frequency, _, _] = fit_rabi_decay(rabi_tau, rabi_counts)
-        new_pi_time = 1 / (2 * (radial_frequency /(2 * np.pi)))  # gives pi_time in nanoseconds
+        fit_params = fit_rabi_decay(rabi_tau, rabi_counts)
+        radial_freq = fit_params[1]
+        self.data['new_fit_params'] = fit_params
+        new_pi_time = 1 / (2 * (radial_freq /(2 * np.pi)))  # gives pi_time in nanoseconds
         error = abs(new_pi_time - rounded_pi_time)
         print('new_time', rounded_pi_time)
         print('new_power', rounded_power_dBm)
