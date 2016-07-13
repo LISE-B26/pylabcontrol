@@ -777,7 +777,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if progress:
             # convert timedelta object into a string
             # remaining_time =':'.join(['{:02d}'.format(int(i)) for i in str(script.remaining_time).split(':')[:3]])
-
+            print('current script', script.name, script, type(script))
             remaining_time = str(datetime.timedelta(seconds=script.remaining_time.seconds))
             self.lbl_time_estimate.setText('time remaining: {:s}'.format(remaining_time))
 
@@ -1122,7 +1122,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         def set_item_visible(item, is_visible):
 
-            if isinstance(is_visible, dict):
+            if isinstance(is_visible, dict) and item.name in is_visible:
                 for child_id in range(item.childCount()):
                     child = item.child(child_id)
                     set_item_visible(child, is_visible[child.name])
@@ -1135,6 +1135,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 for index in range(self.tree_scripts.topLevelItemCount()):
                     item = self.tree_scripts.topLevelItem(index)
+                    # if item.name in in_data["scripts_hidden_parameters"]:
                     set_item_visible(item, in_data["scripts_hidden_parameters"][item.name])
             else:
                 print('WARNING: settings for hiding parameters does\'t seem to match other settings')

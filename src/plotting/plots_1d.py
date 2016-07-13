@@ -116,13 +116,15 @@ def plot_pulses(axis, pulse_collection):
             patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id)), pulse.duration, 0.5,
                               fc=pulse_colors[pulse.channel_id]))
 
+    # option1: patch collection: doesn't allow to set colors
     patch_collection = PatchCollection(patch_list)
+    axis.add_collection(patch_collection)
 
+    # option2: add_artist
     # JG: following change is to get colors to show
     # todo: check that this works with the update function: problem with removing patches!!!
-    # axis.add_collection(patch_collection)
-    for p in patch_list:
-        axis.add_artist(p)
+    # for p in patch_list:
+    #     axis.add_artist(p)
 
     # label the axis
     axis.set_title('Pulse Visualization')
@@ -151,7 +153,7 @@ def update_pulse_plot(axis, pulse_collection):
     # axis.set_xlim(0, 1.1 * max_time)
 
     # remove the previous pulses
-    [child.remove() for child in axis.get_children() if isinstance(child, PatchCollection)]
+    [child.remove() for child in axis.get_children() if isinstance(child, (PatchCollection))]
 
     # create rectangles for the pulses
     patch_list = []
@@ -182,6 +184,20 @@ def plot_1d_simple(axis, times, counts_list, x_label='time (ns)', y_label='kCoun
 
 
 def update_1d_simple(axis, times, counts_list):
+    """
+
+    Args:
+        axis: axes object
+        times: JG: THIS IS NOT USED! WHAT IS IT? => add comment, e.g. for future purpose or delete!
+        counts_list: list of
+
+    Returns:
+
+    """
+    if len(axis.lines) != len(counts_list):
+        counts_list = np.transpose(counts_list)
+
+    assert len(axis.lines) == len(counts_list)
     for index, counts in enumerate(counts_list):
         axis.lines[index].set_ydata(counts)
     axis.relim()

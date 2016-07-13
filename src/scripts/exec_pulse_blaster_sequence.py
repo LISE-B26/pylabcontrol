@@ -130,7 +130,9 @@ for a given experiment
         x_data = self.data['tau']
         axis1 = axes_list[0]
         if not counts == []:
-            update_1d_simple(axis1, x_data, [counts])
+            update_1d_simple(axis1, x_data, counts)
+            # JG: previously this was
+            # update_1d_simple(axis1, x_data, [counts])
         axis2 = axes_list[1]
         update_pulse_plot(axis2, self.pulse_sequences[self.sequence_index])
 
@@ -214,8 +216,8 @@ for a given experiment
             progress = float(self.current_averages + (progress_inner - 1.0) * MAX_AVERAGES_PER_SCAN) / self.num_averages
         else:
             progress = progress_inner
-
-        return int(100.0 * progress)
+        self.progress = 100.0 * progress
+        return int(progress)
 
     def _normalize(self, signal, baseline_max=0, baseline_min=0):
         '''
@@ -235,7 +237,7 @@ for a given experiment
             return ((signal - baseline_min) / (baseline_max - baseline_min))
 
     def _normalize_to_kCounts(self, signal, gate_width=1, num_averages=1):
-        return (float(signal) * (1E6 / (gate_width * num_averages)))
+        return (1. * signal * (1E6 / (gate_width * num_averages)))
 
     def validate(self):
         pulse_blaster = self.instruments['PB']['instance']
