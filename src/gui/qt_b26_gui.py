@@ -24,6 +24,8 @@ from collections import deque
 
 ###AARON_PC REMOVE
 from src.scripts.Select_NVs import Select_NVs_Simple
+import src.scripts
+from src.scripts import ScriptSequence
 
 from src.core.read_write_functions import load_b26_file
 # load the basic old_gui either from .ui file or from precompiled .py file
@@ -537,6 +539,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if dialog.exec_():
                 self.gui_settings['scripts_folder'] = str(dialog.txt_probe_log_path.text())
                 scripts = dialog.getValues()
+                print('SCRIPTS', scripts)
                 added_scripts = set(scripts.keys()) - set(self.scripts.keys())
                 removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
 
@@ -546,6 +549,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     data_folder_name = None
 
                 # create instances of new instruments/scripts
+                print('INPUT_SCRIPT_DICT', {name: scripts[name] for name in added_scripts})
                 self.scripts, loaded_failed, self.instruments = Script.load_and_append(
                     script_dict={name: scripts[name] for name in added_scripts},
                     scripts=self.scripts,
@@ -1053,6 +1057,31 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 if len(failed) > 0:
                     print('WARNING! Following instruments could not be loaded: ', failed)
 
+                # special case for ScriptSequence scripts
+                for script in scripts.keys():
+                    if scripts[script]['class'] == 'ScriptSequence':
+                        factory_scripts = {}
+                        for sub_script in scripts[script]['scripts']:
+                            factory_scripts.update({sub_script: eval('src.scripts.' + scripts[script]['scripts'][sub_script]['class'])})
+                        #distinguish between looping and param_sweep modes
+                        if 'sweep_param' in scripts[script]['settings']:
+                            factory_settings = [
+                                Parameter('sweep_param', '', str, 'variable over which to sweep'),
+                                Parameter('min_value', 0, float, 'min parameter value'),
+                                Parameter('max_value', 0, float, 'max parameter value'),
+                                Parameter('N/value_step', 0, float,
+                                          'either number of steps or parameter value step, depending on mode'),
+                                Parameter('stepping_mode', 'N', ['N', 'value_step'],
+                                          'Switch between number of steps and step amount')
+                            ]
+                        else:
+                            factory_settings = [
+                                Parameter('N', 0, int, 'times the subscripts will be executed')
+                            ]
+                        ss = ScriptSequence.script_sequence_factory(script, factory_scripts, factory_settings)  # dynamically creates class
+                        ScriptSequence.import_dynamic_script(src.scripts, script, ss)  # imports created script in src.scripts.__init__
+                        scripts[script]['class'] = script
+
                 scripts_loaded, failed, instruments_loaded = Script.load_and_append(
                     script_dict=scripts,
                     instruments=instruments_loaded,
@@ -1219,6 +1248,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         for script in self.scripts.itervalues():
             dictator['scripts'].update(script.to_dict())
+
+            #special case saving for script_sequence classes
+            for script in dictator['scripts']:
+                if issubclass(eval('src.scripts.' + dictator['scripts'][script]['class']),ScriptSequence):
+                    dictator['scripts'][script]['class'] = 'ScriptSequence'
 
         for instrument, probe_dict in self.probes.iteritems():
             dictator['probes'].update({instrument: ','.join(probe_dict.keys())})

@@ -789,7 +789,6 @@ class Script(QObject):
                     script_instruments = script_information['instruments']
                 if 'scripts' in script_information:
                     script_sub_scripts = script_information['scripts']
-                    print('script_sub_scripts', script_sub_scripts)
             elif isinstance(script_information, str):
                 script_class_name = script_information
             elif issubclass(script_information, Script):
@@ -866,7 +865,6 @@ class Script(QObject):
             # create instruments that script needs
             sub_scripts = {}
             sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments)
-
 
             if sub_scripts_dict is not None:
                 for k, v in sub_scripts_dict.iteritems():

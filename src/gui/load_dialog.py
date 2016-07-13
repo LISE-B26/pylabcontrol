@@ -100,8 +100,17 @@ class Ui_Dialog(object):
         self.tree_script_sequence.setDefaultDropAction(QtCore.Qt.MoveAction)
         self.tree_script_sequence.setObjectName(_fromUtf8("tree_script_sequence"))
         self.btn_script_sequence = QtGui.QPushButton(Dialog)
-        self.btn_script_sequence.setGeometry(QtCore.QRect(280, 360, 111, 41))
+        self.btn_script_sequence.setGeometry(QtCore.QRect(280, 380, 111, 41))
         self.btn_script_sequence.setObjectName(_fromUtf8("btn_script_sequence"))
+        self.cmb_looping_variable = QtGui.QComboBox(Dialog)
+        self.cmb_looping_variable.setGeometry(QtCore.QRect(280, 350, 111, 22))
+        self.cmb_looping_variable.setObjectName(_fromUtf8("cmb_looping_variable"))
+        self.textEdit = QtGui.QTextEdit(Dialog)
+        self.textEdit.setGeometry(QtCore.QRect(540, 300, 301, 131))
+        self.textEdit.setObjectName(_fromUtf8("textEdit"))
+        self.txt_script_sequence_name = QtGui.QLineEdit(Dialog)
+        self.txt_script_sequence_name.setGeometry(QtCore.QRect(280, 320, 113, 20))
+        self.txt_script_sequence_name.setObjectName(_fromUtf8("txt_script_sequence_name"))
 
         self.retranslateUi(Dialog)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
@@ -118,4 +127,10 @@ class Ui_Dialog(object):
         self.txt_probe_log_path.setText(_translate("Dialog", "Z:\\Lab\\Cantilever\\Measurements", None))
         self.label_3.setText(_translate("Dialog", "Script Sequence", None))
         self.btn_script_sequence.setText(_translate("Dialog", "Add Script Sequence", None))
+        self.textEdit.setHtml(_translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Enter docstring here</span></p></body></html>", None))
+        self.txt_script_sequence_name.setText(_translate("Dialog", "DefaultName", None))
 

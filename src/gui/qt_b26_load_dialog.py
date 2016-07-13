@@ -9,6 +9,9 @@ from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 
 from src.core.read_write_functions import load_b26_file
+from src.core import Parameter
+import src.scripts
+from src.scripts import ScriptSequence
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
@@ -81,6 +84,11 @@ Returns:
 
         self.tree_infile_model.itemChanged.connect(self.name_changed)
         self.tree_loaded_model.itemChanged.connect(self.name_changed)
+
+        self.cmb_looping_variable.addItems(['Loop', 'Parameter Sweep'])
+
+    def test(item):
+        print(item)
 
     def name_changed(self, changed_item):
         name = str(changed_item.text())
@@ -199,42 +207,16 @@ Returns:
             tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
 
     def empty_tree(self, tree_model):
-        # def get_hidden_parameter(item):
-        #
-        #     numer_of_sub_elements = item.childCount()
-        #
-        #     if numer_of_sub_elements == 0:
-        #         dictator = {item.name : item.visible}
-        #     else:
-        #         # dictator = {get_hidden_parameter(item.child(child_id)) for child_id in range(numer_of_sub_elements)}
-        #         dictator = {item.name:{}}
-        #         for child_id in range(numer_of_sub_elements):
-        #             # print('FFFF', child_id, item.child(child_id).name, numer_of_sub_elements, numer_of_sub_elements == 0)
-        #             dictator[item.name].update(get_hidden_parameter(item.child(child_id)))
-        #     return dictator
-        #
-        #
-        # # build a dictionary for the configuration of the hidden parameters
-        # dictator = {}
-        # for index in range(tree_model.topLevelItemCount()):
-        #     script_item = tree_model.topLevelItem(index)
-        #     dictator.update(get_hidden_parameter(script_item))
-        # print(dictator)
         def add_children_to_dict(item, somedict):
             if item.hasChildren():
                 for rownum in range(0,item.rowCount()):
-                    print('key', item.child(rownum,0).text())
-                    print('value', item.child(rownum,1).text())
-
-
-
+                    somedict.update({str(item.child(rownum,0).text()): None})
 
         output_dict = {}
         root = tree_model.invisibleRootItem()
         add_children_to_dict(root, output_dict)
-
-
-
+        tree_model.clear()
+        return output_dict
 
     def getValues(self):
         """
@@ -251,12 +233,42 @@ Returns:
         return elements_selected
 
     def add_script_sequence(self):
-        # script_sequence = {'scripts': {}}
-        # for index in range(self.tree_script_sequence_model.rowCount()):
-        #     print('item_text', self.tree_script_sequence_model.item(index).text())
-            # script_sequence['scripts'].update(self.tree_script_sequence_model.item(index))
-        # self.fill_tree(self.tree_loaded, {'script_sequence': script_sequence})
-        self.empty_tree(self.tree_script_sequence_model)
+        name = str(self.txt_script_sequence_name.text())
+        new_script_dict = self.empty_tree(self.tree_script_sequence_model)
+        for script in new_script_dict.keys():
+            if script in self.elements_old:
+                new_script_dict[script] = self.elements_old[script]
+            elif script in self.elements_from_file:
+                new_script_dict[script] = self.elements_from_file[script]
+        factory_scripts = dict()
+        for script in new_script_dict.keys():
+            print('BRANCH', new_script_dict[script])
+            if isinstance(new_script_dict[script], dict):
+                factory_scripts.update({script: eval('src.scripts.' + new_script_dict[script]['class'])})
+                print('UNLOADED', eval('src.scripts.' + new_script_dict[script]['class']))
+            else: #if an object of the correct type
+                factory_scripts.update({script: new_script_dict[script].__class__})
+                print('LOADED', new_script_dict[script].__class__)
+        print('FACTORY_SCRIPTS', factory_scripts)
+        if self.cmb_looping_variable.currentText() == 'Loop':
+            factory_settings = [
+                Parameter('N', 0, int, 'times the subscripts will be executed')
+            ]
+        elif self.cmb_looping_variable.currentText() == 'Parameter Sweep':
+            factory_settings = [
+                Parameter('sweep_param', '', str, 'variable over which to sweep'),
+                Parameter('min_value', 0, float, 'min parameter value'),
+                Parameter('max_value', 0, float, 'max parameter value'),
+                Parameter('N/value_step', 0, float, 'either number of steps or parameter value step, depending on mode'),
+                Parameter('stepping_mode', 'N', ['N', 'value_step'], 'Switch between number of steps and step amount')
+            ]
+        ss = ScriptSequence.script_sequence_factory(name, factory_scripts, factory_settings) #dynamically creates class
+        ScriptSequence.import_dynamic_script(src.scripts, name, ss) #same as importing created script in src.scripts.__init__
+        new_script_dict = {name: {'class': name, 'scripts': new_script_dict, 'settings': {} }}
+        self.selected_element_name = name
+        self.fill_tree(self.tree_loaded, new_script_dict)
+        self.elements_from_file.update(new_script_dict)
+
 
 
 if __name__ == '__main__':
