@@ -424,10 +424,20 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.log('starting {:s}'.format(script.name))
 
                 # put script onto script thread
-                print('===== start ====')
-                # self.script_thread = QThread()
+                print('================================================')
+                print('===== starting {:s}'.format(script.name))
+                print('================================================')
                 script_thread = self.script_thread
-                script.moveToThread(script_thread)
+
+                def move_to_worker_thread(script):
+
+                    script.moveToThread(script_thread)
+
+                    # move also the subscript to the worker thread
+                    for subscript in script.scripts.values():
+                        move_to_worker_thread(subscript)
+
+                move_to_worker_thread(script)
 
                 script.updateProgress.connect(self.update_status) # connect update signal of script to update slot of gui
                 script_thread.started.connect(script.run) # causes the script to start upon starting the thread
@@ -781,7 +791,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if progress:
             # convert timedelta object into a string
             # remaining_time =':'.join(['{:02d}'.format(int(i)) for i in str(script.remaining_time).split(':')[:3]])
-            print('current script', script.name, script, type(script))
+            # print('XXX current script', script.name, script, type(script))
             remaining_time = str(datetime.timedelta(seconds=script.remaining_time.seconds))
             self.lbl_time_estimate.setText('time remaining: {:s}'.format(remaining_time))
 

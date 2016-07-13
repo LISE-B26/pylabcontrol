@@ -151,7 +151,13 @@ class Script(QObject):
                     else:
                         duration_old = datetime.timedelta(0)
                     exec_count = self._current_subscript_stage['subscript_exec_count'][subscript_name]
-                    self._current_subscript_stage['subscript_exec_duration'][subscript_name] = (duration_old*(exec_count -1)+duration)/exec_count
+                    # print('==>XXXXX', exec_count, duration_old, duration)
+                    try:
+                        self._current_subscript_stage['subscript_exec_duration'][subscript_name] = (duration_old * (
+                        exec_count - 1) + duration) / exec_count
+                    except:
+                        print('==>XXXXX', exec_count, duration_old, duration)
+                        # raise error
 
     def _function(self):
         """
@@ -333,8 +339,8 @@ class Script(QObject):
         Args:
             progress: progress of subscript
         """
-        print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name,
-              'received signal. emitting....')
+        # print(datetime.datetime.now().strftime("%B %d, %Y %H:%M:%S"), self.name,QtCore.QThread.currentThread(), self._current_subscript_stage['current_subscript'].name,
+        #       'received signal. emitting....')
 
         self.progress = progress
         self.updateProgress.emit(progress)
@@ -354,6 +360,7 @@ class Script(QObject):
             'subscript_exec_count':{},
             'subscript_exec_duration':{}
         }
+
         # update the datapath of the subscripts, connect their progress signal to the receive slot
         for subscript in self.scripts.values():
             print('==== connecting', subscript.name)
@@ -497,7 +504,6 @@ class Script(QObject):
                 # if all entries of the dictionary are the same length and single column we can write the data into a single file
 
                 if len(np.shape(data.values()[0]))==1:
-                    # print('xxxx', data)
                     df = pd.DataFrame(data)
                 else:
                     df = pd.DataFrame.from_records([data])
@@ -616,7 +622,6 @@ class Script(QObject):
         """
         if filename is None:
             filename = self.filename('.b26s')
-        # print('saving', filename)
         with open(filename, 'w') as outfile:
             outfile.write(cPickle.dumps(self.__dict__))
 
@@ -911,7 +916,6 @@ class Script(QObject):
                     print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
                     load_failed[script_name] = err
                     continue
-                # print('==> {:s}: start creation'.format(script_name))
                 class_creation_string = ''
                 if script_instruments:
                     class_creation_string += ', instruments = script_instruments'

@@ -67,8 +67,8 @@ class ScriptDummy(Script):
             print('count X {:02d}'.format(i))
             data.append(random.random())
             self.data = {'random data': data}
-            progress = int(100 * (i + 1) / count)
-            self.updateProgress.emit(progress)
+            self.progress = 100 * (i + 1) / count
+            self.updateProgress.emit(self.progress)
 
 
         self.data = {'random data':data}
@@ -166,9 +166,8 @@ class ScriptDummyCounter(Script):
         data = []
         for i in range(count):
             time.sleep(wait_time)
-            progress = int(100* (i+1) / count)
-            # print('emitting', datetime.datetime.now())
-            self.updateProgress.emit(progress)
+            self.progress = 100 * (i + 1) / count
+            self.updateProgress.emit(self.progress)
             data.append(random.random())
 
         self.data = {'random data': data}
@@ -262,8 +261,6 @@ class ScriptDummyWithSubScript(Script):
 
         N = self.settings['repetitions']
 
-        print([self.settings['repetitions'], self.scripts['sub_script'].settings['count']])
-
         data = np.zeros([self.settings['repetitions'], self.scripts['sub_script'].settings['count']])
 
         self.log('I ({:s}) am a test function runnning suscript {:s} {:d} times'.format(self.name, script.name, N))
@@ -277,22 +274,6 @@ class ScriptDummyWithSubScript(Script):
 
         self.log('run subscript which emits signals (sub_script_with_sign)')
         self.scripts['sub_script_with_sign'].run()
-
-    # @pyqtSlot(int)
-    # def _receive_signal(self, progress):
-    #     """
-    #     this function takes care of signals emitted by the subscripts
-    #     the default behaviour is that it just reemits the signal
-    #     Args:
-    #         progress: progress of subscript
-    #     """
-    #
-    #
-    #     # if self.current_subscript is self.scripts['sub_script']:
-    #     #     N = self.settings['repetitions']
-    #     #     progress = progress / N
-    #
-    #     self.updateProgress.emit(progress)
 
 
     def _plot(self, axes_list):
@@ -338,7 +319,6 @@ class ScriptDummyWithNestedSubScript(Script):
 
         N = self.settings['repetitions']
 
-        print([self.settings['repetitions'], self.scripts['sub_script'].settings['count']])
 
         data = np.zeros([self.settings['repetitions'], self.scripts['sub_script'].settings['count']])
         self.data = {'data': data}
@@ -355,8 +335,6 @@ class ScriptDummyWithNestedSubScript(Script):
         self.scripts['sub_sub_script'].run()
 
     def _plot(self, axes_list):
-        print(self._current_subscript_stage)
-        print('PLOTTING', self._current_subscript_stage['current_subscript'].name)
         if self._current_subscript_stage['current_subscript'] == self.scripts['sub_sub_script']:
             self.scripts['sub_sub_script']._plot(axes_list)
         for data_set in self.data['data']:
@@ -404,13 +382,10 @@ class ScriptDummyPlotMemoryTest(Script):
             process = psutil.Process(os.getpid())
             memory.append(int(process.memory_info().rss))
             self.data = {'data' : data, 'memory':memory}
-            self.updateProgress.emit(50)
+            self.progress = 50
+            self.updateProgress.emit(self.progress)
             self.msleep(1000*timestep)
-            # print(memory)
 
-
-
-        self.updateProgress.emit(100)
 
     def stop(self):
         self._abort = True
@@ -424,7 +399,6 @@ class ScriptDummyPlotMemoryTest(Script):
             Nx = int(np.sqrt(len(self.data['data'])))
             img = np.array(self.data['data'][0:Nx**2])
             img = img.reshape((Nx, Nx))
-            # print(img)
             plot_fluorescence_new(img, [-1,1,1,-1], axes_list[0])
 
         axes_list[1].plot(np.array(self.data['memory'])/1000)
@@ -467,122 +441,6 @@ This Dummy script is used to test saving of data, it takes a data set as input a
 
         else:
             self.save_data()
-#
-# class ScriptDummyPlotting(Script):
-#     """
-# PLOTTING OF THIS SCRIPT IS BROKEN
-# This Dummy script is used to test saving of data, it takes a data set as input and save it with the internal save function of the Script class
-#     """
-#     _DEFAULT_SETTINGS = Parameter([
-#         Parameter('path', 'Z:\Lab\Cantilever\Measurements\__tmp', str, 'path for data'),
-#         Parameter('tag', 'dummy_tag', str, 'tag for data'),
-#         Parameter('plotting_mode', 0, int, 'Which plots to display')
-#     ])
-#
-#     _INSTRUMENTS = {}
-#     _SCRIPTS = {}
-#
-#     def __init__(self, name=None, settings=None, log_function=None, data=None, data_path=None):
-#         """
-#         Example of a script
-#         Args:
-#             name (optional): name of script, if empty same as class name
-#             settings (optional): settings for this script, if empty same as default settings
-#         """
-#         Script.__init__(self, name, settings, log_function=log_function, data_path=data_path)
-#
-#         if data is None:
-#             self.data = {}
-#         else:
-#             self.data = data
-#
-#     def _function(self):
-#         """
-#         This is the actual function that will be executed. It uses only information that is provided in the settings property
-#         will be overwritten in the __init__
-#         """
-#         if self.settings['plotting_mode'] == 0:
-#             self._plot_type = 'two'
-#             print('two')
-#         elif self.settings['plotting_mode'] == 1:
-#             self._plot_type = 'aux'
-#             print('aux')
-#         elif self.settings['plotting_mode'] == 2:
-#             self._plot_type = 'main'
-#             print('main')
-#         elif self.settings['plotting_mode'] == 3:
-#             self._plot_type = 'aux'
-#             print('aux')
-#
-#
-#     def _plot(self, axes_list):
-#
-#         axes1, axes2, axes3 = axes_list
-#         if self.settings['plotting_mode'] == 0:
-#
-#             print('plotting_0')
-#             image = np.random.rand(120,120)
-#             plot_fluorescence(image, [-1,1,1,-1], axes1)
-#
-#             plot1 = np.random.rand(100)
-#             plot2 = np.random.rand(100)
-#             axes2.plot(plot1)
-#             axes3.plot(plot2)
-#             axes2.set_title('meep')
-#             axes2.set_xlabel('tick')
-#             axes2.set_ylabel('tock')
-#             axes3.set_title('meep')
-#             axes3.set_xlabel('tick')
-#             axes3.set_ylabel('tock')
-#
-#             self.settings['plotting_mode'] = 2
-#
-#         elif self.settings['plotting_mode'] == 1:
-#             print('plotting_1')
-#             axes = super(ScriptDummyPlotting, self).get_axes_layout(figure1)
-#             image = np.random.rand(120,120)
-#             plot_fluorescence(image, [-1,1,1,-1], axes)
-#             figure1.tight_layout()
-#
-#         elif self.settings['plotting_mode'] == 2:
-#             print('plotting_2')
-#             patch = patches.Circle((0,0), .1, fc='r', alpha=.75)
-#             figure1.axes[0].add_patch(patch)
-#
-#         elif self.settings['plotting_mode'] == 3:
-#             print('plotting_3')
-#             axes1 = super(ScriptDummyPlotting, self).get_axes_layout(figure1)
-#             plot = np.random.rand(100)
-#             axes1.plot(plot)
-#             axes1.set_title('meep')
-#             axes1.set_xlabel('tick')
-#             axes1.set_ylabel('tock')
-#             figure1.tight_layout()
-#
-#         elif self.settings['plotting_mode'] ==  10:
-#             print('plotting_4')
-#
-#     def get_axes_layout(self, figure_list):
-#         figure1, figure2 = figure_list
-#         if self.settings['plotting_mode'] == 0:
-#             figure1.clf()
-#             axes1 = figure1.add_subplot(111)
-#
-#             figure2.clf()
-#             axes2 = figure2.add_subplot(121)
-#             axes3 = figure2.add_subplot(122)
-#
-#             return [axes1, axes2, axes3]
-#
-#         elif self.settings['plotting_mode'] == 1:
-#             return Script.get_axes_layout(figure1)
-#
-#         elif self.settings['plotting_mode'] == 3:
-#             return Script.get_axes_layout(figure1)
-#
-#         else:
-#             pass
-
 
 if __name__ == '__main__':
     import numpy as np
