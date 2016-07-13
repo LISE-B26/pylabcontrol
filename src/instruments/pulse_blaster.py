@@ -473,9 +473,12 @@ class PulseBlaster(Instrument):
             'channel id must be either an integer or a string. Instead, this was passed in: {0}'.format(channel_id))
 
     def stop(self):
-        self.pb.pb_stop()
-        self.update(self.settings) #reset hardware to steady state
 
+        # todo: stopping created an error in the following line
+        # self.pb.pb_stop()
+        # self.pb.pb_reset()
+        # self.update(self.settings) #reset hardware to steady state
+        pass
 
 
 class B26PulseBlaster(PulseBlaster):

@@ -110,6 +110,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_gui_settings_model = QtGui.QStandardItemModel()
             self.tree_gui_settings.setModel(self.tree_gui_settings_model)
             self.tree_gui_settings_model.setHorizontalHeaderLabels(['parameter', 'value'])
+
+            self.tree_scripts.header().setStretchLastSection(True)
         def connect_controls():
             # =============================================================
             # ===== LINK WIDGETS TO FUNCTIONS =============================
@@ -169,7 +171,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.create_figures()
 
-        self.tree_scripts.header().setStretchLastSection(True)
 
         # create a "delegate" --- an editor that uses our new Editor Factory when creating editors,
         # and use that for tree_scripts
@@ -396,9 +397,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.horizontalLayout_9.addWidget(self.mpl_toolbar_2)
         self.horizontalLayout_14.addWidget(self.mpl_toolbar_1)
 
+        # todo: tightlayout warning test it this avoids the warning:
+        self.matplotlibwidget_1.figure.set_tight_layout(True)
+        self.matplotlibwidget_2.figure.set_tight_layout(True)
 
-        self.matplotlibwidget_1.figure.tight_layout()
-        self.matplotlibwidget_2.figure.tight_layout()
+        # self.matplotlibwidget_1.figure.tight_layout()
+        # self.matplotlibwidget_2.figure.tight_layout()
 
     def btn_clicked(self):
         sender = self.sender()
@@ -423,10 +427,20 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.log('starting {:s}'.format(script.name))
 
                 # put script onto script thread
-                print('===== start ====')
-                # self.script_thread = QThread()
+                print('================================================')
+                print('===== starting {:s}'.format(script.name))
+                print('================================================')
                 script_thread = self.script_thread
-                script.moveToThread(script_thread)
+
+                def move_to_worker_thread(script):
+
+                    script.moveToThread(script_thread)
+
+                    # move also the subscript to the worker thread
+                    for subscript in script.scripts.values():
+                        move_to_worker_thread(subscript)
+
+                move_to_worker_thread(script)
 
                 script.updateProgress.connect(self.update_status) # connect update signal of script to update slot of gui
                 script_thread.started.connect(script.run) # causes the script to start upon starting the thread
@@ -782,7 +796,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if progress:
             # convert timedelta object into a string
             # remaining_time =':'.join(['{:02d}'.format(int(i)) for i in str(script.remaining_time).split(':')[:3]])
-
+            # print('XXX current script', script.name, script, type(script))
             remaining_time = str(datetime.timedelta(seconds=script.remaining_time.seconds))
             self.lbl_time_estimate.setText('time remaining: {:s}'.format(remaining_time))
 
@@ -1044,7 +1058,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             instruments_loaded = {}
             probes_loaded = {}
             scripts_loaded = {}
-            print('loading script/instrument/probes config from {:s}'.format(file_name))
 
             if os.path.isfile(file_name):
                 in_data = load_b26_file(file_name)
@@ -1098,7 +1111,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             return instruments_loaded, scripts_loaded, probes_loaded
 
-
+        print('loading script/instrument/probes config from {:s}'.format(file_name))
         try:
             config = load_b26_file(file_name)['gui_settings']
             if config['settings_file'] != file_name:
@@ -1125,6 +1138,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     os.makedirs(config[x])
                     print('WARNING: path {:s} not specified set to default {:s}'.format(x, config[x]))
 
+        # check if file_name is a valid filename
+        if os.path.exists(os.path.dirname(file_name)):
+            config['settings_file'] = file_name
+
         self.gui_settings = config
 
         self.instruments, self.scripts, self.probes = load_settings(file_name)
@@ -1146,16 +1163,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns:
 
         """
-        assert os.path.isfile(file_name), file_name
-
-        in_data = load_b26_file(file_name)
+        try:
+            in_data = load_b26_file(file_name)
+        except:
+            in_data = {}
 
         def set_item_visible(item, is_visible):
-
             if isinstance(is_visible, dict):
                 for child_id in range(item.childCount()):
                     child = item.child(child_id)
-                    set_item_visible(child, is_visible[child.name])
+                    if child.name in is_visible:
+                        set_item_visible(child, is_visible[child.name])
             else:
                 item.visible = is_visible
 
@@ -1165,9 +1183,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 for index in range(self.tree_scripts.topLevelItemCount()):
                     item = self.tree_scripts.topLevelItem(index)
+                    # if item.name in in_data["scripts_hidden_parameters"]:
                     set_item_visible(item, in_data["scripts_hidden_parameters"][item.name])
             else:
                 print('WARNING: settings for hiding parameters does\'t seem to match other settings')
+        else:
+            print('WARNING: no settings for hiding parameters all set to default')
 
 
     def save_settings(self, out_file_name):

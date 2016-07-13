@@ -263,12 +263,13 @@ def exp(t, ao, tau):
     return np.exp(-t / tau) * ao
 
 
-def fit_rabi_decay(t, y, verbose=False):
+def fit_rabi_decay(t, y, varibale_phase=False, verbose=False):
     """
     fit to a cosine with an exponential envelope
     Args:
         t: time in ns
         y: counts in kilocounts
+        varibale_phase: if true the phase is a free parameter if false the phase is 0 (cosine)
 
     """
 
@@ -278,27 +279,37 @@ def fit_rabi_decay(t, y, verbose=False):
     t_decay, y_decay = get_decay_data(t, y, wx, verbose)
     [_, to] = fit_exp_decay(t_decay, y_decay)
 
+    if varibale_phase:
+        initial_parameter = [ax, wx, phi, offset, to]
+    else:
+        initial_parameter = [ax, wx, offset, to]
+
     if verbose:
-        print('initial estimates [ax, wx, phi, offset, tau]:', [ax, wx, phi, offset, to])
+        if varibale_phase:
+            print('initial estimates [ax, wx, phi, offset, tau]:', initial_parameter)
+        else:
+            print('initial estimates [ax, wx, offset, tau]:', initial_parameter)
 
     def cost_function_fit(x):
         """
         cost function for fit to exponentially decaying cosine
         """
-        ao, wo, po, offset, to = x
-        #         sig = sine(x, t)
-        sig = ao * np.exp(-t / to) * np.cos(wo * t + po) + offset
-
+        if varibale_phase:
+            ao, wo, po, offset, to = x
+            sig = ao * np.exp(-t / to) * np.cos(wo * t + po) + offset
+        else:
+            ao, wo, offset, to = x
+            sig = ao * np.exp(-t / to) * np.cos(wo * t) + offset
         return np.sum((sig - y) ** 2)
 
-    opt = optimize.minimize(cost_function_fit, [ax, wx, phi, offset, to])
+    opt = optimize.minimize(cost_function_fit, initial_parameter)
     #     opt = optimize.minimize(cost_function_fit, [ax, wx, phi, offset, to],
     #                             bounds=[(None, None), (1.1*wx, 2*wx), (None, None), (None, None), (None, None)])
 
-
-    [ax, wx, phi, offset, tau] = opt.x
+    #
+    # [ax, wx, phi, offset, tau] = opt.x
 
     if verbose:
         print('optimization result:', opt)
 
-    return [ax, wx, phi, offset, tau]
+    return opt.x

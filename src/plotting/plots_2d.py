@@ -42,8 +42,9 @@ def plot_fluorescence(image_data, extent, axes_image, implot=None, cbar=None, ma
         cbar = fig.colorbar(implot, cax=axes_colorbar, label='kcounts/sec')
     else:
         cbar.update_bruteforce(implot)
-
-    fig.tight_layout()
+    # todo: tightlayout warning test it this avoids the warning:
+    fig.set_tight_layout(True)
+    # fig.tight_layout()
 
     return implot, cbar
 

@@ -111,7 +111,7 @@ class StanfordResearch_ESR(Script):
             fit_params, _ = self.fit_esr(freq_values, esr_avg)
             self.data.append({'frequency': freq_values, 'data': esr_avg, 'fit_params': fit_params})
 
-            progress = int(float(scan_num) / self.settings['esr_avg'] * 100)
+            progress = self._calc_progress(scan_num)
             self.updateProgress.emit(progress)
 
         if self.settings['save']:
@@ -128,18 +128,11 @@ class StanfordResearch_ESR(Script):
             # plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], ax)
             # fig.savefig(filename)
 
-        def calc_progress():
-            return np.round(scan_num/self.settings['esr_avg'])
+    def _calc_progress(self, scan_num):
 
-    # def save_image_to_disk(self, filename = None):
-    #     # create and save images
-    #     if filename is None:
-    #         filename = self.filename('-esr.jpg')
-    #     fig = Figure()
-    #     canvas = FigureCanvas(fig)
-    #     ax = fig.add_subplot(1, 1, 1)
-    #     plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], ax)
-    #     fig.savefig(filename)
+        progress = float(scan_num) / self.settings['esr_avg'] * 100.
+        self.progress = progress
+        return int(progress)
 
     def _plot(self, axes_list):
         plot_esr(axes_list[0], self.data[-1]['frequency'], self.data[-1]['data'], self.data[-1]['fit_params'])

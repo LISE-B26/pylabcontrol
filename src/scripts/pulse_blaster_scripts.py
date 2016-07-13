@@ -122,6 +122,8 @@ This script applies a microwave pulse at fixed power for varying durations to me
                   'time step increment of rabi pulse duration (in ns)'),
         Parameter('time', 200, float, 'total time of rabi oscillations (in ns)'),
         Parameter('meas_time', 300, float, 'measurement time after rabi sequence (in ns)'),
+        Parameter('delay_init_mw', 0, int, 'delay between initialization and mw (in ns)'),
+        Parameter('delay_mw_readout', 0, int, 'delay between mw and readout (in ns)'),
         Parameter('num_averages', 1000000, int, 'number of averages'),
         Parameter('reset_time', 10000, int, 'time with laser on at the beginning to reset state'),
         Parameter('skip_invalid_sequences', False, bool, 'Skips any sequences with <15ns commands')
@@ -152,10 +154,16 @@ This script applies a microwave pulse at fixed power for varying durations to me
                          self.settings['time_step'])
         reset_time = self.settings['reset_time']
         for tau in tau_list:
+
             pulse_sequences.append([Pulse('laser', 0, reset_time),
-                                    Pulse('microwave_i', reset_time + 200, tau),
-                                    Pulse('laser', reset_time + tau + 300, self.settings['meas_time']),
-                                    Pulse('apd_readout', reset_time + tau + 300, self.settings['meas_time'])
+                                    Pulse('apd_readout', reset_time - self.settings['meas_time'],
+                                          self.settings['meas_time']),
+                                    Pulse('microwave_i', reset_time + self.settings['delay_init_mw'], tau),
+                                    Pulse('laser', reset_time + self.settings['delay_init_mw'] + tau + self.settings[
+                                        'delay_mw_readout'], self.settings['meas_time']),
+                                    Pulse('apd_readout',
+                                          reset_time + self.settings['delay_init_mw'] + tau + self.settings[
+                                              'delay_mw_readout'], self.settings['meas_time'])
                                     ])
 
         end_time_max = 0
@@ -254,25 +262,13 @@ This script repeats the Rabi script N times and refocuses on the NV between ever
         Args:
             progress: progress of subscript
         """
-        # print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name, 'received signal. emitting....')
-
-        print('subscript progress', progress)
         self.progress = 100. * (float(self.index) + float(progress) / 100.) / self.settings['N']
-        print('total progress', progress)
         self.updateProgress.emit(int(self.progress))
-
-    # def _calc_progress(self, index):
-    #
-    #     print('progress rabi', index)
-    #     progress = super(Rabi_Loop, self)._calc_progress(index)
-    #     progress = (float(self.index)+float(progress)/100.) / range(self.settings['N'])
-    #     print('progress all', progress)
-    #     return progress
 
 
     def _function(self):
 
-        self.data = {'Counts': [], 'NV_points': []}
+        self.data = {'counts_init': [], 'counts_final': [], 'NV_points': []}
         tag = self.settings['tag']
         for index in range(self.settings['N']):
             self.index = index
@@ -286,7 +282,8 @@ This script repeats the Rabi script N times and refocuses on the NV between ever
             self.data['NV_points'].append([nv_location['x'], nv_location['y']])  # made an array to allow saving
             self.scripts['Rabi'].run()
 
-            self.data['Counts'].append(deepcopy(self.scripts['Rabi'].data['counts']))
+            self.data['counts_init'].append(deepcopy(self.scripts['Rabi'].data['counts'][0]))
+            self.data['counts_final'].append(deepcopy(self.scripts['Rabi'].data['counts'][0]))
 
             if index == 0:
                 self.data['tau'] = self.scripts['Rabi'].data['tau']
