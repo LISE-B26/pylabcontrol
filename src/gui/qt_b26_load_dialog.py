@@ -49,8 +49,13 @@ Returns:
         self.tree_loaded.setModel(self.tree_loaded_model)
         self.tree_loaded_model.setHorizontalHeaderLabels([self.elements_type, 'Value'])
 
+        self.tree_script_sequence_model = QtGui.QStandardItemModel()
+        self.tree_script_sequence.setModel(self.tree_script_sequence_model)
+        self.tree_script_sequence_model.setHorizontalHeaderLabels([self.elements_type, 'Value'])
+
         # connect the buttons
         self.btn_open.clicked.connect(self.open_file_dialog)
+        self.btn_script_sequence.clicked.connect(self.add_script_sequence)
 
         # create the dictionaries that hold the data
         #   - elements_old: the old elements (scripts, instruments) that have been passed to the dialog
@@ -70,6 +75,7 @@ Returns:
 
         self.tree_infile.selectionModel().selectionChanged.connect(self.show_info)
         self.tree_loaded.selectionModel().selectionChanged.connect(self.show_info)
+        self.tree_script_sequence.selectionModel().selectionChanged.connect(self.show_info)
 
         self.tree_infile.selectionModel().selectionChanged.connect(self.show_info)
 
@@ -146,6 +152,8 @@ Returns:
         """
         input_data = load_b26_file(filename)
         if isinstance(input_data, dict) and self.elements_type in input_data:
+            print('input_data', input_data)
+            print('input_data[elements_type]', input_data[self.elements_type])
             return input_data[self.elements_type]
         else:
             return {}
@@ -190,6 +198,44 @@ Returns:
                 item.setEditable(False)
             tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
 
+    def empty_tree(self, tree_model):
+        # def get_hidden_parameter(item):
+        #
+        #     numer_of_sub_elements = item.childCount()
+        #
+        #     if numer_of_sub_elements == 0:
+        #         dictator = {item.name : item.visible}
+        #     else:
+        #         # dictator = {get_hidden_parameter(item.child(child_id)) for child_id in range(numer_of_sub_elements)}
+        #         dictator = {item.name:{}}
+        #         for child_id in range(numer_of_sub_elements):
+        #             # print('FFFF', child_id, item.child(child_id).name, numer_of_sub_elements, numer_of_sub_elements == 0)
+        #             dictator[item.name].update(get_hidden_parameter(item.child(child_id)))
+        #     return dictator
+        #
+        #
+        # # build a dictionary for the configuration of the hidden parameters
+        # dictator = {}
+        # for index in range(tree_model.topLevelItemCount()):
+        #     script_item = tree_model.topLevelItem(index)
+        #     dictator.update(get_hidden_parameter(script_item))
+        # print(dictator)
+        def add_children_to_dict(item, somedict):
+            if item.hasChildren():
+                for rownum in range(0,item.rowCount()):
+                    print('key', item.child(rownum,0).text())
+                    print('value', item.child(rownum,1).text())
+
+
+
+
+        output_dict = {}
+        root = tree_model.invisibleRootItem()
+        add_children_to_dict(root, output_dict)
+
+
+
+
     def getValues(self):
         """
         Returns: the selected instruments
@@ -203,6 +249,15 @@ Returns:
                 elements_selected.update({element_name: self.elements_from_file[element_name]})
 
         return elements_selected
+
+    def add_script_sequence(self):
+        # script_sequence = {'scripts': {}}
+        # for index in range(self.tree_script_sequence_model.rowCount()):
+        #     print('item_text', self.tree_script_sequence_model.item(index).text())
+            # script_sequence['scripts'].update(self.tree_script_sequence_model.item(index))
+        # self.fill_tree(self.tree_loaded, {'script_sequence': script_sequence})
+        self.empty_tree(self.tree_script_sequence_model)
+
 
 if __name__ == '__main__':
     import sys

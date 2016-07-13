@@ -84,6 +84,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # self.tree_settings.setColumnWidth(0, 400)
             #
             # self.tree_scripts.setColumnWidth(0, 300)
+            print('TREE_SCRIPTS', type(self.tree_scripts))
             self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
             self.tree_probes.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)

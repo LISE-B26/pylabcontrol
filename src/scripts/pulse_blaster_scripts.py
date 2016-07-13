@@ -5,7 +5,7 @@ from src.scripts import FindMaxCounts2D
 from PyQt4.QtCore import pyqtSlot
 import numpy as np
 from src.plotting.plots_1d import plot_esr, plot_pulses, update_pulse_plot, plot_1d_simple, update_1d_simple
-from src.data_processing.fit_functions import fit_rabi_decay
+from src.data_processing.fit_functions import fit_rabi_decay, cose_with_decay
 
 class PulsedESR(ExecutePulseBlasterSequence):
     """
@@ -20,11 +20,19 @@ This script applies a microwave pulse at fixed power and durations for varying f
         Parameter('freq_start', 2.82e9, float, 'start frequency of scan in Hz'),
         Parameter('freq_stop', 2.92e9, float, 'end frequency of scan in Hz'),
         Parameter('freq_points', 100, int, 'number of frequencies in scan in Hz'),
+        Parameter('power_mode', 'absolute', ['absolute', 'scaling'], 'Switches between absolute power (in dBm) and scaling power'),
+        Parameter('new_tau_mw', 200, float, 'New time to use to scale the power while in scaling mode'),
+        Parameter('max_mw_power', -2, float, 'Set a maximum safe microwave power to prevent burning out components')
     ]
 
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster, 'mw_gen': MicrowaveGenerator}
 
     def _function(self):
+        if self.settings['power_mode'] is 'scaling':
+            self.settings['mw_power'] = self._get_scaled_power(self.settings['new_tau_mw'], self.settings['tau_mw'], self.settings['mw_power'])
+            self.settings['tau_mw'] = self.settings['new_tau_mw']
+            assert self.settings['mw_power'] < self.settings['max_mw_power']
+
         self.instruments['mw_gen']['instance'].update({'modulation_type': 'IQ'})
         self.instruments['mw_gen']['instance'].update({'amplitude': self.settings['mw_power']})
         self.instruments['mw_gen']['instance'].update({'enable_output': True})
@@ -39,6 +47,12 @@ This script applies a microwave pulse at fixed power and durations for varying f
             self.instruments['mw_gen']['instance'].update({'frequency': float(mw_frequency)})
             super(PulsedESR, self)._function(self.data)
             self.data['esr_counts'].append(self.data['counts'])
+
+    def _get_scaled_power(self, new_tau_mw, tau_mw, mw_power_dBm):
+        power_linear = 10 ** (mw_power_dBm / 10.0)
+        new_power_linear = power_linear * (tau_mw / new_tau_mw) ** 2  # want sqrt(power)*pi_time to be constant
+        new_power_dBm = 10 * np.log10(new_power_linear)
+        return new_power_dBm
 
     def _calc_progress(self):
         progress = int(100. * (self._loop_count) / self.settings['freq_points'])
@@ -483,7 +497,7 @@ After that it again runs a the Rabi script with the optimized microwave power to
         rounded_power_linear = power_linear * (pi_time / rounded_pi_time) ** 2  # want sqrt(power)*pi_time to be constant
         rounded_power_dBm = 10.0 * np.log10(rounded_power_linear)
         self.data['new_power'] = rounded_power_dBm
-        print(rounded_power_dBm)
+        print('New Power', rounded_power_dBm)
         assert (rounded_power_dBm < -2)
         self.scripts['rabi'].settings['mw_power'] = rounded_power_dBm
         self.scripts['rabi'].run()
@@ -493,6 +507,7 @@ After that it again runs a the Rabi script with the optimized microwave power to
         self.data['new_fit_params'] = fit_params
         new_pi_time = 1 / (2 * (radial_freq /(2 * np.pi)))  # gives pi_time in nanoseconds
         error = abs(new_pi_time - rounded_pi_time)
+        #replace following statement with self.log
         print('new_time', rounded_pi_time)
         print('new_power', rounded_power_dBm)
         if error > self.settings['tolerance']:
@@ -500,8 +515,21 @@ After that it again runs a the Rabi script with the optimized microwave power to
         else:
             print('Optimization SUCCESS. Error is ' + str(error) + ' ns.')
 
-    def plot(self, figure_list):
-        self.scripts['rabi'].plot(figure_list)
+    def _plot(self, axes_list):
+        self.scripts['rabi']._plot(axes_list)
+        axis = axes_list[0]
+        if self.data['new_fit_params'] is not None:
+            axis.plot(self.scripts['rabi'].data['tau'], self.data['new_fit_params'], 'k', lw = 3)
+        elif self.data['old_fit_params'] is not None:
+            axis.plot(self.scripts['rabi'].data['tau'], self.data['old_fit_params'], 'k', lw = 3)
+
+    def _update_plot(self, axes_list):
+        self.scripts['rabi']._update_plot(axes_list)
+        axis = axes_list[0]
+        if self.data['new_fit_params'] is not None:
+            axis.plot(self.scripts['rabi'].data['tau'], self.data['new_fit_params'], 'k', lw=3)
+        elif self.data['old_fit_params'] is not None:
+            axis.plot(self.scripts['rabi'].data['tau'], self.data['old_fit_params'], 'k', lw=3)
 
 
 class CalibrateMeasurementWindow(ExecutePulseBlasterSequence):
