@@ -42,7 +42,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     _DEFAULT_CONFIG = {
-        "tmp_folder": "../../b26_tmp",
+        # "tmp_folder": "../../b26_tmp",
         "data_folder": "../../b26_tmp/data",
         "probes_folder": "../../b26_files/probes_auto_generated/DummyInstrument.b26",
         "instrument_folder": "../../b26_files/instruments_auto_generated/DummyInstrument.b26",
@@ -213,16 +213,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.config_filename = filename
 
-        if not self.validate_config(self.config_filename):
-            self.gui_settings = self._DEFAULT_CONFIG
-            self.refresh_tree(self.tree_gui_settings, self.gui_settings)
-        else:
-            self.load_config(self.config_filename)
-
-        self.load_settings(os.path.join(self.gui_settings['tmp_folder'], 'gui_settings.b26'))
-        # hide previously hidden parameters
-        if self.validate_config(self.config_filename):
-            self._hide_parameters(self.config_filename)
+        self.load_config(self.config_filename)
 
         self.data_sets = {}  # todo: load datasets from tmp folder
         self.read_probes = ReadProbes(self.probes)
@@ -240,15 +231,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.script_thread.quit()
         self.read_probes.quit()
         if self.config_filename:
-            fname = os.path.join(self.gui_settings['tmp_folder'], 'gui_settings.b26')
-            print('save settings to {:s}'.format(fname))
-            self.save_settings(fname)
-
             fname =  self.config_filename
             print('save config to {:s}'.format(fname))
             self.save_config(fname)
-
-
 
         event.accept()
 
@@ -279,7 +264,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             try:
                 self.read_probes.updateProgress.disconnect()
                 self.read_probes.quit()
-                # self.read_probes.stop()
             except TypeError:
                 pass
 
@@ -301,12 +285,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         value = instrument.settings
                         for elem in path_to_instrument:
                             value = value[elem]
-                        # print('{:s}:\t {:s} |\t {:s}'.format(child.name, str(child.value), str(value)))
                     else:
                         update(child)
 
-
-        # print('---- updating instruments (compare values from instr to values in tree) ----')
         for index in range(self.tree_settings.topLevelItemCount()):
             instrument = self.tree_settings.topLevelItem(index)
             update(instrument)
@@ -646,7 +627,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         elif sender is self.btn_load_gui:
             # get filename
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file',  self.gui_settings['data_folder'])
-            self.load_settings(fname)
+            # self.load_settings(fname)
+            self.load_config(fname)
         elif sender is self.btn_about:
             msg = QtGui.QMessageBox()
             msg.setIcon(QtGui.QMessageBox.Information)
@@ -790,23 +772,30 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.progressBar.setValue(progress)
 
+        script = self.current_script
+
         # Estimate remaining time if progress has been made
         if progress:
+            # convert timedelta object into a string
+            # remaining_time =':'.join(['{:02d}'.format(int(i)) for i in str(script.remaining_time).split(':')[:3]])
 
-            def _translate(context, text, disambig):
-                _encoding = QtGui.QApplication.UnicodeUTF8
-                return QtGui.QApplication.translate(context, text, disambig, _encoding)
+            remaining_time = str(datetime.timedelta(seconds=script.remaining_time.seconds))
+            self.lbl_time_estimate.setText('time remaining: {:s}'.format(remaining_time))
 
-            script_run_time = datetime.datetime.now() - self.script_start_time
-            remaining_time_seconds = (100.0-progress)*script_run_time.total_seconds()/float(progress)
-            remaining_time_minutes = int(remaining_time_seconds/60.0)
-            leftover_seconds = int(remaining_time_seconds - remaining_time_minutes*60)
+            # def _translate(context, text, disambig):
+            #     _encoding = QtGui.QApplication.UnicodeUTF8
+            #     return QtGui.QApplication.translate(context, text, disambig, _encoding)
+            #
+            # script_run_time = datetime.datetime.now() - self.script_start_time
+            # remaining_time_seconds = (100.0-progress)*script_run_time.total_seconds()/float(progress)
+            # remaining_time_minutes = int(remaining_time_seconds/60.0)
+            # leftover_seconds = int(remaining_time_seconds - remaining_time_minutes*60)
+            #
+            # self.lbl_time_estimate.setText(_translate("MainWindow",
+            #                                           "time remaining: {0} min, {1} sec".format(remaining_time_minutes,
+            #                                                                                     leftover_seconds), None))
 
-            self.lbl_time_estimate.setText(_translate("MainWindow",
-                                                      "time remaining: {0} min, {1} sec".format(remaining_time_minutes,
-                                                                                                leftover_seconds), None))
 
-        script = self.current_script
         # if isinstance(script, QThreadWrapper):
         #     script = script.script
         if script is not None:
@@ -1006,8 +995,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             tree.itemChanged.disconnect()
             self.fill_treewidget(tree, items)
             tree.itemChanged.connect(lambda: self.update_parameters(tree))
-        # elif tree == self.tree_dataset:
-        #     self.fill_dataset(tree, self.data_sets)
         elif tree == self.tree_gui_settings:
             self.fill_treeview(tree, items)
 
@@ -1029,40 +1016,97 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             tree.model().appendRow([item_time, item_name, item_type])
 
-    def validate_config(self, file_name):
+    def load_config(self, file_name):
         """
         checks if the file is a valid config file
         Args:
             file_name:
 
-        Returns:
-
         """
-        valid = True
+
+        # load config or default if invalid
+
+        def load_settings(file_name):
+            """
+            loads a old_gui settings file (a json dictionary)
+            - path_to_file: path to file that contains the dictionary
+
+            Returns:
+                - instruments: depth 1 dictionary where keys are instrument names and values are instances of instruments
+                - scripts:  depth 1 dictionary where keys are script names and values are instances of scripts
+                - probes: depth 1 dictionary where to be decided....?
+            """
+
+            instruments_loaded = {}
+            probes_loaded = {}
+            scripts_loaded = {}
+            print('loading script/instrument/probes config from {:s}'.format(file_name))
+
+            if os.path.isfile(file_name):
+                in_data = load_b26_file(file_name)
+
+                instruments = in_data['instruments'] if 'instruments' in in_data else {}
+                scripts = in_data['scripts'] if 'scripts' in in_data else {}
+                probes = in_data['probes'] if 'probes' in in_data else {}
+
+                instruments_loaded, failed = Instrument.load_and_append(instruments)
+                if len(failed) > 0:
+                    print('WARNING! Following instruments could not be loaded: ', failed)
+
+                scripts_loaded, failed, instruments_loaded = Script.load_and_append(
+                    script_dict=scripts,
+                    instruments=instruments_loaded,
+                    log_function=self.log,
+                    data_path=self.gui_settings['data_folder'])
+
+                if len(failed) > 0:
+                    print('WARNING! Following scripts could not be loaded: ', failed)
+
+                probes_loaded, failed, instruments_loadeds = Probe.load_and_append(
+                    probe_dict=probes,
+                    probes=probes_loaded,
+                    instruments=instruments_loaded)
+
+            return instruments_loaded, scripts_loaded, probes_loaded
+
 
         try:
             config = load_b26_file(file_name)['gui_settings']
+            if config['settings_file'] != file_name:
+                print(
+                'WARNING path to settings file ({:s}) in config file is different from path of settings file ({:s})'.format(
+                    config['settings_file'], file_name))
+            config['settings_file'] = file_name
+        except Exception:
+            print('WARNING path to settings file ({:s}) invalid use default settings'.format(file_name))
+            config = self._DEFAULT_CONFIG
+
+
             for x in self._DEFAULT_CONFIG.keys():
                 if x in config:
                     if not os.path.exists(config[x]):
-                        print('failed validating path', config[x])
-                        valid = False
+                        try:
+                            os.makedirs(config[x])
+                        except Exception:
+                            config[x] = self._DEFAULT_CONFIG[x]
+                            os.makedirs(config[x])
+                            print('WARNING: failed validating or creating path: set to default path'.format(config[x]))
                 else:
-                    valid = False
-        except Exception:
-            valid = False
-        return valid
+                    config[x] = self._DEFAULT_CONFIG[x]
+                    os.makedirs(config[x])
+                    print('WARNING: path {:s} not specified set to default {:s}'.format(x, config[x]))
 
+        self.gui_settings = config
 
+        self.instruments, self.scripts, self.probes = load_settings(file_name)
 
-    def load_config(self, file_name):
-        assert os.path.isfile(file_name), file_name
-
-        in_data = load_b26_file(file_name)
-        assert "gui_settings" in in_data
-        self.gui_settings = in_data['gui_settings']
 
         self.refresh_tree(self.tree_gui_settings, self.gui_settings)
+        self.refresh_tree(self.tree_scripts, self.scripts)
+        self.refresh_tree(self.tree_settings, self.instruments)
+
+        self._hide_parameters(file_name)
+
 
     def _hide_parameters(self, file_name):
         """
@@ -1074,9 +1118,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         """
         assert os.path.isfile(file_name), file_name
+
         in_data = load_b26_file(file_name)
-
-
 
         def set_item_visible(item, is_visible):
 
@@ -1089,77 +1132,24 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         if "scripts_hidden_parameters" in in_data:
             # consistency check
-            assert len( in_data["scripts_hidden_parameters"].keys()) == self.tree_scripts.topLevelItemCount()
+            if len(in_data["scripts_hidden_parameters"].keys()) == self.tree_scripts.topLevelItemCount():
 
-            for index in range(self.tree_scripts.topLevelItemCount()):
-                item = self.tree_scripts.topLevelItem(index)
-                set_item_visible(item, in_data["scripts_hidden_parameters"][item.name])
-    def load_settings(self, in_file_name):
-        """
-        loads a old_gui settings file (a json dictionary)
-        - path_to_file: path to file that contains the dictionary
+                for index in range(self.tree_scripts.topLevelItemCount()):
+                    item = self.tree_scripts.topLevelItem(index)
+                    set_item_visible(item, in_data["scripts_hidden_parameters"][item.name])
+            else:
+                print('WARNING: settings for hiding parameters does\'t seem to match other settings')
 
-        Returns:
-            - instruments: depth 1 dictionary where keys are instrument names and values are instances of instruments
-            - scripts:  depth 1 dictionary where keys are script names and values are instances of scripts
-            - probes: depth 1 dictionary where to be decided....?
-        """
-
-        self.instruments = {}
-        self.probes = {}
-        self.scripts = {}
-        print('loading script/instrument/probes config from {:s}'.format(in_file_name))
-
-        # assert os.path.isfile(in_file_name), in_file_name
-
-
-
-        if os.path.isfile(in_file_name):
-            in_data = load_b26_file(in_file_name)
-
-            instruments = in_data['instruments']
-            scripts = in_data['scripts']
-            probes = in_data['probes']
-            # print('=============================================')
-            # print('============ loading instruments ============')
-            # print('=============================================')
-            self.instruments, failed = Instrument.load_and_append(instruments)
-            if len(failed)>0:
-                print('WARNING! Following instruments could not be loaded: ', failed)
-            # print('=============================================')
-            # print('============ loading scripts ================')
-            # print('=============================================')
-            self.scripts, failed, self.instruments = Script.load_and_append(
-                script_dict=scripts,
-                instruments=self.instruments,
-                log_function=self.log,
-                data_path=self.gui_settings['data_folder'])
-
-            if len(failed)>0:
-                print('WARNING! Following scripts could not be loaded: ', failed)
-            # print('=============================================')
-            # print('============ loading probes =================')
-            # print('=============================================')
-            self.probes, failed, self.instruments = Probe.load_and_append(
-                probe_dict=probes,
-                probes=self.probes,
-                instruments=self.instruments)
-            # refresh trees
-            self.refresh_tree(self.tree_scripts, self.scripts)
-            self.refresh_tree(self.tree_settings, self.instruments)
-
-
-
-        else:
-            self.instruments = {}
-            self.scripts = {}
-            self.probes = {}
 
     def save_settings(self, out_file_name):
         """
         saves a old_gui settings file (to a json dictionary)
         - path_to_file: path to file that will contain the dictionary
         """
+
+        print('save_settings this is now repaced by save_config!!!!!')
+        raise TypeError
+
         out_file_name = str(out_file_name)
 
 
@@ -1199,10 +1189,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if numer_of_sub_elements == 0:
                 dictator = {item.name : item.visible}
             else:
-                # dictator = {get_hidden_parameter(item.child(child_id)) for child_id in range(numer_of_sub_elements)}
                 dictator = {item.name:{}}
                 for child_id in range(numer_of_sub_elements):
-                    # print('FFFF', child_id, item.child(child_id).name, numer_of_sub_elements, numer_of_sub_elements == 0)
                     dictator[item.name].update(get_hidden_parameter(item.child(child_id)))
             return dictator
 
@@ -1218,6 +1206,22 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             dictator.update(get_hidden_parameter(script_item))
 
         dictator = {"gui_settings": self.gui_settings, "scripts_hidden_parameters":dictator}
+
+        # update the internal dictionaries from the trees in the gui
+        for index in range(self.tree_scripts.topLevelItemCount()):
+            script_item = self.tree_scripts.topLevelItem(index)
+            self.update_script_from_item(script_item)
+
+        dictator.update({'instruments': {}, 'scripts': {}, 'probes': {}})
+
+        for instrument in self.instruments.itervalues():
+            dictator['instruments'].update(instrument.to_dict())
+
+        for script in self.scripts.itervalues():
+            dictator['scripts'].update(script.to_dict())
+
+        for instrument, probe_dict in self.probes.iteritems():
+            dictator['probes'].update({instrument: ','.join(probe_dict.keys())})
 
         with open(out_file_name, 'w') as outfile:
             tmp = json.dump(dictator, outfile, indent=4)

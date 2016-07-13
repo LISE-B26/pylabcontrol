@@ -119,7 +119,7 @@ def plot_pulses(axis, pulse_collection):
     patch_collection = PatchCollection(patch_list)
 
     # JG: following change is to get colors to show
-    # todo: check that this works with the update function
+    # todo: check that this works with the update function: problem with removing patches!!!
     # axis.add_collection(patch_collection)
     for p in patch_list:
         axis.add_artist(p)
@@ -178,6 +178,7 @@ def plot_1d_simple(axis, times, counts_list, x_label='time (ns)', y_label='kCoun
 
     axis.set_xlabel(x_label)
     axis.set_ylabel(y_label)
+    axis.set_xlim([min(times), max(times)])
 
 
 def update_1d_simple(axis, times, counts_list):

@@ -108,7 +108,7 @@ class Script(QObject):
         # if path is not None and path is not '':
         #     if not os.path.isdir(path):
         #         print('{:s} created'.format(path))
-        #         os.mkdir(path)
+        #         os.makedirs(path)
 
         self._data_path = path
 
@@ -291,6 +291,22 @@ class Script(QObject):
         self._time_stop = value
 
     @property
+    def remaining_time(self):
+        """
+        estimates the time remaining until script is finished
+        Returns:
+
+        """
+        elapsed_time = datetime.datetime.now() - self.start_time
+
+        # timedelta can only be multiplied and divided by integers thats we multiply everything by 1e3
+        estimated_total_time = elapsed_time
+        estimated_total_time *= int(100 * 1e3)
+        estimated_total_time /= int(self.progress * 1e3)
+
+        return estimated_total_time - elapsed_time
+
+    @property
     def start_time(self):
         """
         time when script execution started
@@ -317,7 +333,10 @@ class Script(QObject):
         Args:
             progress: progress of subscript
         """
-        # print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name, 'received signal. emitting....')
+        print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name,
+              'received signal. emitting....')
+
+        self.progress = progress
         self.updateProgress.emit(progress)
 
     def run(self):
@@ -328,6 +347,7 @@ class Script(QObject):
         self.log_data.clear()
         self._plot_refresh = True  # flag that requests that plot axes are refreshed when self.plot is called next time
         self.is_running = True
+        self.start_time = datetime.datetime.now()
 
         self._current_subscript_stage = {
             'current_subscript': None,
@@ -336,6 +356,7 @@ class Script(QObject):
         }
         # update the datapath of the subscripts, connect their progress signal to the receive slot
         for subscript in self.scripts.values():
+            print('==== connecting', subscript.name)
             subscript.data_path = os.path.join(self.filename(create_if_not_existing=False), 'data_subscripts')
             subscript.updateProgress.connect(self._receive_signal)
             subscript.started.connect(lambda: self._set_current_subscript(True))
@@ -343,21 +364,16 @@ class Script(QObject):
             self._current_subscript_stage['subscript_exec_count'].update({subscript.name:0})
 
 
-
-        self.start_time  = datetime.datetime.now()
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
         self._abort = False
 
         self.started.emit()
-        # self.updateProgress.emit(0)
 
         self._function()
         self.end_time  = datetime.datetime.now()
         self.log('script {:s} finished at {:s} on {:s}'.format(self.name, self.end_time.strftime('%H:%M:%S'),self.end_time.strftime('%d/%m/%y')))
         success = not self._abort
 
-
-        # print(self.name, ' FINISHED!!!!!')
         # disconnect subscripts
         for subscript in self.scripts.values():
             subscript.started.disconnect()
@@ -489,7 +505,15 @@ class Script(QObject):
                     if len(value) == 0:
                         df = pd.DataFrame([value])
                     else:
-                        df = pd.DataFrame(value)
+                        if isinstance(value, dict) and isinstance(value.values()[0], (int, float)):
+                            # if dictionary values are single numbers
+                            df = pd.DataFrame.from_dict({k: [v] for k, v in value.iteritems()})
+                        elif isinstance(value, dict) and isinstance(value.values()[0], (list, np.ndarray)):
+                            # if dictionary values are lists or arrays
+                            df = pd.DataFrame.from_dict(value)
+                        else:
+                            # if not a dictionary
+                            df = pd.DataFrame(value)
 
                     df.to_csv(filename.replace('.csv', '-{:s}.csv'.format(key)), index=False)
 
@@ -523,7 +547,7 @@ class Script(QObject):
         if filename is None:
             filename = self.filename('.b26')
 
-        save_b26_file(filename, scripts=self.to_dict())
+        save_b26_file(filename, scripts=self.to_dict(), overwrite=True)
 
     def save_image_to_disk(self, filename_1 = None, filename_2 = None):
         """
@@ -558,6 +582,12 @@ class Script(QObject):
         if (filename_1 is None) and (filename_2 is None):
             filename_1 = self.filename('-plt1.jpg')
             filename_2 = self.filename('-plt2.jpg')
+
+        if os.path.exists(os.path.dirname(filename_1)) is False:
+            os.makedirs(os.path.dirname(filename_1))
+        if os.path.exists(os.path.dirname(filename_2)) is False:
+            os.makedirs(os.path.dirname(filename_2))
+
 
         fig_1 = Figure()
         canvas_1 = FigureCanvas(fig_1)
@@ -982,7 +1012,7 @@ class Script(QObject):
         """
         # if plot function is called when script is not running we request a plot refresh
         if self.is_running == False:
-            print('force refresh plot!!!')
+            print(datetime.datetime.now().strftime("%B %d, %Y %H:%M:%S"), self.name, 'force refresh plot!!!')
             self._plot_refresh = True
 
         axes_list = self.get_axes_layout(figure_list)

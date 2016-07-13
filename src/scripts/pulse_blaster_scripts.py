@@ -5,7 +5,8 @@ from src.scripts import FindMaxCounts2D
 from PyQt4.QtCore import pyqtSlot
 import numpy as np
 from src.plotting.plots_1d import plot_esr, plot_pulses, update_pulse_plot, plot_1d_simple, update_1d_simple
-from src.data_processing.fit_functions import fit_rabi_decay, cose_with_decay
+from src.data_processing.fit_functions import fit_rabi_decay
+from copy import deepcopy
 
 class PulsedESR(ExecutePulseBlasterSequence):
     """
@@ -20,19 +21,11 @@ This script applies a microwave pulse at fixed power and durations for varying f
         Parameter('freq_start', 2.82e9, float, 'start frequency of scan in Hz'),
         Parameter('freq_stop', 2.92e9, float, 'end frequency of scan in Hz'),
         Parameter('freq_points', 100, int, 'number of frequencies in scan in Hz'),
-        Parameter('power_mode', 'absolute', ['absolute', 'scaling'], 'Switches between absolute power (in dBm) and scaling power'),
-        Parameter('new_tau_mw', 200, float, 'New time to use to scale the power while in scaling mode'),
-        Parameter('max_mw_power', -2, float, 'Set a maximum safe microwave power to prevent burning out components')
     ]
 
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster, 'mw_gen': MicrowaveGenerator}
 
     def _function(self):
-        if self.settings['power_mode'] is 'scaling':
-            self.settings['mw_power'] = self._get_scaled_power(self.settings['new_tau_mw'], self.settings['tau_mw'], self.settings['mw_power'])
-            self.settings['tau_mw'] = self.settings['new_tau_mw']
-            assert self.settings['mw_power'] < self.settings['max_mw_power']
-
         self.instruments['mw_gen']['instance'].update({'modulation_type': 'IQ'})
         self.instruments['mw_gen']['instance'].update({'amplitude': self.settings['mw_power']})
         self.instruments['mw_gen']['instance'].update({'enable_output': True})
@@ -48,13 +41,8 @@ This script applies a microwave pulse at fixed power and durations for varying f
             super(PulsedESR, self)._function(self.data)
             self.data['esr_counts'].append(self.data['counts'])
 
-    def _get_scaled_power(self, new_tau_mw, tau_mw, mw_power_dBm):
-        power_linear = 10 ** (mw_power_dBm / 10.0)
-        new_power_linear = power_linear * (tau_mw / new_tau_mw) ** 2  # want sqrt(power)*pi_time to be constant
-        new_power_dBm = 10 * np.log10(new_power_linear)
-        return new_power_dBm
-
     def _calc_progress(self):
+        # todo: change to _calc_progress(self, index):
         progress = int(100. * (self._loop_count) / self.settings['freq_points'])
         return progress
 
@@ -179,8 +167,6 @@ This script applies a microwave pulse at fixed power for varying durations to me
 
         return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
 
-    def _calc_progress(self):
-        return 50
 
 class Rabi_Power_Sweep(Script):
     """
@@ -238,6 +224,84 @@ This script applies a microwave pulse at fixed power for varying durations to me
         else:  # also plot Rabi if no current subscript
             self.scripts['Rabi'].plot(figure_list)
 
+
+class Rabi_Loop(Script):
+    """
+This script repeats the Rabi script N times and refocuses on the NV between every iteration
+    """
+    _DEFAULT_SETTINGS = [
+        Parameter('N', 1, int, 'number of repetitions of loop')
+    ]
+
+    _INSTRUMENTS = {}
+    _SCRIPTS = {'Rabi': Rabi, 'Find_NV': FindMaxCounts2D}
+
+    def __init__(self, instruments=None, scripts=None, name=None, settings=None, log_function=None, data_path=None):
+        """
+        Standard script initialization
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments,
+                        log_function=log_function, data_path=data_path)
+
+    @pyqtSlot(int)
+    def _receive_signal(self, progress):
+        """
+        this function takes care of signals emitted by the subscripts
+        the default behaviour is that it just reemits the signal
+        Args:
+            progress: progress of subscript
+        """
+        # print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name, 'received signal. emitting....')
+
+        print('subscript progress', progress)
+        self.progress = 100. * (float(self.index) + float(progress) / 100.) / self.settings['N']
+        print('total progress', progress)
+        self.updateProgress.emit(int(self.progress))
+
+    # def _calc_progress(self, index):
+    #
+    #     print('progress rabi', index)
+    #     progress = super(Rabi_Loop, self)._calc_progress(index)
+    #     progress = (float(self.index)+float(progress)/100.) / range(self.settings['N'])
+    #     print('progress all', progress)
+    #     return progress
+
+
+    def _function(self):
+
+        self.data = {'Counts': [], 'NV_points': []}
+        tag = self.settings['tag']
+        for index in range(self.settings['N']):
+            self.index = index
+            if self._abort:
+                break
+            self.scripts['Find_NV'].run()
+            nv_location = self.scripts['Find_NV'].data['maximum_point']
+            # reset initial point for longer time tracking
+            self.scripts['Find_NV'].settings['initial_point'] = nv_location
+
+            self.data['NV_points'].append([nv_location['x'], nv_location['y']])  # made an array to allow saving
+            self.scripts['Rabi'].run()
+
+            self.data['Counts'].append(deepcopy(self.scripts['Rabi'].data['counts']))
+
+            if index == 0:
+                self.data['tau'] = self.scripts['Rabi'].data['tau']
+
+        if self.settings['save']:
+            self.settings['tag'] = tag
+            self.save_b26()
+            self.save_data()
+            self.save_log()
+
+    def plot(self, figure_list):
+        if self._current_subscript_stage['current_subscript'] == self.scripts['Find_NV']:
+            self.scripts['Find_NV'].plot(figure_list)
+        else:  # also plot Rabi if no current subscript
+            self.scripts['Rabi'].plot(figure_list)
 
 class Rabi_Power_Sweep_Single_Tau(ExecutePulseBlasterSequence):
     """
@@ -480,8 +544,12 @@ After that it again runs a the Rabi script with the optimized microwave power to
                         log_function=log_function, data_path=data_path)
 
     def _function(self):
+
+        # first run
         self.data = {'old_power': None, 'new_power': None, 'old_time': None, 'new_time': None, 'old_fit_params': None, 'new_fit_params': None}
         self.scripts['rabi'].run()
+
+        # fit data to decaying oscillations
         power_dBm = self.scripts['rabi'].settings['mw_power']
         self.data['old_power'] = power_dBm
         rabi_tau = self.scripts['rabi'].data['tau']
@@ -489,6 +557,8 @@ After that it again runs a the Rabi script with the optimized microwave power to
         fit_params = fit_rabi_decay(rabi_tau, rabi_counts)
         radial_freq = fit_params[1]
         self.data['old_fit_params'] = fit_params
+
+        # calculate the target pi-pulse time and power given the fit
         pi_time = 1 / (2 * (radial_freq / (2 * np.pi)))  # gives pi_time in nanoseconds
         self.data['old_time'] = pi_time
         rounded_pi_time = ((np.ceil(pi_time / 5.0) * 5.0))  # rounds up to nearest 5 ns
@@ -497,17 +567,21 @@ After that it again runs a the Rabi script with the optimized microwave power to
         rounded_power_linear = power_linear * (pi_time / rounded_pi_time) ** 2  # want sqrt(power)*pi_time to be constant
         rounded_power_dBm = 10.0 * np.log10(rounded_power_linear)
         self.data['new_power'] = rounded_power_dBm
-        print('New Power', rounded_power_dBm)
+
+        print(rounded_power_dBm)
         assert (rounded_power_dBm < -2)
-        self.scripts['rabi'].settings['mw_power'] = rounded_power_dBm
+
+        # run again to veryfy that esimates are correct
+        self.scripts['rabi'].settings['mw_power'] = float(rounded_power_dBm)
         self.scripts['rabi'].run()
+
+        # fit new data
         rabi_counts = self.scripts['rabi'].data['counts']
         fit_params = fit_rabi_decay(rabi_tau, rabi_counts)
         radial_freq = fit_params[1]
         self.data['new_fit_params'] = fit_params
         new_pi_time = 1 / (2 * (radial_freq /(2 * np.pi)))  # gives pi_time in nanoseconds
         error = abs(new_pi_time - rounded_pi_time)
-        #replace following statement with self.log
         print('new_time', rounded_pi_time)
         print('new_power', rounded_power_dBm)
         if error > self.settings['tolerance']:
@@ -515,21 +589,8 @@ After that it again runs a the Rabi script with the optimized microwave power to
         else:
             print('Optimization SUCCESS. Error is ' + str(error) + ' ns.')
 
-    def _plot(self, axes_list):
-        self.scripts['rabi']._plot(axes_list)
-        axis = axes_list[0]
-        if self.data['new_fit_params'] is not None:
-            axis.plot(self.scripts['rabi'].data['tau'], self.data['new_fit_params'], 'k', lw = 3)
-        elif self.data['old_fit_params'] is not None:
-            axis.plot(self.scripts['rabi'].data['tau'], self.data['old_fit_params'], 'k', lw = 3)
-
-    def _update_plot(self, axes_list):
-        self.scripts['rabi']._update_plot(axes_list)
-        axis = axes_list[0]
-        if self.data['new_fit_params'] is not None:
-            axis.plot(self.scripts['rabi'].data['tau'], self.data['new_fit_params'], 'k', lw=3)
-        elif self.data['old_fit_params'] is not None:
-            axis.plot(self.scripts['rabi'].data['tau'], self.data['old_fit_params'], 'k', lw=3)
+    def plot(self, figure_list):
+        self.scripts['rabi'].plot(figure_list)
 
 
 class CalibrateMeasurementWindow(ExecutePulseBlasterSequence):
