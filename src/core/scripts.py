@@ -347,6 +347,7 @@ class Script(QObject):
         self.log_data.clear()
         self._plot_refresh = True  # flag that requests that plot axes are refreshed when self.plot is called next time
         self.is_running = True
+        self.start_time = datetime.datetime.now()
 
         self._current_subscript_stage = {
             'current_subscript': None,
@@ -363,8 +364,6 @@ class Script(QObject):
             self._current_subscript_stage['subscript_exec_count'].update({subscript.name:0})
 
 
-
-        self.start_time  = datetime.datetime.now()
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
         self._abort = False
 
@@ -506,7 +505,15 @@ class Script(QObject):
                     if len(value) == 0:
                         df = pd.DataFrame([value])
                     else:
-                        df = pd.DataFrame(value)
+                        if isinstance(value, dict) and isinstance(value.values()[0], (int, float)):
+                            # if dictionary values are single numbers
+                            df = pd.DataFrame.from_dict({k: [v] for k, v in value.iteritems()})
+                        elif isinstance(value, dict) and isinstance(value.values()[0], (list, np.ndarray)):
+                            # if dictionary values are lists or arrays
+                            df = pd.DataFrame.from_dict(value)
+                        else:
+                            # if not a dictionary
+                            df = pd.DataFrame(value)
 
                     df.to_csv(filename.replace('.csv', '-{:s}.csv'.format(key)), index=False)
 

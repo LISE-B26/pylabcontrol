@@ -288,9 +288,6 @@ This script repeats the Rabi script N times and refocuses on the NV between ever
 
             self.data['Counts'].append(deepcopy(self.scripts['Rabi'].data['counts']))
 
-            if self.settings['save']:
-                self.settings['tag'] = tag + '_image_{:03d}'.format(index)
-                self.save_image_to_disk()
             if index == 0:
                 self.data['tau'] = self.scripts['Rabi'].data['tau']
 
