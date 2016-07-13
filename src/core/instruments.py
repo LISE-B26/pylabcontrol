@@ -264,7 +264,7 @@ class Instrument(object):
                         instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
 
                 except AttributeError as e:
-                    print('XX', e.message)
+                    print('XX error in instruments', e.message)
                 except Exception as e2:
                     # raise e2
                     pass

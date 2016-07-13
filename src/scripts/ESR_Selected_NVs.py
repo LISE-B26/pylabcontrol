@@ -197,7 +197,10 @@ class ESR_Selected_NVs(Script):
                          self.scripts['StanfordResearch_ESR'].data[-1]['frequency'],
                          self.scripts['StanfordResearch_ESR'].data[-1]['data'],
                          self.scripts['StanfordResearch_ESR'].data[-1]['fit_params'])
-            axes_ESR.get_figure().tight_layout()
+
+            # todo: tightlayout warning test it this avoids the warning:
+            axes_ESR.get_figure().set_tight_layout(True)
+            # axes_ESR.get_figure().tight_layout()
             self.scripts['select_NVs'].plot([axes_full_image.get_figure()])
             patch = patches.Circle((self.plot_pt[0], self.plot_pt[1]),
                                1.1 * self.scripts['select_NVs'].settings['patch_size'], fc='r', alpha=.75)

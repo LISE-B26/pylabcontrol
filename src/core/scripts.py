@@ -492,9 +492,12 @@ class Script(QObject):
 
 
         if data_tag is None:
-            if len(set([len(v) for v in data.values()])) == 1 and len(np.shape(data.values()[0])) in [0, 1]:
+            if len(set([len(v) for v in data.values()])) == 1 and set(
+                    [len(np.shape(data.values()[i])) for i in range(len(data.values()))]) == set([0, 1]):
                 # if all entries of the dictionary are the same length and single column we can write the data into a single file
+
                 if len(np.shape(data.values()[0]))==1:
+                    # print('xxxx', data)
                     df = pd.DataFrame(data)
                 else:
                     df = pd.DataFrame.from_records([data])
@@ -1020,7 +1023,9 @@ class Script(QObject):
             self._plot_refresh = False
             for figure in figure_list:
                 if figure.axes:
-                    figure.tight_layout()
+                    # todo: tightlayout warning test it this avoids the warning:
+                    figure.set_tight_layout(True)
+                    # figure.tight_layout()
         else:
             self._update_plot(axes_list)
 

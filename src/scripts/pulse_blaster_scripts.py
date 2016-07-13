@@ -285,9 +285,6 @@ This script repeats the Rabi script N times and refocuses on the NV between ever
             self.data['counts_init'].append(deepcopy(self.scripts['Rabi'].data['counts'][0]))
             self.data['counts_final'].append(deepcopy(self.scripts['Rabi'].data['counts'][0]))
 
-            print('XX', self.scripts['Rabi'].data['counts'], self.scripts['Rabi'].data['counts'][0],
-                  self.scripts['Rabi'].data['counts'][1])
-
             if index == 0:
                 self.data['tau'] = self.scripts['Rabi'].data['tau']
 

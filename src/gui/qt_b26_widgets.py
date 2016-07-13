@@ -153,7 +153,8 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         if Parameter.is_valid(value, self.valid_values):
             self._value = value
         else:
-            raise TypeError("wrong type {:s}, expected {:s}".format(str(value), str(self.valid_values)))
+            if value is not None:
+                raise TypeError("wrong type {:s}, expected {:s}".format(str(value), str(self.valid_values)))
 
     @property
     def visible(self):
