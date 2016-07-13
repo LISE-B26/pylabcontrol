@@ -1129,11 +1129,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             in_data = {}
 
         def set_item_visible(item, is_visible):
-
-            if isinstance(is_visible, dict) and item.name in is_visible:
+            if isinstance(is_visible, dict):
                 for child_id in range(item.childCount()):
                     child = item.child(child_id)
-                    set_item_visible(child, is_visible[child.name])
+                    if child.name in is_visible:
+                        set_item_visible(child, is_visible[child.name])
             else:
                 item.visible = is_visible
 
