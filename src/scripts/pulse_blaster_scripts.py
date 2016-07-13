@@ -254,20 +254,8 @@ This script repeats the Rabi script N times and refocuses on the NV between ever
         Args:
             progress: progress of subscript
         """
-        # print(datetime.datetime.now(), self.name, self._current_subscript_stage['current_subscript'].name, 'received signal. emitting....')
-
-        print('subscript progress', progress)
         self.progress = 100. * (float(self.index) + float(progress) / 100.) / self.settings['N']
-        print('total progress', progress)
         self.updateProgress.emit(int(self.progress))
-
-    # def _calc_progress(self, index):
-    #
-    #     print('progress rabi', index)
-    #     progress = super(Rabi_Loop, self)._calc_progress(index)
-    #     progress = (float(self.index)+float(progress)/100.) / range(self.settings['N'])
-    #     print('progress all', progress)
-    #     return progress
 
 
     def _function(self):

@@ -210,7 +210,10 @@ for a given experiment
         progress_inner = float(index) / len(self.pulse_sequences)
 
         # progress of outer loop (in _function)
-        progress = float(self.current_averages + (progress_inner - 1.0) * MAX_AVERAGES_PER_SCAN) / self.num_averages
+        if self.current_averages >= MAX_AVERAGES_PER_SCAN:
+            progress = float(self.current_averages + (progress_inner - 1.0) * MAX_AVERAGES_PER_SCAN) / self.num_averages
+        else:
+            progress = progress_inner
 
         return int(100.0 * progress)
 

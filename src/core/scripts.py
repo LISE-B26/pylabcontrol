@@ -299,10 +299,10 @@ class Script(QObject):
         """
         elapsed_time = datetime.datetime.now() - self.start_time
 
-        # timedelta can only be multiplied and divided by integers thats we multiply everything by 1e3
+        # timedelta can only be multiplied and divided by integers thats we multiply everything by 1e5
         estimated_total_time = elapsed_time
-        estimated_total_time *= int(100 * 1e3)
-        estimated_total_time /= int(self.progress * 1e3)
+        estimated_total_time *= int(100 * 1e5)
+        estimated_total_time /= int(self.progress * 1e5)
 
         return estimated_total_time - elapsed_time
 
@@ -385,9 +385,10 @@ class Script(QObject):
 
 
     def stop(self):
-        # stiop all the subscript
+        # stop all the subscript
         for subscript in self.scripts.values():
             subscript.stop()
+        print('--- stopping: ', self.name)
         self._abort = True
 
     def validate(self):
