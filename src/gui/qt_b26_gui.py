@@ -553,7 +553,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if dialog.exec_():
                 self.gui_settings['scripts_folder'] = str(dialog.txt_probe_log_path.text())
                 scripts = dialog.getValues()
-                print('SCRIPTS', scripts)
                 added_scripts = set(scripts.keys()) - set(self.scripts.keys())
                 removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
 
@@ -563,7 +562,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     data_folder_name = None
 
                 # create instances of new instruments/scripts
-                print('INPUT_SCRIPT_DICT', {name: scripts[name] for name in added_scripts})
                 self.scripts, loaded_failed, self.instruments = Script.load_and_append(
                     script_dict={name: scripts[name] for name in added_scripts},
                     scripts=self.scripts,
@@ -1077,8 +1075,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         for sub_script in scripts[script]['scripts']:
                             factory_scripts.update({sub_script: eval('src.scripts.' + scripts[script]['scripts'][sub_script]['class'])})
                         #distinguish between looping and param_sweep modes
+                        script_parameter_list = []
+                        for sub_script in scripts[script]['settings']['script_order'].keys():
+                            script_parameter_list.append(Parameter(sub_script, scripts[script]['settings']['script_order'][sub_script], int, 'Order in queue for this script'))
                         if 'sweep_param' in scripts[script]['settings']:
                             factory_settings = [
+                                Parameter('script_order', script_parameter_list),
                                 Parameter('sweep_param', '', str, 'variable over which to sweep'),
                                 Parameter('min_value', 0, float, 'min parameter value'),
                                 Parameter('max_value', 0, float, 'max parameter value'),
@@ -1089,6 +1091,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                             ]
                         else:
                             factory_settings = [
+                                Parameter('script_order', script_parameter_list),
                                 Parameter('N', 0, int, 'times the subscripts will be executed')
                             ]
                         ss = ScriptSequence.script_sequence_factory(script, factory_scripts, factory_settings)  # dynamically creates class

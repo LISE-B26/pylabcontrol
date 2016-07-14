@@ -206,18 +206,6 @@ Returns:
                 item.setEditable(False)
             tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
 
-    def empty_tree(self, tree_model):
-        def add_children_to_dict(item, somedict):
-            if item.hasChildren():
-                for rownum in range(0,item.rowCount()):
-                    somedict.update({str(item.child(rownum,0).text()): None})
-
-        output_dict = {}
-        root = tree_model.invisibleRootItem()
-        add_children_to_dict(root, output_dict)
-        tree_model.clear()
-        return output_dict
-
     def getValues(self):
         """
         Returns: the selected instruments
@@ -233,30 +221,46 @@ Returns:
         return elements_selected
 
     def add_script_sequence(self):
+
+        def empty_tree(tree_model):
+            def add_children_to_list(item, somelist):
+                if item.hasChildren():
+                    for rownum in range(0, item.rowCount()):
+                        somelist.append(str(item.child(rownum, 0).text()))
+
+            output_list = []
+            root = tree_model.invisibleRootItem()
+            add_children_to_list(root, output_list)
+            tree_model.clear()
+            return output_list
+
         name = str(self.txt_script_sequence_name.text())
-        new_script_dict = self.empty_tree(self.tree_script_sequence_model)
-        for script in new_script_dict.keys():
+        new_script_list = empty_tree(self.tree_script_sequence_model)
+        new_script_dict = {}
+        for script in new_script_list:
             if script in self.elements_old:
-                new_script_dict[script] = self.elements_old[script]
+                new_script_dict.update({script: self.elements_old[script]})
             elif script in self.elements_from_file:
-                new_script_dict[script] = self.elements_from_file[script]
+                new_script_dict.update({script: self.elements_from_file[script]})
         factory_scripts = dict()
         for script in new_script_dict.keys():
-            print('BRANCH', new_script_dict[script])
             if isinstance(new_script_dict[script], dict):
                 factory_scripts.update({script: eval('src.scripts.' + new_script_dict[script]['class'])})
-                print('UNLOADED', eval('src.scripts.' + new_script_dict[script]['class']))
             else: #if an object of the correct type
                 factory_scripts.update({script: new_script_dict[script].__class__})
-                print('LOADED', new_script_dict[script].__class__)
-        print('FACTORY_SCRIPTS', factory_scripts)
+        new_script_parameter_list = []
+        for index, script in enumerate(new_script_list):
+            new_script_parameter_list.append(Parameter(script, index, int, 'Order in queue for this script'))
         if self.cmb_looping_variable.currentText() == 'Loop':
             factory_settings = [
+                Parameter('script_order', new_script_parameter_list),
                 Parameter('N', 0, int, 'times the subscripts will be executed')
             ]
         elif self.cmb_looping_variable.currentText() == 'Parameter Sweep':
+            sweep_params = ScriptSequence.populate_sweep_param(factory_scripts)
             factory_settings = [
-                Parameter('sweep_param', '', str, 'variable over which to sweep'),
+                Parameter('script_order', new_script_parameter_list),
+                Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
                 Parameter('min_value', 0, float, 'min parameter value'),
                 Parameter('max_value', 0, float, 'max parameter value'),
                 Parameter('N/value_step', 0, float, 'either number of steps or parameter value step, depending on mode'),
