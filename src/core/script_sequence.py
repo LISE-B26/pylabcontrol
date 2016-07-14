@@ -35,9 +35,9 @@ class ScriptSequence(Script):
         _, sorted_script_names = zip(*sorted(zip(script_indices, script_names)))
         if 'sweep_param' in self.settings:
             if self.settings['stepping_mode'] == 'N':
-                param_values = range(self.settings['min_value'], self.settings['max_value'], int(self.settings['N/value_step']))
+                param_values = np.linspace(self.settings['min_value'], self.settings['max_value'], int(self.settings['N/value_step']), endpoint=True).tolist()
             elif self.settings['stepping_mode'] == 'value_step':
-                param_values = np.linspace(self.settings['min_value'], self.settings['max_value'], self.settings['N/value_step']).tolist()
+                param_values = np.arange(self.settings['min_value'], self.settings['max_value'], self.settings['N/value_step']).tolist()
             print('param_values', param_values)
             for value in param_values:
                 [script, setting] = self.settings['sweep_param'].split('.')
