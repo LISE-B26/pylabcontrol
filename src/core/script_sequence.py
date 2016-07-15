@@ -4,6 +4,9 @@ import src.scripts
 import numpy as np
 
 class ScriptSequence(Script):
+    _number_of_classes = 0
+    _class_list = []
+
     _DEFAULT_SETTINGS = []
 
     _INSTRUMENTS = {}
@@ -30,19 +33,30 @@ class ScriptSequence(Script):
     def _function(self):
         """
         """
+
+        def get_sweep_parameters():
+            #in both cases, param values have tolist to make sure that they are python types (ex float) rather than numpy
+            #types (ex np.float64), the latter of which can cause typing issues
+            if self.settings['stepping_mode'] == 'N':
+                param_values = np.linspace(self.settings['min_value'], self.settings['max_value'], int(self.settings['N/value_step']), endpoint=True).tolist()
+            elif self.settings['stepping_mode'] == 'value_step':
+                param_values = np.linspace(self.settings['min_value'], self.settings['max_value'], (self.settings['max_value'] - self.settings['min_value'])/self.settings['N/value_step'] + 1, endpoint=True).tolist()
+            return param_values
+
         script_names = self.settings['script_order'].keys()
         script_indices = [self.settings['script_order'][name] for name in script_names]
         _, sorted_script_names = zip(*sorted(zip(script_indices, script_names)))
         if 'sweep_param' in self.settings:
-            if self.settings['stepping_mode'] == 'N':
-                param_values = np.linspace(self.settings['min_value'], self.settings['max_value'], int(self.settings['N/value_step']), endpoint=True).tolist()
-            elif self.settings['stepping_mode'] == 'value_step':
-                param_values = np.arange(self.settings['min_value'], self.settings['max_value'], self.settings['N/value_step']).tolist()
-            print('param_values', param_values)
+            param_values = get_sweep_parameters()
             for value in param_values:
-                [script, setting] = self.settings['sweep_param'].split('.')
+                split_trace = self.settings['sweep_param'].split('.')
+                script = split_trace[0]
+                setting = split_trace[1:]
 
-                self.scripts[script].settings.update({setting: value})
+                script_settings = self.scripts[script].settings
+                curr_type = type(reduce(lambda x,y: x[y], setting, script_settings)) #traverse nested dict to get type of variable
+                update_dict = reduce(lambda y, x: {x: y}, reversed(setting), curr_type(value)) #creates nested dictionary from list
+                script_settings.update(update_dict)
                 for script_name in sorted_script_names:
                     self.scripts[script_name].run()
         else:
@@ -50,13 +64,37 @@ class ScriptSequence(Script):
                 for script_name in sorted_script_names:
                     self.scripts[script_name].run()
 
+    @classmethod
+    def set_up_script(cls, name, factory_scripts, script_parameter_list, param_sweep_bool):
+        if param_sweep_bool:
+            sweep_params = ScriptSequence.populate_sweep_param(factory_scripts)
+            factory_settings = [
+                Parameter('script_order', script_parameter_list),
+                Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
+                Parameter('min_value', 0, float, 'min parameter value'),
+                Parameter('max_value', 0, float, 'max parameter value'),
+                Parameter('N/value_step', 0, float,
+                          'either number of steps or parameter value step, depending on mode'),
+                Parameter('stepping_mode', 'N', ['N', 'value_step'],
+                          'Switch between number of steps and step amount')
+            ]
+        else:
+            factory_settings = [
+                Parameter('script_order', script_parameter_list),
+                Parameter('N', 0, int, 'times the subscripts will be executed')
+            ]
+        ss = ScriptSequence.script_sequence_factory(name, factory_scripts,
+                                                    factory_settings)  # dynamically creates class
+        ScriptSequence.import_dynamic_script(src.scripts, name, ss)  # imports created script in src.scripts.__init__
+
     @staticmethod
     def script_sequence_factory(name, scripts, settings):
         return type(name, (ScriptSequence, ), {'_SCRIPTS': scripts, '_DEFAULT_SETTINGS': settings})
 
     @staticmethod
-    def import_dynamic_script(namespace, name, script_class):
-        setattr(namespace, name, script_class)
+    def import_dynamic_script(module, name, script_class):
+        setattr(module, name, script_class)
+
 
     @staticmethod
     def populate_sweep_param(scripts):

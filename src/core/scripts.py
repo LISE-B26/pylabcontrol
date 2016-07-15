@@ -910,6 +910,7 @@ class Script(QObject):
                     continue
                 #  ========= create the subscripts that are needed by the script =========
                 try:
+                    # print('SSS', script_sub_scripts)
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
                 except Exception, err:
                     raise

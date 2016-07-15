@@ -1078,24 +1078,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         script_parameter_list = []
                         for sub_script in scripts[script]['settings']['script_order'].keys():
                             script_parameter_list.append(Parameter(sub_script, scripts[script]['settings']['script_order'][sub_script], int, 'Order in queue for this script'))
-                        if 'sweep_param' in scripts[script]['settings']:
-                            factory_settings = [
-                                Parameter('script_order', script_parameter_list),
-                                Parameter('sweep_param', '', str, 'variable over which to sweep'),
-                                Parameter('min_value', 0, float, 'min parameter value'),
-                                Parameter('max_value', 0, float, 'max parameter value'),
-                                Parameter('N/value_step', 0, float,
-                                          'either number of steps or parameter value step, depending on mode'),
-                                Parameter('stepping_mode', 'N', ['N', 'value_step'],
-                                          'Switch between number of steps and step amount')
-                            ]
-                        else:
-                            factory_settings = [
-                                Parameter('script_order', script_parameter_list),
-                                Parameter('N', 0, int, 'times the subscripts will be executed')
-                            ]
-                        ss = ScriptSequence.script_sequence_factory(script, factory_scripts, factory_settings)  # dynamically creates class
-                        ScriptSequence.import_dynamic_script(src.scripts, script, ss)  # imports created script in src.scripts.__init__
+                        ScriptSequence.set_up_script(script, factory_scripts, script_parameter_list,'sweep_param' in scripts[script]['settings'])
                         scripts[script]['class'] = script
 
                 scripts_loaded, failed, instruments_loaded = Script.load_and_append(

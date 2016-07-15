@@ -246,28 +246,12 @@ Returns:
         for script in new_script_dict.keys():
             if isinstance(new_script_dict[script], dict):
                 factory_scripts.update({script: eval('src.scripts.' + new_script_dict[script]['class'])})
-            else: #if an object of the correct type
+            else: #if an object (already loaded) rather than a dict
                 factory_scripts.update({script: new_script_dict[script].__class__})
         new_script_parameter_list = []
         for index, script in enumerate(new_script_list):
             new_script_parameter_list.append(Parameter(script, index, int, 'Order in queue for this script'))
-        if self.cmb_looping_variable.currentText() == 'Loop':
-            factory_settings = [
-                Parameter('script_order', new_script_parameter_list),
-                Parameter('N', 0, int, 'times the subscripts will be executed')
-            ]
-        elif self.cmb_looping_variable.currentText() == 'Parameter Sweep':
-            sweep_params = ScriptSequence.populate_sweep_param(factory_scripts)
-            factory_settings = [
-                Parameter('script_order', new_script_parameter_list),
-                Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
-                Parameter('min_value', 0, float, 'min parameter value'),
-                Parameter('max_value', 0, float, 'max parameter value'),
-                Parameter('N/value_step', 0, float, 'either number of steps or parameter value step, depending on mode'),
-                Parameter('stepping_mode', 'N', ['N', 'value_step'], 'Switch between number of steps and step amount')
-            ]
-        ss = ScriptSequence.script_sequence_factory(name, factory_scripts, factory_settings) #dynamically creates class
-        ScriptSequence.import_dynamic_script(src.scripts, name, ss) #same as importing created script in src.scripts.__init__
+        ScriptSequence.set_up_script(name, factory_scripts, new_script_parameter_list, self.cmb_looping_variable.currentText() == 'Parameter Sweep')
         new_script_dict = {name: {'class': name, 'scripts': new_script_dict, 'settings': {} }}
         self.selected_element_name = name
         self.fill_tree(self.tree_loaded, new_script_dict)
