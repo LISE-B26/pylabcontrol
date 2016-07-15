@@ -14,6 +14,36 @@ try:
 except:
     print('WARNING script_dummy')
 
+class ScriptMinimalDummy(Script):
+    #This is the signal that will be emitted during the processing.
+    #By including int as an argument, it lets the signal know to expect
+    #an integer argument when emitting.
+
+    _DEFAULT_SETTINGS = [
+        Parameter('parameter', 3, int)
+    ]
+
+    _INSTRUMENTS = {}
+    _SCRIPTS = {}
+
+    def __init__(self, name=None, settings=None, log_function = None, data_path = None):
+        """
+        Example of a script
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+        Script.__init__(self, name, settings, log_function= log_function, data_path = data_path)
+
+
+    def _function(self):
+        """
+        This is the actual function that will be executed. It uses only information that is provided in the settings property
+        will be overwritten in the __init__
+        """
+        print(self.settings['parameter'])
+
+
 class ScriptDummy(Script):
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect

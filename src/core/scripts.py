@@ -764,7 +764,6 @@ class Script(QObject):
                 updated_instruments = {name_of_instrument_1 : instance_of_instrument_1, ..}
 
         """
-
         if scripts is None:
             scripts = {}
         if instruments is None:
@@ -876,7 +875,7 @@ class Script(QObject):
             sub_scripts = {}
             sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments)
 
-            if sub_scripts_dict is not None:
+            if sub_scripts_dict is not None and not isinstance(sub_scripts_dict[sub_scripts_dict.keys()[0]], object): #edited 16/07/14 to add compatibility with script sequences, revert this if things break
                 for k, v in sub_scripts_dict.iteritems():
                     #update settings, updates instrument and settings
                     sub_scripts[k].update(v)
@@ -913,6 +912,7 @@ class Script(QObject):
                 try:
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
                 except Exception, err:
+                    raise
                     print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
                     load_failed[script_name] = err
                     continue

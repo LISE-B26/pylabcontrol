@@ -24,6 +24,8 @@ from collections import deque
 
 ###AARON_PC REMOVE
 from src.scripts.Select_NVs import Select_NVs_Simple
+import src.scripts
+from src.scripts import ScriptSequence
 
 from src.core.read_write_functions import load_b26_file
 # load the basic old_gui either from .ui file or from precompiled .py file
@@ -84,6 +86,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # self.tree_settings.setColumnWidth(0, 400)
             #
             # self.tree_scripts.setColumnWidth(0, 300)
+            print('TREE_SCRIPTS', type(self.tree_scripts))
             self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
             self.tree_probes.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
@@ -1121,6 +1124,36 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 if len(failed) > 0:
                     print('WARNING! Following instruments could not be loaded: ', failed)
 
+                # special case for ScriptSequence scripts
+                for script in scripts.keys():
+                    if scripts[script]['class'] == 'ScriptSequence':
+                        factory_scripts = {}
+                        for sub_script in scripts[script]['scripts']:
+                            factory_scripts.update({sub_script: eval('src.scripts.' + scripts[script]['scripts'][sub_script]['class'])})
+                        #distinguish between looping and param_sweep modes
+                        script_parameter_list = []
+                        for sub_script in scripts[script]['settings']['script_order'].keys():
+                            script_parameter_list.append(Parameter(sub_script, scripts[script]['settings']['script_order'][sub_script], int, 'Order in queue for this script'))
+                        if 'sweep_param' in scripts[script]['settings']:
+                            factory_settings = [
+                                Parameter('script_order', script_parameter_list),
+                                Parameter('sweep_param', '', str, 'variable over which to sweep'),
+                                Parameter('min_value', 0, float, 'min parameter value'),
+                                Parameter('max_value', 0, float, 'max parameter value'),
+                                Parameter('N/value_step', 0, float,
+                                          'either number of steps or parameter value step, depending on mode'),
+                                Parameter('stepping_mode', 'N', ['N', 'value_step'],
+                                          'Switch between number of steps and step amount')
+                            ]
+                        else:
+                            factory_settings = [
+                                Parameter('script_order', script_parameter_list),
+                                Parameter('N', 0, int, 'times the subscripts will be executed')
+                            ]
+                        ss = ScriptSequence.script_sequence_factory(script, factory_scripts, factory_settings)  # dynamically creates class
+                        ScriptSequence.import_dynamic_script(src.scripts, script, ss)  # imports created script in src.scripts.__init__
+                        scripts[script]['class'] = script
+
                 scripts_loaded, failed, instruments_loaded = Script.load_and_append(
                     script_dict=scripts,
                     instruments=instruments_loaded,
@@ -1295,6 +1328,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         for script in self.scripts.itervalues():
             dictator['scripts'].update(script.to_dict())
+
+            #special case saving for script_sequence classes
+            for script in dictator['scripts']:
+                if issubclass(eval('src.scripts.' + dictator['scripts'][script]['class']),ScriptSequence):
+                    dictator['scripts'][script]['class'] = 'ScriptSequence'
 
         for instrument, probe_dict in self.probes.iteritems():
             dictator['probes'].update({instrument: ','.join(probe_dict.keys())})

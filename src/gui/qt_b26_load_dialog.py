@@ -9,6 +9,9 @@ from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 
 from src.core.read_write_functions import load_b26_file
+from src.core import Parameter
+import src.scripts
+from src.scripts import ScriptSequence
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
@@ -49,8 +52,13 @@ Returns:
         self.tree_loaded.setModel(self.tree_loaded_model)
         self.tree_loaded_model.setHorizontalHeaderLabels([self.elements_type, 'Value'])
 
+        self.tree_script_sequence_model = QtGui.QStandardItemModel()
+        self.tree_script_sequence.setModel(self.tree_script_sequence_model)
+        self.tree_script_sequence_model.setHorizontalHeaderLabels([self.elements_type, 'Value'])
+
         # connect the buttons
         self.btn_open.clicked.connect(self.open_file_dialog)
+        self.btn_script_sequence.clicked.connect(self.add_script_sequence)
 
         # create the dictionaries that hold the data
         #   - elements_old: the old elements (scripts, instruments) that have been passed to the dialog
@@ -70,11 +78,17 @@ Returns:
 
         self.tree_infile.selectionModel().selectionChanged.connect(self.show_info)
         self.tree_loaded.selectionModel().selectionChanged.connect(self.show_info)
+        self.tree_script_sequence.selectionModel().selectionChanged.connect(self.show_info)
 
         self.tree_infile.selectionModel().selectionChanged.connect(self.show_info)
 
         self.tree_infile_model.itemChanged.connect(self.name_changed)
         self.tree_loaded_model.itemChanged.connect(self.name_changed)
+
+        self.cmb_looping_variable.addItems(['Loop', 'Parameter Sweep'])
+
+    def test(item):
+        print(item)
 
     def name_changed(self, changed_item):
         name = str(changed_item.text())
@@ -146,6 +160,8 @@ Returns:
         """
         input_data = load_b26_file(filename)
         if isinstance(input_data, dict) and self.elements_type in input_data:
+            print('input_data', input_data)
+            print('input_data[elements_type]', input_data[self.elements_type])
             return input_data[self.elements_type]
         else:
             return {}
@@ -203,6 +219,61 @@ Returns:
                 elements_selected.update({element_name: self.elements_from_file[element_name]})
 
         return elements_selected
+
+    def add_script_sequence(self):
+
+        def empty_tree(tree_model):
+            def add_children_to_list(item, somelist):
+                if item.hasChildren():
+                    for rownum in range(0, item.rowCount()):
+                        somelist.append(str(item.child(rownum, 0).text()))
+
+            output_list = []
+            root = tree_model.invisibleRootItem()
+            add_children_to_list(root, output_list)
+            tree_model.clear()
+            return output_list
+
+        name = str(self.txt_script_sequence_name.text())
+        new_script_list = empty_tree(self.tree_script_sequence_model)
+        new_script_dict = {}
+        for script in new_script_list:
+            if script in self.elements_old:
+                new_script_dict.update({script: self.elements_old[script]})
+            elif script in self.elements_from_file:
+                new_script_dict.update({script: self.elements_from_file[script]})
+        factory_scripts = dict()
+        for script in new_script_dict.keys():
+            if isinstance(new_script_dict[script], dict):
+                factory_scripts.update({script: eval('src.scripts.' + new_script_dict[script]['class'])})
+            else: #if an object of the correct type
+                factory_scripts.update({script: new_script_dict[script].__class__})
+        new_script_parameter_list = []
+        for index, script in enumerate(new_script_list):
+            new_script_parameter_list.append(Parameter(script, index, int, 'Order in queue for this script'))
+        if self.cmb_looping_variable.currentText() == 'Loop':
+            factory_settings = [
+                Parameter('script_order', new_script_parameter_list),
+                Parameter('N', 0, int, 'times the subscripts will be executed')
+            ]
+        elif self.cmb_looping_variable.currentText() == 'Parameter Sweep':
+            sweep_params = ScriptSequence.populate_sweep_param(factory_scripts)
+            factory_settings = [
+                Parameter('script_order', new_script_parameter_list),
+                Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
+                Parameter('min_value', 0, float, 'min parameter value'),
+                Parameter('max_value', 0, float, 'max parameter value'),
+                Parameter('N/value_step', 0, float, 'either number of steps or parameter value step, depending on mode'),
+                Parameter('stepping_mode', 'N', ['N', 'value_step'], 'Switch between number of steps and step amount')
+            ]
+        ss = ScriptSequence.script_sequence_factory(name, factory_scripts, factory_settings) #dynamically creates class
+        ScriptSequence.import_dynamic_script(src.scripts, name, ss) #same as importing created script in src.scripts.__init__
+        new_script_dict = {name: {'class': name, 'scripts': new_script_dict, 'settings': {} }}
+        self.selected_element_name = name
+        self.fill_tree(self.tree_loaded, new_script_dict)
+        self.elements_from_file.update(new_script_dict)
+
+
 
 if __name__ == '__main__':
     import sys
