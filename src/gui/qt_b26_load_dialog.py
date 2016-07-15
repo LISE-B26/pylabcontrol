@@ -251,8 +251,8 @@ Returns:
         new_script_parameter_list = []
         for index, script in enumerate(new_script_list):
             new_script_parameter_list.append(Parameter(script, index, int, 'Order in queue for this script'))
-        ScriptSequence.set_up_script(name, factory_scripts, new_script_parameter_list, self.cmb_looping_variable.currentText() == 'Parameter Sweep')
-        new_script_dict = {name: {'class': name, 'scripts': new_script_dict, 'settings': {} }}
+        class_name = ScriptSequence.set_up_script(factory_scripts, new_script_parameter_list, self.cmb_looping_variable.currentText() == 'Parameter Sweep')
+        new_script_dict = {name: {'class': class_name, 'scripts': new_script_dict, 'settings': {} }}
         self.selected_element_name = name
         self.fill_tree(self.tree_loaded, new_script_dict)
         self.elements_from_file.update(new_script_dict)

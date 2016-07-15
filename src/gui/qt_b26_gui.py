@@ -1129,13 +1129,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     if scripts[script]['class'] == 'ScriptSequence':
                         factory_scripts = {}
                         for sub_script in scripts[script]['scripts']:
-                            factory_scripts.update({sub_script: eval('src.scripts.' + scripts[script]['scripts'][sub_script]['class'])})
+                            if scripts[script]['scripts'][sub_script]['class'] == 'ScriptSequence':
+                                factory_scripts.update({sub_script: eval('src.core.ScriptSequence')})
+                            else:
+                                factory_scripts.update({sub_script: eval('src.scripts.' + scripts[script]['scripts'][sub_script]['class'])})
                         #distinguish between looping and param_sweep modes
                         script_parameter_list = []
                         for sub_script in scripts[script]['settings']['script_order'].keys():
                             script_parameter_list.append(Parameter(sub_script, scripts[script]['settings']['script_order'][sub_script], int, 'Order in queue for this script'))
-                        ScriptSequence.set_up_script(script, factory_scripts, script_parameter_list,'sweep_param' in scripts[script]['settings'])
-                        scripts[script]['class'] = script
+                        class_name = ScriptSequence.set_up_script(factory_scripts, script_parameter_list,'sweep_param' in scripts[script]['settings'])
+                        scripts[script]['class'] = class_name
 
                 scripts_loaded, failed, instruments_loaded = Script.load_and_append(
                     script_dict=scripts,
@@ -1311,11 +1314,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         for script in self.scripts.itervalues():
             dictator['scripts'].update(script.to_dict())
+            print(dictator['scripts'])
 
             #special case saving for script_sequence classes
-            for script in dictator['scripts']:
-                if issubclass(eval('src.scripts.' + dictator['scripts'][script]['class']),ScriptSequence):
-                    dictator['scripts'][script]['class'] = 'ScriptSequence'
+            def label_as_scriptsequence(dictator):
+                print('DICTATOR', dictator)
+                for script in dictator['scripts']:
+                    if issubclass(eval('src.scripts.' + dictator['scripts'][script]['class']), ScriptSequence):
+                        dictator['scripts'][script]['class'] = 'ScriptSequence'
+                        label_as_scriptsequence(dictator['scripts'][script])
+
+            label_as_scriptsequence(dictator)
 
         for instrument, probe_dict in self.probes.iteritems():
             dictator['probes'].update({instrument: ','.join(probe_dict.keys())})

@@ -1,9 +1,10 @@
 from src.core import Parameter, Script
+import src.scripts
 import numpy as np
 
 class ScriptSequence(Script):
-    _number_of_classes = 0
-    _class_list = []
+    # _number_of_classes = 0
+    # _class_list = []
 
     _DEFAULT_SETTINGS = []
 
@@ -63,7 +64,7 @@ class ScriptSequence(Script):
                     self.scripts[script_name].run()
 
     @classmethod
-    def set_up_script(cls, name, factory_scripts, script_parameter_list, param_sweep_bool):
+    def set_up_script(cls, factory_scripts, script_parameter_list, param_sweep_bool):
         if param_sweep_bool:
             sweep_params = ScriptSequence.populate_sweep_param(factory_scripts)
             factory_settings = [
@@ -81,9 +82,19 @@ class ScriptSequence(Script):
                 Parameter('script_order', script_parameter_list),
                 Parameter('N', 0, int, 'times the subscripts will be executed')
             ]
-        ss = ScriptSequence.script_sequence_factory(name, factory_scripts,
+        class_name = 'class' + str(cls._number_of_classes)
+        ss = ScriptSequence.script_sequence_factory(class_name, factory_scripts,
                                                     factory_settings)  # dynamically creates class
-        ScriptSequence.import_dynamic_script(src.scripts, name, ss)  # imports created script in src.scripts.__init__
+        print('SS', vars(ss))
+        #prevent multiple importation of the same script with different names
+        # for someclass in cls._class_list:
+        #     if (vars(ss)['_SCRIPTS'] == vars(someclass)['_SCRIPTS']):
+        #         print('CLASSNAME', vars(someclass)['_CLASS'])
+        #         return vars(someclass)['_CLASS']
+        ScriptSequence.import_dynamic_script(src.scripts, class_name, ss)  # imports created script in src.scripts.__init__
+        cls._class_list.append(ss)
+        cls._number_of_classes += 1
+        return class_name
 
     @staticmethod
     def script_sequence_factory(name, scripts, settings):

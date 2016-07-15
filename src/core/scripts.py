@@ -21,7 +21,6 @@ from matplotlib.figure import Figure
 # It is many times faster than the Python implementation, but does not allow the user to subclass from Pickle.
 import cPickle
 
-
 class Script(QObject):
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
@@ -36,6 +35,9 @@ class Script(QObject):
         Parameter('tag', 'some_name'),
         Parameter('save', False, bool,'check to automatically save data'),
     ]
+
+    _number_of_classes = 0
+    _class_list = []
 
     def __init__(self, name=None, settings=None, instruments=None, scripts=None, log_function=None, data_path=None):
         """
@@ -827,6 +829,7 @@ class Script(QObject):
             instruments_updated = {}
             instruments_updated.update(instruments)
             # check if instruments needed by script already exist, if not create an instance
+            print('DEFAULT_INSTRUMNETS', default_instruments)
             for instrument_name, instrument_class in default_instruments.iteritems():
                 # check if instruments needed by script already exist
                 instrument = [instance for name, instance in instruments_updated.iteritems() if
@@ -883,18 +886,48 @@ class Script(QObject):
             return sub_scripts, instruments_updated
             # return sub_scripts_dict, instruments_updated
 
-        for script_name, script_class_name in script_dict.iteritems():
+        for script_name, script_info in script_dict.iteritems():
 
             # check if script already exists
             if script_name in scripts.keys():
                 print('WARNING: script {:s} already exists. Did not load!'.format(script_name))
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
-                module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = get_script_information(script_class_name)
+                module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = get_script_information(script_info)
 
                 script_instance = None
 
-                # try to import the script
+                def create_dynamic_script(script_information, script_class_name):
+                    factory_scripts = {}
+                    if isinstance(script_information, dict):
+                        print('script_sub_scripts', script_sub_scripts)
+                        for sub_script in script_sub_scripts:
+                            import src.scripts
+                            if script_sub_scripts[sub_script]['class'] == 'ScriptSequence':
+                                factory_scripts.update({sub_script: eval('src.core.ScriptSequence')})
+                                # create_dynamic_script(script_sub_scripts[sub_script], script_sub_scripts[sub_script]['class'])
+                            else:
+                                factory_scripts.update({sub_script: eval('src.scripts.' + script_sub_scripts[sub_script]['class'])})
+                        script_parameter_list = []
+                        for sub_script in script_settings['script_order'].keys():
+                            script_parameter_list.append(
+                                Parameter(sub_script, script_settings['script_order'][sub_script], int,
+                                          'Order in queue for this script'))
+                    else: #if an object (already loaded) rather than a dict
+                        factory_scripts.update({script_class_name: script_information})
+                        script_parameter_list = []
+                        for sub_script in script_settings['script_order'].keys():
+                            script_parameter_list.append(
+                                Parameter(sub_script, script_settings['script_order'][sub_script], int,
+                                          'Order in queue for this script'))
+                    class_name = Script.set_up_script(factory_scripts, script_parameter_list,'sweep_param' in script_settings)
+                    print('FACTORY', factory_scripts)
+                    return class_name
+
+                # create all dynamic scripts (including subscripts of dynamic scripts)
+                # if script_class_name == 'ScriptSequence':
+                #     script_class_name = create_dynamic_script(script_info, script_class_name)
+
                 module = __import__(module_path, fromlist=[script_class_name])
                 # this returns the name of the module that was imported.
                 class_of_script = getattr(module, script_class_name)
@@ -903,6 +936,7 @@ class Script(QObject):
                 try:
                     script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
                 except Exception as err:
+                    raise
                     print('loading script {:s} failed. Could not load instruments!'.format(script_name))
                     load_failed[script_name] = err
                     continue
@@ -911,6 +945,7 @@ class Script(QObject):
                     # print('SSS', script_sub_scripts)
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
                 except Exception as err:
+                    # raise
                     print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
                     load_failed[script_name] = err
                     continue
@@ -1070,6 +1105,48 @@ class Script(QObject):
 
     def get_axes_layout_validate(self, figure_list):
         return self.get_axes_layout(figure_list)
+
+    @classmethod
+    def set_up_script(cls, factory_scripts, script_parameter_list, param_sweep_bool):
+        if param_sweep_bool:
+            sweep_params = Script.populate_sweep_param(factory_scripts)
+            factory_settings = [
+                Parameter('script_order', script_parameter_list),
+                Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
+                Parameter('min_value', 0, float, 'min parameter value'),
+                Parameter('max_value', 0, float, 'max parameter value'),
+                Parameter('N/value_step', 0, float,
+                          'either number of steps or parameter value step, depending on mode'),
+                Parameter('stepping_mode', 'N', ['N', 'value_step'],
+                          'Switch between number of steps and step amount')
+            ]
+        else:
+            factory_settings = [
+                Parameter('script_order', script_parameter_list),
+                Parameter('N', 0, int, 'times the subscripts will be executed')
+            ]
+        class_name = 'class' + str(cls._number_of_classes)
+        ss = Script.script_sequence_factory(class_name, factory_scripts,
+                                                    factory_settings)  # dynamically creates class
+        #prevent multiple importation of the same script with different names
+        # for someclass in cls._class_list:
+        #     if (vars(ss)['_SCRIPTS'] == vars(someclass)['_SCRIPTS']):
+        #         print('CLASSNAME', vars(someclass)['_CLASS'])
+        #         return vars(someclass)['_CLASS']
+        print('NEW_SCRIPT', vars(ss))
+        import src.scripts
+        Script.import_dynamic_script(src.scripts, class_name, ss)  # imports created script in src.scripts.__init__
+        cls._class_list.append(ss)
+        cls._number_of_classes += 1
+        return class_name
+
+    @staticmethod
+    def script_sequence_factory(name, scripts, settings):
+        return type(name, (Script, ), {'_SCRIPTS': scripts, '_DEFAULT_SETTINGS': settings, '_INSTRUMENTS': {}})
+
+    @staticmethod
+    def import_dynamic_script(module, name, script_class):
+        setattr(module, name, script_class)
 
 
 
