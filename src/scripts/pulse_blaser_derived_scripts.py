@@ -123,8 +123,8 @@ This script repeats the Rabi script N times and refocuses on the NV between ever
             self.data['NV_points'].append([nv_location['x'], nv_location['y']])  # made an array to allow saving
             self.scripts['Rabi'].run()
 
-            self.data['counts_init'].append(deepcopy(self.scripts['Rabi'].data['counts'][0]))
-            self.data['counts_final'].append(deepcopy(self.scripts['Rabi'].data['counts'][0]))
+            self.data['counts_init'].append(deepcopy(self.scripts['Rabi'].data['counts'][:, 0]))
+            self.data['counts_final'].append(deepcopy(self.scripts['Rabi'].data['counts'][:, 1]))
 
             if index == 0:
                 self.data['tau'] = self.scripts['Rabi'].data['tau']
