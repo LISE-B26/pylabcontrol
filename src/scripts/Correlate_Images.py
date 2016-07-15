@@ -262,12 +262,6 @@ class Take_And_Correlate_Images_2(Script):
         if not self.data['correlation_image'] == []:
             axes_list[0].imshow(self.data['correlation_image'])
 
-    def stop(self):
-        '''
-        Stops the script if it is taking the new image (otherwise script will soon finish)
-        '''
-        self._abort = True
-        self.scripts['GalvoScan'].stop()
 
 if __name__ == '__main__':
     script, failed, instr = Script.load_and_append({'Correlate_Images': 'Correlate_Images'})

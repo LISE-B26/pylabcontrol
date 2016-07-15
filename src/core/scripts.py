@@ -1,15 +1,13 @@
 import datetime
-import time
-from abc import ABCMeta, abstractmethod, abstractproperty
 from copy import deepcopy
 from src.core.parameter import Parameter
 from src.core.instruments import Instrument
-from PyQt4 import QtCore
+# from PyQt4 import QtCore
 from collections import deque
 import os
 import pandas as pd
 import glob
-import json as json
+# import json as json
 
 from PyQt4.QtCore import pyqtSignal, QObject, pyqtSlot
 
@@ -904,18 +902,18 @@ class Script(QObject):
                 #  ========= create the instruments that are needed by the script =========
                 try:
                     script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
-                except Exception, err:
+                except Exception as err:
                     print('loading script {:s} failed. Could not load instruments!'.format(script_name))
                     load_failed[script_name] = err
                     continue
                 #  ========= create the subscripts that are needed by the script =========
                 try:
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
-                except Exception, err:
-                    raise
+                except Exception as err:
                     print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
                     load_failed[script_name] = err
                     continue
+
                 class_creation_string = ''
                 if script_instruments:
                     class_creation_string += ', instruments = script_instruments'

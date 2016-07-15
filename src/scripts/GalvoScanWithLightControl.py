@@ -1,7 +1,6 @@
 from src.core import Script, Parameter
 from src.instruments import MaestroLightControl
 from src.scripts import GalvoScan
-from copy import deepcopy
 
 class GalvoScanWithLightControl(Script):
     """
@@ -20,16 +19,6 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
     def __init__(self, instruments, scripts, name=None, settings=None, log_function=None, data_path=None):
 
         Script.__init__(self, name, settings=settings, instruments=instruments, scripts = scripts, log_function=log_function, data_path=data_path)
-
-        # self.scripts['acquire_image'].updateProgress.connect(self._receive_signal)
-
-    # def _receive_signal(self, progress_sub_script):
-    #     # calculate progress of this script based on progress in subscript
-    #
-    #     progress = progress_sub_script
-    #     if progress == 100:
-    #         progress = 99
-    #     self.updateProgress.emit(progress)
 
     def _function(self):
 
@@ -59,8 +48,6 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
 
         self.scripts['acquire_image'].run()
 
-        # self.data = deepcopy(self.scripts['acquire_image'].data)
-
         if self.settings['save']:
             self.save_b26()
             self.save_data()
@@ -75,3 +62,15 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
         self.scripts['acquire_image']._update_plot(axes_list)
     def plot(self, figure_list):
         self.scripts['acquire_image'].plot(figure_list)
+
+
+if __name__ == '__main__':
+    from src.core import Instrument
+
+    script, failed, instr = Script.load_and_append({'GalvoScan': 'GalvoScan'})
+
+    instr, failed = Instrument.load_and_append({'MaestroLightControl': 'MaestroLightControl'}, instruments=instr)
+
+    print(script)
+    print(failed)
+    print(instr)
