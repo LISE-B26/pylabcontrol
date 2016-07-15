@@ -25,7 +25,7 @@ from collections import deque
 ###AARON_PC REMOVE
 from src.scripts.Select_NVs import Select_NVs_Simple
 import src.scripts
-from src.scripts import ScriptSequence
+from src.core import ScriptSequence
 
 from src.core.read_write_functions import load_b26_file
 # load the basic old_gui either from .ui file or from precompiled .py file

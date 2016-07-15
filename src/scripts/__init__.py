@@ -1,3 +1,4 @@
+# from pulse_blaser_derived_scripts import Rabi_Loop
 # ==== import dummy scripts ==================================================================================
 # ============================================================================================================
 from script_dummy import ScriptDummyPlotMemoryTest, ScriptDummy, ScriptDummyWithInstrument, ScriptDummyWithSubScript, \
@@ -13,6 +14,8 @@ try:
     from galvo_scan import GalvoScan
 except:
     print("./src/scripts/__init__ warning! GalvoScan did not load")
+
+from autofocusDAQ import AutoFocus
 try:
     from GalvoScanWithLightControl import GalvoScanWithLightControl
 except:
@@ -23,9 +26,9 @@ try:
 except:
     print("./src/scripts/__init__ warning! GalvoScanWithTwoRoI did not load")
 try:
-    from autofocus_ni_fpga import AutoFocusDAQ
+    from autofocusDAQ import AutoFocus
 except:
-    print("./src/scripts/__init__ warning! AutoFocusDAQ did not load")
+    print("./src/scripts/__init__ warning! AutoFocus did not load")
 try:
     from set_laser import SetLaser
 except:
@@ -83,6 +86,40 @@ except:
 
 # =============================================================================================================
 
+# ==== import some other scripts ==============================================================================
+# =============================================================================================================
+try:
+    from Select_NVs import Select_NVs
+except:
+    print("./src/scripts/__init__ warning! Select_NVs did not load")
+
+try:
+    from Select_NVs import Select_NVs_Simple
+except:
+    print("./src/scripts/__init__ warning! Select_NVs_Simple did not load")
+
+try:
+    from Correlate_Images import Take_And_Correlate_Images_2
+except:
+    print("./src/scripts/__init__ warning! Take_And_Correlate_Images_2 did not load")
+
+try:
+    from find_max_counts_point_2d import FindMaxCounts2D
+except:
+    print("./src/scripts/__init__ warning! FindMaxCounts2D did not load")
+
+try:
+    from atto_scan import AttoStep
+except:
+    print("./src/scripts/__init__ warning! Attostep did not load")
+
+try:
+    from refind_NVs import Refind_NVs
+except:
+    print("./src/scripts/__init__ warning! Refind_NVs did not load")
+
+# =============================================================================================================
+
 
 
 # ==== import Stanford instruments ESR scripts=================================================================
@@ -113,7 +150,7 @@ try:
 except:
     print("./src/scripts/__init__ warning! PulseDelays did not load")
 try:
-    from pulse_blaster_scripts import Rabi_Power_Sweep
+    from pulse_blaser_derived_scripts import Rabi_Power_Sweep
 except:
     print("./src/scripts/__init__ warning! Rabi_Power_Sweep did not load")
 try:
@@ -138,44 +175,20 @@ try:
 except:
     print("./src/scripts/__init__ warning! Rabi_Power_Sweep_Single_Tau did not load")
 try:
-    from pulse_blaster_scripts import RoundPiPulseTime
+    from pulse_blaser_derived_scripts import RoundPiPulseTime
 except:
     print("./src/scripts/__init__ warning! RoundPiPulseTime did not load")
 
 try:
-    from pulse_blaster_scripts import Rabi_Loop
+    from pulse_blaser_derived_scripts import Rabi_Loop
+except:
+    print("./src/scripts/__init__ warning! Rabi_Loop did not load")
+
+try:
+    from exec_pulse_blaster_sequence import ExecutePulseBlasterSequence
 except:
     print("./src/scripts/__init__ warning! Rabi_Loop did not load")
 # =============================================================================================================
-try:
-    from Select_NVs import Select_NVs
-except:
-    print("./src/scripts/__init__ warning! Select_NVs did not load")
-
-try:
-    from Select_NVs import Select_NVs_Simple
-except:
-    print("./src/scripts/__init__ warning! Select_NVs_Simple did not load")
-
-try:
-    from Correlate_Images import Take_And_Correlate_Images_2
-except:
-    print("./src/scripts/__init__ warning! Take_And_Correlate_Images_2 did not load")
 
 
-try:
-    from find_max_counts_point_2d import FindMaxCounts2D
-except:
-    print("./src/scripts/__init__ warning! FindMaxCounts2D did not load")
-
-
-try:
-    from atto_scan import AttoStep
-except:
-    print("./src/scripts/__init__ warning! Attostep did not load")
-
-try:
-    from refind_NVs import Refind_NVs
-except:
-    print("./src/scripts/__init__ warning! Refind_NVs did not load")
-
+    # from pulse_blaser_derived_scripts import Rabi_Loop
