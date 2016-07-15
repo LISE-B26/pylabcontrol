@@ -11,7 +11,7 @@ from PyQt4.uic import loadUiType
 from src.core.read_write_functions import load_b26_file
 from src.core import Parameter
 import src.scripts
-from src.scripts import ScriptSequence
+from src.core import ScriptSequence
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:

@@ -1,6 +1,4 @@
 from src.core import Parameter, Script
-from src.scripts import ScriptMinimalDummy
-import src.scripts
 import numpy as np
 
 class ScriptSequence(Script):
@@ -155,6 +153,9 @@ class ScriptSequence(Script):
         self._current_subscript_stage['current_subscript'].plot(figure_list)
 
 if __name__ == '__main__':
+    from src.scripts import ScriptMinimalDummy
+
+    import src.scripts
     smc = ScriptMinimalDummy()
     scripts = {'ScriptMinimalDummy': ScriptMinimalDummy}
     settings = [Parameter('repetitions', 0, int, 'times the subscript will be executed')]

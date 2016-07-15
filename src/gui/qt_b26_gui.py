@@ -25,7 +25,7 @@ from collections import deque
 ###AARON_PC REMOVE
 from src.scripts.Select_NVs import Select_NVs_Simple
 import src.scripts
-from src.scripts import ScriptSequence
+from src.core import ScriptSequence
 
 from src.core.read_write_functions import load_b26_file
 # load the basic old_gui either from .ui file or from precompiled .py file
@@ -145,17 +145,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             # Helper function to make only column 1 editable
             def onScriptParamClick(item, column):
-                if column == 1:
+                if column == 1 and not isinstance(item.value, (Script, Instrument)) and not item.is_point():
                     self.tree_scripts.editItem(item, column)
 
             # tree structures
-            self.tree_scripts.itemClicked.connect(lambda: onScriptParamClick(self.tree_scripts.currentItem(),
-                                                                             self.tree_scripts.currentColumn()))
+            self.tree_scripts.itemClicked.connect(
+                lambda: onScriptParamClick(self.tree_scripts.currentItem(), self.tree_scripts.currentColumn()))
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
-            self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
+            # self.tree_scripts.installEventFilter(self)
+            # QtGui.QTreeWidget.installEventFilter(self)
+
+
             self.tabWidget.currentChanged.connect(lambda : self.switch_tab())
             self.tree_dataset.clicked.connect(lambda: self.btn_clicked())
 
+            self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
             self.tree_settings.itemExpanded.connect(lambda: self.refresh_instruments())
 
             # plots
@@ -184,9 +188,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         connect_controls()
         if os.path.exists(filename) == False:
             dialog_dir = ''
+
+            # set path to home path
             for x in ['HOME', 'HOMEPATH']:
                 if x in os.environ:
                     dialog_dir = os.environ[x]
+
+            # set to path of requested file
+            if os.path.exists(os.path.dirname(filename)):
+                dialog_dir = filename
+
             # we use the save dialog here so that we can also create a new file (the default config)
             # however, as a consequence if the user selects a file that already exists, such as a valid config file
             # the dialog asks if the file should be over-written (I guess that is ok, because this is what happens
@@ -243,6 +254,51 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         print('\n\n======================================================')
         print('================= Closing B26 Python LAB =============')
         print('======================================================\n\n')
+
+    def eventFilter(self, object, event):
+        """
+
+        TEMPORARY / UNDER DEVELOPMENT
+
+        THIS IS TO ALLOW COPYING OF PARAMETERS VIA DRAP AND DROP
+
+        Args:
+            object:
+            event:
+
+        Returns:
+
+        """
+        if (object is self.tree_scripts):
+            # print('XXXXXXX = event in scripts', event.type(),
+            #       QtCore.QEvent.DragEnter, QtCore.QEvent.DragMove, QtCore.QEvent.DragLeave)
+            if (event.type() == QtCore.QEvent.ChildAdded):
+                item = self.tree_scripts.selectedItems()[0]
+                if not isinstance(item.value, Script):
+                    print('ONLY SCRIPTS CAN BE DRAGGED')
+                    return False
+                print('XXX ChildAdded', self.tree_scripts.selectedItems()[0].name)
+
+
+
+                # if event.mimeData().hasUrls():
+                #     event.accept()  # must accept the dragEnterEvent or else the dropEvent can't occur !!!
+                #     print "accept"
+                # else:
+                #     event.ignore()
+                #     print "ignore"
+            if (event.type() == QtCore.QEvent.ChildRemoved):
+                print('XXX ChildRemoved', self.tree_scripts.selectedItems()[0].name)
+            if (event.type() == QtCore.QEvent.Drop):
+                print('XXX Drop')
+                # if event.mimeData().hasUrls():  # if file or link is dropped
+                #     urlcount = len(event.mimeData().urls())  # count number of drops
+                #     url = event.mimeData().urls()[0]  # get first url
+                #     object.setText(url.toString())  # assign first url to editline
+                #     # event.accept()  # doesnt appear to be needed
+            return False  # lets the event continue to the edit
+
+        return False
 
 
     def set_probe_file_name(self, checked):
