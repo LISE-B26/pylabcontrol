@@ -305,10 +305,10 @@ class Script(QObject):
         """
         elapsed_time = datetime.datetime.now() - self.start_time
 
-        # timedelta can only be multiplied and divided by integers thats we multiply everything by 1e5
+        # timedelta can only be multiplied and divided by integers thats we multiply everything by 1e6
         estimated_total_time = elapsed_time
-        estimated_total_time *= int(100 * 1e5)
-        estimated_total_time /= int(self.progress * 1e5)
+        estimated_total_time *= int(100 * 1e6)
+        estimated_total_time /= int(self.progress * 1e6)
 
         return estimated_total_time - elapsed_time
 

@@ -64,8 +64,8 @@ class Daq_Read_Counter(Script):
             for value in raw_data:
                 self.data['counts'].append(((float(value) - self.last_value) / normalization))
                 self.last_value = value
-
-            self.updateProgress.emit(50)
+            self.progress = 50.
+            self.updateProgress.emit(int(self.progress))
 
             time.sleep(2.0 / sample_rate)
 
