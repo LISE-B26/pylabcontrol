@@ -16,4 +16,9 @@ try:
     from read_probes import ReadProbes
 except:
     pass
+try:
+    from src.core.script_sequence import ScriptSequence
+except:
+    pass
+
 __all__ = ['Instrument', 'Parameter']

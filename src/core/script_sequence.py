@@ -48,6 +48,9 @@ class ScriptSequence(Script):
         if 'sweep_param' in self.settings:
             param_values = get_sweep_parameters()
             for value in param_values:
+                if self.settings['sweep_param'] == '':
+                    self.log('Choose a sweep parameter!')
+                    return
                 split_trace = self.settings['sweep_param'].split('.')
                 script = split_trace[0]
                 setting = split_trace[1:]
@@ -63,85 +66,46 @@ class ScriptSequence(Script):
                 for script_name in sorted_script_names:
                     self.scripts[script_name].run()
 
-    @classmethod
-    def set_up_script(cls, factory_scripts, script_parameter_list, param_sweep_bool):
-        if param_sweep_bool:
-            sweep_params = ScriptSequence.populate_sweep_param(factory_scripts)
-            factory_settings = [
-                Parameter('script_order', script_parameter_list),
-                Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
-                Parameter('min_value', 0, float, 'min parameter value'),
-                Parameter('max_value', 0, float, 'max parameter value'),
-                Parameter('N/value_step', 0, float,
-                          'either number of steps or parameter value step, depending on mode'),
-                Parameter('stepping_mode', 'N', ['N', 'value_step'],
-                          'Switch between number of steps and step amount')
-            ]
-        else:
-            factory_settings = [
-                Parameter('script_order', script_parameter_list),
-                Parameter('N', 0, int, 'times the subscripts will be executed')
-            ]
-        class_name = 'class' + str(cls._number_of_classes)
-        ss = ScriptSequence.script_sequence_factory(class_name, factory_scripts,
-                                                    factory_settings)  # dynamically creates class
-        print('SS', vars(ss))
-        #prevent multiple importation of the same script with different names
-        # for someclass in cls._class_list:
-        #     if (vars(ss)['_SCRIPTS'] == vars(someclass)['_SCRIPTS']):
-        #         print('CLASSNAME', vars(someclass)['_CLASS'])
-        #         return vars(someclass)['_CLASS']
-        ScriptSequence.import_dynamic_script(src.scripts, class_name, ss)  # imports created script in src.scripts.__init__
-        cls._class_list.append(ss)
-        cls._number_of_classes += 1
-        return class_name
-
-    @staticmethod
-    def script_sequence_factory(name, scripts, settings):
-        return type(name, (ScriptSequence, ), {'_SCRIPTS': scripts, '_DEFAULT_SETTINGS': settings})
-
-    @staticmethod
-    def import_dynamic_script(module, name, script_class):
-        setattr(module, name, script_class)
-
-
-    @staticmethod
-    def populate_sweep_param(scripts):
-        '''
-
-        Args:
-            scripts: a dict of classes inheriting from scripts
-
-        Returns:
-
-        '''
-
-
-        def get_parameter_from_dict(trace, dic, parameter_list):
-            """
-            appends keys in the dict to a list in the form key.subkey.subsubkey
-            Args:
-                trace: initial prefix
-                dic: dictionary
-                parameter_list: list to which append the parameters
-
-            Returns:
-
-            """
-            for key, value in dic.iteritems():
-                if isinstance(value, dict):
-                    parameter_list = get_parameter_from_dict(trace + '.' + key, value, parameter_list)
-                else:
-                    parameter_list.append(trace + '.' + key)
-            return parameter_list
-
-        parameter_list = []
-        for script_name in scripts.keys():
-            for setting in vars(scripts[script_name])['_DEFAULT_SETTINGS']:
-                parameter_list = get_parameter_from_dict(script_name, setting, parameter_list)
-
-
-        return parameter_list
+    # @classmethod
+    # def set_up_script(cls, factory_scripts, script_parameter_list, param_sweep_bool):
+    #     if param_sweep_bool:
+    #         sweep_params = ScriptSequence.populate_sweep_param(factory_scripts)
+    #         factory_settings = [
+    #             Parameter('script_order', script_parameter_list),
+    #             Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
+    #             Parameter('min_value', 0, float, 'min parameter value'),
+    #             Parameter('max_value', 0, float, 'max parameter value'),
+    #             Parameter('N/value_step', 0, float,
+    #                       'either number of steps or parameter value step, depending on mode'),
+    #             Parameter('stepping_mode', 'N', ['N', 'value_step'],
+    #                       'Switch between number of steps and step amount')
+    #         ]
+    #     else:
+    #         factory_settings = [
+    #             Parameter('script_order', script_parameter_list),
+    #             Parameter('N', 0, int, 'times the subscripts will be executed')
+    #         ]
+    #     class_name = 'class' + str(cls._number_of_classes)
+    #     ss = ScriptSequence.script_sequence_factory(class_name, factory_scripts,
+    #                                                 factory_settings)  # dynamically creates class
+    #     print('SS', vars(ss))
+    #     #prevent multiple importation of the same script with different names
+    #     # for someclass in cls._class_list:
+    #     #     if (vars(ss)['_SCRIPTS'] == vars(someclass)['_SCRIPTS']):
+    #     #         print('CLASSNAME', vars(someclass)['_CLASS'])
+    #     #         return vars(someclass)['_CLASS']
+    #     ScriptSequence.import_dynamic_script(src.scripts, class_name, ss)  # imports created script in src.scripts.__init__
+    #     cls._class_list.append(ss)
+    #     cls._number_of_classes += 1
+    #     return class_name
+    #
+    # @staticmethod
+    # def script_sequence_factory(name, scripts, settings):
+    #     return type(name, (ScriptSequence, ), {'_SCRIPTS': scripts, '_DEFAULT_SETTINGS': settings})
+    #
+    # @staticmethod
+    # def import_dynamic_script(module, name, script_class):
+    #     setattr(module, name, script_class)
 
         # subscript_settings = []
         # scripts_to_search = {}

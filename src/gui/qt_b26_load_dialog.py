@@ -11,7 +11,7 @@ from PyQt4.uic import loadUiType
 from src.core.read_write_functions import load_b26_file
 from src.core import Parameter
 import src.scripts
-from src.core import ScriptSequence
+from src.core import Script
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
@@ -242,20 +242,23 @@ Returns:
                 new_script_dict.update({script: self.elements_old[script]})
             elif script in self.elements_from_file:
                 new_script_dict.update({script: self.elements_from_file[script]})
-        factory_scripts = dict()
-        for script in new_script_dict.keys():
-            if isinstance(new_script_dict[script], dict):
-                factory_scripts.update({script: eval('src.scripts.' + new_script_dict[script]['class'])})
-            else: #if an object (already loaded) rather than a dict
-                factory_scripts.update({script: new_script_dict[script].__class__})
-        new_script_parameter_list = []
+        # factory_scripts = dict()
+        # for script in new_script_dict.keys():
+        #     if isinstance(new_script_dict[script], dict):
+        #         factory_scripts.update({script: eval('src.scripts.' + new_script_dict[script]['class'])})
+        #     else: #if an object (already loaded) rather than a dict
+        #         factory_scripts.update({script: new_script_dict[script].__class__})
+        new_script_parameter_dict = {}
         for index, script in enumerate(new_script_list):
-            new_script_parameter_list.append(Parameter(script, index, int, 'Order in queue for this script'))
-        class_name = ScriptSequence.set_up_script(factory_scripts, new_script_parameter_list, self.cmb_looping_variable.currentText() == 'Parameter Sweep')
-        new_script_dict = {name: {'class': class_name, 'scripts': new_script_dict, 'settings': {} }}
+            new_script_parameter_dict.update({script: index})
+        print('NSPD', new_script_parameter_dict)
+
+        # class_name = Script.set_up_dynamic_script(factory_scripts, new_script_parameter_list, self.cmb_looping_variable.currentText() == 'Parameter Sweep')
+        new_script_dict = {name: {'class': 'ScriptSequence', 'scripts': new_script_dict, 'settings': {'script_order': new_script_parameter_dict, 'sweep_param': ''} }}
         self.selected_element_name = name
         self.fill_tree(self.tree_loaded, new_script_dict)
         self.elements_from_file.update(new_script_dict)
+        print('NSD', new_script_dict)
 
 
 
