@@ -1,0 +1,1 @@
+This subfolder contains basic scripts that do not depend on other scripts

@@ -2,9 +2,6 @@ from src.core.scripts import Script
 from src.core import Parameter
 from src.instruments import Pulse
 from src.scripts import ExecutePulseBlasterSequence
-import numpy as np
-
-AVERAGES_PER_SCAN = 100000  # 1E6
 
 
 class PulseDelays(ExecutePulseBlasterSequence):
@@ -15,7 +12,8 @@ class PulseDelays(ExecutePulseBlasterSequence):
         Parameter('max_delay', 1000, int, 'maximum delay over which to scan'),
         Parameter('delay_interval_step_size', 15, int, 'Amount delay is increased for each new run'),
         Parameter('num_averages', 1000, int, 'number of times to average for each delay'),
-        Parameter('reset_time', 10000, int, 'How long to wait for laser to turn off and reach steady state')
+        Parameter('reset_time', 10000, int, 'How long to wait for laser to turn off and reach steady state'),
+        Parameter('skip_invalid_sequences', False, bool, 'Skips any sequences with <15ns commands')
     ]
 
     def _create_pulse_sequences(self):

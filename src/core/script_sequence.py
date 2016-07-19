@@ -1,6 +1,7 @@
 from src.core import Parameter, Script
 import src.scripts
 import numpy as np
+from PyQt4.QtCore import pyqtSlot
 
 class ScriptIterator(Script):
     '''
@@ -140,6 +141,17 @@ Script.
         #     # for subscript_name in subscripts:
         #     #     scripts_to_search.update({subscript_name: {'trace': trace, 'object': subscripts[subscript_name]}})
         # return subscript_settings
+
+    @pyqtSlot(int)
+    def _receive_signal(self, progress):
+        """
+        this function takes care of signals emitted by the subscripts
+        Args:
+            progress: progress of subscript
+        """
+
+        self.progress = 100. * (float(self.index) + float(progress) / 100.) / self.settings['N']
+        self.updateProgress.emit(int(self.progress))
 
     def plot(self, figure_list):
         '''

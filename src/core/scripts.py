@@ -95,6 +95,7 @@ class Script(QObject):
         # default value is 'none', overwrite this in script if it has plotting capabilities
         self._plot_refresh = True
 
+        self.progress = None
     @property
     def data_path(self):
         return self._data_path
@@ -836,7 +837,10 @@ class Script(QObject):
             sub_scripts = {}
             sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments)
 
-            if sub_scripts_dict is not None: #edited 16/07/14 to add compatibility with script sequences, revert this if things break
+            # todo: this is now not working with ScriptSequences, i.e. dynmic scripts. need to re-thing the API
+            # if sub_scripts_dict is not None and not isinstance(sub_scripts_dict[sub_scripts_dict.keys()[0]], object): #edited 16/07/14 to add compatibility with script sequences, revert this if things break
+            # with above line subscripts are not updated!
+            if sub_scripts_dict is not None:
                 for k, v in sub_scripts_dict.iteritems():
                     #update settings, updates instrument and settings
                     sub_scripts[k].update(v)
@@ -1202,11 +1206,9 @@ def create_dynamic_script_class(script_information):
     script_information['class'] = class_name
     return script_information
 
-
-def populate_sweep_param(scripts, parameter_list, trace = ''):
-    '''
-    This method returns a list of all parameters of the input scripts in the form script_name.variable. If the input
-    script is a ScriptIterator, it instead returns the parameters of its subscripts.
+    @staticmethod
+    def populate_sweep_param(scripts, parameter_list, trace = ''):
+        '''
 
     Args:
         scripts: a dict of {'class name': <class object>} pairs

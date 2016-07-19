@@ -83,18 +83,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.list_history.setModel(self.history_model)
             self.list_history.show()
 
-            # self.tree_settings.setColumnWidth(0, 400)
-            #
-            # self.tree_scripts.setColumnWidth(0, 300)
-            print('TREE_SCRIPTS', type(self.tree_scripts))
             self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-
             self.tree_probes.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            self.tree_settings.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
-            # self.tree_dataset.setColumnWidth(0, 100)
-            # self.tree_dataset.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-
-            # self.tree_gui_settings.setColumnWidth(0, 500)
             self.tree_gui_settings.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
             self.tree_gui_settings.doubleClicked.connect(self.edit_tree_item)
 
@@ -145,8 +137,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             # Helper function to make only column 1 editable
             def onScriptParamClick(item, column):
+                tree = item.treeWidget()
                 if column == 1 and not isinstance(item.value, (Script, Instrument)) and not item.is_point():
-                    self.tree_scripts.editItem(item, column)
+                    # self.tree_scripts.editItem(item, column)
+                    tree.editItem(item, column)
 
             # tree structures
             self.tree_scripts.itemClicked.connect(
@@ -159,6 +153,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tabWidget.currentChanged.connect(lambda : self.switch_tab())
             self.tree_dataset.clicked.connect(lambda: self.btn_clicked())
 
+            self.tree_settings.itemClicked.connect(
+                lambda: onScriptParamClick(self.tree_settings.currentItem(), self.tree_settings.currentColumn()))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
             self.tree_settings.itemExpanded.connect(lambda: self.refresh_instruments())
 
@@ -178,11 +174,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # create a "delegate" --- an editor that uses our new Editor Factory when creating editors,
         # and use that for tree_scripts
+        # needed to avoid rounding of numbers
         delegate = QtGui.QStyledItemDelegate()
         new_factory = CustomEditorFactory()
         delegate.setItemEditorFactory(new_factory)
         self.tree_scripts.setItemDelegate(delegate)
-
         setup_trees()
 
         connect_controls()
@@ -854,6 +850,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             remaining_time = str(datetime.timedelta(seconds=script.remaining_time.seconds))
             self.lbl_time_estimate.setText('time remaining: {:s}'.format(remaining_time))
 
+
+
+
+
+
+            # old stuff: to be deleted
             # def _translate(context, text, disambig):
             #     _encoding = QtGui.QApplication.UnicodeUTF8
             #     return QtGui.QApplication.translate(context, text, disambig, _encoding)
@@ -974,11 +976,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         for key, value in parameters.iteritems():
             if isinstance(value, Parameter):
                 item  = B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
-                item.setForeground(0,QtGui.QColor(255, 0, 0))
+                # item.setForeground(0,QtGui.QColor(255, 0, 0))
                 print(item.name)
             else:
                 item = B26QTreeItem(tree, key, value, type(value), '')
-                item.setForeground(0,QtGui.QColor(255, 0, 0))
+                # item.setForeground(0,QtGui.QColor(255, 0, 0))
 
     def fill_treeview(self, tree, input_dict):
         """
@@ -1153,7 +1155,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     probe_dict=probes,
                     probes=probes_loaded,
                     instruments=instruments_loaded)
-
             return instruments_loaded, scripts_loaded, probes_loaded
 
         print('loading script/instrument/probes config from {:s}'.format(file_name))
@@ -1164,6 +1165,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 'WARNING path to settings file ({:s}) in config file is different from path of settings file ({:s})'.format(
                     config['settings_file'], file_name))
             config['settings_file'] = file_name
+            print('loading of {:s} successful'.format(file_name))
         except Exception:
             print('WARNING path to settings file ({:s}) invalid use default settings'.format(file_name))
             config = self._DEFAULT_CONFIG
