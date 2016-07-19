@@ -157,7 +157,6 @@ for a given experiment
             self.data['counts'][index] = self._normalize_to_kCounts(self.count_data[index], self.measurement_gate_width,
                                                                     self.current_averages)
             self.sequence_index = index
-            # self.updateProgress.emit(int(99 * (index + 1.0) / len(self.pulse_sequences) / num_1E6_avg_pb_programs + (99 * (average_loop / num_1E6_avg_pb_programs))))
             self.updateProgress.emit(self._calc_progress(index))
 
     def _single_sequence(self, pulse_sequence, num_loops, num_daq_reads):
@@ -237,7 +236,7 @@ for a given experiment
             return ((signal - baseline_min) / (baseline_max - baseline_min))
 
     def _normalize_to_kCounts(self, signal, gate_width=1, num_averages=1):
-        return (1. * signal * (1E6 / (gate_width * num_averages)))
+        return (1. * signal * (1E6 / (gate_width * num_averages)))  # 1E6 is to convert from ns to ms
 
     def validate(self):
         pulse_blaster = self.instruments['PB']['instance']

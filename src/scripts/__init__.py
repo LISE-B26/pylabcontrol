@@ -146,6 +146,11 @@ except:
 # ==== import Pulse blaster scripts============================================================================
 # =============================================================================================================
 try:
+    from exec_pulse_blaster_sequence import ExecutePulseBlasterSequence
+except:
+    print("./src/scripts/__init__ warning! ExecutePulseBlasterSequence did not load")
+
+try:
     from pulse_delays import PulseDelays
 except:
     print("./src/scripts/__init__ warning! PulseDelays did not load")
@@ -184,10 +189,7 @@ try:
 except:
     print("./src/scripts/__init__ warning! Rabi_Loop did not load")
 
-try:
-    from exec_pulse_blaster_sequence import ExecutePulseBlasterSequence
-except:
-    print("./src/scripts/__init__ warning! Rabi_Loop did not load")
+
     # =============================================================================================================
 
 

@@ -103,7 +103,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
 
         elif isinstance(self.value, Script):
-
             for key, value in self.value.settings.iteritems():
                 B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key])
                 # B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key])

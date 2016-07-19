@@ -848,11 +848,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # Estimate remaining time if progress has been made
         if progress:
+            pass
             # convert timedelta object into a string
             # remaining_time =':'.join(['{:02d}'.format(int(i)) for i in str(script.remaining_time).split(':')[:3]])
             # print('XXX current script', script.name, script, type(script))
-            remaining_time = str(datetime.timedelta(seconds=script.remaining_time.seconds))
-            self.lbl_time_estimate.setText('time remaining: {:s}'.format(remaining_time))
+            # remaining_time = str(datetime.timedelta(seconds=script.remaining_time.seconds))
+            # self.lbl_time_estimate.setText('time remaining: {:s}'.format(remaining_time))
 
             # def _translate(context, text, disambig):
             #     _encoding = QtGui.QApplication.UnicodeUTF8
@@ -974,11 +975,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         for key, value in parameters.iteritems():
             if isinstance(value, Parameter):
                 item  = B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
-                item.setForeground(0,QtGui.QColor(255, 0, 0))
+                # item.setForeground(0,QtGui.QColor(255, 0, 0))
                 print(item.name)
             else:
                 item = B26QTreeItem(tree, key, value, type(value), '')
-                item.setForeground(0,QtGui.QColor(255, 0, 0))
+                # item.setForeground(0,QtGui.QColor(255, 0, 0))
 
     def fill_treeview(self, tree, input_dict):
         """
@@ -1153,7 +1154,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     probe_dict=probes,
                     probes=probes_loaded,
                     instruments=instruments_loaded)
-
+                for s in scripts_loaded.values():
+                    print('AAAAA', s.scripts)
+                    if 'sub_script_with_sign' in s.scripts:
+                        print('sub_script_with_sign', s.scripts['sub_script_with_sign'].settings)
+                        print('ScriptDummyWithSubScript', scripts)
             return instruments_loaded, scripts_loaded, probes_loaded
 
         print('loading script/instrument/probes config from {:s}'.format(file_name))
@@ -1164,6 +1169,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 'WARNING path to settings file ({:s}) in config file is different from path of settings file ({:s})'.format(
                     config['settings_file'], file_name))
             config['settings_file'] = file_name
+            print('loading of {:s} successful'.format(file_name))
         except Exception:
             print('WARNING path to settings file ({:s}) invalid use default settings'.format(file_name))
             config = self._DEFAULT_CONFIG

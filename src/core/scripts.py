@@ -876,7 +876,10 @@ class Script(QObject):
             sub_scripts = {}
             sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments)
 
-            if sub_scripts_dict is not None and not isinstance(sub_scripts_dict[sub_scripts_dict.keys()[0]], object): #edited 16/07/14 to add compatibility with script sequences, revert this if things break
+            # todo: this is now not working with ScriptSequences, i.e. dynmic scripts. need to re-thing the API
+            # if sub_scripts_dict is not None and not isinstance(sub_scripts_dict[sub_scripts_dict.keys()[0]], object): #edited 16/07/14 to add compatibility with script sequences, revert this if things break
+            # with above line subscripts are not updated!
+            if sub_scripts_dict is not None:
                 for k, v in sub_scripts_dict.iteritems():
                     #update settings, updates instrument and settings
                     sub_scripts[k].update(v)
@@ -889,7 +892,7 @@ class Script(QObject):
         for script_name, script_info in script_dict.iteritems():
 
             def create_dynamic_script(script_information):
-                print('SI', script_information)
+                print('THIS IS A DYNAMIC SCRIPT')
                 factory_scripts = {}
                 module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = get_script_information(
                     script_information)
@@ -927,12 +930,10 @@ class Script(QObject):
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
                 # create all dynamic scripts (including subscripts of dynamic scripts)
-                print('SI_1', script_info)
                 module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = get_script_information(script_info)
                 if script_class_name == 'ScriptSequence':
-                    script_class_name = create_dynamic_script(script_info)
+                    create_dynamic_script(script_info)
                     module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = get_script_information(script_info)
-                print('SI_2', script_info)
 
                 module = __import__(module_path, fromlist=[script_class_name])
                 # this returns the name of the module that was imported.
