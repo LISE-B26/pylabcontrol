@@ -83,18 +83,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.list_history.setModel(self.history_model)
             self.list_history.show()
 
-            # self.tree_settings.setColumnWidth(0, 400)
-            #
-            # self.tree_scripts.setColumnWidth(0, 300)
-            print('TREE_SCRIPTS', type(self.tree_scripts))
             self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-
             self.tree_probes.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            self.tree_settings.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
-            # self.tree_dataset.setColumnWidth(0, 100)
-            # self.tree_dataset.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-
-            # self.tree_gui_settings.setColumnWidth(0, 500)
             self.tree_gui_settings.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
             self.tree_gui_settings.doubleClicked.connect(self.edit_tree_item)
 
@@ -145,8 +137,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             # Helper function to make only column 1 editable
             def onScriptParamClick(item, column):
+                tree = item.treeWidget()
                 if column == 1 and not isinstance(item.value, (Script, Instrument)) and not item.is_point():
-                    self.tree_scripts.editItem(item, column)
+                    # self.tree_scripts.editItem(item, column)
+                    tree.editItem(item, column)
 
             # tree structures
             self.tree_scripts.itemClicked.connect(
@@ -159,6 +153,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tabWidget.currentChanged.connect(lambda : self.switch_tab())
             self.tree_dataset.clicked.connect(lambda: self.btn_clicked())
 
+            self.tree_settings.itemClicked.connect(
+                lambda: onScriptParamClick(self.tree_settings.currentItem(), self.tree_settings.currentColumn()))
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
             self.tree_settings.itemExpanded.connect(lambda: self.refresh_instruments())
 
@@ -178,11 +174,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # create a "delegate" --- an editor that uses our new Editor Factory when creating editors,
         # and use that for tree_scripts
+        # needed to avoid rounding of numbers
         delegate = QtGui.QStyledItemDelegate()
         new_factory = CustomEditorFactory()
         delegate.setItemEditorFactory(new_factory)
         self.tree_scripts.setItemDelegate(delegate)
-
         setup_trees()
 
         connect_controls()

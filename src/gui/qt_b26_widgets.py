@@ -137,7 +137,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         self.setToolTip(1, unicode(self.info if isinstance(self.info, str) else ''))
 
         # self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
-        self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
+        # self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
         if self._visible is not None:
             self.check_show = QtGui.QCheckBox()
             self.check_show.setChecked(self.visible)
