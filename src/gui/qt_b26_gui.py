@@ -844,13 +844,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # Estimate remaining time if progress has been made
         if progress:
-            pass
             # convert timedelta object into a string
             # remaining_time =':'.join(['{:02d}'.format(int(i)) for i in str(script.remaining_time).split(':')[:3]])
             # print('XXX current script', script.name, script, type(script))
-            # remaining_time = str(datetime.timedelta(seconds=script.remaining_time.seconds))
-            # self.lbl_time_estimate.setText('time remaining: {:s}'.format(remaining_time))
+            remaining_time = str(datetime.timedelta(seconds=script.remaining_time.seconds))
+            self.lbl_time_estimate.setText('time remaining: {:s}'.format(remaining_time))
 
+
+
+
+
+
+            # old stuff: to be deleted
             # def _translate(context, text, disambig):
             #     _encoding = QtGui.QApplication.UnicodeUTF8
             #     return QtGui.QApplication.translate(context, text, disambig, _encoding)
@@ -1150,11 +1155,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     probe_dict=probes,
                     probes=probes_loaded,
                     instruments=instruments_loaded)
-                for s in scripts_loaded.values():
-                    print('AAAAA', s.scripts)
-                    if 'sub_script_with_sign' in s.scripts:
-                        print('sub_script_with_sign', s.scripts['sub_script_with_sign'].settings)
-                        print('ScriptDummyWithSubScript', scripts)
             return instruments_loaded, scripts_loaded, probes_loaded
 
         print('loading script/instrument/probes config from {:s}'.format(file_name))

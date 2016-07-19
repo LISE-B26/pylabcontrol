@@ -127,8 +127,8 @@ class GalvoScan(Script):
             #     progress =
             #
             #     update_time = current_time
-            progress = int(float(yNum + 1) / len(self.y_array) * 100)
-            self.updateProgress.emit(progress)
+            self.progress = float(yNum + 1) / len(self.y_array) * 100
+            self.updateProgress.emit(int(self.progress))
 
         # self._plotting = False
 

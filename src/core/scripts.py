@@ -98,6 +98,7 @@ class Script(QObject):
         # default value is 'none', overwrite this in script if it has plotting capabilities
         self._plot_refresh = True
 
+        self.progress = None
     @property
     def data_path(self):
         return self._data_path
