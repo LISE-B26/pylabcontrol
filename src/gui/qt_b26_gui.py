@@ -25,7 +25,7 @@ from collections import deque
 ###AARON_PC REMOVE
 from src.scripts.Select_NVs import Select_NVs_Simple
 import src.scripts
-from src.core import ScriptSequence
+from src.core import ScriptIterator
 
 from src.core.read_write_functions import load_b26_file
 # load the basic old_gui either from .ui file or from precompiled .py file
@@ -1124,13 +1124,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 if len(failed) > 0:
                     print('WARNING! Following instruments could not be loaded: ', failed)
 
-                # special case for ScriptSequence scripts
+                # special case for ScriptIterator scripts
                 # for script in scripts.keys():
-                #     if scripts[script]['class'] == 'ScriptSequence':
+                #     if scripts[script]['class'] == 'ScriptIterator':
                 #         factory_scripts = {}
                 #         for sub_script in scripts[script]['scripts']:
-                #             if scripts[script]['scripts'][sub_script]['class'] == 'ScriptSequence':
-                #                 factory_scripts.update({sub_script: eval('src.core.ScriptSequence')})
+                #             if scripts[script]['scripts'][sub_script]['class'] == 'ScriptIterator':
+                #                 factory_scripts.update({sub_script: eval('src.core.ScriptIterator')})
                 #             else:
                 #                 factory_scripts.update({sub_script: eval('src.scripts.' + scripts[script]['scripts'][sub_script]['class'])})
                 #         #distinguish between looping and param_sweep modes
@@ -1317,14 +1317,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             print(dictator['scripts'])
 
             #special case saving for script_sequence classes
-            def label_as_scriptsequence(dictator):
+            def label_as_scriptiterator(dictator):
                 print('DICTATOR', dictator)
                 for script in dictator['scripts']:
-                    if issubclass(eval('src.scripts.' + dictator['scripts'][script]['class']), ScriptSequence):
-                        dictator['scripts'][script]['class'] = 'ScriptSequence'
-                        label_as_scriptsequence(dictator['scripts'][script])
+                    if issubclass(eval('src.scripts.' + dictator['scripts'][script]['class']), ScriptIterator):
+                        dictator['scripts'][script]['class'] = 'ScriptIterator'
+                        label_as_scriptiterator(dictator['scripts'][script])
 
-            label_as_scriptsequence(dictator)
+            label_as_scriptiterator(dictator)
 
         for instrument, probe_dict in self.probes.iteritems():
             dictator['probes'].update({instrument: ','.join(probe_dict.keys())})

@@ -2,37 +2,54 @@ from src.core import Parameter, Script
 import src.scripts
 import numpy as np
 
-class ScriptSequence(Script):
-    # _number_of_classes = 0
-    # _class_list = []
+class ScriptIterator(Script):
+    '''
+This is a template class for scripts that iterate over a series of subscripts in either a loop /
+a parameter sweep / future: list of points.
+CAUTION: This class has some circular dependencies with Script that are avoided by only importing it in very local scope
+in Script (since this inherits from Script, it can't be imported globally in Script). Use caution when making changes in
+Script.
+    '''
 
     _DEFAULT_SETTINGS = []
+    # The default settings as dynamically created:
+    # if param_sweep_bool:
+    #     sweep_params = Script.populate_sweep_param(factory_scripts, [''])
+    #     factory_settings = [
+    #         Parameter('script_order', script_order),
+    #         Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
+    #         Parameter('min_value', 0, float, 'min parameter value'),
+    #         Parameter('max_value', 0, float, 'max parameter value'),
+    #         Parameter('N/value_step', 0, float,
+    #                   'either number of steps or parameter value step, depending on mode'),
+    #         Parameter('stepping_mode', 'N', ['N', 'value_step'],
+    #                   'Switch between number of steps and step amount')
+    #     ]
+    # else:
+    #     factory_settings = [
+    #         Parameter('script_order', script_order),
+    #         Parameter('N', 0, int, 'times the subscripts will be executed')
+    #     ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}
+    #_SCRIPTS is populated dynamically with the required subscripts
+
+    _number_of_classes = 0 # keeps track of the number of dynamically created ScriptIterator classes that have been created
+    _class_list = [] # list of current dynamically created ScriptIterator classes
 
     def __init__(self, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
         Default script initialization
         """
 
-        #
-        # if isinstance(scripts, list) and isinstance(scripts[0], Script):
-        #
-        #     self._SCRIPTS = {s.name: s.__class__ for s in scripts}
-        #     scripts = {s.name: s for s in scripts}
-        # else:
-        #     script_class =
-        #     self._SCRIPTS = {s.name: s.__class__ for s in scripts}
-        #     print('xxxxx', self._SCRIPTS.__class__)
-
         Script.__init__(self, name, scripts = scripts, settings = settings, log_function= log_function, data_path = data_path)
 
 
     def _function(self):
-        """
-        """
-
+        '''
+        Runs either a loop or a parameter sweep over the subscripts in the order defined by the setting 'script_order'
+        '''
         def get_sweep_parameters():
             #in both cases, param values have tolist to make sure that they are python types (ex float) rather than numpy
             #types (ex np.float64), the latter of which can cause typing issues
@@ -69,7 +86,7 @@ class ScriptSequence(Script):
     # @classmethod
     # def set_up_script(cls, factory_scripts, script_parameter_list, param_sweep_bool):
     #     if param_sweep_bool:
-    #         sweep_params = ScriptSequence.populate_sweep_param(factory_scripts)
+    #         sweep_params = ScriptIterator.populate_sweep_param(factory_scripts)
     #         factory_settings = [
     #             Parameter('script_order', script_parameter_list),
     #             Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
@@ -86,7 +103,7 @@ class ScriptSequence(Script):
     #             Parameter('N', 0, int, 'times the subscripts will be executed')
     #         ]
     #     class_name = 'class' + str(cls._number_of_classes)
-    #     ss = ScriptSequence.script_sequence_factory(class_name, factory_scripts,
+    #     ss = ScriptIterator.script_sequence_factory(class_name, factory_scripts,
     #                                                 factory_settings)  # dynamically creates class
     #     print('SS', vars(ss))
     #     #prevent multiple importation of the same script with different names
@@ -94,14 +111,14 @@ class ScriptSequence(Script):
     #     #     if (vars(ss)['_SCRIPTS'] == vars(someclass)['_SCRIPTS']):
     #     #         print('CLASSNAME', vars(someclass)['_CLASS'])
     #     #         return vars(someclass)['_CLASS']
-    #     ScriptSequence.import_dynamic_script(src.scripts, class_name, ss)  # imports created script in src.scripts.__init__
+    #     ScriptIterator.import_dynamic_script(src.scripts, class_name, ss)  # imports created script in src.scripts.__init__
     #     cls._class_list.append(ss)
     #     cls._number_of_classes += 1
     #     return class_name
     #
     # @staticmethod
     # def script_sequence_factory(name, scripts, settings):
-    #     return type(name, (ScriptSequence, ), {'_SCRIPTS': scripts, '_DEFAULT_SETTINGS': settings})
+    #     return type(name, (ScriptIterator, ), {'_SCRIPTS': scripts, '_DEFAULT_SETTINGS': settings})
     #
     # @staticmethod
     # def import_dynamic_script(module, name, script_class):
@@ -125,28 +142,40 @@ class ScriptSequence(Script):
         # return subscript_settings
 
     def plot(self, figure_list):
+        '''
+        When each subscript is called, uses its standard plotting
+
+        Args:
+            figure_list: list of figures passed from the guit
+
+        '''
+        #TODO: be smarter about how we plot ScriptIterator
         self._current_subscript_stage['current_subscript'].plot(figure_list)
 
 if __name__ == '__main__':
-    from src.scripts import ScriptMinimalDummy
+    pass
 
-    import src.scripts
-    smc = ScriptMinimalDummy()
-    scripts = {'ScriptMinimalDummy': ScriptMinimalDummy}
-    settings = [Parameter('repetitions', 0, int, 'times the subscript will be executed')]
-    script_loop = ScriptSequence.script_sequence_factory('loop', scripts, settings)
-    ScriptSequence.import_dynamic_script(src.scripts, 'loop', script_loop)
-    # a = script_loop({'SMC': smc})
-    # a._function()
-
-    script, failed, instr = Script.load_and_append({'loop':
-                                                        {'class': 'loop',
-                                                         'settings': {'repetitions': 1},
-                                                         'scripts': {'ScriptMinimalDummy': {'class': 'ScriptMinimalDummy', 'settings': {'parameter': 3}}}
-                                                         }
-                                                    }
-                                                   )
-    print(script['loop'].settings)
-    print(script)
-    print(failed)
-    print(instr)
+    #TODO: update example code
+    #OLD SAMPLE CODE WITH OUTDATED API
+    # from src.scripts import ScriptMinimalDummy
+    #
+    # import src.scripts
+    # smc = ScriptMinimalDummy()
+    # scripts = {'ScriptMinimalDummy': ScriptMinimalDummy}
+    # settings = [Parameter('repetitions', 0, int, 'times the subscript will be executed')]
+    # script_loop = ScriptIterator.script_sequence_factory('loop', scripts, settings)
+    # ScriptIterator.import_dynamic_script(src.scripts, 'loop', script_loop)
+    # # a = script_loop({'SMC': smc})
+    # # a._function()
+    #
+    # script, failed, instr = Script.load_and_append({'loop':
+    #                                                     {'class': 'loop',
+    #                                                      'settings': {'repetitions': 1},
+    #                                                      'scripts': {'ScriptMinimalDummy': {'class': 'ScriptMinimalDummy', 'settings': {'parameter': 3}}}
+    #                                                      }
+    #                                                 }
+    #                                                )
+    # print(script['loop'].settings)
+    # print(script)
+    # print(failed)
+    # print(instr)

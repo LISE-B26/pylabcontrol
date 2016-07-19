@@ -254,7 +254,7 @@ Returns:
         print('NSPD', new_script_parameter_dict)
 
         # class_name = Script.set_up_dynamic_script(factory_scripts, new_script_parameter_list, self.cmb_looping_variable.currentText() == 'Parameter Sweep')
-        new_script_dict = {name: {'class': 'ScriptSequence', 'scripts': new_script_dict, 'settings': {'script_order': new_script_parameter_dict, 'sweep_param': ''} }}
+        new_script_dict = {name: {'class': 'ScriptIterator', 'scripts': new_script_dict, 'settings': {'script_order': new_script_parameter_dict, 'sweep_param': ''} }}
         self.selected_element_name = name
         self.fill_tree(self.tree_loaded, new_script_dict)
         self.elements_from_file.update(new_script_dict)

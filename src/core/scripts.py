@@ -36,9 +36,6 @@ class Script(QObject):
         Parameter('save', False, bool,'check to automatically save data'),
     ]
 
-    _number_of_classes = 0
-    _class_list = []
-
     def __init__(self, name=None, settings=None, instruments=None, scripts=None, log_function=None, data_path=None):
         """
         executes scripts and stores script parameters and settings
@@ -775,43 +772,6 @@ class Script(QObject):
         updated_instruments = {}
         updated_instruments.update(instruments)
 
-        def get_script_information(script_information):
-            """
-
-            Args:
-                script_information: information of the script. This can be
-                    - a dictionary
-                    - a Script instance
-                    - name of Script class
-
-            Returns: module_path, script_class_name, script_settings, script_instruments, script_sub_scripts
-
-            """
-            script_settings = None
-            script_instruments = None
-            script_sub_scripts = None
-            script_class_name = None
-            if isinstance(script_information, dict):
-                script_settings = script_information['settings']
-                script_class_name = str(script_information['class'])
-                if 'instruments' in script_information:
-                    script_instruments = script_information['instruments']
-                if 'scripts' in script_information:
-                    script_sub_scripts = script_information['scripts']
-            elif isinstance(script_information, str):
-                script_class_name = script_information
-            elif issubclass(script_information, Script):
-                # watch out when testing this code from __main__, then classes might not be identified correctly because the path is different
-                # to avoid this problem call from src.core import Script (otherwise the path to Script is __main__.Script)
-                script_class_name = script_information.__name__
-            if len(script_class_name.split('.')) == 1:
-                module_path = 'src.scripts'
-            else:
-                module_path = 'src.scripts.' + '.'.join(script_class_name.split('.')[0:-1])
-                script_class_name = script_information.split('.')[-1]
-
-            return module_path, script_class_name, script_settings, script_instruments, script_sub_scripts
-
         def get_instruments(class_of_script, script_instruments, instruments):
             """
 
@@ -876,7 +836,7 @@ class Script(QObject):
             sub_scripts = {}
             sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments)
 
-            if sub_scripts_dict is not None and not isinstance(sub_scripts_dict[sub_scripts_dict.keys()[0]], object): #edited 16/07/14 to add compatibility with script sequences, revert this if things break
+            if sub_scripts_dict is not None: #edited 16/07/14 to add compatibility with script sequences, revert this if things break
                 for k, v in sub_scripts_dict.iteritems():
                     #update settings, updates instrument and settings
                     sub_scripts[k].update(v)
@@ -888,51 +848,19 @@ class Script(QObject):
 
         for script_name, script_info in script_dict.iteritems():
 
-            def create_dynamic_script(script_information):
-                print('SI', script_information)
-                factory_scripts = {}
-                module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = get_script_information(
-                    script_information)
-                if isinstance(script_information, dict):
-                    for sub_script in script_sub_scripts:
-                        import src.scripts
-                        if script_sub_scripts[sub_script]['class'] == 'ScriptSequence':
-                            subscript_class_name = create_dynamic_script(script_sub_scripts[sub_script])
-                            factory_scripts.update({sub_script: eval('src.scripts.' + subscript_class_name)})
-                        else:
-                            factory_scripts.update(
-                                {sub_script: eval('src.scripts.' + script_sub_scripts[sub_script]['class'])})
-                    script_parameter_list = []
-                    for sub_script in script_settings['script_order'].keys():
-                        script_parameter_list.append(
-                            Parameter(sub_script, script_settings['script_order'][sub_script], int,
-                                      'Order in queue for this script'))
-                else:  # if an object (already loaded) rather than a dict
-                    factory_scripts.update({script_class_name: script_information})
-                    script_parameter_list = []
-                    for sub_script in script_settings['script_order'].keys():
-                        script_parameter_list.append(
-                            Parameter(sub_script, script_settings['script_order'][sub_script], int,
-                                      'Order in queue for this script'))
-                print('SCRIPT_SETTINGS', script_settings)
-                print('HERE', 'sweep_param' in script_settings)
-                class_name = Script.set_up_dynamic_script(factory_scripts, script_parameter_list, 'sweep_param' in script_settings)
-                script_information['class'] = class_name
-                print('FACTORY', factory_scripts)
-                return class_name
-
             # check if script already exists
             if script_name in scripts.keys():
                 print('WARNING: script {:s} already exists. Did not load!'.format(script_name))
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
-                # create all dynamic scripts (including subscripts of dynamic scripts)
-                print('SI_1', script_info)
-                module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = get_script_information(script_info)
-                if script_class_name == 'ScriptSequence':
-                    script_class_name = create_dynamic_script(script_info)
-                    module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = get_script_information(script_info)
-                print('SI_2', script_info)
+                module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
+
+                #creates all dynamic scripts so they can be imported following the if statement
+                if script_class_name == 'ScriptIterator':
+                    # creates all the dynamic classes in the script and the class of the script itself
+                    # and updates the script info with these new classes
+                    script_info = create_dynamic_script_class(script_info)
+                    module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
 
                 module = __import__(module_path, fromlist=[script_class_name])
                 # this returns the name of the module that was imported.
@@ -979,6 +907,45 @@ class Script(QObject):
                 updated_scripts.update({script_name :script_instance})
 
         return updated_scripts, load_failed, updated_instruments
+
+    @staticmethod
+    def get_script_information(script_information):
+        """
+        extracts all the relevant information from script_information and returns it as individual variables
+        Args:
+            script_information: information of the script. This can be
+                - a dictionary
+                - a Script instance
+                - name of Script class
+
+        Returns: module_path, script_class_name, script_settings, script_instruments, script_sub_scripts
+
+        """
+        script_settings = None
+        script_instruments = None
+        script_sub_scripts = None
+        script_class_name = None
+        if isinstance(script_information, dict):
+            script_settings = script_information['settings']
+            script_class_name = str(script_information['class'])
+            if 'instruments' in script_information:
+                script_instruments = script_information['instruments']
+            if 'scripts' in script_information:
+                script_sub_scripts = script_information['scripts']
+        elif isinstance(script_information, str):
+            script_class_name = script_information
+        elif issubclass(script_information, Script):
+            # watch out when testing this code from __main__, then classes might not be identified correctly because the path is different
+            # to avoid this problem call from src.core import Script (otherwise the path to Script is __main__.Script)
+            script_class_name = script_information.__name__
+        if len(script_class_name.split('.')) == 1:
+            module_path = 'src.scripts'
+        else:
+            module_path = 'src.scripts.' + '.'.join(script_class_name.split('.')[0:-1])
+            script_class_name = script_information.split('.')[-1]
+
+        return module_path, script_class_name, script_settings, script_instruments, script_sub_scripts
+
 
     def duplicate(self):
         """
@@ -1112,12 +1079,71 @@ class Script(QObject):
     def get_axes_layout_validate(self, figure_list):
         return self.get_axes_layout(figure_list)
 
-    @classmethod
-    def set_up_dynamic_script(cls, factory_scripts, script_parameter_list, param_sweep_bool):
-        if param_sweep_bool:
-            sweep_params = Script.populate_sweep_param(factory_scripts, [''])
-            factory_settings = [
-                Parameter('script_order', script_parameter_list),
+
+#dynamic script creation functions
+def create_dynamic_script_class(script_information):
+    '''
+    creates all the dynamic classes in the script and the class of the script itself
+    and updates the script info with these new classes
+
+    Args:
+        script_information: A dictionary describing the ScriptIterator, or an existing object
+
+    Returns: script_information:  The updated dictionary describing the newly created ScriptIterator class
+    Poststate: Dynamically created classes inheriting from ScriptIterator are added to src.scripts
+
+    '''
+
+    def set_up_dynamic_script(script_information):
+        '''
+
+        Args:
+            script_information: information about the script as required by Script.get_script_information()
+
+
+        Returns: script_settings: the settings of the dynamically created script
+
+        '''
+
+        sub_scripts = {} # dictonary of script classes that are to be subscripts of the dynamic class. Should be in the dictionary form {'class_name': <class_object>} (btw. class_object is not the instance)
+        script_order = [] # A dictionary of parameters giving the order that the scripts in the ScriptIterator should beexecuted. Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
+        _, script_class_name, script_settings, _, script_sub_scripts = Script.get_script_information(script_information)
+
+        # interator_type: If True, the ScriptIterator will do a parameter sweep. If false, it will do a loop.
+        # todo: generalize this
+        interator_type = 'sweep_param' in script_settings
+
+        if isinstance(script_information, dict):
+            for sub_script in script_sub_scripts:
+                import src.scripts
+                if script_sub_scripts[sub_script]['class'] == 'ScriptIterator':
+                    subscript_class_name = create_dynamic_script_class(script_sub_scripts[sub_script])['class']
+                    sub_scripts.update({sub_script: eval('src.scripts.' + subscript_class_name)})
+                else:
+                    sub_scripts.update(
+                        {sub_script: eval('src.scripts.' + script_sub_scripts[sub_script]['class'])})
+
+
+            for sub_script in script_settings['script_order'].keys():
+                script_order.append(
+                    Parameter(sub_script, script_settings['script_order'][sub_script], int,
+                              'Order in queue for this script'))
+        elif isinstance(script_information, Script):
+            # if the script already exists, just update the script order parameter
+            sub_scripts.update({script_class_name: script_information})
+            for sub_script in script_settings['script_order'].keys():
+                script_order.append(
+                    Parameter(sub_script, script_settings['script_order'][sub_script], int,
+                              'Order in queue for this script'))
+        else:
+            raise TypeError('create_dynamic_script_class: unknown type of script_information')
+
+
+
+        if interator_type:
+            sweep_params = populate_sweep_param(sub_scripts, [''])
+            script_settings = [
+                Parameter('script_order', script_order),
                 Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
                 Parameter('min_value', 0, float, 'min parameter value'),
                 Parameter('max_value', 0, float, 'max parameter value'),
@@ -1127,79 +1153,99 @@ class Script(QObject):
                           'Switch between number of steps and step amount')
             ]
         else:
-            factory_settings = [
-                Parameter('script_order', script_parameter_list),
+            script_settings = [
+                Parameter('script_order', script_order),
                 Parameter('N', 0, int, 'times the subscripts will be executed')
             ]
-        class_name = 'class' + str(cls._number_of_classes)
-        ss = Script.script_sequence_factory(class_name, factory_scripts,
-                                                    factory_settings)  # dynamically creates class
-        #prevent multiple importation of the same script with different names
+
+
+        return script_settings, sub_scripts
+
+    def create_script_iterator_class(sub_scripts, script_settings):
+        '''
+        A 'factory' to create a ScriptIterator class at runtime with the given inputs.
+
+        Args:
+            sub_scripts: dictonary of script classes that are to be subscripts of the dynamic class. Should be in the dictionary
+                     form {'class_name': <class_object>} (btw. class_object is not the instance)
+            script_settings: the default settings of the dynamically created object. Should be a list of Parameter objects.
+
+        Returns: A newly created class inheriting from ScriptIterator, with the given subscripts and default settings
+
+        '''
+        from src.core import ScriptIterator
+
+        class_name = 'class' + str(ScriptIterator._number_of_classes)
+
+        dynamic_class = type(class_name, (ScriptIterator,), {'_SCRIPTS': sub_scripts, '_DEFAULT_SETTINGS': script_settings, '_INSTRUMENTS': {}})
+        # Now we place the dynamic script into the scope of src.scripts as regular scripts.
+        # This is equivalent to importing the module in src.scripts.__init__, but because the class doesn't exist until runtime it must be done here.
+        import src.scripts
+        setattr(src.scripts, class_name, dynamic_class)
+
+        ScriptIterator._class_list.append(dynamic_class)
+        ScriptIterator._number_of_classes += 1
+
+        return class_name, dynamic_class
+
+        # prevent multiple importation of the same script with different names
         # for someclass in cls._class_list:
         #     if (vars(ss)['_SCRIPTS'] == vars(someclass)['_SCRIPTS']):
         #         print('CLASSNAME', vars(someclass)['_CLASS'])
         #         return vars(someclass)['_CLASS']
-        import src.scripts
-        Script.import_dynamic_script(src.scripts, class_name, ss)  # imports created script in src.scripts.__init__
-        cls._class_list.append(ss)
-        cls._number_of_classes += 1
-        return class_name
-
-    @staticmethod
-    def script_sequence_factory(name, scripts, settings):
-        from src.core import ScriptSequence
-        return type(name, (ScriptSequence, ), {'_SCRIPTS': scripts, '_DEFAULT_SETTINGS': settings, '_INSTRUMENTS': {}})
-
-    @staticmethod
-    def import_dynamic_script(module, name, script_class):
-        setattr(module, name, script_class)
 
 
-    @staticmethod
-    def populate_sweep_param(scripts, parameter_list, trace = ''):
-        '''
+    script_settings, sub_scripts = set_up_dynamic_script(script_information)
+    class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_settings)
 
+    # update the generic name (e.g. ScriptIterator) to a unique name  (e.g. ScriptIterator_01)
+    script_information['class'] = class_name
+    return script_information
+
+
+def populate_sweep_param(scripts, parameter_list, trace = ''):
+    '''
+    This method returns a list of all parameters of the input scripts in the form script_name.variable. If the input
+    script is a ScriptIterator, it instead returns the parameters of its subscripts.
+
+    Args:
+        scripts: a dict of {'class name': <class object>} pairs
+
+    Returns: A list of all parameters of the input scripts
+
+    '''
+
+    def get_parameter_from_dict(trace, dic, parameter_list):
+        """
+        appends keys in the dict to a list in the form trace.key.subkey.subsubkey...
         Args:
-            scripts: a dict of classes inheriting from scripts
+            trace: initial prefix (path through scripts and parameters to current location)
+            dic: dictionary
+            parameter_list: list to which append the parameters
 
         Returns:
 
-        '''
-
-        def get_parameter_from_dict(trace, dic, parameter_list):
-            """
-            appends keys in the dict to a list in the form key.subkey.subsubkey...
-            Args:
-                trace: initial prefix
-                dic: dictionary
-                parameter_list: list to which append the parameters
-
-            Returns:
-
-            """
-            for key, value in dic.iteritems():
-                if isinstance(value, dict):
-                    parameter_list = get_parameter_from_dict(trace + '.' + key, value, parameter_list)
-                else:
-                    parameter_list.append(trace + '.' + key)
-            return parameter_list
-
-        print('PARAMETER_LIST_INITIAL', parameter_list)
-
-        for script_name in scripts.keys():
-            from src.core import ScriptSequence
-            if trace == '':
-                trace = script_name
-            else:
-                trace = trace + '.' + script_name
-            if issubclass(scripts[script_name], ScriptSequence):
-                Script.populate_sweep_param(vars(scripts[script_name])['_SCRIPTS'], parameter_list = parameter_list, trace = trace)
-            else:
-                for setting in vars(scripts[script_name])['_DEFAULT_SETTINGS']:
-                    print('PARAMETER_LIST', parameter_list)
-                    parameter_list = get_parameter_from_dict(trace, setting, parameter_list)
-
+        """
+        for key, value in dic.iteritems():
+            if isinstance(value, dict): #for nested parameters ex {point: {'x': int, 'y': int}}
+                parameter_list = get_parameter_from_dict(trace + '.' + key, value, parameter_list)
+            else: #once down to the form {key: value}
+                parameter_list.append(trace + '.' + key)
         return parameter_list
+
+    for script_name in scripts.keys():
+        from src.core import ScriptIterator
+        if trace == '':
+            trace = script_name
+        else:
+            trace = trace + '.' + script_name
+        if issubclass(scripts[script_name], ScriptIterator): #gets subscripts of ScriptIterator objects
+            populate_sweep_param(vars(scripts[script_name])['_SCRIPTS'], parameter_list = parameter_list, trace = trace)
+        else:
+            for setting in vars(scripts[script_name])['_DEFAULT_SETTINGS']:
+                parameter_list = get_parameter_from_dict(trace, setting, parameter_list)
+
+    return parameter_list
 
 
 if __name__ == '__main__':
