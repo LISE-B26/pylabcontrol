@@ -140,16 +140,24 @@ Script.
             # todo: generalize this
             interator_type = 'sweep_param' in script_settings
 
-            # print('SI', script_information)
+            print('SI', script_information)
             if isinstance(script_information, dict):
                 for sub_script in script_sub_scripts:
                     import src.scripts
-                    if script_sub_scripts[sub_script]['class'] == 'ScriptIterator':
-                        subscript_class_name = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script])['class']
-                        sub_scripts.update({sub_script: eval('src.scripts.' + subscript_class_name)})
-                    else:
-                        sub_scripts.update(
-                            {sub_script: eval('src.scripts.' + script_sub_scripts[sub_script]['class'])})
+                    if isinstance(script_sub_scripts[sub_script], dict):
+                        if script_sub_scripts[sub_script]['class'] == 'ScriptIterator':
+                            subscript_class_name = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script])['class']
+                            sub_scripts.update({sub_script: eval('src.scripts.' + subscript_class_name)})
+                        else:
+                            sub_scripts.update(
+                                {sub_script: eval('src.scripts.' + script_sub_scripts[sub_script]['class'])})
+                    elif isinstance(script_sub_scripts[sub_script], Script):
+                        if script_sub_scripts[sub_script]._script_class == 'ScriptIterator':
+                            subscript_class_name = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script])['class']
+                            sub_scripts.update({sub_script: eval('src.scripts.' + subscript_class_name)})
+                        else:
+                            sub_scripts.update(
+                                {sub_script: eval('src.scripts.' + script_sub_scripts[sub_script]._script_class)})
 
                 for sub_script in script_settings['script_order'].keys():
                     script_order.append(

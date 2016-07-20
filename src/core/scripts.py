@@ -840,10 +840,13 @@ class Script(QObject):
             # todo: this is now not working with ScriptSequences, i.e. dynmic scripts. need to re-thing the API
             # if sub_scripts_dict is not None and not isinstance(sub_scripts_dict[sub_scripts_dict.keys()[0]], object): #edited 16/07/14 to add compatibility with script sequences, revert this if things break
             # with above line subscripts are not updated!
-            if sub_scripts_dict is not None:
-                for k, v in sub_scripts_dict.iteritems():
-                    #update settings, updates instrument and settings
-                    sub_scripts[k].update(v)
+            try:
+                if sub_scripts_dict is not None:
+                    for k, v in sub_scripts_dict.iteritems():
+                        #update settings, updates instrument and settings
+                        sub_scripts[k].update(v)
+            except TypeError: #if actually an object, as with dynamic scripts
+                pass
 
             if len(scripts_failed)>0:
                 raise ImportError('script {:s}: failed to load subscripts'.format(class_of_script))
