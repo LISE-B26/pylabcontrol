@@ -692,7 +692,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         elif sender is self.btn_save_gui:
             # get filename
             fname = QtGui.QFileDialog.getSaveFileName(self, 'Save gui settings to file', self.gui_settings['data_folder']) # filter = '.b26gui'
-            self.save_settings(fname)
+            self.save_config(fname)
         elif sender is self.btn_load_gui:
             # get filename
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file',  self.gui_settings['data_folder'])
@@ -730,7 +730,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         assert isinstance(self.sender(), QtGui.QCheckBox), 'this function should be connected to a check box'
 
         if self.sender().isChecked():
-            print("show all parameter")
             self.tree_scripts.setColumnHidden(2, False)
             iterator = QtGui.QTreeWidgetItemIterator(self.tree_scripts, QtGui.QTreeWidgetItemIterator.Hidden)
             item = iterator.value()
@@ -739,7 +738,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 item = iterator.value()
                 iterator += 1
         else:
-            print("hide unselected parameters")
             self.tree_scripts.setColumnHidden(2, True)
 
             iterator = QtGui.QTreeWidgetItemIterator(self.tree_scripts, QtGui.QTreeWidgetItemIterator.NotHidden)
@@ -978,7 +976,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if isinstance(value, Parameter):
                 item  = B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
                 # item.setForeground(0,QtGui.QColor(255, 0, 0))
-                print(item.name)
             else:
                 item = B26QTreeItem(tree, key, value, type(value), '')
                 # item.setForeground(0,QtGui.QColor(255, 0, 0))
@@ -1238,41 +1235,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         else:
             print('WARNING: no settings for hiding parameters all set to default')
 
-
-    def save_settings(self, out_file_name):
-        """
-        saves a old_gui settings file (to a json dictionary)
-        - path_to_file: path to file that will contain the dictionary
-        """
-
-        print('save_settings this is now repaced by save_config!!!!!')
-        raise TypeError
-
-        out_file_name = str(out_file_name)
-
-
-        # update the internal dictionaries from the trees in the gui
-        for index in range(self.tree_scripts.topLevelItemCount()):
-            script_item = self.tree_scripts.topLevelItem(index)
-            self.update_script_from_item(script_item)
-
-        out_data = {'instruments': {}, 'scripts': {}, 'probes': {}}
-
-        for instrument in self.instruments.itervalues():
-            out_data['instruments'].update(instrument.to_dict())
-
-        for script in self.scripts.itervalues():
-            out_data['scripts'].update(script.to_dict())
-
-        for instrument, probe_dict in self.probes.iteritems():
-            out_data['probes'].update({instrument: ','.join(probe_dict.keys())})
-
-        if not os.path.exists(os.path.dirname(out_file_name)):
-            print('creating: ', out_file_name)
-            os.makedirs(os.path.dirname(out_file_name))
-        with open(out_file_name, 'w') as outfile:
-            tmp = json.dump(out_data, outfile, indent=4)
-
     def save_config(self, out_file_name):
         """
         saves gui configuration to out_file_name
@@ -1317,17 +1279,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         for script in self.scripts.itervalues():
             dictator['scripts'].update(script.to_dict())
-            print(dictator['scripts'])
-
-            #special case saving for script_sequence classes
-            def label_as_scriptiterator(dictator):
-                print('DICTATOR', dictator)
-                for script in dictator['scripts']:
-                    if issubclass(eval('src.scripts.' + dictator['scripts'][script]['class']), ScriptIterator):
-                        dictator['scripts'][script]['class'] = 'ScriptIterator'
-                        label_as_scriptiterator(dictator['scripts'][script])
-
-            label_as_scriptiterator(dictator)
 
         for instrument, probe_dict in self.probes.iteritems():
             dictator['probes'].update({instrument: ','.join(probe_dict.keys())})
