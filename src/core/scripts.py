@@ -838,7 +838,7 @@ class Script(QObject):
             sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments)
 
             # todo: this is now not working with ScriptSequences, i.e. dynmic scripts. need to re-thing the API
-            # if sub_scripts_dict is not None and not isinstance(sub_scripts_dict[sub_scripts_dict.keys()[0]], object): #edited 16/07/14 to add compatibility with script sequences, revert this if things break
+            # if sub_scripts_dict is not None and not isinstance(sub_scripts_dict[sub_scripts_di ct.keys()[0]], object): #edited 16/07/14 to add compatibility with script sequences, revert this if things break
             # with above line subscripts are not updated!
             try:
                 if sub_scripts_dict is not None:
@@ -878,7 +878,6 @@ class Script(QObject):
                 try:
                     script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
                 except Exception as err:
-                    raise
                     print('loading script {:s} failed. Could not load instruments!'.format(script_name))
                     load_failed[script_name] = err
                     continue
@@ -887,7 +886,6 @@ class Script(QObject):
                     # print('SSS', script_sub_scripts)
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
                 except Exception as err:
-                    raise
                     print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
                     load_failed[script_name] = err
                     continue
@@ -908,7 +906,6 @@ class Script(QObject):
                 try:
                     script_instance = eval(class_creation_string)
                 except Exception, err:
-                    raise
                     print('loading script {:s} failed. Could not create script!'.format(script_name))
                     load_failed[script_name] = err
                     continue

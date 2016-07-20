@@ -94,9 +94,9 @@ except:
     print("./src/scripts/__init__ warning! Select_NVs did not load")
 
 try:
-    from Select_NVs import Select_NVs_Simple
+    from Select_NVs import Select_NVs
 except:
-    print("./src/scripts/__init__ warning! Select_NVs_Simple did not load")
+    print("./src/scripts/__init__ warning! Select_NVs did not load")
 
 try:
     from Correlate_Images import Take_And_Correlate_Images_2
