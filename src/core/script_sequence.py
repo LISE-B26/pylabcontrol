@@ -30,9 +30,6 @@ Script.
         Default script initialization
         """
 
-        print('XXXXX', self._DEFAULT_SETTINGS)
-        print('ddddd', settings)
-
         Script.__init__(self, name, scripts = scripts, settings = settings, log_function= log_function, data_path = data_path)
 
         # asign the correct iterator script type

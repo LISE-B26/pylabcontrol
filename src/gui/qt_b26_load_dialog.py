@@ -251,7 +251,6 @@ Returns:
         new_script_parameter_dict = {}
         for index, script in enumerate(new_script_list):
             new_script_parameter_dict.update({script: index})
-        print('NSPD', new_script_parameter_dict)
 
         # class_name = Script.set_up_dynamic_script(factory_scripts, new_script_parameter_list, self.cmb_looping_variable.currentText() == 'Parameter Sweep')
         new_script_dict = {name: {'class': 'ScriptIterator', 'scripts': new_script_dict,
@@ -261,7 +260,6 @@ Returns:
         print('NSDxxxx', new_script_dict)
         self.fill_tree(self.tree_loaded, new_script_dict)
         self.elements_from_file.update(new_script_dict)
-        print('NSD', new_script_dict)
 
 
 
