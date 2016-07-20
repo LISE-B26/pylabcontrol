@@ -97,8 +97,8 @@ resulting in an image in the current field of view of the objective.
                 self.data['image_data'][:,i+1:] = mean_value*np.ones((Nx, Ny-(i+1)))
 
                 i +=1
-                progress  = calc_progress(i, Ny)
-                self.updateProgress.emit(progress)
+                self.progress = calc_progress(i, Ny)
+                self.updateProgress.emit(self.progress)
 
 
         if self.settings['save']:

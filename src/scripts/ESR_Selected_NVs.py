@@ -4,7 +4,7 @@ from matplotlib import patches
 from src.core import Script, Parameter
 from src.plotting.plots_1d import plot_esr
 from src.plotting.plots_2d import plot_fluorescence_new, update_fluorescence
-from src.scripts import StanfordResearch_ESR, Select_NVs_Simple, GalvoScanWithLightControl, SetLaser
+from src.scripts import StanfordResearch_ESR, Select_NVs, GalvoScanWithLightControl, SetLaser
 from src.scripts import FindMaxCounts2D
 import os
 
@@ -15,7 +15,7 @@ class ESR_Selected_NVs(Script):
     _INSTRUMENTS = {}
     _SCRIPTS = {'StanfordResearch_ESR': StanfordResearch_ESR,
                 'Find_Max': FindMaxCounts2D,
-                'select_NVs': Select_NVs_Simple,
+                'select_NVs': Select_NVs,
                 'acquire_image': GalvoScanWithLightControl,
                 'move_to_point': SetLaser}
 

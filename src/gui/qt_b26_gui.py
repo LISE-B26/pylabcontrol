@@ -23,7 +23,7 @@ from collections import deque
 #from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, StanfordResearch_ESR, Find_Points, Select_NVs, ESR_Selected_NVs
 
 ###AARON_PC REMOVE
-from src.scripts.Select_NVs import Select_NVs_Simple
+from src.scripts.Select_NVs import Select_NVs
 import src.scripts
 from src.core import ScriptIterator
 
@@ -356,11 +356,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.plot_clicked(mouse_event)
 
     def plot_clicked(self, mouse_event):
-        if isinstance(self.current_script, Select_NVs_Simple) and self.current_script.is_running:
+        if isinstance(self.current_script, Select_NVs) and self.current_script.is_running:
             if (not (mouse_event.xdata == None)):
                 if (mouse_event.button == 1):
                     pt = np.array([mouse_event.xdata, mouse_event.ydata])
-                    self.current_script.toggle_NV(pt, self.matplotlibwidget_1.figure)
+                    self.current_script.toggle_NV(pt)
+                    self.current_script.plot([self.matplotlibwidget_1.figure])
                     self.matplotlibwidget_1.draw()
 
         item = self.tree_scripts.currentItem()

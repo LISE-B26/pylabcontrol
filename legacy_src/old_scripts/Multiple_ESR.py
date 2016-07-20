@@ -7,13 +7,13 @@ from matplotlib import patches
 from src.core import Script, Parameter
 from src.instruments.NIDAQ import DAQ
 from src.plotting.plots_2d import plot_fluorescence
-from src.scripts import StanfordResearch_ESR, Select_NVs_Simple, GalvoScan
+from src.scripts import StanfordResearch_ESR, Select_NVs, GalvoScan
 
 
 class ESR_Selected_NVs_Simple(Script, QThread):
     """
 script that allows to select several NVs and run ESR on the selected points.
-To select points, first run subscript Select_NVs_Simple
+To select points, first run subscript Select_NVs
     """
     updateProgress = pyqtSignal(int)
 
@@ -25,7 +25,7 @@ To select points, first run subscript Select_NVs_Simple
 
     _INSTRUMENTS = {'daq': DAQ}
     _SCRIPTS = {'StanfordResearch_ESR': StanfordResearch_ESR,
-                'select_NVs': Select_NVs_Simple,
+                'select_NVs': Select_NVs,
                 'acquire_image':GalvoScan}
 
     #This is the signal that will be emitted during the processing.
