@@ -108,10 +108,14 @@ Script.
                 update_dict = reduce(lambda y, x: {x: y}, reversed(setting), curr_type(value)) #creates nested dictionary from list
                 script_settings.update(update_dict)
                 for script_name in sorted_script_names:
+                    if self._abort:
+                        break
                     self.scripts[script_name].run()
         elif self.iterator_type == self.TYPE_LOOP:
             for i in range(0, self.settings['N']):
                 for script_name in sorted_script_names:
+                    if self._abort:
+                        break
                     self.scripts[script_name].run()
         elif self.iterator_type == self.TYPE_ITER_POINTS:
             raise NotImplementedError
@@ -119,25 +123,27 @@ Script.
             raise TypeError('wrong iterator type')
 
     @pyqtSlot(int)
-    def _receive_signal(self, progress):
+    def _receive_signal(self, progress_subscript):
         """
         this function takes care of signals emitted by the subscripts
         Args:
-            progress: progress of subscript
+            progress_subscript: progress of subscript
         """
 
         # ==== get the current subscript and the time it takes to execute it =====
         current_subscript = self._current_subscript_stage['current_subscript']
-
         # ==== get typical duration of current subscript ======================
-        if current_subscript is not None:
+        if current_subscript is not None and current_subscript.name in self._current_subscript_stage[
+            'subscript_exec_duration']:
             current_subscript_exec_duration = self._current_subscript_stage['subscript_exec_duration'][
                 current_subscript.name]
         else:
             current_subscript_exec_duration = 0  # typical duration of subscript
 
-        # ==== get number of iterations and loop index ======================
+        # ==== get the number of subscripts =====
+        number_of_subscripts = len(self.scripts)
 
+        # ==== get number of iterations and loop index ======================
         if self.iterator_type == self.TYPE_LOOP:
             number_of_iterations = self.settings['N']
         elif self.iterator_type == self.TYPE_SWEEP_PARAMETER:
@@ -148,27 +154,36 @@ Script.
             else:
                 number_of_iterations = self.settings['N/value_step']
         elif self.iterator_type == self.TYPE_ITER_POINT:
-            raise NotImplementedError
-
-            number_of_iterations = len(self.scripts.data['points'])
+            # todo: implement this for iteration over points,should be something like the following:
+            number_of_iterations = len(self.scripts['find_nv_points'].data['locations'])
+            number_of_subscripts -= 1  # substract one because we don't iterate over find_nv_points
+        else:
+            raise TypeError('unknown iterator type')
 
         # get number of completed loops
         loop_index = self.loop_index
 
-        # time for a single loop execution
-        loop_execution_time = 0
-        # progress of current loop iteration
-        sub_progress = 0
-        for subscript_name, duration in self._current_subscript_stage['subscript_exec_duration'].iteritems():
-            loop_execution_time += duration
-            if self._current_subscript_stage['subscript_exec_count'][subscript_name] > loop_index:
-                # this subscript has already been executed in this iteration
-                sub_progress += duration
+        if number_of_subscripts == 1:
+            # this is the simpler case
+            self.progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / number_of_iterations
+        else:
+            # estimate the progress based on the duration the individual subscripts
 
-        print(
-        'current loop index: ', loop_index, 'loop_execution time', loop_execution_time, 'sub_progress', sub_progress)
+            # time for a single loop execution
+            loop_execution_time = 0
+            # progress of current loop iteration
+            sub_progress = 0
+            for subscript_name, duration in self._current_subscript_stage['subscript_exec_duration'].iteritems():
+                loop_execution_time += duration
+                if self._current_subscript_stage['subscript_exec_count'][subscript_name] > loop_index:
+                    # this subscript has already been executed in this iteration
+                    sub_progress += duration
 
-        self.progress = 50.
+            print(
+                'current loop index: ', loop_index, 'total loops', number_of_iterations, 'loop_execution time',
+                loop_execution_time, 'sub_progress', sub_progress)
+            # temp for now: set to 50
+            self.progress = 50.
         self.updateProgress.emit(int(self.progress))
 
     @property
