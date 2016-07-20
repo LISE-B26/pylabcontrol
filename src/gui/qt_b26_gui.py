@@ -1316,18 +1316,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         for script in self.scripts.itervalues():
             dictator['scripts'].update(script.to_dict())
 
-            print(dictator['scripts'])
-
-            # #special case saving for script_sequence classes
-            # def label_as_scriptiterator(dictator):
-            #     print('DICTATOR', dictator)
-            #     for script in dictator['scripts']:
-            #         if issubclass(eval('src.scripts.' + dictator['scripts'][script]['class']), ScriptIterator):
-            #             dictator['scripts'][script]['class'] = 'ScriptIterator'
-            #             label_as_scriptiterator(dictator['scripts'][script])
-            #
-            # label_as_scriptiterator(dictator)
-
         for instrument, probe_dict in self.probes.iteritems():
             dictator['probes'].update({instrument: ','.join(probe_dict.keys())})
 

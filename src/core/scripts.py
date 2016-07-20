@@ -790,7 +790,6 @@ class Script(QObject):
             instruments_updated = {}
             instruments_updated.update(instruments)
             # check if instruments needed by script already exist, if not create an instance
-            print('DEFAULT_INSTRUMNETS', default_instruments)
             for instrument_name, instrument_class in default_instruments.iteritems():
                 # check if instruments needed by script already exist
                 instrument = [instance for name, instance in instruments_updated.iteritems() if

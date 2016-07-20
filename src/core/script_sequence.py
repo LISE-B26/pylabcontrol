@@ -32,13 +32,48 @@ Script.
 
         Script.__init__(self, name, scripts = scripts, settings = settings, log_function= log_function, data_path = data_path)
 
-        # asign the correct iterator script type
-        if 'sweep_param' in self.settings:
-            self.iterator_type = self.TYPE_SWEEP_PARAMETER
-        elif 'find_nv_points' in self.scripts:
-            self.iterator_type = self.TYPE_ITER_POINTS
+        self.iterator_type = self.get_iterator_type(settings, scripts)
+        # # asign the correct iterator script type
+        # if 'sweep_param' in self.settings:
+        #     self.iterator_type = self.TYPE_SWEEP_PARAMETER
+        # elif 'find_nv_points' in self.scripts:
+        #     self.iterator_type = self.TYPE_ITER_POINTS
+        # else:
+        #     self.iterator_type = self.TYPE_LOOP
+
+    @staticmethod
+    def get_iterator_type(script_settings, subscripts={}):
+        """
+        figures out the iterator type based on the script settings and (optionally) subscripts
+        Args:
+            script_settings: iterator_type
+            subscripts: subscripts
+        Returns:
+
+        """
+
+        if 'iterator_type' in script_settings:
+            # figure out the iterator type
+            if script_settings['iterator_type'] == 'Loop':
+                iterator_type = ScriptIterator.TYPE_LOOP
+            elif script_settings['iterator_type'] == 'Parameter Sweep':
+                iterator_type = ScriptIterator.TYPE_SWEEP_PARAMETER
+            elif script_settings['iterator_type'] == 'Iter Points':
+                iterator_type = ScriptIterator.TYPE_ITER_POINTS
+            else:
+                raise TypeError('unknown iterator type')
         else:
-            self.iterator_type = self.TYPE_LOOP
+            # asign the correct iterator script type
+            if 'sweep_param' in script_settings:
+                iterator_type = ScriptIterator.TYPE_SWEEP_PARAMETER
+            elif 'find_nv_points' in subscripts:
+                iterator_type = ScriptIterator.TYPE_ITER_POINTS
+            elif 'N' in script_settings:
+                iterator_type = ScriptIterator.TYPE_LOOP
+            else:
+                raise TypeError('unknown iterator type')
+
+        return iterator_type
 
 
     def _function(self):
@@ -124,7 +159,6 @@ Script.
         loop_execution_time = 0
         # progress of current loop iteration
         sub_progress = 0
-        print('XXXX', self._current_subscript_stage['subscript_exec_duration'].values())
         for subscript_name, duration in self._current_subscript_stage['subscript_exec_duration'].iteritems():
             loop_execution_time += duration
             if self._current_subscript_stage['subscript_exec_count'][subscript_name] > loop_index:
@@ -155,12 +189,8 @@ Script.
 
     def to_dict(self):
         """
-        over write the funct
-        Returns:
-
+        Returns: itself as a dictionary
         """
-        print('sasadsadsaddad ==== >')
-
         dictator = Script.to_dict(self)
         # the dynamically created ScriptIterator classes have a generic name
         # replace this with ScriptIterator to indicate that this class is of type ScriptIterator
@@ -239,26 +269,14 @@ Script.
 
                 return parameter_list
 
+
             sub_scripts = {}  # dictonary of script classes that are to be subscripts of the dynamic class. Should be in the dictionary form {'class_name': <class_object>} (btw. class_object is not the instance)
             script_order = []  # A dictionary of parameters giving the order that the scripts in the ScriptIterator should beexecuted. Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
             _, script_class_name, script_settings, _, script_sub_scripts = Script.get_script_information(
                 script_information)
 
-            # figure out the iterator type
-            print('==>XXX', script_settings)
-            if script_settings['iterator_type'] == 'Loop':
-                iterator_type = ScriptIterator.TYPE_LOOP
-            elif script_settings['iterator_type'] == 'Parameter Sweep':
-                iterator_type = ScriptIterator.TYPE_SWEEP_PARAMETER
-            elif script_settings['iterator_type'] == 'Iter Points':
-                iterator_type = ScriptIterator.TYPE_ITER_POINTS
-            else:
-                raise TypeError('unknown iterator type')
-
-            print('---->', script_information)
-            # print('SI', script_information)
+            iterator_type = ScriptIterator.get_iterator_type(script_settings)
             if isinstance(script_information, dict):
-                print('aaaa')
                 for sub_script in script_sub_scripts:
                     import src.scripts
                     if script_sub_scripts[sub_script]['class'] == 'ScriptIterator':
@@ -357,16 +375,17 @@ Script.
 
         # update the generic name (e.g. ScriptIterator) to a unique name  (e.g. ScriptIterator_01)
         script_information['class'] = class_name
-        # update the script settings
-        # from  {'script_order': DICT_WITH_SUBSCRIPT_ORDER, 'iterator_type': ITERATOR_TYPE}
-        # to {'script_order': DICT_WITH_SUBSCRIPT_ORDER, 'param1': ACTUAL PARAMETER 1, , 'param2': ACTUAL PARAMETER 2, ..}
-        # convert list of parameters ()
-        script_settings = {}
-        for elem in script_default_settings:
-            script_settings.update(elem)
-        script_information['settings'] = script_settings
-        print('kkkkkkk', script_default_settings)
-        print('kkssssskkkkk', script_information)
+
+        if 'iterator_type' in script_information['settings']:
+            # if script_information['settings'] contains only the iterator type
+            # update the script settings
+            #       from  {'script_order': DICT_WITH_SUBSCRIPT_ORDER, 'iterator_type': ITERATOR_TYPE}
+            #       to {'script_order': DICT_WITH_SUBSCRIPT_ORDER, 'param1': ACTUAL PARAMETER 1, , 'param2': ACTUAL PARAMETER 2, ..}
+            script_settings = {}
+            for elem in script_default_settings:
+                script_settings.update(elem)
+            script_information['settings'] = script_settings
+
         return script_information
 
 if __name__ == '__main__':
