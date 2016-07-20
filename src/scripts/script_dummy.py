@@ -94,10 +94,9 @@ class ScriptDummy(Script):
         for i in range(count):
             time.sleep(wait_time)
             self.log('{:s} count {:02d}'.format(self.name, i))
-            print('count X {:02d}'.format(i))
             data.append(random.random())
             self.data = {'random data': data}
-            self.progress = 100 * (i + 1) / count
+            self.progress = 100. * (i + 1) / count
             self.updateProgress.emit(self.progress)
 
 
@@ -119,7 +118,7 @@ class ScriptDummy(Script):
 
         plot_type = self.settings['plot_style']
 
-        self.log('PLOTTING {:s}'.format(plot_type))
+        # self.log('PLOTTING {:s}'.format(plot_type))
         if plot_type in ('main', 'two'):
             if not self.data['random data'] is None:
                 axes_list[0].plot(self.data['random data'])

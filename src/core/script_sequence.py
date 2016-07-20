@@ -2,7 +2,7 @@ from src.core import Parameter, Script
 import src.scripts
 import numpy as np
 from PyQt4.QtCore import pyqtSlot
-
+import datetime
 class ScriptIterator(Script):
     '''
 This is a template class for scripts that iterate over a series of subscripts in either a loop /
@@ -29,7 +29,6 @@ Script.
         """
         Default script initialization
         """
-
         Script.__init__(self, name, scripts = scripts, settings = settings, log_function= log_function, data_path = data_path)
 
         self.iterator_type = self.get_iterator_type(settings, scripts)
@@ -111,7 +110,9 @@ Script.
                     if self._abort:
                         break
                     self.scripts[script_name].run()
+
         elif self.iterator_type == self.TYPE_LOOP:
+
             for i in range(0, self.settings['N']):
                 for script_name in sorted_script_names:
                     if self._abort:
@@ -132,13 +133,6 @@ Script.
 
         # ==== get the current subscript and the time it takes to execute it =====
         current_subscript = self._current_subscript_stage['current_subscript']
-        # ==== get typical duration of current subscript ======================
-        if current_subscript is not None and current_subscript.name in self._current_subscript_stage[
-            'subscript_exec_duration']:
-            current_subscript_exec_duration = self._current_subscript_stage['subscript_exec_duration'][
-                current_subscript.name]
-        else:
-            current_subscript_exec_duration = 0  # typical duration of subscript
 
         # ==== get the number of subscripts =====
         number_of_subscripts = len(self.scripts)
@@ -160,35 +154,68 @@ Script.
         else:
             raise TypeError('unknown iterator type')
 
-        # get number of completed loops
+        # get number of loops (completed + 1)
         loop_index = self.loop_index
 
-        if number_of_subscripts == 1:
-            # this is the simpler case
-            self.progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / number_of_iterations
-        else:
+        if number_of_subscripts > 1:
             # estimate the progress based on the duration the individual subscripts
 
-            # time for a single loop execution
-            loop_execution_time = 0
-            # progress of current loop iteration
-            sub_progress = 0
-            for subscript_name, duration in self._current_subscript_stage['subscript_exec_duration'].iteritems():
-                loop_execution_time += duration
-                if self._current_subscript_stage['subscript_exec_count'][subscript_name] > loop_index:
-                    # this subscript has already been executed in this iteration
-                    sub_progress += duration
+            loop_execution_time = datetime.timedelta(0)  # time for a single loop execution
+            sub_progress_time = datetime.timedelta(0)  # progress of current loop iteration
 
-            print(
-                'current loop index: ', loop_index, 'total loops', number_of_iterations, 'loop_execution time',
-                loop_execution_time, 'sub_progress', sub_progress)
-            # temp for now: set to 50
-            self.progress = 50.
+            # ==== get typical duration of current subscript ======================
+            if current_subscript is not None:
+                current_subscript_exec_duration = self._current_subscript_stage['subscript_exec_duration'][
+                    current_subscript.name]
+            else:
+                current_subscript_exec_duration = datetime.timedelta(0)
+
+            current_subscript_elapsed_time = datetime.datetime.now() - current_subscript.start_time
+
+            # estimate the duration of the current subscript if the script hasn't been executed once fully and subscript_exec_duration is 0
+            if current_subscript_exec_duration.total_seconds() == 0.0:
+                remaining_time = current_subscript.remaining_time
+                current_subscript_exec_duration = remaining_time + current_subscript_elapsed_time
+
+            # ==== get typical duration of one loop iteration ======================
+            remaining_scripts = 0  # script that remain to be executed for the first time
+            for subscript_name, duration in self._current_subscript_stage['subscript_exec_duration'].iteritems():
+                if duration.total_seconds() == 0.0:
+                    remaining_scripts += 1
+                loop_execution_time += duration
+                # add the times of the subscripts that have been executed in the current loop
+                # ignore the current subscript, because that will be taken care of later
+                if self._current_subscript_stage['subscript_exec_count'][
+                    subscript_name] == loop_index and subscript_name is not current_subscript.name:
+                    # this subscript has already been executed in this iteration
+                    sub_progress_time += duration
+
+            # add the proportional duration of the current subscript given by the subscript progress
+            sub_progress_time += current_subscript_elapsed_time
+
+            # if there are scripts that have not been executed yet
+            # assume that all the scripts that have not been executed yet take as long as the average of the other scripts
+            if remaining_scripts == number_of_subscripts:
+                # none of the subscript has been finished. assume that all the scripts take as long as the first
+                loop_execution_time = number_of_subscripts * current_subscript_exec_duration
+            elif remaining_scripts > 1:
+                loop_execution_time = 1. * number_of_subscripts / (number_of_subscripts - remaining_scripts)
+            elif remaining_scripts == 1:
+                # there is only one script left which is the current script
+                loop_execution_time += current_subscript_exec_duration
+
+            if loop_execution_time.total_seconds() > 0:
+                progress_subscript = 100. * sub_progress_time.total_seconds() / loop_execution_time.total_seconds()
+            else:
+                progress_subscript = 1. * progress_subscript / number_of_subscripts
+
+        self.progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / number_of_iterations
+
         self.updateProgress.emit(int(self.progress))
 
     @property
     def loop_index(self):
-        loop_index = min(self._current_subscript_stage['subscript_exec_count'].values())
+        loop_index = max(self._current_subscript_stage['subscript_exec_count'].values())
         return loop_index
 
     def plot(self, figure_list):
@@ -200,7 +227,8 @@ Script.
 
         '''
         #TODO: be smarter about how we plot ScriptIterator
-        self._current_subscript_stage['current_subscript'].plot(figure_list)
+        if self._current_subscript_stage['current_subscript'] is not None:
+            self._current_subscript_stage['current_subscript'].plot(figure_list)
 
     def to_dict(self):
         """
