@@ -101,7 +101,7 @@ for a given experiment
             self.save_image_to_disk()
 
     def _plot(self, axes_list):
-        '''
+        """
         Plot 1: self.data['tau'], the list of times specified for a given experiment, verses self.data['counts'], the data
         received for each time
         Plot 2: the pulse sequence performed at the current time (or if plotted statically, the last pulse sequence
@@ -110,11 +110,11 @@ for a given experiment
         Args:
             axes_list: list of axes to write plots to (uses first 2)
 
-        '''
+        """
         counts = self.data['counts']
         x_data = self.data['tau']
         axis1 = axes_list[0]
-        if not counts == []:
+        if counts:
             plot_1d_simple(axis1, x_data, [counts])
         axis2 = axes_list[1]
         plot_pulses(axis2, self.pulse_sequences[self.sequence_index])
