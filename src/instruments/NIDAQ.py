@@ -479,7 +479,7 @@ class DAQ(Instrument):
         Wait until output has finished
         '''
         self._check_error(self.nidaq.DAQmxWaitUntilTaskDone(self.AO_taskHandle,
-                                                            float64(self.periodLength / self.AO_sample_rate * 2)))
+                                                            float64(self.periodLength / self.AO_sample_rate * 4)))
 
     def AO_stop(self):
         '''

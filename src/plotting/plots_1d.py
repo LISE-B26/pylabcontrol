@@ -66,14 +66,14 @@ def plot_esr(axes, frequency, data, fit_params=None):
     return lines
 
 
-
-def plot_pulses(axis, pulse_collection):
+def plot_pulses(axis, pulse_collection, pulse_colors=None):
     """
     creates a visualization of pulses (in pulse_collection) on a matplotlib axis (axis)
 
     Args:
         axis: The axis for the matplotlib plot
         pulse_collection: a collection of pulses, named tuples (channel_id, start_time, duration)
+        pulse_colors: a dictionary of {channel_id:matplotlib_color} that maps channels to colors
 
     Returns:
 
@@ -83,14 +83,9 @@ def plot_pulses(axis, pulse_collection):
     instrument_names = sorted(list(set([pulse.channel_id for pulse in pulse_collection])))
 
     # asign colors for certain specific channels
-    pulse_colors = {}
-    for name in instrument_names:
-        if name == 'laser':
-            pulse_colors.update({name: 'g'})
-        elif name == 'microwave_i':
-            pulse_colors.update({name: 'r'})
-        else:
-            pulse_colors.update({name: 'k'})
+    if pulse_colors is None:
+        pulse_colors = {'laser': 'g', 'microwave_i': 'r', 'apd_readout': 'k'}
+
     # find the maximum time from the list of pulses
     max_time = max([pulse.start_time + pulse.duration for pulse in pulse_collection])
 
@@ -114,17 +109,11 @@ def plot_pulses(axis, pulse_collection):
     for pulse in pulse_collection:
         patch_list.append(
             patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id)), pulse.duration, 0.5,
-                              fc=pulse_colors[pulse.channel_id]))
+                              fc=pulse_colors.get(pulse.channel_id, 'b')))
 
     # option1: patch collection: doesn't allow to set colors
-    patch_collection = PatchCollection(patch_list)
+    patch_collection = PatchCollection(patch_list, match_original=True)
     axis.add_collection(patch_collection)
-
-    # option2: add_artist
-    # JG: following change is to get colors to show
-    # todo: check that this works with the update function: problem with removing patches!!!
-    # for p in patch_list:
-    #     axis.add_artist(p)
 
     # label the axis
     axis.set_title('Pulse Visualization')
@@ -172,7 +161,7 @@ def plot_counts(axis, data):
     axis.set_ylabel('kCounts/sec')
 
 
-def plot_1d_simple(axis, times, counts_list, x_label='time (ns)', y_label='kCounts/sec'):
+def plot_1d_simple(axis, times, counts_list, x_label='time (ns)', y_label='kCounts/sec', title=None):
     for counts in counts_list:
         axis.plot(times, counts)
 
@@ -180,6 +169,8 @@ def plot_1d_simple(axis, times, counts_list, x_label='time (ns)', y_label='kCoun
 
     axis.set_xlabel(x_label)
     axis.set_ylabel(y_label)
+    if title:
+        axis.set_title(title)
     axis.set_xlim([min(times), max(times)])
 
 

@@ -150,12 +150,10 @@ class Script(QObject):
                         duration_old = datetime.timedelta(0)
                     exec_count = self._current_subscript_stage['subscript_exec_count'][subscript_name]
                     # print('==>XXXXX', exec_count, duration_old, duration)
-                    try:
-                        self._current_subscript_stage['subscript_exec_duration'][subscript_name] = (duration_old * (
-                        exec_count - 1) + duration) / exec_count
-                    except:
-                        print('==>XXXXX', exec_count, duration_old, duration)
-                        # raise error
+
+                    duration_new = (duration_old * (exec_count - 1) + duration)
+                    self._current_subscript_stage['subscript_exec_duration'][subscript_name] = (duration_old * (
+                    exec_count - 1) + duration) / exec_count
 
     def _function(self):
         """
@@ -367,6 +365,7 @@ class Script(QObject):
             subscript.started.connect(lambda: self._set_current_subscript(True))
             subscript.finished.connect(lambda: self._set_current_subscript(False))
             self._current_subscript_stage['subscript_exec_count'].update({subscript.name:0})
+            self._current_subscript_stage['subscript_exec_duration'].update({subscript.name: datetime.timedelta(0)})
 
 
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))

@@ -117,7 +117,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
     _DEFAULT_SETTINGS = [
         Parameter('mw_power', -45.0, float, 'microwave power in dB'),
         Parameter('mw_frequency', 2.87e9, float, 'microwave frequency in Hz'),
-        Parameter('time_step', 5, [5, 10, 20, 50, 100, 200, 500, 1000, 10000, 100000],
+        Parameter('time_step', 5, [5, 10, 20, 50, 100, 200, 500, 1000, 10000, 100000, 500000],
                   'time step increment of rabi pulse duration (in ns)'),
         Parameter('time', 200, float, 'total time of rabi oscillations (in ns)'),
         Parameter('meas_time', 300, float, 'measurement time after rabi sequence (in ns)'),
@@ -173,6 +173,15 @@ This script applies a microwave pulse at fixed power for varying durations to me
             pulse_sequence.append(Pulse('laser', end_time_max + 1850, 15))
 
         return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
+
+
+"""
+    #TODO: Test if the following code will add 'Rabi' as a title to main plot in GUI and add a legend
+    def _plot(self, axislist):
+        super(Rabi, self)._plot(axislist)
+        axislist[0].set_title('Rabi')
+        axislist[0].legend(labels=('Rabi Data', 'Ref Fluorescence'))
+"""
 
 
 class Rabi_Power_Sweep_Single_Tau(ExecutePulseBlasterSequence):
@@ -619,7 +628,6 @@ This script runs a CPMG pulse sequence.
 
         return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
 
-
 class HahnEcho(ExecutePulseBlasterSequence):
     """
 This script runs a Hahn-echo sequence for different number of pi pulses. Without pi-pulse this is a Ramsey sequence.
@@ -707,6 +715,73 @@ This script runs a Hahn-echo sequence for different number of pi pulses. Without
         #     pulse_sequence.append(Pulse('laser', end_time_max + 1850, 15))
 
         return pulse_sequences, self.settings['num_averages'], [tau], self.settings['meas_time']
+
+
+class T1(ExecutePulseBlasterSequence):
+    """
+This script applies a microwave pulse at fixed power for varying durations to measure Rabi Oscillations
+    """
+    _DEFAULT_SETTINGS = [
+        Parameter('time_step', 1000, int, 'time step increment of rabi pulse duration [ns]'),
+        Parameter('max_time', 200, float, 'total time of rabi oscillations [ns]'),
+        Parameter('meas_time', 300, float, 'measurement time after rabi sequence [ns]'),
+        Parameter('num_averages', 1000000, int, 'number of averages'),
+        Parameter('nv_reset_time', 3000, int, 'time with laser on at the beginning to reset state'),
+        Parameter('skip_invalid_sequences', True, bool, 'Skips any sequences with <15 ns commands')
+    ]
+
+    _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster}
+
+    def _create_pulse_sequences(self):
+        """
+        Returns: pulse_sequences, num_averages, tau_list
+            pulse_sequences: a list of pulse sequences, each corresponding to a different time 'tau' that is to be
+            scanned over. Each pulse sequence is a list of pulse objects containing the desired pulses. Each pulse
+            sequence must have the same number of daq read pulses
+            num_averages: the number of times to repeat each pulse sequence
+            tau_list: the list of times tau, with each value corresponding to a pulse sequence in pulse_sequences
+            meas_time: the width (in ns) of the daq measurement
+
+        """
+
+        pulse_sequences = []
+        if self.settings['time_step'] % 5 != 0:
+            raise AttributeError('given time_step is not a multiple of 5')
+
+        tau_list = range(0, int(self.settings['max_time'] + self.settings['time_step']), self.settings['time_step'])
+        reset_time = self.settings['nv_reset_time']
+
+        for tau in tau_list:
+            pulse_sequences.append([Pulse('laser', 0, reset_time),
+                                    Pulse('apd_readout', reset_time - self.settings['meas_time'],
+                                          self.settings['meas_time']),
+                                    Pulse('laser', reset_time + tau, self.settings['meas_time']),
+                                    Pulse('apd_readout',
+                                          reset_time + tau, self.settings['meas_time'])
+                                    ])
+        """
+        # The following would ensure that each pulse sequence in pulse_sequences takes the same total time
+        end_time_max = 0
+        for pulse_sequence in pulse_sequences:
+            for pulse in np.flatten(pulse_sequences):
+                end_time_max = max(end_time_max, pulse.start_time + pulse.duration)
+
+        for pulse_sequence in pulse_sequences:
+            pulse_sequence.append(Pulse('laser', end_time_max + 1000, 15))
+
+        """
+
+        return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
+
+
+"""
+    #TODO: Test if the following code will add 'Rabi' as a title to main plot in GUI and add a legend
+    def _plot(self, axislist):
+        super(Rabi, self)._plot(axislist)
+        axislist[0].set_title('Rabi')
+        axislist[0].legend(labels=('Rabi Data', 'Ref Fluorescence'))
+"""
+
 
 if __name__ == '__main__':
     script = {}
