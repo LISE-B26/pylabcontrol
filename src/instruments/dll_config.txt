@@ -1,0 +1,5 @@
+# this fine contains the paths to .dll files for instruments
+
+NIDAQ_DLL_PATH: C:\Windows\System32\nicaiu.dll
+PULSEBLASTER_DLL_PATH: C:\Windows\System32\spinapi64.dll
+ATTOCUBE_DLL_PATH: C:\Users\Experiment\Downloads\attocube\Software\ANC350_Software_v1.5.15\ANC350_DLL\Win_64Bit\src\anc350v2.dll'

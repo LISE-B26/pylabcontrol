@@ -3,8 +3,10 @@ import threading
 import os
 import numpy
 import warnings
+from src.core.read_write_functions import get_dll_config_path
 
 from src.core.instruments import Instrument, Parameter
+
 
 ##############################
 # Setup some typedefs and constants
@@ -52,7 +54,7 @@ class DAQ(Instrument):
         if os.name == 'nt':
             #checks for windows. If not on windows, check for your OS and add
             #the path to the DLL on your machine
-            nidaq = ctypes.WinDLL("C:\\Windows\\System32\\nicaiu.dll") # load the DLL
+            nidaq = ctypes.WinDLL(get_dll_config_path('NIDAQ_DLL_PATH'))  # load the DLL
             dll_detected = True
         else:
             warnings.warn("NI DAQmx DLL not found. If it should be present, check the path.")
@@ -561,9 +563,9 @@ class DAQ(Instrument):
             raise RuntimeError('nidaq generated warning %d: %s'%(err,repr(buffer.value)))
 
 if __name__ == '__main__':
+    from src.core.read_write_functions import get_dll_config_path
 
-    from src.core import Instrument
+    s = get_dll_config_path('NIDAQ_DLL_PATH')
+    print(s)
 
-    instr, failed = Instrument.load_and_append({'galvo':'DAQ'})
-    print(instr)
-    print(failed)
+    daq = DAQ()

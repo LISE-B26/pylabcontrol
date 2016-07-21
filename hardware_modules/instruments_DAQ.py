@@ -25,7 +25,6 @@ DAQmx_Val_FiniteSamps = 10178
 DAQmx_Val_ContSamps = 10123
 DAQmx_Val_GroupByChannel = 0
 
-
 # =============== NI DAQ 6259======= =======================
 # ==========================================================
 

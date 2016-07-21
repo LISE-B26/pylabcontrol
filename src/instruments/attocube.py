@@ -1,7 +1,7 @@
 import ctypes
 import time
 import warnings
-
+from src.core.read_write_functions import get_dll_config_path
 from src.core.instruments import Instrument, Parameter
 
 int32 = ctypes.c_long
@@ -70,7 +70,8 @@ class Attocube(Instrument):
     def __init__(self, name = None, settings = None):
         super(Attocube, self).__init__(name, settings)
         try:
-            self.attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')
+            # self.attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')
+            self.attocube = ctypes.WinDLL(get_dll_config_path('ATTOCUBE_DLL_PATH'))
             dll_detected = True
         except WindowsError:
             # make a fake Attocube instrument

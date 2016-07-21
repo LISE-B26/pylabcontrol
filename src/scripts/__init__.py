@@ -14,8 +14,6 @@ try:
     from galvo_scan import GalvoScan
 except:
     print("./src/scripts/__init__ warning! GalvoScan did not load")
-
-from autofocusDAQ import AutoFocus
 try:
     from GalvoScanWithLightControl import GalvoScanWithLightControl
 except:

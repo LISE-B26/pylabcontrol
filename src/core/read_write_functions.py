@@ -2,6 +2,37 @@ import yaml, json
 import os
 
 
+def get_dll_config_path(dll_name, path_to_file='dll_config.txt'):
+    """
+    gets the path to the dll for the dll dll_name from path_to_file
+    Args:
+        dll_name:
+        path_to_file:
+
+    Returns: path to dll
+
+    """
+
+    # if the function is called from gui then the file has to be located with respect to the gui folder
+    if not os.path.isfile(path_to_file):
+        path_to_file = os.path.join('../instruments/', path_to_file)
+
+    if not os.path.isfile(path_to_file):
+        raise IOError('{:s}: config file is not valid'.format(path_to_file))
+
+    f = open(path_to_file, 'r')
+    s = f.read()
+
+    if dll_name[-1] is not ':':
+        dll_name += ':'
+
+    config_path = [line.split(dll_name)[1] for line in s.split('\n') if len(line.split(dll_name)) > 1][0].strip()
+
+    if not os.path.isfile(config_path):
+        raise IOError('{:s}: config file is not valid'.format(config_path))
+
+    return config_path
+
 def load_b26_file(file_name):
     """
     loads a .b26 file into a dictionary
