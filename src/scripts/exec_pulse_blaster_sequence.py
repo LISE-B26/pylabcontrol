@@ -56,7 +56,7 @@ for a given experiment
         self.sequence_index = 0
         self.pulse_sequences, self.num_averages, tau_list, self.measurement_gate_width = self._create_pulse_sequences()
 
-        if self.settings['skip_invalid_sequences']:
+        if ('skip_invalid_sequences' in self.settings.keys() and self.settings['skip_invalid_sequences']):
             self.pulse_sequences, delete_list = self._skip_invalid_sequences(self.pulse_sequences)
             tau_list = np.delete(np.array(tau_list), delete_list).tolist()
 
