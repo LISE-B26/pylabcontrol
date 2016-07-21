@@ -669,11 +669,13 @@ class T1(ExecutePulseBlasterSequence):
 This script measures the relaxation time of an NV center
     """
     _DEFAULT_SETTINGS = [
-        Parameter('time_step', 1000, int, 'time step increment of rabi pulse duration [ns]'),
-        Parameter('max_time', 200, float, 'total time of rabi oscillations [ns]'),
-        Parameter('meas_time', 300, float, 'measurement time after rabi sequence [ns]'),
+        Parameter('time_step', 1000, int, 'time step increment of rabi pulse duration (ns)'),
+        Parameter('max_time', 200, float, 'total time of rabi oscillations (ns)'),
+        Parameter('meas_time', 300, float, 'measurement time of fluorescence counts (ns)'),
         Parameter('num_averages', 1000000, int, 'number of averages'),
-        Parameter('nv_reset_time', 3000, int, 'time with laser on at the beginning to reset state'),
+        Parameter('nv_reset_time', 3000, int, 'time with laser on at the beginning to reset state (ns)'),
+        Parameter('ref_meas_off_time', 100, int,
+                  'laser off time before taking reference measurement at the end of init (ns)'),
         Parameter('skip_invalid_sequences', True, bool, 'Skips any sequences with <15 ns commands')
     ]
 
@@ -698,14 +700,16 @@ This script measures the relaxation time of an NV center
         tau_list = range(0, int(self.settings['max_time'] + self.settings['time_step']), self.settings['time_step'])
         reset_time = self.settings['nv_reset_time']
 
+        # reduce the initialization time by 15 ns to avoid touching DAQ pulses
+        # (they are problematic because the DAQ expects two pulse but get only one because they get merged by the pulse blaster)
         for tau in tau_list:
-            pulse_sequences.append([Pulse('laser', 0, reset_time),
-                                    Pulse('apd_readout', reset_time - self.settings['meas_time'] - 15,
-                                          self.settings['meas_time']),
-                                    Pulse('laser', reset_time + tau, self.settings['meas_time']),
-                                    Pulse('apd_readout',
-                                          reset_time + tau, self.settings['meas_time'])
-                                    ])
+            pulse_sequences.append(
+                [Pulse('laser', 0, reset_time - self.settings['ref_meas_off_time'] - 15 - self.settings['meas_time']),
+                 Pulse('apd_readout', reset_time - 15 - self.settings['meas_time'], self.settings['meas_time']),
+                 Pulse('laser', reset_time - 15 - self.settings['meas_time'], self.settings['meas_time']),
+                 Pulse('apd_readout', reset_time + tau, self.settings['meas_time']),
+                 Pulse('laser', reset_time + tau, self.settings['meas_time']),
+                 ])
         """
         # The following would ensure that each pulse sequence in pulse_sequences takes the same total time
         end_time_max = 0

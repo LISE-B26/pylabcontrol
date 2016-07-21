@@ -171,8 +171,7 @@ for a given experiment
         counts, the second is the number of
 
         '''
-        self.instruments['PB']['instance'].program_pb(pulse_sequence,
-                                                      num_loops=num_loops)
+        self.instruments['PB']['instance'].program_pb(pulse_sequence, num_loops=num_loops)
         timeout = 2 * self.instruments['PB']['instance'].estimated_runtime
         if num_daq_reads != 0:
             self.instruments['daq']['instance'].gated_DI_init('ctr0', int(num_loops * num_daq_reads))

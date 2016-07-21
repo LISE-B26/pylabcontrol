@@ -401,6 +401,7 @@ class PulseBlaster(Instrument):
         assert len(pulse_collection) > 1, 'pulse program must have at least 2 pulses'
         assert num_loops < (1 << 20), 'cannot have more than 2^20 (approx 1 million) loop iterations'
         if self.find_overlapping_pulses(pulse_collection):
+            print('xxxx', self.find_overlapping_pulses(pulse_collection))
             raise AttributeError('found overlapping pulses in given pulse collection')
         for pulse in pulse_collection:
             assert pulse.start_time == 0 or pulse.start_time > 1, \
@@ -507,6 +508,11 @@ class B26PulseBlaster(PulseBlaster):
             Parameter('channel', 4, int, 'channel to which the microwave switch is connected to'),
             Parameter('status', False, bool, 'True if voltage is high to the microwave switch, false otherwise'),
             Parameter('delay_time', 0.2, float, 'delay time between pulse sending time and microwave switch [ns]')
+        ]),
+        Parameter('off_channel', [
+            Parameter('channel', 18, int, 'off-channel - nothing is connected here'),
+            Parameter('status', False, bool, 'True if voltage is high to the off-channel, false otherwise'),
+            Parameter('delay_time', 0, float, 'delay time between pulse sending time and off channel on [ns]')
         ]),
         Parameter('clock_speed', 400, [100, 400], 'Clock speed of the pulse blaster [MHz]')
     ])
