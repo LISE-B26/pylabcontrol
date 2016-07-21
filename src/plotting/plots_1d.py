@@ -82,7 +82,7 @@ def plot_pulses(axis, pulse_collection, pulse_colors=None):
     # create a list of unique instruments from the pulses
     instrument_names = sorted(list(set([pulse.channel_id for pulse in pulse_collection])))
 
-    # asign colors for certain specific channels
+    # assign colors for certain specific channels
     if pulse_colors is None:
         pulse_colors = {'laser': 'g', 'microwave_i': 'r', 'apd_readout': 'k'}
 
@@ -111,7 +111,6 @@ def plot_pulses(axis, pulse_collection, pulse_colors=None):
             patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id)), pulse.duration, 0.5,
                               fc=pulse_colors.get(pulse.channel_id, 'b')))
 
-    # option1: patch collection: doesn't allow to set colors
     patch_collection = PatchCollection(patch_list, match_original=True)
     axis.add_collection(patch_collection)
 
@@ -120,7 +119,8 @@ def plot_pulses(axis, pulse_collection, pulse_colors=None):
     axis.set_xlabel('time [ns]')
     axis.set_ylabel('pulse destination')
 
-def update_pulse_plot(axis, pulse_collection):
+
+def update_pulse_plot(axis, pulse_collection, pulse_colors=None):
     """
     updates a previously created plot of pulses, removing the previous ones and adding ones corresponding to
     pulse_collection. The new pulse collection must only contain channel_ids already present on the passed axis
@@ -128,10 +128,15 @@ def update_pulse_plot(axis, pulse_collection):
     Args:
         axis: The axis for the matplotlib plot
         pulse_collection: a collection of pulses, named tuples (channel_id, start_time, duration)
+        pulse_colors: a dictionary of {channel_id:matplotlib_color} that maps channels to colors
 
     Returns:
 
     """
+
+    # assign colors for certain specific channels
+    if pulse_colors is None:
+        pulse_colors = {'laser': 'g', 'microwave_i': 'r', 'apd_readout': 'k'}
 
     # get a list of unique instruments from the pulses
     instrument_names = [str(label.get_text()) for label in axis.get_yticklabels()]
@@ -142,15 +147,16 @@ def update_pulse_plot(axis, pulse_collection):
     # axis.set_xlim(0, 1.1 * max_time)
 
     # remove the previous pulses
-    [child.remove() for child in axis.get_children() if isinstance(child, (PatchCollection))]
+    [child.remove() for child in axis.get_children() if isinstance(child, PatchCollection)]
 
     # create rectangles for the pulses
     patch_list = []
     for pulse in pulse_collection:
         patch_list.append(
-            patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id)), pulse.duration, 0.5))
+            patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id)), pulse.duration, 0.5,
+                              fc=pulse_colors.get(pulse.channel_id, 'b')))
 
-    patch_collection = PatchCollection(patch_list)
+    patch_collection = PatchCollection(patch_list, match_original=True)
     axis.add_collection(patch_collection)
 
 def plot_counts(axis, data):
