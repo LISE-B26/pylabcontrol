@@ -10,7 +10,8 @@ import time
 
 class Daq_Read_Counter(Script):
     _DEFAULT_SETTINGS = [
-        Parameter('integration_time', .25, float, 'Time per data point')
+        Parameter('integration_time', .25, float, 'Time per data point'),
+        Parameter('counter_channel', 'ctr0', ['ctr0', 'ctr1'], 'Daq channel used for counter')
     ]
 
     _INSTRUMENTS = {'daq': DAQ}
@@ -40,7 +41,7 @@ class Daq_Read_Counter(Script):
 
         sample_rate = float(1) / self.settings['integration_time']
         normalization = self.settings['integration_time']/.001
-        self.instruments['daq']['instance'].settings['digital_input']['ctr0']['sample_rate'] = sample_rate
+        self.instruments['daq']['instance'].settings['digital_input'][self.settings['counter_channel']]['sample_rate'] = sample_rate
 
         self.data = {'counts': deque()}
 

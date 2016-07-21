@@ -14,7 +14,9 @@ This script points the laser to a point
         Parameter('point',
                   [Parameter('x', -0.4, float, 'x-coordinate'),
                    Parameter('y', -0.4, float, 'y-coordinate')
-                   ])
+                   ]),
+        Parameter('x_ao_channel', 'ao0', ['ao0', 'ao1', 'ao2', 'ao3'], 'Daq channel used for x voltage analog output'),
+        Parameter('y_ao_channel', 'ao3', ['ao0', 'ao1', 'ao2', 'ao3'], 'Daq channel used for y voltage analog output')
     ]
 
     _INSTRUMENTS = {'daq':  DAQ}
@@ -40,7 +42,7 @@ This script points the laser to a point
         pt = np.transpose(np.column_stack((pt[0],pt[1])))
         pt = (np.repeat(pt, 2, axis=1))
 
-        self.instruments['daq']['instance'].AO_init(["ao0", "ao3"], pt)
+        self.instruments['daq']['instance'].AO_init([self.settings['x_ao_channel'], self.settings['y_ao_channel']], pt)
         self.instruments['daq']['instance'].AO_run()
         self.instruments['daq']['instance'].AO_waitToFinish()
         self.instruments['daq']['instance'].AO_stop()

@@ -2,10 +2,6 @@ from src.core import Script, Parameter
 import numpy as np
 from src.instruments.NIDAQ import DAQ
 from src.plotting.plots_2d import plot_fluorescence_new, update_fluorescence
-import time
-import datetime
-import Queue
-
 
 class GalvoScan(Script):
     """
@@ -31,7 +27,10 @@ class GalvoScan(Script):
                    ]),
         Parameter('time_per_pt', .001, [.001, .002, .005, .01, .015, .02], 'time in s to measure at each point'),
         Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle'),
-        Parameter('max_counts_plot', -1, int, 'Rescales colorbar with this as the maximum counts on replotting')
+        Parameter('max_counts_plot', -1, int, 'Rescales colorbar with this as the maximum counts on replotting'),
+        Parameter('x_ao_channel', 'ao0', ['ao0', 'ao1', 'ao2', 'ao3'], 'Daq channel used for x voltage analog output'),
+        Parameter('y_ao_channel', 'ao3', ['ao0', 'ao1', 'ao2', 'ao3'], 'Daq channel used for y voltage analog output'),
+        Parameter('counter_channel', 'ctr0', ['ctr0', 'ctr1'], 'Daq channel used for counter')
     ]
 
     _INSTRUMENTS = {'daq':  DAQ}
@@ -79,9 +78,9 @@ class GalvoScan(Script):
                                      self.clockAdjust)
             self.y_array = np.linspace(self.yVmin, self.yVmax, self.settings['num_points']['y'], endpoint=True)
             sample_rate = float(1) / self.settings['settle_time']
-            self.instruments['daq']['instance'].settings['analog_output']['ao0']['sample_rate'] = sample_rate
-            self.instruments['daq']['instance'].settings['analog_output']['ao3']['sample_rate'] = sample_rate
-            self.instruments['daq']['instance'].settings['digital_input']['ctr0']['sample_rate'] = sample_rate
+            self.instruments['daq']['instance'].settings['analog_output'][self.settings['x_ao_channel']]['sample_rate'] = sample_rate
+            self.instruments['daq']['instance'].settings['analog_output'][self.settings['y_ao_channel']]['sample_rate'] = sample_rate
+            self.instruments['daq']['instance'].settings['digital_input'][self.settings['counter_channel']]['sample_rate'] = sample_rate
             self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x'])),
                          'bounds': [self.xVmin, self.xVmax, self.yVmin, self.yVmax]}
 
@@ -93,17 +92,17 @@ class GalvoScan(Script):
             if self._abort:
                 break
             # initialize APD thread
-            clk_source = self.instruments['daq']['instance'].DI_init("ctr0", len(self.x_array) + 1)
+            clk_source = self.instruments['daq']['instance'].DI_init(self.settings['counter_channel'], len(self.x_array) + 1)
             self.initPt = np.transpose(np.column_stack((self.x_array[0],
                                           self.y_array[yNum])))
             self.initPt = (np.repeat(self.initPt, 2, axis=1))
 
             # move galvo to first point in line
-            self.instruments['daq']['instance'].AO_init(["ao0", "ao3"], self.initPt, "")
+            self.instruments['daq']['instance'].AO_init([self.settings['x_ao_channel'], self.settings['y_ao_channel']], self.initPt, "")
             self.instruments['daq']['instance'].AO_run()
             self.instruments['daq']['instance'].AO_waitToFinish()
             self.instruments['daq']['instance'].AO_stop()
-            self.instruments['daq']['instance'].AO_init(["ao0"], self.x_array, clk_source)
+            self.instruments['daq']['instance'].AO_init([self.settings['x_ao_channel']], self.x_array, clk_source)
             # start counter and scanning sequence
             self.instruments['daq']['instance'].AO_run()
             self.instruments['daq']['instance'].DI_run()

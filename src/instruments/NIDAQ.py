@@ -2,6 +2,7 @@ import ctypes
 import threading
 import os
 import numpy
+import warnings
 
 from src.core.instruments import Instrument, Parameter
 
@@ -54,6 +55,7 @@ class DAQ(Instrument):
             nidaq = ctypes.WinDLL("C:\\Windows\\System32\\nicaiu.dll") # load the DLL
             dll_detected = True
         else:
+            warnings.warn("NI DAQmx DLL not found. If it should be present, check the path.")
             dll_detected = False
     except WindowsError:
         # make a fake DAQOut instrument

@@ -189,6 +189,10 @@ try:
 except:
     print("./src/scripts/__init__ warning! Rabi_Loop did not load")
 
+try:
+    from pulse_blaster_scripts import CPMG
+except:
+    print("./src/scripts/__init__ warning! CPMG did not load")
 
     # =============================================================================================================
 
