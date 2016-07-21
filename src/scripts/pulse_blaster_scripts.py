@@ -175,13 +175,12 @@ This script applies a microwave pulse at fixed power for varying durations to me
         return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
 
 
-"""
+
     #TODO: Test if the following code will add 'Rabi' as a title to main plot in GUI and add a legend
     def _plot(self, axislist):
         super(Rabi, self)._plot(axislist)
         axislist[0].set_title('Rabi')
-        axislist[0].legend(labels=('Rabi Data', 'Ref Fluorescence'))
-"""
+        axislist[0].legend(labels=('Ref Fluorescence', 'Rabi Data'), fontsize=8)
 
 
 class Rabi_Power_Sweep_Single_Tau(ExecutePulseBlasterSequence):
@@ -667,7 +666,7 @@ This script runs a Hahn-echo sequence for different number of pi pulses. Without
 
 class T1(ExecutePulseBlasterSequence):
     """
-This script applies a microwave pulse at fixed power for varying durations to measure Rabi Oscillations
+This script measures the relaxation time of an NV center
     """
     _DEFAULT_SETTINGS = [
         Parameter('time_step', 1000, int, 'time step increment of rabi pulse duration [ns]'),
@@ -701,7 +700,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
 
         for tau in tau_list:
             pulse_sequences.append([Pulse('laser', 0, reset_time),
-                                    Pulse('apd_readout', reset_time - self.settings['meas_time'],
+                                    Pulse('apd_readout', reset_time - self.settings['meas_time'] - 15,
                                           self.settings['meas_time']),
                                     Pulse('laser', reset_time + tau, self.settings['meas_time']),
                                     Pulse('apd_readout',
@@ -721,14 +720,11 @@ This script applies a microwave pulse at fixed power for varying durations to me
 
         return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
 
-
-"""
-    #TODO: Test if the following code will add 'Rabi' as a title to main plot in GUI and add a legend
     def _plot(self, axislist):
-        super(Rabi, self)._plot(axislist)
-        axislist[0].set_title('Rabi')
-        axislist[0].legend(labels=('Rabi Data', 'Ref Fluorescence'))
-"""
+        super(T1, self)._plot(axislist)
+        axislist[0].set_title('T1')
+        axislist[0].legend(labels=('T1 data', 'Ref Fluorescence'), fontsize=8)
+
 
 
 if __name__ == '__main__':

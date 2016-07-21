@@ -84,31 +84,32 @@ def plot_pulses(axis, pulse_collection, pulse_colors=None):
 
     # assign colors for certain specific channels
     if pulse_colors is None:
-        pulse_colors = {'laser': 'g', 'microwave_i': 'r', 'apd_readout': 'k'}
+        pulse_colors = {'laser': '#50FF00', 'microwave_i': 'r', 'apd_readout': 'k'}
 
     # find the maximum time from the list of pulses
     max_time = max([pulse.start_time + pulse.duration for pulse in pulse_collection])
 
     # set axis boundaries
-    axis.set_ylim(-0.5, len(instrument_names))
-    axis.set_xlim(0, 1.1 * max_time)
+    axis.set_ylim(-0.75, len(instrument_names) - .25)
+    axis.set_xlim(0, max_time)
 
     # label y axis with pulse names
     axis.set_yticks(range(len(instrument_names)))
     axis.set_yticklabels(instrument_names)
 
     # create horizontal lines for each pulse
-    for i in range(0, len(instrument_names)):
-        axis.axhline(i, 0.0, max_time)
+    for pulse_plot_y_position in range(0, len(instrument_names)):
+        axis.axhline(pulse_plot_y_position - .25, 0.0, max_time, color='k')
+    axis.tick_params(axis='y', which=u'both', length=0)  # remove tick marks on y axis
 
     # create a vertical line denoting the end of the pulse sequence loop
-    axis.axvline(max_time, -0.5, len(instrument_names), color='r')
+    # axis.axvline(max_time, -0.5, len(instrument_names), color='r')
 
     # create rectangles for the pulses
     patch_list = []
     for pulse in pulse_collection:
         patch_list.append(
-            patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id)), pulse.duration, 0.5,
+            patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id) - .25), pulse.duration, 0.5,
                               fc=pulse_colors.get(pulse.channel_id, 'b')))
 
     patch_collection = PatchCollection(patch_list, match_original=True)
@@ -136,7 +137,7 @@ def update_pulse_plot(axis, pulse_collection, pulse_colors=None):
 
     # assign colors for certain specific channels
     if pulse_colors is None:
-        pulse_colors = {'laser': 'g', 'microwave_i': 'r', 'apd_readout': 'k'}
+        pulse_colors = {'laser': '#50FF00', 'microwave_i': 'r', 'apd_readout': 'k'}
 
     # get a list of unique instruments from the pulses
     instrument_names = [str(label.get_text()) for label in axis.get_yticklabels()]
@@ -144,7 +145,7 @@ def update_pulse_plot(axis, pulse_collection, pulse_colors=None):
     # find the maximum time from the list of pulses
     max_time = max([pulse.start_time + pulse.duration for pulse in pulse_collection])
 
-    # axis.set_xlim(0, 1.1 * max_time)
+    axis.set_xlim(0, max_time)
 
     # remove the previous pulses
     [child.remove() for child in axis.get_children() if isinstance(child, PatchCollection)]
@@ -153,7 +154,7 @@ def update_pulse_plot(axis, pulse_collection, pulse_colors=None):
     patch_list = []
     for pulse in pulse_collection:
         patch_list.append(
-            patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id)), pulse.duration, 0.5,
+            patches.Rectangle((pulse.start_time, instrument_names.index(pulse.channel_id) - .25), pulse.duration, 0.5,
                               fc=pulse_colors.get(pulse.channel_id, 'b')))
 
     patch_collection = PatchCollection(patch_list, match_original=True)

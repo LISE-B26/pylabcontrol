@@ -114,7 +114,7 @@ for a given experiment
         counts = self.data['counts']
         x_data = self.data['tau']
         axis1 = axes_list[0]
-        if counts:
+        if counts != []:
             plot_1d_simple(axis1, x_data, [counts])
         axis2 = axes_list[1]
         plot_pulses(axis2, self.pulse_sequences[self.sequence_index])

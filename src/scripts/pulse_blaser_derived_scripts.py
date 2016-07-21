@@ -16,6 +16,7 @@ from src.scripts import FindMaxCounts2D
 import numpy as np
 from PyQt4.QtCore import pyqtSlot
 from copy import deepcopy
+import time
 
 
 class Rabi_Power_Sweep(Script):
@@ -116,6 +117,7 @@ This script repeats the Rabi script N times and refocuses on the NV between ever
             if self._abort:
                 break
             self.scripts['Find_NV'].run()
+            time.sleep(.25)  # Short time to see red circle over NV in galvoscan plot after Find_NV runs
             nv_location = self.scripts['Find_NV'].data['maximum_point']
             # reset initial point for longer time tracking
             self.scripts['Find_NV'].settings['initial_point'] = nv_location

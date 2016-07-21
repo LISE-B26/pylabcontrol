@@ -189,6 +189,11 @@ try:
 except:
     print("./src/scripts/__init__ warning! Rabi_Loop did not load")
 
+try:
+    from pulse_blaster_scripts import T1
+except:
+    print("./src/scripts/__init__ warning! Rabi_Loop did not load")
+
 
     # =============================================================================================================
 
