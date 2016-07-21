@@ -1,6 +1,6 @@
 from src.core.scripts import Script
 from src.core import Parameter
-from src.instruments import DAQ, B26PulseBlaster
+from src.instruments import DAQ, B26PulseBlaster, Pulse
 import itertools
 from copy import deepcopy
 import time
@@ -55,6 +55,19 @@ for a given experiment
         '''
         self.sequence_index = 0
         self.pulse_sequences, self.num_averages, tau_list, self.measurement_gate_width = self._create_pulse_sequences()
+
+        #todo: debug this
+        # def add_switch_to_sequences(pulse_sequences):
+        #     if not 'mw_switch_extra_time' in self.settings.keys():
+        #         return pulse_sequences
+        #     mw_switch_time = self.settings['mw_switch_extra_time']
+        #     for sequence in pulse_sequences:
+        #         for pulse in sequence:
+        #             if pulse.channel_id in ['microwave_i', 'microwave_q']:
+        #                 sequence.append(Pulse('microwave_switch', pulse.start_time - mw_switch_time, pulse.duration + 2*mw_switch_time))
+        #     return pulse_sequences
+        #
+        # self.pulse_sequences = add_switch_to_sequences(self.pulse_sequences)
 
         if ('skip_invalid_sequences' in self.settings.keys() and self.settings['skip_invalid_sequences']):
             self.pulse_sequences, delete_list = self._skip_invalid_sequences(self.pulse_sequences)

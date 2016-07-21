@@ -550,12 +550,15 @@ This script runs a CPMG pulse sequence.
     _DEFAULT_SETTINGS = [
         Parameter('mw_power', -45.0, float, 'microwave power in dB'),
         Parameter('mw_frequency', 2.87e9, float, 'microwave frequency in Hz'),
+        Parameter('mw_switch_extra_time', 15, int, 'Time to add before and after microwave switch is turned on'),
         Parameter('pi_pulse_time', 50, float, 'time duration of pi-pulse (in ns)'),
         Parameter('number_of_pulse_blocks', 1, range(1,17), 'number of alternating x-y-x-y-y-x-y-x pulses'),
         Parameter('delay_time_step', 5, [5, 10, 20, 50, 100, 200, 500, 1000, 10000, 100000],
                   'time step increment of time between pulses (in ns)'),
         Parameter('min_delay_time', 100, float, 'minimum time between pulses (in ns)'),
         Parameter('max_delay_time', 1000, float, 'maximum time between pulses (in ns)'),
+        Parameter('delay_init_mw', 0, int, 'delay between initialization and mw (in ns)'),
+        Parameter('delay_mw_readout', 0, int, 'delay between mw and readout (in ns)'),
         Parameter('meas_time', 300, float, 'measurement time after CPMG sequence (in ns)'),
         Parameter('number_avrgs', 1000, int, 'number of averages (should be less than a million)'),
         Parameter('reset_time', 10000, int, 'time with laser on at the beginning to reset state'),
@@ -588,7 +591,7 @@ This script runs a CPMG pulse sequence.
                          self.settings['delay_time_step'])
         reset_time = self.settings['reset_time']
         pi_time = self.settings['pi_pulse_time']
-        pi_half_time = pi_time/2
+        pi_half_time = pi_time/2.0
         for tau in tau_list:
 
             pulse_sequence = []
@@ -597,26 +600,29 @@ This script runs a CPMG pulse sequence.
             pulse_sequence.extend([Pulse('laser', 0, reset_time),
                                     Pulse('apd_readout', reset_time - self.settings['meas_time'],
                                           self.settings['meas_time']),
-                                   Pulse('microwave_i', reset_time, pi_half_time)
+                                   Pulse('microwave_i', reset_time + self.settings['delay_init_mw'], pi_half_time)
                                    ])
 
             #CPMG xyxyyxyx loops added number_of_pulse_blocks times
-            loop_begin_time = reset_time - tau/2 #for the first pulse, only wait tau/2
+            section_begin_time = reset_time + self.settings['delay_init_mw'] - tau/2 #for the first pulse, only wait tau/2
             for i in range(0, self.settings['number_of_pulse_blocks']):
-                pulse_sequence.extend([Pulse('microwave_i', loop_begin_time + tau - pi_half_time, pi_time),
-                                       Pulse('microwave_q', loop_begin_time + 2*tau - pi_half_time, pi_time),
-                                       Pulse('microwave_i', loop_begin_time + 3*tau - pi_half_time, pi_time),
-                                       Pulse('microwave_q', loop_begin_time + 4*tau - pi_half_time, pi_time),
-                                       Pulse('microwave_q', loop_begin_time + 5*tau - pi_half_time, pi_time),
-                                       Pulse('microwave_i', loop_begin_time + 6*tau - pi_half_time, pi_time),
-                                       Pulse('microwave_q', loop_begin_time + 7*tau - pi_half_time, pi_time),
-                                       Pulse('microwave_i', loop_begin_time + 8*tau - pi_half_time, pi_time)])
-                loop_begin_time += 8*tau
+                pulse_sequence.extend([Pulse('microwave_i', section_begin_time + tau - pi_half_time, pi_time),
+                                       Pulse('microwave_q', section_begin_time + 2*tau - pi_half_time, pi_time),
+                                       Pulse('microwave_i', section_begin_time + 3*tau - pi_half_time, pi_time),
+                                       Pulse('microwave_q', section_begin_time + 4*tau - pi_half_time, pi_time),
+                                       Pulse('microwave_q', section_begin_time + 5*tau - pi_half_time, pi_time),
+                                       Pulse('microwave_i', section_begin_time + 6*tau - pi_half_time, pi_time),
+                                       Pulse('microwave_q', section_begin_time + 7*tau - pi_half_time, pi_time),
+                                       Pulse('microwave_i', section_begin_time + 8*tau - pi_half_time, pi_time)
+                                      ])
+                section_begin_time += 8*tau
 
             #pi/2 and readout
-            pulse_sequence.extend([Pulse('microwave_i', loop_begin_time + tau/2, pi_half_time),
-                                   Pulse('laser', loop_begin_time + tau/2 + pi_half_time, self.settings['meas_time']),
-                                   Pulse('apd_readout',loop_begin_time + tau / 2 + pi_half_time, self.settings['meas_time'])])
+            pulse_sequence.extend([Pulse('microwave_i', section_begin_time + tau/2, pi_half_time),
+                                   Pulse('laser', section_begin_time + tau/2 + pi_half_time + self.settings['delay_mw_readout'], self.settings['meas_time']),
+                                   Pulse('apd_readout',section_begin_time + tau / 2 + pi_half_time + self.settings['delay_mw_readout'], self.settings['meas_time'])])
+
+            pulse_sequences.append(pulse_sequence)
 
 
         # end_time_max = 0
