@@ -82,10 +82,14 @@ Script.
         def get_sweep_parameters():
             #in both cases, param values have tolist to make sure that they are python types (ex float) rather than numpy
             #types (ex np.float64), the latter of which can cause typing issues
+            sweep_range = self.settings['sweep_range']
             if self.settings['stepping_mode'] == 'N':
-                param_values = np.linspace(self.settings['min_value'], self.settings['max_value'], int(self.settings['N/value_step']), endpoint=True).tolist()
+                param_values = np.linspace(sweep_range['min_value'], sweep_range['max_value'],
+                                           int(sweep_range['N/value_step']), endpoint=True).tolist()
             elif self.settings['stepping_mode'] == 'value_step':
-                param_values = np.linspace(self.settings['min_value'], self.settings['max_value'], (self.settings['max_value'] - self.settings['min_value'])/self.settings['N/value_step'] + 1, endpoint=True).tolist()
+                param_values = np.linspace(sweep_range['min_value'], sweep_range['max_value'],
+                                           (sweep_range['max_value'] - sweep_range['min_value']) / sweep_range[
+                                               'N/value_step'] + 1, endpoint=True).tolist()
             return param_values
 
         script_names = self.settings['script_order'].keys()
@@ -95,9 +99,7 @@ Script.
         if self.iterator_type == self.TYPE_SWEEP_PARAMETER:
             param_values = get_sweep_parameters()
             for value in param_values:
-                if self.settings['sweep_param'] == '':
-                    self.log('Choose a sweep parameter!')
-                    return
+
                 split_trace = self.settings['sweep_param'].split('.')
                 script = split_trace[0]
                 setting = split_trace[1:]
@@ -141,12 +143,13 @@ Script.
         if self.iterator_type == self.TYPE_LOOP:
             number_of_iterations = self.settings['N']
         elif self.iterator_type == self.TYPE_SWEEP_PARAMETER:
-            if self.settings['N/value_step'] == 'value_step':
-                number_of_iterations = len(np.linspace(self.settings['min_value'], self.settings['max_value'],
-                                                       (self.settings['max_value'] - self.settings['min_value']) /
-                                                       self.settings['N/value_step'] + 1, endpoint=True).tolist())
+            sweep_range = self.settings['sweep_range']
+            if sweep_range['N/value_step'] == 'value_step':
+                number_of_iterations = len(np.linspace(sweep_range['min_value'], sweep_range['max_value'],
+                                                       (sweep_range['max_value'] - sweep_range['min_value']) /
+                                                       sweep_range['N/value_step'] + 1, endpoint=True).tolist())
             else:
-                number_of_iterations = self.settings['N/value_step']
+                number_of_iterations = sweep_range['N/value_step']
         elif self.iterator_type == self.TYPE_ITER_POINT:
             # todo: implement this for iteration over points,should be something like the following:
             number_of_iterations = len(self.scripts['find_nv_points'].data['locations'])
@@ -353,11 +356,11 @@ Script.
 
             # assigning the actual script settings depending on the interator type
             if iterator_type == ScriptIterator.TYPE_SWEEP_PARAMETER:
-                sweep_params = populate_sweep_param(sub_scripts, [''])
+                sweep_params = populate_sweep_param(sub_scripts, [])
                 script_default_settings = [
                     Parameter('script_order', script_order),
                     Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
-                    Parameter('sweep_specifier',
+                    Parameter('sweep_range',
                               [Parameter('min_value', 0, float, 'min parameter value'),
                                Parameter('max_value', 0, float, 'max parameter value'),
                                Parameter('N/value_step', 0, float,

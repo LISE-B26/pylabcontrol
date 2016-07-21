@@ -117,7 +117,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
     _DEFAULT_SETTINGS = [
         Parameter('mw_power', -45.0, float, 'microwave power in dB'),
         Parameter('mw_frequency', 2.87e9, float, 'microwave frequency in Hz'),
-        Parameter('time_step', 5, [5, 10, 20, 50, 100, 200, 500, 1000, 10000, 100000],
+        Parameter('time_step', 5, [5, 10, 20, 50, 100, 200, 500, 1000, 10000, 100000, 500000],
                   'time step increment of rabi pulse duration (in ns)'),
         Parameter('time', 200, float, 'total time of rabi oscillations (in ns)'),
         Parameter('meas_time', 300, float, 'measurement time after rabi sequence (in ns)'),
@@ -173,6 +173,14 @@ This script applies a microwave pulse at fixed power for varying durations to me
             pulse_sequence.append(Pulse('laser', end_time_max + 1850, 15))
 
         return pulse_sequences, self.settings['num_averages'], tau_list, self.settings['meas_time']
+
+
+"""
+    #TODO: Test if the following code will add 'Rabi' as a title to main plot in GUI
+    def _plot(self, axislist):
+        super(Rabi, self)._plot(axislist)
+        axislist[0].set_title('Rabi')
+"""
 
 
 class Rabi_Power_Sweep_Single_Tau(ExecutePulseBlasterSequence):
