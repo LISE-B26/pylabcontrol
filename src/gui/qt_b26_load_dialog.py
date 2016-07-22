@@ -85,7 +85,7 @@ Returns:
         self.tree_infile_model.itemChanged.connect(self.name_changed)
         self.tree_loaded_model.itemChanged.connect(self.name_changed)
 
-        self.cmb_looping_variable.addItems(['Loop', 'Parameter Sweep'])
+        self.cmb_looping_variable.addItems(['Loop', 'Parameter Sweep', 'Iter Points'])
 
     def test(item):
         print(item)
@@ -257,7 +257,6 @@ Returns:
                                   'settings': {'script_order': new_script_parameter_dict,
                                                'iterator_type': str(self.cmb_looping_variable.currentText())}}}
         self.selected_element_name = name
-        print('NSDxxxx', new_script_dict)
         self.fill_tree(self.tree_loaded, new_script_dict)
         self.elements_from_file.update(new_script_dict)
 

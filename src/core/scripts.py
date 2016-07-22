@@ -740,8 +740,8 @@ class Script(QObject):
             scripts: dictionary of form
 
                 scripts = {
-                name_of_script_1 : instance_of_instrument_1,
-                name_of_script_2 : instance_of_instrument_2,
+                name_of_script_1 : instance_of_script_1,
+                name_of_script_2 : instance_of_script_2,
                 ...
                 }
 
@@ -763,6 +763,7 @@ class Script(QObject):
                 updated_instruments = {name_of_instrument_1 : instance_of_instrument_1, ..}
 
         """
+
         if scripts is None:
             scripts = {}
         if instruments is None:
@@ -827,11 +828,13 @@ class Script(QObject):
             Args:
                 class_of_script: the class of the script
                 instruments: the instruments that have been loaded already
+                sub_scripts_dict: settings of script in dictionary form
 
             Returns:dictionary with the sub scripts that the script needs
 
             """
             default_scripts = getattr(class_of_script, '_SCRIPTS')
+
             #
             # create instruments that script needs
             sub_scripts = {}
@@ -851,7 +854,6 @@ class Script(QObject):
             if len(scripts_failed)>0:
                 raise ImportError('script {:s}: failed to load subscripts'.format(class_of_script))
             return sub_scripts, instruments_updated
-            # return sub_scripts_dict, instruments_updated
 
         for script_name, script_info in script_dict.iteritems():
 
@@ -860,6 +862,7 @@ class Script(QObject):
                 print('WARNING: script {:s} already exists. Did not load!'.format(script_name))
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
+
                 module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
 
                 #creates all dynamic scripts so they can be imported following the if statement
@@ -867,9 +870,9 @@ class Script(QObject):
                     # creates all the dynamic classes in the script and the class of the script itself
                     # and updates the script info with these new classes
                     from src.core import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
+
                     script_info = ScriptIterator.create_dynamic_script_class(script_info)
                     module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
-
                 module = __import__(module_path, fromlist=[script_class_name])
                 # this returns the name of the module that was imported.
                 class_of_script = getattr(module, script_class_name)
@@ -883,7 +886,6 @@ class Script(QObject):
                     continue
                 #  ========= create the subscripts that are needed by the script =========
                 try:
-                    # print('SSS', script_sub_scripts)
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
                 except Exception as err:
                     print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
@@ -906,7 +908,7 @@ class Script(QObject):
                 try:
                     script_instance = eval(class_creation_string)
                 except Exception, err:
-                    print('loading script {:s} failed. Could not create script!'.format(script_name))
+                    # print('loading script {:s} failed. Could not create script!'.format(script_name))
                     load_failed[script_name] = err
                     continue
                 updated_scripts.update({script_name :script_instance})
@@ -939,10 +941,12 @@ class Script(QObject):
                 script_sub_scripts = script_information['scripts']
         elif isinstance(script_information, str):
             script_class_name = script_information
+
         elif issubclass(script_information, Script):
             # watch out when testing this code from __main__, then classes might not be identified correctly because the path is different
             # to avoid this problem call from src.core import Script (otherwise the path to Script is __main__.Script)
             script_class_name = script_information.__name__
+
         if len(script_class_name.split('.')) == 1:
             module_path = 'src.scripts'
         else:
