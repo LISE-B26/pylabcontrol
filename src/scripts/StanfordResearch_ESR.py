@@ -8,7 +8,7 @@ from src.instruments import MicrowaveGenerator, DAQ
 from collections import deque
 
 from src.plotting.plots_1d import plot_esr
-
+from src.data_processing.esr_signal_processing import fit_esr
 
 class StanfordResearch_ESR(Script):
     # COMMENT_ME
@@ -109,7 +109,7 @@ class StanfordResearch_ESR(Script):
                 self.instruments['daq']['instance'].DI_stop()
 
             esr_avg = np.mean(esr_data[0:(scan_num + 1)], axis=0)
-            fit_params, _ = self.fit_esr(freq_values, esr_avg)
+            fit_params = fit_esr(freq_values, esr_avg)
             self.data.append({'frequency': freq_values, 'data': esr_avg, 'fit_params': fit_params})
 
             progress = self._calc_progress(scan_num)
@@ -121,13 +121,7 @@ class StanfordResearch_ESR(Script):
             self.save_log()
 
             self.save_image_to_disk()
-            # # create and save images
-            # filename = self.filename('-esr.jpg')
-            # fig = Figure()
-            # canvas = FigureCanvas(fig)
-            # ax = fig.add_subplot(1, 1, 1)
-            # plotting.plot_esr(self.data[-1]['fit_params'], self.data[-1]['frequency'], self.data[-1]['data'], ax)
-            # fig.savefig(filename)
+
 
     def _calc_progress(self, scan_num):
         #COMMENT_ME
@@ -137,10 +131,6 @@ class StanfordResearch_ESR(Script):
         return int(progress)
 
     def _plot(self, axes_list):
-        #COMMENT_ME
-        plot_esr(axes_list[0], self.data[-1]['frequency'], self.data[-1]['data'], self.data[-1]['fit_params'])
-
-    def _update_plot(self, axes_list):
         #COMMENT_ME
         plot_esr(axes_list[0], self.data[-1]['frequency'], self.data[-1]['data'], self.data[-1]['fit_params'])
 
@@ -158,24 +148,24 @@ class StanfordResearch_ESR(Script):
         new_figure_list = [figure_list[1]]
         return super(StanfordResearch_ESR, self).get_axes_layout(new_figure_list)
 
-    # fit ESR curve to lorentzian and return fit parameters. If initial guess known, put in fit_start_params, otherwise
-    # guesses reasonable initial values.
-    def fit_esr(self, freq_values, esr_data, fit_start_params=None):
-        if (fit_start_params is None):
-            offset = np.mean(esr_data)
-            amplitude = np.max(esr_data) - np.min(esr_data)
-            center = freq_values[esr_data.argmin()]
-            width = 10000000  # 10 MHz arbitrarily chosen as reasonable
-            fit_start_params = [amplitude, width, center, offset]
-        try:
-            return opt.curve_fit(self.lorentzian, freq_values, esr_data, fit_start_params)
-        except RuntimeError:
-            self.log('Lorentzian fit failed')
-            return [-1, -1, -1, -1], 'Ignore'
-
-    # defines a lorentzian with some amplitude, width, center, and offset to use with opt.curve_fit
-    def lorentzian(self, x, amplitude, width, center, offset):
-        return (-(amplitude*(.5*width)**2)/((x-center)**2+(.5*width)**2))+offset
+        # # fit ESR curve to lorentzian and return fit parameters. If initial guess known, put in fit_start_params, otherwise
+        # # guesses reasonable initial values.
+        # def fit_esr(self, freq_values, esr_data, fit_start_params=None):
+        #     if (fit_start_params is None):
+        #         offset = np.mean(esr_data)
+        #         amplitude = np.max(esr_data) - np.min(esr_data)
+        #         center = freq_values[esr_data.argmin()]
+        #         width = 10000000  # 10 MHz arbitrarily chosen as reasonable
+        #         fit_start_params = [amplitude, width, center, offset]
+        #     try:
+        #         return opt.curve_fit(self.lorentzian, freq_values, esr_data, fit_start_params)
+        #     except RuntimeError:
+        #         self.log('Lorentzian fit failed')
+        #         return [-1, -1, -1, -1], 'Ignore'
+        #
+        # # defines a lorentzian with some amplitude, width, center, and offset to use with opt.curve_fit
+        # def lorentzian(self, x, amplitude, width, center, offset):
+        #     return (-(amplitude*(.5*width)**2)/((x-center)**2+(.5*width)**2))+offset
 
 if __name__ == '__main__':
     script = {}

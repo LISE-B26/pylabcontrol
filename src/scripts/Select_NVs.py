@@ -14,7 +14,7 @@ class Select_NVs(Script):
 
     def __init__(self, instruments = None, scripts = None, name = None, settings = None, log_function = None, data_path = None):
         """
-        Standard initialization for a Script.
+        Select points by clicking on an image
         """
         Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
 
@@ -95,6 +95,7 @@ class Select_NVs(Script):
             # adds NV if not previously selected
             else:
                 self.data['nv_locations'].append(pt)
+
 
 if __name__ == '__main__':
 

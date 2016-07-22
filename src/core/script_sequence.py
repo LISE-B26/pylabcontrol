@@ -65,11 +65,12 @@ Script.
             # asign the correct iterator script type
             if 'sweep_param' in script_settings:
                 iterator_type = ScriptIterator.TYPE_SWEEP_PARAMETER
-            elif 'find_nv_points' in subscripts:
+            elif 'select_nvs' in subscripts:
                 iterator_type = ScriptIterator.TYPE_ITER_POINTS
             elif 'N' in script_settings:
                 iterator_type = ScriptIterator.TYPE_LOOP
             else:
+                print(script_settings, subscripts)
                 raise TypeError('unknown iterator type')
 
         return iterator_type
@@ -114,14 +115,21 @@ Script.
                     self.scripts[script_name].run()
 
         elif self.iterator_type == self.TYPE_LOOP:
-
             for i in range(0, self.settings['N']):
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
                     self.scripts[script_name].run()
         elif self.iterator_type == self.TYPE_ITER_POINTS:
-            raise NotImplementedError
+
+            points = self.scripts['select_nvs'].data['nv_locations']
+            for pt in points:
+                self.scripts['find_nv'].settings['initial_point'].update({'x': pt[0], 'y': pt[1]})
+                # scip first script since that is the select NV script!
+                for script_name in sorted_script_names[1:]:
+                    if self._abort:
+                        break
+                    self.scripts[script_name].run()
         else:
             raise TypeError('wrong iterator type')
 
@@ -150,10 +158,11 @@ Script.
                                                        sweep_range['N/value_step'] + 1, endpoint=True).tolist())
             else:
                 number_of_iterations = sweep_range['N/value_step']
-        elif self.iterator_type == self.TYPE_ITER_POINT:
+        elif self.iterator_type == self.TYPE_ITER_POINTS:
             # todo: implement this for iteration over points,should be something like the following:
-            number_of_iterations = len(self.scripts['find_nv_points'].data['locations'])
-            number_of_subscripts -= 1  # substract one because we don't iterate over find_nv_points
+            number_of_iterations = len(self.scripts['select_nvs'].data['nv_locations'])
+            number_of_iterations = 1
+            number_of_subscripts -= 1  # substract 2 because we don't iterate over select nv
         else:
             raise TypeError('unknown iterator type')
 
@@ -163,21 +172,21 @@ Script.
         if number_of_subscripts > 1:
             # estimate the progress based on the duration the individual subscripts
 
-            loop_execution_time = datetime.timedelta(0)  # time for a single loop execution
-            sub_progress_time = datetime.timedelta(0)  # progress of current loop iteration
+            loop_execution_time = 0.  # time for a single loop execution in s
+            sub_progress_time = 0.  # progress of current loop iteration in s
 
             # ==== get typical duration of current subscript ======================
             if current_subscript is not None:
                 current_subscript_exec_duration = self._current_subscript_stage['subscript_exec_duration'][
-                    current_subscript.name]
+                    current_subscript.name].total_seconds()
             else:
-                current_subscript_exec_duration = datetime.timedelta(0)
+                current_subscript_exec_duration = 0.
 
-            current_subscript_elapsed_time = datetime.datetime.now() - current_subscript.start_time
+            current_subscript_elapsed_time = (datetime.datetime.now() - current_subscript.start_time).total_seconds()
 
             # estimate the duration of the current subscript if the script hasn't been executed once fully and subscript_exec_duration is 0
-            if current_subscript_exec_duration.total_seconds() == 0.0:
-                remaining_time = current_subscript.remaining_time
+            if current_subscript_exec_duration == 0.0:
+                remaining_time = current_subscript.remaining_time.total_seconds()
                 current_subscript_exec_duration = remaining_time + current_subscript_elapsed_time
 
             # ==== get typical duration of one loop iteration ======================
@@ -185,13 +194,13 @@ Script.
             for subscript_name, duration in self._current_subscript_stage['subscript_exec_duration'].iteritems():
                 if duration.total_seconds() == 0.0:
                     remaining_scripts += 1
-                loop_execution_time += duration
+                loop_execution_time += duration.total_seconds()
                 # add the times of the subscripts that have been executed in the current loop
                 # ignore the current subscript, because that will be taken care of later
                 if self._current_subscript_stage['subscript_exec_count'][
                     subscript_name] == loop_index and subscript_name is not current_subscript.name:
                     # this subscript has already been executed in this iteration
-                    sub_progress_time += duration
+                    sub_progress_time += duration.total_seconds()
 
             # add the proportional duration of the current subscript given by the subscript progress
             sub_progress_time += current_subscript_elapsed_time
@@ -207,10 +216,11 @@ Script.
                 # there is only one script left which is the current script
                 loop_execution_time += current_subscript_exec_duration
 
-            if loop_execution_time.total_seconds() > 0:
-                progress_subscript = 100. * sub_progress_time.total_seconds() / loop_execution_time.total_seconds()
+            if loop_execution_time > 0:
+                progress_subscript = 100. * sub_progress_time / loop_execution_time
             else:
                 progress_subscript = 1. * progress_subscript / number_of_subscripts
+
 
         self.progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / number_of_iterations
 
@@ -315,16 +325,17 @@ Script.
 
                 return parameter_list
 
-
             sub_scripts = {}  # dictonary of script classes that are to be subscripts of the dynamic class. Should be in the dictionary form {'class_name': <class_object>} (btw. class_object is not the instance)
-            script_order = []  # A dictionary of parameters giving the order that the scripts in the ScriptIterator should beexecuted. Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
+            script_order = []  # A list of parameters giving the order that the scripts in the ScriptIterator should beexecuted. Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
             _, script_class_name, script_settings, _, script_sub_scripts = Script.get_script_information(
                 script_information)
 
             iterator_type = ScriptIterator.get_iterator_type(script_settings)
+
             if isinstance(script_information, dict):
+                import src.scripts
+
                 for sub_script in script_sub_scripts:
-                    import src.scripts
                     if script_sub_scripts[sub_script]['class'] == 'ScriptIterator':
                         subscript_class_name = \
                         ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script])['class']
@@ -332,20 +343,20 @@ Script.
                     else:
                         sub_scripts.update(
                             {sub_script: eval('src.scripts.' + script_sub_scripts[sub_script]['class'])})
-                        # JG: 7/20/16: moved the following lines after if clause
-                        # for sub_script in script_settings['script_order'].keys():
-                        #     script_order.append(
-                        #         Parameter(sub_script, script_settings['script_order'][sub_script], int,
-                        #                   'Order in queue for this script'))
+
+                # for point iteration we add some default scripts
+                if iterator_type == ScriptIterator.TYPE_ITER_POINTS:
+                    sub_scripts.update(
+                        {'select_nvs': eval('src.scripts.Select_NVs'), 'find_nv': eval('src.scripts.FindMaxCounts2D')}
+                    )
+                    script_settings['script_order'].update(
+                        {'select_nvs': -2, 'find_nv': -1}
+                    )
+
             elif isinstance(script_information, Script):
                 # if the script already exists, just update the script order parameter
                 sub_scripts.update({script_class_name: script_information})
 
-                # JG: 7/20/16: moved the following lines after if clause
-                # for sub_script in script_settings['script_order'].keys():
-                #     script_order.append(
-                #         Parameter(sub_script, script_settings['script_order'][sub_script], int,
-                #                   'Order in queue for this script'))
             else:
                 raise TypeError('create_dynamic_script_class: unknown type of script_information')
 
@@ -410,13 +421,14 @@ Script.
 
             return class_name, dynamic_class
 
-            # prevent multiple importation of the same script with different names
+            # todo: prevent multiple importation of the same script with different names
             # for someclass in cls._class_list:
             #     if (vars(ss)['_SCRIPTS'] == vars(someclass)['_SCRIPTS']):
             #         print('CLASSNAME', vars(someclass)['_CLASS'])
             #         return vars(someclass)['_CLASS']
 
         script_default_settings, sub_scripts = set_up_dynamic_script(script_information)
+
         class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings)
 
         # update the generic name (e.g. ScriptIterator) to a unique name  (e.g. ScriptIterator_01)

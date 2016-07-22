@@ -53,8 +53,6 @@ This script points the laser to a point
 
         # removes patches
         [child.remove() for child in axes_Image.get_children() if isinstance(child, patches.Circle)]
-        # for child in axes_Image.get_children():
-        #     print('XXXX', child, type(child))
 
         patch = patches.Circle((self.settings['point']['x'], self.settings['point']['y']), .0005, fc='r')
         axes_Image.add_patch(patch)

@@ -405,7 +405,6 @@ class PulseBlaster(Instrument):
         assert len(pulse_collection) > 1, 'pulse program must have at least 2 pulses'
         assert num_loops < (1 << 20), 'cannot have more than 2^20 (approx 1 million) loop iterations'
         if self.find_overlapping_pulses(pulse_collection):
-            print('xxxx', self.find_overlapping_pulses(pulse_collection))
             raise AttributeError('found overlapping pulses in given pulse collection')
         for pulse in pulse_collection:
             assert pulse.start_time == 0 or pulse.start_time > 1, \
