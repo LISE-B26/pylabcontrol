@@ -31,8 +31,8 @@ class Script(QObject):
     # current_subscript = pyqtSignal(str) # indicates the current subscript that is being excecuted
 
     _DEFAULT_SETTINGS = [
-        Parameter('path',  'tmp_data', str, 'path to folder where data is saved'),
-        Parameter('tag', 'some_name'),
+        Parameter('path', '', str, 'path to folder where data is saved'),
+        Parameter('tag', 'default_tag'),
         Parameter('save', False, bool,'check to automatically save data'),
     ]
 
@@ -300,11 +300,13 @@ class Script(QObject):
 
         """
         elapsed_time = datetime.datetime.now() - self.start_time
+        # safty to avoid devision by zero
+        if self.progress == 0:
+            self.progress = 1
 
-        # timedelta can only be multiplied and divided by integers thats we multiply everything by 1e6
-        estimated_total_time = elapsed_time
-        estimated_total_time *= int(100 * 1e6)
-        estimated_total_time /= int(self.progress * 1e6)
+        estimated_total_time = elapsed_time.total_seconds()
+        estimated_total_time *= 100. / self.progress
+        estimated_total_time = datetime.timedelta(estimated_total_time)
 
         return estimated_total_time - elapsed_time
 
@@ -472,7 +474,7 @@ class Script(QObject):
             Returns: length of x
 
             """
-            if isinstance(x, (int, float, str)):
+            if isinstance(x, (int, float, str)) or x is None:
                 result = 0
             else:
                 result = builtin_len(x)

@@ -2,8 +2,33 @@ import scipy.signal as signal
 from copy import deepcopy
 import numpy as np
 from peakutils.peak import indexes # package required https://pypi.python.org/pypi/PeakUtils
+from src.data_processing.fit_functions import fit_lorentzian, guess_lorentzian_parameter
 
 
+def fit_esr(freq, ampl):
+    freqs_peaks, ampl_peaks = find_nv_peaks(freq, ampl)
+
+    # figure out if one or two peaks
+    if freqs_peaks[0] == freqs_peaks[1]:
+        start_vals = guess_lorentzian_parameter(freq, ampl)
+    elif freqs_peaks[0] == 0:
+        print('data too noisy!!')
+        # later we can extend this to fit a Lorenzian to each peak, for now we assume it's noisy data..
+    else:
+        center_freq = np.mean(freqs_peaks)
+        start_vals = []
+        start_vals.append(guess_lorentzian_parameter(freq[freq < center_freq], ampl[freq < center_freq]))
+        start_vals.append(guess_lorentzian_parameter(freq[freq > center_freq], ampl[freq > center_freq]))
+        # we already have a good estimate for the peak position, so update that
+        start_vals[0][2], start_vals[1][2] = freqs_peaks
+
+    try:
+        fit = fit_lorentzian(freq, ampl, starting_params=start_vals)
+    except:
+        print('XXX ESR fit failed!')
+        fit = None
+
+    return fit
 
 def find_nv_peaks(freq, data, width_Hz=0.005e9, initial_threshold = 0.00, steps_size = 0.05, ax=None):
     """

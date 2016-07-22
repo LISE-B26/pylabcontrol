@@ -51,14 +51,36 @@ def guess_gaussian_parameter(x_values, y_values):
 
 # ========= Lorenzian fit functions =============================
 #===============================================================
+def guess_lorentzian_parameter(x_values, y_values, negative_peak=True):
+    """
+    estimates the parameter for a Lorentzian fit to the data set
+    Note that the Lorentzian is assumed to
+    Args:
+        x_values:
+        y_values:
+        negative_peak: if peak is negative or positive
+    Returns: estimated parameters as a list: [constant_offset, amplitude, center, fwhm]
+
+    """
+    constant_offset = np.mean(y_values)
+    amplitude = min(y_values) - max(y_values) + 2 * np.std(
+        y_values)  # min - max overestimates the amplitude, that's why we reduce the amplitude by the stddev
+    if negative_peak is False:
+        amplitude = -amplitude
+    center = np.mean(x_values)
+    fwhm = (max(x_values) - min(x_values)) / 5  # assume that the peak is about 1/5th of the size of the image
+    return [constant_offset, amplitude, center, fwhm]
+
+
 def fit_lorentzian(x_values, y_values, starting_params=None, bounds=None):
     """
-
+    fits to lorenzian or two lorenzians: future fit to arbitrarily many lorenzians
     Args:
         x_values: domain of fit function
         y_values: y-values to fit
         starting_params: reasonable guesses for where to start the fitting optimization of the parameters. This is a
-        length 4 list of the form [constant_offset, amplitude, center, full_width_half_max].
+        length 4 list of the form [constant_offset, amplitude, center, full_width_half_max] or list of list of length 4
+        which are the estimates for each peak.
         bounds: Optionally, include bounds for the parameters in the gaussian fitting, in the following form:
                 [(offset_lb, amplitude_lb, center_lb, fwhm_lb), (offset_ub, amplitude_ub, center_ub, fwhm_ub)]
 
@@ -66,14 +88,59 @@ def fit_lorentzian(x_values, y_values, starting_params=None, bounds=None):
         a length-4 list of [fit_parameters] in the form [constant_offset, amplitude, center, fwhm]
 
     """
+    if starting_params is not None and len(starting_params) == 2:
+        starting_params = [
+            np.mean([starting_params[0][0], starting_params[1][0]]),  # offset
+            np.sum([starting_params[0][3], starting_params[1][3]]),  # FWHM
+            starting_params[0][1], starting_params[1][1],  # amplitude
+            starting_params[0][2], starting_params[1][2]  # center
+        ]
+
+        fit_fun = double_lorentzian
+        bounds = []
+    else:
+        fit_fun = lorentzian
 
     # defines a lorentzian with amplitude, width, center, and offset to use with opt.curve_fit
     if bounds:
-        return optimize.curve_fit(lorentzian, x_values, y_values, p0=starting_params, bounds=bounds, max_nfev=2000)[0]
+        return optimize.curve_fit(fit_fun, x_values, y_values, p0=starting_params, bounds=bounds, max_nfev=2000)[0]
     else:
-        return optimize.curve_fit(lorentzian, x_values, y_values, p0=starting_params)[0]
+        return optimize.curve_fit(fit_fun, x_values, y_values, p0=starting_params)[0]
+
+
 def lorentzian(x, constant_offset, amplitude, center, fwhm):
+    """
+    Lorentzian curve
+    Args:
+        x:  numpy array with x-coordinates
+        constant_offset: float
+        amplitude: float
+        center: float
+        fwhm: float
+
+    Returns:  numpy array with y-values
+
+    """
     return constant_offset + amplitude * np.square(0.5 * fwhm) / (np.square(x - center) + np.square(0.5 * fwhm))
+
+
+def double_lorentzian(x, constant_offset, fwhm, amplitude_1, amplitude_2, center_1, center_2):
+    """
+    Two Lorentzian curves
+    Args:
+        x:
+        constant_offset: float
+        fwhm: float
+        amplitude_1:
+        amplitude_2: float
+        center_1: float
+        center_2: float
+
+    Returns: numpy array with y-values
+
+    """
+    return lorentzian(x, constant_offset / 2, amplitude_1, center_1, fwhm) + lorentzian(x, constant_offset / 2,
+                                                                                        amplitude_2, center_2, fwhm)
 
 # ========= Cose fit functions =============================
 #===============================================================
