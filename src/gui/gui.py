@@ -1,5 +1,4 @@
 # this is the gui for the measurment pc
-# this gui only loads dummy scripts and instruments
 
 import ctypes
 import sys

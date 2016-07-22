@@ -23,6 +23,7 @@ import skimage.feature as feature
 from src.plotting.plots_2d import plot_fluorescence_new
 
 class Find_Points(Script):
+    # COMMENT_ME
     _DEFAULT_SETTINGS = [
         Parameter('image_path', 'Z:/Lab/Cantilever/Measurements/__test_data_for_coding/', str, 'path for data'),
         Parameter('image_tag', 'some_name', str, 'some_name'),
@@ -110,6 +111,7 @@ class Find_Points(Script):
         #self.save_data()
 
     def plot(self, figure):
+        # COMMENT_ME
         axes = self.get_axes_layout(figure)
         image  = self.data['image']
         extend = [self.x_min, self.x_max, self.y_max, self.y_min]

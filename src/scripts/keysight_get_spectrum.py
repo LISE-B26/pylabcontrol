@@ -5,6 +5,7 @@ import time
 import numpy as np
 
 class KeysightGetSpectrum(Script):
+    # COMMENT_ME
 
     _DEFAULT_SETTINGS = [
         # Parameter('start_frequency', 2.7e9, float, 'start frequency of spectrum'),
@@ -52,6 +53,7 @@ class KeysightGetSpectrum(Script):
 
 
     def _plot(self, axes_list):
+        #COMMENT_ME
         axes = axes_list[0]
 
         spectrum = self.data['amplitudes']

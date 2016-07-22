@@ -43,6 +43,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
                         log_function=log_function, data_path=data_path)
 
     def _function(self):
+        #COMMENT_ME
         mw_power_values = np.arange(self.settings['min_mw_power'],
                                     self.settings['max_mw_power'] + self.settings['mw_power_step'],
                                     self.settings['mw_power_step'])
@@ -70,6 +71,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
             self.save_log()
 
     def plot(self, figure_list):
+        #COMMENT_ME
         if self._current_subscript_stage['current_subscript'] == self.scripts['Find_NV']:
             self.scripts['Find_NV'].plot(figure_list)
         else:  # also plot Rabi if no current subscript
@@ -163,6 +165,7 @@ After that it again runs a the Rabi script with the optimized microwave power to
                         log_function=log_function, data_path=data_path)
 
     def _function(self):
+        #COMMENT_ME
 
         # first run
         self.data = {'old_power': None, 'new_power': None, 'old_time': None, 'new_time': None, 'old_fit_params': None,
@@ -211,4 +214,5 @@ After that it again runs a the Rabi script with the optimized microwave power to
             print('Optimization SUCCESS. Error is ' + str(error) + ' ns.')
 
     def plot(self, figure_list):
+        #COMMENT_ME
         self.scripts['rabi'].plot(figure_list)

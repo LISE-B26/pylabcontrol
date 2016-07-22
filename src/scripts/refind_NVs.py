@@ -4,6 +4,7 @@ import os
 
 
 class Refind_NVs(Script):
+    # COMMENT_ME
 
     _DEFAULT_SETTINGS = [
         Parameter('activate_correlation', True, bool, 'perform correlation'),

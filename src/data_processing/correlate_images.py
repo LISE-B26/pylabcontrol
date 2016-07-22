@@ -57,6 +57,7 @@ def find_image_shift(reference_image, reference_image_extent, shifted_image, shi
     return dx_voltage, dy_voltage, correlation_image
 
 def pixel_to_voltage_conversion_factor(image_shape, image_extent):
+    # COMMENT_ME
     image_x_len, image_y_len = image_shape
     image_x_min, image_x_max, image_y_max, image_y_min = image_extent
     x_voltage = (image_x_max - image_x_min) / image_x_len
@@ -64,6 +65,7 @@ def pixel_to_voltage_conversion_factor(image_shape, image_extent):
     return x_voltage, y_voltage
 
 def _create_nv_image(image, nv_size, created_pt_size = 3):
+    # COMMENT_ME
     y_len, x_len = image.shape
     f = tp.locate(image, nv_size)
 

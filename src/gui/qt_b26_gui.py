@@ -22,10 +22,7 @@ from collections import deque
 
 #from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, StanfordResearch_ESR, Find_Points, Select_NVs, ESR_Selected_NVs
 
-###AARON_PC REMOVE
 from src.scripts.Select_NVs import Select_NVs
-import src.scripts
-from src.core import ScriptIterator
 
 from src.core.read_write_functions import load_b26_file
 # load the basic old_gui either from .ui file or from precompiled .py file
@@ -76,6 +73,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         def setup_trees():
+            # COMMENT_ME
 
             # define data container
             self.history = deque(maxlen=500)  # history of executed commands
@@ -105,6 +103,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             self.tree_scripts.header().setStretchLastSection(True)
         def connect_controls():
+            # COMMENT_ME
             # =============================================================
             # ===== LINK WIDGETS TO FUNCTIONS =============================
             # =============================================================
@@ -237,6 +236,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.chk_show_all.setChecked(True)
 
     def closeEvent(self, event):
+        #COMMENT_ME
 
         self.script_thread.quit()
         self.read_probes.quit()
@@ -298,6 +298,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     def set_probe_file_name(self, checked):
+        #COMMENT_ME
         if checked:
             file_name = os.path.join(self.gui_settings['probes_log_folder'], '{:s}_probes.csv'.format(datetime.datetime.now().strftime('%y%m%d-%H_%M_%S')))
             if os.path.isfile(file_name) == False:
@@ -311,6 +312,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     def switch_tab(self):
+        #COMMENT_ME
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
         if current_tab == 'Probes':
             self.read_probes.start()
@@ -348,14 +350,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             update(instrument)
 
     def plot_1_clicked(self, mouse_event):
+        #COMMENT_ME
         key_press_handler(mouse_event, self.matplotlibwidget_1.canvas, self.matplotlibwidget_1)
         self.plot_clicked(mouse_event)
 
     def plot_2_clicked(self, mouse_event):
+        #COMMENT_ME
         key_press_handler(mouse_event, self.matplotlibwidget_1.canvas, self.matplotlibwidget_1)
         self.plot_clicked(mouse_event)
 
     def plot_clicked(self, mouse_event):
+        #COMMENT_ME
         if isinstance(self.current_script, Select_NVs) and self.current_script.is_running:
             if (not (mouse_event.xdata == None)):
                 if (mouse_event.button == 1):
@@ -393,8 +398,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                                 item.setData(1, 2, float(mouse_event.ydata))
 
     def get_time(self):
+        #COMMENT_ME
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
     def log(self, msg):
+        #COMMENT_ME
 
         time = self.get_time()
 
@@ -458,6 +465,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # self.matplotlibwidget_2.figure.tight_layout()
 
     def btn_clicked(self):
+        #COMMENT_ME
         sender = self.sender()
         self.probe_to_plot = None
 
@@ -467,6 +475,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
         def start_button():
+            # COMMENT_ME
 
             item = self.tree_scripts.currentItem()
             self.script_start_time = datetime.datetime.now()
@@ -510,6 +519,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.log('User stupidly tried to run a script without one selected.')
         def stop_button():
+            # COMMENT_ME
             if self.current_script is not None and self.current_script.is_running:
                 self.current_script.stop()
             else:
@@ -517,6 +527,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_start_script.setEnabled(True)
 
         def validate_button():
+            # COMMENT_ME
             item = self.tree_scripts.currentItem()
 
             if item is not None:
@@ -527,6 +538,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.matplotlibwidget_1.draw()
                 self.matplotlibwidget_2.draw()
         def store_script_data():
+            # COMMENT_ME
             """
             send selected script to dataset tab
             Returns:
@@ -546,6 +558,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 self.fill_dataset_tree(self.tree_dataset, self.data_sets)
         def save_data():
+            # COMMENT_ME
             indecies = self.tree_dataset.selectedIndexes()
             model = indecies[0].model()
             rows = list(set([index.row()for index in indecies]))
@@ -560,6 +573,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 script.save_b26()
                 script.save_log()
         def delete_data():
+            # COMMENT_ME
             indecies = self.tree_dataset.selectedIndexes()
             model = indecies[0].model()
             rows = list(set([index.row()for index in indecies]))
@@ -570,6 +584,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 model.removeRows(row,1)
         def load_probes():
+            # COMMENT_ME
 
             # if the probe has never been started it can not be disconnected so we catch that error
             try:
@@ -601,6 +616,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.read_probes.updateProgress.connect(self.update_probes)
                 self.tree_probes.expandAll()
         def load_scripts():
+            # COMMENT_ME
             dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts,
                                 filename=self.gui_settings['scripts_folder'])
             if dialog.exec_():
@@ -625,6 +641,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 for name in removed_scripts:
                     del self.scripts[name]
         def load_instruments():
+            # COMMENT_ME
             if 'instrument_folder' in self.gui_settings:
                 dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments,
                                     filename=self.gui_settings['instrument_folder'])
@@ -649,6 +666,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     del self.instruments[name]
 
         def plot_data(sender):
+            # COMMENT_ME
             if sender in (self.btn_plot_data, self.tree_dataset):
                 index = self.tree_dataset.selectedIndexes()[0]
                 model = index.model()
@@ -753,6 +771,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.tree_scripts.setColumnWidth(1, 400)
         self.tree_scripts.setColumnWidth(2, 50)
     def update_parameters(self, treeWidget):
+        #COMMENT_ME
 
         if treeWidget == self.tree_settings:
 
@@ -806,7 +825,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def plot_script(self, script):
         """
-        checks the plottype of the script and plots it accordingly
+        Calls the plot function of the script, and redraws both plots
         Args:
             script: script to be plotted
 
@@ -877,6 +896,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSlot()
     def script_finished(self):
+        #COMMENT_ME
         self.btn_start_script.setEnabled(True)
         script = self.current_script
         script.updateProgress.disconnect(self.update_status)
@@ -1025,6 +1045,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 tree.model().appendRow([item, item_value])
 
     def edit_tree_item(self):
+        #COMMENT_ME
 
         def open_path_dialog(path):
             """
@@ -1071,6 +1092,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.fill_treeview(tree, items)
 
     def fill_dataset_tree(self, tree, data_sets):
+        #COMMENT_ME
 
         tree.model().removeRows(0, tree.model().rowCount())
         for index, (time, script) in enumerate(data_sets.iteritems()):
@@ -1344,6 +1366,7 @@ class MatplotlibWidget(Canvas):
     self.wdiget.axes.plot(x, x**3)
     """
     def __init__(self, parent=None):
+        #COMMENT_ME
         self.figure = Figure(dpi=100)
         Canvas.__init__(self, self.figure)
         self.axes = self.figure.add_subplot(111)
@@ -1355,10 +1378,12 @@ class MatplotlibWidget(Canvas):
         Canvas.updateGeometry(self)
 
     def sizeHint(self):
+        #COMMENT_ME
         w, h = self.get_width_height()
         return QtCore.QSize(w, h)
 
     def minimumSizeHint(self):
+        #COMMENT_ME
         return QtCore.QSize(10, 10)
 
     # def closeEvent(self, event):

@@ -161,6 +161,7 @@ def update_pulse_plot(axis, pulse_collection, pulse_colors=None):
     axis.add_collection(patch_collection)
 
 def plot_counts(axis, data):
+    # COMMENT_ME
     axis.plot(data)
     axis.hold(False)
 
@@ -169,6 +170,7 @@ def plot_counts(axis, data):
 
 
 def plot_1d_simple(axis, times, counts_list, x_label='time (ns)', y_label='kCounts/sec', title=None):
+    # COMMENT_ME
     for counts in counts_list:
         axis.plot(times, counts)
 

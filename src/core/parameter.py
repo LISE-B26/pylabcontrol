@@ -73,6 +73,7 @@ class Parameter(dict):
 
 
     def __setitem__(self, key, value):
+        #COMMENT_ME
         message = "{0} (of type {1}) is not in {2}".format(str(value), type(value), str(self.valid_values[key]))
         assert self.is_valid(value, self.valid_values[key]), message
 
@@ -83,24 +84,28 @@ class Parameter(dict):
             super(Parameter, self).__setitem__(key, value)
 
     def update(self, *args):
+        #COMMENT_ME
         for d in args:
             for key, value in d.iteritems():
                 self.__setitem__(key, value)
     @property
     def visible(self):
+        #COMMENT_ME
         return self._visible
 
     @property
     def valid_values(self):
+        #COMMENT_ME
         return self._valid_values
 
     @property
     def info(self):
+        #COMMENT_ME
         return self._info
 
     @staticmethod
     def is_valid(value, valid_values):
-
+        #COMMENT_ME
 
         valid = False
 

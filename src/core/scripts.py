@@ -204,6 +204,7 @@ class Script(QObject):
         raise NotImplementedError("Subclass did not implement _SCRIPTS")
 
     def __str__(self):
+        #COMMENT_ME
 
         output_string = '{:s} (class type: {:s})\n'.format(self.name, self.__class__.__name__)
 
@@ -214,10 +215,12 @@ class Script(QObject):
 
     @property
     def name(self):
+        #COMMENT_ME
         return self._name
 
     @name.setter
     def name(self, value):
+        #COMMENT_ME
         if isinstance(value, unicode):
             value = str(value)
 
@@ -226,9 +229,11 @@ class Script(QObject):
 
     @property
     def instrumets(self):
+        #COMMENT_ME
         return self._instruments
     @instrumets.setter
     def instruments(self, instrument_dict):
+        #COMMENT_ME
         assert isinstance(instrument_dict, dict)
         # checks if all the keys in _INSTRUMENTS are contained in instrument_dict
         assert set(self._INSTRUMENTS.keys()) <= set(instrument_dict.keys()), "{:s}: needs instruments {:s} but received {:s}".format(self.name, str( self._INSTRUMENTS.keys()), str(instrument_dict.keys()))
@@ -238,10 +243,12 @@ class Script(QObject):
 
     @property
     def scripts(self):
+        #COMMENT_ME
         return self._scripts
 
     @scripts.setter
     def scripts(self, script_dict):
+        #COMMENT_ME
         assert isinstance(script_dict, dict)
         assert set(script_dict.keys()) == set(self._SCRIPTS.keys()), "{:s}: set subscripts {:s}, received {:s}".format(self.name, str(script_dict.keys()), str( self._SCRIPTS.keys()))
 
@@ -289,6 +296,7 @@ class Script(QObject):
 
     @end_time.setter
     def end_time(self, value):
+        #COMMENT_ME
         assert isinstance(value, datetime.datetime)
         self._time_stop = value
 
@@ -317,6 +325,7 @@ class Script(QObject):
         return self._time_start
     @start_time.setter
     def start_time(self, value):
+        #COMMENT_ME
         assert isinstance(value, datetime.datetime)
         self._time_start = value
 
@@ -390,12 +399,14 @@ class Script(QObject):
 
     def stop(self):
         # stop all the subscript
+        #COMMENT_ME
         for subscript in self.scripts.values():
             subscript.stop()
         print('--- stopping: ', self.name)
         self._abort = True
 
     def validate(self):
+        #COMMENT_ME
         pass
 
     def filename(self, appendix=None, create_if_not_existing=False):
@@ -1077,9 +1088,11 @@ class Script(QObject):
         self._plot_validate(axes_list)
 
     def _plot_validate(self, axes_list):
+        #COMMENT_ME
         pass
 
     def get_axes_layout_validate(self, figure_list):
+        #COMMENT_ME
         return self.get_axes_layout(figure_list)
 
 if __name__ == '__main__':

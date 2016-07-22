@@ -146,9 +146,11 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
     @property
     def value(self):
+        #COMMENT_ME
         return self._value
     @value.setter
     def value(self, value):
+        #COMMENT_ME
         if Parameter.is_valid(value, self.valid_values):
             self._value = value
         else:
@@ -157,6 +159,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
     @property
     def visible(self):
+        #COMMENT_ME
         if self._visible is not None:
             return self.check_show.isChecked()
 
@@ -171,6 +174,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             return True
     @visible.setter
     def visible(self, value):
+        #COMMENT_ME
         if self._visible is not None:
             self._visible = value
             self.check_show.setChecked(self._visible)
@@ -190,6 +194,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
     #     self._show_all = value
 
     def setData(self, column, role, value):
+        #COMMENT_ME
         assert isinstance(column, int)
         assert isinstance(role, int)
 

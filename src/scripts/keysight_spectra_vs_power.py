@@ -6,6 +6,7 @@ import time
 
 
 class KeysightSpectrumVsPower(Script):
+    # COMMENT_ME
 
     _DEFAULT_SETTINGS = [
         Parameter('power_out_min',-45.0, float, 'output power (dBm) min'),
@@ -103,4 +104,5 @@ class KeysightSpectrumVsPower(Script):
 
 
     def _plot(self, axes_list):
+        #COMMENT_ME
         self.scripts['get_spectrum'].plot(axes_list)

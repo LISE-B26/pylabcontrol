@@ -30,6 +30,7 @@ def fit_gaussian(x_values, y_values, starting_params=None, bounds=None):
     return fit_params
 def gaussian(x, constant_offset, amplitude, center, width):
     return constant_offset + amplitude * np.exp(-1.0 * (np.square((x - center)) / (2 * (width ** 2))))
+
 def guess_gaussian_parameter(x_values, y_values):
     """
     guesses the parameters for a Gaussian dataset
@@ -237,30 +238,76 @@ def get_decay_data(t, y, wo, verbose=False):
         [np.mean(t[index_per_interval * i:index_per_interval * (i + 1)]) for i in range(number_of_oscillations)])
     return np.array(decay_t), np.array(decay_y)
 
-
-def fit_exp_decay(t, y, verbose=False):
+def fit_exp_decay(t, y, offset = False, verbose=False):
     """
-    fits the data to a cosine
+    fits the data to a decaying exponential, with or without an offset
     Args:
-        t:
-        y:
+        t: x data
+        y: y data
+        offset: False if fit should decay to y=0, True otherwise
+        verbose: prints results to screen
 
-    Returns:
+    Returns: fit parameters, either [ao, tau, offset] if offset is True, or or [ao, tau] if offset is False
+            ao: amplitude above offset (or zero if offset is False)
+            tau: decay parameter
+            offset: asymptotic value as t->INF
 
     """
     if verbose:
         print(' ======= fitting exponential decay =======')
-    a, off = np.polyfit(t, np.log(y), 1)
-    tau = -1. / a
-    ao = np.exp(off)
-    if verbose:
-        print('optimization result:', [ao, tau])
 
-    return [ao, tau]
+    init_params = estimate_exp_decay_parameters(t, y, offset)
+    if offset:
+        [ao, tau, offset] = optimize.curve_fit(exp_offset, t, y, p0=init_params)[0]
+    else:
+        [ao, tau] = optimize.curve_fit(exp, t, y, p0=init_params)[0]
 
+    if offset:
+        if verbose:
+            print('optimization result:', [ao, tau, offset])
+        return [ao, tau, offset]
+    else:
+        if verbose:
+            print('optimization result:', [ao, tau])
+        return [ao, tau]
+
+def estimate_exp_decay_parameters(t,y,offset):
+    '''
+    Returns an initial estimate for exponential decay parameters. Meant to be used with optimize.curve_fit.
+    Args:
+        t: x data
+        y: y data
+        offset: False if fit should decay to y=0, True otherwise
+
+    Returns: fit parameter estimate, either [ao, tau, offset] if offset is True, or or [ao, tau] if offset is False
+            ao: amplitude above offset (or zero if offset is False)
+            tau: decay parameter
+            offset: asymptotic value as t->INF
+
+    '''
+    if offset:
+        offset = y[-1]
+    else:
+        offset = 0
+    total_amp = y[0]
+    ao = total_amp-offset
+    decay = t[np.argmin(np.abs(y - (total_amp+offset)/2))] #finds time at which the value is closest to midway between the max and min
+    if offset:
+        return [ao, decay, offset]
+    else:
+        return [ao, decay]
 
 def exp(t, ao, tau):
+    '''
+    Exponential decay: ao*E^(t/tau)
+    '''
     return np.exp(-t / tau) * ao
+
+def exp_offset(t, ao, tau, offset):
+    '''
+    Exponential decay with offset: ao*E^(t/tau) + offset
+    '''
+    return np.exp(-t / tau) * ao + offset
 
 
 def fit_rabi_decay(t, y, varibale_phase=False, verbose=False):

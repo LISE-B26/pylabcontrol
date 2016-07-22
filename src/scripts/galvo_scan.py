@@ -179,6 +179,7 @@ class GalvoScan(Script):
                               max_counts=self.settings['max_counts_plot'])
 
     def _update_plot(self, axes_list):
+        # COMMENT_ME
         axes_image = axes_list[0]
         update_fluorescence(self.data['image_data'], axes_image, self.settings['max_counts_plot'])
 

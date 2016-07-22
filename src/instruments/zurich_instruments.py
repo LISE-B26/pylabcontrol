@@ -5,6 +5,7 @@ import numpy as np
 # =============== ZURCIH INSTRUMENTS =======================
 # ==========================================================
 class ZIHF2(Instrument):
+    # COMMENT_ME
 
     try:
         import zhinst.utils as utils
@@ -65,6 +66,7 @@ class ZIHF2(Instrument):
     instrument class to talk to Zurich instrument HF2 lock in ampifier
     '''
     def __init__(self, name = None, settings = None):
+        #COMMENT_ME
 
         self.daq = self.utils.autoConnect(8005,1) # connect to ZI, 8005 is the port number
         self.device = self.utils.autoDetect(self.daq)

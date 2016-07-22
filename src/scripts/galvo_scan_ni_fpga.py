@@ -37,6 +37,7 @@ resulting in an image in the current field of view of the objective.
         del instr_settings['piezo'] # don't update piezo to avoid spikes (assume this value is 0 but the scan starts at 50V, then this would give a huge step which is not necessary)
 
         def init_scan():
+            #COMMENT_ME
             # self._recording = False
             instr.update(instr_settings)
 
@@ -73,6 +74,7 @@ resulting in an image in the current field of view of the objective.
             # print(diagnostics)
 
         def calc_progress(i, Ny):
+            #COMMENT_ME
             return int(float(i + 1) / Ny * 100)
 
         Nx, Ny = init_scan()

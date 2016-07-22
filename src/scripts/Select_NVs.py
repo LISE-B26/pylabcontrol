@@ -6,6 +6,7 @@ from matplotlib import patches
 from src.core import Script, Parameter
 
 class Select_NVs(Script):
+    # COMMENT_ME
     _DEFAULT_SETTINGS = [Parameter('patch_size', 0.003)]
 
     _INSTRUMENTS = {}

@@ -3,6 +3,7 @@ from src.instruments import MaestroLightControl
 
 
 class CameraOn(Script):
+    # COMMENT_ME
 
     _DEFAULT_SETTINGS = [
         Parameter('On', True, bool, '')

@@ -25,6 +25,7 @@ This script applies a microwave pulse at fixed power and durations for varying f
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster, 'mw_gen': MicrowaveGenerator}
 
     def _function(self):
+        #COMMENT_ME
         self.instruments['mw_gen']['instance'].update({'modulation_type': 'IQ'})
         self.instruments['mw_gen']['instance'].update({'amplitude': self.settings['mw_power']})
         self.instruments['mw_gen']['instance'].update({'enable_output': True})
@@ -41,6 +42,7 @@ This script applies a microwave pulse at fixed power and durations for varying f
             self.data['esr_counts'].append(self.data['counts'])
 
     def _calc_progress(self):
+        #COMMENT_ME
         # todo: change to _calc_progress(self, index):
         progress = int(100. * (self._loop_count) / self.settings['freq_points'])
         return progress
@@ -131,6 +133,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster, 'mw_gen': MicrowaveGenerator}
 
     def _function(self):
+        #COMMENT_ME
         self.instruments['mw_gen']['instance'].update({'modulation_type': 'IQ'})
         self.instruments['mw_gen']['instance'].update({'amplitude': self.settings['mw_power']})
         self.instruments['mw_gen']['instance'].update({'frequency': self.settings['mw_frequency']})
@@ -178,6 +181,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
 
     #TODO: Test if the following code will add 'Rabi' as a title to main plot in GUI and add a legend
     def _plot(self, axislist):
+        #COMMENT_ME
         super(Rabi, self)._plot(axislist)
         axislist[0].set_title('Rabi')
         axislist[0].legend(labels=('Ref Fluorescence', 'Rabi Data'), fontsize=8)
@@ -202,6 +206,7 @@ This script applies a microwave pulse at fixed power for varying durations to me
     _INSTRUMENTS = {'daq': DAQ, 'PB': B26PulseBlaster, 'mw_gen': MicrowaveGenerator}
 
     def _function(self):
+        #COMMENT_ME
         self.instruments['mw_gen']['instance'].update({'modulation_type': 'IQ'})
         self.instruments['mw_gen']['instance'].update({'frequency': self.settings['mw_frequency']})
         mw_power_values = np.arange(self.settings['min_mw_power'],

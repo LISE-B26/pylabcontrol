@@ -1,13 +1,14 @@
 # clr is python for .net
 import clr # run pip install pythonnet
 import sys
-import time
-sys.path.insert(0,"C:\\Program Files\\Thorlabs\\Kinesis\\")
+from src.core.read_write_functions import get_dll_config_path
+
+sys.path.insert(0,get_dll_config_path('KINESIS_DLL_PATH'))
 
 from src.core.instruments import *
 
 # ctypes DLL load failed: Probably a C++ dll was provided, which is incompatable with ctypes, possibly due to name
-# mangling
+# mangling. Instead, we use the .net framework with python for .net to interface with the dll
 #ctypes.cdll.LoadLibrary("Thorlabs.MotionControl.TCube.DCServo.dll")
 
 # makes each dll, corresponding to a namespace, avaliable to python at runtime

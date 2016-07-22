@@ -7,6 +7,7 @@ import os
 
 
 class MWPowerBroadening(Script):
+    # COMMENT_ME
     _DEFAULT_SETTINGS = [
         Parameter('min_mw_power', -20.0, float, 'output power (dBm)'),
         Parameter('max_mw_power', -11.0, float, 'output power (dBm)'),
@@ -48,10 +49,12 @@ class MWPowerBroadening(Script):
             self.scripts['ESR_Selected_NVs'].run()
 
     def stop(self):
+        #COMMENT_ME
         self._abort = True
         self.scripts['ESR_Selected_NVs'].stop()
 
     def plot(self, figure_list):
+        #COMMENT_ME
         self.scripts['ESR_Selected_NVs'].plot(figure_list)
 
 

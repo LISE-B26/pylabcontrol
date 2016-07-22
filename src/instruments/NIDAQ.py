@@ -337,6 +337,7 @@ class DAQ(Instrument):
         self.nidaq.DAQmxClearTask(self.DI_taskHandleCtr)
 
     def gated_DI_init(self, channel, num_samples):
+        #COMMENT_ME
         if not channel in self.settings['digital_input'].keys():
             raise KeyError('This is not a valid digital input channel')
         channel_settings = self.settings['digital_input'][channel]
@@ -397,6 +398,7 @@ class DAQ(Instrument):
         return self.data, self.samplesPerChanRead
 
     def gated_DI_stop(self):
+        #COMMENT_ME
         self.nidaq.DAQmxStopTask(self.gated_DI_taskHandle)
         self.nidaq.DAQmxClearTask(self.gated_DI_taskHandle)
 

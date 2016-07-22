@@ -34,6 +34,7 @@ Returns:
     """
 
     def __init__(self, probes_old={}, filename=None):
+        #COMMENT_ME
         super(LoadDialogProbes, self).__init__()
         self.setupUi(self)
 
@@ -77,6 +78,7 @@ Returns:
 
 
     def item_dragged_and_dropped(self):
+        #COMMENT_ME
 
         index = None
         self.tree_infile_model.itemChanged.disconnect()

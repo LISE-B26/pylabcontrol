@@ -167,6 +167,8 @@ First it acquires a sweep over a larger frequecy range. Then it finds the maximu
 
 
     def _plot(self, axes_list):
+        #COMMENT_ME
+
         axes = axes_list[0]
         if self.current_subscript == 'quick scan' and self.scripts['zi sweep'].data:
             self.scripts['zi sweep'].plot(axes)

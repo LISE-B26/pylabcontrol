@@ -79,7 +79,7 @@ Known issues:
             return [V_x, V_y]
 
         def min_mass_adjustment(min_mass):
-            # todo: write a docstring. What does this function do?
+            #COMMENT_ME
             return (min_mass - 40)
 
         self.scripts['take_image'].scripts['acquire_image'].settings['point_a'].update({'x': self.settings['initial_point']['x'], 'y': self.settings['initial_point']['y']})
@@ -120,12 +120,14 @@ Known issues:
         self.scripts['set_laser'].run()
 
         if self.settings['save']:
+            #COMMENT_ME
             self.save_b26()
             self.save_data()
             self.save_log()
             self.save_image_to_disk()
 
     def _plot(self, axes_list):
+        # COMMENT_ME
 
         if self._current_subscript_stage['current_subscript'] == self.scripts['take_image']:
             self.scripts['take_image']._plot(axes_list)
@@ -143,6 +145,7 @@ Known issues:
 
 
     def _update_plot(self, axes_list):
+        # COMMENT_ME
 
         if self._current_subscript_stage['current_subscript'] == self.scripts['take_image']:
             self.scripts['take_image']._update_plot(axes_list)
