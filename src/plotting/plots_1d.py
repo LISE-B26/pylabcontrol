@@ -180,7 +180,7 @@ def plot_counts(axis, data):
     axis.set_ylabel('kCounts/sec')
 
 
-def plot_1d_simple(axis, times, counts_list, x_label='time (ns)', y_label='kCounts/sec', title=None):
+def plot_1d_simple(axis, times, counts_list, x_label='time [ns]', y_label='Fluoresence [kCounts/sec]', title=None):
     for counts in counts_list:
         axis.plot(times, counts)
 

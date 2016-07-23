@@ -727,8 +727,8 @@ class T1(ExecutePulseBlasterSequence):
 This script measures the relaxation time of an NV center
     """
     _DEFAULT_SETTINGS = [
-        Parameter('time_step', 1000, int, 'time step increment of rabi pulse duration (ns)'),
-        Parameter('max_time', 200, float, 'total time of rabi oscillations (ns)'),
+        Parameter('time_step', 1000, int, 'time step increment of T1 measurement (ns)'),
+        Parameter('max_time', 200000, float, 'total time of T1 measurement (ns)'),
         Parameter('meas_time', 300, float, 'measurement time of fluorescence counts (ns)'),
         Parameter('num_averages', 1000000, int, 'number of averages'),
         Parameter('nv_reset_time', 3000, int, 'time with laser on at the beginning to reset state (ns)'),

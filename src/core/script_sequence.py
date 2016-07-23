@@ -330,7 +330,8 @@ Script.
             _, script_class_name, script_settings, _, script_sub_scripts = Script.get_script_information(
                 script_information)
 
-            iterator_type = ScriptIterator.get_iterator_type(script_settings)
+            print(script_settings)
+            iterator_type = ScriptIterator.get_iterator_type(script_settings, script_sub_scripts)
 
             if isinstance(script_information, dict):
                 import src.scripts
