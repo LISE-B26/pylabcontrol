@@ -587,6 +587,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 script = self.data_sets[time_tag]
                 script.update({'tag' : name_tag, 'path': path})
                 script.save_data()
+                script.save_image_to_disk()
                 script.save_b26()
                 script.save_log()
         def delete_data():

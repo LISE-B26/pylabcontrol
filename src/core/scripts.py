@@ -584,19 +584,27 @@ class Script(QObject):
         Returns: None
 
         """
-        # if self.plot_type in ('main', 'aux'):
-        #
-        #     # create and save images
-        #     if filename_1 is None:
-        #         filename_1 = self.filename('-{:s}.jpg'.format(self.plot_type))
-        #
-        #     fig = Figure()
-        #     self._plot_refresh = True #need to set up a new plot
-        #     canvas = FigureCanvas(fig) #need to create a canvas to have the figure be somewhere, otherwise can't save
-        #     self.plot([fig])
-        #     fig.savefig(filename_1)
-        #
-        # elif self.plot_type in ('two'):
+
+        from matplotlib import axes
+
+        axes.
+
+        def axes_empty(ax):
+            """
+            takes an axes object and checks if it is empty
+            Returns:
+
+            """
+
+            is_empty = False
+
+            if ax is None:
+                is_empty = True
+
+            for a in ax:
+                print('bbbb', a.data)
+
+            return is_empty
 
         # create and save images
         if (filename_1 is None) and (filename_2 is None):
@@ -618,9 +626,9 @@ class Script(QObject):
         self._plot_refresh = True
         self.plot([fig_1, fig_2])
 
-        if filename_1 is not None and not fig_1.axes == []:
+        if filename_1 is not None and not axes_empty(fig_1.axes):
             fig_1.savefig(filename_1)
-        if filename_2 is not None and not fig_2.axes == []:
+        if filename_2 is not None and not axes_empty(fig_2.axes):
             fig_2.savefig(filename_2)
 
     def save(self, filename):
