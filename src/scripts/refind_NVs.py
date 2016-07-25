@@ -104,20 +104,16 @@ class Refind_NVs(Script):
 
         self.current_stage = 'finished'
 
-        if self.settings['save']:
-            self.current_stage = 'saving'
-            self.save_b26()
-            self.save_data()
+        # if self.settings['save']:
+        #     self.current_stage = 'saving'
+        #     self.save_b26()
+        #     self.save_data()
 
         self.scripts['AF'].updateProgress.disconnect(self._receive_signal)
 
         self.scripts['Correlate_Images'].updateProgress.disconnect(self._receive_signal)
 
 
-    def stop(self):
-        self._abort = True
-        self.scripts['AF'].stop()
-        self.scripts['Correlate_Images'].stop()
 
     def plot(self, figure_list):
         if self.current_stage == 'Autofocus':

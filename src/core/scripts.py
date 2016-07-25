@@ -387,6 +387,14 @@ class Script(QObject):
         self._function()
         self.end_time  = datetime.datetime.now()
         self.log('script {:s} finished at {:s} on {:s}'.format(self.name, self.end_time.strftime('%H:%M:%S'),self.end_time.strftime('%d/%m/%y')))
+
+        #saves standard to disk
+        if self.settings['save']:
+            self.save_b26()
+            self.save_data()
+            self.save_log()
+            self.save_image_to_disk()
+
         success = not self._abort
 
         # disconnect subscripts
@@ -591,6 +599,10 @@ class Script(QObject):
         def axes_empty(ax):
             """
             takes an axes object and checks if it is empty
+            the axes object is considered empty it doesn't contain any of the following:
+                - lines
+                - images
+                - patches
             Returns:
 
             """
@@ -599,6 +611,10 @@ class Script(QObject):
 
             if ax is None:
                 is_empty = True
+            elif len(ax)>0:
+                for a in ax:
+                    if len(a.lines)+len(a.images)+len(a.patches) == 0:
+                        is_empty = True
 
             return is_empty
 

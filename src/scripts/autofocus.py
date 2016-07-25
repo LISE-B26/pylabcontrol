@@ -194,12 +194,12 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
         autofocus_loop(sweep_voltages)
 
-        # check to see if data should be saved and save it
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
-            self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
+        # # check to see if data should be saved and save it
+        # if self.settings['save']:
+        #     self.save_b26()
+        #     self.save_data()
+        #     self.save_log()
+        #     self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
 
     def _step_piezo(self, voltage, wait_time):
         """

@@ -97,11 +97,11 @@ script to balance photodetector to zero by adjusting polarization controller vol
                 searching = False
 
         self.updateProgress.emit(90)
-
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
+        #
+        # if self.settings['save']:
+        #     self.save_b26()
+        #     self.save_data()
+        #     self.save_log()
 
 
 

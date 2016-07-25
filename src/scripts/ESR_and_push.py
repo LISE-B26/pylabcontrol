@@ -146,10 +146,10 @@ class ESR_And_Push(Script):
 
         self.current_stage = 'finished'
 
-        if self.settings['save']:
-            self.current_stage = 'saving'
-            self.save_b26()
-            self.save_data()
+        # if self.settings['save']:
+        #     self.current_stage = 'saving'
+        #     self.save_b26()
+        #     self.save_data()
 
 
     def stop(self):

@@ -49,10 +49,10 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
 
         self.scripts['acquire_image'].run()
 
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
+        # if self.settings['save']:
+        #     self.save_b26()
+        #     self.save_data()
+        #     self.save_log()
 
     def _plot(self, axes_list):
         # COMMENT_ME

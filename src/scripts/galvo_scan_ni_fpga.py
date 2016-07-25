@@ -103,11 +103,11 @@ resulting in an image in the current field of view of the objective.
                 self.updateProgress.emit(self.progress)
 
 
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
-            self.save_image_to_disk()
+        # if self.settings['save']:
+        #     self.save_b26()
+        #     self.save_data()
+        #     self.save_log()
+        #     self.save_image_to_disk()
 
     @staticmethod
     def pts_to_extent(pta, ptb, roi_mode):

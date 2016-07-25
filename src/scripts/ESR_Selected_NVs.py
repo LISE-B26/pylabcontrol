@@ -163,11 +163,11 @@ class ESR_Selected_NVs(Script):
 
         self.current_stage = 'finished'
 
-        if self.settings['save']:
-            self.current_stage = 'saving'
-            self.save_b26()
-            self.save_data()
-            self.save_image_to_disk('{:s}\\nv-map.jpg'.format(filename_image))
+        # if self.settings['save']:
+        #     self.current_stage = 'saving'
+        #     self.save_b26()
+        #     self.save_data()
+        #     self.save_image_to_disk('{:s}\\nv-map.jpg'.format(filename_image))
 
         self.scripts['Find_Max'].updateProgress.disconnect(self._receive_signal)
 

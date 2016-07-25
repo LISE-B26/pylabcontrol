@@ -136,11 +136,11 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
             })
 
 
-
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
+        #
+        # if self.settings['save']:
+        #     self.save_b26()
+        #     self.save_data()
+        #     self.save_log()
 
 
     def stop(self):

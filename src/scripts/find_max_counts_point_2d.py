@@ -119,12 +119,12 @@ Known issues:
         self.scripts['set_laser'].settings['point'].update(self.data['maximum_point'])
         self.scripts['set_laser'].run()
 
-        if self.settings['save']:
-            #COMMENT_ME
-            self.save_b26()
-            self.save_data()
-            self.save_log()
-            self.save_image_to_disk()
+        # if self.settings['save']:
+        #     #COMMENT_ME
+        #     self.save_b26()
+        #     self.save_data()
+        #     self.save_log()
+        #     self.save_image_to_disk()
 
     def _plot(self, axes_list):
         # COMMENT_ME

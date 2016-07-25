@@ -59,13 +59,13 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             self.data['extent'] = self.scripts['take_image'].data['extent']
             self.updateProgress.emit(50)
 
-        # check to see if data should be saved and save it
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
-
-            self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
+    # # check to see if data should be saved and save it
+    # if self.settings['save']:
+    #     self.save_b26()
+    #     self.save_data()
+    #     self.save_log()
+    #
+    #     self.save_image_to_disk('{:s}\\galvo.jpg'.format(self.filename_image))
 
     def _plot(self, axes_list):
         # COMMENT_ME

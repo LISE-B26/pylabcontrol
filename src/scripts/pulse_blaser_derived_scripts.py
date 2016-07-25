@@ -132,12 +132,12 @@ This script repeats the Rabi script N times and refocuses on the NV between ever
 
             if index == 0:
                 self.data['tau'] = self.scripts['Rabi'].data['tau']
-
-        if self.settings['save']:
-            self.settings['tag'] = tag
-            self.save_b26()
-            self.save_data()
-            self.save_log()
+        #
+        # if self.settings['save']:
+        #     self.settings['tag'] = tag
+        #     self.save_b26()
+        #     self.save_data()
+        #     self.save_log()
 
     def plot(self, figure_list):
         if self._current_subscript_stage['current_subscript'] == self.scripts['Find_NV']:

@@ -21,7 +21,7 @@ class ScriptMinimalDummy(Script):
     #an integer argument when emitting.
 
     _DEFAULT_SETTINGS = [
-        Parameter('parameter', 3, int)
+        Parameter('execution_time', 0.1, float, 'execution time of script (s)')
     ]
 
     _INSTRUMENTS = {}
@@ -42,7 +42,8 @@ class ScriptMinimalDummy(Script):
         This is the actual function that will be executed. It uses only information that is provided in the settings property
         will be overwritten in the __init__
         """
-        print(self.settings['parameter'])
+        import time
+        time.sleep(self.settings['execution_time'])
 
 
 class ScriptDummy(Script):
@@ -111,10 +112,10 @@ class ScriptDummy(Script):
         img = img.reshape((Nx, Nx))
         self.data.update({'image data': img})
 
-        if self.settings['save']:
-            self.save_data()
-            self.save_b26()
-            self.save_log()
+        # if self.settings['save']:
+        #     self.save_data()
+        #     self.save_b26()
+        #     self.save_log()
 
     def _plot(self, axes_list):
         #COMMENT_ME
@@ -255,10 +256,10 @@ class ScriptDummyWithInstrument(Script):
             data.append(instrument.value1)
 
         self.data = {'data':data}
-        if self.settings['save']:
-            self.save_data()
-            self.save_b26()
-            self.save_log()
+        # if self.settings['save']:
+        #     self.save_data()
+        #     self.save_b26()
+        #     self.save_log()
 
 class ScriptDummyWithSubScript(Script):
 
@@ -421,9 +422,6 @@ class ScriptDummyPlotMemoryTest(Script):
             self.updateProgress.emit(self.progress)
             self.msleep(1000*timestep)
 
-
-    def stop(self):
-        self._abort = True
 
     def _plot(self, axes_list):
 

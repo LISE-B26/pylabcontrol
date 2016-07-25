@@ -140,13 +140,6 @@ class GalvoScan(Script):
 
         # self._plotting = False
 
-        #saves standard values and the galvo image plot
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
-            self.save_image_to_disk()
-
 
     @staticmethod
     def pts_to_extent(pta, ptb, roi_mode):

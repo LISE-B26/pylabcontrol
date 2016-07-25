@@ -159,8 +159,8 @@ First it acquires a sweep over a larger frequecy range. Then it finds the maximu
 
         self._recording = False
 
-        if self.settings['save']:
-            self.save_b26()
+        # if self.settings['save']:
+        #     self.save_b26()
 
         # set the sweeper script back to initial settings
         sweeper_script.update(initial_settings)

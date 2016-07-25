@@ -104,10 +104,10 @@ This script performs a frequency sweep with the Zurich Instrument HF2 Series Loc
         if self.sweeper.finished():
             self._recording = False
 
-            if self.settings['save']:
-                self.save_b26()
-                self.save_data()
-                self.save_log()
+            # if self.settings['save']:
+            #     self.save_b26()
+            #     self.save_data()
+            #     self.save_log()
 
 
     def _plot(self, axes_list):

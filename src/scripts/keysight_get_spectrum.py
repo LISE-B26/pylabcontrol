@@ -46,10 +46,10 @@ class KeysightGetSpectrum(Script):
 
         self.data = trace
 
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
+        # if self.settings['save']:
+        #     self.save_b26()
+        #     self.save_data()
+        #     self.save_log()
 
 
 

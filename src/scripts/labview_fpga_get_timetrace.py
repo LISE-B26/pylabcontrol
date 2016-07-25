@@ -91,8 +91,8 @@ class LabviewFpgaTimetrace(Script):
 
         self._recording = False
 
-        if self.settings['save']:
-            self.save_b26()
+        # if self.settings['save']:
+        #     self.save_b26()
 
 
     def _plot(self, axes_list):

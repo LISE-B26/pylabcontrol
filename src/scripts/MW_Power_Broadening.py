@@ -48,10 +48,6 @@ class MWPowerBroadening(Script):
             self.scripts['ESR_Selected_NVs'].scripts['StanfordResearch_ESR'].settings['tag'] = str(power) + 'dBm'
             self.scripts['ESR_Selected_NVs'].run()
 
-    def stop(self):
-        #COMMENT_ME
-        self._abort = True
-        self.scripts['ESR_Selected_NVs'].stop()
 
     def plot(self, figure_list):
         #COMMENT_ME

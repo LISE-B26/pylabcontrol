@@ -114,13 +114,13 @@ class StanfordResearch_ESR(Script):
 
             progress = self._calc_progress(scan_num)
             self.updateProgress.emit(progress)
-
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
-
-            self.save_image_to_disk()
+        #
+        # if self.settings['save']:
+        #     self.save_b26()
+        #     self.save_data()
+        #     self.save_log()
+        #
+        #     self.save_image_to_disk()
 
 
     def _calc_progress(self, scan_num):

@@ -107,11 +107,11 @@ for a given experiment
         if (len(self.data['counts'][0]) == 1):
             self.data['counts'] = np.array([item for sublist in self.data['counts'] for item in sublist])
 
-        if self.settings['save']:
-            self.save_b26()
-            self.save_data()
-            self.save_log()
-            self.save_image_to_disk()
+        # if self.settings['save']:
+        #     self.save_b26()
+        #     self.save_data()
+        #     self.save_log()
+        #     self.save_image_to_disk()
 
     def _plot(self, axes_list):
         """
