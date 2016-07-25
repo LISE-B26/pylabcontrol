@@ -69,10 +69,10 @@ try:
 except:
     print("./src/instrument/__init__ warning! Attocube did not load")
 
-# try:
-#     from spectrum_analyzer import SpectrumAnalyzer
-# except:
-#     print("./src/instrument/__init__ warning! SpectrumAnalyzer did not load")
+try:
+    from spectrum_analyzer import SpectrumAnalyzer
+except:
+    print("./src/instrument/__init__ warning! SpectrumAnalyzer did not load")
 
 try:
     from microwave_generator import MicrowaveGenerator

@@ -199,5 +199,8 @@ except:
 
     # =============================================================================================================
 
-
+try:
+    from keysight_get_spectrum import KeysightGetSpectrum
+except:
+    print("./src/scripts/__init__ warning! KeysightGetSpectrum did not load")
     # from pulse_blaser_derived_scripts import Rabi_Loop

@@ -117,6 +117,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # link buttons to old_functions
             self.btn_start_script.clicked.connect(self.btn_clicked)
             self.btn_stop_script.clicked.connect(self.btn_clicked)
+            self.btn_skip_subscript.clicked.connect(self.btn_clicked)
             self.btn_validate_script.clicked.connect(self.btn_clicked)
             self.btn_plot_script.clicked.connect(self.btn_clicked)
             # self.btn_plot_probe.clicked.connect(self.btn_clicked)
@@ -312,19 +313,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def switch_tab(self):
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
+        if self.current_script is None:
+            if current_tab == 'Probes':
+                self.read_probes.start()
+                self.read_probes.updateProgress.connect(self.update_probes)
+            else:
+                try:
+                    self.read_probes.updateProgress.disconnect()
+                    self.read_probes.quit()
+                except TypeError:
+                    pass
 
-        if current_tab == 'Probes':
-            self.read_probes.start()
-            self.read_probes.updateProgress.connect(self.update_probes)
+            if current_tab == 'Instruments':
+                self.refresh_instruments()
         else:
-            try:
-                self.read_probes.updateProgress.disconnect()
-                self.read_probes.quit()
-            except TypeError:
-                pass
-
-        if current_tab == 'Instruments':
-            self.refresh_instruments()
+            self.log('updating probes / instruments disabled while script is running!')
 
     def refresh_instruments(self):
         """
@@ -506,7 +509,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 self.current_script = script
                 self.btn_start_script.setEnabled(False)
-                self.tabWidget.setEnabled(False)
+                # self.tabWidget.setEnabled(False)
+
+                if isinstance(self.current_script, ScriptIterator):
+                    self.btn_skip_subscript.setEnabled(True)
 
 
             else:
@@ -518,6 +524,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.log('User clicked stop, but there isn\'t anything running...this is awkward. Re-enabling start button anyway.')
             self.btn_start_script.setEnabled(True)
 
+        def skip_button():
+            if self.current_script is not None and self.current_script.is_running and isinstance(self.current_script,
+                                                                                                 ScriptIterator):
+                self.current_script.skip_next()
+            else:
+                self.log('User clicked skip, but there isn\'t a iterator script running...this is awkward.')
         def validate_button():
             item = self.tree_scripts.currentItem()
 
@@ -666,6 +678,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             start_button()
         elif sender is self.btn_stop_script:
             stop_button()
+        elif sender is self.btn_skip_subscript:
+            skip_button()
         elif sender is self.btn_validate_script:
             validate_button()
         elif sender in (self.btn_plot_data, self.btn_plot_script, self.tree_dataset):
@@ -890,7 +904,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.plot_script(script)
         self.progressBar.setValue(100)
         self.btn_start_script.setEnabled(True)
-        self.tabWidget.setEnabled(True)
+        # self.tabWidget.setEnabled(True)
+        self.btn_skip_subscript.setEnabled(False)
 
     def plot_script_validate(self, script):
         """

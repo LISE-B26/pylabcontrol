@@ -34,13 +34,7 @@ Script.
         Script.__init__(self, name, scripts = scripts, settings = settings, log_function= log_function, data_path = data_path)
 
         self.iterator_type = self.get_iterator_type(settings, scripts)
-        # # asign the correct iterator script type
-        # if 'sweep_param' in self.settings:
-        #     self.iterator_type = self.TYPE_SWEEP_PARAMETER
-        # elif 'find_nv_points' in self.scripts:
-        #     self.iterator_type = self.TYPE_ITER_POINTS
-        # else:
-        #     self.iterator_type = self.TYPE_LOOP
+        # self._skip_next = False
 
     @staticmethod
     def get_iterator_type(script_settings, subscripts={}):
@@ -116,6 +110,9 @@ Script.
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
+                    # if self._skip_next:
+                    #     self._skip_next = False
+                    #     continue
                     self.log('starting {:s}'.format(script_name))
                     self.scripts[script_name].run()
 
@@ -124,6 +121,9 @@ Script.
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
+                    # if self._skip_next:
+                    #     self._skip_next = False
+                    #     continue
                     self.log('starting {:s} {:03d}/{:03d}'.format(script_name, i + 1, self.settings['N']))
                     self.scripts[script_name].run()
         elif self.iterator_type == self.TYPE_ITER_POINTS:
@@ -136,6 +136,9 @@ Script.
                 for script_name in sorted_script_names[1:]:
                     if self._abort:
                         break
+                    # if self._skip_next:
+                    #     self._skip_next = False
+                    #     continue
                     self.log('starting {:s}'.format(script_name))
                     self.scripts[script_name].run()
         else:
@@ -233,6 +236,11 @@ Script.
         self.progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / number_of_iterations
 
         self.updateProgress.emit(int(self.progress))
+
+    def skip_next(self):
+        # self._skip_next = True
+        for script in self.scripts.itervalues():
+            script.stop()
 
     @property
     def loop_index(self):

@@ -51,6 +51,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setAutoFillBackground(True)
         self.tabWidget.setTabPosition(QtGui.QTabWidget.North)
         self.tabWidget.setTabShape(QtGui.QTabWidget.Rounded)
+        self.tabWidget.setTabsClosable(False)
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.tab_scripts = QtGui.QWidget()
         self.tab_scripts.setObjectName(_fromUtf8("tab_scripts"))
@@ -129,6 +130,13 @@ class Ui_MainWindow(object):
         self.btn_stop_script.setFont(font)
         self.btn_stop_script.setObjectName(_fromUtf8("btn_stop_script"))
         self.horizontalLayout_5.addWidget(self.btn_stop_script)
+        self.btn_skip_subscript = QtGui.QPushButton(self.tab_scripts)
+        self.btn_skip_subscript.setEnabled(False)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.btn_skip_subscript.setFont(font)
+        self.btn_skip_subscript.setObjectName(_fromUtf8("btn_skip_subscript"))
+        self.horizontalLayout_5.addWidget(self.btn_skip_subscript)
         self.btn_validate_script = QtGui.QPushButton(self.tab_scripts)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -413,7 +421,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
-        self.tabWidget_2.setCurrentIndex(1)
+        self.tabWidget_2.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -433,6 +441,7 @@ class Ui_MainWindow(object):
         self.tree_scripts.setSortingEnabled(__sortingEnabled)
         self.btn_start_script.setText(_translate("MainWindow", "start", None))
         self.btn_stop_script.setText(_translate("MainWindow", "stop", None))
+        self.btn_skip_subscript.setText(_translate("MainWindow", "skip", None))
         self.btn_validate_script.setText(_translate("MainWindow", "validate", None))
         self.lbl_time_estimate.setText(_translate("MainWindow", "time remaining:", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_scripts), _translate("MainWindow", "Scripts", None))

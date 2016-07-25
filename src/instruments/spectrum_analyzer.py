@@ -16,7 +16,7 @@ class SpectrumAnalyzer(Instrument):
     _DEFAULT_SETTINGS = Parameter([
             Parameter('visa_resource', 'USB0::0x0957::0xFFEF::CN0323B356::INSTR', (str),
                       'pyVisa instrument identifier, to make a connection using the pyVisa package.'),
-            Parameter('start_frequency', 0.0, float, 'start frequency of spectrum analyzer frequency range'),
+        Parameter('start_frequency', 9e3, float, 'start frequency of spectrum analyzer frequency range'),
             Parameter('mode', 'SpectrumAnalyzer', ['SpectrumAnalyzer', 'TrackingGenerator'],
                       'switches between normal spectrum analyzer mode or spectrum analyzer PLUS output, '
                       'i.e., tracking generator'),
@@ -67,12 +67,16 @@ class SpectrumAnalyzer(Instrument):
             print('mode',settings['mode'])
 
         if 'start_frequency' in settings:
-            assert 0.0 < settings['start_frequency'] < 3e9, "start frequency must be between 0 and 3e9, you tried to set it to {0}!".format(settings['start_frequency'])
+            assert 9e3 <= settings[
+                'start_frequency'] <= 3e9, "start frequency must be between 0 and 3e9, you tried to set it to {0}!".format(
+                settings['start_frequency'])
             self._wait_for_spec_anal()
             self._set_start_frequency(settings['start_frequency'])
 
         if 'stop_frequency' in settings:
-            assert 0.0 < settings['stop_frequency'] < 3e9, "start frequency must be between 0 and 3e9, you tried to set it to {0}!".format(settings['stop_frequency'])
+            assert 9e3 <= settings[
+                'stop_frequency'] <= 3e9, "start frequency must be between 0 and 3e9, you tried to set it to {0}!".format(
+                settings['stop_frequency'])
             self._wait_for_spec_anal()
             self._set_stop_frequency(settings['stop_frequency'])
 

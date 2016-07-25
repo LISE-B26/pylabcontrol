@@ -50,6 +50,9 @@
           <property name="currentIndex">
            <number>0</number>
           </property>
+          <property name="tabsClosable">
+           <bool>false</bool>
+          </property>
           <widget class="QWidget" name="tab_scripts">
            <attribute name="title">
             <string>Scripts</string>
@@ -248,6 +251,21 @@
                   </property>
                   <property name="text">
                    <string>stop</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btn_skip_subscript">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>skip</string>
                   </property>
                  </widget>
                 </item>
@@ -596,7 +614,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
