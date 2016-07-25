@@ -28,9 +28,11 @@ class GalvoScan(Script):
         Parameter('time_per_pt', .001, [.001, .002, .005, .01, .015, .02], 'time in s to measure at each point'),
         Parameter('settle_time', .0002, [.0002], 'wait time between points to allow galvo to settle'),
         Parameter('max_counts_plot', -1, int, 'Rescales colorbar with this as the maximum counts on replotting'),
-        Parameter('x_ao_channel', 'ao0', ['ao0', 'ao1', 'ao2', 'ao3'], 'Daq channel used for x voltage analog output'),
-        Parameter('y_ao_channel', 'ao3', ['ao0', 'ao1', 'ao2', 'ao3'], 'Daq channel used for y voltage analog output'),
-        Parameter('counter_channel', 'ctr0', ['ctr0', 'ctr1'], 'Daq channel used for counter')
+        Parameter('DAQ_channels',
+                   [Parameter('x_ao_channel', 'ao0', ['ao0', 'ao1', 'ao2', 'ao3'], 'Daq channel used for x voltage analog output'),
+                    Parameter('y_ao_channel', 'ao3', ['ao0', 'ao1', 'ao2', 'ao3'], 'Daq channel used for y voltage analog output'),
+                    Parameter('counter_channel', 'ctr0', ['ctr0', 'ctr1'], 'Daq channel used for counter')
+                  ])
     ]
 
     _INSTRUMENTS = {'daq':  DAQ}
