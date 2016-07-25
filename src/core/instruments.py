@@ -1,4 +1,3 @@
-
 from PyQt4 import QtCore
 
 from copy import deepcopy
@@ -18,13 +17,6 @@ class Instrument(object):
         - is_connected => property that checks if instrument is actually connected
     '''
 
-    _is_connected = False #internal flag that indicated if instrument is actually connected
-    _initialized = False
-
-    # ========================================================================================
-    # ======= Following old_functions have to be customized for each instrument subclass =========
-    # ========================================================================================
-
     def __init__(self, name=None, settings=None):
         # make a deepcopy of the default settings
         # because _DEFAULT_SETTINGS is a class variable and thus shared among the instances
@@ -35,6 +27,7 @@ class Instrument(object):
 
         self.name = name
 
+        self._is_connected = False  # internal flag that indicated if instrument is actually connected
         self._initialized = True
 
     # apply settings to instrument should be carried out in derived class
@@ -107,15 +100,13 @@ class Instrument(object):
     # ========================================================================================
     # do not override this, override get_values instead
     def __getattr__(self, name):
-        # # # === OLD JG =========== start
-        # # not sure if keyerror is the right thing to catch
-        # try:
-        #     return self.read_probes(name)
-        # except (KeyError):
-        #     #restores standard behavior for missing keys
-        #     raise AttributeError('class ' + type(self).__name__ +' has no attribute ' + str(name))
-        # # === OLD JG =========== end
+        """
+        allows to read instrument inputs in the form value = instrument.input
+        Args:
+            name: name of input channel
 
+        Returns: value of input channel
+        """
         try:
             return self.read_probes(name)
         except:
@@ -124,17 +115,25 @@ class Instrument(object):
 
 
     def __setattr__(self, key, value):
-        #COMMENT_ME
+        """
+        this allows to address instrument outputs of the form instrument.output = value
+        """
         try:
             if not self._initialized:
+                # fall back to regular behaviour of the parent class
                 object.__setattr__(self, key, value)
             else:
+                # call internal update function that updates the instrument and keeps track of the settings
                 self.update({key: value})
         except (AttributeError, KeyError):
             object.__setattr__(self, key, value)
 
     def __repr__(self):
-        #COMMENT_ME
+        """
+
+        Returns: the instrument as a string  for display
+
+        """
 
         output_string = '{:s} (class type: {:s})'.format(self.name, self.__class__.__name__)
 
@@ -142,11 +141,17 @@ class Instrument(object):
 
     @property
     def name(self):
-        #COMMENT_ME
+        """
+
+        Returns: instrument name
+
+        """
         return self._name
     @name.setter
     def name(self, value):
-        #COMMENT_ME
+        """
+        check if value is a string and if so set name = value
+        """
         if isinstance(value, unicode):
             value = str(value)
         assert isinstance(value, str), "{:s}".format(str(value))
@@ -154,7 +159,11 @@ class Instrument(object):
 
     @property
     def settings(self):
-        #COMMENT_ME
+        """
+
+        Returns: instrument settings
+
+        """
         return self._settings
 
 
@@ -162,7 +171,7 @@ class Instrument(object):
     def to_dict(self):
         """
 
-        Returns: itself as a dictionary
+        Returns: the instrument itself as a dictionary
 
         """
 
@@ -173,7 +182,7 @@ class Instrument(object):
 
     def save_b26(self, filename):
         """
-        save the instrument to path as a .b26 file
+        saves the instrument to path as a .b26 file
 
         Args:
             filename: path of file
