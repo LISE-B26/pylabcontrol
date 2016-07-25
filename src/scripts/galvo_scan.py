@@ -11,14 +11,14 @@ class GalvoScan(Script):
 
     _DEFAULT_SETTINGS = [
         Parameter('point_a',
-                  [Parameter('x', -0.4, float, 'x-coordinate'),
-                   Parameter('y', -0.4, float, 'y-coordinate')
+                  [Parameter('x', 0, float, 'x-coordinate'),
+                   Parameter('y', 0, float, 'y-coordinate')
                    ]),
         Parameter('point_b',
-                  [Parameter('x', 0.4, float, 'x-coordinate'),
-                   Parameter('y', 0.4, float, 'y-coordinate')
+                  [Parameter('x', 0.8, float, 'x-coordinate'),
+                   Parameter('y', 0.8, float, 'y-coordinate')
                    ]),
-        Parameter('RoI_mode','corner',['corner', 'center'],'mode to calculate region of interest.\n \
+        Parameter('RoI_mode', 'center', ['corner', 'center'], 'mode to calculate region of interest.\n \
                                                            corner: pta and ptb are diagonal corners of rectangle.\n \
                                                            center: pta is center and pta is extend or rectangle'),
         Parameter('num_points',
@@ -80,9 +80,12 @@ class GalvoScan(Script):
                                      self.clockAdjust)
             self.y_array = np.linspace(self.yVmin, self.yVmax, self.settings['num_points']['y'], endpoint=True)
             sample_rate = float(1) / self.settings['settle_time']
-            self.instruments['daq']['instance'].settings['analog_output'][self.settings['x_ao_channel']]['sample_rate'] = sample_rate
-            self.instruments['daq']['instance'].settings['analog_output'][self.settings['y_ao_channel']]['sample_rate'] = sample_rate
-            self.instruments['daq']['instance'].settings['digital_input'][self.settings['counter_channel']]['sample_rate'] = sample_rate
+            self.instruments['daq']['instance'].settings['analog_output'][
+                self.settings['DAQ_channels']['x_ao_channel']]['sample_rate'] = sample_rate
+            self.instruments['daq']['instance'].settings['analog_output'][
+                self.settings['DAQ_channels']['y_ao_channel']]['sample_rate'] = sample_rate
+            self.instruments['daq']['instance'].settings['digital_input'][
+                self.settings['DAQ_channels']['counter_channel']]['sample_rate'] = sample_rate
             self.data = {'image_data': np.zeros((self.settings['num_points']['y'], self.settings['num_points']['x'])),
                          'bounds': [self.xVmin, self.xVmax, self.yVmin, self.yVmax]}
 
@@ -94,17 +97,21 @@ class GalvoScan(Script):
             if self._abort:
                 break
             # initialize APD thread
-            clk_source = self.instruments['daq']['instance'].DI_init(self.settings['counter_channel'], len(self.x_array) + 1)
+            clk_source = self.instruments['daq']['instance'].DI_init(self.settings['DAQ_channels']['counter_channel'],
+                                                                     len(self.x_array) + 1)
             self.initPt = np.transpose(np.column_stack((self.x_array[0],
                                           self.y_array[yNum])))
             self.initPt = (np.repeat(self.initPt, 2, axis=1))
 
             # move galvo to first point in line
-            self.instruments['daq']['instance'].AO_init([self.settings['x_ao_channel'], self.settings['y_ao_channel']], self.initPt, "")
+            self.instruments['daq']['instance'].AO_init(
+                [self.settings['DAQ_channels']['x_ao_channel'], self.settings['DAQ_channels']['y_ao_channel']],
+                self.initPt, "")
             self.instruments['daq']['instance'].AO_run()
             self.instruments['daq']['instance'].AO_waitToFinish()
             self.instruments['daq']['instance'].AO_stop()
-            self.instruments['daq']['instance'].AO_init([self.settings['x_ao_channel']], self.x_array, clk_source)
+            self.instruments['daq']['instance'].AO_init([self.settings['DAQ_channels']['x_ao_channel']], self.x_array,
+                                                        clk_source)
             # start counter and scanning sequence
             self.instruments['daq']['instance'].AO_run()
             self.instruments['daq']['instance'].DI_run()
@@ -138,7 +145,6 @@ class GalvoScan(Script):
             self.save_b26()
             self.save_data()
             self.save_log()
-            # self._plot_refresh = True
             self.save_image_to_disk()
 
 

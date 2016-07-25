@@ -587,7 +587,6 @@ class Script(QObject):
 
         from matplotlib import axes
 
-        axes.
 
         def axes_empty(ax):
             """
@@ -600,9 +599,6 @@ class Script(QObject):
 
             if ax is None:
                 is_empty = True
-
-            for a in ax:
-                print('bbbb', a.data)
 
             return is_empty
 
