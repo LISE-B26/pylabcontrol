@@ -230,6 +230,9 @@
      <height>121</height>
     </rect>
    </property>
+   <property name="contextMenuPolicy">
+    <enum>Qt::DefaultContextMenu</enum>
+   </property>
    <property name="dragEnabled">
     <bool>true</bool>
    </property>

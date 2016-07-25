@@ -25,7 +25,8 @@ Script.
 
     TYPE_LOOP = 0
     TYPE_SWEEP_PARAMETER = 1
-    TYPE_ITER_POINTS = 2
+    TYPE_ITER_NVS = 2
+    TYPE_ITER_POINTS = 3
 
     def __init__(self, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
@@ -53,6 +54,8 @@ Script.
                 iterator_type = ScriptIterator.TYPE_LOOP
             elif script_settings['iterator_type'] == 'Parameter Sweep':
                 iterator_type = ScriptIterator.TYPE_SWEEP_PARAMETER
+            elif script_settings['iterator_type'] == 'Iter NVs':
+                iterator_type = ScriptIterator.TYPE_ITER_NVS
             elif script_settings['iterator_type'] == 'Iter Points':
                 iterator_type = ScriptIterator.TYPE_ITER_POINTS
             else:
@@ -61,6 +64,8 @@ Script.
             # asign the correct iterator script type
             if 'sweep_param' in script_settings:
                 iterator_type = ScriptIterator.TYPE_SWEEP_PARAMETER
+            elif 'find_nv' in subscripts and 'select_nvs' in subscripts:
+                iterator_type = ScriptIterator.TYPE_ITER_NVS
             elif 'select_nvs' in subscripts:
                 iterator_type = ScriptIterator.TYPE_ITER_POINTS
             elif 'N' in script_settings:
@@ -77,6 +82,9 @@ Script.
         Runs either a loop or a parameter sweep over the subscripts in the order defined by the setting 'script_order'
         '''
         def get_sweep_parameters():
+            """
+            Returns: the paramter values over which to sweep
+            """
             #in both cases, param values have tolist to make sure that they are python types (ex float) rather than numpy
             #types (ex np.float64), the latter of which can cause typing issues
             sweep_range = self.settings['sweep_range']
@@ -110,9 +118,6 @@ Script.
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
-                    # if self._skip_next:
-                    #     self._skip_next = False
-                    #     continue
                     self.log('starting {:s}'.format(script_name))
                     self.scripts[script_name].run()
 
@@ -121,24 +126,24 @@ Script.
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
-                    # if self._skip_next:
-                    #     self._skip_next = False
-                    #     continue
                     self.log('starting {:s} {:03d}/{:03d}'.format(script_name, i + 1, self.settings['N']))
                     self.scripts[script_name].run()
-        elif self.iterator_type == self.TYPE_ITER_POINTS:
+        elif self.iterator_type in (self.TYPE_ITER_NVS, self.TYPE_ITER_POINTS):
+
+            if self.iterator_type == self.TYPE_ITER_NVS:
+                set_point = self.scripts['find_nv'].settings['initial_point']
+            elif self.iterator_type == self.TYPE_ITER_POINTS:
+                set_point = self.scripts['set_laser'].settings['point']
 
             points = self.scripts['select_nvs'].data['nv_locations']
+
             for pt in points:
-                self.scripts['find_nv'].settings['initial_point'].update({'x': pt[0], 'y': pt[1]})
+                set_point.update({'x': pt[0], 'y': pt[1]})
                 self.log('find NV near x = {:0.3e}, y = {:0.3e}'.format(pt[0], pt[1]))
                 # scip first script since that is the select NV script!
                 for script_name in sorted_script_names[1:]:
                     if self._abort:
                         break
-                    # if self._skip_next:
-                    #     self._skip_next = False
-                    #     continue
                     self.log('starting {:s}'.format(script_name))
                     self.scripts[script_name].run()
         else:
@@ -169,7 +174,7 @@ Script.
                                                        sweep_range['N/value_step'] + 1, endpoint=True).tolist())
             else:
                 number_of_iterations = sweep_range['N/value_step']
-        elif self.iterator_type == self.TYPE_ITER_POINTS:
+        elif self.iterator_type == self.TYPE_ITER_NVS:
             # todo: implement this for iteration over points,should be something like the following:
             number_of_iterations = len(self.scripts['select_nvs'].data['nv_locations'])
             number_of_iterations = 1
@@ -238,7 +243,6 @@ Script.
         self.updateProgress.emit(int(self.progress))
 
     def skip_next(self):
-        # self._skip_next = True
         for script in self.scripts.itervalues():
             script.stop()
 
@@ -346,7 +350,6 @@ Script.
             _, script_class_name, script_settings, _, script_sub_scripts = Script.get_script_information(
                 script_information)
 
-            print(script_settings)
             iterator_type = ScriptIterator.get_iterator_type(script_settings, script_sub_scripts)
 
             if isinstance(script_information, dict):
@@ -362,14 +365,20 @@ Script.
                             {sub_script: eval('src.scripts.' + script_sub_scripts[sub_script]['class'])})
 
                 # for point iteration we add some default scripts
-                if iterator_type == ScriptIterator.TYPE_ITER_POINTS:
+                if iterator_type == ScriptIterator.TYPE_ITER_NVS:
                     sub_scripts.update(
                         {'select_nvs': eval('src.scripts.Select_NVs'), 'find_nv': eval('src.scripts.FindMaxCounts2D')}
                     )
                     script_settings['script_order'].update(
                         {'select_nvs': -2, 'find_nv': -1}
                     )
-
+                elif iterator_type == ScriptIterator.TYPE_ITER_POINTS:
+                    sub_scripts.update(
+                        {'select_nvs': eval('src.scripts.Select_NVs'), 'set_laser': eval('src.scripts.SetLaser')}
+                    )
+                    script_settings['script_order'].update(
+                        {'select_nvs': -2, 'set_laser': -1}
+                    )
             elif isinstance(script_information, Script):
                 # if the script already exists, just update the script order parameter
                 sub_scripts.update({script_class_name: script_information})
@@ -401,7 +410,7 @@ Script.
                     Parameter('script_order', script_order),
                     Parameter('N', 0, int, 'times the subscripts will be executed')
                 ]
-            elif iterator_type == ScriptIterator.TYPE_ITER_POINTS:
+            elif iterator_type in (ScriptIterator.TYPE_ITER_NVS, ScriptIterator.TYPE_ITER_POINTS):
                 script_default_settings = [
                     Parameter('script_order', script_order)
                 ]
