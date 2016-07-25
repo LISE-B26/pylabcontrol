@@ -15,12 +15,12 @@ try:
 except:
     print("./src/scripts/__init__ warning! GalvoScan did not load")
 try:
-    from GalvoScanWithLightControl import GalvoScanWithLightControl
+    from legacy_src.old_scripts.GalvoScanWithLightControl import GalvoScanWithLightControl
 except:
     print("./src/scripts/__init__ warning! GalvoScanWithLightControl did not load")
 
 try:
-    from GalvoScanWithTwoRoI import GalvoScanWithTwoRoI
+    from legacy_src.old_scripts.GalvoScanWithTwoRoI import GalvoScanWithTwoRoI
 except:
     print("./src/scripts/__init__ warning! GalvoScanWithTwoRoI did not load")
 try:
@@ -37,10 +37,10 @@ except:
     print("./src/scripts/__init__ warning! Daq_Read_Counter did not load")
 # =============================================================================================================
 
-try:
-    from Find_Points import Find_Points
-except:
-    print("./src/scripts/__init__ warning! Find_Points did not load")
+# try:
+#     from Find_Points import Find_Points
+# except:
+#     print("./src/scripts/__init__ warning! Find_Points did not load")
 
 # ==== import NI FPGA scripts =================================================================================
 # =============================================================================================================
@@ -78,7 +78,7 @@ except:
     print("./src/scripts/__init__ warning! GalvoScanNIFpga did not load")
 
 try:
-    from galvo_scan_ni_fpga_loop import GalvoScanNIFPGALoop
+    from legacy_src.old_scripts.galvo_scan_ni_fpga_loop import GalvoScanNIFPGALoop
 except:
     print("./src/scripts/__init__ warning! GalvoScanNIFPGALoop did not load")
 
@@ -112,7 +112,7 @@ except:
     print("./src/scripts/__init__ warning! Attostep did not load")
 
 try:
-    from refind_NVs import Refind_NVs
+    from legacy_src.old_scripts.refind_NVs import Refind_NVs
 except:
     print("./src/scripts/__init__ warning! Refind_NVs did not load")
 
@@ -128,11 +128,11 @@ except:
     print("./src/scripts/__init__ warning! StanfordResearch_ESR did not load")
 
 try:
-    from ESR_Selected_NVs import ESR_Selected_NVs
+    from legacy_src.old_scripts.ESR_Selected_NVs import ESR_Selected_NVs
 except:
     print("./src/scripts/__init__ warning! ESR_Selected_NVs did not load")
 try:
-    from ESR_and_push import ESR_And_Push
+    from legacy_src.old_scripts.ESR_and_push import ESR_And_Push
 except:
     print("./src/scripts/__init__ warning! ESR_And_Push did not load")
 
@@ -153,7 +153,7 @@ try:
 except:
     print("./src/scripts/__init__ warning! PulseDelays did not load")
 try:
-    from pulse_blaser_derived_scripts import Rabi_Power_Sweep
+    from legacy_src.old_scripts.pulse_blaser_derived_scripts import Rabi_Power_Sweep
 except:
     print("./src/scripts/__init__ warning! Rabi_Power_Sweep did not load")
 try:
@@ -165,7 +165,7 @@ try:
 except:
     print("./src/scripts/__init__ warning! Pulsed_ESR did not load")
 try:
-    from MW_Power_Broadening import MWPowerBroadening
+    from legacy_src.old_scripts.MW_Power_Broadening import MWPowerBroadening
 except:
     print("./src/scripts/__init__ warning! MWPowerBroadening did not load")
 try:
@@ -178,12 +178,12 @@ try:
 except:
     print("./src/scripts/__init__ warning! Rabi_Power_Sweep_Single_Tau did not load")
 try:
-    from pulse_blaser_derived_scripts import RoundPiPulseTime
+    from legacy_src.old_scripts.pulse_blaser_derived_scripts import RoundPiPulseTime
 except:
     print("./src/scripts/__init__ warning! RoundPiPulseTime did not load")
 
 try:
-    from pulse_blaser_derived_scripts import Rabi_Loop
+    from legacy_src.old_scripts.pulse_blaser_derived_scripts import Rabi_Loop
 except:
     print("./src/scripts/__init__ warning! Rabi_Loop did not load")
 
