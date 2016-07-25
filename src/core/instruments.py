@@ -124,6 +124,7 @@ class Instrument(object):
 
 
     def __setattr__(self, key, value):
+        #COMMENT_ME
         try:
             if not self._initialized:
                 object.__setattr__(self, key, value)
@@ -133,6 +134,7 @@ class Instrument(object):
             object.__setattr__(self, key, value)
 
     def __repr__(self):
+        #COMMENT_ME
 
         output_string = '{:s} (class type: {:s})'.format(self.name, self.__class__.__name__)
 
@@ -140,9 +142,11 @@ class Instrument(object):
 
     @property
     def name(self):
+        #COMMENT_ME
         return self._name
     @name.setter
     def name(self, value):
+        #COMMENT_ME
         if isinstance(value, unicode):
             value = str(value)
         assert isinstance(value, str), "{:s}".format(str(value))
@@ -150,6 +154,7 @@ class Instrument(object):
 
     @property
     def settings(self):
+        #COMMENT_ME
         return self._settings
 
 

@@ -15,8 +15,10 @@ This script points the laser to a point
                   [Parameter('x', -0.4, float, 'x-coordinate'),
                    Parameter('y', -0.4, float, 'y-coordinate')
                    ]),
-        Parameter('x_ao_channel', 'ao0', ['ao0', 'ao1', 'ao2', 'ao3'], 'Daq channel used for x voltage analog output'),
-        Parameter('y_ao_channel', 'ao3', ['ao0', 'ao1', 'ao2', 'ao3'], 'Daq channel used for y voltage analog output')
+        Parameter('DAQ_channels',
+            [Parameter('x_ao_channel', 'ao0', ['ao0', 'ao1', 'ao2', 'ao3'], 'Daq channel used for x voltage analog output'),
+            Parameter('y_ao_channel', 'ao3', ['ao0', 'ao1', 'ao2', 'ao3'], 'Daq channel used for y voltage analog output')
+            ])
     ]
 
     _INSTRUMENTS = {'daq':  DAQ}

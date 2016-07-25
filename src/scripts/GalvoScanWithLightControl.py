@@ -21,6 +21,7 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
         Script.__init__(self, name, settings=settings, instruments=instruments, scripts = scripts, log_function=log_function, data_path=data_path)
 
     def _function(self):
+        # COMMENT_ME
 
         instrument_settings = self.instruments['MaestroLightControl']['settings']
 
@@ -54,13 +55,16 @@ Takes an image based in galvo scan script and controls light with MaestroLightCo
             self.save_log()
 
     def _plot(self, axes_list):
+        # COMMENT_ME
         # this implementation is needed if superscript want to make use of it
         self.scripts['acquire_image']._plot(axes_list)
 
     def _update_plot(self, axes_list):
+        # COMMENT_ME
         # this implementation is needed if superscript want to make use of it
         self.scripts['acquire_image']._update_plot(axes_list)
     def plot(self, figure_list):
+        # COMMENT_ME
         self.scripts['acquire_image'].plot(figure_list)
 
 

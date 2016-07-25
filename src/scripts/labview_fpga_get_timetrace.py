@@ -7,6 +7,7 @@ from copy import deepcopy
 from src.labview_fpga_lib.labview_fpga_error_codes import LabviewFPGAException
 
 class LabviewFpgaTimetrace(Script):
+    # COMMENT_ME
 
     _DEFAULT_SETTINGS = [
         Parameter('dt', 200, int, 'sample period of acquisition loop in ticks (40 MHz)'),
@@ -95,6 +96,7 @@ class LabviewFpgaTimetrace(Script):
 
 
     def _plot(self, axes_list):
+        #COMMENT_ME
         axes = axes_list[0]
 
 

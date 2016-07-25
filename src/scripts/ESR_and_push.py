@@ -153,12 +153,14 @@ class ESR_And_Push(Script):
 
 
     def stop(self):
+        # COMMENT_ME
         self._abort = True
         self.scripts['ESR_Selected_NVs'].stop()
         self.scripts['Refind_NVs'].stop()
         self.scripts['Reflect_scan'].stop()
 
     def plot(self, figure_list):
+        # COMMENT_ME
         if self.current_stage == 'take_reflection_image':
             self.scripts['Reflect_scan'].plot(figure_list)
         if self.current_stage in ['ESR_Selected_NVs', 'finished', 'saving']:

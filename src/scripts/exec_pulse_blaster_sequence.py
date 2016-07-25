@@ -248,9 +248,11 @@ for a given experiment
             return ((signal - baseline_min) / (baseline_max - baseline_min))
 
     def _normalize_to_kCounts(self, signal, gate_width=1, num_averages=1):
+        # COMMENT_ME
         return (1. * signal * (1E6 / (gate_width * num_averages)))  # 1E6 is to convert from ns to ms
 
     def validate(self):
+        # COMMENT_ME
         pulse_blaster = self.instruments['PB']['instance']
         self.pulse_sequences_preview = self._create_pulse_sequences()[0]
         failure_list = []
@@ -287,12 +289,14 @@ for a given experiment
         return failure_list
 
     def _plot_validate(self, axes_list):
+        # COMMENT_ME
         axis1 = axes_list[0]
         axis2 = axes_list[1]
         plot_pulses(axis2, self.pulse_sequences_preview[0])
         plot_pulses(axis1, self.pulse_sequences_preview[-1])
 
     def _skip_invalid_sequences(self, pulse_sequences):
+        # COMMENT_ME
         new_pulse_sequences = deepcopy(pulse_sequences)
         failure_list = self.validate()
         delete_list = []
@@ -306,7 +310,7 @@ for a given experiment
         return new_pulse_sequences, delete_list
 
     def stop(self):
-
+        # COMMENT_ME
         self.instruments['PB']['instance'].stop()
         super(ExecutePulseBlasterSequence, self).stop()
 

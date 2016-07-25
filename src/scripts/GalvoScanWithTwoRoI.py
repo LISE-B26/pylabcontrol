@@ -54,6 +54,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
 
 
     def __init__(self, scripts, name=None, settings=None, log_function=None, data_path=None):
+        # COMMENT_ME
 
         Script.__init__(self, name, settings=settings, scripts = scripts, log_function=log_function, data_path=data_path)
 
@@ -63,7 +64,15 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
 
 
     def _receive_signal(self, progress_sub_script):
-        # calculate progress of this script based on progress in subscript
+        '''
+            calculate progress of this script based on progress in subscript
+        Args:
+            progress_sub_script:
+
+        Returns:
+
+        '''
+
 
         progress = float(progress_sub_script)/2.
 
@@ -75,7 +84,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
         self.updateProgress.emit(int(progress))
 
     def _function(self):
-
+        #COMMENT_ME
 
         acquire_image = self.scripts['acquire_image']
 
@@ -135,10 +144,12 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
 
 
     def stop(self):
+        #COMMENT_ME
         self.scripts['acquire_image'].stop()
 
 
     def _plot(self, axes_list):
+        #COMMENT_ME
 
         # we need two axes object to plot both plots, if there is only one, create another
         # fig = axes1.get_figure()
@@ -181,6 +192,7 @@ Takes an image based on GalvoScanWithLightControl script which takes image based
             plot_fluorescence_new(image_data_roi_2, extent_roi_2, axes2)
 
     def get_axes_layout(self, figure_list):
+        #COMMENT_ME
         figure = figure_list[0]
         figure.clf()
 

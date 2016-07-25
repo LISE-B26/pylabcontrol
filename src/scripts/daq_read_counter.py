@@ -74,9 +74,11 @@ class Daq_Read_Counter(Script):
         self.instruments['daq']['instance'].DI_stop()
 
     def plot(self, figure_list):
+        # COMMENT_ME
         super(Daq_Read_Counter, self).plot([figure_list[1]])
 
     def _plot(self, axes_list):
+        # COMMENT_ME
         data = self.data['counts']
         if data:
             plot_counts(axes_list[0], self.data['counts'])

@@ -15,6 +15,7 @@ except:
     print('WARNING script_dummy')
 
 class ScriptMinimalDummy(Script):
+    # COMMENT_ME
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
@@ -45,6 +46,7 @@ class ScriptMinimalDummy(Script):
 
 
 class ScriptDummy(Script):
+    # COMMENT_ME
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
     #an integer argument when emitting.
@@ -115,6 +117,7 @@ class ScriptDummy(Script):
             self.save_log()
 
     def _plot(self, axes_list):
+        #COMMENT_ME
 
         plot_type = self.settings['plot_style']
 
@@ -202,6 +205,7 @@ class ScriptDummyCounter(Script):
         self.data = {'random data': data}
 
 class ScriptDummyWithInstrument(Script):
+    # COMMENT_ME
 
     _DEFAULT_SETTINGS = [
         Parameter('count', 0, int),
@@ -316,6 +320,7 @@ class ScriptDummyWithSubScript(Script):
                     axes_list[0].hold(False)
 
 class ScriptDummyWithNestedSubScript(Script):
+    # COMMENT_ME
 
     _DEFAULT_SETTINGS = [
         Parameter('repetitions', 0, int, 'times the subscript will be executed')
@@ -371,6 +376,7 @@ class ScriptDummyWithNestedSubScript(Script):
             axes_list[0].hold(False)
 
 class ScriptDummyPlotMemoryTest(Script):
+    # COMMENT_ME
 
     _DEFAULT_SETTINGS = [
         Parameter('datasize', 10, int, 'number of datapoints'),

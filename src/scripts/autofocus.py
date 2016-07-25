@@ -132,7 +132,9 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             self.data['fit_parameters'] = p2
 
         def fit_focus():
-            # fit the data and set piezo to focus spot
+            '''
+            fit the data and set piezo to focus spot
+            '''
             gaussian = lambda x, noise, amp, center, width: noise + amp * np.exp(
                 -1.0 * (np.square((x - center)) / (2 * (width ** 2))))
 
@@ -208,6 +210,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         NotImplementedError
 
     def _plot(self, axes_list):
+        # fit the data and set piezo to focus spot
 
         axis_focus, axis_image = axes_list
 
@@ -233,6 +236,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
                 axis_focus.hold(False)
 
     def _update_plot(self, axes_list):
+        # fit the data and set piezo to focus spot
 
         axis_focus, axis_image = axes_list
 

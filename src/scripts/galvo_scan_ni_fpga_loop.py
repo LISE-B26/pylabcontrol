@@ -68,6 +68,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             self.save_image_to_disk('{:s}\\autofocus.jpg'.format(self.filename_image))
 
     def _plot(self, axes_list):
+        # COMMENT_ME
         max_counts_plot = self.scripts['take_image'].settings['max_counts_plot']
         extent =  self.scripts['take_image'].settings['extent']
         plot_fluorescence_new(self.data['current_image'].transpose(), extent, axes_list[0], max_counts=max_counts_plot)

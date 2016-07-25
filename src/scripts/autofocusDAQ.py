@@ -91,6 +91,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
             return progress
 
         def autofocus_loop(sweep_voltages, tag=None):
+            #COMMENT_ME
 
             self.data[tag + '_sweep_voltages'] = sweep_voltages
             self.data[tag + '_focus_function_result'] = []
@@ -125,6 +126,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
 
         def autofocus_fit(x_data,y_data):
+            #COMMENT_ME
             estimate_params = guess_gaussian_parameter(x_data,y_data)
             fit_params = fit_gaussian(x_data,y_data, starting_params=estimate_params, bounds=None)
 
@@ -181,6 +183,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
 
 
     def _plot(self, axes_list):
+        # COMMENT_ME
         axis1 = axes_list[0]
         axis2 = axes_list[1]
         # plot current focusing data

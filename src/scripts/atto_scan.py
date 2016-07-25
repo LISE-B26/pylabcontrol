@@ -2,6 +2,7 @@ from src.core import Parameter, Script
 from src.instruments import Attocube
 
 class AttoStep(Script):
+    # COMMENT_ME
     _DEFAULT_SETTINGS = [
         Parameter('axis', 'z', ['x', 'y', 'z'], 'Axis to step on'),
         Parameter('direction', 'Up', ['Up', 'Down'], 'step direction, up or down in voltage (or on physical switch)')

@@ -68,6 +68,7 @@ class Attocube(Instrument):
     ])
 
     def __init__(self, name = None, settings = None):
+        #COMMENT_ME
         super(Attocube, self).__init__(name, settings)
         try:
             # self.attocube = ctypes.WinDLL('C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll')

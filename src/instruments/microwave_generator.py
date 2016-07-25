@@ -45,6 +45,7 @@ class MicrowaveGenerator(Instrument):
     #     self.srs.close()
 
     def update(self, settings):
+        #COMMENT_ME
         super(MicrowaveGenerator, self).update(settings)
         # XXXXX MW ISSUE = START
         # ===========================================
@@ -84,6 +85,7 @@ class MicrowaveGenerator(Instrument):
         }
 
     def read_probes(self, key):
+        #COMMENT_ME
         assert key in self._PROBES.keys()
 
         #query always returns string, need to cast to proper return type
@@ -105,6 +107,7 @@ class MicrowaveGenerator(Instrument):
 
     @property
     def is_connected(self):
+        #COMMENT_ME
         try:
             self.srs.query('*IDN?') # simple call to check connection
             return True
@@ -112,6 +115,7 @@ class MicrowaveGenerator(Instrument):
             return False
 
     def _param_to_internal(self, param):
+        #COMMENT_ME
         if param == 'enable_output':
             return 'ENBR'
         elif param == 'frequency':
@@ -134,6 +138,7 @@ class MicrowaveGenerator(Instrument):
             raise KeyError
 
     def _mod_type_to_internal(self, value):
+        #COMMENT_ME
         if value == 'AM':
             return 0
         elif value == 'FM':
@@ -152,6 +157,7 @@ class MicrowaveGenerator(Instrument):
             raise KeyError
 
     def _mod_func_to_internal(self, value):
+        #COMMENT_ME
         if value == 'Sine':
             return 0
         elif value == 'Ramp':
@@ -168,6 +174,7 @@ class MicrowaveGenerator(Instrument):
             raise KeyError
 
     def _pulse_mod_func_to_internal(self, value):
+        #COMMENT_ME
         if value == 'Square':
             return 3
         elif value == 'Noise(PRBS)':

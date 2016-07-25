@@ -7,6 +7,7 @@ Pulse = namedtuple('Pulse', ('channel_id', 'start_time', 'duration'))
 
 
 class PulseBlaster(Instrument):
+    # COMMENT_ME
     PBStateChange = namedtuple('PBStateChange', ('channel_bits', 'time'))
     PBCommand = namedtuple('PBCommand', ('channel_bits', 'duration', 'command', 'command_arg'))
 
@@ -55,6 +56,7 @@ class PulseBlaster(Instrument):
     }
 
     def __init__(self, name=None, settings=None):
+        #COMMENT_ME
         super(PulseBlaster, self).__init__(name, settings)
         self.pb = ctypes.windll.LoadLibrary(get_dll_config_path('PULSEBLASTER_DLL_PATH'))
         self.update(self._DEFAULT_SETTINGS)
@@ -81,6 +83,7 @@ class PulseBlaster(Instrument):
                 break
 
     def settings2bits(self):
+        #COMMENT_ME
         bits = 0
         for output, output_params in self.settings.iteritems():
             if isinstance(output_params, dict) and 'channel' in output_params and 'status' in output_params:
@@ -225,6 +228,7 @@ class PulseBlaster(Instrument):
         pb_command_list.sort(key=lambda x: x.time)
 
         def change_to_propagating_signal(state_change_collection):
+            # COMMENT_ME
 
             propagating_state_changes = []
             for idx in range(0, len(state_change_collection) - 1):
@@ -451,6 +455,7 @@ class PulseBlaster(Instrument):
         self.sequence_start_time = datetime.datetime.now()
 
     def wait(self):
+        #COMMENT_ME
         if self.estimated_runtime is None or self.sequence_start_time is None:
             return
         if (datetime.datetime.now() - self.sequence_start_time).microseconds/1000.0 < self.estimated_runtime:
@@ -460,6 +465,7 @@ class PulseBlaster(Instrument):
         self.sequence_start_time = None
 
     def _get_channel(self, channel_id):
+        #COMMENT_ME
         if isinstance(channel_id, (int, float)):
             return channel_id
         elif isinstance(channel_id, str):
@@ -472,16 +478,17 @@ class PulseBlaster(Instrument):
         raise AttributeError(
             'channel id must be either an integer or a string. Instead, this was passed in: {0}'.format(channel_id))
 
-    def stop(self):
+    # def stop(self):
 
         # todo: stopping created an error in the following line
         # self.pb.pb_stop()
         # self.pb.pb_reset()
         # self.update(self.settings) #reset hardware to steady state
-        pass
+        # pass
 
 
 class B26PulseBlaster(PulseBlaster):
+    # COMMENT_ME
     _DEFAULT_SETTINGS = Parameter([
         Parameter('laser', [
             Parameter('channel', 0, int, 'channel to which laser is connected'),
@@ -519,6 +526,7 @@ class B26PulseBlaster(PulseBlaster):
     _PROBES = {}
 
     def __init__(self, name=None, settings=None):
+        #COMMENT_ME
         super(B26PulseBlaster, self).__init__(name, settings)
 
 
@@ -531,6 +539,7 @@ class B26PulseBlaster(PulseBlaster):
         pass
 
     def get_name(self, channel):
+        #COMMENT_ME
         for key, value in self.settings:
             if 'channel' in value.keys() and value['channel'] == channel:
                 return key

@@ -11,6 +11,7 @@ from src.plotting.plots_1d import plot_esr
 from src.data_processing.esr_signal_processing import fit_esr
 
 class StanfordResearch_ESR(Script):
+    # COMMENT_ME
 
     _DEFAULT_SETTINGS = [
         Parameter('power_out', -45.0, float, 'output power (dBm)'),
@@ -123,14 +124,15 @@ class StanfordResearch_ESR(Script):
 
 
     def _calc_progress(self, scan_num):
+        #COMMENT_ME
 
         progress = float(scan_num) / self.settings['esr_avg'] * 100.
         self.progress = progress
         return int(progress)
 
     def _plot(self, axes_list):
+        #COMMENT_ME
         plot_esr(axes_list[0], self.data[-1]['frequency'], self.data[-1]['data'], self.data[-1]['fit_params'])
-
 
     def get_axes_layout(self, figure_list):
         """

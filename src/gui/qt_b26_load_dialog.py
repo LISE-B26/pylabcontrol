@@ -91,6 +91,7 @@ Returns:
         print(item)
 
     def name_changed(self, changed_item):
+        #COMMENT_ME
         name = str(changed_item.text())
 
         # if the item has been moved we ignore this because the item only went from one tree to the other without changing names
@@ -221,8 +222,10 @@ Returns:
         return elements_selected
 
     def add_script_sequence(self):
+        #COMMENT_ME
 
         def empty_tree(tree_model):
+            # COMMENT_ME
             def add_children_to_list(item, somelist):
                 if item.hasChildren():
                     for rownum in range(0, item.rowCount()):

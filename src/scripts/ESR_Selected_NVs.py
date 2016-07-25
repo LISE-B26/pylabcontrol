@@ -176,11 +176,13 @@ class ESR_Selected_NVs(Script):
         self.scripts['acquire_image'].updateProgress.disconnect(self._receive_signal_2)
 
     def stop(self):
+        # COMMENT_ME
         self._abort = True
         self.scripts['Find_Max'].stop()
         self.scripts['StanfordResearch_ESR'].stop()
 
     def _plot(self, axes_list):
+        # COMMENT_ME
         if self.current_stage == 'Find_Max':
             axes_image = axes_list[2]
             image = self.data['image_data']
@@ -222,6 +224,7 @@ class ESR_Selected_NVs(Script):
             raise KeyError
 
     def _update_plot(self, axes_list):
+        # COMMENT_ME
         if self.current_stage == 'Find_Max':
             axes_image = axes_list[0]
             image = self.data['image_data']
@@ -239,6 +242,7 @@ class ESR_Selected_NVs(Script):
             pass  # should never update in the saving/finished stage
 
     def get_axes_layout(self, figure_list):
+        # COMMENT_ME
         if self.current_stage in ('Find_Max', 'ESR'):
             axes1 = figure_list[0].axes[0]
             figure2 = figure_list[1]

@@ -58,6 +58,7 @@ class SpectrumAnalyzer(Instrument):
         self.update({'mode':'SpectrumAnalyzer'})
 
     def update(self, settings):
+        #COMMENT_ME
         super(SpectrumAnalyzer, self).update(settings)
 
         # set mode first
@@ -137,18 +138,23 @@ class SpectrumAnalyzer(Instrument):
         return identification == self._INSTRUMENT_IDENTIFIER
 
     def _set_start_frequency(self, start_freq):
+        #COMMENT_ME
         self.spec_anal.write('SENS:FREQ:START ' + str(start_freq))
 
     def _get_start_frequency(self):
+        #COMMENT_ME
         return float(self.spec_anal.query('SENS:FREQ:START?\n'))
 
     def _set_stop_frequency(self, stop_freq):
+        #COMMENT_ME
         self.spec_anal.write('SENS:FREQ:STOP ' + str(stop_freq))
 
     def _get_stop_frequency(self):
+        #COMMENT_ME
         return float(self.spec_anal.query('SENS:FREQ:STOP?\n'))
 
     def _toggle_output(self, state):
+        #COMMENT_ME
 
         if state:
             assert self._get_mode() == 'TrackingGenerator', "output can't be on while in SpectrumAnalyzer mode"
@@ -157,12 +163,14 @@ class SpectrumAnalyzer(Instrument):
             self.spec_anal.write('OUTPUT 0')
 
     def _is_output_on(self):
+        #COMMENT_ME
         if self.mode == 'SpectrumAnalyzer':
             return False
         elif self.mode == 'TrackingGenerator':
             return bool(int(self.spec_anal.query('OUTPUT:STATE?')))
 
     def _get_mode(self):
+        #COMMENT_ME
         mode_response = str(self.spec_anal.query('CONFIGURE?')).strip()
         if mode_response == 'SAN':
             return 'SpectrumAnalyzer'
@@ -170,6 +178,7 @@ class SpectrumAnalyzer(Instrument):
             return 'TrackingGenerator'
 
     def _set_mode(self, mode):
+        #COMMENT_ME
         if mode == 'TrackingGenerator':
             self.spec_anal.write('CONFIGURE:TGENERATOR')
         elif mode == 'SpectrumAnalyzer':
@@ -177,6 +186,7 @@ class SpectrumAnalyzer(Instrument):
             self.spec_anal.write('CONFIGURE:SANALYZER')
 
     def _get_trace(self):
+        #COMMENT_ME
         amplitudes = [float(i) for i in str(self.spec_anal.query('TRACE:DATA? TRACE1'+ ';*OPC?')).rstrip(';1').split(',')]
         num_points = len(amplitudes)
         frequencies = np.linspace(start=self.start_frequency, stop=self.stop_frequency,
@@ -186,24 +196,27 @@ class SpectrumAnalyzer(Instrument):
         return {'frequencies':frequencies, 'amplitudes':amplitudes}
 
     def _get_bandwidth(self):
+        #COMMENT_ME
         return float(self.spec_anal.query('BANDWIDTH?'))
 
     def _get_output_power(self):
+        #COMMENT_ME
         return float(self.spec_anal.query('SOURCE:POWER?'))
 
     def _set_output_power(self, power):
+        #COMMENT_ME
         assert self.mode == 'TrackingGenerator', "mode need to be 'TrackingGenerator' to change power"
 
         return self.spec_anal.write('SOURCE:POWER ' + str(power))
 
     def __del__(self):
+        #COMMENT_ME
         self._wait_for_spec_anal()
         self._set_mode('SpectrumAnalyzer')
         self.spec_anal.close()
 
     def _wait_for_spec_anal(self):
-
-
+        #COMMENT_ME
 
         if self._last_update_time - time.time() < 1.0:
             time.sleep(1)

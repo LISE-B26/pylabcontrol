@@ -27,6 +27,7 @@ class ReadProbes(QThread):
 
 
     def run(self):
+        #COMMENT_ME
         if self.probes is None:
             # print('no probes, stop thread')
             self._stop = True
@@ -47,11 +48,13 @@ class ReadProbes(QThread):
             self.msleep(int(1e3*self.refresh_interval))
 
     def start(self, *args, **kwargs):
+        #COMMENT_ME
         self._stop = False
         super(ReadProbes, self).start(*args, **kwargs)
 
 
     def quit(self, *args, **kwargs):  # real signature unknown
+        #COMMENT_ME
         self._stop = True
         super(ReadProbes, self).quit(*args, **kwargs)
 

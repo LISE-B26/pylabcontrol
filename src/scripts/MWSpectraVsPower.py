@@ -5,6 +5,7 @@ import numpy as np
 from copy import deepcopy
 
 class MWSpectraVsPower(Script):
+    # COMMENT_ME
 
     _DEFAULT_SETTINGS = [
         # Parameter('start_frequency', 2.7e9, float, 'start frequency of spectrum'),
@@ -98,6 +99,7 @@ class MWSpectraVsPower(Script):
         self.settings_for_save.update({'save_data':False, 'save_instrumets':False, 'save_log':True, 'save_settings':False})
 
     def _plot(self, axes_list):
+        #COMMENT_ME
         axes = self.get_axes_layout(figure)
 
         spectrum = self.data['spectrum']
