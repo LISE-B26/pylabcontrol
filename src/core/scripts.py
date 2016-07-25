@@ -1,7 +1,9 @@
 import datetime
 from copy import deepcopy
-from src.core.parameter import Parameter
+
 from src.core.instruments import Instrument
+from src.core.parameter import Parameter
+
 # from PyQt4 import QtCore
 from collections import deque
 import os
@@ -593,9 +595,6 @@ class Script(QObject):
 
         """
 
-        from matplotlib import axes
-
-
         def axes_empty(ax):
             """
             takes an axes object and checks if it is empty
@@ -978,12 +977,13 @@ class Script(QObject):
             # to avoid this problem call from src.core import Script (otherwise the path to Script is __main__.Script)
             script_class_name = script_information.__name__
 
+
+        # todo: check here if path exists and then find the correct path / e.g. when module is installed in b26_toolkit
         if len(script_class_name.split('.')) == 1:
             module_path = 'src.scripts'
         else:
             module_path = 'src.scripts.' + '.'.join(script_class_name.split('.')[0:-1])
             script_class_name = script_information.split('.')[-1]
-
         return module_path, script_class_name, script_settings, script_instruments, script_sub_scripts
 
 
@@ -1122,14 +1122,18 @@ class Script(QObject):
         return self.get_axes_layout(figure_list)
 
 if __name__ == '__main__':
-    from src.core.read_write_functions import load_b26_file
-    from src.instruments import DummyInstrument
-    from src.scripts import ScriptDummyWithInstrument, ScriptDummy
+    # from src.core import Script
+    #
+    # folder = 'Z:\\Lab\\Cantilever\\Measurements\\20160708_Rabi_data\\160712-14_54_46_NV6_rabi'
+    #
+    # data = Script.load_data(folder)
+    # print(data.keys())
+    # print(data['tau'])
 
-    from src.core import Script
+    import sys
 
-    folder = 'Z:\\Lab\\Cantilever\\Measurements\\20160708_Rabi_data\\160712-14_54_46_NV6_rabi'
+    sys.path.append('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_toolkit\\src')
+    for x in sys.path:
+        print(x)
 
-    data = Script.load_data(folder)
-    print(data.keys())
-    print(data['tau'])
+    from src.plotting.plots_1d import *
