@@ -24,7 +24,7 @@ try:
 except:
     print("./src/scripts/__init__ warning! GalvoScanWithTwoRoI did not load")
 try:
-    from autofocusDAQ import AutoFocus
+    from autofocus import AutoFocusDAQ
 except:
     print("./src/scripts/__init__ warning! AutoFocus did not load")
 try:
@@ -68,7 +68,7 @@ try:
 except:
     print("./src/scripts/__init__ warning! FPGA_BalancePolarization did not load")
 try:
-    from autofocus_ni_fpga import AutoFocusNIFPGA
+    from autofocus import AutoFocusNIFPGA
 except:
     print("./src/scripts/__init__ warning! AutoFocusNIFPGA did not load")
 

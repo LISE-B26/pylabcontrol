@@ -3,6 +3,8 @@ import src.scripts
 import numpy as np
 from PyQt4.QtCore import pyqtSlot
 import datetime
+
+
 class ScriptIterator(Script):
     '''
 This is a template class for scripts that iterate over a series of subscripts in either a loop /
@@ -109,9 +111,12 @@ Script.
                 curr_type = type(reduce(lambda x,y: x[y], setting, script_settings)) #traverse nested dict to get type of variable
                 update_dict = reduce(lambda y, x: {x: y}, reversed(setting), curr_type(value)) #creates nested dictionary from list
                 script_settings.update(update_dict)
+
+                self.log('setting parameter {:s} to {:0.2e}'.format(self.settings['sweep_param'], value))
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
+                    self.log('starting {:s}'.format(script_name))
                     self.scripts[script_name].run()
 
         elif self.iterator_type == self.TYPE_LOOP:
@@ -119,16 +124,19 @@ Script.
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
+                    self.log('starting {:s} {:03d}/{:03d}'.format(script_name, i + 1, self.settings['N']))
                     self.scripts[script_name].run()
         elif self.iterator_type == self.TYPE_ITER_POINTS:
 
             points = self.scripts['select_nvs'].data['nv_locations']
             for pt in points:
                 self.scripts['find_nv'].settings['initial_point'].update({'x': pt[0], 'y': pt[1]})
+                self.log('find NV near x = {:0.3e}, y = {:0.3e}'.format(pt[0], pt[1]))
                 # scip first script since that is the select NV script!
                 for script_name in sorted_script_names[1:]:
                     if self._abort:
                         break
+                    self.log('starting {:s}'.format(script_name))
                     self.scripts[script_name].run()
         else:
             raise TypeError('wrong iterator type')

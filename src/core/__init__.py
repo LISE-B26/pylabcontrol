@@ -11,7 +11,7 @@ from instruments import Instrument
 from parameter import Parameter
 from probe import Probe
 from scripts import Script
-from script_sequence import ScriptIterator
+from script_iterator import ScriptIterator
 try:
     from read_probes import ReadProbes
 except:

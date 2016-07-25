@@ -2,7 +2,7 @@ from src.core import Parameter, Script
 from src.scripts import GalvoScanNIFpga
 
 from src.instruments import PiezoController
-from src.scripts import GalvoScanWithLightControl
+from src.scripts import GalvoScan
 
 import numpy as np
 import scipy as sp
@@ -300,7 +300,7 @@ Autofocus: Takes images at different piezo voltages and uses a heuristic to figu
         'z_piezo': PiezoController
     }
     _SCRIPTS = {
-        'take_image': GalvoScanWithLightControl
+        'take_image': GalvoScan
     }
 
     def __init__(self, scripts, instruments = None, name = None, settings = None, log_function = None, data_path = None):
