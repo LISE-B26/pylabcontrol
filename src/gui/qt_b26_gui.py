@@ -635,6 +635,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.tree_probes.expandAll()
         def load_scripts():
             # COMMENT_ME
+
+
+            # update scripts so that current settings do not get lost
+            for index in range(self.tree_scripts.topLevelItemCount()):
+                script_item = self.tree_scripts.topLevelItem(index)
+                self.update_script_from_item(script_item)
+
+
             dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts,
                                 filename=self.gui_settings['scripts_folder'])
             if dialog.exec_():
