@@ -312,6 +312,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def switch_tab(self):
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
+
         if current_tab == 'Probes':
             self.read_probes.start()
             self.read_probes.updateProgress.connect(self.update_probes)
@@ -505,6 +506,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 self.current_script = script
                 self.btn_start_script.setEnabled(False)
+                self.tabWidget.setEnabled(False)
 
 
             else:
@@ -877,7 +879,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSlot()
     def script_finished(self):
-        self.btn_start_script.setEnabled(True)
+
         script = self.current_script
         script.updateProgress.disconnect(self.update_status)
         self.script_thread.started.disconnect()
@@ -887,6 +889,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.plot_script(script)
         self.progressBar.setValue(100)
+        self.btn_start_script.setEnabled(True)
+        self.tabWidget.setEnabled(True)
 
     def plot_script_validate(self, script):
         """

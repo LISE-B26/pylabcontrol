@@ -13,7 +13,7 @@ from src.gui import qt_b26_gui
 #ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 app = QtGui.QApplication(sys.argv)
-fname = 'c:\\b26_tmp\\pythonlab_config3a.b26'
+fname = 'c:\\b26_tmp\\pythonlab_config_dummy.b26'
 
 # fname = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\pythonlab_config.b26"
 try:
