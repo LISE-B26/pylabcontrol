@@ -35,7 +35,6 @@ class Parameter(dict):
             assert self.is_valid(value, valid_values)
 
             if isinstance(value, list) and isinstance(value[0], Parameter):
-                #todo: check if folloing statement is correct: this should create a Parameter object and not a dict!
                 self._valid_values = {name: {k: v for d in value for k, v in d.valid_values.iteritems()}}
                 self.update({name: {k: v for d in value for k, v in d.iteritems()}})
                 self._info = {name: {k: v for d in value for k, v in d.info.iteritems()}}
@@ -73,7 +72,13 @@ class Parameter(dict):
 
 
     def __setitem__(self, key, value):
-        #COMMENT_ME
+        """
+        overwrites the standard dictionary and checks if value is valid
+        Args:
+            key: dictionary key
+            value: dictionary value
+
+        """
         message = "{0} (of type {1}) is not in {2}".format(str(value), type(value), str(self.valid_values[key]))
         assert self.is_valid(value, self.valid_values[key]), message
 
@@ -84,28 +89,48 @@ class Parameter(dict):
             super(Parameter, self).__setitem__(key, value)
 
     def update(self, *args):
-        #COMMENT_ME
+        """
+        updates the values of the parameter, just as a regular dictionary
+        """
         for d in args:
             for key, value in d.iteritems():
                 self.__setitem__(key, value)
     @property
     def visible(self):
-        #COMMENT_ME
+        """
+
+        Returns: if parameter should be shown (False) or hidden (True) in the GUI
+
+        """
         return self._visible
 
     @property
     def valid_values(self):
-        #COMMENT_ME
+        """
+        Returns: valid value of the paramerer (a type like int, float or a list)
+        """
         return self._valid_values
 
     @property
     def info(self):
-        #COMMENT_ME
+        """
+
+        Returns: a text describing the paramter
+
+        """
         return self._info
 
     @staticmethod
     def is_valid(value, valid_values):
-        #COMMENT_ME
+        """
+        check is the value is valid
+        Args:
+            value: value to be tested
+            valid_values: allowed valid values (type or list of values)
+
+        Returns:
+
+        """
 
         valid = False
 
