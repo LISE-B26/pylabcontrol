@@ -4,12 +4,10 @@ from copy import deepcopy
 from src.core.instruments import Instrument
 from src.core.parameter import Parameter
 
-# from PyQt4 import QtCore
 from collections import deque
 import os
 import pandas as pd
 import glob
-# import json as json
 
 from PyQt4.QtCore import pyqtSignal, QObject, pyqtSlot
 
@@ -18,6 +16,8 @@ import numpy as np
 from __builtin__ import len as builtin_len
 from matplotlib.backends.backend_pdf import FigureCanvasPdf as FigureCanvas # use this to avoid error that plotting should only be done on main thread
 from matplotlib.figure import Figure
+from importlib import import_module
+
 
 # cPickle module implements the same algorithm as pickle, in C instead of Python.
 # It is many times faster than the Python implementation, but does not allow the user to subclass from Pickle.
@@ -906,7 +906,8 @@ class Script(QObject):
 
 
                 print('XXXXX  module_path', module_path)
-                module = __import__(module_path, fromlist=[script_class_name])
+                module = import_module(script_class_name)
+                # module = __import__(module_path, fromlist=[script_class_name])
 
 
 
@@ -1127,6 +1128,19 @@ class Script(QObject):
         #COMMENT_ME
         return self.get_axes_layout(figure_list)
 
+
+
+def module_exists(name):
+    """
+    checks if a module exists
+    Args:
+        name:
+
+    Returns: True (module exists) or False (module) doesn't exist
+
+    """
+
+
 if __name__ == '__main__':
     # from src.core import Script
     #
@@ -1137,9 +1151,9 @@ if __name__ == '__main__':
     # print(data['tau'])
 
     import sys
-
-    sys.path.append('C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_toolkit\\src')
-    for x in sys.path:
+    import b26_toolkit.src.scripts as b26_scripts
+    for x in sys.modules:
         print(x)
 
-    from src.plotting.plots_1d import *
+    # b26_scripts.src.
+    # help('module_name')

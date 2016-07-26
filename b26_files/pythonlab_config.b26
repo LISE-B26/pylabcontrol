@@ -1,9 +1,0 @@
-{
-    "gui_settings" : {
-        "config_file" : "C:\\b26_tmp\\gui_settings.b26",
-        "tmp_folder" : "C:\\b26_tmp\\",
-        "instrument_folder" : "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments\\",
-        "scripts_folder" : "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\scripts\\",
-        "data_folder" : "Z:\\Lab\\Cantilever\\Measurements\\"
-    }
-}
