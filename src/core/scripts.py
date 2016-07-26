@@ -903,7 +903,13 @@ class Script(QObject):
 
                     script_info = ScriptIterator.create_dynamic_script_class(script_info)
                     module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
+
+
+                print('XXXXX  module_path', module_path)
                 module = __import__(module_path, fromlist=[script_class_name])
+
+
+
                 # this returns the name of the module that was imported.
                 class_of_script = getattr(module, script_class_name)
 
