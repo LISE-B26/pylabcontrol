@@ -2,12 +2,12 @@ import yaml, json
 import os
 
 
-def get_dll_config_path(dll_name, path_to_file='dll_config.txt'):
+def get_config_value(name, path_to_file='dll_config.txt'):
     """
-    gets the path to the dll for the dll dll_name from path_to_file
+    gets the value for "name" from "path_to_file" config file
     Args:
-        dll_name:
-        path_to_file:
+        name: name of varibale in config file
+        path_to_file: path to config file
 
     Returns: path to dll
 
@@ -23,15 +23,12 @@ def get_dll_config_path(dll_name, path_to_file='dll_config.txt'):
     f = open(path_to_file, 'r')
     s = f.read()
 
-    if dll_name[-1] is not ':':
-        dll_name += ':'
+    if name[-1] is not ':':
+        name += ':'
 
-    config_path = [line.split(dll_name)[1] for line in s.split('\n') if len(line.split(dll_name)) > 1][0].strip()
+    config_value = [line.split(name)[1] for line in s.split('\n') if len(line.split(name)) > 1][0].strip()
 
-    if not os.path.isfile(config_path):
-        raise IOError('{:s}: config file is not valid'.format(config_path))
-
-    return config_path
+    return config_value
 
 def load_b26_file(file_name):
     """

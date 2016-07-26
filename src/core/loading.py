@@ -1,4 +1,4 @@
-from src.core.probe import Probe
+from PyLabControl.src.core.probe import Probe
 
 def instantiate_probes(probes, instruments):
     """

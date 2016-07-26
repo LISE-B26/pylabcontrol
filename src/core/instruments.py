@@ -2,8 +2,8 @@ from PyQt4 import QtCore
 
 from copy import deepcopy
 import yaml
-from src.core.parameter import Parameter
-from src.core.read_write_functions import save_b26_file
+# from src.core.parameter import Parameter
+from PyLabControl.src.core.read_write_functions import save_b26_file
 
 class Instrument(object):
     '''
@@ -319,7 +319,7 @@ if __name__ == '__main__':
 
 
 
-    from src.core import Instrument
+    # from src.core import Instrument
 
 
 

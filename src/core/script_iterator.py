@@ -1,9 +1,9 @@
-from src.core import Parameter, Script
-import src.scripts
+from PyLabControl.src.core import Parameter, Script
 import numpy as np
 from PyQt4.QtCore import pyqtSlot
 import datetime
 
+# asad
 
 class ScriptIterator(Script):
     '''

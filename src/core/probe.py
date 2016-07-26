@@ -1,6 +1,6 @@
-from src.core.instruments import Instrument
+from PyLabControl.src.core.instruments import Instrument
 from collections import deque
-from src.core.read_write_functions import save_b26_file
+from PyLabControl.src.core.read_write_functions import save_b26_file
 
 class Probe(object):
 

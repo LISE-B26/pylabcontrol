@@ -1,17 +1,18 @@
 import datetime
 from copy import deepcopy
 
-from src.core.instruments import Instrument
-from src.core.parameter import Parameter
+from PyLabControl.src.core.instruments import Instrument
+from PyLabControl.src.core.parameter import Parameter
+from PyLabControl.src.core.read_write_functions import save_b26_file, get_config_value
 
 from collections import deque
 import os
 import pandas as pd
 import glob
-
+import inspect
 from PyQt4.QtCore import pyqtSignal, QObject, pyqtSlot
 
-from src.core.read_write_functions import save_b26_file
+
 import numpy as np
 from __builtin__ import len as builtin_len
 from matplotlib.backends.backend_pdf import FigureCanvasPdf as FigureCanvas # use this to avoid error that plotting should only be done on main thread
@@ -151,7 +152,6 @@ class Script(QObject):
                     else:
                         duration_old = datetime.timedelta(0)
                     exec_count = self._current_subscript_stage['subscript_exec_count'][subscript_name]
-                    # print('==>XXXXX', exec_count, duration_old, duration)
 
                     duration_new = (duration_old * (exec_count - 1) + duration)
                     self._current_subscript_stage['subscript_exec_duration'][subscript_name] = (duration_old * (
@@ -885,6 +885,14 @@ class Script(QObject):
                 raise ImportError('script {:s}: failed to load subscripts'.format(class_of_script))
             return sub_scripts, instruments_updated
 
+
+        # import all the scripts from additional modules that contain scripts. This name of those modules is in the config file that is located
+        # in the main directory
+        path_to_config = '/'.join(os.path.normpath(os.path.dirname(inspect.getfile(Script))).split('\\')[0:-2]) + '/config.txt'
+        module_list = get_config_value('SCRIPT_MODULES', path_to_config).split(';')
+        module_list = [import_module(module_name+'.src.scripts') for module_name in module_list]
+
+
         for script_name, script_info in script_dict.iteritems():
 
             # check if script already exists
@@ -893,7 +901,7 @@ class Script(QObject):
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
 
-                module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
+                module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info, module_list)
 
                 #creates all dynamic scripts so they can be imported following the if statement
                 if script_class_name == 'ScriptIterator':
@@ -902,17 +910,22 @@ class Script(QObject):
                     from src.core import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
 
                     script_info = ScriptIterator.create_dynamic_script_class(script_info)
-                    module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
+                    module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info, module_list)
 
 
-                print('XXXXX  module_path', module_path)
-                module = import_module(script_class_name)
-                # module = __import__(module_path, fromlist=[script_class_name])
+                # print('XXXXX  module_path', module_path + '.' + script_class_name)
 
-
-
+                # module = import_module(module_path + '.' + script_class_name)
+                # ==== new version start
                 # this returns the name of the module that was imported.
-                class_of_script = getattr(module, script_class_name)
+                class_of_script = getattr(module_path, script_class_name)
+                # === new version end
+
+                # # ==== old version start
+                # module = __import__(module_path, fromlist=[script_class_name])
+                # # this returns the name of the module that was imported.
+                # class_of_script = getattr(module, script_class_name)
+                # # === old version end
 
                 #  ========= create the instruments that are needed by the script =========
                 try:
@@ -953,7 +966,7 @@ class Script(QObject):
         return updated_scripts, load_failed, updated_instruments
 
     @staticmethod
-    def get_script_information(script_information):
+    def get_script_information(script_information, module_list = None):
         """
         extracts all the relevant information from script_information and returns it as individual variables
         Args:
@@ -961,14 +974,18 @@ class Script(QObject):
                 - a dictionary
                 - a Script instance
                 - name of Script class
-
-        Returns: module_path, script_class_name, script_settings, script_instruments, script_sub_scripts
+            module_list: list of modules that contain scripts
+        Returns: module, script_class_name, script_settings, script_instruments, script_sub_scripts
 
         """
         script_settings = None
         script_instruments = None
         script_sub_scripts = None
         script_class_name = None
+        # module = 'src.scripts' # this is were we look for scripts, however for scripts from external modules we look for them in module_list
+        module = None  # this is were we look for scripts, however for scripts from external modules we look for them in module_list
+
+
         if isinstance(script_information, dict):
             script_settings = script_information['settings']
             script_class_name = str(script_information['class'])
@@ -985,13 +1002,25 @@ class Script(QObject):
             script_class_name = script_information.__name__
 
 
-        # todo: check here if path exists and then find the correct path / e.g. when module is installed in b26_toolkit
-        if len(script_class_name.split('.')) == 1:
-            module_path = 'src.scripts'
-        else:
-            module_path = 'src.scripts.' + '.'.join(script_class_name.split('.')[0:-1])
-            script_class_name = script_information.split('.')[-1]
-        return module_path, script_class_name, script_settings, script_instruments, script_sub_scripts
+        # check if the requested script is in one of the modules
+        for mod in module_list:
+            if hasattr(mod, script_class_name):
+                module = mod
+                break
+        if module is None:
+            module = import_module('src.scripts')
+
+        # # todo: check here if path exists and then find the correct path / e.g. when module is installed in b26_toolkit
+        # if len(script_class_name.split('.')) == 1:
+        #     module = 'src.scripts'
+        # else:
+        #     module = 'src.scripts.' + '.'.join(script_class_name.split('.')[0:-1])
+        #     script_class_name = script_information.split('.')[-1]
+        #
+        #
+
+        print('====>XXXX', module, script_class_name)
+        return module, script_class_name, script_settings, script_instruments, script_sub_scripts
 
 
     def duplicate(self):
@@ -1130,17 +1159,6 @@ class Script(QObject):
 
 
 
-def module_exists(name):
-    """
-    checks if a module exists
-    Args:
-        name:
-
-    Returns: True (module exists) or False (module) doesn't exist
-
-    """
-
-
 if __name__ == '__main__':
     # from src.core import Script
     #
@@ -1150,10 +1168,7 @@ if __name__ == '__main__':
     # print(data.keys())
     # print(data['tau'])
 
+    from src.scripts import ScriptMinimalDummy
     import sys
-    import b26_toolkit.src.scripts as b26_scripts
-    for x in sys.modules:
+    for x in sys.path:
         print(x)
-
-    # b26_scripts.src.
-    # help('module_name')
