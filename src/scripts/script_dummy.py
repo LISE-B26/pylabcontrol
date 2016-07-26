@@ -1,16 +1,15 @@
-from src.core import Parameter, Script
-from PyQt4.QtCore import pyqtSlot, pyqtSignal
-from copy import deepcopy
-from matplotlib import patches
-from src.plotting.plots_2d import plot_fluorescence_new, update_fluorescence
-import random
-import os
-import psutil
-import numpy as np
 import Queue
-import datetime
+import os
+import random
+from copy import deepcopy
+
+import psutil
+
+from b26_toolkit.src.plotting import plot_fluorescence_new, update_fluorescence
+from src.core import Parameter, Script
+
 try:
-    from src.instruments import DummyInstrument
+    from b26_toolkit.src.instruments import DummyInstrument
 except:
     print('WARNING script_dummy')
 
@@ -348,8 +347,6 @@ class ScriptDummyWithNestedSubScript(Script):
         for this dummy example we just implement a counter
         """
 
-        import time
-
         script = self.scripts['sub_script']
 
         N = self.settings['repetitions']
@@ -408,7 +405,6 @@ class ScriptDummyPlotMemoryTest(Script):
         for this dummy example we just implement a counter
         """
         self._abort = False
-        import time
         memory = []
         timestep = self.settings['repetition rate (s)']
 

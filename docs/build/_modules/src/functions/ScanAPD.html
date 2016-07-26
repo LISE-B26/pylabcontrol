@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.functions.ScanAPD &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.functions.ScanAPD</h1><div class="highlight"><pre>
+<span class="c"># B26 Lab Code</span>
+<span class="c"># Last Update: 4/14/15</span>
+
+<span class="c"># External Connections: Galvo x axis on DAQ channel 0</span>
+<span class="c">#                       Galvo y axis on DAQ channel 1</span>
+<span class="c">#                       APD input to counter 0 (PFI8)</span>
+<span class="c">#                       No external connection to counter 1 out (PFI13)</span>
+
+
+<span class="c"># import external files</span>
+<span class="kn">import</span> <span class="nn">hardware_modules.GalvoMirrors</span> <span class="kn">as</span> <span class="nn">DaqOut</span>
+
+<span class="kn">from</span> <span class="nn">src.hardware_modules</span> <span class="kn">import</span> <span class="n">APD</span> <span class="k">as</span> <span class="n">APDIn</span>
+<span class="c"># import standard libraries</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span>
+<span class="kn">from</span> <span class="nn">PyQt4</span> <span class="kn">import</span> <span class="n">QtGui</span>
+
+
+<span class="c"># This class controls the galvo and APD to run an NV scan, and displays the</span>
+<span class="c"># image. The scan is performed line by line in the x direction.</span>
+<div class="viewcode-block" id="ScanNV"><a class="viewcode-back" href="../../../src/src.functions.ScanAPD.html#src.functions.ScanAPD.ScanNV">[docs]</a><span class="k">class</span> <span class="nc">ScanNV</span><span class="p">():</span>
+    <span class="c"># initializes values</span>
+    <span class="c"># xVmin: minimum x voltage for scan</span>
+    <span class="c"># xVmax: maximum x voltage for scan</span>
+    <span class="c"># xPts: number of x points to scan</span>
+    <span class="c"># yVmin: minimum y voltage for scan</span>
+    <span class="c"># yVmax: maximum y voltage for scan</span>
+    <span class="c"># yPts: number of y points to scan</span>
+    <span class="c"># timePerPt: time to stay at each scan point</span>
+    <span class="c"># canvas: send matplotlib.backends canvas from PyQt4 gui if being used, otherwise plots with pyplot</span>
+    <span class="c"># settleTime: galvo settling time, excluded from scan</span>
+    <span class="c"># dist_volt_conversion: conversion factor of number of microns per galvo volt</span>
+<div class="viewcode-block" id="ScanNV.__init__"><a class="viewcode-back" href="../../../src/src.functions.ScanAPD.html#src.functions.ScanAPD.ScanNV.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xVmin</span><span class="p">,</span> <span class="n">xVmax</span><span class="p">,</span> <span class="n">xPts</span><span class="p">,</span> <span class="n">yVmin</span><span class="p">,</span> <span class="n">yVmax</span><span class="p">,</span> <span class="n">yPts</span><span class="p">,</span> <span class="n">timePerPt</span><span class="p">,</span> <span class="n">canvas</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">settleTime</span> <span class="o">=</span> <span class="o">.</span><span class="mo">0002</span><span class="p">,</span> <span class="n">dist_volt_conversion</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="c"># evenly spaced arrays of x and y voltages</span>
+        <span class="k">assert</span><span class="p">((</span><span class="n">timePerPt</span><span class="o">/</span><span class="n">settleTime</span><span class="p">)</span><span class="o">.</span><span class="n">is_integer</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xVmin</span> <span class="o">=</span> <span class="n">xVmin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xVmax</span> <span class="o">=</span> <span class="n">xVmax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yVmin</span> <span class="o">=</span> <span class="n">yVmin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yVmax</span> <span class="o">=</span> <span class="n">yVmax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settleTime</span> <span class="o">=</span> <span class="n">settleTime</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timePerPt</span> <span class="o">=</span> <span class="n">timePerPt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clockAdjust</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">timePerPt</span><span class="o">+</span><span class="n">settleTime</span><span class="p">)</span><span class="o">/</span><span class="n">settleTime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xArray</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xVmin</span><span class="p">,</span> <span class="n">xVmax</span><span class="p">,</span> <span class="n">xPts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yArray</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">yVmin</span><span class="p">,</span> <span class="n">yVmax</span><span class="p">,</span> <span class="n">yPts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xArray</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xArray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clockAdjust</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imageData</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">yPts</span><span class="p">,</span><span class="n">xPts</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="p">(</span><span class="n">timePerPt</span><span class="o">+</span><span class="n">settleTime</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">clockAdjust</span>
+        <span class="c"># stores one line of x data at a time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xLineData</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xArray</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotting</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">canvas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cbar</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">dist_volt_conversion</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dvconv</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dvconv</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dist_volt_conversion</span><span class="p">)</span>
+
+    <span class="c"># runs scan</span></div>
+<div class="viewcode-block" id="ScanNV.scan"><a class="viewcode-back" href="../../../src/src.functions.ScanAPD.html#src.functions.ScanAPD.ScanNV.scan">[docs]</a>    <span class="k">def</span> <span class="nf">scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">queue</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="c"># scan one x line per loop</span>
+        <span class="k">for</span> <span class="n">yNum</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yArray</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="n">queue</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">queue</span><span class="o">.</span><span class="n">empty</span><span class="p">())</span> <span class="ow">and</span> <span class="p">(</span><span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;STOP&#39;</span><span class="p">)):</span>
+                <span class="k">break</span>
+            <span class="c"># initialize APD thread</span>
+            <span class="n">readthread</span> <span class="o">=</span> <span class="n">APDIn</span><span class="o">.</span><span class="n">ReadAPD</span><span class="p">(</span><span class="s">&quot;Dev1/ctr0&quot;</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
+                                       <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xArray</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initPt</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">xArray</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">yArray</span><span class="p">[</span><span class="n">yNum</span><span class="p">])))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initPt</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initPt</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="c"># move galvo to first point in line</span>
+            <span class="n">pointthread</span> <span class="o">=</span> <span class="n">DaqOut</span><span class="o">.</span><span class="n">DaqOutputWave</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initPt</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="s">&quot;Dev1/ao0:1&quot;</span><span class="p">)</span>
+            <span class="n">pointthread</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">pointthread</span><span class="o">.</span><span class="n">waitToFinish</span><span class="p">()</span>
+            <span class="n">pointthread</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="n">writethread</span> <span class="o">=</span> <span class="n">DaqOut</span><span class="o">.</span><span class="n">DaqOutputWave</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xArray</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
+                                               <span class="s">&quot;Dev1/ao0&quot;</span><span class="p">)</span>
+            <span class="c"># start counter and scanning sequence</span>
+            <span class="n">readthread</span><span class="o">.</span><span class="n">runCtr</span><span class="p">()</span>
+            <span class="n">writethread</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">writethread</span><span class="o">.</span><span class="n">waitToFinish</span><span class="p">()</span>
+            <span class="n">writethread</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xLineData</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">readthread</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">diffData</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xLineData</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">summedData</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xArray</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">clockAdjust</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">int</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xArray</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">clockAdjust</span><span class="p">))):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">summedData</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diffData</span><span class="p">[(</span><span class="n">i</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">clockAdjust</span><span class="o">+</span><span class="mi">1</span><span class="p">):(</span><span class="n">i</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">clockAdjust</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">clockAdjust</span><span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
+            <span class="c">#also normalizing to kcounts/sec</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">imageData</span><span class="p">[</span><span class="n">yNum</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">summedData</span><span class="o">*</span><span class="p">(</span><span class="o">.</span><span class="mo">001</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">timePerPt</span><span class="p">)</span>
+            <span class="c"># clean up APD tasks</span>
+            <span class="n">readthread</span><span class="o">.</span><span class="n">stopCtr</span><span class="p">()</span>
+            <span class="n">readthread</span><span class="o">.</span><span class="n">stopClk</span><span class="p">()</span>
+            <span class="k">if</span><span class="p">(</span><span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">==</span> <span class="bp">None</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dispImageGui</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageData</span>
+
+    <span class="c"># displays image to screen</span></div>
+<div class="viewcode-block" id="ScanNV.dispImage"><a class="viewcode-back" href="../../../src/src.functions.ScanAPD.html#src.functions.ScanAPD.ScanNV.dispImage">[docs]</a>    <span class="k">def</span> <span class="nf">dispImage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># remove interpolation to prevent blurring of image</span>
+        <span class="n">implot</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imageData</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s">&quot;nearest&quot;</span><span class="p">)</span>
+        <span class="n">implot</span><span class="o">.</span><span class="n">set_cmap</span><span class="p">(</span><span class="s">&#39;pink&#39;</span><span class="p">)</span>
+        <span class="n">matplotlib</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+        <span class="n">matplotlib</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="ScanNV.dispImageGui"><a class="viewcode-back" href="../../../src/src.functions.ScanAPD.html#src.functions.ScanAPD.ScanNV.dispImageGui">[docs]</a>    <span class="k">def</span> <span class="nf">dispImageGui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plotting</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dvconv</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">implot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imageData</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">&#39;pink&#39;</span><span class="p">,</span>
+                                                  <span class="n">interpolation</span><span class="o">=</span><span class="s">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xVmin</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">xVmax</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">yVmax</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">yVmin</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Vx&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Vy&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&#39;Confocal Image&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">implot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imageData</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">&#39;pink&#39;</span><span class="p">,</span>
+                  <span class="n">interpolation</span><span class="o">=</span><span class="s">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xVmin</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dvconv</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">xVmax</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dvconv</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">yVmax</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dvconv</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">yVmin</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dvconv</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Distance (um)&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Distance (um)&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&#39;Confocal Image&#39;</span><span class="p">)</span>
+            <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cbar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">implot</span><span class="p">,</span><span class="n">cax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">label</span> <span class="o">=</span> <span class="s">&#39;kcounts/sec&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cbar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">implot</span><span class="p">,</span><span class="n">label</span> <span class="o">=</span> <span class="s">&#39;kcounts/sec&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cbar</span><span class="o">.</span><span class="n">set_cmap</span><span class="p">(</span><span class="s">&#39;pink&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotting</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dvconv</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">implot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imageData</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">&#39;pink&#39;</span><span class="p">,</span>
+                                                  <span class="n">interpolation</span><span class="o">=</span><span class="s">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xVmin</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">xVmax</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">yVmax</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">yVmin</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Vx&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Vy&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&#39;Confocal Image&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">implot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imageData</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">&#39;pink&#39;</span><span class="p">,</span>
+                  <span class="n">interpolation</span><span class="o">=</span><span class="s">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xVmin</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dvconv</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">xVmax</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dvconv</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">yVmax</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dvconv</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">yVmin</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dvconv</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Distance (um)&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Distance (um)&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&#39;Confocal Image&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cbar</span><span class="o">.</span><span class="n">update_bruteforce</span><span class="p">(</span><span class="n">implot</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ScanNV.updateColorbar"><a class="viewcode-back" href="../../../src/src.functions.ScanAPD.html#src.functions.ScanAPD.ScanNV.updateColorbar">[docs]</a>    <span class="k">def</span> <span class="nf">updateColorbar</span><span class="p">(</span><span class="n">imageData</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">cmax</span><span class="p">):</span>
+        <span class="n">implot</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">imageData</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">&#39;pink&#39;</span><span class="p">,</span>
+                                          <span class="n">interpolation</span><span class="o">=</span><span class="s">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="n">extent</span><span class="p">)</span>
+        <span class="n">implot</span><span class="o">.</span><span class="n">set_clim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">cmax</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">canvas</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">implot</span><span class="p">,</span><span class="n">cax</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">label</span> <span class="o">=</span> <span class="s">&#39;kcounts/sec&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">implot</span><span class="p">,</span><span class="n">label</span> <span class="o">=</span> <span class="s">&#39;kcounts/sec&#39;</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_cmap</span><span class="p">(</span><span class="s">&#39;pink&#39;</span><span class="p">)</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+
+<span class="c"># Test code to run scan and display image</span>
+
+<span class="c">#newScan = ScanNV(-.4, .4, 120, -.4, .4, 120, .001)</span>
+<span class="c">#newScan.scan()</span>
+<span class="c">#newScan.dispImage()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

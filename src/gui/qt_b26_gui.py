@@ -20,11 +20,7 @@ import datetime
 from collections import deque
 
 
-#from src.scripts import KeysightGetSpectrum, KeysightSpectrumVsPower, GalvoScan, MWSpectraVsPower, AutoFocus, StanfordResearch_ESR, Find_Points, Select_NVs, ESR_Selected_NVs
-
-###AARON_PC REMOVE
-from src.scripts.Select_NVs import Select_NVs
-import src.scripts
+from src.scripts.select_points import SelectPoints
 from src.core import ScriptIterator
 
 from src.core.read_write_functions import load_b26_file
@@ -368,7 +364,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def plot_clicked(self, mouse_event):
         #COMMENT_ME
-        if isinstance(self.current_script, Select_NVs) and self.current_script.is_running:
+        if isinstance(self.current_script, SelectPoints) and self.current_script.is_running:
             if (not (mouse_event.xdata == None)):
                 if (mouse_event.button == 1):
                     pt = np.array([mouse_event.xdata, mouse_event.ydata])

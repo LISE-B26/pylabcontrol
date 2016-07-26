@@ -1,4 +1,5 @@
+/dragdroptesting.py
 /src/core/tmp.py
-/src/labview_fpga_lib/pid_loop_simple/pid_loop_simple.dll
+/b26_toolkit/src/instruments/labview_fpga_lib/pid_loop_simple/pid_loop_simple.dll
 .idea/workspace.xml
-/src/labview_fpga_lib/read_ai_ao/read_ai_ao.dll
+/b26_toolkit/src/instruments/labview_fpga_lib/read_ai_ao/read_ai_ao.dll

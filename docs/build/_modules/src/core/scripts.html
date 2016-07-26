@@ -1,0 +1,723 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.core.scripts &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.core.scripts</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">from</span> <span class="nn">PyQt4</span> <span class="kn">import</span> <span class="n">QtCore</span>
+
+<span class="kn">from</span> <span class="nn">src.core</span> <span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">Instrument</span>
+
+
+<div class="viewcode-block" id="Script_new"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script_new">[docs]</a><span class="k">class</span> <span class="nc">Script_new</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+
+    <span class="c"># ========================================================================================</span>
+    <span class="c"># ======= Following functions have to be customized for each instrument subclass =========</span>
+    <span class="c"># ========================================================================================</span>
+
+<div class="viewcode-block" id="Script_new.__init__"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script_new.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_function</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">settings</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        executes scripts and stores script parameters and settings</span>
+<span class="sd">        Args:</span>
+<span class="sd">            script_function (required): script that</span>
+<span class="sd">            name (optinal):  name of script, if not provided take name of function</span>
+<span class="sd">            settings (optinal): a Parameter object that contains all the information needed in the script</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">script_function</span><span class="p">,</span> <span class="s">&#39;__call__&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function</span> <span class="o">=</span> <span class="n">script_function</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">script_function</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="c"># set end time to be before start time if script hasn&#39;t been excecuted this tells us</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span> <span class="o">=</span> <span class="n">settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_abort</span> <span class="o">=</span> <span class="bp">False</span>
+
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_settings_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the default settings of the script</span>
+<span class="sd">        settings contain Parameters, Instruments and Scripts</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">settings_default</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">([</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;parameter&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;file_path&#39;</span><span class="p">,</span> <span class="s">&#39;./some/path&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;instrument&#39;</span><span class="p">,</span> <span class="n">Instrument</span><span class="p">())</span>
+        <span class="p">])</span>
+        <span class="k">return</span> <span class="n">settings_default</span>
+
+    <span class="k">def</span> <span class="nf">_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is the actual function that will be executed. It uses only information that is provided in the settings property</span>
+<span class="sd">        will be overwritten in the __init__</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># some generic function</span>
+        <span class="kn">import</span> <span class="nn">time</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;I am a test function counting to 3...&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+
+    <span class="c"># ========================================================================================</span>
+    <span class="c"># ======= Following functions are generic ================================================</span>
+    <span class="c"># ========================================================================================</span>
+
+<div class="viewcode-block" id="Script_new.__str__"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script_new.__str__">[docs]</a>    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+        <span class="c">#todo: finsish implementation</span>
+        <span class="c"># def parameter_to_string(parameter):</span>
+        <span class="c">#     # print(&#39;parameter&#39;, parameter)</span>
+        <span class="c">#     return_string = &#39;&#39;</span>
+        <span class="c">#     # if value is a list of parameters</span>
+        <span class="c">#     if isinstance(parameter.value, list) and isinstance(parameter.value[0],Parameter):</span>
+        <span class="c">#         return_string += &#39;{:s}\n&#39;.format(parameter.name)</span>
+        <span class="c">#         for element in parameter.value:</span>
+        <span class="c">#             return_string += parameter_to_string(element)</span>
+        <span class="c">#     elif isinstance(parameter, Parameter):</span>
+        <span class="c">#         return_string += &#39;\t{:s}:\t {:s}\n&#39;.format(parameter.name, str(parameter.value))</span>
+        <span class="c">#</span>
+        <span class="c">#     return return_string</span>
+        <span class="c">#</span>
+        <span class="n">output_string</span> <span class="o">=</span> <span class="s">&#39;{:s} (class type: {:s})</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s">&#39;settings:</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">output_string</span> <span class="o">+=</span> <span class="s">&quot;{:s} : {:s}</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">output_string</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+    <span class="nd">@name.setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :return: returns the settings of the script</span>
+<span class="sd">        settings contain Parameters, Instruments and Scripts</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span>
+
+<div class="viewcode-block" id="Script_new.update"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script_new.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings_new</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        updates the settings if they exist</span>
+<span class="sd">        :param settings_new:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">check_settings_list</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            check if settings is a list of settings or a dictionary</span>
+<span class="sd">            if it is a dictionary we create a settings list from it</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">settings_new</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="n">settings_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="c"># if list element is not a  parameter, instrument or script cast it into a parameter</span>
+                <span class="n">settings_new</span> <span class="o">=</span> <span class="p">[</span><span class="n">element</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="p">(</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">Instrument</span><span class="p">,</span> <span class="n">Script</span><span class="p">))</span> <span class="k">else</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;settings should be a valid list or dictionary!&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">settings_new</span>
+
+        <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="n">check_settings_list</span><span class="p">(</span><span class="n">settings_new</span><span class="p">):</span>
+            <span class="c"># get index of setting in default list</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_default</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="n">setting</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Error: Dublicate setting in default list&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">setting</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">end_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        time when script execution started</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_stop</span>
+    <span class="nd">@end_time.setter</span>
+    <span class="k">def</span> <span class="nf">end_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time_stop</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">start_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        time when script execution started</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_start</span>
+    <span class="nd">@start_time.setter</span>
+    <span class="k">def</span> <span class="nf">start_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time_start</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">excecution_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :return: script excecition time as time_delta object to get time in seconds use .total_seconds()</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span>
+
+<div class="viewcode-block" id="Script_new.run"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script_new.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        executes the script</span>
+<span class="sd">        :return: boolean if execution of script finished succesfully</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;starting script at {:s} on {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&#39;%H:%M:%S&#39;</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%d</span><span class="s">/%m/%y&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;script finished at {:s} on {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&#39;%H:%M:%S&#39;</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%d</span><span class="s">/%m/%y&#39;</span><span class="p">)))</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abort</span> <span class="o">==</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="n">success</span>
+
+
+        <span class="k">return</span> <span class="n">success</span>
+</div>
+<div class="viewcode-block" id="Script_new.stop"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script_new.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_abort</span> <span class="o">==</span> <span class="bp">True</span>
+</div></div>
+<div class="viewcode-block" id="Script"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script">[docs]</a><span class="k">class</span> <span class="nc">Script</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Script.__init__"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">settings</span> <span class="o">=</span> <span class="p">[]):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        generic script class</span>
+<span class="sd">        :param name: name of script</span>
+<span class="sd">        :param threading: if script is excecuted on thread, default is False</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="c"># set end time to be before start time if script hasn&#39;t been excecuted this tells us</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_end</span> <span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">time_start</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings_default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_abort</span> <span class="o">=</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="Script.__str__"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script.__str__">[docs]</a>    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+        <span class="c">#todo: finsish implementation</span>
+        <span class="c"># def parameter_to_string(parameter):</span>
+        <span class="c">#     # print(&#39;parameter&#39;, parameter)</span>
+        <span class="c">#     return_string = &#39;&#39;</span>
+        <span class="c">#     # if value is a list of parameters</span>
+        <span class="c">#     if isinstance(parameter.value, list) and isinstance(parameter.value[0],Parameter):</span>
+        <span class="c">#         return_string += &#39;{:s}\n&#39;.format(parameter.name)</span>
+        <span class="c">#         for element in parameter.value:</span>
+        <span class="c">#             return_string += parameter_to_string(element)</span>
+        <span class="c">#     elif isinstance(parameter, Parameter):</span>
+        <span class="c">#         return_string += &#39;\t{:s}:\t {:s}\n&#39;.format(parameter.name, str(parameter.value))</span>
+        <span class="c">#</span>
+        <span class="c">#     return return_string</span>
+        <span class="c">#</span>
+        <span class="n">output_string</span> <span class="o">=</span> <span class="s">&#39;{:s} (class type: {:s})</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s">&#39;settings:</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">:</span>
+            <span class="n">output_string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">element</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="k">return</span> <span class="n">output_string</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+    <span class="nd">@name.setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Name has to be a string&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">settings_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the default settings of the script</span>
+<span class="sd">        settings contain Parameters, Instruments and Scripts</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">settings_default</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">settings_default</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :return: returns the settings of the script</span>
+<span class="sd">        settings contain Parameters, Instruments and Scripts</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span>
+
+<div class="viewcode-block" id="Script.update_settings"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script.update_settings">[docs]</a>    <span class="k">def</span> <span class="nf">update_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings_new</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        updates the settings if they exist</span>
+<span class="sd">        :param settings_new:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">check_settings_list</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            check if settings is a list of settings or a dictionary</span>
+<span class="sd">            if it is a dictionary we create a settings list from it</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">settings_new</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="n">settings_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="c"># if list element is not a  parameter, instrument or script cast it into a parameter</span>
+                <span class="n">settings_new</span> <span class="o">=</span> <span class="p">[</span><span class="n">element</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="p">(</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">Instrument</span><span class="p">,</span> <span class="n">Script</span><span class="p">))</span> <span class="k">else</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;settings should be a valid list or dictionary!&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">settings_new</span>
+
+        <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="n">check_settings_list</span><span class="p">(</span><span class="n">settings_new</span><span class="p">):</span>
+            <span class="c"># get index of setting in default list</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_default</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="n">setting</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Error: Dublicate setting in default list&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">setting</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the configuration of the script as a dictionary</span>
+<span class="sd">        that contains {&#39;parameters&#39;: parameters, &#39;instrument_tests&#39;:instrument_tests, &#39;scripts&#39;: scripts}</span>
+<span class="sd">        :return: nested dictionary with entries name and value</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c"># build dictionary</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c"># todo: implement</span>
+        <span class="c"># for p in self._parameter_list:</span>
+        <span class="c">#     config.update(p.dict)</span>
+
+        <span class="k">return</span> <span class="n">config</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">time_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        time when script execution started</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_stop</span>
+    <span class="nd">@time_end.setter</span>
+    <span class="k">def</span> <span class="nf">time_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time_stop</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">time_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        time when script execution started</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_start</span>
+    <span class="nd">@time_start.setter</span>
+    <span class="k">def</span> <span class="nf">time_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time_start</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">excecution_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :return: script excecition time as time_delta object to get time in seconds use .total_seconds()</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>
+
+<div class="viewcode-block" id="Script.run"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        executes the script</span>
+<span class="sd">        :return: boolean if execution of script finished succesfully</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abort</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="c"># do something</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_end</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abort</span> <span class="o">==</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="n">success</span>
+
+
+        <span class="k">return</span> <span class="n">success</span>
+</div>
+<div class="viewcode-block" id="Script.stop"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_abort</span> <span class="o">==</span> <span class="bp">True</span>
+</div></div>
+<div class="viewcode-block" id="QtScript"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.QtScript">[docs]</a><span class="k">class</span> <span class="nc">QtScript</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QThread</span><span class="p">,</span> <span class="n">Script</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    This class starts a script on its own thread</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">updateProgress</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="c">#You can do any extra things in this init you need</span>
+<div class="viewcode-block" id="QtScript.__init__"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.QtScript.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">settings</span> <span class="o">=</span> <span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_recording</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QThread</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">Script</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QtScript.__del__"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.QtScript.__del__">[docs]</a>    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="c">#A QThread is run by calling it&#39;s start() function, which calls this run()</span>
+    <span class="c">#function in it&#39;s own &quot;thread&quot;.</span></div>
+<div class="viewcode-block" id="QtScript.run"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.QtScript.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">time</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+        <span class="c"># while self.is_running and self._abort == False:</span>
+            <span class="c"># do something</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateProgress</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c"># self.updateProgress.emit(random.random())</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_end</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abort</span> <span class="o">==</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="n">success</span>
+</div>
+<div class="viewcode-block" id="QtScript.stop"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.QtScript.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_abort</span> <span class="o">=</span> <span class="bp">False</span>
+
+
+<span class="c"># class QtScript_Dummy(QtScript):</span>
+<span class="c">#     #This is the signal that will be emitted during the processing.</span>
+<span class="c">#     #By including int as an argument, it lets the signal know to expect</span>
+<span class="c">#     #an integer argument when emitting.</span>
+<span class="c">#     updateProgress = QtCore.Signal(int)</span>
+<span class="c">#</span>
+<span class="c">#     def __init__(self, name, threading, settings):</span>
+<span class="c">#         super(QtScript_Dummy, self).__init__(name, settings)</span>
+<span class="c">#</span>
+<span class="c">#     @property</span>
+<span class="c">#     def settings_default(self):</span>
+<span class="c">#         &#39;&#39;&#39;</span>
+<span class="c">#         returns the default settings of the script</span>
+<span class="c">#         settings contain Parameters, Instruments and Scripts</span>
+<span class="c">#         :return:</span>
+<span class="c">#         &#39;&#39;&#39;</span>
+<span class="c">#         settings_default = [</span>
+<span class="c">#             Parameter(&#39;a&#39;, 0, [0,1]),</span>
+<span class="c">#             Parameter({&#39;b&#39;:0.1}),</span>
+<span class="c">#             Parameter({&#39;threading&#39;:True}),</span>
+<span class="c">#             Instrument_Dummy(&#39;dummy inst&#39;)</span>
+<span class="c">#         ]</span>
+<span class="c">#         return settings_default</span>
+<span class="c">#     @property</span>
+<span class="c">#     def a(self):</span>
+<span class="c">#         return [element for element in self.settings if element.name == &#39;a&#39;][0]</span>
+<span class="c">#</span>
+<span class="c">#     #A QThread is run by calling it&#39;s start() function, which calls this run()</span>
+<span class="c">#     #function in it&#39;s own &quot;thread&quot;.</span>
+<span class="c">#     def run(self):</span>
+<span class="c">#         import time</span>
+<span class="c">#         import random</span>
+<span class="c">#</span>
+<span class="c">#         self.is_running = True</span>
+<span class="c">#         self.time_start  = datetime.datetime.now()</span>
+<span class="c">#         while self.is_running and self._abort == False:</span>
+<span class="c">#             signal = random.random()</span>
+<span class="c">#             # do something</span>
+<span class="c">#             self.updateProgress.emit()</span>
+<span class="c">#             print(&#39;a&#39;, signal)</span>
+<span class="c">#             time.sleep(0.2)</span>
+<span class="c">#</span>
+<span class="c">#         self.time_end  = datetime.datetime.now()</span>
+<span class="c">#</span>
+<span class="c">#         success = self._abort == False</span>
+<span class="c">#         return success</span>
+</div></div>
+<div class="viewcode-block" id="QtScript_Dummy"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.QtScript_Dummy">[docs]</a><span class="k">class</span> <span class="nc">QtScript_Dummy</span><span class="p">(</span><span class="n">QtScript</span><span class="p">):</span>
+<div class="viewcode-block" id="QtScript_Dummy.__init__"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.QtScript_Dummy.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">settings</span> <span class="o">=</span> <span class="p">[]):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">QtScript_Dummy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">settings_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the default settings of the script</span>
+<span class="sd">        settings contain Parameters, Instruments and Scripts</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">settings_default</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;txt&#39;</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;b&#39;</span><span class="p">]),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;param&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span> <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])]),</span>
+            <span class="n">Parameter</span><span class="p">({</span><span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">}),</span>
+            <span class="n">Parameter</span><span class="p">({</span><span class="s">&#39;b&#39;</span><span class="p">:</span><span class="bp">True</span><span class="p">}),</span>
+            <span class="n">Instrument_Dummy</span><span class="p">(</span><span class="s">&#39;dummy inst&#39;</span><span class="p">),</span>
+            <span class="n">Sub_Script_Dummy</span><span class="p">(</span><span class="s">&#39;sub_script&#39;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">settings_default</span>
+<div class="viewcode-block" id="QtScript_Dummy.run"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.QtScript_Dummy.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        executes the script</span>
+<span class="sd">        :return: boolean if execution of script finished succesfully</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">import</span> <span class="nn">time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;this is script {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;counting&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_end</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;run subscript&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">Script</span><span class="p">)</span> <span class="ow">and</span> <span class="n">element</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;sub_script&#39;</span><span class="p">:</span>
+                <span class="n">element</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abort</span> <span class="o">==</span> <span class="bp">False</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;total execution time: {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">excecution_time</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">return</span> <span class="n">success</span>
+</div></div>
+<div class="viewcode-block" id="Script_Dummy"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script_Dummy">[docs]</a><span class="k">class</span> <span class="nc">Script_Dummy</span><span class="p">(</span><span class="n">Script</span><span class="p">):</span>
+<div class="viewcode-block" id="Script_Dummy.__init__"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script_Dummy.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">settings</span> <span class="o">=</span> <span class="p">[]):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Script_Dummy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">settings_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the default settings of the script</span>
+<span class="sd">        settings contain Parameters, Instruments and Scripts</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">settings_default</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;txt&#39;</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;b&#39;</span><span class="p">]),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;param&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span> <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])]),</span>
+            <span class="n">Parameter</span><span class="p">({</span><span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">}),</span>
+            <span class="n">Parameter</span><span class="p">({</span><span class="s">&#39;b&#39;</span><span class="p">:</span><span class="bp">True</span><span class="p">}),</span>
+            <span class="c"># Instrument_Dummy(&#39;dummy inst&#39;),</span>
+            <span class="n">Sub_Script_Dummy</span><span class="p">(</span><span class="s">&#39;sub_script&#39;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">settings_default</span>
+<div class="viewcode-block" id="Script_Dummy.run"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Script_Dummy.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        executes the script</span>
+<span class="sd">        :return: boolean if execution of script finished succesfully</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">import</span> <span class="nn">time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;this is script {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;counting&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_end</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;run subscript&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">Script</span><span class="p">)</span> <span class="ow">and</span> <span class="n">element</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;sub_script&#39;</span><span class="p">:</span>
+                <span class="n">element</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abort</span> <span class="o">==</span> <span class="bp">False</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;total execution time: {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">excecution_time</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">return</span> <span class="n">success</span>
+</div></div>
+<div class="viewcode-block" id="Sub_Script_Dummy"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Sub_Script_Dummy">[docs]</a><span class="k">class</span> <span class="nc">Sub_Script_Dummy</span><span class="p">(</span><span class="n">Script</span><span class="p">):</span>
+<div class="viewcode-block" id="Sub_Script_Dummy.__init__"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Sub_Script_Dummy.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">settings</span> <span class="o">=</span> <span class="p">[]):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Sub_Script_Dummy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">settings_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the default settings of the script</span>
+<span class="sd">        settings contain Parameters, Instruments and Scripts</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">settings_default</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;txt&#39;</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;b&#39;</span><span class="p">]),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;param&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span> <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])]),</span>
+            <span class="n">Parameter</span><span class="p">({</span><span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">}),</span>
+            <span class="n">Parameter</span><span class="p">({</span><span class="s">&#39;b&#39;</span><span class="p">:</span><span class="bp">True</span><span class="p">}),</span>
+            <span class="n">Instrument_Dummy</span><span class="p">(</span><span class="s">&#39;dummy inst&#39;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">settings_default</span>
+<div class="viewcode-block" id="Sub_Script_Dummy.run"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.Sub_Script_Dummy.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        executes the script</span>
+<span class="sd">        :return: boolean if execution of script finished succesfully</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;this is script {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;my settings are:&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">setting</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_end</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abort</span> <span class="o">==</span> <span class="bp">False</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;total execution time: {:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">excecution_time</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">return</span> <span class="n">success</span></div></div>
+<div class="viewcode-block" id="ZI_Sweeper"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.ZI_Sweeper">[docs]</a><span class="k">class</span> <span class="nc">ZI_Sweeper</span><span class="p">(</span><span class="n">QtScript</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ZI_Sweeper.__init__"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.ZI_Sweeper.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zihf2</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">parameter_list</span> <span class="o">=</span> <span class="p">[]):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">        :param zihf2: ZIHF2 instrument object</span>
+<span class="sd">        :param name:</span>
+<span class="sd">        :param parameter_list:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zihf2</span> <span class="o">=</span> <span class="n">zihf2</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">ZI_Sweeper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters_default</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        returns the default parameter_list of the instrument</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">parameter_list_default</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;start&#39;</span><span class="p">,</span> <span class="mf">1.8e6</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s">&#39;start value of sweep&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;stop&#39;</span><span class="p">,</span> <span class="mf">1.9e6</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s">&#39;end value of sweep&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;samplecount&#39;</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&#39;number of data points&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;gridnode&#39;</span><span class="p">,</span> <span class="s">&#39;oscs/0/freq&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;oscs/0/freq&#39;</span><span class="p">,</span> <span class="s">&#39;oscs/1/freq&#39;</span><span class="p">],</span> <span class="s">&#39;start value of sweep&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;xmapping&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s">&#39;mapping 0 = linear, 1 = logarithmic&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;bandwidthcontrol&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s">&#39;2 = automatic bandwidth control&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;scan&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s">&#39;scan direction 0 = sequential, 1 = binary (non-sequential, each point once), 2 = bidirecctional (forward then reverse)&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;loopcount&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&#39;number of times it sweeps&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;averaging/sample&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&#39;number of samples to average over&#39;</span><span class="p">)</span>
+
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">parameter_list_default</span>
+
+</div>
+<div class="viewcode-block" id="testing"><a class="viewcode-back" href="../../../src/src.core.scripts.html#src.core.testing">[docs]</a><span class="k">def</span> <span class="nf">testing</span><span class="p">():</span>
+    <span class="n">script</span> <span class="o">=</span> <span class="n">Script_Dummy</span><span class="p">(</span><span class="s">&#39;test script&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mf">1.2</span><span class="p">})</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">script</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>
+
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="k">pass</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

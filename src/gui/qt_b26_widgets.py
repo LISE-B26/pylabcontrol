@@ -5,8 +5,9 @@
 #     sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
 # except ValueError:
 #     pass
-    
+
 from PyQt4 import QtCore, QtGui
+
 from src.core import Parameter, Instrument, Script
 
 
@@ -414,7 +415,7 @@ if __name__ == '__main__':
 
     print('- ---------- NEW -----------------')
     # new
-    from src.instruments import MaestroLightControl
+    from b26_toolkit.src.instruments import MaestroLightControl
 
     instruments = {'MaestroLightControl':MaestroLightControl()}
 

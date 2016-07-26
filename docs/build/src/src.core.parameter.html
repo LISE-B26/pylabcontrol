@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.core.parameter module &mdash; PythonLab 2.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
+    <link rel="up" title="src.core package" href="src.core.html" />
+    <link rel="next" title="src.core.scripts module" href="src.core.scripts.html" />
+    <link rel="prev" title="src.core.instruments module" href="src.core.instruments.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.core.scripts.html" title="src.core.scripts module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="src.core.instruments.html" title="src.core.instruments module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.core.html" accesskey="U">src.core package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-src.core.parameter">
+<span id="src-core-parameter-module"></span><h1>src.core.parameter module<a class="headerlink" href="#module-src.core.parameter" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="src.core.parameter.Parameter">
+<em class="property">class </em><code class="descclassname">src.core.parameter.</code><code class="descname">Parameter</code><span class="sig-paren">(</span><em>name</em>, <em>value=None</em>, <em>valid_values=None</em>, <em>info=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/parameter.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.parameter.Parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code></p>
+<dl class="attribute">
+<dt id="src.core.parameter.Parameter.__dict__">
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'info': &lt;property object at 0x00000000045DF138&gt;, '__dict__': &lt;attribute '__dict__' of 'Parameter' objects&gt;, '__module__': 'src.core.parameter', 'is_valid': &lt;staticmethod object at 0x0000000004690198&gt;, 'valid_values': &lt;property object at 0x00000000045DF048&gt;, '__setitem__': &lt;function __setitem__ at 0x000000000466E0B8&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Parameter' objects&gt;, 'update': &lt;function update at 0x000000000466E128&gt;, '__init__': &lt;function __init__ at 0x00000000043534A8&gt;, '__doc__': None})</em><a class="headerlink" href="#src.core.parameter.Parameter.__dict__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.parameter.Parameter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>value=None</em>, <em>valid_values=None</em>, <em>info=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/parameter.html#Parameter.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.parameter.Parameter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameter(name, value, valid_values, info)
+Parameter(name, value, valid_values)
+Parameter(name, value)
+Parameter({name: value})</p>
+<p>Future updates:
+Parameter({name1: value1, name2: value2})
+Parameter([p1, p2]), where p1 and p2 are parameter objects</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; name of parameter</li>
+<li><strong>value</strong> &#8211; value of parameter can be any basic type or a list</li>
+<li><strong>valid_values</strong> &#8211; defines which values are accepted for value can be a type or a list if not provided =&gt; type(value)</li>
+<li><strong>info</strong> &#8211; description of parameter, if not provided =&gt; empty string</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.parameter.Parameter.__module__">
+<code class="descname">__module__</code><em class="property"> = 'src.core.parameter'</em><a class="headerlink" href="#src.core.parameter.Parameter.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.parameter.Parameter.__setitem__">
+<code class="descname">__setitem__</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/parameter.html#Parameter.__setitem__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.parameter.Parameter.__setitem__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.parameter.Parameter.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#src.core.parameter.Parameter.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.parameter.Parameter.info">
+<code class="descname">info</code><a class="headerlink" href="#src.core.parameter.Parameter.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.core.parameter.Parameter.is_valid">
+<em class="property">static </em><code class="descname">is_valid</code><span class="sig-paren">(</span><em>value</em>, <em>valid_values</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/parameter.html#Parameter.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.parameter.Parameter.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.parameter.Parameter.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/parameter.html#Parameter.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.parameter.Parameter.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.parameter.Parameter.valid_values">
+<code class="descname">valid_values</code><a class="headerlink" href="#src.core.parameter.Parameter.valid_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="src.core.instruments.html"
+                        title="previous chapter">src.core.instruments module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="src.core.scripts.html"
+                        title="next chapter">src.core.scripts module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/src/src.core.parameter.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="src.core.scripts.html" title="src.core.scripts module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="src.core.instruments.html" title="src.core.instruments module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="src.core.html" >src.core package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

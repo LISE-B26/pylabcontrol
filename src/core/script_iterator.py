@@ -367,14 +367,14 @@ Script.
                 # for point iteration we add some default scripts
                 if iterator_type == ScriptIterator.TYPE_ITER_NVS:
                     sub_scripts.update(
-                        {'select_nvs': eval('src.scripts.Select_NVs'), 'find_nv': eval('src.scripts.FindMaxCounts2D')}
+                        {'select_nvs': eval('src.scripts.SelectPoints'), 'find_nv': eval('src.scripts.FindMaxCounts2D')}
                     )
                     script_settings['script_order'].update(
                         {'select_nvs': -2, 'find_nv': -1}
                     )
                 elif iterator_type == ScriptIterator.TYPE_ITER_POINTS:
                     sub_scripts.update(
-                        {'select_nvs': eval('src.scripts.Select_NVs'), 'set_laser': eval('src.scripts.SetLaser')}
+                        {'select_nvs': eval('src.scripts.SelectPoints'), 'set_laser': eval('src.scripts.SetLaser')}
                     )
                     script_settings['script_order'].update(
                         {'select_nvs': -2, 'set_laser': -1}

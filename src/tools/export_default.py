@@ -1,6 +1,3 @@
-import warnings
-
-
 def export_default_probes(path):
     """
     NOT IMPLEMENTED YET
@@ -9,7 +6,7 @@ def export_default_probes(path):
     Args:
         path: target path for .b26 files
     """
-    import src.instruments as instruments
+    import b26_toolkit.src.instruments as instruments
     from src.core import Probe
     import inspect
     import os
@@ -35,7 +32,7 @@ def export_default_instruments(path):
     Args:
         path: target path for .b26 files
     """
-    import src.instruments as instruments
+    import b26_toolkit.src.instruments as instruments
     import inspect
 
     for name, obj in inspect.getmembers(instruments):
