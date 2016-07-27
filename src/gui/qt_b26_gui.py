@@ -162,9 +162,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_settings.itemExpanded.connect(lambda: self.refresh_instruments())
 
             # plots
-            self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_1_clicked)
-            self.matplotlibwidget_2.mpl_connect('button_press_event',  self.plot_2_clicked)
-
+            # self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_clicked)
 
             # set the log_filename when checking loggin
             self.chk_probe_log.toggled.connect(lambda: self.set_probe_file_name(self.chk_probe_log.isChecked()))
@@ -243,7 +241,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.chk_show_all.setChecked(True)
 
     def closeEvent(self, event):
-        #COMMENT_ME
+        """
+        things to be done when gui closes, like save the settings
+        """
 
         self.script_thread.quit()
         self.read_probes.quit()
@@ -305,7 +305,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     def set_probe_file_name(self, checked):
-        #COMMENT_ME
+        """
+        sets the filename to which the probe logging function will write
+        Args:
+            checked: boolean (True: opens file) (False: closes file)
+        """
         if checked:
             file_name = os.path.join(self.gui_settings['probes_log_folder'], '{:s}_probes.csv'.format(datetime.datetime.now().strftime('%y%m%d-%H_%M_%S')))
             if os.path.isfile(file_name) == False:
@@ -319,7 +323,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
     def switch_tab(self):
-        #COMMENT_ME
+        """
+        takes care of the action that happen when switching between tabs
+        e.g. activates and deactives probes
+        """
         current_tab = str(self.tabWidget.tabText(self.tabWidget.currentIndex()))
         if self.current_script is None:
             if current_tab == 'Probes':
@@ -359,18 +366,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             instrument = self.tree_settings.topLevelItem(index)
             update(instrument)
 
-    def plot_1_clicked(self, mouse_event):
-        #COMMENT_ME
-        key_press_handler(mouse_event, self.matplotlibwidget_1.canvas, self.matplotlibwidget_1)
-        self.plot_clicked(mouse_event)
-
-    def plot_2_clicked(self, mouse_event):
-        #COMMENT_ME
-        key_press_handler(mouse_event, self.matplotlibwidget_1.canvas, self.matplotlibwidget_1)
-        self.plot_clicked(mouse_event)
-
     def plot_clicked(self, mouse_event):
-        #COMMENT_ME
+        """
+        gets activated when the user clicks on a plot
+        Args:
+            mouse_event:
+        """
         if isinstance(self.current_script, SelectPoints) and self.current_script.is_running:
             if (not (mouse_event.xdata == None)):
                 if (mouse_event.button == 1):
@@ -408,10 +409,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                                 item.setData(1, 2, float(mouse_event.ydata))
 
     def get_time(self):
-        #COMMENT_ME
+        """
+        Returns: the current time as a formated string
+        """
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
     def log(self, msg):
-        #COMMENT_ME
+        """
+        log function
+        Args:
+            msg: the text message to be logged
+        """
 
         time = self.get_time()
 
@@ -458,8 +465,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.matplotlibwidget_1.setMinimumSize(QtCore.QSize(200, 200))
         self.matplotlibwidget_1.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget_1"))
         self.horizontalLayout_15.addWidget(self.matplotlibwidget_1)
-        self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_1_clicked)
-        self.matplotlibwidget_2.mpl_connect('button_press_event', self.plot_2_clicked)
+
+        self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_clicked)
+        self.matplotlibwidget_2.mpl_connect('button_press_event', self.plot_clicked)
 
         # adds a toolbar to the plots
         self.mpl_toolbar_1 = NavigationToolbar(self.matplotlibwidget_1.canvas, self.toolbar_space_1)
@@ -473,19 +481,17 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # self.matplotlibwidget_1.figure.tight_layout()
         # self.matplotlibwidget_2.figure.tight_layout()
-
     def btn_clicked(self):
-        #COMMENT_ME
+        """
+        slot to which connect buttons
+        """
         sender = self.sender()
         self.probe_to_plot = None
 
-        # the following function takes the current figures and makes a new widget in place of them.
-        # This work-around is necessary because figures have a nasty 'feature' of remembering axes
-        # characteristics of previous plots, and this is the only way I (Arthur) could figure out how to do it.
-
-
         def start_button():
-            # COMMENT_ME
+            """
+            starts the selected script
+            """
 
             item = self.tree_scripts.currentItem()
             self.script_start_time = datetime.datetime.now()
@@ -535,7 +541,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.log('User stupidly tried to run a script without one selected.')
         def stop_button():
-            # COMMENT_ME
+            """
+            stops the current script
+            """
             if self.current_script is not None and self.current_script.is_running:
                 self.current_script.stop()
             else:
@@ -543,13 +551,18 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_start_script.setEnabled(True)
 
         def skip_button():
+            """
+            Skips to the next script if the current script is a Iterator script
+            """
             if self.current_script is not None and self.current_script.is_running and isinstance(self.current_script,
                                                                                                  ScriptIterator):
                 self.current_script.skip_next()
             else:
                 self.log('User clicked skip, but there isn\'t a iterator script running...this is awkward.')
         def validate_button():
-            # COMMENT_ME
+            """
+            validates the selected script
+            """
             item = self.tree_scripts.currentItem()
 
             if item is not None:
@@ -560,19 +573,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.matplotlibwidget_1.draw()
                 self.matplotlibwidget_2.draw()
         def store_script_data():
-            # COMMENT_ME
             """
-            send selected script to dataset tab
-            Returns:
-
+            updates the internal self.data_sets with selected script and updates tree self.fill_dataset_tree
             """
             item = self.tree_scripts.currentItem()
             if item is not None:
                 script, path_to_script, _ = item.get_script()
-                # self.data_sets.append({}
-                #     'data' : script.data,
-                # })
-
                 script_copy = script.duplicate()
                 time_tag = script.start_time.strftime('%y%m%d-%H_%M_%S')
 
@@ -580,7 +586,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 self.fill_dataset_tree(self.tree_dataset, self.data_sets)
         def save_data():
-            # COMMENT_ME
+            """"
+            saves the selected script (where is contained in the script itself)
+            """
             indecies = self.tree_dataset.selectedIndexes()
             model = indecies[0].model()
             rows = list(set([index.row()for index in indecies]))
@@ -804,7 +812,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.tree_scripts.setColumnWidth(1, 400)
         self.tree_scripts.setColumnWidth(2, 50)
     def update_parameters(self, treeWidget):
-        #COMMENT_ME
+        """
+        updates the internal dictionaries for scripts and instruments with values from the respective trees
+
+        treeWidget: the tree from which to update
+
+        """
 
         if treeWidget == self.tree_settings:
 
@@ -861,7 +874,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Calls the plot function of the script, and redraws both plots
         Args:
             script: script to be plotted
-
         """
 
         script.plot([self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure])
@@ -929,7 +941,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSlot()
     def script_finished(self):
-        #COMMENT_ME
+        """
+        waits for the script to emit the script_finshed signal
+        """
         script = self.current_script
         script.updateProgress.disconnect(self.update_status)
         self.script_thread.started.disconnect()
@@ -940,7 +954,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.plot_script(script)
         self.progressBar.setValue(100)
         self.btn_start_script.setEnabled(True)
-        # self.tabWidget.setEnabled(True)
         self.btn_skip_subscript.setEnabled(False)
 
     def plot_script_validate(self, script):
@@ -1083,7 +1096,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 tree.model().appendRow([item, item_value])
 
     def edit_tree_item(self):
-        #COMMENT_ME
+        """
+        if sender is self.tree_gui_settings this will open a filedialog and ask for a filepath
+        this filepath will be updated in the field of self.tree_gui_settings that has been double clicked
+        """
 
         def open_path_dialog(path):
             """
@@ -1130,7 +1146,15 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.fill_treeview(tree, items)
 
     def fill_dataset_tree(self, tree, data_sets):
-        #COMMENT_ME
+        """
+        fills the tree with data sets where datasets is a dictionary of the form
+        Args:
+            tree:
+            data_sets: a dataset
+
+        Returns:
+
+        """
 
         tree.model().removeRows(0, tree.model().rowCount())
         for index, (time, script) in enumerate(data_sets.iteritems()):
@@ -1183,22 +1207,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 instruments_loaded, failed = Instrument.load_and_append(instruments)
                 if len(failed) > 0:
                     print('WARNING! Following instruments could not be loaded: ', failed)
-
-                # special case for ScriptIterator scripts
-                # for script in scripts.keys():
-                #     if scripts[script]['class'] == 'ScriptIterator':
-                #         factory_scripts = {}
-                #         for sub_script in scripts[script]['scripts']:
-                #             if scripts[script]['scripts'][sub_script]['class'] == 'ScriptIterator':
-                #                 factory_scripts.update({sub_script: eval('PyLabControl.src.core.ScriptIterator')})
-                #             else:
-                #                 factory_scripts.update({sub_script: eval('src.scripts.' + scripts[script]['scripts'][sub_script]['class'])})
-                #         #distinguish between looping and param_sweep modes
-                #         script_parameter_list = []
-                #         for sub_script in scripts[script]['settings']['script_order'].keys():
-                #             script_parameter_list.append(Parameter(sub_script, scripts[script]['settings']['script_order'][sub_script], int, 'Order in queue for this script'))
-                #         class_name = Script.set_up_script(factory_scripts, script_parameter_list,'sweep_param' in scripts[script]['settings'])
-                #         scripts[script]['class'] = class_name
 
                 scripts_loaded, failed, instruments_loaded = Script.load_and_append(
                     script_dict=scripts,
@@ -1264,8 +1272,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         hide the parameters that had been hidden
         Args:
             file_name: config file that has the information about which parameters are hidden
-
-        Returns:
 
         """
         try:
@@ -1403,7 +1409,6 @@ class MatplotlibWidget(Canvas):
     self.wdiget.axes.plot(x, x**3)
     """
     def __init__(self, parent=None):
-        #COMMENT_ME
         self.figure = Figure(dpi=100)
         Canvas.__init__(self, self.figure)
         self.axes = self.figure.add_subplot(111)
@@ -1415,14 +1420,15 @@ class MatplotlibWidget(Canvas):
         Canvas.updateGeometry(self)
 
     def sizeHint(self):
-        #COMMENT_ME
+        """
+        gives qt a starting point for widget size during window resizing
+        """
         w, h = self.get_width_height()
         return QtCore.QSize(w, h)
 
     def minimumSizeHint(self):
-        #COMMENT_ME
+        """
+        minimum widget size during window resizing
+        Returns: QSize object that specifies the size of widget
+        """
         return QtCore.QSize(10, 10)
-
-    # def closeEvent(self, event):
-    #     gc.collect()
-    #     event.accept()
