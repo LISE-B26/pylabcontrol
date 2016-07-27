@@ -2,6 +2,3 @@ include README.rst
 include src/gui/basic_application_window.ui
 include src/gui/load_dialog.ui
 include src/gui/pyqt_uic.bat
-include src/insruments/dll_config.txt
-include src/labview_fpga_lib/makedll.bat
-include src/labview_fpga_lib/README.md
