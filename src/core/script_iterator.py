@@ -63,9 +63,9 @@ Script.
             # asign the correct iterator script type
             if 'sweep_param' in script_settings:
                 iterator_type = ScriptIterator.TYPE_SWEEP_PARAMETER
-            elif 'find_nv' in subscripts and 'select_nvs' in subscripts:
+            elif 'find_nv' in subscripts and 'select_points' in subscripts:
                 iterator_type = ScriptIterator.TYPE_ITER_NVS
-            elif 'select_nvs' in subscripts:
+            elif 'set_laser' in subscripts and 'select_points' in subscripts:
                 iterator_type = ScriptIterator.TYPE_ITER_POINTS
             elif 'N' in script_settings:
                 iterator_type = ScriptIterator.TYPE_LOOP
@@ -134,7 +134,7 @@ Script.
             elif self.iterator_type == self.TYPE_ITER_POINTS:
                 set_point = self.scripts['set_laser'].settings['point']
 
-            points = self.scripts['select_nvs'].data['nv_locations']
+            points = self.scripts['select_points'].data['nv_locations']
 
             for pt in points:
                 set_point.update({'x': pt[0], 'y': pt[1]})
@@ -174,9 +174,10 @@ Script.
             else:
                 number_of_iterations = sweep_range['N/value_step']
         elif self.iterator_type == self.TYPE_ITER_NVS:
-            # todo: implement this for iteration over points,should be something like the following:
-            number_of_iterations = len(self.scripts['select_nvs'].data['nv_locations'])
-            number_of_iterations = 1
+            number_of_iterations = len(self.scripts['select_points'].data['nv_locations'])
+            number_of_subscripts -= 1  # substract 2 because we don't iterate over select nv
+        elif self.iterator_type == self.TYPE_ITER_POINTS:
+            number_of_iterations = len(self.scripts['select_points'].data['nv_locations'])
             number_of_subscripts -= 1  # substract 2 because we don't iterate over select nv
         else:
             raise TypeError('unknown iterator type')
@@ -310,8 +311,6 @@ Script.
                 Returns: A list of all parameters of the input scripts
 
                 '''
-                print('SCRIPTS', scripts)
-                print('PL', parameter_list)
 
                 def get_parameter_from_dict(trace, dic, parameter_list):
                     """
@@ -372,32 +371,27 @@ Script.
 
                     module, _, _, _, _ = Script.get_script_information('SelectPoints', module_list)
                     sub_scripts.update(
-                        {'select_nvs': getattr(module, 'SelectPoints')}
+                        {'select_points': getattr(module, 'SelectPoints')}
                     )
                     module, _, _, _, _ = Script.get_script_information('FindMaxCounts2D', module_list)
                     sub_scripts.update(
                         {'find_nv': getattr(module, 'FindMaxCounts2D')}
                     )
-                    # sub_scripts.update(
-                    #     {'select_nvs': eval('src.scripts.SelectPoints'), 'find_nv': eval('src.scripts.FindMaxCounts2D')}
-                    # )
                     script_settings['script_order'].update(
-                        {'select_nvs': -2, 'find_nv': -1}
+                        {'select_points': -2, 'find_nv': -1}
                     )
                 elif iterator_type == ScriptIterator.TYPE_ITER_POINTS:
                     module, _, _, _, _ = Script.get_script_information('SelectPoints', module_list)
                     sub_scripts.update(
-                        {'select_point': getattr(module, 'SelectPoints')}
+                        {'select_points': getattr(module, 'SelectPoints')}
                     )
                     module, _, _, _, _ = Script.get_script_information('SetLaser', module_list)
                     sub_scripts.update(
                         {'set_laser': getattr(module, 'SetLaser')}
                     )
-                    # sub_scripts.update(
-                    #     {'select_nvs': eval('src.scripts.SelectPoints'), 'set_laser': eval('src.scripts.SetLaser')}
-                    # )
+
                     script_settings['script_order'].update(
-                        {'select_nvs': -2, 'set_laser': -1}
+                        {'select_points': -2, 'set_laser': -1}
                     )
             elif isinstance(script_information, Script):
                 # if the script already exists, just update the script order parameter
