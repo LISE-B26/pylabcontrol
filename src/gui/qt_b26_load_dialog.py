@@ -153,6 +153,8 @@ Returns:
             self.fill_tree(self.tree_infile, elements_from_file)
             # append new elements to internal dictionary
             self.elements_from_file.update(elements_from_file)
+
+
     def load_elements(self, filename):
         """
         loads the elements from file filename
@@ -214,6 +216,9 @@ Returns:
                 elements_selected.update({element_name: self.elements_old[element_name]})
             elif element_name in self.elements_from_file:
                 elements_selected.update({element_name: self.elements_from_file[element_name]})
+
+
+        print('ssss', elements_selected)
 
         return elements_selected
 

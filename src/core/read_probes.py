@@ -28,9 +28,10 @@ class ReadProbes(QThread):
 
 
     def run(self):
-        #COMMENT_ME
+        """
+        this is the actual execution of the ReadProbes thread: continuously read values from the probes
+        """
         if self.probes is None:
-            # print('no probes, stop thread')
             self._stop = True
         while True:
 
@@ -42,20 +43,23 @@ class ReadProbes(QThread):
                     {probe_name: probe_instance.value for probe_name, probe_instance in probe.iteritems()}
                 for instrument_name, probe in self.probes.iteritems()
                 }
-            # print('still running self.probes_values', self.probes_values)
 
             self.updateProgress.emit(1)
 
             self.msleep(int(1e3*self.refresh_interval))
 
     def start(self, *args, **kwargs):
-        #COMMENT_ME
+        """
+        start the read_probe thread
+        """
         self._stop = False
         super(ReadProbes, self).start(*args, **kwargs)
 
 
     def quit(self, *args, **kwargs):  # real signature unknown
-        #COMMENT_ME
+        """
+        quit the  read_probe thread
+        """
         self._stop = True
         super(ReadProbes, self).quit(*args, **kwargs)
 

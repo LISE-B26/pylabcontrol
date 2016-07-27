@@ -494,6 +494,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if item is not None:
                 # get script and update settings from tree
                 script, path_to_script, script_item = item.get_script()
+
+                print('update11!!', script_item, script)
                 self.update_script_from_item(script_item)
 
                 self.log('starting {:s}'.format(script.name))
@@ -995,6 +997,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # build dictionary
         # get full information from script
         dictator = script_item.to_dict().values()[0]  # there is only one item in the dictionary
+
         for instrument in script.instruments.keys():
             # update instrument
             script.instruments[instrument]['settings'] = dictator[instrument]['settings']
@@ -1010,6 +1013,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         script.update(dictator)
         # update datefolder path
         script.data_path = self.gui_settings['data_folder']
+
+
 
     def fill_treewidget(self, tree, parameters):
         """
@@ -1331,7 +1336,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         for instrument in self.instruments.itervalues():
             dictator['instruments'].update(instrument.to_dict())
-
         for script in self.scripts.itervalues():
             dictator['scripts'].update(script.to_dict())
 

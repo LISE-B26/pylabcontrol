@@ -351,16 +351,18 @@ Script.
             iterator_type = ScriptIterator.get_iterator_type(script_settings, script_sub_scripts)
 
             if isinstance(script_information, dict):
-                import src.scripts
+                # import src.scripts # uncommented JG Jul27th
 
-                for sub_script in script_sub_scripts:
-                    if script_sub_scripts[sub_script]['class'] == 'ScriptIterator':
-                        subscript_class_name = \
-                        ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script])['class']
-                        sub_scripts.update({sub_script: eval('src.scripts.' + subscript_class_name)})
+                for sub_script_name, sub_script_class in script_sub_scripts.iteritems():
+                    if isinstance(sub_script_class, Script):
+                        # script already exists
+                        raise NotImplementedError
+                    elif script_sub_scripts[sub_script_name]['class'] == 'ScriptIterator':
+                        subscript_class_name = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name])['class']
+                        sub_scripts.update({sub_script_name: eval('src.scripts.' + subscript_class_name)})
                     else:
-                        module, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script]['class'], module_list)
-                        sub_scripts.update({sub_script: getattr(module, script_sub_scripts[sub_script]['class'])})
+                        module, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script_name]['class'], module_list)
+                        sub_scripts.update({sub_script_name: getattr(module, script_sub_scripts[sub_script_name]['class'])})
 
                 # for point iteration we add some default scripts
                 if iterator_type == ScriptIterator.TYPE_ITER_NVS:
@@ -402,8 +404,8 @@ Script.
                 raise TypeError('create_dynamic_script_class: unknown type of script_information')
 
             # update the script order
-            for sub_script in script_settings['script_order'].keys():
-                script_order.append(Parameter(sub_script, script_settings['script_order'][sub_script], int,
+            for sub_script_name in script_settings['script_order'].keys():
+                script_order.append(Parameter(sub_script_name, script_settings['script_order'][sub_script_name], int,
                                               'Order in queue for this script'))
 
             # assigning the actual script settings depending on the interator type

@@ -78,9 +78,7 @@ class Script(QObject):
         self.start_time = datetime.datetime.now()
         self.end_time = self.start_time - datetime.timedelta(seconds=1)
 
-
-        # self._settings = deepcopy(self._DEFAULT_SETTINGS)
-        self._settings = Parameter(self._DEFAULT_SETTINGS+ Script._DEFAULT_SETTINGS)
+        self._settings = deepcopy(Parameter(self._DEFAULT_SETTINGS+ Script._DEFAULT_SETTINGS))
         self._settings.update({'tag':self.name.lower()})
         if settings is not None:
             self.update(settings)
@@ -207,7 +205,9 @@ class Script(QObject):
         raise NotImplementedError("Subclass did not implement _SCRIPTS")
 
     def __str__(self):
-        #COMMENT_ME
+        """
+        :return: a description of the script in form of a string
+        """
 
         output_string = '{:s} (class type: {:s})\n'.format(self.name, self.__class__.__name__)
 
@@ -218,12 +218,13 @@ class Script(QObject):
 
     @property
     def name(self):
-        #COMMENT_ME
+        """
+        script name
+        """
         return self._name
 
     @name.setter
     def name(self, value):
-        #COMMENT_ME
         if isinstance(value, unicode):
             value = str(value)
 
@@ -232,11 +233,12 @@ class Script(QObject):
 
     @property
     def instrumets(self):
-        #COMMENT_ME
+        """
+        :return: instruments that the script uses as a dictionary
+        """
         return self._instruments
     @instrumets.setter
     def instruments(self, instrument_dict):
-        #COMMENT_ME
         assert isinstance(instrument_dict, dict)
         # checks if all the keys in _INSTRUMENTS are contained in instrument_dict
         assert set(self._INSTRUMENTS.keys()) <= set(instrument_dict.keys()), "{:s}: needs instruments {:s} but received {:s}".format(self.name, str( self._INSTRUMENTS.keys()), str(instrument_dict.keys()))
@@ -246,12 +248,13 @@ class Script(QObject):
 
     @property
     def scripts(self):
-        #COMMENT_ME
+        """
+        :return: sub_scripts that the script uses as a dictionary
+        """
         return self._scripts
 
     @scripts.setter
     def scripts(self, script_dict):
-        #COMMENT_ME
         assert isinstance(script_dict, dict)
         assert set(script_dict.keys()) == set(self._SCRIPTS.keys()), "{:s}: set subscripts {:s}, received {:s}".format(self.name, str(script_dict.keys()), str( self._SCRIPTS.keys()))
 
@@ -292,14 +295,13 @@ class Script(QObject):
     @property
     def end_time(self):
         """
-        time when script execution started
+        time when script execution ended
         :return:
         """
         return self._time_stop
 
     @end_time.setter
     def end_time(self, value):
-        #COMMENT_ME
         assert isinstance(value, datetime.datetime)
         self._time_stop = value
 
@@ -307,30 +309,24 @@ class Script(QObject):
     def remaining_time(self):
         """
         estimates the time remaining until script is finished
-        Returns:
-
         """
-        elapsed_time = datetime.datetime.now() - self.start_time
-        # safty to avoid devision by zero
+        elapsed_time = (datetime.datetime.now() - self.start_time).total_seconds()
+        # safety to avoid devision by zero
         if self.progress == 0:
             self.progress = 1
 
-        estimated_total_time = elapsed_time.total_seconds()
-        estimated_total_time *= 100. / self.progress
-        estimated_total_time = datetime.timedelta(estimated_total_time)
+        estimated_total_time = 100. / self.progress * elapsed_time
 
-        return estimated_total_time - elapsed_time
+        return datetime.timedelta(estimated_total_time - elapsed_time)
 
     @property
     def start_time(self):
         """
         time when script execution started
-        :return:
         """
         return self._time_start
     @start_time.setter
     def start_time(self, value):
-        #COMMENT_ME
         assert isinstance(value, datetime.datetime)
         self._time_start = value
 
@@ -411,15 +407,19 @@ class Script(QObject):
 
 
     def stop(self):
-        # stop all the subscript
-        #COMMENT_ME
+        """
+        stops itself and all the subscript
+        """
         for subscript in self.scripts.values():
             subscript.stop()
         print('--- stopping: ', self.name)
         self._abort = True
 
     def validate(self):
-        #COMMENT_ME
+        """
+        function to validate of the script parameters are valid: this will most likely be removed in future versions
+        :return: boolean
+        """
         pass
 
     def filename(self, appendix=None, create_if_not_existing=False):
@@ -611,7 +611,6 @@ class Script(QObject):
 
             if ax is not None and len(ax)>0:
                 for a in ax:
-                    print('sdasfafdas')
                     if len(a.lines)+len(a.images)+len(a.patches) != 0:
                         is_empty = False
 
@@ -1007,8 +1006,6 @@ class Script(QObject):
 
         if module is None and script_class_name != 'ScriptIterator':
             module = import_module('PyLabControl.src.scripts')
-
-            print('asaadaf', script_class_name, module_list)
             assert hasattr(module, script_class_name) # check if script is really in the main src.scripts module
 
         return module, script_class_name, script_settings, script_instruments, script_sub_scripts
@@ -1141,11 +1138,19 @@ class Script(QObject):
         self._plot_validate(axes_list)
 
     def _plot_validate(self, axes_list):
-        #COMMENT_ME
+        """
+        plot some visual output as a result of the validation (see self.validate)
+        This will most likely be removed in future version: instead preview function, maybe
+        :param axes_list: list of axes objects on which to plot
+        """
         pass
 
     def get_axes_layout_validate(self, figure_list):
-        #COMMENT_ME
+        """
+        creates the axes layout for the validation plots
+        :param figure_list: list of figures
+        :return: list of axes objects
+        """
         return self.get_axes_layout(figure_list)
 
 
