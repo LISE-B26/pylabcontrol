@@ -310,6 +310,8 @@ Script.
                 Returns: A list of all parameters of the input scripts
 
                 '''
+                print('SCRIPTS', scripts)
+                print('PL', parameter_list)
 
                 def get_parameter_from_dict(trace, dic, parameter_list):
                     """
@@ -331,16 +333,17 @@ Script.
 
                 for script_name in scripts.keys():
                     from PyLabControl.src.core import ScriptIterator
-                    if trace == '':
-                        trace = script_name
+                    script_trace = trace
+                    if script_trace == '':
+                        script_trace = script_name
                     else:
-                        trace = trace + '.' + script_name
+                        script_trace = script_trace + '.' + script_name
                     if issubclass(scripts[script_name], ScriptIterator):  # gets subscripts of ScriptIterator objects
                         populate_sweep_param(vars(scripts[script_name])['_SCRIPTS'], parameter_list=parameter_list,
-                                             trace=trace)
+                                             trace=script_trace)
                     else:
                         for setting in vars(scripts[script_name])['_DEFAULT_SETTINGS']:
-                            parameter_list = get_parameter_from_dict(trace, setting, parameter_list)
+                            parameter_list = get_parameter_from_dict(script_trace, setting, parameter_list)
 
                 return parameter_list
 
