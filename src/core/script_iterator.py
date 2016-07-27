@@ -138,7 +138,7 @@ Script.
 
             for pt in points:
                 set_point.update({'x': pt[0], 'y': pt[1]})
-                self.log('find NV near x = {:0.3e}, y = {:0.3e}'.format(pt[0], pt[1]))
+                self.log('found NV near x = {:0.3e}, y = {:0.3e}'.format(pt[0], pt[1]))
                 # scip first script since that is the select NV script!
                 for script_name in sorted_script_names[1:]:
                     if self._abort:
