@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 # def readme():
 #     with open('README.rst') as f:
@@ -7,8 +7,8 @@ from distutils.core import setup
 setup(
     name='PythonLab',
     version='0.1.0',
-    packages=['', 'src', 'src.gui', 'src.core', 'src.tools', 'src.scripts',
-              'src.instruments', 'tests'],
+    packages=['PyLabControl.src', 'PyLabControl.src.gui', 'PyLabControl.src.core', 'PyLabControl.src.tools', 'PyLabControl.src.scripts',
+              'PyLabControl.src.instruments', 'PyLabControl.tests'],
     url='https://github.com/LISE-B26/PythonLab',
     license='GPL',
     author='Aaron Kabcenell, Jan Gieseler, and Arthur Safira',
@@ -25,5 +25,8 @@ setup(
         'Topic :: Scientific/Engineering :: Physics',
         ],
     test_suite='nose.collector',
-    tests_require=['nose']
+    tests_require=['nose'],
+    entry_points={
+        'console_scripts': ['PyLabControl = PythonLab.src.gui.gui']
+    }
 )
