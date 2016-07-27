@@ -203,6 +203,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # when you close the gui)
             filename = str(QtGui.QFileDialog.getSaveFileName(self, 'Unvalid Config File. Select Config.',
                                                              dialog_dir,'b26 files (*.b26)'))
+            if filename == '':
+                #todo: create all the settings outside of init and only then start loading the gui!
+                raise ValueError
             # started to work on custom dialog, but this is not finished yet
             # keep the code for now:
 

@@ -1,6 +1,23 @@
 import yaml, json
-import os
+import os, inspect
+from importlib import import_module
 
+def import_sub_modules(module_type):
+    """
+    imports all the module_type from additional modules that contain module_type
+    This name of those modules is in the config file that is located in the main directory
+    module_type: str that specifies the type of module to be loaded (scripts / instruments)
+
+    :return: module_list: a list with modules that contain module_type
+    """
+
+    assert module_type in ('scripts', 'instruments')
+
+    path_to_config = '/'.join(os.path.normpath(os.path.dirname(inspect.getfile(import_sub_modules))).split('\\')[0:-2]) + '/config.txt'
+    module_list = get_config_value('SCRIPT_MODULES', path_to_config).split(';')
+    module_list = [import_module(module_name + '.src.' + module_type) for module_name in module_list]
+
+    return module_list
 
 def get_config_value(name, path_to_file='config.txt'):
     """

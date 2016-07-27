@@ -2,8 +2,7 @@ from PyLabControl.src.core import Parameter, Script
 import numpy as np
 from PyQt4.QtCore import pyqtSlot
 import datetime
-
-# asad
+from PyLabControl.src.core.read_write_functions import import_sub_modules
 
 class ScriptIterator(Script):
     '''
@@ -291,12 +290,12 @@ Script.
         '''
 
 
-        def set_up_dynamic_script(script_information):
+        def set_up_dynamic_script(script_information, module_list = None):
             '''
 
             Args:
                 script_information: information about the script as required by Script.get_script_information()
-
+                module_list: list of submodules that contain script classes, so we can look for them there if they are not in PyLabControl.src.scripts
 
             Returns: script_default_settings: the default settings of the dynamically created script as a list of parameters
 
@@ -347,8 +346,7 @@ Script.
 
             sub_scripts = {}  # dictonary of script classes that are to be subscripts of the dynamic class. Should be in the dictionary form {'class_name': <class_object>} (btw. class_object is not the instance)
             script_order = []  # A list of parameters giving the order that the scripts in the ScriptIterator should beexecuted. Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
-            _, script_class_name, script_settings, _, script_sub_scripts = Script.get_script_information(
-                script_information)
+            _, script_class_name, script_settings, _, script_sub_scripts = Script.get_script_information(script_information)
 
             iterator_type = ScriptIterator.get_iterator_type(script_settings, script_sub_scripts)
 
@@ -361,8 +359,10 @@ Script.
                         ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script])['class']
                         sub_scripts.update({sub_script: eval('src.scripts.' + subscript_class_name)})
                     else:
-                        sub_scripts.update(
-                            {sub_script: eval('src.scripts.' + script_sub_scripts[sub_script]['class'])})
+                        module, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script]['class'], module_list)
+                        # print('XXXXX', module)
+                        # sub_scripts.update({sub_script: eval('src.scripts.' + script_sub_scripts[sub_script]['class'])})
+                        sub_scripts.update({sub_script: getattr(module, script_sub_scripts[sub_script]['class'])})
 
                 # for point iteration we add some default scripts
                 if iterator_type == ScriptIterator.TYPE_ITER_NVS:
@@ -435,12 +435,11 @@ Script.
 
             class_name = 'class' + str(ScriptIterator._number_of_classes)
 
-            dynamic_class = type(class_name, (ScriptIterator,),
-                                 {'_SCRIPTS': sub_scripts, '_DEFAULT_SETTINGS': script_settings, '_INSTRUMENTS': {}})
+            dynamic_class = type(class_name, (ScriptIterator,),{'_SCRIPTS': sub_scripts, '_DEFAULT_SETTINGS': script_settings, '_INSTRUMENTS': {}})
             # Now we place the dynamic script into the scope of src.scripts as regular scripts.
             # This is equivalent to importing the module in src.scripts.__init__, but because the class doesn't exist until runtime it must be done here.
-            import src.scripts
-            setattr(src.scripts, class_name, dynamic_class)
+            import PyLabControl.src.scripts
+            setattr(PyLabControl.src.scripts, class_name, dynamic_class)
 
             ScriptIterator._class_list.append(dynamic_class)
             ScriptIterator._number_of_classes += 1
@@ -453,7 +452,10 @@ Script.
             #         print('CLASSNAME', vars(someclass)['_CLASS'])
             #         return vars(someclass)['_CLASS']
 
-        script_default_settings, sub_scripts = set_up_dynamic_script(script_information)
+        # import all the scripts from additional modules that contain scripts
+        module_list = import_sub_modules('scripts')
+
+        script_default_settings, sub_scripts = set_up_dynamic_script(script_information, module_list)
 
         class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings)
 

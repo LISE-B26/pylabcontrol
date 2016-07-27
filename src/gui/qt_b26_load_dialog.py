@@ -94,7 +94,7 @@ Returns:
 
         # if the item has been moved we ignore this because the item only went from one tree to the other without changing names
         if name != '':
-            print('new:',name,'old:', self.selected_element_name)
+            # print('new:',name,'old:', self.selected_element_name)
             if name != self.selected_element_name:
                 self.elements_from_file[name] = self.elements_from_file[self.selected_element_name]
                 del self.elements_from_file[self.selected_element_name]
@@ -159,8 +159,6 @@ Returns:
         """
         input_data = load_b26_file(filename)
         if isinstance(input_data, dict) and self.elements_type in input_data:
-            print('input_data', input_data)
-            print('input_data[elements_type]', input_data[self.elements_type])
             return input_data[self.elements_type]
         else:
             return {}

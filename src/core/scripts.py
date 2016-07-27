@@ -901,7 +901,7 @@ class Script(QObject):
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
 
-                module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info, module_list)
+                module, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info, module_list)
 
                 #creates all dynamic scripts so they can be imported following the if statement
                 if script_class_name == 'ScriptIterator':
@@ -910,15 +910,15 @@ class Script(QObject):
                     from PyLabControl.src.core import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
 
                     script_info = ScriptIterator.create_dynamic_script_class(script_info)
-                    module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info, module_list)
+                    module, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info, module_list)
 
 
 
-                class_of_script = getattr(module_path, script_class_name)
+                class_of_script = getattr(module, script_class_name)
                 # === new version end
 
                 # # ==== old version start
-                # module = __import__(module_path, fromlist=[script_class_name])
+                # module = __import__(module, fromlist=[script_class_name])
                 # # this returns the name of the module that was imported.
                 # class_of_script = getattr(module, script_class_name)
                 # # === old version end
@@ -978,7 +978,6 @@ class Script(QObject):
         script_instruments = None
         script_sub_scripts = None
         script_class_name = None
-        # module = 'src.scripts' # this is were we look for scripts, however for scripts from external modules we look for them in module_list
         module = None  # this is were we look for scripts, however for scripts from external modules we look for them in module_list
 
 
@@ -998,12 +997,13 @@ class Script(QObject):
             script_class_name = script_information.__name__
 
         # check if the requested script is in one of the modules
-        for mod in module_list:
-            if hasattr(mod, script_class_name):
-                module = mod
-                break
+        if module_list is not None:
+            for mod in module_list:
+                if hasattr(mod, script_class_name):
+                    module = mod
+                    break
 
-        if module is None:
+        if module is None and script_class_name is not 'ScriptIterator':
             module = import_module('PyLabControl.src.scripts')
             assert hasattr(module, script_class_name) # check if script is really in the main src.scripts module
 
