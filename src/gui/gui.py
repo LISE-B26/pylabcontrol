@@ -14,9 +14,9 @@ from src.gui import qt_b26_gui
 app = QtGui.QApplication(sys.argv)
 # fname = 'c:\\b26_tmp\\pythonlab_config_dummy.b26'
 # fname = 'c:\\b26_tmp\\pythonlab_config3a.b26'
-fname = 'c:\\b26_tmp\\pythonlab_config_1.b26'
+fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_config.b26'
 
-fname = 'c:\\b26_tmp\\pythonlab_config_safsafaf1.b26'
+# fname = 'c:\\b26_tmp\\pythonlab_config_safsafaf1.b26'
 
 # fname = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\pythonlab_config.b26"
 try:

@@ -8,10 +8,8 @@ import os
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 
-from src.core.read_write_functions import load_b26_file
-from src.core import Parameter
-import src.scripts
-from src.core import Script
+from PyLabControl.src.core.read_write_functions import load_b26_file
+from PyLabControl.src.core import Parameter, Script
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
@@ -19,7 +17,7 @@ try:
     Ui_Dialog, QDialog = loadUiType('load_dialog.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
-    from src.gui.load_dialog import Ui_Dialog
+    from PyLabControl.src.gui.load_dialog import Ui_Dialog
     from PyQt4.QtGui import QMainWindow
     from PyQt4.QtGui import QDialog
     print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!')
@@ -267,7 +265,7 @@ Returns:
 
 if __name__ == '__main__':
     import sys
-    from src.core.loading import instantiate_instruments
+    from PyLabControl.src.core.loading import instantiate_instruments
     instuments = instantiate_instruments({'inst_dummy': 'DummyInstrument'})
     print(instuments)
     app = QtGui.QApplication(sys.argv)

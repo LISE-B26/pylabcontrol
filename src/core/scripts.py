@@ -907,17 +907,13 @@ class Script(QObject):
                 if script_class_name == 'ScriptIterator':
                     # creates all the dynamic classes in the script and the class of the script itself
                     # and updates the script info with these new classes
-                    from src.core import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
+                    from PyLabControl.src.core import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
 
                     script_info = ScriptIterator.create_dynamic_script_class(script_info)
                     module_path, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info, module_list)
 
 
-                # print('XXXXX  module_path', module_path + '.' + script_class_name)
 
-                # module = import_module(module_path + '.' + script_class_name)
-                # ==== new version start
-                # this returns the name of the module that was imported.
                 class_of_script = getattr(module_path, script_class_name)
                 # === new version end
 
@@ -998,28 +994,19 @@ class Script(QObject):
 
         elif issubclass(script_information, Script):
             # watch out when testing this code from __main__, then classes might not be identified correctly because the path is different
-            # to avoid this problem call from src.core import Script (otherwise the path to Script is __main__.Script)
+            # to avoid this problem call from PyLabControl.src.core import Script (otherwise the path to Script is __main__.Script)
             script_class_name = script_information.__name__
-
 
         # check if the requested script is in one of the modules
         for mod in module_list:
             if hasattr(mod, script_class_name):
                 module = mod
                 break
+
         if module is None:
-            module = import_module('src.scripts')
+            module = import_module('PyLabControl.src.scripts')
+            assert hasattr(module, script_class_name) # check if script is really in the main src.scripts module
 
-        # # todo: check here if path exists and then find the correct path / e.g. when module is installed in b26_toolkit
-        # if len(script_class_name.split('.')) == 1:
-        #     module = 'src.scripts'
-        # else:
-        #     module = 'src.scripts.' + '.'.join(script_class_name.split('.')[0:-1])
-        #     script_class_name = script_information.split('.')[-1]
-        #
-        #
-
-        print('====>XXXX', module, script_class_name)
         return module, script_class_name, script_settings, script_instruments, script_sub_scripts
 
 
@@ -1160,7 +1147,7 @@ class Script(QObject):
 
 
 if __name__ == '__main__':
-    # from src.core import Script
+    # from PyLabControl.src.core import Script
     #
     # folder = 'Z:\\Lab\\Cantilever\\Measurements\\20160708_Rabi_data\\160712-14_54_46_NV6_rabi'
     #

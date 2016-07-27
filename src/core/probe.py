@@ -191,7 +191,7 @@ if __name__ == '__main__':
     #     probe_dict={name: probes[name] for name in added_probes},
     #     probes=self.probes,
     #     instruments=self.instruments)
-    # # from src.core import instantiate_instruments
+    # # from PyLabControl.src.core import instantiate_instruments
     # instruments = {'inst_dummy': 'DummyInstrument'}
     #
     # instrument = instantiate_instruments(instruments)['inst_dummy']

@@ -3,13 +3,16 @@ Basic gui class designed with QT designer
 """
 from PyQt4 import QtGui, QtCore
 from PyQt4.uic import loadUiType
-from src.core import Parameter, Instrument, Script, ReadProbes, Probe
-from src.gui import B26QTreeItem
+from PyLabControl.src.core import Parameter, Instrument, Script, ReadProbes, Probe, ScriptIterator
+from PyLabControl.src.gui import B26QTreeItem, LoadDialog, LoadDialogProbes
+from PyLabControl.src.scripts.select_points import SelectPoints
+from PyLabControl.src.core.read_write_functions import load_b26_file
+
 import os.path
 import numpy as np
 import json as json
 from PyQt4.QtCore import QThread, pyqtSlot
-from src.gui import LoadDialog, LoadDialogProbes
+
 from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as Canvas,
                                                 NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.backend_bases import key_press_handler
@@ -20,17 +23,16 @@ import datetime
 from collections import deque
 
 
-from src.scripts.select_points import SelectPoints
-from src.core import ScriptIterator
 
-from src.core.read_write_functions import load_b26_file
+
+
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
     # import external_modules.matplotlibwidget
     Ui_MainWindow, QMainWindow = loadUiType('basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
-    from src.gui.basic_application_window import Ui_MainWindow
+    from PyLabControl.src.gui.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
     print('Warning: on-the-fly conversion of basic_application_window.ui file failed, loaded .py file instead.')
 
@@ -38,18 +40,20 @@ except (ImportError, IOError):
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
-
+    application_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    application_path = os.path.dirname(application_path) # go one level lower
+    print('application_path', application_path)
     _DEFAULT_CONFIG = {
         # "tmp_folder": "../../b26_tmp",
-        "data_folder": "../../b26_tmp/data",
-        "probes_folder": "../../b26_files/probes_auto_generated/DummyInstrument.b26",
-        "instrument_folder": "../../b26_files/instruments_auto_generated/DummyInstrument.b26",
-        "scripts_folder": "../../b26_files/scripts_auto_generated/ScriptDummy.b26",
-        "probes_log_folder": "../../b26_tmp",
-        "settings_file": '../../b26_tmp/pythonlab_config.b26'
+        "data_folder": os.path.join(application_path, "user_data/data"),
+        "probes_folder": os.path.join(application_path, "user_data/probes_auto_generated"),
+        "instrument_folder": os.path.join(application_path, "user_data/instruments_auto_generated"),
+        "scripts_folder": os.path.join(application_path, "user_data/scripts_auto_generated"),
+        "probes_log_folder": os.path.join(application_path, "user_data/b26_tmp"),
+        "settings_file": os.path.join(application_path, "user_data/pythonlab_config")
     }
 
-
+    print('_DEFAULT_CONFIG', _DEFAULT_CONFIG)
     def __init__(self, filename = None):
         """
         ControlMainWindow(intruments, scripts, probes)
@@ -1178,7 +1182,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 #         factory_scripts = {}
                 #         for sub_script in scripts[script]['scripts']:
                 #             if scripts[script]['scripts'][sub_script]['class'] == 'ScriptIterator':
-                #                 factory_scripts.update({sub_script: eval('src.core.ScriptIterator')})
+                #                 factory_scripts.update({sub_script: eval('PyLabControl.src.core.ScriptIterator')})
                 #             else:
                 #                 factory_scripts.update({sub_script: eval('src.scripts.' + scripts[script]['scripts'][sub_script]['class'])})
                 #         #distinguish between looping and param_sweep modes

@@ -1,5 +1,6 @@
-# from src.core import Script
 from PyQt4.QtCore import pyqtSignal, QThread
+
+
 class ReadProbes(QThread):
     #This is the signal that will be emitted during the processing.
     #By including int as an argument, it lets the signal know to expect
@@ -60,7 +61,7 @@ class ReadProbes(QThread):
 
 if __name__ == '__main__':
 
-    from src.core import instantiate_instruments, instantiate_probes
+    from PyLabControl.src.core import instantiate_instruments, instantiate_probes
     instruments = {'inst_dummy': 'DummyInstrument'}
 
     instruments = instantiate_instruments(instruments)

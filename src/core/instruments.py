@@ -1,9 +1,7 @@
-from PyQt4 import QtCore
-
 from copy import deepcopy
-import yaml
-# from src.core.parameter import Parameter
-from PyLabControl.src.core.read_write_functions import save_b26_file
+from PyLabControl.src.core.read_write_functions import save_b26_file, get_config_value
+import os, inspect
+from importlib import import_module
 
 class Instrument(object):
     '''
@@ -238,6 +236,13 @@ class Instrument(object):
         updated_instruments.update(instruments)
         loaded_failed = []
 
+        # import all the instruments from additional modules that contain instruments. This name of those modules is in the config file that is located
+        # in the main directory
+        path_to_config = '/'.join(os.path.normpath(os.path.dirname(inspect.getfile(Instrument))).split('\\')[0:-2]) + '/config.txt'
+        module_list = get_config_value('SCRIPT_MODULES', path_to_config).split(';')
+        module_list = [import_module(module_name+'.src.instruments') for module_name in module_list]
+
+
         for instrument_name, instrument_class_name in instrument_dict.iteritems():
             instrument_settings = None
 
@@ -251,11 +256,22 @@ class Instrument(object):
             else:
                 raise TypeError('instrument_class_name not recognized for {0}'.format(instrument_name))
 
+
             if len(instrument_class_name.split('.')) == 1:
                 module_path = 'src.instruments'
             else:
                 module_path = 'src.instruments.' + '.'.join(instrument_class_name.split('.')[0:-1])
                 instrument_class_name = instrument_class_name.split('.')[-1]
+
+            # check if the requested instruments is in one of the modules
+            for mod in module_list:
+                if hasattr(mod, instrument_class_name):
+                    module = mod
+                    break
+
+            if module is None:
+                module = import_module('PyLabControl.src.instruments')
+                assert hasattr(module, instrument_class_name)  # check if instrument is really in the main src.instrument module
 
             # check if instrument already exists
             if instrument_name in instruments.keys():
@@ -266,8 +282,8 @@ class Instrument(object):
 
                 # ==== import module =======
                 try:
-                    # try to import the instrument
-                    module = __import__(module_path, fromlist=[instrument_class_name])
+                    # # try to import the instrument
+                    # module = __import__(module_path, fromlist=[instrument_class_name])
                     # this returns the name of the module that was imported.
                     class_of_instrument = getattr(module, instrument_class_name)
                     if instrument_settings is None:
@@ -295,32 +311,6 @@ class Instrument(object):
 
 
 if __name__ == '__main__':
-
-    # path to instrument classes
-    # path_to_instrument = 'C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\src\\instruments'
-    #
-    # # path to a instrument file
-    # intrument_filename = 'Z:\\Lab\\Cantilever\\Measurements\\160414_MW_transmission_vs_Power\\160414-18_59_33_test.inst'
-    #
-
-# from src.core.read_write_functions import load_b26_file
-# filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
-# data = load_b26_file(filename)
-# inst = {}
-# instruments, instruments_failed = Instrument.load_and_append(data['instruments'], instruments = inst)
-# print('loaded', instruments)
-# print('inst', inst)
-# print('failed', instruments_failed)
-# print('load again')
-# instruments_failed = Instrument.load_and_append(data['instruments'], instruments)
-# print('loaded', instruments)
-# print('failed', instruments_failed)
-#
-
-
-
-    # from src.core import Instrument
-
 
 
     instr, fail = Instrument.load_and_append({'MaestroLightControl': {'class': 'MaestroLightControl', 'settings': {'port': 'COM5', 'block green': {'settle_time': 0.2, 'position_open': 7600, 'position_closed': 3800, 'open': True, 'channel': 0}}}})

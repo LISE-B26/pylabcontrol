@@ -17,7 +17,7 @@ try:
 except:
     pass
 # try:
-#     from src.core.script_sequence import ScriptIterator
+#     from PyLabControl.src.core.script_sequence import ScriptIterator
 # except:
 #     pass
 

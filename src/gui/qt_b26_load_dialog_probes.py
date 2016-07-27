@@ -8,7 +8,7 @@ import os
 from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 
-from src.core.read_write_functions import load_b26_file
+from PyLabControl.src.core.read_write_functions import load_b26_file
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
@@ -230,7 +230,7 @@ Returns:
 
 if __name__ == '__main__':
     import sys
-    from src.core import Probe
+    from PyLabControl.src.core import Probe
     app = QtGui.QApplication(sys.argv)
     folder = "C:/Users/Experiment/PycharmProjects/PythonLab/b26_files/probes_auto_generated/"
     dialog = LoadDialogProbes(probes_old={}, filename=folder)

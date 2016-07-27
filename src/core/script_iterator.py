@@ -331,7 +331,7 @@ Script.
                     return parameter_list
 
                 for script_name in scripts.keys():
-                    from src.core import ScriptIterator
+                    from PyLabControl.src.core import ScriptIterator
                     if trace == '':
                         trace = script_name
                     else:
@@ -431,7 +431,7 @@ Script.
             Returns: A newly created class inheriting from ScriptIterator, with the given subscripts and default settings
 
             '''
-            from src.core import ScriptIterator
+            from PyLabControl.src.core import ScriptIterator
 
             class_name = 'class' + str(ScriptIterator._number_of_classes)
 

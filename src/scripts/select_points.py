@@ -3,7 +3,7 @@ import scipy.spatial
 import time
 from matplotlib import patches
 
-from src.core import Script, Parameter
+from PyLabControl.src.core import Script, Parameter
 
 class SelectPoints(Script):
     # COMMENT_ME

@@ -1,6 +1,7 @@
 from importlib import import_module
-from src.core.read_write_functions import get_config_value
+from PyLabControl.src.core.read_write_functions import get_config_value
 import inspect, os
+from PyLabControl.src.core  import Instrument
 
 def export_default_probes(path, module_name = ''):
     """
@@ -15,9 +16,8 @@ def export_default_probes(path, module_name = ''):
 
 
     import b26_toolkit.src.instruments as instruments
-    from src.core import Probe
-    import inspect
-    import os
+    from PyLabControl.src.core import Probe
+
     for name, obj in inspect.getmembers(instruments):
 
         if inspect.isclass(obj):
@@ -32,7 +32,7 @@ def export_default_probes(path, module_name = ''):
             except:
                 print('failed to create probe file for: {:s}'.format(obj.__name__))
 
-def export_default_instruments(target_folder, module_name = ''):
+def export_default_instruments(target_folder, module_name = '', raise_errors = False):
     """
     tries to instantiate all the instruments that are imported in /instruments/__init__.py
     and saves instruments that could be instantiate into a .b2 file in the folder path
@@ -46,23 +46,26 @@ def export_default_instruments(target_folder, module_name = ''):
     if len(module_name.split('src.instruments'))==1:
         module_name += '.src.instruments'
 
-    import inspect
+
     module = import_module(module_name)
 
     for name, obj in inspect.getmembers(module):
 
-        if inspect.isclass(obj):
-
+        if inspect.isclass(obj) and issubclass(obj, Instrument):
+            print('instrument: ', name)
             try:
                 instrument = obj()
                 print('created ', name)
                 filename = '{:s}{:s}.b26'.format(target_folder, name)
                 instrument.save_b26(filename)
                 print('saved ', name)
-            except:
-                print('failed to create instrument file for: {:s}'.format(obj.__name__))
+            except Exception, err:
+                if raise_errors:
+                    raise err
+                else:
+                    print('failed to create instrument file for: {:s}'.format(obj.__name__))
 
-def export_default_scripts(path, module_name = ''):
+def export_default_scripts(path, module_name = '', raise_errors = False):
     """
     tries to instantiate all the scripts that are imported in /scripts/__init__.py
     saves each script that could be instantiated into a .b26 file in the folder path
@@ -71,7 +74,7 @@ def export_default_scripts(path, module_name = ''):
     """
     loaded_instruments = {}
     loaded_scripts = {}
-    from src.core.scripts import Script
+    from PyLabControl.src.core.scripts import Script
 
     if module_name is '':
         module_name = 'src.scripts'
@@ -79,7 +82,6 @@ def export_default_scripts(path, module_name = ''):
     if len(module_name.split('src.scripts'))==1:
         module_name += '.src.scripts'
 
-    import inspect
     module = import_module(module_name)
 
 
@@ -101,7 +103,7 @@ def export_default_scripts(path, module_name = ''):
             # raise error
 
 
-def export(folder, class_type = 'all'):
+def export(folder, class_type = 'all', raise_errors = False):
     """
     exports the existing scripts/intruments (future: probes) into folder as .b26 files
     Args:
@@ -130,17 +132,17 @@ def export(folder, class_type = 'all'):
 
     for module in module_list:
         if class_type in ('all', 'scripts'):
-            export_default_scripts(folder, module)
+            export_default_scripts(folder, module, raise_errors)
         if class_type in ('all', 'instruments'):
-            export_default_instruments(folder, module)
+            export_default_instruments(folder, module, raise_errors)
         if class_type in ('all', 'probes'):
-            export_default_probes(folder, module)
+            export_default_probes(folder, module, raise_errors)
 
 
 if __name__ == '__main__':
 
-    # export('C:\\Users\\Experiment\\PycharmProjects\\b26_files\\instruments_auto_generated\\', class_type='instruments')
-    export('C:\\Users\\Experiment\\PycharmProjects\\b26_files\\scripts_auto_generated\\', class_type='scripts')
+    # export('C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated\\', class_type='instruments', raise_errors =False)
+    export('C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\', class_type='scripts')
     #
     # import b26_toolkit.src.instruments
 

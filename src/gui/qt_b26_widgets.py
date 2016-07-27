@@ -8,7 +8,7 @@
 
 from PyQt4 import QtCore, QtGui
 
-from src.core import Parameter, Instrument, Script
+from PyLabControl.src.core import Parameter, Instrument, Script
 
 
 # ======== B26QTreeItem ==========
@@ -387,8 +387,8 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
 if __name__ == '__main__':
 
-    # from src.core import Instrument
-    # from src.core.read_write_functions import load_b26_file
+    # from PyLabControl.src.core import Instrument
+    # from PyLabControl.src.core.read_write_functions import load_b26_file
     #
     #
     # # from file

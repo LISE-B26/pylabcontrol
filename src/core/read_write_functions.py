@@ -2,7 +2,7 @@ import yaml, json
 import os
 
 
-def get_config_value(name, path_to_file='dll_config.txt'):
+def get_config_value(name, path_to_file='config.txt'):
     """
     gets the value for "name" from "path_to_file" config file
     Args:
@@ -16,6 +16,8 @@ def get_config_value(name, path_to_file='dll_config.txt'):
     # if the function is called from gui then the file has to be located with respect to the gui folder
     if not os.path.isfile(path_to_file):
         path_to_file = os.path.join('../instruments/', path_to_file)
+
+    path_to_file = os.path.abspath(path_to_file)
 
     if not os.path.isfile(path_to_file):
         raise IOError('{:s}: config file is not valid'.format(path_to_file))

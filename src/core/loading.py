@@ -44,7 +44,7 @@ def instantiate_probes(probes, instruments):
 if __name__ == '__main__':
 
 # ======= test  instantiate_scripts =====
-    from src.core.read_write_functions import load_b26_file
+    from PyLabControl.src.core.read_write_functions import load_b26_file
     filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
     data = load_b26_file(filename)
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
 
 # # ======= test  instantiate_instruments =====
-#     from src.core.read_write_functions import load_b26_file
+#     from PyLabControl.src.core.read_write_functions import load_b26_file
 #     filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
 #     data = load_b26_file(filename)
 #

@@ -1,5 +1,5 @@
-from src.core import Parameter, Script
-from src.instruments import DummyInstrument
+from PyLabControl.src.core import Parameter, Script
+from PyLabControl.src.instruments import DummyInstrument
 import numpy as np
 
 class ScriptMinimalDummy(Script):
