@@ -57,6 +57,7 @@ class Script(QObject):
             name = self.__class__.__name__
         self.name = name
 
+
         self._instruments = {}
         if instruments is None:
             instruments = {}
@@ -80,7 +81,7 @@ class Script(QObject):
 
         # self._settings = deepcopy(self._DEFAULT_SETTINGS)
         self._settings = Parameter(self._DEFAULT_SETTINGS+ Script._DEFAULT_SETTINGS)
-
+        self._settings.update({'tag':self.name.lower()})
         if settings is not None:
             self.update(settings)
         self._abort = False
@@ -606,14 +607,14 @@ class Script(QObject):
 
             """
 
-            is_empty = False
+            is_empty = True
 
-            if ax is None:
-                is_empty = True
-            elif len(ax)>0:
+            if ax is not None and len(ax)>0:
                 for a in ax:
-                    if len(a.lines)+len(a.images)+len(a.patches) == 0:
-                        is_empty = True
+                    print('sdasfafdas')
+                    if len(a.lines)+len(a.images)+len(a.patches) != 0:
+                        is_empty = False
+
 
             return is_empty
 
@@ -635,6 +636,7 @@ class Script(QObject):
         canvas_2 = FigureCanvas(fig_2)
 
         self._plot_refresh = True
+        print('printing....!')
         self.plot([fig_1, fig_2])
 
         if filename_1 is not None and not axes_empty(fig_1.axes):
@@ -1003,8 +1005,10 @@ class Script(QObject):
                     module = mod
                     break
 
-        if module is None and script_class_name is not 'ScriptIterator':
+        if module is None and script_class_name != 'ScriptIterator':
             module = import_module('PyLabControl.src.scripts')
+
+            print('asaadaf', script_class_name, module_list)
             assert hasattr(module, script_class_name) # check if script is really in the main src.scripts module
 
         return module, script_class_name, script_settings, script_instruments, script_sub_scripts

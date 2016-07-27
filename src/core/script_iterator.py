@@ -360,22 +360,37 @@ Script.
                         sub_scripts.update({sub_script: eval('src.scripts.' + subscript_class_name)})
                     else:
                         module, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script]['class'], module_list)
-                        # print('XXXXX', module)
-                        # sub_scripts.update({sub_script: eval('src.scripts.' + script_sub_scripts[sub_script]['class'])})
                         sub_scripts.update({sub_script: getattr(module, script_sub_scripts[sub_script]['class'])})
 
                 # for point iteration we add some default scripts
                 if iterator_type == ScriptIterator.TYPE_ITER_NVS:
+
+                    module, _, _, _, _ = Script.get_script_information('SelectPoints', module_list)
                     sub_scripts.update(
-                        {'select_nvs': eval('src.scripts.SelectPoints'), 'find_nv': eval('src.scripts.FindMaxCounts2D')}
+                        {'select_nvs': getattr(module, 'SelectPoints')}
                     )
+                    module, _, _, _, _ = Script.get_script_information('FindMaxCounts2D', module_list)
+                    sub_scripts.update(
+                        {'find_nv': getattr(module, 'FindMaxCounts2D')}
+                    )
+                    # sub_scripts.update(
+                    #     {'select_nvs': eval('src.scripts.SelectPoints'), 'find_nv': eval('src.scripts.FindMaxCounts2D')}
+                    # )
                     script_settings['script_order'].update(
                         {'select_nvs': -2, 'find_nv': -1}
                     )
                 elif iterator_type == ScriptIterator.TYPE_ITER_POINTS:
+                    module, _, _, _, _ = Script.get_script_information('SelectPoints', module_list)
                     sub_scripts.update(
-                        {'select_nvs': eval('src.scripts.SelectPoints'), 'set_laser': eval('src.scripts.SetLaser')}
+                        {'select_point': getattr(module, 'SelectPoints')}
                     )
+                    module, _, _, _, _ = Script.get_script_information('SetLaser', module_list)
+                    sub_scripts.update(
+                        {'set_laser': getattr(module, 'SetLaser')}
+                    )
+                    # sub_scripts.update(
+                    #     {'select_nvs': eval('src.scripts.SelectPoints'), 'set_laser': eval('src.scripts.SetLaser')}
+                    # )
                     script_settings['script_order'].update(
                         {'select_nvs': -2, 'set_laser': -1}
                     )

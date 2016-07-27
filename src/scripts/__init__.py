@@ -1,3 +1,2 @@
-from script_dummy import ScriptMinimalDummy
-from script_dummy  import ScriptDummy
-from script_dummy import ScriptDummyWithInstrument
+from script_dummy import ScriptMinimalDummy, ScriptDummy, ScriptDummyWithInstrument
+from select_points import SelectPoints
