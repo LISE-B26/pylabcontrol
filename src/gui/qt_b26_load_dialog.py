@@ -89,12 +89,15 @@ Returns:
         print(item)
 
     def name_changed(self, changed_item):
-        #COMMENT_ME
+        """
+        checks if name has been changed and ignores the name change if the changed_item is an existing script
+        Args:
+            changed_item:
+        """
         name = str(changed_item.text())
 
         # if the item has been moved we ignore this because the item only went from one tree to the other without changing names
         if name != '':
-            # print('new:',name,'old:', self.selected_element_name)
             if name != self.selected_element_name:
                 self.elements_from_file[name] = self.elements_from_file[self.selected_element_name]
                 del self.elements_from_file[self.selected_element_name]
@@ -223,7 +226,11 @@ Returns:
         return elements_selected
 
     def add_script_sequence(self):
-        #COMMENT_ME
+        """
+        creates a script sequence based on the script iterator type selected and the selected scripts and sends it to the tree
+        self.tree_loaded
+
+        """
 
         def empty_tree(tree_model):
             # COMMENT_ME
@@ -246,12 +253,7 @@ Returns:
                 new_script_dict.update({script: self.elements_old[script]})
             elif script in self.elements_from_file:
                 new_script_dict.update({script: self.elements_from_file[script]})
-        # factory_scripts = dict()
-        # for script in new_script_dict.keys():
-        #     if isinstance(new_script_dict[script], dict):
-        #         factory_scripts.update({script: eval('src.scripts.' + new_script_dict[script]['class'])})
-        #     else: #if an object (already loaded) rather than a dict
-        #         factory_scripts.update({script: new_script_dict[script].__class__})
+
         new_script_parameter_dict = {}
         for index, script in enumerate(new_script_list):
             new_script_parameter_dict.update({script: index})

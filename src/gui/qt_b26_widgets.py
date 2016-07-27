@@ -147,11 +147,12 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
     @property
     def value(self):
-        #COMMENT_ME
+        """
+        item value
+        """
         return self._value
     @value.setter
     def value(self, value):
-        #COMMENT_ME
         if Parameter.is_valid(value, self.valid_values):
             self._value = value
         else:
@@ -160,7 +161,11 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
     @property
     def visible(self):
-        #COMMENT_ME
+        """
+
+        Returns: boolean (True: item is visible) (False: item is hidden)
+
+        """
         if self._visible is not None:
             return self.check_show.isChecked()
 
@@ -175,27 +180,18 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             return True
     @visible.setter
     def visible(self, value):
-        #COMMENT_ME
         if self._visible is not None:
             self._visible = value
             self.check_show.setChecked(self._visible)
 
-
-    # @property
-    # def show_all(self):
-    #     return self._show_all
-    # @show_all.setter
-    # def show_all(self, value):
-    #     if value:
-    #         self.chk_visible = QtGui.QCheckBox()
-    #         self.chk_visible.setChecked(self.visible)
-    #         self.treeWidget().setItemWidget(self, 2, self.chk_visible)
-    #     else:
-    #         QtGui.QTreeWidget.removeItemWidget(self, 2, self.chk_visible)
-    #     self._show_all = value
-
     def setData(self, column, role, value):
-        #COMMENT_ME
+        """
+        if value is valid sets the data to value
+        Args:
+            column: column if item
+            role: role if item (see Qt doc)
+            value: value to be set
+        """
         assert isinstance(column, int)
         assert isinstance(role, int)
 
