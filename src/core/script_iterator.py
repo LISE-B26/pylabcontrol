@@ -1,3 +1,20 @@
+"""
+    This file is part of PyLabControl.
+
+    Foobar is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Foobar is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
 from PyLabControl.src.core import Parameter, Script
 import numpy as np
 from PyQt4.QtCore import pyqtSlot
@@ -373,9 +390,9 @@ Script.
                     sub_scripts.update(
                         {'select_points': getattr(module, 'SelectPoints')}
                     )
-                    module, _, _, _, _ = Script.get_script_information('FindMaxCounts2D', module_list)
+                    module, _, _, _, _ = Script.get_script_information('FindNV', module_list)
                     sub_scripts.update(
-                        {'find_nv': getattr(module, 'FindMaxCounts2D')}
+                        {'find_nv': getattr(module, 'FindNV')}
                     )
                     script_settings['script_order'].update(
                         {'select_points': -2, 'find_nv': -1}
