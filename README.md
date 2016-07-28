@@ -1,7 +1,7 @@
 # PyLabControl
 PyLabControl is a software environment to control scientific equipment for laboratory experiments. 
 
-PyLabControl
+It
 +	interacts with any equipment that supports a python interface
 +	executes user-created scripts for complex experimental control sequences
 +	visualizes experimental data utilizing the standard python matplotlib library
