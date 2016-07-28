@@ -1,10 +1,10 @@
-pyLabControl is a software environment for controlling scientific equipment for laboratory experiments. It
+PyLabControl is a software environment for controlling scientific equipment for laboratory experiments. It
 +	interacts with any equipment that supports a python interface,
 +	executes user-created scripts for complex experimental control sequences,
 +	visualizes experimental data utilizing the standard python matplotlib library
 +	streamlines data acquisition, storage, and retrieval
 
-pyLabControl is built on python 2.7.11, with extensive use of pyQT for the general user interface. It was built by Arthur Safira, Jan Gieseler, and Aaron Kabcenell in the Lukin Group at Harvard University. It is distributed under the BLAH license.
+PyLabControl is built on python 2.7.11, with extensive use of pyQT for the general user interface. It was built by Arthur Safira, Jan Gieseler, and Aaron Kabcenell in the Lukin Group at Harvard University. It is distributed under the BLAH license.
 
 
 ## Getting Started
@@ -13,13 +13,15 @@ The software was developed and tested with python 2.7.11 on 64-bit Windows 7. Pr
 ### Installation
 The simplest way to install pyLabControl is with the command-line utility pip. To install simply issue the command
 
-pip install pyLabControl
+`pip install PyLabControl`
 
 Running the GUI
 To run the gui, open a python interpreter and write
 
+```
 import pyLabControl
-pyLabControl.run()
+PyLabControl.run()
+```
 
 Before the gui runs, you will be prompted to select a path to save gui configuration files.
 
