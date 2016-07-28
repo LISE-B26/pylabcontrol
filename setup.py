@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name='PyLabControl',
-    version='0.1.1',
+    version='0.1.3',
     packages=['PyLabControl.src', 'PyLabControl.src.gui', 'PyLabControl.src.core', 'PyLabControl.src.tools', 'PyLabControl.src.scripts',
               'PyLabControl.src.instruments', 'PyLabControl.tests'],
     url='https://github.com/LISE-B26/PythonLab',
