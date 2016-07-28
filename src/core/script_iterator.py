@@ -373,9 +373,9 @@ Script.
                     sub_scripts.update(
                         {'select_points': getattr(module, 'SelectPoints')}
                     )
-                    module, _, _, _, _ = Script.get_script_information('FindMaxCounts2D', module_list)
+                    module, _, _, _, _ = Script.get_script_information('FindNV', module_list)
                     sub_scripts.update(
-                        {'find_nv': getattr(module, 'FindMaxCounts2D')}
+                        {'find_nv': getattr(module, 'FindNV')}
                     )
                     script_settings['script_order'].update(
                         {'select_points': -2, 'find_nv': -1}

@@ -361,6 +361,7 @@ class Script(QObject):
         self.is_running = True
         self.start_time = datetime.datetime.now()
 
+
         self._current_subscript_stage = {
             'current_subscript': None,
             'subscript_exec_count':{},
@@ -381,6 +382,10 @@ class Script(QObject):
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
         self._abort = False
 
+        #saves standard to disk
+        if self.settings['save']:
+            self.save_b26()
+
         self.started.emit()
 
         self._function()
@@ -389,7 +394,6 @@ class Script(QObject):
 
         #saves standard to disk
         if self.settings['save']:
-            self.save_b26()
             self.save_data()
             self.save_log()
             self.save_image_to_disk()
@@ -708,6 +712,7 @@ class Script(QObject):
 
         # check that path exists
         if not os.path.exists(path):
+            print(path)
             raise AttributeError('Path given does not exist!')
 
         # if raw_data folder exists, get a list of directories from within it; otherwise, get names of all .csv files in
