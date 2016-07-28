@@ -12,7 +12,7 @@ It is distributed under the BLAH license.
 
 ## Getting Started
 The software was developed and tested with python 2.7.x on 64-bit Windows 7. Prior to installation, install the latest 
-Anaconda python package for python version 2.7, as it contains some extra dependencies this project utilizes.
+Anaconda distribution for python version 2.7.x, as it contains some extra dependencies this project utilizes.
 You can find the latest Anaconda distribution here: found here: https://www.continuum.io/downloads . 
 
 ### Installation
@@ -34,12 +34,12 @@ The loaded gui should look like the one below:
 
 #### Brief GUI walkthrough
 The GUI is made up of four main areas, labelled in the above screenshot.
-+ The top left part of the GUI has four tabs that contain the loaded scripts and instruments, 
++ **The top left** portion of the GUI has four tabs that contain the loaded scripts and instruments, 
 a monitor to monitor values from some of the loaded instruments, 
 and a dataset manager. These will be discussed in more detail below, after scripts and instruments are imported into the GUI.
-+ The bottom left portion of the GUI comprises the log and GUI configuration details. The log gives text updates when instruments
++ **The bottom left** portion of the GUI comprises the log and GUI configuration details. The log gives text updates when instruments
 are toggled and during the execution of scripts. The GUI configuration tab has filepaths for saving data, as well as GUI configuration information.
-+ The entire right half of the GUI is for data visualization, and is composed of a major and minor plotting area. 
++ **The entire right half** of the GUI is for data visualization, and is composed of a major and minor plotting area. 
 These are used to visualize data, both during scripts and after their execution.
 
 To see these in action, we need to import an instrument and/or script.
@@ -70,4 +70,4 @@ However, we do not officially support other platforms at this time.
 
 + How can we send feedback?
 
-Feel free to create an issue on the issue tracker if you feel you have an issue for us to consider.
+Feel free to create an issue on the issue tracker if you find any bugs.
