@@ -1,3 +1,7 @@
 __author__ = 'Experiment'
-# import sip
-# sip.setapi('QVariant', 2)# set to version to so that the gui_old returns QString objects and not generic QVariants
+
+import src.core as core
+import src.gui as gui
+import src.instruments as instruments
+import src.scripts as scripts
+import src.tools as tools

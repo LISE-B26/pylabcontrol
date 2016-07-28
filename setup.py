@@ -1,19 +1,20 @@
 from setuptools import setup
 
-# def readme():
-#     with open('README.rst') as f:
-#         return f.read()
+def readme():
+    with open('README.md') as f:
+        return f.read()
 
 setup(
     name='PyLabControl',
-    version='0.1.3',
-    packages=['PyLabControl.src', 'PyLabControl.src.gui', 'PyLabControl.src.core', 'PyLabControl.src.tools', 'PyLabControl.src.scripts',
-              'PyLabControl.src.instruments', 'PyLabControl.tests', 'PyLabControl.docs'],
+    version='0.1.4',
+    package_dir={'PyLabControl': ''},
+    packages=['PyLabControl.src', 'PyLabControl.src.core', 'PyLabControl.src.gui', 'PyLabControl.src.instruments',
+              'PyLabControl.src.scripts', 'PyLabControl.src.tools'],
     url='https://github.com/LISE-B26/PythonLab',
     license='GPL',
     author='Aaron Kabcenell, Jan Gieseler, and Arthur Safira',
     author_email='',
-    # long_description=readme(),
+    long_description=readme(),
     description='Python laboratory control software',
     keywords='laboratory control',
     classifiers=[
