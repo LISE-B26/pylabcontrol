@@ -5,6 +5,4 @@
 /playing_around
 /dragdroptesting.py
 /src/core/tmp.py
-/b26_toolkit/src/instruments/labview_fpga_lib/pid_loop_simple/pid_loop_simple.dll
-.idea/workspace.xml
-/b26_toolkit/src/instruments/labview_fpga_lib/read_ai_ao/read_ai_ao.dll
+.idea

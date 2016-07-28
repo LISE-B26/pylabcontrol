@@ -8,7 +8,7 @@ setup(
     name='PyLabControl',
     version='0.1.3',
     packages=['PyLabControl.src', 'PyLabControl.src.gui', 'PyLabControl.src.core', 'PyLabControl.src.tools', 'PyLabControl.src.scripts',
-              'PyLabControl.src.instruments', 'PyLabControl.tests'],
+              'PyLabControl.src.instruments', 'PyLabControl.tests', 'PyLabControl.docs'],
     url='https://github.com/LISE-B26/PythonLab',
     license='GPL',
     author='Aaron Kabcenell, Jan Gieseler, and Arthur Safira',
@@ -28,7 +28,7 @@ setup(
         'matplotlib',
         'pandas',
         'numpy',
-        'pillow'
+        'scipy'
     ],
     test_suite='nose.collector',
     tests_require=['nose'],
