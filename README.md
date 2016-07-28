@@ -46,25 +46,25 @@ These are used to visualize data, both during scripts and after their execution.
 
 To see these in action, we need to import an instrument and/or script.
 
-### Importing Instruments
+#### Importing Instruments
 No instruments will be in the GUI the first time it is launched; instruments will have to separately be loaded in. A
 dummy instrument is provided to better understand the interaction model with the GUI.
 
 Navigate to the 'Instruments' tab in the top left of the GUI, and press "Import Instruments". Find the .b26 file you created, 
 and be sure to the click and drag the Dummy Instrument to the left pane. Press Ok, and the instrument should not be shown in the GUI. 
 
-### Importing Scripts
+#### Importing Scripts
 No scripts will be in the GUI the first time it is launched; scripts will have to separately be loaded in. The steps are exactly as above, ...
 
 Custom instruments and scripts will be supported in a later release. 
 If you are interested in importing your own instruments or scripts soon, pelase do not hesitate to reach out to the authors of pyLabControl.
 
-### B26_Toolkit
+#### B26_Toolkit
 This software was created to streamline experiments done in the Lukin Lab; 
 the instruments and scripts utilized there can be imported into pyLabControl by installing b26_toolkit. 
 More information can be found here: https://github.com/LISE-B26/b26_toolkit
 
-### FAQ
+#### FAQ
 + Does this work with other operating systems?
 
 While only extensively tested on 64-bit Windows 7, the GUI should work on other versions of windows, LINUX, and Mac OSX.
