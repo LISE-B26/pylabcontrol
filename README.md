@@ -68,11 +68,11 @@ the instruments and scripts utilized there can be imported into pyLabControl by 
 More information can be found here: https://github.com/LISE-B26/b26_toolkit
 
 #### FAQ
-+ Does this work with other operating systems?
++ **Does this work with other operating systems?**
 
 While only extensively tested on 64-bit Windows 7, the GUI should work on other versions of windows, LINUX, and Mac OSX.
 However, we do not officially support other platforms at this time.
 
-+ How can we send feedback?
++ **How can we send feedback?**
 
 Feel free to create an issue on the issue tracker if you find any bugs, or contact the authors directly.
