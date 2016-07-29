@@ -60,32 +60,36 @@ class SelectPoints(Script):
         Args:
             figure_list:
         '''
-        axes = figure_list[0].axes[0]
-        patch_size = self.settings['patch_size']
 
-        #first clear all old patches (circles and numbers), then redraw all
-        if not self.patches == []:
-            try: #catch case where plot has been cleared, so old patches no longer exist. Then skip clearing step.
-                for patch in self.patches:
-                    patch.remove()
-            except ValueError:
-                pass
+        axes = figure_list[0].axes
 
-        self.patches = []
+        if len(axes)>0:
+            axes = axes[0]
+            patch_size = self.settings['patch_size']
 
-        for index, pt in enumerate(self.data['nv_locations']):
-            # axes.plot(pt, fc='b')
+            #first clear all old patches (circles and numbers), then redraw all
+            if not self.patches == []:
+                try: #catch case where plot has been cleared, so old patches no longer exist. Then skip clearing step.
+                    for patch in self.patches:
+                        patch.remove()
+                except ValueError:
+                    pass
 
-            circ = patches.Circle((pt[0], pt[1]), patch_size, fc='b')
-            axes.add_patch(circ)
-            self.patches.append(circ)
+            self.patches = []
 
-            text = axes.text(pt[0], pt[1], '{:d}'.format(index),
-                    horizontalalignment='center',
-                    verticalalignment='center',
-                    color='white'
-                    )
-            self.patches.append(text)
+            for index, pt in enumerate(self.data['nv_locations']):
+                # axes.plot(pt, fc='b')
+
+                circ = patches.Circle((pt[0], pt[1]), patch_size, fc='b')
+                axes.add_patch(circ)
+                self.patches.append(circ)
+
+                text = axes.text(pt[0], pt[1], '{:d}'.format(index),
+                        horizontalalignment='center',
+                        verticalalignment='center',
+                        color='white'
+                        )
+                self.patches.append(text)
 
     def toggle_NV(self, pt):
         '''
