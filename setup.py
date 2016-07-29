@@ -34,6 +34,7 @@ setup(
     test_suite='nose.collector',
     tests_require=['nose'],
     entry_points={
-        'console_scripts': ['PyLabControl = PyLabControl.src.gui.gui:run_gui']
+        'console_scripts': ['PyLabControl = PyLabControl.__main__:main'],
+        'gui_scripts': ['PyLabControl_gui = PyLabControl.__main__:main']
     }
 )
