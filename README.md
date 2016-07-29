@@ -9,7 +9,8 @@ It
 
 PyLabControl is built on python 2.7.x, with extensive use of pyQT for the general user interface. 
 It was built by Arthur Safira, Jan Gieseler, and Aaron Kabcenell in the Lukin Group at Harvard University. 
-It is distributed under the BLAH license.
+It is distributed under the GPLv3 license. For more information, see LICENSE.txt .
+
 
 
 ## Getting Started
@@ -22,7 +23,9 @@ The simplest way to install pyLabControl is with the command-line utility pip. T
 
 ```>>> pip install PyLabControl```
 
-Running the GUI
+in the windows command-line interface.
+
+####Running the GUI
 To run the gui, open commandline and run
 
 ``` >>> PyLabControl ```
@@ -72,4 +75,4 @@ However, we do not officially support other platforms at this time.
 
 + How can we send feedback?
 
-Feel free to create an issue on the issue tracker if you find any bugs.
+Feel free to create an issue on the issue tracker if you find any bugs, or contact the authors directly.
