@@ -38,6 +38,10 @@ def run_gui():
 
     # fname = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\pythonlab_config.b26"
     try:
+        print("PyLabControl  Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell \n"
+              "This program comes with ABSOLUTELY NO WARRANTY. \n"
+              "This is free software, and you are welcome to redistribute it under certain conditions.")
+
         ex = qt_b26_gui.ControlMainWindow(fname)
 
         app.setWindowIcon(QtGui.QIcon('magnet_and_nv.ico'))
