@@ -7,7 +7,8 @@
 # WARNING! All changes made in this file will be lost!
 
 """
-    This file is part of PyLabControl.
+    This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+    Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 
     Foobar is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
