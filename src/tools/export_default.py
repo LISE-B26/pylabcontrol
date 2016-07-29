@@ -82,17 +82,18 @@ def export_default_instruments(target_folder, module_name = '', raise_errors = F
                 else:
                     print('failed to create instrument file for: {:s}'.format(obj.__name__))
 
-def export_default_scripts(path, module_name = '', raise_errors = False):
+def export_default_scripts(target_folder, source_folder = None, raise_errors = False):
     """
     tries to instantiate all the scripts that are imported in /scripts/__init__.py
     saves each script that could be instantiated into a .b26 file in the folder path
     Args:
-        path: target path for .b26 files
+        target_folder: target path for .b26 files
+        source_folder: location of python script files
     """
     loaded_instruments = {}
     loaded_scripts = {}
     from PyLabControl.src.core.scripts import Script
-
+    module_name = source_folder
     if module_name is '':
         module_name = 'src.scripts'
 
@@ -107,7 +108,7 @@ def export_default_scripts(path, module_name = '', raise_errors = False):
     loaded_scripts, failed, loaded_instruments = Script.load_and_append(scripts_to_load)
 
     for name, value in loaded_scripts.iteritems():
-        filename = '{:s}{:s}.b26'.format(path, name)
+        filename = '{:s}{:s}.b26'.format(target_folder, name)
         value.save_b26(filename)
 
     print('\n================================================')
@@ -120,16 +121,18 @@ def export_default_scripts(path, module_name = '', raise_errors = False):
             # raise error
 
 
-def export(folder, class_type = 'all', raise_errors = False):
+def export(target_folder, source_folders = None, class_type ='all', raise_errors = False):
     """
     exports the existing scripts/intruments (future: probes) into folder as .b26 files
     Args:
+        target_folder: target location of created .b26 script files
+        source_folder: location of python script files or a list of folders
         class_type: string, one of the 4 following options
             -probes (exports probes) --not implemented yet--
             -scripts (exports scripts)
             -instruments (exports instruments)
             -all (exports instruments, scripts and probes)
-        folder: target folder where .b26 files are created
+        target_folder: target folder where .b26 files are created
     Returns:
 
     """
@@ -138,28 +141,46 @@ def export(folder, class_type = 'all', raise_errors = False):
         return
 
 
+    if isinstance(source_folders, str):
+        module_list = [source_folders]
+    elif isinstance(source_folders, list):
+        module_list = source_folders
+    else:
+        raise TypeError('unknown type for source_folders')
 
 
-    path_to_config = '/'.join(os.path.dirname(inspect.getfile(export)).split('/')[0:-2]) + '/config.txt'
+    # path_to_config = '/'.join(os.path.dirname(inspect.getfile(export)).split('/')[0:-2]) + '/config.txt'
+    #
+    # module_list = ['']
+    # module_list += get_config_value('SCRIPT_MODULES', path_to_config).split(';')
 
-    module_list = ['']
-    module_list += get_config_value('SCRIPT_MODULES', path_to_config).split(';')
 
-
-
+    print(module_list)
     for module in module_list:
+
+        # stripping off subfolders
+        if os.path.basename(module) == '':
+            module = os.path.dirname(module)
+        if os.path.basename(module) in ('scripts', 'instruments'):
+            module = os.path.dirname(module)
+        if os.path.basename(module) in ('src'):
+            module = os.path.dirname(module)
+
+
         if class_type in ('all', 'scripts'):
-            export_default_scripts(folder, module, raise_errors)
+            export_default_scripts(target_folder, source_folder=module, raise_errors=raise_errors)
         if class_type in ('all', 'instruments'):
-            export_default_instruments(folder, module, raise_errors)
+            export_default_instruments(target_folder, module, raise_errors)
         if class_type in ('all', 'probes'):
-            export_default_probes(folder, module, raise_errors)
+            export_default_probes(target_folder, module, raise_errors)
 
 
 if __name__ == '__main__':
 
     # export('C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated\\', class_type='instruments', raise_errors =False)
-    export('C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\', class_type='scripts')
+    export(target_folder='C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\',
+           source_folders='C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\',
+           class_type='scripts')
     #
     # import b26_toolkit.src.instruments
 
