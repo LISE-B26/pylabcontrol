@@ -67,7 +67,7 @@ This software was created to streamline experiments done in the Lukin Lab;
 the instruments and scripts utilized there can be imported into pyLabControl by installing b26_toolkit. 
 More information can be found here: https://github.com/LISE-B26/b26_toolkit
 
-#### FAQ
+## FAQ
 + **Does this work with other operating systems?**
 
 While only extensively tested on 64-bit Windows 7, the GUI should work on other versions of windows, LINUX, and Mac OSX.
