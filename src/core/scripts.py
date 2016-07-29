@@ -477,7 +477,10 @@ class Script(QObject):
 
         """
 
-        dictator = {self.name: {'class' : self.__class__.__name__}}
+        dictator = {self.name: {
+            'class' : self.__class__.__name__,
+            'filepath': inspect.getfile(self.__class__)
+        }}
 
         if self.scripts != {}:
             dictator[self.name].update({'scripts': {} })
@@ -745,7 +748,7 @@ class Script(QObject):
 
         # If no data files were found, raise error
         if not data_files:
-            raise AttributeError('Could not find data files in {s}'.format(path))
+            raise AttributeError('Could not find data files in {:s}'.format(path))
 
         # import data from each csv
         for data_file in data_files:
@@ -1186,7 +1189,45 @@ if __name__ == '__main__':
     # print(data.keys())
     # print(data['tau'])
 
-    from src.scripts import ScriptMinimalDummy
-    import sys
-    for x in sys.path:
-        print(x)
+    # from src.scripts import ScriptMinimalDummy
+    # import sys
+    # for x in sys.path:
+    #     print(x)
+
+
+
+    # Jan testing for new export without config
+
+
+    import inspect
+    from PyLabControl.src.scripts import ScriptDummy
+    import os, glob
+
+    from importlib import import_module
+    from PyLabControl.src.core import Script
+
+
+    def get_scripts_in_path(folder_name):
+        path = folder_name + '/'
+        module = []
+        while path not in os.sys.path:
+            path = os.path.dirname(path)
+            if path == os.path.dirname(path):
+                path, module = None, None
+                break
+            module.append(os.path.basename(path))
+        module = module[:-1]
+
+        #     module.reverse()
+        #     module = '.'.join(module)
+        #     module = import_module(module)
+        return path, module
+
+
+    #     return {name:name for name, obj in inspect.getmembers(module) if inspect.isclass(obj)}
+
+
+
+    folder_name = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
+    # folder_name = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl'
+    get_scripts_in_path(folder_name)
