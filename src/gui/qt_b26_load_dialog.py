@@ -142,6 +142,7 @@ Returns:
             #TODO: check if this is portable
             elif name in self.elements_from_file:
                 class_name = self.elements_from_file[name]['class']
+                print('THIS',  self.elements_from_file[name])
                 filepath = self.elements_from_file[name]['filepath']
                 path_to_src_scripts = filepath[:filepath.find('\\src\\scripts\\')]
                 module_name = path_to_src_scripts[path_to_src_scripts.rfind('\\')+1:]
