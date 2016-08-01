@@ -139,10 +139,14 @@ Returns:
             if name in self.elements_old:
                 info = self.elements_old[name].__class__.__doc__
 
+            #TODO: check if this is portable
             elif name in self.elements_from_file:
                 class_name = self.elements_from_file[name]['class']
-                module = __import__('src.{:s}'.format(self.elements_type), fromlist=[class_name])
-                print(module, class_name)
+                print('THIS',  self.elements_from_file[name])
+                filepath = self.elements_from_file[name]['filepath']
+                path_to_src_scripts = filepath[:filepath.find('\\src\\scripts\\')]
+                module_name = path_to_src_scripts[path_to_src_scripts.rfind('\\')+1:]
+                module = __import__('{:s}.src.{:s}'.format(module_name, self.elements_type), fromlist=[class_name])
                 info = getattr(module, class_name).__doc__
 
             if info is None:
