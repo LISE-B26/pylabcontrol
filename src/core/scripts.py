@@ -921,7 +921,6 @@ class Script(QObject):
 
 
         for script_name, script_info in script_dict.iteritems():
-
             # check if script already exists
             if script_name in scripts.keys():
                 print('WARNING: script {:s} already exists. Did not load!'.format(script_name))

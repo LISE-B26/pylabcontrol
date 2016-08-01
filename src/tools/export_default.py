@@ -120,7 +120,7 @@ def export_default_scripts(target_folder, source_folder = None, raise_errors = F
 
             # raise error
 
-
+#TODO: AK @ JG: is this as source_folder correct? Seems to fail if given a folder and not a name
 def export(target_folder, source_folders = None, class_type ='all', raise_errors = False):
     """
     exports the existing scripts/intruments (future: probes) into folder as .b26 files
@@ -154,8 +154,6 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
     # module_list = ['']
     # module_list += get_config_value('SCRIPT_MODULES', path_to_config).split(';')
 
-
-    print(module_list)
     for module in module_list:
 
         # stripping off subfolders
@@ -179,7 +177,7 @@ if __name__ == '__main__':
 
     # export('C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated\\', class_type='instruments', raise_errors =False)
     export(target_folder='C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\',
-           source_folders='C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\',
+           source_folders='b26_toolkit',
            class_type='scripts')
     #
     # import b26_toolkit.src.instruments
