@@ -1,4 +1,5 @@
 include README.md
+include config.txt
 include src/gui/basic_application_window.ui
 include src/gui/load_dialog.ui
 include src/gui/pyqt_uic.bat

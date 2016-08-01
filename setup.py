@@ -6,9 +6,9 @@ def readme():
 
 setup(
     name='PyLabControl',
-    version='0.1.4',
+    version='0.1.7',
     package_dir={'PyLabControl': ''},
-    packages=['PyLabControl.src', 'PyLabControl.src.core', 'PyLabControl.src.gui', 'PyLabControl.src.instruments',
+    packages=['PyLabControl', 'PyLabControl.src', 'PyLabControl.src.core', 'PyLabControl.src.gui', 'PyLabControl.src.instruments',
               'PyLabControl.src.scripts', 'PyLabControl.src.tools', 'PyLabControl.tests'],
     url='https://github.com/LISE-B26/PythonLab',
     license='GPL',
@@ -34,7 +34,7 @@ setup(
     test_suite='nose.collector',
     tests_require=['nose'],
     entry_points={
-        'console_scripts': ['PyLabControl = PyLabControl.__main__:main'],
-        'gui_scripts': ['PyLabControl_gui = PyLabControl.__main__:main']
+        'console_scripts': ['PyLabControl = PyLabControl.__main__:main']
+        # 'gui_scripts': ['PyLabControl_gui = PyLabControl.__main__:main']
     }
 )
