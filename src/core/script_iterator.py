@@ -51,7 +51,7 @@ Script.
         """
         Script.__init__(self, name, scripts = scripts, settings = settings, log_function= log_function, data_path = data_path)
 
-        self.iterator_type = self.get_iterator_type(settings, scripts)
+        self.iterator_type = self.get_iterator_type(self.settings, scripts)
         # self._skip_next = False
 
     @staticmethod
