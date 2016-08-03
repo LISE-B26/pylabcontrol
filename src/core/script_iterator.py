@@ -379,7 +379,9 @@ Script.
                         raise NotImplementedError
                     elif script_sub_scripts[sub_script_name]['class'] == 'ScriptIterator':
                         subscript_class_name = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name])['class']
-                        sub_scripts.update({sub_script_name: eval('src.scripts.' + subscript_class_name)})
+                        # sub_scripts.update({sub_script_name: eval('src.scripts.' + subscript_class_name)}) #depreciated after repository split AK 8/2/16
+                        import PyLabControl.src.scripts
+                        sub_scripts.update({sub_script_name: getattr(PyLabControl.src.scripts, subscript_class_name)})
                     else:
                         module, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script_name]['class'], module_list)
                         sub_scripts.update({sub_script_name: getattr(module, script_sub_scripts[sub_script_name]['class'])})

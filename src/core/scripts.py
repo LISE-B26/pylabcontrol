@@ -891,6 +891,7 @@ class Script(QObject):
 
             """
             default_scripts = getattr(class_of_script, '_SCRIPTS')
+            print('DEFAULT_SCRIPTS', default_scripts)
 
             #
             # create instruments that script needs
@@ -960,6 +961,7 @@ class Script(QObject):
                 try:
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
                 except Exception as err:
+                    raise
                     print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
                     load_failed[script_name] = err
                     continue
