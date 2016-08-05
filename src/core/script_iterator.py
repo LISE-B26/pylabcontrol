@@ -51,7 +51,8 @@ Script.
         Script.__init__(self, name, scripts = scripts, settings = settings, log_function= log_function, data_path = data_path)
 
         self.iterator_type = self.get_iterator_type(self.settings, scripts)
-        # self._skip_next = False
+
+        self._current_subscript_stage = None
 
     @staticmethod
     def get_iterator_type(script_settings, subscripts={}):
@@ -277,8 +278,9 @@ Script.
 
         '''
         #TODO: be smarter about how we plot ScriptIterator
-        if self._current_subscript_stage['current_subscript'] is not None:
-            self._current_subscript_stage['current_subscript'].plot(figure_list)
+        if self._current_subscript_stage is not None:
+            if self._current_subscript_stage['current_subscript'] is not None:
+                self._current_subscript_stage['current_subscript'].plot(figure_list)
 
     def to_dict(self):
         """

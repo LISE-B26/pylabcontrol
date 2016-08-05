@@ -138,10 +138,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_stop_script.clicked.connect(self.btn_clicked)
             self.btn_skip_subscript.clicked.connect(self.btn_clicked)
             self.btn_validate_script.clicked.connect(self.btn_clicked)
-            self.btn_plot_script.clicked.connect(self.btn_clicked)
+            # self.btn_plot_script.clicked.connect(self.btn_clicked)
             # self.btn_plot_probe.clicked.connect(self.btn_clicked)
             self.btn_store_script_data.clicked.connect(self.btn_clicked)
-            self.btn_plot_data.clicked.connect(self.btn_clicked)
+            # self.btn_plot_data.clicked.connect(self.btn_clicked)
             self.btn_save_data.clicked.connect(self.btn_clicked)
             self.btn_delete_data.clicked.connect(self.btn_clicked)
 
@@ -166,6 +166,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_scripts.itemClicked.connect(
                 lambda: onScriptParamClick(self.tree_scripts.currentItem(), self.tree_scripts.currentColumn()))
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
+            self.tree_scripts.itemClicked.connect(self.btn_clicked)
             # self.tree_scripts.installEventFilter(self)
             # QtGui.QTreeWidget.installEventFilter(self)
 
@@ -178,8 +179,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_settings.itemChanged.connect(lambda: self.update_parameters(self.tree_settings))
             self.tree_settings.itemExpanded.connect(lambda: self.refresh_instruments())
 
-            # plots
-            # self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_clicked)
 
             # set the log_filename when checking loggin
             self.chk_probe_log.toggled.connect(lambda: self.set_probe_file_name(self.chk_probe_log.isChecked()))
@@ -621,7 +620,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 script.save_b26()
                 script.save_log()
         def delete_data():
-            # COMMENT_ME
+            """
+            deletes the data from the dataset
+            Returns:
+            """
             indecies = self.tree_dataset.selectedIndexes()
             model = indecies[0].model()
             rows = list(set([index.row()for index in indecies]))
@@ -723,12 +725,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         def plot_data(sender):
             # COMMENT_ME
-            if sender in (self.btn_plot_data, self.tree_dataset):
+            if sender == self.tree_dataset:
                 index = self.tree_dataset.selectedIndexes()[0]
                 model = index.model()
                 time_tag = str(model.itemFromIndex(model.index(index.row(), 0)).text())
                 script = self.data_sets[time_tag]
-            elif sender == self.btn_plot_script:
+            # elif sender == self.btn_plot_script:
+            elif sender == self.tree_scripts:
                 item = self.tree_scripts.currentItem()
                 if item is not None:
                     script, path_to_script, _ = item.get_script()
@@ -742,7 +745,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             skip_button()
         elif sender is self.btn_validate_script:
             validate_button()
-        elif sender in (self.btn_plot_data, self.btn_plot_script, self.tree_dataset):
+        elif sender in (self.tree_dataset, self.tree_scripts):
             plot_data(sender)
         elif sender is self.btn_store_script_data:
             store_script_data()
@@ -924,35 +927,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # Estimate remaining time if progress has been made
         if progress:
-            # convert timedelta object into a string
-            # remaining_time =':'.join(['{:02d}'.format(int(i)) for i in str(script.remaining_time).split(':')[:3]])
-            # print('XXX current script', script.name, script, type(script))
             remaining_time = str(datetime.timedelta(seconds=script.remaining_time.seconds))
             self.lbl_time_estimate.setText('time remaining: {:s}'.format(remaining_time))
-
-
-
-
-
-
-            # old stuff: to be deleted
-            # def _translate(context, text, disambig):
-            #     _encoding = QtGui.QApplication.UnicodeUTF8
-            #     return QtGui.QApplication.translate(context, text, disambig, _encoding)
-            #
-            # script_run_time = datetime.datetime.now() - self.script_start_time
-            # remaining_time_seconds = (100.0-progress)*script_run_time.total_seconds()/float(progress)
-            # remaining_time_minutes = int(remaining_time_seconds/60.0)
-            # leftover_seconds = int(remaining_time_seconds - remaining_time_minutes*60)
-            #
-            # self.lbl_time_estimate.setText(_translate("MainWindow",
-            #                                           "time remaining: {0} min, {1} sec".format(remaining_time_minutes,
-            #                                                                                     leftover_seconds), None))
-
-
-        # if isinstance(script, QThreadWrapper):
-        #     script = script.script
-        if script is not None:
+        if script is not str(self.tabWidget.tabText(self.tabWidget.currentIndex())).lower() == 'scripts':
             self.plot_script(script)
 
 

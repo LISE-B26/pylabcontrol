@@ -1109,6 +1109,10 @@ class Script(QObject):
         for the latter use the last entry
 
         """
+        # if there is not data we do not plot anything
+        if not self.data:
+            return
+
         # if plot function is called when script is not running we request a plot refresh
         if self.is_running == False:
             print(datetime.datetime.now().strftime("%B %d, %Y %H:%M:%S"), self.name, 'force refresh plot!!!')
@@ -1120,9 +1124,7 @@ class Script(QObject):
             self._plot_refresh = False
             for figure in figure_list:
                 if figure.axes:
-                    # todo: tightlayout warning test it this avoids the warning:
                     figure.set_tight_layout(True)
-                    # figure.tight_layout()
         else:
             self._update_plot(axes_list)
 
