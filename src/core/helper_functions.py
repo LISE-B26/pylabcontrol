@@ -18,6 +18,7 @@ def module_name_from_path(folder_name):
     folder_name = folder_name.split('.pyc')[0]
     folder_name = folder_name.split('.py')[0]
 
+    folder_name = os.path.normpath(folder_name)
     path = folder_name + '/'
     module = []
     while path not in os.sys.path:
@@ -33,3 +34,6 @@ def module_name_from_path(folder_name):
 
     return module, path
 
+if __name__ == '__main__':
+    folder_name = 'C://Users//Experiment//PycharmProjects//PyLabControl//src//core'
+    module_name_from_path(folder_name)
