@@ -130,13 +130,19 @@ Script.
                 curr_type = type(reduce(lambda x,y: x[y], setting, script_settings)) #traverse nested dict to get type of variable
                 update_dict = reduce(lambda y, x: {x: y}, reversed(setting), curr_type(value)) #creates nested dictionary from list
                 script_settings.update(update_dict)
-
+                # todo: check if that is a good way to get the name of the parameter
+                parameter_name = update_dict.keys()[0]
                 self.log('setting parameter {:s} to {:0.2e}'.format(self.settings['sweep_param'], value))
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
                     self.log('starting {:s}'.format(script_name))
+
+                    tag = self.scripts[script_name].settings['tag']
+
+                    self.scripts[script_name].settings['tag'] = '{:s}_{:s}_{:0.3e}'.format(tag, parameter_name, value)
                     self.scripts[script_name].run()
+                    self.scripts[script_name].settings['tag'] = tag
 
         elif self.iterator_type == self.TYPE_LOOP:
             for i in range(0, self.settings['N']):
@@ -144,7 +150,12 @@ Script.
                     if self._abort:
                         break
                     self.log('starting {:s} {:03d}/{:03d}'.format(script_name, i + 1, self.settings['N']))
+
+                    tag = self.scripts[script_name].settings['tag']
+                    tmp = tag + '_{' + ':0{:d}'.format(len(str(self.settings['N']))) + '}'
+                    self.scripts[script_name].settings['tag'] = tmp.format(i)
                     self.scripts[script_name].run()
+                    self.scripts[script_name].settings['tag'] = tag
         elif self.iterator_type in (self.TYPE_ITER_NVS, self.TYPE_ITER_POINTS):
 
             if self.iterator_type == self.TYPE_ITER_NVS:
@@ -154,7 +165,7 @@ Script.
 
             points = self.scripts['select_points'].data['nv_locations']
 
-            for pt in points:
+            for i, pt in enumerate(points):
                 set_point.update({'x': pt[0], 'y': pt[1]})
                 self.log('found NV near x = {:0.3e}, y = {:0.3e}'.format(pt[0], pt[1]))
                 # scip first script since that is the select NV script!
@@ -162,7 +173,11 @@ Script.
                     if self._abort:
                         break
                     self.log('starting {:s}'.format(script_name))
+                    tag = self.scripts[script_name].settings['tag']
+                    tmp = tag + '_pt_{' + ':0{:d}'.format(len(str(self.settings['N']))) + '}'
+                    self.scripts[script_name].settings['tag'] = tmp.format(i)
                     self.scripts[script_name].run()
+                    self.scripts[script_name].settings['tag'] = tag
         else:
             raise TypeError('wrong iterator type')
 

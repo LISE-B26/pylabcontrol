@@ -220,9 +220,9 @@ if __name__ == '__main__':
 
 
     source_folders = 'b26_toolkit'
-    # source_folders = None
+    source_folders = None
     target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated'
-    export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
+    export(target_folder, source_folders=source_folders, class_type='instruments', raise_errors=False)
 
     # from PyLabControl.src.core import Script, Instrument
     # folder_name = 'b26_toolkit'

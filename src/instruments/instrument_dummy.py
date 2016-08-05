@@ -41,7 +41,7 @@ class DummyInstrument(Instrument):
                }
 
     def __init__(self, name =  None, settings = None):
-
+        self._test_variable = 1
         super(DummyInstrument, self).__init__(name, settings)
         self._internal_state = None
         self._internal_state_deep = None
