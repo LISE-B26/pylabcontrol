@@ -23,7 +23,9 @@ from matplotlib import patches
 from PyLabControl.src.core import Script, Parameter
 
 class SelectPoints(Script):
-    # COMMENT_ME
+    """
+Script to select points on an image. The selected points are saved and can be used in a superscript to iterate over.
+    """
     _DEFAULT_SETTINGS = [Parameter('patch_size', 0.003)]
 
     _INSTRUMENTS = {}
@@ -35,15 +37,15 @@ class SelectPoints(Script):
         """
         Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
 
-        self.data = {'nv_locations': []}
         self.patches = []
+        self.plot_settings = {}
 
     def _function(self):
         """
         Waits until stopped to keep script live. Gui must handle calling of Toggle_NV function on mouse click.
         """
 
-        self.data = {'nv_locations': []}
+        self.data = {'nv_locations': [], 'image_data': None}
 
         self.progress = 50
         self.updateProgress.emit(self.progress)
@@ -51,7 +53,7 @@ class SelectPoints(Script):
         while not self._abort:
             time.sleep(1)
 
-    #must be passed figure with galvo plot on first axis
+
     def plot(self, figure_list):
         '''
         Plots a dot on top of each selected NV, with a corresponding number denoting the order in which the NVs are
@@ -60,36 +62,70 @@ class SelectPoints(Script):
         Args:
             figure_list:
         '''
+        print('aaaa', self.data)
+        # if there is not image data get it from the current plot
+        if not self.data == {} and self.data['image_data'] is  None:
+            axes = figure_list[0].axes[0]
+            if len(axes.images)>0:
+                self.data['image_data'] = np.array(axes.images[0].get_array())
+                self.data['extent'] = np.array(axes.images[0].get_extent())
+                self.plot_settings['cmap'] = axes.images[0].get_cmap().name
+                self.plot_settings['xlabel'] = axes.get_xlabel()
+                self.plot_settings['ylabel'] = axes.get_ylabel()
+                self.plot_settings['title'] = axes.get_title()
+                self.plot_settings['interpol'] = axes.images[0].get_interpolation()
 
-        axes = figure_list[0].axes
+        Script.plot(self, figure_list)
 
-        if len(axes)>0:
-            axes = axes[0]
-            patch_size = self.settings['patch_size']
+    #must be passed figure with galvo plot on first axis
+    def _plot(self, axes_list):
+        '''
+        Plots a dot on top of each selected NV, with a corresponding number denoting the order in which the NVs are
+        listed.
+        Precondition: must have an existing image in figure_list[0] to plot over
+        Args:
+            figure_list:
+        '''
 
-            #first clear all old patches (circles and numbers), then redraw all
-            if not self.patches == []:
-                try: #catch case where plot has been cleared, so old patches no longer exist. Then skip clearing step.
-                    for patch in self.patches:
-                        patch.remove()
-                except ValueError:
-                    pass
+        axes = axes_list[0]
 
-            self.patches = []
+        if self.plot_settings:
+            axes.imshow(self.data['image_data'], cmap=self.plot_settings['cmap'], interpolation=self.plot_settings['interpol'], extent=self.data['extent'])
+            axes.set_xlabel(self.plot_settings['xlabel'])
+            axes.set_ylabel(self.plot_settings['ylabel'])
+            axes.set_title(self.plot_settings['title'])
 
-            for index, pt in enumerate(self.data['nv_locations']):
-                # axes.plot(pt, fc='b')
+        self._update(axes_list)
 
-                circ = patches.Circle((pt[0], pt[1]), patch_size, fc='b')
-                axes.add_patch(circ)
-                self.patches.append(circ)
+    def _update(self, axes_list):
 
-                text = axes.text(pt[0], pt[1], '{:d}'.format(index),
-                        horizontalalignment='center',
-                        verticalalignment='center',
-                        color='white'
-                        )
-                self.patches.append(text)
+        axes = axes_list[0]
+
+        patch_size = self.settings['patch_size']
+
+        #first clear all old patches (circles and numbers), then redraw all
+        if not self.patches == []:
+            try: #catch case where plot has been cleared, so old patches no longer exist. Then skip clearing step.
+                for patch in self.patches:
+                    patch.remove()
+            except ValueError:
+                pass
+
+        self.patches = []
+
+        for index, pt in enumerate(self.data['nv_locations']):
+            # axes.plot(pt, fc='b')
+
+            circ = patches.Circle((pt[0], pt[1]), patch_size, fc='b')
+            axes.add_patch(circ)
+            self.patches.append(circ)
+
+            text = axes.text(pt[0], pt[1], '{:d}'.format(index),
+                    horizontalalignment='center',
+                    verticalalignment='center',
+                    color='white'
+                    )
+            self.patches.append(text)
 
     def toggle_NV(self, pt):
         '''
@@ -103,6 +139,7 @@ class SelectPoints(Script):
         '''
         if not self.data['nv_locations']: #if self.data is empty so this is the first point
             self.data['nv_locations'].append(pt)
+            self.data['image_data'] = None # clear image data
 
         else:
             # use KDTree to find NV closest to mouse click

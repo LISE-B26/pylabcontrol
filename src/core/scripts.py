@@ -918,8 +918,6 @@ class Script(QObject):
                 raise ImportError('script {:s}: failed to load subscripts'.format(class_of_script))
             return sub_scripts, instruments_updated
 
-
-
         for script_name, script_info in script_dict.iteritems():
             # check if script already exists
             if script_name in scripts.keys():
@@ -1144,11 +1142,10 @@ class Script(QObject):
             for fig in figure_list:
                 fig.clf()
                 axes_list.append(fig.add_subplot(111))
-                # self.log('REFRESHED')
+
         else:
             for fig in figure_list:
                 axes_list.append(fig.axes[0])
-                # self.log('NOT REFRESHED')
 
         return axes_list
 
