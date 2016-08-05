@@ -161,9 +161,6 @@ Returns:
                 self.tree_infile.clearSelection()
 
 
-    # def accept(self):
-
-
     def open_file_dialog(self):
         """
         opens a file dialog to get the path to a file and
@@ -291,9 +288,7 @@ Returns:
 
 if __name__ == '__main__':
     import sys
-    from PyLabControl.src.core.loading import instantiate_instruments
-    instuments = instantiate_instruments({'inst_dummy': 'DummyInstrument'})
-    print(instuments)
+
     app = QtGui.QApplication(sys.argv)
     # ex = LoadDialog(elements_type = 'instruments', elements_old=instuments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
     # ex = LoadDialog(elements_type='scripts', elements_old=instuments)

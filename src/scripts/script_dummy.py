@@ -226,4 +226,7 @@ Example Script that includes an instrument
 
 
 if __name__ == '__main__':
-    np.mean([2,3])
+    d_instr = DummyInstrument()
+    d = ScriptDummyWithInstrument(instruments = {'dummy_instrument' : d_instr})
+
+    print(d)

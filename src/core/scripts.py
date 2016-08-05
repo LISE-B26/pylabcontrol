@@ -771,7 +771,7 @@ class Script(QObject):
         return data
 
     @staticmethod
-    def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None):
+    def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None, raise_errors = False):
         """
         load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
 
@@ -815,6 +815,7 @@ class Script(QObject):
 
             data_path: absolute path where data is saved, in case the path in the script is definded as a relative path
 
+            raise_errors: if True errors are raised
         Returns:
                 dictionary of form
                 script_dict = { name_of_script_1 : script_1_instance, name_of_script_2 : script_2_instance, ...}
@@ -846,6 +847,8 @@ class Script(QObject):
             Returns: dictionary with the instruments that the script needs and the updated instruments dictionary
 
             """
+
+
             default_instruments = getattr(class_of_script, '_INSTRUMENTS')
             instrument_dict = {}
             instruments_updated = {}
@@ -858,6 +861,7 @@ class Script(QObject):
                 if len(instrument) == 0:
                     # create new instance of instrument
                     instruments_updated, __ = Instrument.load_and_append({instrument_name: instrument_class}, instruments_updated)
+
                 if script_instruments is not None and instrument_name in script_instruments:
                     instrument_settings_dict = script_instruments[instrument_name]['settings']
                 else:
@@ -915,19 +919,6 @@ class Script(QObject):
             return sub_scripts, instruments_updated
 
 
-        # import all the scripts from additional modules that contain scripts. This name of those modules is in the config file that is located
-        # in the main directory
-        # path_to_config = '/'.join(os.path.normpath(os.path.dirname(inspect.getfile(Script))).split('\\')[0:-2]) + '/config.txt'
-
-        # try:
-        #     module_list = get_config_value('SCRIPT_MODULES', path_to_config).split(';')
-        #     module_list = [import_module(module_name + '.src.scripts') for module_name in module_list]
-        # except IOError:
-        #     warnings.warn("NI Dconfig not found. If it should be present, check the path:")
-        #     module_list = ['PythonLabControl.src.scripts']
-
-
-
 
         for script_name, script_info in script_dict.iteritems():
             # check if script already exists
@@ -937,7 +928,6 @@ class Script(QObject):
             else:
 
                 module, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
-
                 #creates all dynamic scripts so they can be imported following the if statement
                 if script_class_name == 'ScriptIterator':
                     # creates all the dynamic classes in the script and the class of the script itself
@@ -947,27 +937,25 @@ class Script(QObject):
                     script_info = ScriptIterator.create_dynamic_script_class(script_info)
                     module, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
 
-
-
                 class_of_script = getattr(module, script_class_name)
-                # === new version end
-
                 #  ========= create the instruments that are needed by the script =========
                 try:
                     script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
                 except Exception as err:
                     print('loading script {:s} failed. Could not load instruments!'.format(script_name))
                     load_failed[script_name] = err
+                    if raise_errors:
+                        print('xx', class_of_script, script_instruments, updated_instruments)
+                        raise err
                     continue
                 #  ========= create the subscripts that are needed by the script =========
                 try:
-                    print('class_of_scripts', class_of_script)
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
-                    print('sub_scripts', sub_scripts)
                 except Exception as err:
-                    raise
                     print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
                     load_failed[script_name] = err
+                    if raise_errors:
+                        raise err
                     continue
 
                 class_creation_string = ''
@@ -986,9 +974,9 @@ class Script(QObject):
                 try:
                     script_instance = eval(class_creation_string)
                 except Exception, err:
-                    raise
-                    # print('loading script {:s} failed. Could not create script!'.format(script_name))
                     load_failed[script_name] = err
+                    if raise_errors:
+                        raise err
                     continue
                 updated_scripts.update({script_name :script_instance})
 
@@ -1003,23 +991,26 @@ class Script(QObject):
                 - a dictionary
                 - a Script instance
                 - name of Script class
-            module_list: list of modules that contain scripts
         Returns: module, script_class_name, script_settings, script_instruments, script_sub_scripts
 
         """
+
         script_settings = None
         script_instruments = None
         script_sub_scripts = None
         script_class_name = None
-        module = None  # this is were we look for scripts, however for scripts from external modules we look for them in module_list
+        module = None  # this is the module that contains the script were we look for scripts
 
 
         if isinstance(script_information, dict):
-            script_settings = script_information['settings']
+
+            if 'settings' in script_information:
+                script_settings = script_information['settings']
+            if 'filepath' in script_information:
+                script_filepath = str(script_information['filepath'])
+                path_to_module, _ = module_name_from_path(script_filepath)
+                module = import_module(path_to_module)
             script_class_name = str(script_information['class'])
-            script_filepath = str(script_information['filepath'])
-            path_to_module, _ = module_name_from_path(script_filepath)
-            module = import_module(path_to_module)
 
             if 'instruments' in script_information:
                 script_instruments = script_information['instruments']
@@ -1038,7 +1029,6 @@ class Script(QObject):
         if module is None and script_class_name != 'ScriptIterator':
             module = import_module('PyLabControl.src.scripts')
             assert hasattr(module, script_class_name) # check if script is really in the main src.scripts module
-
 
         return module, script_class_name, script_settings, script_instruments, script_sub_scripts
 
@@ -1212,14 +1202,6 @@ if __name__ == '__main__':
     from importlib import import_module
     from PyLabControl.src.core import Script
     a = import_module('b26_toolkit')
-    print('aaa', os.path.dirname(inspect.getfile(a)))
-
-
-
-
-
-    #     return {name:name for name, obj in inspect.getmembers(module) if inspect.isclass(obj)}
-
 
 
     folder_name = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'

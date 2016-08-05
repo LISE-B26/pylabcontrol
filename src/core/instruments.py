@@ -21,7 +21,7 @@ from copy import deepcopy
 from PyLabControl.src.core.read_write_functions import save_b26_file, get_config_value
 import os, inspect
 from importlib import import_module
-
+from PyLabControl.src.core.helper_functions import module_name_from_path
 class Instrument(object):
     '''
     generic instrument class
@@ -128,6 +128,7 @@ class Instrument(object):
             return self.read_probes(name)
         except:
             # restores standard behavior for missing keys
+            print('class ' + type(self).__name__ + ' has no attribute ' + str(name))
             raise AttributeError('class ' + type(self).__name__ + ' has no attribute ' + str(name))
 
 
@@ -192,7 +193,9 @@ class Instrument(object):
 
         """
 
-        dictator = {self.name: {'class': self.__class__.__name__, 'settings': self.settings}}
+        dictator = {self.name: {'class': self.__class__.__name__,
+                                'filepath': inspect.getfile(self.__class__),
+                                'settings': self.settings}}
 
         return dictator
 
@@ -204,10 +207,11 @@ class Instrument(object):
         Args:
             filename: path of file
         """
+
         save_b26_file(filename, instruments = self.to_dict())
 
     @staticmethod
-    def load_and_append(instrument_dict, instruments = None):
+    def load_and_append(instrument_dict, instruments = None, raise_errors = False):
         """
         load instrument from instrument_dict and append to instruments
 
@@ -240,6 +244,8 @@ class Instrument(object):
                 ...
                 }
 
+            raise_errors: if true errors are raised, if False they are caught but not raised
+
 
 
         Returns:
@@ -253,64 +259,33 @@ class Instrument(object):
 
         updated_instruments = {}
         updated_instruments.update(instruments)
-        loaded_failed = []
+        loaded_failed = {}
 
-        # import all the instruments from additional modules that contain instruments. This name of those modules is in the config file that is located
-        # # in the main directory
-        # path_to_config = '/'.join(os.path.normpath(os.path.dirname(inspect.getfile(Instrument))).split('\\')[0:-2]) + '/config.txt'
-        # module_list = get_config_value('SCRIPT_MODULES', path_to_config).split(';')
-        # module_list = [import_module(module_name+'.src.instruments') for module_name in module_list]
 
 
         for instrument_name, instrument_class_name in instrument_dict.iteritems():
             instrument_settings = None
             module = None
 
-            if isinstance(instrument_class_name, dict):
-                instrument_settings = instrument_class_name['settings']
-                instrument_class_name = str(instrument_class_name['class'])
-                instrument_filepath = str(instrument_class_name['filepath '])
-                path_to_module, _ = module_name_from_path(instrument_filepath)
-                module = import_module(path_to_module)
-
-            elif isinstance(instrument_class_name, Instrument):
-                instrument_class_name = instrument_class_name.__class__
-                instrument_class_name = os.path.dirname(inspect.getfile(instrument_class_name))
-            elif isinstance(instrument_class_name, str):
-                pass
-            else:
-                raise TypeError('instrument_class_name not recognized for {0}'.format(instrument_name))
-
-
-            # if len(instrument_class_name.split('.')) == 1:
-            #     module_path = 'src.instruments'
-            # else:
-            #     module_path = 'src.instruments.' + '.'.join(instrument_class_name.split('.')[0:-1])
-            #     instrument_class_name = instrument_class_name.split('.')[-1]
-
-            # check if the requested instruments is in one of the modules
-            # for mod in module_list:
-            #     if hasattr(mod, instrument_class_name):
-            #         module = mod
-            #         break
-
-            if module is None:
-                module = import_module('PyLabControl.src.instruments')
-                assert hasattr(module, instrument_class_name)  # check if instrument is really in the main src.instrument module
-
             # check if instrument already exists
             if instrument_name in instruments.keys():
                 print('WARNING: instrument {:s} already exists. Did not load!'.format(instrument_name))
-                loaded_failed.append(instrument_name)
+                loaded_failed[instrument_name] = instrument_name
             else:
                 instrument_instance = None
+                if isinstance(instrument_class_name, dict):
+                    if 'settings' in instrument_class_name:
+                        instrument_settings = instrument_class_name['settings']
+                    instrument_filepath = str(instrument_class_name['filepath'])
+                    instrument_class_name = str(instrument_class_name['class'])
+                    path_to_module, _ = module_name_from_path(instrument_filepath)
+                    module = import_module(path_to_module)
+                    class_of_instrument = getattr(module, instrument_class_name)
 
-                # ==== import module =======
-                try:
                     # # try to import the instrument
                     # module = __import__(module_path, fromlist=[instrument_class_name])
                     # this returns the name of the module that was imported.
-                    class_of_instrument = getattr(module, instrument_class_name)
+                    # class_of_instrument = getattr(module, instrument_class_name)
                     if instrument_settings is None:
                         # this creates an instance of the class with default settings
                         instrument_instance = class_of_instrument(name=instrument_name)
@@ -318,19 +293,22 @@ class Instrument(object):
                         # this creates an instance of the class with custom settings
                         instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
 
-                except AttributeError as e:
-                    print('XX error in instruments', e.message)
-                except Exception as e2:
-                    # raise e2
-                    pass
-                    # catches when we try to create an instrument of a class that doesn't exist!
-                    # raise AttributeError
+                elif isinstance(instrument_class_name, Instrument):
+                    instrument_class_name = instrument_class_name.__class__
+                    instrument_filepath = os.path.dirname(inspect.getfile(instrument_class_name))
+                elif issubclass(instrument_class_name, Instrument):
+                    class_of_instrument = instrument_class_name
+                    if instrument_settings is None:
+                        # this creates an instance of the class with default settings
+                        instrument_instance = class_of_instrument(name=instrument_name)
+                    else:
+                        # this creates an instance of the class with custom settings
+                        instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
 
-                if instrument_instance is None:
-                    loaded_failed.append(instrument_name)
-                else:
-                    # adds the instance to our dictionary
-                    updated_instruments[instrument_name] = instrument_instance
+
+                updated_instruments[instrument_name] = instrument_instance
+
+
 
         return updated_instruments, loaded_failed
 

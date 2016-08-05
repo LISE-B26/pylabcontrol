@@ -18,7 +18,7 @@
 # from importlib import import_module
 from PyLabControl.src.core.read_write_functions import get_config_value
 import inspect, os
-from PyLabControl.src.core import Instrument, Script
+from PyLabControl.src.core import Instrument, Script, ScriptIterator
 from importlib import import_module
 from PyLabControl.src.core.helper_functions import module_name_from_path
 
@@ -64,102 +64,19 @@ def get_classes_in_folder( folder_name, class_type):
         # if there are subdirs in the folder recursively check all the subfolders for scripts
         # skip the first one since this is the main folder
         for subdir in subdirs:
-            print('subdir', subdir, class_type)
             classes_dict.update(get_classes_in_folder(subdir, class_type))
 
-
-    print('folder_name', folder_name)
     module, path = module_name_from_path(folder_name)
-    print('module, path', module, path)
-    module = import_module(module)
+    if module is not '':
+        module = import_module(module)
 
-    classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
-                           inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)})
+        classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
+                               inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)
+                             # and not obj is class_type})
+                             and not obj in (Instrument, Script, ScriptIterator)})
+
+
     return classes_dict
-
-# def get_instruments_in_path(folder_name):
-#     """
-#     load all the instruments objects that are located in folder_name and
-#     return a dictionary with the script class name and path_to_python_file
-#     Args:
-#         folder_name: folder in which to search for instruments objects / or name of module
-#
-#     Returns:
-#         a dictionary with the instruments class name and path_to_python_file:
-#         {
-#         'class': class_of_instruments,
-#         'filepath': path_to_python_file
-#         }
-#
-#     """
-#
-#     # if the module name was passed instead of a filename, figure out the path to the module
-#     if not os.path.isdir(folder_name):
-#         try:
-#             folder_name = os.path.dirname(inspect.getfile(import_module(folder_name)))
-#         except ImportError:
-#             raise ImportError('could not find module ' + folder_name)
-#
-#     subdirs = [os.path.join(folder_name, x) for x in os.listdir(folder_name) if
-#                os.path.isdir(os.path.join(folder_name, x)) and not x.startswith('.')]
-#     instruments_to_load = {}
-#
-#     if len(subdirs) > 0:
-#         # if there are subdirs in the folder recursively check all the subfolders for scripts
-#         # skip the first one since this is the main folder
-#         for subdir in subdirs:
-#             instruments_to_load.update(get_instruments_in_path(subdir))
-#
-#     module, path = module_name_from_path(folder_name)
-#     module = import_module(module)
-#
-#     instruments_to_load.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
-#                            inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, Instrument)})
-#     return instruments_to_load
-#
-#
-# def get_scripts_in_path(folder_name):
-#     """
-#     load all the script objects that are located in folder_name and
-#     return a dictionary with the script class name and path_to_python_file
-#     Args:
-#         folder_name: folder in which to search for script objects / or name of module
-#
-#     Returns:
-#         a dictionary with the script class name and path_to_python_file:
-#         {
-#         'class': class_of_script,
-#         'filepath': path_to_python_file
-#         }
-#
-#     """
-#
-#     # if the module name was passed instead of a filename, figure out the path to the module
-#     if not os.path.isdir(folder_name):
-#         try:
-#             folder_name = os.path.dirname(inspect.getfile(import_module(folder_name)))
-#         except ImportError:
-#             raise ImportError('could not find module ' + folder_name)
-#
-#     subdirs = [os.path.join(folder_name, x) for x in os.listdir(folder_name) if
-#                os.path.isdir(os.path.join(folder_name, x)) and not x.startswith('.')]
-#
-#     scripts_to_load = {}
-#     if len(subdirs) > 0:
-#         # if there are subdirs in the folder recursively check all the subfolders for scripts
-#         # skip the first one since this is the main folder
-#         for subdir in subdirs:
-#             scripts_to_load.update(get_scripts_in_path(subdir))
-#
-#     module, path = module_name_from_path(folder_name)
-#
-#     module = import_module(module)
-#
-#     scripts_to_load.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
-#                             inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, Script)})
-#
-#     return scripts_to_load
-
 
 def export_default_probes(path, module_name = ''):
     """
@@ -200,16 +117,16 @@ def export_default_instruments(target_folder, source_folder = None, raise_errors
 
     loaded_instruments = {}
 
-    print('ffff', target_folder, source_folder)
     instruments_to_load = get_classes_in_folder(source_folder, Instrument)
 
+
     print('attempt to load {:d} instruments: '.format(len(instruments_to_load)))
-    loaded_instruments, failed = Instrument.load_and_append(instruments_to_load)
+    loaded_instruments, failed = Instrument.load_and_append(instruments_to_load, raise_errors = raise_errors)
 
     for name, value in loaded_instruments.iteritems():
-        filename = '{:s}{:s}.b26'.format(target_folder, name)
+        filename = os.path.join(target_folder, '{:s}.b26'.format(name))
+
         value.save_b26(filename)
-        print('saving ', filename)
 
     print('\n================================================')
     print('================================================')
@@ -233,10 +150,12 @@ def export_default_scripts(target_folder, source_folder = None, raise_errors = F
     scripts_to_load = get_classes_in_folder(source_folder, Script)
 
     print('attempt to load {:d} scripts: '.format(len(scripts_to_load)))
-    loaded_scripts, failed, loaded_instruments = Script.load_and_append(scripts_to_load)
+
+    print('raise_errors', raise_errors)
+    loaded_scripts, failed, loaded_instruments = Script.load_and_append(scripts_to_load, raise_errors = raise_errors)
 
     for name, value in loaded_scripts.iteritems():
-        filename = '{:s}{:s}.b26'.format(target_folder, name)
+        filename = os.path.join(target_folder, '{:s}.b26'.format(name))
         value.save_b26(filename)
         print('saving ', filename)
 
@@ -278,25 +197,32 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
     else:
         raise TypeError('unknown type for source_folders')
 
-    print('aaa', module_list)
+    # print('aaa', module_list)
     for path_to_module in module_list:
         if class_type in ('all', 'scripts'):
             export_default_scripts(target_folder, source_folder=path_to_module, raise_errors=raise_errors)
         if class_type in ('all', 'instruments'):
-            export_default_instruments(target_folder, path_to_module, raise_errors)
+            export_default_instruments(target_folder, path_to_module,  raise_errors=raise_errors)
         if class_type in ('all', 'probes'):
-            export_default_probes(target_folder, path_to_module, raise_errors)
+            export_default_probes(target_folder, path_to_module,  raise_errors=raise_errors)
 
 
 if __name__ == '__main__':
-    source_folder = 'C:/Users/Experiment/PycharmProjects/PyLabControl/src/'
-    instruments_to_load = get_classes_in_folder(source_folder, Instrument)
+    # print('aaa')
+    # for x in os.sys.path:
+    #     print(x)
+    # folder_name = 'C://Users//Experiment//PycharmProjects//PyLabControl//src//tools'
+    # print(module_name_from_path(folder_name))
+
+    # source_folder = 'C:/Users/Experiment/PycharmProjects/PyLabControl/src/'
+    # instruments_to_load = get_classes_in_folder(source_folder, Instrument)
 
 
 
-    # source_folders = 'b26_toolkit'
-    # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated'
-    # export(target_folder, source_folders=None, class_type='instruments', raise_errors=False)
+    source_folders = 'b26_toolkit'
+    # source_folders = None
+    target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated'
+    export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
 
     # from PyLabControl.src.core import Script, Instrument
     # folder_name = 'b26_toolkit'

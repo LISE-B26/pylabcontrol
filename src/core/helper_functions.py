@@ -28,6 +28,8 @@ def module_name_from_path(folder_name):
             break
         module.append(os.path.basename(path))
 
+    module = module[:-1]
+    # print('mod', module)
     # from the list construct the path like b26_toolkit.src.scripts and load it
     module.reverse()
     module = '.'.join(module)
@@ -35,5 +37,12 @@ def module_name_from_path(folder_name):
     return module, path
 
 if __name__ == '__main__':
+
+
+
+    print('aaa')
+    for x in os.sys.path:
+        print(x)
+
     folder_name = 'C://Users//Experiment//PycharmProjects//PyLabControl//src//core'
-    module_name_from_path(folder_name)
+    print(module_name_from_path(folder_name))

@@ -20,7 +20,6 @@ from PyLabControl.src.core import Parameter, Script
 import numpy as np
 from PyQt4.QtCore import pyqtSlot
 import datetime
-from PyLabControl.src.core.read_write_functions import import_sub_modules
 
 class ScriptIterator(Script):
     '''
@@ -309,12 +308,11 @@ Script.
         '''
 
 
-        def set_up_dynamic_script(script_information, module_list = None):
+        def set_up_dynamic_script(script_information):
             '''
 
             Args:
                 script_information: information about the script as required by Script.get_script_information()
-                module_list: list of submodules that contain script classes, so we can look for them there if they are not in PyLabControl.src.scripts
 
             Returns: script_default_settings: the default settings of the dynamically created script as a list of parameters
 
@@ -371,7 +369,6 @@ Script.
             iterator_type = ScriptIterator.get_iterator_type(script_settings, script_sub_scripts)
 
             if isinstance(script_information, dict):
-                # import src.scripts # uncommented JG Jul27th
 
                 for sub_script_name, sub_script_class in script_sub_scripts.iteritems():
                     if isinstance(sub_script_class, Script):
@@ -379,21 +376,20 @@ Script.
                         raise NotImplementedError
                     elif script_sub_scripts[sub_script_name]['class'] == 'ScriptIterator':
                         subscript_class_name = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name])['class']
-                        # sub_scripts.update({sub_script_name: eval('src.scripts.' + subscript_class_name)}) #depreciated after repository split AK 8/2/16
-                        import PyLabControl.src.scripts
+                        # import PyLabControl.src.scripts # not sure why import needed here, commented out Aug. 5th JG
                         sub_scripts.update({sub_script_name: getattr(PyLabControl.src.scripts, subscript_class_name)})
                     else:
-                        module, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script_name]['class'], module_list)
+                        module, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script_name]['class'])
                         sub_scripts.update({sub_script_name: getattr(module, script_sub_scripts[sub_script_name]['class'])})
 
                 # for point iteration we add some default scripts
                 if iterator_type == ScriptIterator.TYPE_ITER_NVS:
 
-                    module, _, _, _, _ = Script.get_script_information('SelectPoints', module_list)
+                    module, _, _, _, _ = Script.get_script_information('SelectPoints')
                     sub_scripts.update(
                         {'select_points': getattr(module, 'SelectPoints')}
                     )
-                    module, _, _, _, _ = Script.get_script_information('FindNV', module_list)
+                    module, _, _, _, _ = Script.get_script_information('FindNV')
                     sub_scripts.update(
                         {'find_nv': getattr(module, 'FindNV')}
                     )
@@ -401,11 +397,11 @@ Script.
                         {'select_points': -2, 'find_nv': -1}
                     )
                 elif iterator_type == ScriptIterator.TYPE_ITER_POINTS:
-                    module, _, _, _, _ = Script.get_script_information('SelectPoints', module_list)
+                    module, _, _, _, _ = Script.get_script_information('SelectPoints')
                     sub_scripts.update(
                         {'select_points': getattr(module, 'SelectPoints')}
                     )
-                    module, _, _, _, _ = Script.get_script_information('SetLaser', module_list)
+                    module, _, _, _, _ = Script.get_script_information('SetLaser')
                     sub_scripts.update(
                         {'set_laser': getattr(module, 'SetLaser')}
                     )
@@ -472,8 +468,12 @@ Script.
             dynamic_class = type(class_name, (ScriptIterator,),{'_SCRIPTS': sub_scripts, '_DEFAULT_SETTINGS': script_settings, '_INSTRUMENTS': {}})
             # Now we place the dynamic script into the scope of src.scripts as regular scripts.
             # This is equivalent to importing the module in src.scripts.__init__, but because the class doesn't exist until runtime it must be done here.
-            import PyLabControl.src.scripts
-            setattr(PyLabControl.src.scripts, class_name, dynamic_class)
+            # old ===== start
+            # import PyLabControl.src.scripts
+            # setattr(PyLabControl.src.scripts, class_name, dynamic_class)
+            # old ===== end
+            import PyLabControl.src.core.script_iterator
+            setattr(PyLabControl.src.core.script_iterator, class_name, dynamic_class)
 
             ScriptIterator._class_list.append(dynamic_class)
             ScriptIterator._number_of_classes += 1
@@ -486,10 +486,8 @@ Script.
             #         print('CLASSNAME', vars(someclass)['_CLASS'])
             #         return vars(someclass)['_CLASS']
 
-        # import all the scripts from additional modules that contain scripts
-        module_list = import_sub_modules('scripts')
 
-        script_default_settings, sub_scripts = set_up_dynamic_script(script_information, module_list)
+        script_default_settings, sub_scripts = set_up_dynamic_script(script_information)
 
         class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings)
 
