@@ -366,7 +366,7 @@ Script.
 
             sub_scripts = {}  # dictonary of script classes that are to be subscripts of the dynamic class. Should be in the dictionary form {'class_name': <class_object>} (btw. class_object is not the instance)
             script_order = []  # A list of parameters giving the order that the scripts in the ScriptIterator should beexecuted. Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
-            _, script_class_name, script_settings, _, script_sub_scripts = Script.get_script_information(script_information)
+            _, script_class_name, script_settings, _, script_sub_scripts, _ = Script.get_script_information(script_information)
 
             iterator_type = ScriptIterator.get_iterator_type(script_settings, script_sub_scripts)
 
@@ -381,17 +381,18 @@ Script.
                         # import PyLabControl.src.scripts # not sure why import needed here, commented out Aug. 5th JG
                         sub_scripts.update({sub_script_name: getattr(PyLabControl.src.scripts, subscript_class_name)})
                     else:
-                        module, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script_name]['class'])
+                        # script_dict = {script_sub_scripts[sub_script_name]['class']}
+                        module, _, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script_name])
                         sub_scripts.update({sub_script_name: getattr(module, script_sub_scripts[sub_script_name]['class'])})
 
                 # for point iteration we add some default scripts
                 if iterator_type == ScriptIterator.TYPE_ITER_NVS:
 
-                    module, _, _, _, _ = Script.get_script_information('SelectPoints')
+                    module, _, _, _, _, _ = Script.get_script_information('SelectPoints')
                     sub_scripts.update(
                         {'select_points': getattr(module, 'SelectPoints')}
                     )
-                    module, _, _, _, _ = Script.get_script_information('FindNV')
+                    module, _, _, _, _, _ = Script.get_script_information('FindNV')
                     sub_scripts.update(
                         {'find_nv': getattr(module, 'FindNV')}
                     )
@@ -399,11 +400,11 @@ Script.
                         {'select_points': -2, 'find_nv': -1}
                     )
                 elif iterator_type == ScriptIterator.TYPE_ITER_POINTS:
-                    module, _, _, _, _ = Script.get_script_information('SelectPoints')
+                    module, _, _, _, _, _ = Script.get_script_information('SelectPoints')
                     sub_scripts.update(
                         {'select_points': getattr(module, 'SelectPoints')}
                     )
-                    module, _, _, _, _ = Script.get_script_information('SetLaser')
+                    module, _, _, _, _, _ = Script.get_script_information('SetLaser')
                     sub_scripts.update(
                         {'set_laser': getattr(module, 'SetLaser')}
                     )

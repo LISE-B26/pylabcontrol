@@ -137,17 +137,23 @@ Returns:
 
 
             if name in self.elements_old:
-                info = self.elements_old[name].__class__.__doc__
+                info = self.elements_old[name].__doc__
 
             #TODO: check if this is portable
             elif name in self.elements_from_file:
                 class_name = self.elements_from_file[name]['class']
                 print('THIS',  self.elements_from_file[name])
-                filepath = self.elements_from_file[name]['filepath']
-                path_to_src_scripts = filepath[:filepath.find('\\src\\scripts\\')]
-                module_name = path_to_src_scripts[path_to_src_scripts.rfind('\\')+1:]
-                module = __import__('{:s}.src.{:s}'.format(module_name, self.elements_type), fromlist=[class_name])
-                info = getattr(module, class_name).__doc__
+                if 'filepath' in self.elements_from_file[name]:
+                    filepath = self.elements_from_file[name]['filepath']
+                if 'info' in self.elements_from_file[name]:
+                    info = self.elements_from_file[name]['info']
+                #
+                # path_to_src_scripts = filepath[:filepath.find('\\src\\scripts\\')]
+                # module_name = path_to_src_scripts[path_to_src_scripts.rfind('\\')+1:]
+                # module = __import__('{:s}.src.{:s}'.format(module_name, self.elements_type), fromlist=[class_name])
+                # info = getattr(module, class_name).__doc__
+
+
 
             if info is None:
                 info = name
@@ -239,8 +245,6 @@ Returns:
                 elements_selected.update({element_name: self.elements_from_file[element_name]})
 
 
-        print('ssss', elements_selected)
-
         return elements_selected
 
     def add_script_sequence(self):
@@ -275,9 +279,10 @@ Returns:
         new_script_parameter_dict = {}
         for index, script in enumerate(new_script_list):
             new_script_parameter_dict.update({script: index})
-
+        # QtGui.QTextEdit.toPlainText()
         # class_name = Script.set_up_dynamic_script(factory_scripts, new_script_parameter_list, self.cmb_looping_variable.currentText() == 'Parameter Sweep')
         new_script_dict = {name: {'class': 'ScriptIterator', 'scripts': new_script_dict,
+                                  'info': str(self.txt_info.toPlainText()),
                                   'settings': {'script_order': new_script_parameter_dict,
                                                'iterator_type': str(self.cmb_looping_variable.currentText())}}}
         self.selected_element_name = name

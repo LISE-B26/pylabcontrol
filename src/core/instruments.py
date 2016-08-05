@@ -195,6 +195,7 @@ class Instrument(object):
 
         dictator = {self.name: {'class': self.__class__.__name__,
                                 'filepath': inspect.getfile(self.__class__),
+                                'info': self.__doc__,
                                 'settings': self.settings}}
 
         return dictator

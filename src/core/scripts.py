@@ -482,7 +482,8 @@ class Script(QObject):
 
         dictator = {self.name: {
             'class' : self.__class__.__name__,
-            'filepath': inspect.getfile(self.__class__)
+            'filepath': inspect.getfile(self.__class__),
+            'info': self.__doc__
         }}
 
         if self.scripts != {}:
@@ -771,7 +772,7 @@ class Script(QObject):
         return data
 
     @staticmethod
-    def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None, raise_errors = False):
+    def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None, raise_errors = True):
         """
         load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
 
@@ -897,15 +898,10 @@ class Script(QObject):
 
             """
             default_scripts = getattr(class_of_script, '_SCRIPTS')
-
             #
             # create instruments that script needs
             sub_scripts = {}
             sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments)
-
-            # todo: this is now not working with ScriptSequences, i.e. dynmic scripts. need to re-thing the API
-            # if sub_scripts_dict is not None and not isinstance(sub_scripts_dict[sub_scripts_di ct.keys()[0]], object): #edited 16/07/14 to add compatibility with script sequences, revert this if things break
-            # with above line subscripts are not updated!
             try:
                 if sub_scripts_dict is not None:
                     for k, v in sub_scripts_dict.iteritems():
@@ -919,13 +915,14 @@ class Script(QObject):
             return sub_scripts, instruments_updated
 
         for script_name, script_info in script_dict.iteritems():
+
             # check if script already exists
             if script_name in scripts.keys():
                 print('WARNING: script {:s} already exists. Did not load!'.format(script_name))
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
 
-                module, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
+                module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc = Script.get_script_information(script_info)
                 #creates all dynamic scripts so they can be imported following the if statement
                 if script_class_name == 'ScriptIterator':
                     # creates all the dynamic classes in the script and the class of the script itself
@@ -933,9 +930,13 @@ class Script(QObject):
                     from PyLabControl.src.core import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
 
                     script_info = ScriptIterator.create_dynamic_script_class(script_info)
-                    module, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
+                    module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc = Script.get_script_information(script_info)
 
-                class_of_script = getattr(module, script_class_name)
+                if module is None and inspect.isclass(script_info):
+                    class_of_script = script_info
+                else:
+                # print('module', module)
+                    class_of_script = getattr(module, script_class_name)
                 #  ========= create the instruments that are needed by the script =========
                 try:
                     script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
@@ -971,12 +972,19 @@ class Script(QObject):
 
                 try:
                     script_instance = eval(class_creation_string)
+
+
+                    if script_doc:
+                        script_instance.__doc__ = script_doc
+
+                    updated_scripts.update({script_name: script_instance})
+
                 except Exception, err:
                     load_failed[script_name] = err
                     if raise_errors:
                         raise err
                     continue
-                updated_scripts.update({script_name :script_instance})
+
 
         return updated_scripts, load_failed, updated_instruments
 
@@ -998,7 +1006,7 @@ class Script(QObject):
         script_sub_scripts = None
         script_class_name = None
         module = None  # this is the module that contains the script were we look for scripts
-
+        script_info = None # this is the docstring that describes the script
 
         if isinstance(script_information, dict):
 
@@ -1014,6 +1022,8 @@ class Script(QObject):
                 script_instruments = script_information['instruments']
             if 'scripts' in script_information:
                 script_sub_scripts = script_information['scripts']
+            if 'info' in script_information:
+                script_info = script_information['info']
         elif isinstance(script_information, str):
             script_class_name = script_information
 
@@ -1023,12 +1033,11 @@ class Script(QObject):
             script_class_name = script_information.__name__
 
 
+        # if the module has a name of type classX where X is a number the module is script iterator
+        if len(script_class_name.split('class')) ==2 and script_class_name.split('class')[1].isdigit():
+            module = import_module('PyLabControl.src.core.script_iterator')
 
-        if module is None and script_class_name != 'ScriptIterator':
-            module = import_module('PyLabControl.src.scripts')
-            assert hasattr(module, script_class_name) # check if script is really in the main src.scripts module
-
-        return module, script_class_name, script_settings, script_instruments, script_sub_scripts
+        return module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info
 
 
     def duplicate(self):

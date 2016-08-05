@@ -266,7 +266,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QTextEdit" name="textEdit">
+  <widget class="QTextEdit" name="txt_info">
    <property name="geometry">
     <rect>
      <x>540</x>
