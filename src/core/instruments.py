@@ -230,7 +230,7 @@ class Instrument(object):
                 ...
                 }
 
-            where name_of_class is either a class or the name of a class
+            where name_of_class is either a class or a dictionary of the form {class: name_of__class, filepath: path_to_instr_file}
 
             instruments: dictionary of form
 
@@ -256,37 +256,43 @@ class Instrument(object):
         loaded_failed = []
 
         # import all the instruments from additional modules that contain instruments. This name of those modules is in the config file that is located
-        # in the main directory
-        path_to_config = '/'.join(os.path.normpath(os.path.dirname(inspect.getfile(Instrument))).split('\\')[0:-2]) + '/config.txt'
-        module_list = get_config_value('SCRIPT_MODULES', path_to_config).split(';')
-        module_list = [import_module(module_name+'.src.instruments') for module_name in module_list]
+        # # in the main directory
+        # path_to_config = '/'.join(os.path.normpath(os.path.dirname(inspect.getfile(Instrument))).split('\\')[0:-2]) + '/config.txt'
+        # module_list = get_config_value('SCRIPT_MODULES', path_to_config).split(';')
+        # module_list = [import_module(module_name+'.src.instruments') for module_name in module_list]
 
 
         for instrument_name, instrument_class_name in instrument_dict.iteritems():
             instrument_settings = None
+            module = None
 
             if isinstance(instrument_class_name, dict):
                 instrument_settings = instrument_class_name['settings']
                 instrument_class_name = str(instrument_class_name['class'])
+                instrument_filepath = str(instrument_class_name['filepath '])
+                path_to_module, _ = module_name_from_path(instrument_filepath)
+                module = import_module(path_to_module)
+
             elif isinstance(instrument_class_name, Instrument):
                 instrument_class_name = instrument_class_name.__class__
+                instrument_class_name = os.path.dirname(inspect.getfile(instrument_class_name))
             elif isinstance(instrument_class_name, str):
                 pass
             else:
                 raise TypeError('instrument_class_name not recognized for {0}'.format(instrument_name))
 
 
-            if len(instrument_class_name.split('.')) == 1:
-                module_path = 'src.instruments'
-            else:
-                module_path = 'src.instruments.' + '.'.join(instrument_class_name.split('.')[0:-1])
-                instrument_class_name = instrument_class_name.split('.')[-1]
+            # if len(instrument_class_name.split('.')) == 1:
+            #     module_path = 'src.instruments'
+            # else:
+            #     module_path = 'src.instruments.' + '.'.join(instrument_class_name.split('.')[0:-1])
+            #     instrument_class_name = instrument_class_name.split('.')[-1]
 
             # check if the requested instruments is in one of the modules
-            for mod in module_list:
-                if hasattr(mod, instrument_class_name):
-                    module = mod
-                    break
+            # for mod in module_list:
+            #     if hasattr(mod, instrument_class_name):
+            #         module = mod
+            #         break
 
             if module is None:
                 module = import_module('PyLabControl.src.instruments')
@@ -329,9 +335,24 @@ class Instrument(object):
         return updated_instruments, loaded_failed
 
 
+
+
+
 if __name__ == '__main__':
 
+    from PyLabControl.src.core import Script, Instrument
+    folder_name = 'b26_toolkit'
+    folder_name = '/Users/rettentulla/Projects/Python/b26_toolkit/src/'
+    # folder_name = '/Users/rettentulla/Projects/Python/PyLabControl/src/'
+    x = Instrument.get_instruments_in_path(folder_name)
 
-    instr, fail = Instrument.load_and_append({'MaestroLightControl': {'class': 'MaestroLightControl', 'settings': {'port': 'COM5', 'block green': {'settle_time': 0.2, 'position_open': 7600, 'position_closed': 3800, 'open': True, 'channel': 0}}}})
-    print(instr)
-    print(fail)
+    for k, v in x.iteritems():
+        print(k, issubclass(v['x'], Script), issubclass(v['x'], Instrument))
+
+    # print('xxxx',  x.keys())
+    # print('xxxx', x['ESR']['x'], type(x['ESR']['x']))
+    # a  = issubclass(x['ESR']['x'], Script)
+    # print(x['ESR']['x'], a)
+    # instr, fail = Instrument.load_and_append({'MaestroLightControl': {'class': 'MaestroLightControl', 'settings': {'port': 'COM5', 'block green': {'settle_time': 0.2, 'position_open': 7600, 'position_closed': 3800, 'open': True, 'channel': 0}}}})
+    # print(instr)
+    # print(fail)

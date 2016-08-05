@@ -15,10 +15,147 @@
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 """
-from importlib import import_module
+# from importlib import import_module
 from PyLabControl.src.core.read_write_functions import get_config_value
 import inspect, os
-from PyLabControl.src.core  import Instrument
+from PyLabControl.src.core import Instrument, Script
+from importlib import import_module
+from PyLabControl.src.core.helper_functions import module_name_from_path
+
+def get_classes_in_folder( folder_name, class_type):
+    """
+    load all the instruments objects that are located in folder_name and
+    return a dictionary with the script class name and path_to_python_file
+    Args:
+        folder_name (string): folder in which to search for class objects / or name of module
+        class_type (string or class): class type for which to look for
+
+    Returns:
+        a dictionary with the class name and path_to_python_file:
+        {
+        'class': class_of_instruments,
+        'filepath': path_to_python_file
+        }
+
+    """
+
+    assert class_type == Instrument or class_type == Script or class_type.lower() in ['instrument', 'script']
+
+    if isinstance(class_type, str):
+        if class_type.lower() == 'instrument':
+            class_type = Instrument
+        elif class_type.lower() == 'script':
+            class_type = Script
+
+
+    # if the module name was passed instead of a filename, figure out the path to the module
+    if not os.path.isdir(folder_name):
+        try:
+            folder_name = os.path.dirname(inspect.getfile(import_module(folder_name)))
+        except ImportError:
+            raise ImportError('could not find module ' + folder_name)
+
+    subdirs = [os.path.join(folder_name, x) for x in os.listdir(folder_name) if
+               os.path.isdir(os.path.join(folder_name, x)) and not x.startswith('.')]
+
+    classes_dict = {}
+
+    if len(subdirs) > 0:
+        # if there are subdirs in the folder recursively check all the subfolders for scripts
+        # skip the first one since this is the main folder
+        for subdir in subdirs:
+            classes_dict.update(get_classes_in_folder(subdir, class_type))
+
+    module, path = module_name_from_path(folder_name)
+    module = import_module(module)
+
+    classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
+                           inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)})
+    return classes_dict
+
+# def get_instruments_in_path(folder_name):
+#     """
+#     load all the instruments objects that are located in folder_name and
+#     return a dictionary with the script class name and path_to_python_file
+#     Args:
+#         folder_name: folder in which to search for instruments objects / or name of module
+#
+#     Returns:
+#         a dictionary with the instruments class name and path_to_python_file:
+#         {
+#         'class': class_of_instruments,
+#         'filepath': path_to_python_file
+#         }
+#
+#     """
+#
+#     # if the module name was passed instead of a filename, figure out the path to the module
+#     if not os.path.isdir(folder_name):
+#         try:
+#             folder_name = os.path.dirname(inspect.getfile(import_module(folder_name)))
+#         except ImportError:
+#             raise ImportError('could not find module ' + folder_name)
+#
+#     subdirs = [os.path.join(folder_name, x) for x in os.listdir(folder_name) if
+#                os.path.isdir(os.path.join(folder_name, x)) and not x.startswith('.')]
+#     instruments_to_load = {}
+#
+#     if len(subdirs) > 0:
+#         # if there are subdirs in the folder recursively check all the subfolders for scripts
+#         # skip the first one since this is the main folder
+#         for subdir in subdirs:
+#             instruments_to_load.update(get_instruments_in_path(subdir))
+#
+#     module, path = module_name_from_path(folder_name)
+#     module = import_module(module)
+#
+#     instruments_to_load.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
+#                            inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, Instrument)})
+#     return instruments_to_load
+#
+#
+# def get_scripts_in_path(folder_name):
+#     """
+#     load all the script objects that are located in folder_name and
+#     return a dictionary with the script class name and path_to_python_file
+#     Args:
+#         folder_name: folder in which to search for script objects / or name of module
+#
+#     Returns:
+#         a dictionary with the script class name and path_to_python_file:
+#         {
+#         'class': class_of_script,
+#         'filepath': path_to_python_file
+#         }
+#
+#     """
+#
+#     # if the module name was passed instead of a filename, figure out the path to the module
+#     if not os.path.isdir(folder_name):
+#         try:
+#             folder_name = os.path.dirname(inspect.getfile(import_module(folder_name)))
+#         except ImportError:
+#             raise ImportError('could not find module ' + folder_name)
+#
+#     subdirs = [os.path.join(folder_name, x) for x in os.listdir(folder_name) if
+#                os.path.isdir(os.path.join(folder_name, x)) and not x.startswith('.')]
+#
+#     scripts_to_load = {}
+#     if len(subdirs) > 0:
+#         # if there are subdirs in the folder recursively check all the subfolders for scripts
+#         # skip the first one since this is the main folder
+#         for subdir in subdirs:
+#             scripts_to_load.update(get_scripts_in_path(subdir))
+#
+#     module, path = module_name_from_path(folder_name)
+#
+#     module = import_module(module)
+#
+#     scripts_to_load.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
+#                             inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, Script)})
+#
+#     return scripts_to_load
+
 
 def export_default_probes(path, module_name = ''):
     """
@@ -49,7 +186,7 @@ def export_default_probes(path, module_name = ''):
             except:
                 print('failed to create probe file for: {:s}'.format(obj.__name__))
 
-def export_default_instruments(target_folder, module_name = '', raise_errors = False):
+def export_default_instruments(target_folder, source_folder = None, raise_errors = False):
     """
     tries to instantiate all the instruments that are imported in /instruments/__init__.py
     and saves instruments that could be instantiate into a .b2 file in the folder path
@@ -57,30 +194,25 @@ def export_default_instruments(target_folder, module_name = '', raise_errors = F
         target_folder: target path for .b26 files
     """
 
-    if module_name is '':
-        module_name = 'src.instruments'
-
-    if len(module_name.split('src.instruments'))==1:
-        module_name += '.src.instruments'
+    loaded_instruments = {}
 
 
-    module = import_module(module_name)
+    instruments_to_load = get_classes_in_folder(source_folder, Instrument)
 
-    for name, obj in inspect.getmembers(module):
+    print('attempt to load {:d} instruments: '.format(len(instruments_to_load)))
+    loaded_instruments, failed = Instrument.load_and_append(instruments_to_load)
 
-        if inspect.isclass(obj) and issubclass(obj, Instrument):
-            print('instrument: ', name)
-            try:
-                instrument = obj()
-                print('created ', name)
-                filename = '{:s}{:s}.b26'.format(target_folder, name)
-                instrument.save_b26(filename)
-                print('saved ', name)
-            except Exception, err:
-                if raise_errors:
-                    raise err
-                else:
-                    print('failed to create instrument file for: {:s}'.format(obj.__name__))
+    for name, value in loaded_instruments.iteritems():
+        filename = '{:s}{:s}.b26'.format(target_folder, name)
+        value.save_b26(filename)
+        print('saving ', filename)
+
+    print('\n================================================')
+    print('================================================')
+    print('saved {:d} instruments, {:d} failed'.format(len(loaded_instruments), len(failed)))
+    if failed != {}:
+        for error_name, error in failed.iteritems():
+            print('failed to create instruments: ', error_name, error)
 
 def export_default_scripts(target_folder, source_folder = None, raise_errors = False):
     """
@@ -92,24 +224,17 @@ def export_default_scripts(target_folder, source_folder = None, raise_errors = F
     """
     loaded_instruments = {}
     loaded_scripts = {}
-    from PyLabControl.src.core.scripts import Script
-    module_name = source_folder
-    if module_name is '':
-        module_name = 'src.scripts'
-
-    if len(module_name.split('src.scripts'))==1:
-        module_name += '.src.scripts'
-
-    module = import_module(module_name)
 
 
-    scripts_to_load = {name:name for name, obj in inspect.getmembers(module) if inspect.isclass(obj)}
+    scripts_to_load = get_classes_in_folder(source_folder, Script)
+
     print('attempt to load {:d} scripts: '.format(len(scripts_to_load)))
     loaded_scripts, failed, loaded_instruments = Script.load_and_append(scripts_to_load)
 
     for name, value in loaded_scripts.iteritems():
         filename = '{:s}{:s}.b26'.format(target_folder, name)
         value.save_b26(filename)
+        print('saving ', filename)
 
     print('\n================================================')
     print('================================================')
@@ -118,7 +243,6 @@ def export_default_scripts(target_folder, source_folder = None, raise_errors = F
         for error_name, error in failed.iteritems():
             print('failed to create script: ', error_name, error)
 
-            # raise error
 
 #TODO: AK @ JG: is this as source_folder correct? Seems to fail if given a folder and not a name
 def export(target_folder, source_folders = None, class_type ='all', raise_errors = False):
@@ -141,7 +265,9 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
         return
 
 
-    if isinstance(source_folders, str):
+    if source_folders is None:
+        os.path.dirname(os.path.dirname(inspect.getfile(inspect.currentframe())))
+    elif isinstance(source_folders, str):
         module_list = [source_folders]
     elif isinstance(source_folders, list):
         module_list = source_folders
@@ -149,41 +275,43 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
         raise TypeError('unknown type for source_folders')
 
 
-    # path_to_config = '/'.join(os.path.dirname(inspect.getfile(export)).split('/')[0:-2]) + '/config.txt'
-    #
-    # module_list = ['']
-    # module_list += get_config_value('SCRIPT_MODULES', path_to_config).split(';')
-
-    for module in module_list:
-
-        # stripping off subfolders
-        if os.path.basename(module) == '':
-            module = os.path.dirname(module)
-        if os.path.basename(module) in ('scripts', 'instruments'):
-            module = os.path.dirname(module)
-        if os.path.basename(module) in ('src'):
-            module = os.path.dirname(module)
+    for path_to_module in module_list:
 
 
         if class_type in ('all', 'scripts'):
-            export_default_scripts(target_folder, source_folder=module, raise_errors=raise_errors)
+            export_default_scripts(target_folder, source_folder=path_to_module, raise_errors=raise_errors)
         if class_type in ('all', 'instruments'):
-            export_default_instruments(target_folder, module, raise_errors)
+            export_default_instruments(target_folder, path_to_module, raise_errors)
         if class_type in ('all', 'probes'):
-            export_default_probes(target_folder, module, raise_errors)
+            export_default_probes(target_folder, path_to_module, raise_errors)
 
 
 if __name__ == '__main__':
 
-    # export('C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated\\', class_type='instruments', raise_errors =False)
-    export(target_folder='C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\',
-           source_folders='b26_toolkit',
-           class_type='scripts')
-    #
-    # import b26_toolkit.src.instruments
 
 
-    # module_name = 'src.instrumentas'
-    # print(len(module_name.split('src.instruments')))
-    # # module = import_module(module_name)
-    # # print(module)
+    # from PyLabControl.src.core import Script, Instrument
+    # folder_name = 'b26_toolkit'
+    # folder_name = '/Users/rettentulla/Projects/Python/b26_toolkit/src/'
+    # # folder_name = '/Users/rettentulla/Projects/Python/PyLabControl/src/'
+    # x = get_instruments_in_path(folder_name)
+    # print(x.keys())
+    # # for k, v in x.iteritems():
+    # #     print(k, issubclass(v['x'], Script), issubclass(v['x'], Instrument))
+
+
+    folder_name = 'b26_toolkit'
+    # folder_name = '/Users/rettentulla/Projects/Python/b26_toolkit/'
+    # folder_name = '/Users/rettentulla/Projects/Python/PyLabControl/src/'
+    # x = get_classes_in_folder(folder_name, Script)
+    x = get_classes_in_folder(folder_name, 'script')
+    print(x.keys(), len(x.keys()))
+
+
+
+
+
+
+
+
+

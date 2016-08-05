@@ -22,12 +22,14 @@ from copy import deepcopy
 from PyLabControl.src.core.instruments import Instrument
 from PyLabControl.src.core.parameter import Parameter
 from PyLabControl.src.core.read_write_functions import save_b26_file, get_config_value
+from PyLabControl.src.core.helper_functions import module_name_from_path
 
 from collections import deque
 import os
 import pandas as pd
 import glob
 import inspect
+import warnings
 from PyQt4.QtCore import pyqtSignal, QObject, pyqtSlot
 
 
@@ -855,7 +857,7 @@ class Script(QObject):
                               isinstance(instance, instrument_class) and name == instrument_name]
                 if len(instrument) == 0:
                     # create new instance of instrument
-                    instruments_updated, __ = Instrument.load_and_append({instrument_name: instrument_class.__name__}, instruments_updated)
+                    instruments_updated, __ = Instrument.load_and_append({instrument_name: instrument_class}, instruments_updated)
                 if script_instruments is not None and instrument_name in script_instruments:
                     instrument_settings_dict = script_instruments[instrument_name]['settings']
                 else:
@@ -915,9 +917,16 @@ class Script(QObject):
 
         # import all the scripts from additional modules that contain scripts. This name of those modules is in the config file that is located
         # in the main directory
-        path_to_config = '/'.join(os.path.normpath(os.path.dirname(inspect.getfile(Script))).split('\\')[0:-2]) + '/config.txt'
-        module_list = get_config_value('SCRIPT_MODULES', path_to_config).split(';')
-        module_list = [import_module(module_name+'.src.scripts') for module_name in module_list]
+        # path_to_config = '/'.join(os.path.normpath(os.path.dirname(inspect.getfile(Script))).split('\\')[0:-2]) + '/config.txt'
+
+        # try:
+        #     module_list = get_config_value('SCRIPT_MODULES', path_to_config).split(';')
+        #     module_list = [import_module(module_name + '.src.scripts') for module_name in module_list]
+        # except IOError:
+        #     warnings.warn("NI Dconfig not found. If it should be present, check the path:")
+        #     module_list = ['PythonLabControl.src.scripts']
+
+
 
 
         for script_name, script_info in script_dict.iteritems():
@@ -927,7 +936,7 @@ class Script(QObject):
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
 
-                module, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info, module_list)
+                module, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
 
                 #creates all dynamic scripts so they can be imported following the if statement
                 if script_class_name == 'ScriptIterator':
@@ -936,18 +945,12 @@ class Script(QObject):
                     from PyLabControl.src.core import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
 
                     script_info = ScriptIterator.create_dynamic_script_class(script_info)
-                    module, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info, module_list)
+                    module, script_class_name, script_settings, script_instruments, script_sub_scripts = Script.get_script_information(script_info)
 
 
 
                 class_of_script = getattr(module, script_class_name)
                 # === new version end
-
-                # # ==== old version start
-                # module = __import__(module, fromlist=[script_class_name])
-                # # this returns the name of the module that was imported.
-                # class_of_script = getattr(module, script_class_name)
-                # # === old version end
 
                 #  ========= create the instruments that are needed by the script =========
                 try:
@@ -988,7 +991,7 @@ class Script(QObject):
         return updated_scripts, load_failed, updated_instruments
 
     @staticmethod
-    def get_script_information(script_information, module_list = None):
+    def get_script_information(script_information):
         """
         extracts all the relevant information from script_information and returns it as individual variables
         Args:
@@ -1010,6 +1013,10 @@ class Script(QObject):
         if isinstance(script_information, dict):
             script_settings = script_information['settings']
             script_class_name = str(script_information['class'])
+            script_filepath = str(script_information['filepath'])
+            path_to_module, _ = module_name_from_path(script_filepath)
+            module = import_module(path_to_module)
+
             if 'instruments' in script_information:
                 script_instruments = script_information['instruments']
             if 'scripts' in script_information:
@@ -1022,16 +1029,12 @@ class Script(QObject):
             # to avoid this problem call from PyLabControl.src.core import Script (otherwise the path to Script is __main__.Script)
             script_class_name = script_information.__name__
 
-        # check if the requested script is in one of the modules
-        if module_list is not None:
-            for mod in module_list:
-                if hasattr(mod, script_class_name):
-                    module = mod
-                    break
+
 
         if module is None and script_class_name != 'ScriptIterator':
             module = import_module('PyLabControl.src.scripts')
             assert hasattr(module, script_class_name) # check if script is really in the main src.scripts module
+
 
         return module, script_class_name, script_settings, script_instruments, script_sub_scripts
 
@@ -1183,8 +1186,7 @@ class Script(QObject):
 if __name__ == '__main__':
     # from PyLabControl.src.core import Script
     #
-    # folder = 'Z:\\Lab\\Cantilever\\Measurements\\20160708_Rabi_data\\160712-14_54_46_NV6_rabi'
-    #
+
     # data = Script.load_data(folder)
     # print(data.keys())
     # print(data['tau'])
@@ -1205,23 +1207,11 @@ if __name__ == '__main__':
 
     from importlib import import_module
     from PyLabControl.src.core import Script
+    a = import_module('b26_toolkit')
+    print('aaa', os.path.dirname(inspect.getfile(a)))
 
 
-    def get_scripts_in_path(folder_name):
-        path = folder_name + '/'
-        module = []
-        while path not in os.sys.path:
-            path = os.path.dirname(path)
-            if path == os.path.dirname(path):
-                path, module = None, None
-                break
-            module.append(os.path.basename(path))
-        module = module[:-1]
 
-        #     module.reverse()
-        #     module = '.'.join(module)
-        #     module = import_module(module)
-        return path, module
 
 
     #     return {name:name for name, obj in inspect.getmembers(module) if inspect.isclass(obj)}
@@ -1229,5 +1219,27 @@ if __name__ == '__main__':
 
 
     folder_name = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
-    # folder_name = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl'
-    get_scripts_in_path(folder_name)
+    folder_name = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl'
+    folder_name = '/Users/rettentulla/Projects/Python/b26_toolkit/src/'
+    folder_name = 'b26_toolkit'
+    x = Script.get_scripts_in_path(folder_name)
+    # print(x.keys())
+    # for X in x:
+    #     print(X)
+
+    folder_name = x['GalvoScan']['filepath']
+    print(folder_name)
+    print(x['GalvoScan'])
+
+    module, path = module_name_from_path(folder_name)
+    print(module.endswith('.pyc'),module.split('.pyc')[0])
+    print(module, path)
+
+    g = import_module(module)
+    print(g)
+
+    #
+    # os.listdir(folder_name)
+    # # print(os.listdir(folder_name), os.path.isdir(os.path.join(folder_name, x)))
+    # subdirs = [x for x in os.listdir(folder_name) if os.path.isdir(os.path.join(folder_name, x))]
+    # print('aaa', subdirs, len(subdirs))

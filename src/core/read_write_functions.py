@@ -55,6 +55,7 @@ def get_config_value(name, path_to_file='config.txt'):
     path_to_file = os.path.abspath(path_to_file)
 
     if not os.path.isfile(path_to_file):
+        print('path_to_file', path_to_file)
         raise IOError('{:s}: config file is not valid'.format(path_to_file))
 
     f = open(path_to_file, 'r')
