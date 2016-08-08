@@ -64,12 +64,17 @@ def get_classes_in_folder( folder_name, class_type):
         # if there are subdirs in the folder recursively check all the subfolders for scripts
         # skip the first one since this is the main folder
         for subdir in subdirs:
+
             classes_dict.update(get_classes_in_folder(subdir, class_type))
 
     module, path = module_name_from_path(folder_name)
     if module is not '':
         module = import_module(module)
+        print('module', module)
+        print('--', [name for name, obj in inspect.getmembers(module) if inspect.isclass(obj)])
 
+        # print('module', module, {name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
+        #                        inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)})
         classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
                                inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)
                              # and not obj is class_type})
@@ -206,26 +211,20 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
 
 
 if __name__ == '__main__':
-    # print('aaa')
-    # for x in os.sys.path:
-    #     print(x)
-    # folder_name = 'C://Users//Experiment//PycharmProjects//PyLabControl//src//tools'
-    # print(module_name_from_path(folder_name))
-
-    # source_folder = 'C:/Users/Experiment/PycharmProjects/PyLabControl/src/'
-    # instruments_to_load = get_classes_in_folder(source_folder, Instrument)
-
 
 
     source_folders = 'b26_toolkit'
+    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
     # source_folders = None
-    # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
-    # export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
+    target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
+    export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
 
-    target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated'
-    export(target_folder, source_folders=source_folders, class_type='instruments', raise_errors=False)
+    # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated'
+    # export(target_folder, source_folders=source_folders, class_type='instruments', raise_errors=False)
 
+    # instruments_to_load = get_classes_in_folder('C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments\\', Instrument)
 
+    # print(instruments_to_load.keys())
 
 
 
