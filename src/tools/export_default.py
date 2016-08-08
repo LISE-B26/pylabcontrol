@@ -122,7 +122,6 @@ def export_default_instruments(target_folder, source_folder = None, raise_errors
 
     print('attempt to load {:d} instruments: '.format(len(instruments_to_load)))
     loaded_instruments, failed = Instrument.load_and_append(instruments_to_load, raise_errors = raise_errors)
-
     for name, value in loaded_instruments.iteritems():
         filename = os.path.join(target_folder, '{:s}.b26'.format(name))
 
@@ -167,13 +166,12 @@ def export_default_scripts(target_folder, source_folder = None, raise_errors = F
             print('failed to create script: ', error_name, error)
 
 
-#TODO: AK @ JG: is this as source_folder correct? Seems to fail if given a folder and not a name
 def export(target_folder, source_folders = None, class_type ='all', raise_errors = False):
     """
-    exports the existing scripts/intruments (future: probes) into folder as .b26 files
+    exports the existing scripts/instruments (future: probes) into folder as .b26 files
     Args:
         target_folder: target location of created .b26 script files
-        source_folder: location of python script files or a list of folders
+        source_folder: singel path or list of paths that contains the location of python script files can also be just the name of a module
         class_type: string, one of the 4 following options
             -probes (exports probes) --not implemented yet--
             -scripts (exports scripts)
@@ -220,27 +218,12 @@ if __name__ == '__main__':
 
 
     source_folders = 'b26_toolkit'
-    source_folders = None
+    # source_folders = None
+    # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
+    # export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
+
     target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated'
     export(target_folder, source_folders=source_folders, class_type='instruments', raise_errors=False)
-
-    # from PyLabControl.src.core import Script, Instrument
-    # folder_name = 'b26_toolkit'
-    # folder_name = '/Users/rettentulla/Projects/Python/b26_toolkit/src/'
-    # # folder_name = '/Users/rettentulla/Projects/Python/PyLabControl/src/'
-    # x = get_instruments_in_path(folder_name)
-    # print(x.keys())
-    # # for k, v in x.iteritems():
-    # #     print(k, issubclass(v['x'], Script), issubclass(v['x'], Instrument))
-
-
-    # folder_name = 'b26_toolkit'
-    # # folder_name = '/Users/rettentulla/Projects/Python/b26_toolkit/'
-    # # folder_name = '/Users/rettentulla/Projects/Python/PyLabControl/src/'
-    # # x = get_classes_in_folder(folder_name, Script)
-    # x = get_classes_in_folder(folder_name, 'script')
-    # print(x.keys(), len(x.keys()))
-
 
 
 

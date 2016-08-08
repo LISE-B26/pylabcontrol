@@ -283,20 +283,27 @@ class Instrument(object):
                     module = import_module(path_to_module)
                     class_of_instrument = getattr(module, instrument_class_name)
 
-                    # # try to import the instrument
-                    # module = __import__(module_path, fromlist=[instrument_class_name])
-                    # this returns the name of the module that was imported.
-                    # class_of_instrument = getattr(module, instrument_class_name)
-                    if instrument_settings is None:
-                        # this creates an instance of the class with default settings
-                        instrument_instance = class_of_instrument(name=instrument_name)
-                    else:
-                        # this creates an instance of the class with custom settings
-                        instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
+                    try:
+                        if instrument_settings is None:
+                            # this creates an instance of the class with default settings
+                            instrument_instance = class_of_instrument(name=instrument_name)
+                        else:
+                            # this creates an instance of the class with custom settings
+                            instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
+                    except Exception, e:
+                        loaded_failed[instrument_name] = e
+                        if raise_errors:
+                            raise e
+                        continue
+
 
                 elif isinstance(instrument_class_name, Instrument):
                     instrument_class_name = instrument_class_name.__class__
                     instrument_filepath = os.path.dirname(inspect.getfile(instrument_class_name))
+
+                    # here we should also create an instrument instance at some point as in the other cases...
+                    # instrument_instance =
+                    raise NotImplementedError
                 elif issubclass(instrument_class_name, Instrument):
                     class_of_instrument = instrument_class_name
                     if instrument_settings is None:
