@@ -22,6 +22,10 @@ from PyLabControl.src.core import Instrument, Script, ScriptIterator
 from importlib import import_module
 from PyLabControl.src.core.helper_functions import module_name_from_path
 
+
+
+
+
 def get_classes_in_folder( folder_name, class_type):
     """
     load all the instruments objects that are located in folder_name and
@@ -69,8 +73,9 @@ def get_classes_in_folder( folder_name, class_type):
 
     module, path = module_name_from_path(folder_name)
     if module is not '':
+        print('module', module, folder_name)
         module = import_module(module)
-        print('module', module)
+
         print('--', [name for name, obj in inspect.getmembers(module) if inspect.isclass(obj)])
 
         # print('module', module, {name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
@@ -210,14 +215,16 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
             export_default_probes(target_folder, path_to_module,  raise_errors=raise_errors)
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
+
+    # import_module('b26_toolkit.src.instruments.labview_fpga_lib.galvo_scan')
 
 
-    source_folders = 'b26_toolkit'
-    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
-    # source_folders = None
-    target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
-    export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
+    # source_folders = 'b26_toolkit'
+    # # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
+    # # source_folders = None
+    # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
+    # export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
 
     # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated'
     # export(target_folder, source_folders=source_folders, class_type='instruments', raise_errors=False)

@@ -1027,6 +1027,16 @@ class Script(QObject):
         elif isinstance(script_information, str):
             script_class_name = script_information
 
+            # todo: now all the possible module paths are hardcoded. In the future it would be nicer if modules are found dynamically
+            # find the module
+            for module_path in ['PyLabControl.src.scripts', 'b26_toolkit.src.scripts']:
+                module = import_module(module_path)
+                if hasattr(module, script_class_name):
+                    break
+            # check if module was found!
+            if not hasattr(module, script_class_name):
+                raise ImportError('Could not find the module that contains ' + script_class_name)
+
         elif issubclass(script_information, Script):
             # watch out when testing this code from __main__, then classes might not be identified correctly because the path is different
             # to avoid this problem call from PyLabControl.src.core import Script (otherwise the path to Script is __main__.Script)
