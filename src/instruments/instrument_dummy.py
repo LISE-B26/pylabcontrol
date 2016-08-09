@@ -16,7 +16,7 @@
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 """
 from PyLabControl.src.core import Instrument, Parameter
-import threading
+from PyQt4.QtCore import QThread
 import random, time
 
 class DummyInstrument(Instrument):
@@ -96,58 +96,81 @@ class DummyInstrument(Instrument):
         return self._is_connected
 
 
-# class DummyInstrumentThreaded(threading.Thread, Instrument):
-#
-#     _DEFAULT_SETTINGS = Parameter([
-#         Parameter('update frequency', 2.0, float, 'update frequency of signal in Hz'),
-#         Parameter('signal_range',
-#                   [Parameter('min', 0.0, float, 'minimum output signal (float)'),
-#                    Parameter('max', 0.0, float, 'maximum output signal (float)')
-#                    ])
-#     ])
-#
-#     _PROBES = {'output': 'this is some random output signal (float)'
-#                }
-#
-#     def __init__(self, name =  None, settings = None):
-#
-#         threading.Thread.__init__(self)
-#         Instrument.__init__(self, name, settings)
-#         self._is_connected = True
-#         self.start()
-#
-#     def __del__(self):
-#         self._is_connected = False
-#
-#     def run(self):
-#         dt = 1./self.settings['update frequency']
-#         while self._is_connected:
-#             self._output = random.random()
-#             time.sleep(dt)
-#
-#     def read_probes(self, key):
-#         """
-#         requestes value from the instrument and returns it
-#         Args:
-#             key: name of requested value
-#
-#         Returns: reads values from instrument
-#
-#         """
-#         assert key in self._PROBES.keys()
-#
-#         if key == 'output':
-#             value = self._output
-#
-#         return value
-#
-#     @property
-#     def is_connected(self):
-#         '''
-#         check if instrument is active and connected and return True in that case
-#         :return: bool
-#         '''
-#         return self._is_connected
+class DummyInstrumentThreaded(Instrument, QThread):
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('update frequency', 0.2, float, 'update frequency of signal in Hz'),
+        Parameter('noise_strength',1.0, float, 'strength of noise (float)'),
+        Parameter('controler', 0.0, float, 'strength of noise (float)')
+    ])
+
+    _PROBES = {'output': 'this is some random output signal (float)'
+               }
+
+    def __init__(self, name =  None, settings = None):
+
+        QThread.__init__(self)
+        Instrument.__init__(self, name, settings)
+        self._is_connected = True
+        self._output = 0
+        self.start()
+
+    def start(self, *args, **kwargs):
+        """
+        start the read_probe thread
+        """
+        print('starting')
+        self._stop = False
+        super(DummyInstrumentThreaded, self).start(*args, **kwargs)
+
+
+    def quit(self, *args, **kwargs):  # real signature unknown
+        """
+        quit the  read_probe thread
+        """
+        print('stopping')
+        self._stop = True
+        super(DummyInstrumentThreaded, self).quit(*args, **kwargs)
+
+    def run(self):
+        """
+        this is the actual execution of the ReadProbes thread: continuously read values from the probes
+        """
+
+        while self._stop is False:
+
+            self._output = random.random()
+
+            # self.updateProgress.emit(1)
+
+            self.msleep(int(1e3*self.settings['update frequency']))
+
+
+
+
+    def read_probes(self, key):
+        """
+        requestes value from the instrument and returns it
+        Args:
+            key: name of requested value
+
+        Returns: reads values from instrument
+
+        """
+        assert key in self._PROBES.keys()
+
+        if key == 'output':
+            value = self._output
+
+        return value
+
+    @property
+    def is_connected(self):
+        '''
+        check if instrument is active and connected and return True in that case
+        :return: bool
+        '''
+        return self._is_connected
 
 if __name__ == '__main__':
 
@@ -155,3 +178,4 @@ if __name__ == '__main__':
     for i in range(15):
         time.sleep(0.1)
         print(d.read_probes('output'))
+    print('done')
