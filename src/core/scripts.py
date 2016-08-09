@@ -1199,4 +1199,4 @@ class Script(QObject):
 
 
 if __name__ == '__main__':
-    import_module('sada')
+    pass
