@@ -634,7 +634,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 model.removeRows(row,1)
         def load_probes():
-            # COMMENT_ME
+            """
+            opens file dialog to load probes into gui
+            """
 
             # if the probe has never been started it can not be disconnected so we catch that error
             try:
@@ -666,7 +668,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.read_probes.updateProgress.connect(self.update_probes)
                 self.tree_probes.expandAll()
         def load_scripts():
-            # COMMENT_ME
+            """
+            opens file dialog to load scripts into gui
+            """
 
 
             # update scripts so that current settings do not get lost
@@ -699,7 +703,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 for name in removed_scripts:
                     del self.scripts[name]
         def load_instruments():
-            # COMMENT_ME
+            """
+            opens file dialog to load instruments into gui
+            """
             if 'instrument_folder' in self.gui_settings:
                 dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments,
                                     filename=self.gui_settings['instrument_folder'])
@@ -724,18 +730,22 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     del self.instruments[name]
 
         def plot_data(sender):
-            # COMMENT_ME
+            """
+            plots the data of the selected script
+            """
             if sender == self.tree_dataset:
                 index = self.tree_dataset.selectedIndexes()[0]
                 model = index.model()
                 time_tag = str(model.itemFromIndex(model.index(index.row(), 0)).text())
                 script = self.data_sets[time_tag]
-            # elif sender == self.btn_plot_script:
+                self.plot_script(script)
             elif sender == self.tree_scripts:
                 item = self.tree_scripts.currentItem()
                 if item is not None:
                     script, path_to_script, _ = item.get_script()
-            self.plot_script(script)
+                # only plot if script has been selected but not if a parameter has been selected
+                if path_to_script == []:
+                    self.plot_script(script)
 
         if sender is self.btn_start_script:
             start_button()
