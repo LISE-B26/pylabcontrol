@@ -17,3 +17,4 @@
 """
 from script_dummy import ScriptMinimalDummy, ScriptDummy, ScriptDummyWithInstrument
 from select_points import SelectPoints
+from dummy_controler import PlantWithControler

@@ -1,1 +1,1 @@
-from instrument_dummy import DummyInstrument
+from instrument_dummy import DummyInstrument, Plant, PIControler
