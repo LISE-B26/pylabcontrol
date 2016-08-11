@@ -113,14 +113,12 @@ class Plant(Instrument, QThread):
         Instrument.__init__(self, name, settings)
         self._is_connected = True
         self._output = 0
-        print('XXXX', settings)
         self.start()
 
     def start(self, *args, **kwargs):
         """
-        start the read_probe thread
+        start the instrument thread
         """
-        print('starting')
         self._stop = False
 
         super(Plant, self).start(*args, **kwargs)
@@ -128,9 +126,8 @@ class Plant(Instrument, QThread):
 
     def quit(self, *args, **kwargs):  # real signature unknown
         """
-        quit the  read_probe thread
+        quit the  instrument thread
         """
-        print('stopping')
         self.stop()
         self._stop = True
         self.msleep(2* int(1e3 / self.settings['update frequency']))
@@ -138,7 +135,7 @@ class Plant(Instrument, QThread):
 
     def run(self):
         """
-        this is the actual execution of the ReadProbes thread: continuously read values from the probes
+        this is the actual execution of the instrument thread: continuously read values from the probes
         """
 
 
@@ -151,7 +148,7 @@ class Plant(Instrument, QThread):
             control = np.array([[self.settings['control'], 0]]).transpose()
             noise = np.array([[0, np.sqrt(2 * gamma * eta)*np.random.randn()]]).transpose()
             self._state = np.dot(A,self._state) + noise + control
-            self._output = self._state[0]
+            self._output = self._state[0][0]
 
             self.msleep(int(1e3 / self.settings['update frequency']))
 
@@ -197,7 +194,7 @@ class PIControler(Instrument):
         Parameter('output_range', [
             Parameter('min', -10000, float, 'min allowed value for PI-loop output'),
             Parameter('max', 10000, float, 'max allowed value for PI-loop output')
-        ]),
+        ])
     ])
     _PROBES = {}
     def __init__(self, name = None, settings = None):
@@ -232,6 +229,7 @@ class PIControler(Instrument):
         output_range = self.settings['output_range']
         time_step = self.settings['time_step']
 
+        print('------', set_point, Kp, Ki, time_step)
         error_new = set_point - current_value
         #proportional action
         self.u_P = Kp * error_new * time_step
@@ -246,6 +244,9 @@ class PIControler(Instrument):
             self.u_I = output_range['max']-self.u_P
         if self.u_P + self.u_I < output_range['min']:
             self.u_I = output_range['min']-self.u_P
+
+        print('ssssss', self.u_P,  self.u_I)
+
 
         output = self.u_P + self.u_I
 
