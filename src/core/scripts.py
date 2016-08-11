@@ -824,7 +824,6 @@ class Script(QObject):
                 updated_instruments = {name_of_instrument_1 : instance_of_instrument_1, ..}
 
         """
-
         if scripts is None:
             scripts = {}
         if instruments is None:
@@ -921,7 +920,6 @@ class Script(QObject):
                 print('WARNING: script {:s} already exists. Did not load!'.format(script_name))
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
-
                 module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc = Script.get_script_information(script_info)
                 #creates all dynamic scripts so they can be imported following the if statement
                 if script_class_name == 'ScriptIterator':
@@ -935,7 +933,7 @@ class Script(QObject):
                 if module is None and inspect.isclass(script_info):
                     class_of_script = script_info
                 else:
-                # print('module', module)
+                    print('module', module)
                     class_of_script = getattr(module, script_class_name)
                 #  ========= create the instruments that are needed by the script =========
                 try:
@@ -1000,7 +998,6 @@ class Script(QObject):
         Returns: module, script_class_name, script_settings, script_instruments, script_sub_scripts
 
         """
-
         script_settings = None
         script_instruments = None
         script_sub_scripts = None

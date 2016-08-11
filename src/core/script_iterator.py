@@ -174,8 +174,8 @@ Script.
                         break
                     self.log('starting {:s}'.format(script_name))
                     tag = self.scripts[script_name].settings['tag']
-                    tmp = tag + '_pt_{' + ':0{:d}'.format(len(str(self.settings['N']))) + '}'
-                    self.scripts[script_name].settings['tag'] = tmp.format(i)
+                    # tmp = tag + '_pt_{' + ':0{:d}'.format(len(str(self.settings['N']))) + '}' #There is no self.settings['N']
+                    # self.scripts[script_name].settings['tag'] = tmp.format(i)
                     self.scripts[script_name].run()
                     self.scripts[script_name].settings['tag'] = tag
         else:
@@ -393,7 +393,7 @@ Script.
                         raise NotImplementedError
                     elif script_sub_scripts[sub_script_name]['class'] == 'ScriptIterator':
                         subscript_class_name = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name])['class']
-                        # import PyLabControl.src.scripts # not sure why import needed here, commented out Aug. 5th JG
+                        # import PyLabControl.src.scripts # not sure why import needed here, commented out Aug. 5th JG #Pycharm gets mad about this being out of scope on exp computer Aug. 8th AK
                         sub_scripts.update({sub_script_name: getattr(PyLabControl.src.scripts, subscript_class_name)})
                     else:
                         # script_dict = {script_sub_scripts[sub_script_name]['class']}
@@ -402,14 +402,19 @@ Script.
 
                 # for point iteration we add some default scripts
                 if iterator_type == ScriptIterator.TYPE_ITER_NVS:
+                    import PyLabControl
+                    import b26_toolkit
 
                     module, _, _, _, _, _ = Script.get_script_information('SelectPoints')
                     sub_scripts.update(
-                        {'select_points': getattr(module, 'SelectPoints')}
+                        #TODO: perminent fix for this, see issue #92 in PyLabControl
+                        # {'select_points': getattr(module, 'SelectPoints')} #temporary fix Aug 8th AK
+                        {'select_points': getattr(PyLabControl.src.scripts, 'SelectPoints')}
                     )
                     module, _, _, _, _, _ = Script.get_script_information('FindNV')
                     sub_scripts.update(
-                        {'find_nv': getattr(module, 'FindNV')}
+                        # {'find_nv': getattr(module, 'FindNV')}
+                        {'find_nv': getattr(b26_toolkit.src.scripts, 'FindNV')}
                     )
                     script_settings['script_order'].update(
                         {'select_points': -2, 'find_nv': -1}
