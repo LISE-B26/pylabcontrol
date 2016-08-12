@@ -68,11 +68,17 @@ and be sure to the click and drag the Dummy Instrument to the left pane. Press O
 No scripts will be in the GUI the first time it is launched; scripts will have to separately be loaded in. The steps are exactly as above, ...
 
 Custom instruments and scripts will be supported in a later release. 
-If you are interested in importing your own instruments or scripts soon, pelase do not hesitate to reach out to the authors of pyLabControl.
+If you are interested in importing your own instruments or scripts soon, please do not hesitate to reach out to the authors of PyLabControl.
+
+![Load dialog](/docs/images/load_dialog.png?raw=true "Load dialog")
+
+#### .b26 files
+Settings and configurations are saved in json files with .b26 extension.
+Since these files can become quite large for complex scripts, we recommend a json viewer to look at them (e.g. https://jsonviewer.codeplex.com/).
 
 #### B26_Toolkit
 This software was created to streamline experiments done in the Lukin Lab; 
-the instruments and scripts utilized there can be imported into pyLabControl by installing b26_toolkit. 
+the instruments and scripts utilized there can be imported into PyLabControl by installing b26_toolkit. 
 More information can be found here: https://github.com/LISE-B26/b26_toolkit
 
 ## FAQ
