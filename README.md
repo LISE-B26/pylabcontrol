@@ -25,10 +25,18 @@ The simplest way to install pyLabControl is with the command-line utility pip. T
 
 in the windows command-line interface.
 
+####Creating script and instrument files
+instrument and script configurations are saved in files with a .b26 extension
+To export the default configurations of the scripts and instruments that come with PyLabControl, open commandline and run
+
+``` >>> PyLabControl -e path_to_target_folder```
+
+where path_to_target_folder is the path to the folder where you want to save the .b26 files.
+
 ####Running the GUI
 To run the gui, open commandline and run
 
-``` >>> PyLabControl ```
+``` >>> PyLabControl -g```
 
 Before the gui runs, you will be prompted to select a path to save gui configuration files.
 
