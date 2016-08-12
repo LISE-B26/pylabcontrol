@@ -65,6 +65,14 @@ Navigate to the 'Scripts' tab in the top left of the GUI, and press "Import Scri
 ![Load dialog](/docs/images/load_dialog.png?raw=true "Load dialog")
 Find the .b26 file you created, and be sure to the click and drag the Dummy Script to the left pane. Press Ok, and the script should be shown in the GUI. 
 
+The script loading dialog allows also to create iterator scripts. There are four types of iterator scripts:
+    - loop
+    - parameter sweep
+    - iter points (only supported with b26_toolkit)
+    - iter Nvs (only supported with b26_toolkit)
+
+you can find more about [iterator scripts here!](docs/iterator_scripts.md)
+
 If you are interested in importing your own instruments or scripts soon, please do not hesitate to reach out to the authors of PyLabControl.
 
 #### Importing Instruments
