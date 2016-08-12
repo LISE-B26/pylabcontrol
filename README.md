@@ -44,11 +44,9 @@ ProTip: After you have loaded the gui for the first time you can later also pass
 ### Getting to know the GUI: Basics
 The loaded gui should look like the one below (except that there will be no scripts and the plots will be blank):
 
-(PICTURE)
-
-#### Brief GUI walkthrough
 ![PyLabControl GUI](/docs/images/main_window.png?raw=true "PyLabControl GUI")
 
+#### Brief GUI walkthrough
 The GUI is made up of four main areas, labelled in the above screenshot.
 + **The top left** portion of the GUI has four tabs that contain the loaded scripts and instruments, probes to monitor values from some of the loaded instruments, and a dataset manager.
 These will be discussed in more detail below, after scripts and instruments are imported into the GUI.
