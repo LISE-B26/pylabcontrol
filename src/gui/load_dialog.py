@@ -1,28 +1,29 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'load_dialog.ui'
-#
-# Created by: PyQt4 UI code generator 4.11.4
-#
-# WARNING! All changes made in this file will be lost!
-
 """
     This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
     Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 
-    Foobar is free software: you can redistribute it and/or modify
+
+    PyLabControl is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Foobar is distributed in the hope that it will be useful,
+    PyLabControl is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+
 """
+
+# -*- coding: utf-8 -*-
+# Form implementation generated from reading ui file 'load_dialog.ui'
+#
+# Created by: PyQt4 UI code generator 4.11.4
+#
+# WARNING! All changes made in this file will be lost!
 
 
 

@@ -3,18 +3,18 @@
     Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 
 
-    Foobar is free software: you can redistribute it and/or modify
+    PyLabControl is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Foobar is distributed in the hope that it will be useful,
+    PyLabControl is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 from copy import deepcopy
@@ -35,6 +35,8 @@ class Instrument(object):
     '''
 
     def __init__(self, name=None, settings=None):
+
+        self._initialized = True
         # make a deepcopy of the default settings
         # because _DEFAULT_SETTINGS is a class variable and thus shared among the instances
         self._settings = deepcopy(self._DEFAULT_SETTINGS)
@@ -45,7 +47,7 @@ class Instrument(object):
         self.name = name
 
         self._is_connected = False  # internal flag that indicated if instrument is actually connected
-        self._initialized = True
+
 
     # apply settings to instrument should be carried out in derived class
 
@@ -128,7 +130,8 @@ class Instrument(object):
             return self.read_probes(name)
         except:
             # restores standard behavior for missing keys
-            print('class ' + type(self).__name__ + ' has no attribute ' + str(name))
+            if not str(name) in ['_initialized', '_settings']:
+                print('class ' + type(self).__name__ + ' has no attribute ' + str(name))
             raise AttributeError('class ' + type(self).__name__ + ' has no attribute ' + str(name))
 
 

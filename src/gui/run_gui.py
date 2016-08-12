@@ -2,18 +2,18 @@
     This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
     Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 
-    Foobar is free software: you can redistribute it and/or modify
+    PyLabControl is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Foobar is distributed in the hope that it will be useful,
+    PyLabControl is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 """
 # this is the gui for the measurment pc
 
@@ -27,12 +27,12 @@ from PyLabControl.src.gui import qt_b26_gui
 #work around to change taskbar icon
 #myappid = 'lukinlab.b26.pythonlab' # arbitrary string
 #ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-
-def run_gui():
+fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_config.b26'
+def run_gui(fname = ''):
     app = QtGui.QApplication(sys.argv)
     # fname = 'c:\\b26_tmp\\pythonlab_config_dummy.b26'
     # fname = 'c:\\b26_tmp\\pythonlab_config3a.b26'
-    fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_config.b26'
+
 
     # fname = 'c:\\b26_tmp\\pythonlab_config_safsafaf1.b26'
 

@@ -9,7 +9,7 @@ setup(
     version='0.1.7',
     package_dir={'PyLabControl': ''},
     packages=['PyLabControl', 'PyLabControl.src', 'PyLabControl.src.core', 'PyLabControl.src.gui', 'PyLabControl.src.instruments',
-              'PyLabControl.src.scripts', 'PyLabControl.src.tools', 'PyLabControl.tests'],
+              'PyLabControl.src.data_processing','PyLabControl.src.scripts', 'PyLabControl.src.tools', 'PyLabControl.tests'],
     url='https://github.com/LISE-B26/PythonLab',
     license='GPL',
     author='Aaron Kabcenell, Jan Gieseler, and Arthur Safira',

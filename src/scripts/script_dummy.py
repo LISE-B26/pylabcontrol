@@ -2,22 +2,31 @@
     This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
     Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 
-    Foobar is free software: you can redistribute it and/or modify
+
+    PyLabControl is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Foobar is distributed in the hope that it will be useful,
+    PyLabControl is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+
 """
 from PyLabControl.src.core import Parameter, Script
 from PyLabControl.src.instruments import DummyInstrument
 import numpy as np
+import datetime
+
+from PyLabControl.src.instruments import Plant, PIControler
+import time
+from collections import deque
+from copy import deepcopy
+from PyLabControl.src.data_processing.signal_processing import power_spectral_density
 
 class ScriptMinimalDummy(Script):
     """
@@ -169,64 +178,133 @@ Example Script that has all different types of parameters (integer, str, fload, 
             Script._update(self, axes_list)
 
 
-class ScriptDummyWithInstrument(Script):
+class DummyPlantWithControler(Script):
     """
-Example Script that includes an instrument
+    script to bring the detector response to zero
+    two channels are set to a fixed voltage while the signal of the third channel is varied until the detector response is zero
     """
 
     _DEFAULT_SETTINGS = [
-        Parameter('count', 0, int),
-        Parameter('name', 'this is a counter'),
-        Parameter('wait_time', 0.1, float)
+        Parameter('sample rate', 0.5, float, 'sample rate in Hz'),
+        Parameter('on/off', True, bool, 'control is on/off'),
+        Parameter('buffer_length', 500, int, 'length of data buffer')
     ]
 
     _INSTRUMENTS = {
-        'dummy_instrument' : DummyInstrument
+        'plant': Plant,
+        'controler': PIControler
     }
-    _SCRIPTS = {}
 
-    def __init__(self, instruments, name = None, settings = None, log_function = None, data_path = None):
+    _SCRIPTS = {
+
+    }
+
+    def __init__(self, instruments, scripts = None, name=None, settings=None, log_function=None, data_path = None):
         """
-        Example of a script that makes use of an instrument
+        Example of a script that emits a QT signal for the gui
         Args:
-            instruments: instruments the script will make use of
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
 
-        # call init of superclass
-        Script.__init__(self, name, settings, instruments, log_function= log_function, data_path = data_path)
+        Script.__init__(self, name, settings=settings, scripts=scripts, instruments=instruments, log_function=log_function, data_path = data_path)
+        self.data = {'plant_output': deque(maxlen=self.settings['buffer_length']),
+                     'control_output': deque(maxlen=self.settings['buffer_length'])}
     def _function(self):
         """
-        This is the actual function that will be executed. It uses only information that is provided in _DEFAULT_SETTINGS
-        for this dummy example we just implement a counter
+        This is the actual function that will be executed. It uses only information that is provided in the settings property
+        will be overwritten in the __init__
         """
+        plant = self.instruments['plant']['instance']
+        controler = self.instruments['controler']['instance']
+        plant.update(self.instruments['plant']['settings'])
+        controler.update(self.instruments['controler']['settings'])
 
-        import time
+        time_step = 1./self.settings['sample rate']
 
-        data = []
-        # update instrument
-        self.instruments['dummy_instrument'].update(self.instruments['dummy_instrument']['settings'])
+        controler.update({'time_step': time_step})
+        self.last_plot = datetime.datetime.now()
+        # if length changed we have to redefine the queue and carry over the data
+        if self.data['plant_output'].maxlen != self.settings['buffer_length']:
+            plant_output = deepcopy(self.data['plant_output'])
+            control_output = deepcopy(self.data['control_output'])
+            self.data = {'plant_output': deque(maxlen=self.settings['buffer_length']),
+                         'control_output': deque(maxlen=self.settings['buffer_length'])}
 
-        instrument = self.instruments['dummy_instrument']['instance']
-        count = self.settings['count']
-        name = self.settings['name']
-        wait_time = self.settings['wait_time']
+            x = range(min(len(plant_output), self.settings['buffer_length']))
+            x.reverse()
+            for i in x:
+                self.data['plant_output'].append(plant_output[-i-1])
+                self.data['control_output'].append(control_output[-i - 1])
+
+        while not self._abort:
+
+            measurement = plant.output
+
+            self.data['plant_output'].append(measurement)
+            control_value = controler.controler_output(measurement)
+            self.data['control_output'].append(control_value)
+
+            if self.settings['on/off']:
+                print('set plant control', control_value)
+                plant.control = float(control_value)
+
+            self.progress = 50
+            self.updateProgress.emit(self.progress)
+
+            time.sleep(time_step)
 
 
-        self.log('I ({:s}) am a test function counting to {:d}...'.format(self.name, count))
-        for i in range(count):
 
-            self.log('signal from dummy instrument {:s}: {:0.3f}'.format(name, instrument.value1))
-            time.sleep(wait_time)
-            data.append(instrument.value1)
 
-        self.data = {'data':data}
+
+
+    def _plot(self, axes_list):
+
+        if len(self.data['plant_output']) >0:
+            time_step = 1. / self.settings['sample rate']
+            axes1, axes2 = axes_list
+
+            # plot time domain signals
+            axes1.hold(False)
+            signal = self.data['plant_output']
+            control_value = self.data['control_output']
+
+            t = np.linspace(0, len(signal)*time_step, len(signal))
+            print('xxxxx', len(signal), len(t))
+            axes1.plot(t, signal, '-o')
+            axes1.hold(True)
+            axes1.plot(t, control_value, '-o')
+
+
+            axes1.set_title('time signal')
+            axes1.set_xlabel('time (s)')
+
+
+            # only plot spectra if there is a sufficiently long signal and only refresh after 5 seconds
+
+
+            if (len(signal)>2 and (datetime.datetime.now()-self.last_plot).total_seconds() > 5) or self.is_running is False:
+                # plot freq domain signals
+                axes2.hold(False)
+                f, psd = power_spectral_density(signal, time_step)
+                axes2.loglog(f, psd, '-o')
+                axes2.hold(True)
+                f, psd = power_spectral_density(control_value, time_step)
+                axes2.loglog(f, psd, '-o')
+                axes2.set_title('spectra')
+                axes1.set_xlabel('frequency (Hz)')
+                self.last_plot = datetime.datetime.now()
+
+
+
+
+
 
 
 
 if __name__ == '__main__':
-    d_instr = DummyInstrument()
-    d = ScriptDummyWithInstrument(instruments = {'dummy_instrument' : d_instr})
+    d_instr = Plant()
+    d = DummyPlantWithControler(instruments = {'plant' : Plant(), 'controler': PIControler()})
 
     print(d)

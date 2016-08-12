@@ -2,18 +2,20 @@
     This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
     Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 
-    Foobar is free software: you can redistribute it and/or modify
+
+    PyLabControl is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Foobar is distributed in the hope that it will be useful,
+    PyLabControl is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+
 """
 from PyLabControl.src.core import Instrument, Parameter
 from PyQt4.QtCore import QThread
@@ -100,7 +102,8 @@ class Plant(Instrument, QThread):
 
     _DEFAULT_SETTINGS = Parameter([
         Parameter('update frequency', 20, float, 'update frequency of signal in Hz'),
-        Parameter('noise_strength',1.0, float, 'strength of noise (float)'),
+        Parameter('noise_strength',1.0, float, 'strength of noise'),
+        Parameter('noise_bandwidth', 1.0, float, 'bandwidth of noise (Hz)'),
         Parameter('control', 0.0, float, 'set the output varariable to a given value (in the absence of noise)')
     ])
 
@@ -139,19 +142,31 @@ class Plant(Instrument, QThread):
         """
 
 
-        self._state = np.array([[self.settings['control'], 0]]).transpose()
+        # self._state = np.array([[self.settings['control'], 0]]).transpose()
+        # while self._stop is False:
+        #     eta = self.settings['noise_strength']
+        #     gamma = 0.1
+        #     dt = 1. / self.settings['update frequency']
+        #     A = np.array([[0, dt], [0, (1 - gamma * dt)]])
+        #     control = np.array([[self.settings['control'], 0]]).transpose()
+        #     noise = np.array([[0, np.sqrt(2 * gamma * eta)*np.random.randn()]]).transpose()
+        #     self._state = np.dot(A,self._state) + noise + control
+        #     self._output = self._state[0][0]
+        #
+        #     self.msleep(int(1e3 / self.settings['update frequency']))
+
+        self._state = self._output
         while self._stop is False:
             eta = self.settings['noise_strength']
-            gamma = 0.1
+            gamma = self.settings['noise_bandwidth']
             dt = 1. / self.settings['update frequency']
-            A = np.array([[0, dt], [0, (1 - gamma * dt)]])
-            control = np.array([[self.settings['control'], 0]]).transpose()
-            noise = np.array([[0, np.sqrt(2 * gamma * eta)*np.random.randn()]]).transpose()
-            self._state = np.dot(A,self._state) + noise + control
-            self._output = self._state[0][0]
+            A = -gamma * dt
+            control = self.settings['control']
+            noise = np.sqrt(2*gamma*eta)*np.random.randn()
+            self._state = A* self._state + noise + control
+            self._output = self._state
 
             self.msleep(int(1e3 / self.settings['update frequency']))
-
 
 
 
@@ -229,7 +244,6 @@ class PIControler(Instrument):
         output_range = self.settings['output_range']
         time_step = self.settings['time_step']
 
-        print('------', set_point, Kp, Ki, time_step)
         error_new = set_point - current_value
         #proportional action
         self.u_P = Kp * error_new * time_step
@@ -244,8 +258,6 @@ class PIControler(Instrument):
             self.u_I = output_range['max']-self.u_P
         if self.u_P + self.u_I < output_range['min']:
             self.u_I = output_range['min']-self.u_P
-
-        print('ssssss', self.u_P,  self.u_I)
 
 
         output = self.u_P + self.u_I

@@ -2,18 +2,19 @@
     This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
     Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 
-    Foobar is free software: you can redistribute it and/or modify
+
+    PyLabControl is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Foobar is distributed in the hope that it will be useful,
+    PyLabControl is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 from PyLabControl.src.core import Parameter, Script
@@ -393,7 +394,7 @@ Script.
                         raise NotImplementedError
                     elif script_sub_scripts[sub_script_name]['class'] == 'ScriptIterator':
                         subscript_class_name = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name])['class']
-                        # import PyLabControl.src.scripts # not sure why import needed here, commented out Aug. 5th JG
+                        import PyLabControl.src.scripts
                         sub_scripts.update({sub_script_name: getattr(PyLabControl.src.scripts, subscript_class_name)})
                     else:
                         # script_dict = {script_sub_scripts[sub_script_name]['class']}

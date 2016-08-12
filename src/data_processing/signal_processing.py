@@ -18,27 +18,42 @@
 
 """
 
-# B26 Lab Code
-# Last Update: 2/3/15
-import serial
+import numpy as np
 
-def scan():
+
+def power_spectral_density(x, time_step, freq_range=None):
     """
-    scan for available ports. return a list of tuples (num, name)
+    returns the power spectral density of the time trace x which is sampled at intervals time_step
+    Args:
+        x (array):  timetrace
+        time_step (float): sampling interval of x
+        freq_range (array or tuple): frequency range in the form [f_min, f_max] to return only the spectrum within this range
+
     Returns:
 
     """
-    available = []
-    for i in range(256):
-        try:
-            s = serial.Serial('COM'+str(i))
-            available.append( (i, s.portstr))
-            s.close()
-        except serial.SerialException:
-            pass
-    return available
+
+    print(len(x))
+    df = 1. / (len(x) * time_step)
+
+    P = np.abs(np.fft.rfft(x)) ** 2 * time_step ** 2 * df
+    F = np.fft.rfftfreq(len(x), time_step)
+
+    if freq_range is not None:
+        brange = np.all([F >= freq_range[0], F <= freq_range[1]], axis=0)
+        P = P[brange]
+        F = F[brange]
+
+    return F, P
 
 if __name__ == '__main__':
-    print "Found ports:"
-    for n,s in scan(): print "(%d) %s" % (n,s)
-    print('done')
+    l = 100
+
+    tmax = 10
+    t = np.linspace(0, tmax,l)
+
+    dt = tmax / l
+    signal = 2.* np.sin(2*np.pi *t) + np.random.randn(l)
+    print(signal)
+
+    plt.plot()
