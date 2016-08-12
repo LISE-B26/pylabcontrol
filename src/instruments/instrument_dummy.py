@@ -158,12 +158,14 @@ class Plant(Instrument, QThread):
         self._state = self._output
         while self._stop is False:
             eta = self.settings['noise_strength']
-            gamma = self.settings['noise_bandwidth']
+            gamma = 2*np.pi*self.settings['noise_bandwidth']
             dt = 1. / self.settings['update frequency']
             A = -gamma * dt
             control = self.settings['control']
             noise = np.sqrt(2*gamma*eta)*np.random.randn()
-            self._state = A* self._state + noise + control
+
+            self._state *= (1. + A)
+            self._state += noise + control
             self._output = self._state
 
             self.msleep(int(1e3 / self.settings['update frequency']))
