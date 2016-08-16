@@ -224,6 +224,8 @@ class DummyPlantWithControler(Script):
 
         controler.update({'time_step': time_step})
         self.last_plot = datetime.datetime.now()
+
+        controler.reset()
         # if length changed we have to redefine the queue and carry over the data
         if self.data['plant_output'].maxlen != self.settings['buffer_length']:
             plant_output = deepcopy(self.data['plant_output'])
@@ -271,7 +273,6 @@ class DummyPlantWithControler(Script):
             control_value = self.data['control_output']
 
             t = np.linspace(0, len(signal)*time_step, len(signal))
-            print('xxxxx', len(signal), len(t))
             axes1.plot(t, signal, '-o')
             axes1.hold(True)
             axes1.plot(t, control_value, '-o')

@@ -22,7 +22,7 @@ from copy import deepcopy
 
 from PyLabControl.src.core.instruments import Instrument
 from PyLabControl.src.core.parameter import Parameter
-from PyLabControl.src.core.read_write_functions import save_b26_file, get_config_value
+from PyLabControl.src.core.read_write_functions import save_b26_file, load_b26_file
 from PyLabControl.src.core.helper_functions import module_name_from_path
 
 from collections import deque
@@ -728,7 +728,7 @@ class Script(QObject):
         """
         loads the data that has been save with Script.save.
         Args:
-            path: path to folder saved vy Script.save or raw_data folder within
+            path: path to folder saved by Script.save or raw_data folder within
         Returns:
             a dictionary with the data of form
             data = {param_1_name: param_1_data, ...}
@@ -771,6 +771,37 @@ class Script(QObject):
                 data[data_name] = np.squeeze(imported_data_df.as_matrix())
 
         return data
+
+    @staticmethod
+    def load_settings(path):
+        """
+        loads the settings that has been save with Script.save_b26.
+        Args:
+            path: path to folder saved by Script.save_b26
+        Returns:
+            a dictionary with the settings
+        """
+
+
+        # check that path exists
+        if not os.path.exists(path):
+            print(path)
+            raise AttributeError('Path given does not exist!')
+
+        os.path.basename(path).split('_')
+
+        tag = '_'.join(os.path.dirname(path + '/').split('_')[3:])
+
+        fname = glob.glob(os.path.abspath(path)+'/*'+tag +'.b26')
+        if len(fname)>1:
+            print('warning more than one .b26 file found, loading ', fname[0])
+        elif len(fname) == 0:
+            print('no .b26 file found in folder. Check path !')
+            return
+        fname = fname[0]
+        settings = load_b26_file(fname)
+
+        return settings
 
     @staticmethod
     def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None, raise_errors = False):
