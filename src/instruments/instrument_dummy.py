@@ -141,32 +141,20 @@ class Plant(Instrument, QThread):
         this is the actual execution of the instrument thread: continuously read values from the probes
         """
 
-
-        # self._state = np.array([[self.settings['control'], 0]]).transpose()
-        # while self._stop is False:
-        #     eta = self.settings['noise_strength']
-        #     gamma = 0.1
-        #     dt = 1. / self.settings['update frequency']
-        #     A = np.array([[0, dt], [0, (1 - gamma * dt)]])
-        #     control = np.array([[self.settings['control'], 0]]).transpose()
-        #     noise = np.array([[0, np.sqrt(2 * gamma * eta)*np.random.randn()]]).transpose()
-        #     self._state = np.dot(A,self._state) + noise + control
-        #     self._output = self._state[0][0]
-        #
-        #     self.msleep(int(1e3 / self.settings['update frequency']))
+        eta = self.settings['noise_strength']
+        gamma = 2 * np.pi * self.settings['noise_bandwidth']
+        dt = 1. / self.settings['update frequency']
+        control = self.settings['control']
 
         self._state = self._output
         while self._stop is False:
-            eta = self.settings['noise_strength']
-            gamma = 2*np.pi*self.settings['noise_bandwidth']
-            dt = 1. / self.settings['update frequency']
-            A = -gamma * dt
-            control = self.settings['control']
-            noise = np.sqrt(2*gamma*eta)*np.random.randn()
 
+            A = -gamma * dt
+
+            noise = np.sqrt(2*gamma*eta)*np.random.randn()
             self._state *= (1. + A)
             self._state += noise + control
-            self._output = self._state
+            self._output =  self._state
 
             self.msleep(int(1e3 / self.settings['update frequency']))
 
@@ -247,13 +235,17 @@ class PIControler(Instrument):
         time_step = self.settings['time_step']
 
         error_new = set_point - current_value
+        print('PD- error:\t', error_new, Ki, Kp, time_step)
         #proportional action
         self.u_P = Kp * error_new * time_step
+        print('PD- self.u_P:\t', self.u_P, self.u_I)
 
         #integral action
         self.u_I += Kp * Ki * (error_new + self.error) / 2.0 * time_step
 
         self.error = error_new
+
+        print('PD- self.u_P:\t', self.u_P, self.u_I)
 
         # anti-windup
         if self.u_P + self.u_I > output_range['max']:
@@ -263,7 +255,7 @@ class PIControler(Instrument):
 
 
         output = self.u_P + self.u_I
-
+        print('PD- output:\t', output)
         return output
 
 if __name__ == '__main__':
