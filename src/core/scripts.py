@@ -2,18 +2,19 @@
     This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
     Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 
-    Foobar is free software: you can redistribute it and/or modify
+
+    PyLabControl is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Foobar is distributed in the hope that it will be useful,
+    PyLabControl is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 import datetime
@@ -1024,6 +1025,19 @@ class Script(QObject):
         elif isinstance(script_information, str):
             script_class_name = script_information
 
+            # todo: now all the possible module paths are hardcoded. In the future it would be nicer if modules are found dynamically
+            # find the module
+            for module_path in ['PyLabControl.src.scripts', 'b26_toolkit.src.scripts']:
+                try:
+                    module = import_module(module_path)
+                    if hasattr(module, script_class_name):
+                        break
+                except ImportError:
+                    pass
+            # check if module was found!
+            if module is None or not hasattr(module, script_class_name):
+                raise ImportError('Could not find the module that contains ' + script_class_name)
+
         elif issubclass(script_information, Script):
             # watch out when testing this code from __main__, then classes might not be identified correctly because the path is different
             # to avoid this problem call from PyLabControl.src.core import Script (otherwise the path to Script is __main__.Script)
@@ -1183,54 +1197,4 @@ class Script(QObject):
 
 
 if __name__ == '__main__':
-    # from PyLabControl.src.core import Script
-    #
-
-    # data = Script.load_data(folder)
-    # print(data.keys())
-    # print(data['tau'])
-
-    # from src.scripts import ScriptMinimalDummy
-    # import sys
-    # for x in sys.path:
-    #     print(x)
-
-
-
-    # Jan testing for new export without config
-
-
-    import inspect
-    from PyLabControl.src.scripts import ScriptDummy
-    import os, glob
-
-    from importlib import import_module
-    from PyLabControl.src.core import Script
-    a = import_module('b26_toolkit')
-
-
-    folder_name = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
-    folder_name = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl'
-    folder_name = '/Users/rettentulla/Projects/Python/b26_toolkit/src/'
-    folder_name = 'b26_toolkit'
-    x = Script.get_scripts_in_path(folder_name)
-    # print(x.keys())
-    # for X in x:
-    #     print(X)
-
-    folder_name = x['GalvoScan']['filepath']
-    print(folder_name)
-    print(x['GalvoScan'])
-
-    module, path = module_name_from_path(folder_name)
-    print(module.endswith('.pyc'),module.split('.pyc')[0])
-    print(module, path)
-
-    g = import_module(module)
-    print(g)
-
-    #
-    # os.listdir(folder_name)
-    # # print(os.listdir(folder_name), os.path.isdir(os.path.join(folder_name, x)))
-    # subdirs = [x for x in os.listdir(folder_name) if os.path.isdir(os.path.join(folder_name, x))]
-    # print('aaa', subdirs, len(subdirs))
+    pass

@@ -2,22 +2,20 @@
     This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
     Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 
-    Foobar is free software: you can redistribute it and/or modify
+    PyLabControl is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Foobar is distributed in the hope that it will be useful,
+    PyLabControl is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 """
-"""
-Basic gui class designed with QT designer
-"""
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.uic import loadUiType
 from PyLabControl.src.core import Parameter, Instrument, Script, ReadProbes, Probe, ScriptIterator
@@ -51,15 +49,16 @@ except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
     from PyLabControl.src.gui.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
-    print('Warning: on-the-fly conversion of basic_application_window.ui file failed, loaded .py file instead.')
+    # print('Warning: on-the-fly conversion of basic_application_window.ui file failed, loaded .py file instead.')
 
 
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
-    application_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    application_path = os.path.dirname(application_path) # go one level lower
-    print('application_path', application_path)
+    # application_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # application_path = os.path.dirname(application_path) # go one level lower
+    application_path = os.path.abspath(os.path.curdir)
+
     _DEFAULT_CONFIG = {
         # "tmp_folder": "../../b26_tmp",
         "data_folder": os.path.join(application_path, "user_data/data"),
@@ -70,7 +69,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         "settings_file": os.path.join(application_path, "user_data/pythonlab_config")
     }
 
-    print('_DEFAULT_CONFIG', _DEFAULT_CONFIG)
     def __init__(self, filename = None):
         """
         ControlMainWindow(intruments, scripts, probes)
@@ -491,12 +489,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.horizontalLayout_9.addWidget(self.mpl_toolbar_2)
         self.horizontalLayout_14.addWidget(self.mpl_toolbar_1)
 
-        # todo: tightlayout warning test it this avoids the warning:
         self.matplotlibwidget_1.figure.set_tight_layout(True)
         self.matplotlibwidget_2.figure.set_tight_layout(True)
 
-        # self.matplotlibwidget_1.figure.tight_layout()
-        # self.matplotlibwidget_2.figure.tight_layout()
     def btn_clicked(self):
         """
         slot to which connect buttons
@@ -634,7 +629,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 model.removeRows(row,1)
         def load_probes():
-            # COMMENT_ME
+            """
+            opens file dialog to load probes into gui
+            """
 
             # if the probe has never been started it can not be disconnected so we catch that error
             try:
@@ -666,7 +663,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.read_probes.updateProgress.connect(self.update_probes)
                 self.tree_probes.expandAll()
         def load_scripts():
-            # COMMENT_ME
+            """
+            opens file dialog to load scripts into gui
+            """
 
 
             # update scripts so that current settings do not get lost
@@ -699,7 +698,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 for name in removed_scripts:
                     del self.scripts[name]
         def load_instruments():
-            # COMMENT_ME
+            """
+            opens file dialog to load instruments into gui
+            """
             if 'instrument_folder' in self.gui_settings:
                 dialog = LoadDialog(elements_type="instruments", elements_old=self.instruments,
                                     filename=self.gui_settings['instrument_folder'])
@@ -724,18 +725,22 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     del self.instruments[name]
 
         def plot_data(sender):
-            # COMMENT_ME
+            """
+            plots the data of the selected script
+            """
             if sender == self.tree_dataset:
                 index = self.tree_dataset.selectedIndexes()[0]
                 model = index.model()
                 time_tag = str(model.itemFromIndex(model.index(index.row(), 0)).text())
                 script = self.data_sets[time_tag]
-            # elif sender == self.btn_plot_script:
+                self.plot_script(script)
             elif sender == self.tree_scripts:
                 item = self.tree_scripts.currentItem()
                 if item is not None:
                     script, path_to_script, _ = item.get_script()
-            self.plot_script(script)
+                # only plot if script has been selected but not if a parameter has been selected
+                if path_to_script == []:
+                    self.plot_script(script)
 
         if sender is self.btn_start_script:
             start_button()
@@ -929,7 +934,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if progress:
             remaining_time = str(datetime.timedelta(seconds=script.remaining_time.seconds))
             self.lbl_time_estimate.setText('time remaining: {:s}'.format(remaining_time))
-        if script is not str(self.tabWidget.tabText(self.tabWidget.currentIndex())).lower() == 'scripts':
+        if script is not str(self.tabWidget.tabText(self.tabWidget.currentIndex())).lower() in ['scripts', 'instruments']:
             self.plot_script(script)
 
 

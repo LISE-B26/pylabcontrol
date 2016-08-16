@@ -25,23 +25,31 @@ The simplest way to install pyLabControl is with the command-line utility pip. T
 
 in the windows command-line interface.
 
-####Running the GUI
+#### Creating script and instrument files
+instrument and script configurations are saved in files with a .b26 extension
+To export the default configurations of the scripts and instruments that come with PyLabControl, open commandline and run
+
+``` >>> PyLabControl --export path_to_target_folder```
+
+where path_to_target_folder is the path to the folder where you want to save the .b26 files (e.g. `PyLabControl --export c:\User\b26_files`).
+
+#### Running the GUI
 To run the gui, open commandline and run
 
-``` >>> PyLabControl ```
+``` >>> PyLabControl --gui```
 
 Before the gui runs, you will be prompted to select a path to save gui configuration files.
+ProTip: After you have loaded the gui for the first time you can later also pass the path to the config file (e.g. `PyLabControl --gui c:\User\PyLabControl\config.b26`)
 
 ### Getting to know the GUI: Basics
-The loaded gui should look like the one below:
+The loaded gui should look like the one below (except that there will be no scripts and the plots will be blank):
 
-(PICTURE)
+![PyLabControl GUI](/docs/images/main_window.png?raw=true "PyLabControl GUI")
 
 #### Brief GUI walkthrough
 The GUI is made up of four main areas, labelled in the above screenshot.
-+ **The top left** portion of the GUI has four tabs that contain the loaded scripts and instruments, 
-a monitor to monitor values from some of the loaded instruments, 
-and a dataset manager. These will be discussed in more detail below, after scripts and instruments are imported into the GUI.
++ **The top left** portion of the GUI has four tabs that contain the loaded scripts and instruments, probes to monitor values from some of the loaded instruments, and a dataset manager.
+These will be discussed in more detail below, after scripts and instruments are imported into the GUI.
 + **The bottom left** portion of the GUI comprises the log and GUI configuration details. The log gives text updates when instruments
 are toggled and during the execution of scripts. The GUI configuration tab has filepaths for saving data, as well as GUI configuration information.
 + **The entire right half** of the GUI is for data visualization, and is composed of a major and minor plotting area. 
@@ -49,22 +57,37 @@ These are used to visualize data, both during scripts and after their execution.
 
 To see these in action, we need to import an instrument and/or script.
 
+#### Importing Scripts
+No scripts will be in the GUI the first time it is launched; scripts will have to separately be loaded in.  A few 
+dummy scripts are provided to better understand the interaction model with the GUI.
+
+Navigate to the 'Scripts' tab in the top left of the GUI, and press "Import Scripts". The following dialog should show:
+![Load dialog](/docs/images/load_dialog.png?raw=true "Load dialog")
+Find the .b26 file you created, and be sure to the click and drag the Dummy Script to the left pane. Press Ok, and the script should be shown in the GUI. 
+
+The script loading dialog allows also to create iterator scripts. There are four types of iterator scripts:
+    - loop
+    - parameter sweep
+    - iter points (only supported with b26_toolkit)
+    - iter Nvs (only supported with b26_toolkit)
+
+you can find more about [iterator scripts here!](docs/iterator_scripts.md)
+
+If you are interested in importing your own instruments or scripts soon, please do not hesitate to reach out to the authors of PyLabControl.
+
 #### Importing Instruments
-No instruments will be in the GUI the first time it is launched; instruments will have to separately be loaded in. A
-dummy instrument is provided to better understand the interaction model with the GUI.
+No instruments will be in the GUI the first time it is launched; instruments will have to separately be loaded in. 
 
 Navigate to the 'Instruments' tab in the top left of the GUI, and press "Import Instruments". Find the .b26 file you created, 
-and be sure to the click and drag the Dummy Instrument to the left pane. Press Ok, and the instrument should not be shown in the GUI. 
+and be sure to the click and drag the Dummy Instrument to the left pane. Press Ok, and the instrument should be shown in the GUI. 
 
-#### Importing Scripts
-No scripts will be in the GUI the first time it is launched; scripts will have to separately be loaded in. The steps are exactly as above, ...
-
-Custom instruments and scripts will be supported in a later release. 
-If you are interested in importing your own instruments or scripts soon, pelase do not hesitate to reach out to the authors of pyLabControl.
+#### .b26 files
+Settings and configurations are saved in json files with .b26 extension.
+Since these files can become quite large for complex scripts, we recommend a json viewer to look at them (e.g. https://jsonviewer.codeplex.com/).
 
 #### B26_Toolkit
 This software was created to streamline experiments done in the Lukin Lab; 
-the instruments and scripts utilized there can be imported into pyLabControl by installing b26_toolkit. 
+the instruments and scripts utilized there can be imported into PyLabControl by installing b26_toolkit. 
 More information can be found here: https://github.com/LISE-B26/b26_toolkit
 
 ## FAQ

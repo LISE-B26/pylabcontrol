@@ -2,25 +2,30 @@
     This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
     Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 
-    Foobar is free software: you can redistribute it and/or modify
+
+    PyLabControl is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Foobar is distributed in the hope that it will be useful,
+    PyLabControl is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+
 """
-# from importlib import import_module
-from PyLabControl.src.core.read_write_functions import get_config_value
+
 import inspect, os
 from PyLabControl.src.core import Instrument, Script, ScriptIterator
 from importlib import import_module
 from PyLabControl.src.core.helper_functions import module_name_from_path
+
+
+
+
 
 def get_classes_in_folder( folder_name, class_type):
     """
@@ -70,20 +75,14 @@ def get_classes_in_folder( folder_name, class_type):
     module, path = module_name_from_path(folder_name)
     if module is not '':
         module = import_module(module)
-        print('module', module)
-        print('--', [name for name, obj in inspect.getmembers(module) if inspect.isclass(obj)])
-
-        # print('module', module, {name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
-        #                        inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)})
         classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
                                inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)
-                             # and not obj is class_type})
                              and not obj in (Instrument, Script, ScriptIterator)})
 
 
     return classes_dict
 
-def export_default_probes(path, module_name = ''):
+def export_default_probes(path, module_name = '', raise_errors = False):
     """
     NOT IMPLEMENTED YET
     tries to instantiate all the instruments that are imported in /instruments/__init__.py
@@ -155,13 +154,11 @@ def export_default_scripts(target_folder, source_folder = None, raise_errors = F
 
     print('attempt to load {:d} scripts: '.format(len(scripts_to_load)))
 
-    print('raise_errors', raise_errors)
     loaded_scripts, failed, loaded_instruments = Script.load_and_append(scripts_to_load, raise_errors = raise_errors)
 
     for name, value in loaded_scripts.iteritems():
         filename = os.path.join(target_folder, '{:s}.b26'.format(name))
         value.save_b26(filename)
-        print('saving ', filename)
 
     print('\n================================================')
     print('================================================')
@@ -190,32 +187,38 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
         print('unknown type to export')
         return
 
+    if not os.path.isdir(target_folder):
+        try:
+            os.mkdir(target_folder)
+        except:
+            print(target_folder, ' is invalid target folder')
+            target_folder = None
 
-    if source_folders is None:
-        module_list = [os.path.dirname(os.path.dirname(inspect.getfile(inspect.currentframe())))]
-    elif isinstance(source_folders, str):
-        module_list = [source_folders]
-    elif isinstance(source_folders, list):
-        module_list = source_folders
-    else:
-        raise TypeError('unknown type for source_folders')
+    if target_folder is not None:
+        if source_folders is None:
+            module_list = [os.path.dirname(os.path.dirname(inspect.getfile(inspect.currentframe())))]
+        elif isinstance(source_folders, str):
+            module_list = [source_folders]
+        elif isinstance(source_folders, list):
+            module_list = source_folders
+        else:
+            raise TypeError('unknown type for source_folders')
 
-    # print('aaa', module_list)
-    for path_to_module in module_list:
-        if class_type in ('all', 'scripts'):
-            export_default_scripts(target_folder, source_folder=path_to_module, raise_errors=raise_errors)
-        if class_type in ('all', 'instruments'):
-            export_default_instruments(target_folder, path_to_module,  raise_errors=raise_errors)
-        if class_type in ('all', 'probes'):
-            export_default_probes(target_folder, path_to_module,  raise_errors=raise_errors)
+        for path_to_module in module_list:
+            if class_type in ('all', 'scripts'):
+                export_default_scripts(target_folder, source_folder=path_to_module, raise_errors=raise_errors)
+            if class_type in ('all', 'instruments'):
+                export_default_instruments(target_folder, path_to_module,  raise_errors=raise_errors)
+            if class_type in ('all', 'probes'):
+                print('WARNING: probes currently not supported')
+                # export_default_probes(target_folder, path_to_module,  raise_errors=raise_errors)
 
 
 if __name__ == '__main__':
 
-
-    source_folders = 'b26_toolkit'
+    # source_folders = 'b26_toolkit'
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
-    # source_folders = None
+    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src'
     target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
     export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
 

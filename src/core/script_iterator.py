@@ -2,18 +2,19 @@
     This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
     Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 
-    Foobar is free software: you can redistribute it and/or modify
+
+    PyLabControl is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Foobar is distributed in the hope that it will be useful,
+    PyLabControl is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 from PyLabControl.src.core import Parameter, Script
@@ -174,8 +175,8 @@ Script.
                         break
                     self.log('starting {:s}'.format(script_name))
                     tag = self.scripts[script_name].settings['tag']
-                    # tmp = tag + '_pt_{' + ':0{:d}'.format(len(str(self.settings['N']))) + '}' #There is no self.settings['N']
-                    # self.scripts[script_name].settings['tag'] = tmp.format(i)
+                    tmp = tag + '_pt_{' + ':0{:d}'.format(len(str(self.settings['N']))) + '}'
+                    self.scripts[script_name].settings['tag'] = tmp.format(i)
                     self.scripts[script_name].run()
                     self.scripts[script_name].settings['tag'] = tag
         else:
@@ -393,7 +394,7 @@ Script.
                         raise NotImplementedError
                     elif script_sub_scripts[sub_script_name]['class'] == 'ScriptIterator':
                         subscript_class_name = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name])['class']
-                        # import PyLabControl.src.scripts # not sure why import needed here, commented out Aug. 5th JG #Pycharm gets mad about this being out of scope on exp computer Aug. 8th AK
+                        import PyLabControl.src.scripts
                         sub_scripts.update({sub_script_name: getattr(PyLabControl.src.scripts, subscript_class_name)})
                     else:
                         # script_dict = {script_sub_scripts[sub_script_name]['class']}
@@ -402,19 +403,14 @@ Script.
 
                 # for point iteration we add some default scripts
                 if iterator_type == ScriptIterator.TYPE_ITER_NVS:
-                    import PyLabControl
-                    import b26_toolkit
 
                     module, _, _, _, _, _ = Script.get_script_information('SelectPoints')
                     sub_scripts.update(
-                        #TODO: perminent fix for this, see issue #92 in PyLabControl
-                        # {'select_points': getattr(module, 'SelectPoints')} #temporary fix Aug 8th AK
-                        {'select_points': getattr(PyLabControl.src.scripts, 'SelectPoints')}
+                        {'select_points': getattr(module, 'SelectPoints')}
                     )
                     module, _, _, _, _, _ = Script.get_script_information('FindNV')
                     sub_scripts.update(
-                        # {'find_nv': getattr(module, 'FindNV')}
-                        {'find_nv': getattr(b26_toolkit.src.scripts, 'FindNV')}
+                        {'find_nv': getattr(module, 'FindNV')}
                     )
                     script_settings['script_order'].update(
                         {'select_points': -2, 'find_nv': -1}

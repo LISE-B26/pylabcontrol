@@ -2,23 +2,25 @@
     This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
     Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 
-    Foobar is free software: you can redistribute it and/or modify
+
+    PyLabControl is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Foobar is distributed in the hope that it will be useful,
+    PyLabControl is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+
 """
 from PyLabControl.src.core import Instrument, Parameter
-import threading
+from PyQt4.QtCore import QThread
 import random, time
-
+import numpy as np
 class DummyInstrument(Instrument):
     '''
     Dummy instrument
@@ -96,62 +98,179 @@ class DummyInstrument(Instrument):
         return self._is_connected
 
 
-# class DummyInstrumentThreaded(threading.Thread, Instrument):
-#
-#     _DEFAULT_SETTINGS = Parameter([
-#         Parameter('update frequency', 2.0, float, 'update frequency of signal in Hz'),
-#         Parameter('signal_range',
-#                   [Parameter('min', 0.0, float, 'minimum output signal (float)'),
-#                    Parameter('max', 0.0, float, 'maximum output signal (float)')
-#                    ])
-#     ])
-#
-#     _PROBES = {'output': 'this is some random output signal (float)'
-#                }
-#
-#     def __init__(self, name =  None, settings = None):
-#
-#         threading.Thread.__init__(self)
-#         Instrument.__init__(self, name, settings)
-#         self._is_connected = True
-#         self.start()
-#
-#     def __del__(self):
-#         self._is_connected = False
-#
-#     def run(self):
-#         dt = 1./self.settings['update frequency']
-#         while self._is_connected:
-#             self._output = random.random()
-#             time.sleep(dt)
-#
-#     def read_probes(self, key):
-#         """
-#         requestes value from the instrument and returns it
-#         Args:
-#             key: name of requested value
-#
-#         Returns: reads values from instrument
-#
-#         """
-#         assert key in self._PROBES.keys()
-#
-#         if key == 'output':
-#             value = self._output
-#
-#         return value
-#
-#     @property
-#     def is_connected(self):
-#         '''
-#         check if instrument is active and connected and return True in that case
-#         :return: bool
-#         '''
-#         return self._is_connected
+class Plant(Instrument, QThread):
+
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('update frequency', 20, float, 'update frequency of signal in Hz'),
+        Parameter('noise_strength',1.0, float, 'strength of noise'),
+        Parameter('noise_bandwidth', 1.0, float, 'bandwidth of noise (Hz)'),
+        Parameter('control', 0.0, float, 'set the output varariable to a given value (in the absence of noise)')
+    ])
+
+    _PROBES = {'output': 'this is some random output signal (float)'
+               }
+
+    def __init__(self, name =  None, settings = None):
+
+        QThread.__init__(self)
+        Instrument.__init__(self, name, settings)
+        self._is_connected = True
+        self._output = 0
+        self.start()
+
+    def start(self, *args, **kwargs):
+        """
+        start the instrument thread
+        """
+        self._stop = False
+
+        super(Plant, self).start(*args, **kwargs)
+
+
+    def quit(self, *args, **kwargs):  # real signature unknown
+        """
+        quit the  instrument thread
+        """
+        self.stop()
+        self._stop = True
+        self.msleep(2* int(1e3 / self.settings['update frequency']))
+        super(Plant, self).quit(*args, **kwargs)
+
+    def run(self):
+        """
+        this is the actual execution of the instrument thread: continuously read values from the probes
+        """
+
+
+        # self._state = np.array([[self.settings['control'], 0]]).transpose()
+        # while self._stop is False:
+        #     eta = self.settings['noise_strength']
+        #     gamma = 0.1
+        #     dt = 1. / self.settings['update frequency']
+        #     A = np.array([[0, dt], [0, (1 - gamma * dt)]])
+        #     control = np.array([[self.settings['control'], 0]]).transpose()
+        #     noise = np.array([[0, np.sqrt(2 * gamma * eta)*np.random.randn()]]).transpose()
+        #     self._state = np.dot(A,self._state) + noise + control
+        #     self._output = self._state[0][0]
+        #
+        #     self.msleep(int(1e3 / self.settings['update frequency']))
+
+        self._state = self._output
+        while self._stop is False:
+            eta = self.settings['noise_strength']
+            gamma = 2*np.pi*self.settings['noise_bandwidth']
+            dt = 1. / self.settings['update frequency']
+            A = -gamma * dt
+            control = self.settings['control']
+            noise = np.sqrt(2*gamma*eta)*np.random.randn()
+
+            self._state *= (1. + A)
+            self._state += noise + control
+            self._output = self._state
+
+            self.msleep(int(1e3 / self.settings['update frequency']))
+
+
+
+    def read_probes(self, key):
+        """
+        requestes value from the instrument and returns it
+        Args:
+            key: name of requested value
+
+        Returns: reads values from instrument
+
+        """
+        assert key in self._PROBES.keys()
+
+        if key == 'output':
+            value = self._output
+
+        return value
+
+    @property
+    def is_connected(self):
+        '''
+        check if instrument is active and connected and return True in that case
+        :return: bool
+        '''
+        return self._is_connected
+
+
+class PIControler(Instrument):
+    """
+    Discrete PI control
+    """
+    _DEFAULT_SETTINGS = Parameter([
+        Parameter('set_point', 0.0, float, 'setpoint to which to stabilize'),
+        Parameter('gains',[
+            Parameter('proportional', 0.0, float, 'proportional gain'),
+            Parameter('integral', 0.0, float, 'integral gain')
+        ]),
+        Parameter('time_step', 1.0, float, 'time_step of loop'),
+        Parameter('output_range', [
+            Parameter('min', -10000, float, 'min allowed value for PI-loop output'),
+            Parameter('max', 10000, float, 'max allowed value for PI-loop output')
+        ])
+    ])
+    _PROBES = {}
+    def __init__(self, name = None, settings = None):
+        super(PIControler, self).__init__(name, settings)
+        self.reset()
+    def update(self, settings):
+        super(PIControler, self).update(settings)
+
+    def read_probes(self, key = None):
+
+        if key is None:
+            super(PIControler, self).read_probes()
+        else:
+            assert key in self._PROBES.keys(), "key assertion failed %s" % str(key)
+
+        return None
+
+    def reset(self):
+        #COMMENT_ME
+        self.u_P = 0
+        self.u_I = 0
+        self.error = 0
+
+    def controler_output(self, current_value):
+        """
+        Calculate PI output value for given reference input and feedback
+        """
+
+        set_point = self.settings['set_point']
+        Kp = self.settings['gains']['proportional']
+        Ki = self.settings['gains']['integral']
+        output_range = self.settings['output_range']
+        time_step = self.settings['time_step']
+
+        error_new = set_point - current_value
+        #proportional action
+        self.u_P = Kp * error_new * time_step
+
+        #integral action
+        self.u_I += Kp * Ki * (error_new + self.error) / 2.0 * time_step
+
+        self.error = error_new
+
+        # anti-windup
+        if self.u_P + self.u_I > output_range['max']:
+            self.u_I = output_range['max']-self.u_P
+        if self.u_P + self.u_I < output_range['min']:
+            self.u_I = output_range['min']-self.u_P
+
+
+        output = self.u_P + self.u_I
+
+        return output
 
 if __name__ == '__main__':
 
-    d = DummyInstrumentThreaded()
+    d = Plant()
+    print(d.settings)
     for i in range(15):
         time.sleep(0.1)
         print(d.read_probes('output'))
+    print('done')
