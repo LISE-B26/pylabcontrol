@@ -119,6 +119,13 @@ class Script(QObject):
         self._plot_refresh = True
 
         self.progress = None
+
+
+        self._current_subscript_stage = {
+            'current_subscript': None,
+            'subscript_exec_count':{},
+            'subscript_exec_duration':{}
+        }
     @property
     def data_path(self):
         return self._data_path
