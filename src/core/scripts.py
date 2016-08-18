@@ -780,11 +780,12 @@ class Script(QObject):
         return data
 
     @staticmethod
-    def load_settings(path):
+    def load_settings(path, setttings_only = True):
         """
         loads the settings that has been save with Script.save_b26.
         Args:
             path: path to folder saved by Script.save_b26
+            setttings_only: if true returns only the settings if the .b26 file contains only a single script
         Returns:
             a dictionary with the settings
         """
@@ -805,7 +806,10 @@ class Script(QObject):
             print('no .b26 file found in folder {:s},  check path !'.format(search_str))
             return
         fname = fname[0]
-        settings = load_b26_file(fname)
+        settings = load_b26_file(fname)['scripts']
+
+        if len(settings.keys()) == 1 and setttings_only:
+            settings = settings[settings.keys()[0]]['settings']
 
         return settings
 
