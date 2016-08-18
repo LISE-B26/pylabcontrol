@@ -795,15 +795,14 @@ class Script(QObject):
             print(path)
             raise AttributeError('Path given does not exist!')
 
-        os.path.basename(path).split('_')
+        tag = '_'.join(os.path.basename(os.path.dirname(os.path.abspath(path) + '/')).split('_')[3:])
 
-        tag = '_'.join(os.path.dirname(path + '/').split('_')[3:])
-
-        fname = glob.glob(os.path.abspath(path)+'/*'+tag +'.b26')
+        search_str = os.path.abspath(path)+'/*'+tag +'.b26'
+        fname = glob.glob(search_str)
         if len(fname)>1:
             print('warning more than one .b26 file found, loading ', fname[0])
         elif len(fname) == 0:
-            print('no .b26 file found in folder. Check path !')
+            print('no .b26 file found in folder {:s},  check path !'.format(search_str))
             return
         fname = fname[0]
         settings = load_b26_file(fname)
