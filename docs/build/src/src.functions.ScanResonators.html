@@ -1,209 +1,193 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>src.functions.ScanResonators module &mdash; PythonLab 2.0.1 documentation</title>
-    
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '2.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
-    <link rel="up" title="src.functions package" href="src.functions.html" />
-    <link rel="next" title="src.functions.ScanTest module" href="src.functions.ScanTest.html" />
-    <link rel="prev" title="src.functions.ScanPhotodiode_ZI module" href="src.functions.ScanPhotodiode_ZI.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="src.functions.ScanTest.html" title="src.functions.ScanTest module"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="src.functions.ScanPhotodiode_ZI.html" title="src.functions.ScanPhotodiode_ZI module"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="src.functions.html" accesskey="U">src.functions package</a> &raquo;</li> 
-      </ul>
-    </div>  
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.functions.ScanResonators module &mdash; PyLabControl 1.0.1 documentation</title>
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="PyLabControl 1.0.1 documentation" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PyLabControl
+          
+
+          
+          </a>
+
+          
             
-  <div class="section" id="module-src.functions.ScanResonators">
-<span id="src-functions-scanresonators-module"></span><h1>src.functions.ScanResonators module<a class="headerlink" href="#module-src.functions.ScanResonators" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="src.functions.ScanResonators.SweepScan">
-<em class="property">class </em><code class="descclassname">src.functions.ScanResonators.</code><code class="descname">SweepScan</code><span class="sig-paren">(</span><em>xypairs</em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.SweepScan" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
-<dt id="src.functions.ScanResonators.SweepScan.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>xypairs</em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.SweepScan.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
 
-<dl class="attribute">
-<dt id="src.functions.ScanResonators.SweepScan.__module__">
-<code class="descname">__module__</code><em class="property"> = 'src.functions.ScanResonators'</em><a class="headerlink" href="#src.functions.ScanResonators.SweepScan.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
 
-<dl class="method">
-<dt id="src.functions.ScanResonators.SweepScan.resonancescan">
-<code class="descname">resonancescan</code><span class="sig-paren">(</span><em>amplitude</em>, <em>offset</em>, <em>freq</em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.SweepScan.resonancescan" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+          
+        </div>
 
-<dl class="method">
-<dt id="src.functions.ScanResonators.SweepScan.sweepscan">
-<code class="descname">sweepscan</code><span class="sig-paren">(</span><em>amplitude</em>, <em>offset</em>, <em>freqStart</em>, <em>freqEnd</em>, <em>sampleNum</em>, <em>samplesPerPt</em>, <em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.SweepScan.sweepscan" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../project.html">PythonLab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code.html">Code</a></li>
+</ul>
 
-<dl class="method">
-<dt id="src.functions.ScanResonators.SweepScan.writeArray">
-<code class="descname">writeArray</code><span class="sig-paren">(</span><em>array</em>, <em>filepath</em>, <em>columns=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.SweepScan.writeArray" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+            
+          
+        </div>
+      </div>
+    </nav>
 
-</dd></dl>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
-<dl class="class">
-<dt id="src.functions.ScanResonators.defXYpairs">
-<em class="property">class </em><code class="descclassname">src.functions.ScanResonators.</code><code class="descname">defXYpairs</code><a class="headerlink" href="#src.functions.ScanResonators.defXYpairs" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="attribute">
-<dt id="src.functions.ScanResonators.defXYpairs.__module__">
-<code class="descname">__module__</code><em class="property"> = 'src.functions.ScanResonators'</em><a class="headerlink" href="#src.functions.ScanResonators.defXYpairs.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">PyLabControl</a>
+      </nav>
 
-<dl class="staticmethod">
-<dt id="src.functions.ScanResonators.defXYpairs.getPairs">
-<em class="property">static </em><code class="descname">getPairs</code><span class="sig-paren">(</span><em>xMin</em>, <em>xMax</em>, <em>xPts</em>, <em>yMin</em>, <em>yMax</em>, <em>yPts</em>, <em>theta</em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.defXYpairs.getPairs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
-</dd></dl>
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
 
-<dl class="class">
-<dt id="src.functions.ScanResonators.plotScannedResonator">
-<em class="property">class </em><code class="descclassname">src.functions.ScanResonators.</code><code class="descname">plotScannedResonator</code><span class="sig-paren">(</span><em>xminpair</em>, <em>xmaxpair</em>, <em>xpts</em>, <em>yminpair</em>, <em>ymaxpair</em>, <em>ypts</em>, <em>theta</em>, <em>results=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.plotScannedResonator" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
-<dt id="src.functions.ScanResonators.plotScannedResonator.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>xminpair</em>, <em>xmaxpair</em>, <em>xpts</em>, <em>yminpair</em>, <em>ymaxpair</em>, <em>ypts</em>, <em>theta</em>, <em>results=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.plotScannedResonator.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
-<dl class="attribute">
-<dt id="src.functions.ScanResonators.plotScannedResonator.__module__">
-<code class="descname">__module__</code><em class="property"> = 'src.functions.ScanResonators'</em><a class="headerlink" href="#src.functions.ScanResonators.plotScannedResonator.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
-<dl class="method">
-<dt id="src.functions.ScanResonators.plotScannedResonator.linPlotx">
-<code class="descname">linPlotx</code><span class="sig-paren">(</span><em>lineNum</em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.plotScannedResonator.linPlotx" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
-<dl class="method">
-<dt id="src.functions.ScanResonators.plotScannedResonator.linPloty">
-<code class="descname">linPloty</code><span class="sig-paren">(</span><em>lineNum</em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.plotScannedResonator.linPloty" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
-<dl class="staticmethod">
-<dt id="src.functions.ScanResonators.plotScannedResonator.plotImage">
-<em class="property">static </em><code class="descname">plotImage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.plotScannedResonator.plotImage" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.functions.ScanResonators.plotScannedResonator.plotPreSweep">
-<code class="descname">plotPreSweep</code><span class="sig-paren">(</span><em>xmin</em>, <em>xmax</em>, <em>ymin</em>, <em>ymax</em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.plotScannedResonator.plotPreSweep" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.functions.ScanResonators.plotScannedResonator.plotResSweep">
-<code class="descname">plotResSweep</code><span class="sig-paren">(</span><em>xmin</em>, <em>xmax</em>, <em>ymin</em>, <em>ymax</em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.ScanResonators.plotScannedResonator.plotResSweep" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>src.functions.ScanResonators module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/src/src.functions.ScanResonators.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="src-functions-scanresonators-module">
+<h1>src.functions.ScanResonators module<a class="headerlink" href="#src-functions-scanresonators-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="src.functions.ScanPhotodiode_ZI.html"
-                        title="previous chapter">src.functions.ScanPhotodiode_ZI module</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="src.functions.ScanTest.html"
-                        title="next chapter">src.functions.ScanTest module</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/src/src.functions.ScanResonators.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="src.functions.ScanTest.html" title="src.functions.ScanTest module"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="src.functions.ScanPhotodiode_ZI.html" title="src.functions.ScanPhotodiode_ZI module"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="src.functions.html" >src.functions package</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
         &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
-  </body>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

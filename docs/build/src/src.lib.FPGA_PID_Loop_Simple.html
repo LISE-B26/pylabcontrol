@@ -1,387 +1,193 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>src.lib.FPGA_PID_Loop_Simple module &mdash; PythonLab 2.0.1 documentation</title>
-    
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '2.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
-    <link rel="up" title="src.lib package" href="src.lib.html" />
-    <link rel="next" title="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper module" href="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.html" />
-    <link rel="prev" title="src.lib package" href="src.lib.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.html" title="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper module"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="src.lib.html" title="src.lib package"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="src.lib.html" accesskey="U">src.lib package</a> &raquo;</li> 
-      </ul>
-    </div>  
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.lib.FPGA_PID_Loop_Simple module &mdash; PyLabControl 1.0.1 documentation</title>
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="PyLabControl 1.0.1 documentation" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PyLabControl
+          
+
+          
+          </a>
+
+          
             
-  <div class="section" id="module-src.lib.FPGA_PID_Loop_Simple">
-<span id="src-lib-fpga-pid-loop-simple-module"></span><h1>src.lib.FPGA_PID_Loop_Simple module<a class="headerlink" href="#module-src.lib.FPGA_PID_Loop_Simple" title="Permalink to this headline">¶</a></h1>
-<p>Created on Wed Oct 22 17:46:08 2014</p>
-<p>&#64;author: Jan Gieseler</p>
-<p>higher level Python objects, for an example how to use them see run_NI_FPGA_PID.py</p>
-<dl class="class">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI7845R">
-<em class="property">class </em><code class="descclassname">src.lib.FPGA_PID_Loop_Simple.</code><code class="descname">NI7845R</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI7845R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI7845R.__dict__">
-<code class="descname">__dict__</code><em class="property"> = dict_proxy({'status': c_long(0), 'start': &lt;function start at 0x000000000538A128&gt;, '__module__': 'src.lib.FPGA_PID_Loop_Simple', 'session': c_ulong(0L), '__dict__': &lt;attribute '__dict__' of 'NI7845R' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'NI7845R' objects&gt;, 'device_temperature': &lt;property object at 0x0000000004F17B88&gt;, 'stop': &lt;function stop at 0x000000000538A198&gt;, '__doc__': None, '__init__': &lt;function __init__ at 0x000000000538A0B8&gt;})</em><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI7845R.__dict__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
 
-<dl class="method">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI7845R.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI7845R.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>object to establish communication with the NI FPGA</p>
-</dd></dl>
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
 
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI7845R.__module__">
-<code class="descname">__module__</code><em class="property"> = 'src.lib.FPGA_PID_Loop_Simple'</em><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI7845R.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+          
+        </div>
 
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI7845R.__weakref__">
-<code class="descname">__weakref__</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI7845R.__weakref__" title="Permalink to this definition">¶</a></dt>
-<dd><p>list of weak references to the object (if defined)</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI7845R.device_temperature">
-<code class="descname">device_temperature</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI7845R.device_temperature" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI7845R.session">
-<code class="descname">session</code><em class="property"> = c_ulong(0L)</em><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI7845R.session" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI7845R.start">
-<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI7845R.start" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI7845R.status">
-<code class="descname">status</code><em class="property"> = c_long(0)</em><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI7845R.status" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI7845R.stop">
-<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI7845R.stop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI">
-<em class="property">class </em><code class="descclassname">src.lib.FPGA_PID_Loop_Simple.</code><code class="descname">NI_FPGA_PI</code><span class="sig-paren">(</span><em>fpga</em>, <em>sample_period_PI=400000.0</em>, <em>gains={'proportional': 0</em>, <em>'integral': 0}</em>, <em>setpoint=0</em>, <em>piezo=0</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.__dict__">
-<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.lib.FPGA_PID_Loop_Simple', 'loop_rate_limit_PI': &lt;property object at 0x000000000433C818&gt;, 'piezo': &lt;property object at 0x000000000433CCC8&gt;, 'sample_period_PI': &lt;property object at 0x0000000004245A98&gt;, 'setpoint': &lt;property object at 0x000000000433CC78&gt;, 'status_LP': &lt;property object at 0x000000000433C7C8&gt;, '__doc__': None, '__dict__': &lt;attribute '__dict__' of 'NI_FPGA_PI' objects&gt;, 'loop_time_PI': &lt;property object at 0x0000000004245EA8&gt;, 'gains': &lt;property object at 0x000000000433C868&gt;, 'minmax': &lt;property object at 0x00000000042459A8&gt;, 'detector': &lt;property object at 0x00000000041F3DB8&gt;, '__weakref__': &lt;attribute '__weakref__' of 'NI_FPGA_PI' objects&gt;, 'status_modulation': &lt;property object at 0x000000000433C778&gt;, '__init__': &lt;function __init__ at 0x000000000538A278&gt;, 'status_PI': &lt;property object at 0x000000000433CB88&gt;})</em><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.__dict__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>fpga</em>, <em>sample_period_PI=400000.0</em>, <em>gains={'proportional': 0</em>, <em>'integral': 0}</em>, <em>setpoint=0</em>, <em>piezo=0</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fpga</strong> &#8211; NI7845R object</li>
-<li><strong>PI_gains</strong> &#8211; dictionary  with values for PI gains {&#8216;integral&#8217;: XX, &#8216;proportional&#8217;: XX}</li>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../project.html">PythonLab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code.html">Code</a></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
 
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.__module__">
-<code class="descname">__module__</code><em class="property"> = 'src.lib.FPGA_PID_Loop_Simple'</em><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+            
+          
+        </div>
+      </div>
+    </nav>
 
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.__weakref__">
-<code class="descname">__weakref__</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.__weakref__" title="Permalink to this definition">¶</a></dt>
-<dd><p>list of weak references to the object (if defined)</p>
-</dd></dl>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.detector">
-<code class="descname">detector</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.detector" title="Permalink to this definition">¶</a></dt>
-<dd><p>read detector value</p>
-</dd></dl>
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">PyLabControl</a>
+      </nav>
 
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.gains">
-<code class="descname">gains</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.gains" title="Permalink to this definition">¶</a></dt>
-<dd><p>set and read gains of PI_Loop</p>
-</dd></dl>
 
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.loop_rate_limit_PI">
-<code class="descname">loop_rate_limit_PI</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.loop_rate_limit_PI" title="Permalink to this definition">¶</a></dt>
-<dd><p>read status if PI-loop runs slower than expected</p>
-</dd></dl>
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
 
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.loop_time_PI">
-<code class="descname">loop_time_PI</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.loop_time_PI" title="Permalink to this definition">¶</a></dt>
-<dd><p>read duration of PI loop in ticks (clock cycle 40MHz)</p>
-</dd></dl>
 
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.minmax">
-<code class="descname">minmax</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.minmax" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.piezo">
-<code class="descname">piezo</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.piezo" title="Permalink to this definition">¶</a></dt>
-<dd><p>get or set the piezo output. Note that if PI-Loop is active, piezo value can not be changed</p>
-</dd></dl>
 
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.sample_period_PI">
-<code class="descname">sample_period_PI</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.sample_period_PI" title="Permalink to this definition">¶</a></dt>
-<dd><p>set and read sample_period of PI_Loop in ticks (clock cycle is 40MHz)</p>
-</dd></dl>
 
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.setpoint">
-<code class="descname">setpoint</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.setpoint" title="Permalink to this definition">¶</a></dt>
-<dd><p>set and read the setpoint for the PI_Loop</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.status_LP">
-<code class="descname">status_LP</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.status_LP" title="Permalink to this definition">¶</a></dt>
-<dd><p>activate or read status of PI-Loop (if active or not)</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.status_PI">
-<code class="descname">status_PI</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.status_PI" title="Permalink to this definition">¶</a></dt>
-<dd><p>activate or read status of PI-Loop (if active or not)</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.status_modulation">
-<code class="descname">status_modulation</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_PI.status_modulation" title="Permalink to this definition">¶</a></dt>
-<dd><p>activate or read status of PI-Loop (if active or not)</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO">
-<em class="property">class </em><code class="descclassname">src.lib.FPGA_PID_Loop_Simple.</code><code class="descname">NI_FPGA_READ_FIFO</code><span class="sig-paren">(</span><em>fpga</em>, <em>data_length</em>, <em>sample_period_acq</em>, <em>block_size=65536</em>, <em>timeout_buffer=100</em>, <em>data_queue=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PySide.QtCore.QThread</span></code></p>
-<dl class="method">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>fpga</em>, <em>data_length</em>, <em>sample_period_acq</em>, <em>block_size=65536</em>, <em>timeout_buffer=100</em>, <em>data_queue=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fpga</strong> &#8211; NI7845R object</li>
-<li><strong>data_length</strong> &#8211; length of data to be read</li>
-<li><strong>sample_period_acq</strong> &#8211; time period in between samples</li>
-<li><strong>block_size</strong> &#8211; block size of chunks that are read from FPGA</li>
-<li><strong>data_queue</strong> &#8211; queue to which send the reading task</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.__module__">
-<code class="descname">__module__</code><em class="property"> = 'src.lib.FPGA_PID_Loop_Simple'</em><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.block_size">
-<code class="descname">block_size</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.block_size" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.configure_fifo">
-<code class="descname">configure_fifo</code><span class="sig-paren">(</span><em>fifo_size</em><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.configure_fifo" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.data_length">
-<code class="descname">data_length</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.data_length" title="Permalink to this definition">¶</a></dt>
-<dd><p>set or read number of elements that will be acquired in acquisition</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.number_of_reads">
-<code class="descname">number_of_reads</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.number_of_reads" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.read_fifo_block">
-<code class="descname">read_fifo_block</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.read_fifo_block" title="Permalink to this definition">¶</a></dt>
-<dd><p>read a block of data from the FIFO
-:return: data from channels AI1 and AI2 and the elements remaining in the FIFO</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.run">
-<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>queue to read data from fifo</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.sample_period_acq">
-<code class="descname">sample_period_acq</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.sample_period_acq" title="Permalink to this definition">¶</a></dt>
-<dd><p>set and read sample_period of acquisition in ticks (clock cycle is 40MHz)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.start_fifo">
-<code class="descname">start_fifo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.start_fifo" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.staticMetaObject">
-<code class="descname">staticMetaObject</code><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x000000001B4F0108&gt;</em><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.staticMetaObject" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.status">
-<code class="descname">status</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.status" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.stop_fifo">
-<code class="descname">stop_fifo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.stop_fifo" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.timeout_buffer">
-<code class="descname">timeout_buffer</code><a class="headerlink" href="#src.lib.FPGA_PID_Loop_Simple.NI_FPGA_READ_FIFO.timeout_buffer" title="Permalink to this definition">¶</a></dt>
-<dd><p>set or read number of elements that will be acquired in acquisition</p>
-</dd></dl>
-
-</dd></dl>
-
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>src.lib.FPGA_PID_Loop_Simple module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/src/src.lib.FPGA_PID_Loop_Simple.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="src-lib-fpga-pid-loop-simple-module">
+<h1>src.lib.FPGA_PID_Loop_Simple module<a class="headerlink" href="#src-lib-fpga-pid-loop-simple-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="src.lib.html"
-                        title="previous chapter">src.lib package</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.html"
-                        title="next chapter">src.lib.FPGA_PID_Loop_Simple_lib_Wrapper module</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/src/src.lib.FPGA_PID_Loop_Simple.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper.html" title="src.lib.FPGA_PID_Loop_Simple_lib_Wrapper module"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="src.lib.html" title="src.lib package"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="src.lib.html" >src.lib package</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
         &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
-  </body>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

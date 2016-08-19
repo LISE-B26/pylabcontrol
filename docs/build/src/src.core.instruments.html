@@ -1,72 +1,161 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>src.core.instruments module &mdash; PythonLab 2.0.1 documentation</title>
-    
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '2.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
-    <link rel="up" title="src.core package" href="src.core.html" />
-    <link rel="next" title="src.core.parameter module" href="src.core.parameter.html" />
-    <link rel="prev" title="src.core package" href="src.core.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="src.core.parameter.html" title="src.core.parameter module"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="src.core.html" title="src.core package"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="src.core.html" accesskey="U">src.core package</a> &raquo;</li> 
-      </ul>
-    </div>  
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.core.instruments module &mdash; PyLabControl 1.0.1 documentation</title>
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="PyLabControl 1.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="src.core package" href="src.core.html"/>
+        <link rel="next" title="src.core.parameter module" href="src.core.parameter.html"/>
+        <link rel="prev" title="src.core package" href="src.core.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PyLabControl
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../project.html">PythonLab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code.html">Code</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">PyLabControl</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="code.html">Code</a> &raquo;</li>
+      
+          <li><a href="src.core.html">src.core package</a> &raquo;</li>
+      
+    <li>src.core.instruments module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/src/src.core.instruments.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="module-src.core.instruments">
 <span id="src-core-instruments-module"></span><h1>src.core.instruments module<a class="headerlink" href="#module-src.core.instruments" title="Permalink to this headline">¶</a></h1>
+<p>This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+Copyright (C) &lt;2016&gt;  Arthur Safira, Jan Gieseler, Aaron Kabcenell</p>
+<p>PyLabControl is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>PyLabControl is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License
+along with PyLabControl.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
 <dl class="class">
 <dt id="src.core.instruments.Instrument">
-<em class="property">class </em><code class="descclassname">src.core.instruments.</code><code class="descname">Instrument</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.core.instruments.</code><code class="descname">Instrument</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>generic instrument class</p>
 <dl class="docutils">
-<dt>for subclass overwrite following functions / properties:</dt>
+<dt>for subclass overwrite following old_functions / properties:</dt>
 <dd><ul class="first last simple">
-<li>_parameters_default =&gt; parameter object, that is a list of parameters that can be set to configure the instrument</li>
+<li>_settings_default =&gt; parameter object, that is a list of parameters that can be set to configure the instrument</li>
 <li>update =&gt; function that sends parameter changes to the instrument</li>
 <li>values =&gt; dictionary that contains all the values that can be read from the instrument</li>
 <li>get_values =&gt; function that actually requests the values from the instrument</li>
@@ -75,30 +164,22 @@
 </dd>
 </dl>
 <dl class="attribute">
-<dt id="src.core.instruments.Instrument.__abstractmethods__">
-<code class="descname">__abstractmethods__</code><em class="property"> = frozenset(['_probes', 'is_connected', 'read_probes', '_parameters_default', 'update'])</em><a class="headerlink" href="#src.core.instruments.Instrument.__abstractmethods__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="src.core.instruments.Instrument.__dict__">
-<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.core.instruments', '__metaclass__': &lt;class 'abc.ABCMeta'&gt;, '_abc_negative_cache': &lt;_weakrefset.WeakSet object at 0x000000000452CF60&gt;, 'read_probes': &lt;function read_probes at 0x000000000466E978&gt;, '__dict__': &lt;attribute '__dict__' of 'Instrument' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Instrument' objects&gt;, '__init__': &lt;function __init__ at 0x000000000466E7B8&gt;, '_abc_cache': &lt;_weakrefset.WeakSet object at 0x000000000452CEF0&gt;, '__setattr__': &lt;function __setattr__ at 0x000000000466EAC8&gt;, 'parameters': &lt;property object at 0x00000000046F6868&gt;, '__abstractmethods__': frozenset(['_probes', 'is_connected', 'read_probes', '_parameters_default', 'update']), '_probes': &lt;abc.abstractproperty object at 0x0000000004691588&gt;, '__getattr__': &lt;function __getattr__ at 0x000000000466EA58&gt;, '__doc__': '\n    generic instrument class\n\n    for subclass overwrite following functions / properties:\n        - _parameters_default =&gt; parameter object, that is a list of parameters that can be set to configure the instrument\n        - update =&gt; function that sends parameter changes to the instrument\n        - values =&gt; dictionary that contains all the values that can be read from the instrument\n        - get_values =&gt; function that actually requests the values from the instrument\n        - is_connected =&gt; property that checks if instrument is actually connected\n    ', '_parameters_default': &lt;abc.abstractproperty object at 0x0000000004691528&gt;, '_is_connected': False, 'update': &lt;function update at 0x000000000466E898&gt;, 'name': &lt;property object at 0x00000000046F68B8&gt;, 'is_connected': &lt;abc.abstractproperty object at 0x00000000046915E8&gt;, '_abc_negative_cache_version': 24, '__repr__': &lt;function __repr__ at 0x000000000466EB38&gt;, '_abc_registry': &lt;_weakrefset.WeakSet object at 0x000000000452CE80&gt;})</em><a class="headerlink" href="#src.core.instruments.Instrument.__dict__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.core.instruments', 'save_b26': &lt;function save_b26 at 0x1148eff50&gt;, 'load_and_append': &lt;staticmethod object at 0x1148dfe88&gt;, 'update': &lt;function update at 0x1148efa28&gt;, 'read_probes': &lt;function read_probes at 0x1148efb18&gt;, '_DEFAULT_SETTINGS': &lt;function _DEFAULT_SETTINGS at 0x1148ef9b0&gt;, '__dict__': &lt;attribute '__dict__' of 'Instrument' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Instrument' objects&gt;, '__init__': &lt;function __init__ at 0x1148ef938&gt;, '__setattr__': &lt;function __setattr__ at 0x1148efc80&gt;, 'name': &lt;property object at 0x1148f2158&gt;, 'settings': &lt;property object at 0x1148f2100&gt;, '_PROBES': &lt;function _PROBES at 0x1148efaa0&gt;, '__getattr__': &lt;function __getattr__ at 0x1148efc08&gt;, '__repr__': &lt;function __repr__ at 0x1148efcf8&gt;, 'is_connected': &lt;property object at 0x1148f20a8&gt;, '__doc__': '\n    generic instrument class\n\n    for subclass overwrite following old_functions / properties:\n        - _settings_default =&gt; parameter object, that is a list of parameters that can be set to configure the instrument\n        - update =&gt; function that sends parameter changes to the instrument\n        - values =&gt; dictionary that contains all the values that can be read from the instrument\n        - get_values =&gt; function that actually requests the values from the instrument\n        - is_connected =&gt; property that checks if instrument is actually connected\n    ', 'to_dict': &lt;function to_dict at 0x1148efed8&gt;})</em><a class="headerlink" href="#src.core.instruments.Instrument.__dict__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="src.core.instruments.Instrument.__getattr__">
 <code class="descname">__getattr__</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__getattr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.__getattr__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>allows to read instrument inputs in the form value = instrument.input
+:param name: name of input channel</p>
+<p>Returns: value of input channel</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.core.instruments.Instrument.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.instruments.Instrument.__metaclass__">
-<code class="descname">__metaclass__</code><a class="headerlink" href="#src.core.instruments.Instrument.__metaclass__" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">ABCMeta</span></code></p>
-</dd></dl>
 
 <dl class="attribute">
 <dt id="src.core.instruments.Instrument.__module__">
@@ -108,12 +189,14 @@
 <dl class="method">
 <dt id="src.core.instruments.Instrument.__repr__">
 <code class="descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.__repr__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns: the instrument as a string  for display</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.core.instruments.Instrument.__setattr__">
 <code class="descname">__setattr__</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.__setattr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.__setattr__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>this allows to address instrument outputs of the form instrument.output = value</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="src.core.instruments.Instrument.__weakref__">
@@ -128,29 +211,133 @@
 :return: bool</p>
 </dd></dl>
 
+<dl class="staticmethod">
+<dt id="src.core.instruments.Instrument.load_and_append">
+<em class="property">static </em><code class="descname">load_and_append</code><span class="sig-paren">(</span><em>instrument_dict</em>, <em>instruments=None</em>, <em>raise_errors=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.load_and_append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.load_and_append" title="Permalink to this definition">¶</a></dt>
+<dd><p>load instrument from instrument_dict and append to instruments</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>instrument_dict</strong> &#8211; <p>dictionary of form</p>
+<p>instrument_dict = {
+name_of_instrument_1 :</p>
+<blockquote>
+<div>{&#8220;settings&#8221; : settings_dictionary, &#8220;class&#8221; : name_of_class}</div></blockquote>
+<dl class="docutils">
+<dt>name_of_instrument_2 :</dt>
+<dd>{&#8220;settings&#8221; : settings_dictionary, &#8220;class&#8221; : name_of_class}</dd>
+</dl>
+<p>...
+}</p>
+</li>
+<li><strong>or</strong> &#8211; instrument_dict = {
+name_of_instrument_1 : name_of_class,
+name_of_instrument_2 : name_of_class
+...
+}</li>
+<li><strong>name_of_class is either a class or a dictionary of the form {class</strong> (<em>where</em>) &#8211; name_of__class, filepath: path_to_instr_file}</li>
+<li><strong>instruments</strong> &#8211; <p>dictionary of form</p>
+<p>instruments = {
+name_of_instrument_1 : instance_of_instrument_1,
+name_of_instrument_2 : instance_of_instrument_2,
+...
+}</p>
+</li>
+<li><strong>raise_errors</strong> &#8211; if true errors are raised, if False they are caught but not raised</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>dictionary updated_instruments that contains the old and the new instruments</p>
+<p>and list loaded_failed = [name_of_instrument_1, name_of_instrument_2, ....] that contains the instruments that were requested but could not be loaded</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="src.core.instruments.Instrument.name">
 <code class="descname">name</code><a class="headerlink" href="#src.core.instruments.Instrument.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.instruments.Instrument.parameters">
-<code class="descname">parameters</code><a class="headerlink" href="#src.core.instruments.Instrument.parameters" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">instrument name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.core.instruments.Instrument.read_probes">
-<code class="descname">read_probes</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.read_probes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.read_probes" title="Permalink to this definition">¶</a></dt>
-<dd><p>requestes value from the instrument and returns it
-:param key: name of requested value</p>
-<p>Returns: reads values from instrument</p>
+<code class="descname">read_probes</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.read_probes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.read_probes" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>function is overloaded:</dt>
+<dd><ul class="first last simple">
+<li>read_probes()</li>
+<li>read_probes(key)</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; name of requested value</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">returns the values of all probes in dictionary form
+- if called with argument: returns the value the requested key</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><ul class="simple">
+<li>if called without argument</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Instrument.save_b26">
+<code class="descname">save_b26</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.save_b26"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.save_b26" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves the instrument to path as a .b26 file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; path of file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.instruments.Instrument.settings">
+<code class="descname">settings</code><a class="headerlink" href="#src.core.instruments.Instrument.settings" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">instrument settings</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.instruments.Instrument.to_dict">
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: the instrument itself as a dictionary</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.core.instruments.Instrument.update">
-<code class="descname">update</code><span class="sig-paren">(</span><em>parameters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.update" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update</code><span class="sig-paren">(</span><em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/instruments.html#Instrument.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.instruments.Instrument.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>updates the internal dictionary and sends changed values to instrument
-:param parameters: parameters to be set</p>
+:param settings: parameters to be set</p>
 <p># mabe in the future:
 # Returns: boolean that is true if update successful</p>
 </dd></dl>
@@ -160,64 +347,72 @@
 </div>
 
 
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="src.core.html"
-                        title="previous chapter">src.core package</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="src.core.parameter.html"
-                        title="next chapter">src.core.parameter module</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/src/src.core.instruments.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="src.core.parameter.html" class="btn btn-neutral float-right" title="src.core.parameter module" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="src.core.html" class="btn btn-neutral" title="src.core package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="src.core.parameter.html" title="src.core.parameter module"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="src.core.html" title="src.core package"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="src.core.html" >src.core package</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
         &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
-  </body>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

@@ -1,54 +1,134 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>src.instruments.attocube &mdash; PythonLab 2.0.1 documentation</title>
-    
-    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="PythonLab 2.0.1 documentation" href="../../../index.html" />
-    <link rel="up" title="Module code" href="../../index.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
-      </ul>
-    </div>  
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.instruments.attocube &mdash; PyLabControl 1.0.1 documentation</title>
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="PyLabControl 1.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> PyLabControl
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../project.html">PythonLab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/code.html">Code</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">PyLabControl</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>src.instruments.attocube</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <h1>Source code for src.instruments.attocube</h1><div class="highlight"><pre>
-<span class="kn">import</span> <span class="nn">ctypes</span>
+<span></span><span class="kn">import</span> <span class="nn">ctypes</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
@@ -59,7 +139,7 @@
 <span class="n">uInt64</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulonglong</span>
 <span class="n">float64</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span>
 
-<span class="c">#define built-in error codes</span>
+<span class="c1">#define built-in error codes</span>
 <span class="n">NCB_Ok</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">NCB_Error</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 <span class="n">NCB_Timeout</span> <span class="o">=</span> <span class="mi">1</span>
@@ -71,25 +151,25 @@
 <span class="n">NCB_DeviceLocked</span> <span class="o">=</span> <span class="mi">7</span>
 <span class="n">NCB_NotSpecifiedParam</span> <span class="o">=</span> <span class="mi">8</span>
 
-<span class="c"># converts x,y,z to axis number in controller</span>
+<span class="c1"># converts x,y,z to axis number in controller</span>
 <span class="n">axis_x</span> <span class="o">=</span> <span class="n">int32</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">axis_y</span> <span class="o">=</span> <span class="n">int32</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">axis_z</span> <span class="o">=</span> <span class="n">int32</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="c"># c struct used as return type for some functions</span>
+<span class="c1"># c struct used as return type for some functions</span>
 <span class="k">class</span> <span class="nc">PositionerInfo</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">Structure</span><span class="p">):</span>
-    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[((</span><span class="s">&quot;id&quot;</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int32</span><span class="p">),</span> <span class="p">((</span><span class="s">&quot;locked&quot;</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_bool</span><span class="p">)]</span>
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[((</span><span class="s2">&quot;id&quot;</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int32</span><span class="p">),</span> <span class="p">((</span><span class="s2">&quot;locked&quot;</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_bool</span><span class="p">)]</span>
 
 <div class="viewcode-block" id="Attocube"><a class="viewcode-back" href="../../../src/src.instruments.html#src.instruments.Attocube">[docs]</a><span class="k">class</span> <span class="nc">Attocube</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">Instrument</span><span class="p">):</span>
 <div class="viewcode-block" id="Attocube.__init__"><a class="viewcode-back" href="../../../src/src.instruments.html#src.instruments.Attocube.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">parameters</span> <span class="o">=</span> <span class="p">[]):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Attocube</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_connected</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">probes</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;capacitance&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">probes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;capacitance&#39;</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">attocube</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">WinDLL</span><span class="p">(</span><span class="s">&#39;C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attocube</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">WinDLL</span><span class="p">(</span><span class="s1">&#39;C:/Users/Experiment/Downloads/attocube/Software/ANC350_Software_v1.5.15/ANC350_DLL/Win_64Bit/src/anc350v2.dll&#39;</span><span class="p">)</span>
             <span class="n">dll_detected</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">except</span> <span class="ne">WindowsError</span><span class="p">:</span>
-            <span class="c"># make a fake Attocube instrument</span>
+            <span class="c1"># make a fake Attocube instrument</span>
             <span class="n">dll_detected</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="k">if</span> <span class="n">dll_detected</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -99,7 +179,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&#39;Attocube not detected. Check connection.&#39;</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Attocube not detected. Check connection.&#39;</span><span class="p">)</span>
 </div>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">parameters_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -108,28 +188,28 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">parameter_list_default</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span>
+            <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span>
                 <span class="p">[</span>
-                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">],</span> <span class="s">&#39;x axis on&#39;</span><span class="p">),</span>
-                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;pos&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s">&#39;x axis position in um&#39;</span><span class="p">),</span>
-                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;voltage&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s">&#39;voltage on x axis&#39;</span><span class="p">),</span>
-                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;freq&#39;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s">&#39;x frequency in Hz&#39;</span><span class="p">)</span>
+                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">],</span> <span class="s1">&#39;x axis on&#39;</span><span class="p">),</span>
+                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;pos&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s1">&#39;x axis position in um&#39;</span><span class="p">),</span>
+                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;voltage&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s1">&#39;voltage on x axis&#39;</span><span class="p">),</span>
+                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;freq&#39;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s1">&#39;x frequency in Hz&#39;</span><span class="p">)</span>
                 <span class="p">]</span>
                 <span class="p">),</span>
-            <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span>
+            <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span>
                 <span class="p">[</span>
-                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">],</span> <span class="s">&#39;y axis on&#39;</span><span class="p">),</span>
-                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;pos&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s">&#39;y axis position in um&#39;</span><span class="p">),</span>
-                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;voltage&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s">&#39;voltage on y axis&#39;</span><span class="p">),</span>
-                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;freq&#39;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s">&#39;y frequency in Hz&#39;</span><span class="p">)</span>
+                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">],</span> <span class="s1">&#39;y axis on&#39;</span><span class="p">),</span>
+                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;pos&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s1">&#39;y axis position in um&#39;</span><span class="p">),</span>
+                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;voltage&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s1">&#39;voltage on y axis&#39;</span><span class="p">),</span>
+                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;freq&#39;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s1">&#39;y frequency in Hz&#39;</span><span class="p">)</span>
                 <span class="p">]</span>
                 <span class="p">),</span>
-            <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span>
+            <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,</span>
                 <span class="p">[</span>
-                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">],</span> <span class="s">&#39;z axis on&#39;</span><span class="p">),</span>
-                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;pos&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s">&#39;x axis position in um&#39;</span><span class="p">),</span>
-                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;voltage&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s">&#39;voltage on x axis&#39;</span><span class="p">),</span>
-                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s">&#39;freq&#39;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s">&#39;x frequency in Hz&#39;</span><span class="p">)</span>
+                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">],</span> <span class="s1">&#39;z axis on&#39;</span><span class="p">),</span>
+                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;pos&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s1">&#39;x axis position in um&#39;</span><span class="p">),</span>
+                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;voltage&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s1">&#39;voltage on x axis&#39;</span><span class="p">),</span>
+                    <span class="n">inst</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;freq&#39;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s1">&#39;x frequency in Hz&#39;</span><span class="p">)</span>
                 <span class="p">]</span>
                 <span class="p">),</span>
         <span class="p">]</span>
@@ -177,8 +257,8 @@
         <span class="n">device_handle</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
         <span class="n">position</span> <span class="o">=</span> <span class="n">int32</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerConnect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">device_handle</span><span class="p">)))</span>
-        <span class="c"># wait command needed since polling rate of attocube is 20 Hz. Empirically determined that .2 is lowest value</span>
-        <span class="c"># that always works. No idea why no other function also needs this wait command</span>
+        <span class="c1"># wait command needed since polling rate of attocube is 20 Hz. Empirically determined that .2 is lowest value</span>
+        <span class="c1"># that always works. No idea why no other function also needs this wait command</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerGetPosition</span><span class="p">(</span><span class="n">device_handle</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">position</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attocube</span><span class="o">.</span><span class="n">PositionerClose</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span>
@@ -220,78 +300,97 @@
         <span class="k">if</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_Ok</span><span class="p">):</span>
             <span class="k">return</span>
         <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_BootIgnored</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Warning: boot ignored</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s2">&quot;Warning: boot ignored</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">Exception</span>
         <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_Error</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: unspecific</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s2">&quot;Error: unspecific</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">Exception</span>
         <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_Timeout</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: comm. timeout</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s2">&quot;Error: comm. timeout</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">Exception</span>
         <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_NotConnected</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: not connected</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s2">&quot;Error: not connected</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">Exception</span>
         <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_DriverError</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: driver error</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s2">&quot;Error: driver error</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">Exception</span>
         <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_FileNotFound</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: file not found</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s2">&quot;Error: file not found</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">Exception</span>
         <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_InvalidParam</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: invalid parameter</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s2">&quot;Error: invalid parameter</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">Exception</span>
         <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_DeviceLocked</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: device locked</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s2">&quot;Error: device locked</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">Exception</span>
         <span class="k">elif</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="n">NCB_NotSpecifiedParam</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: unspec. parameter</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s2">&quot;Error: unspec. parameter</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">Exception</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span> <span class="s">&quot;Error: unknown</span><span class="se">\n</span><span class="s">&quot;</span> <span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span> <span class="s2">&quot;Error: unknown</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">Exception</span>
 </div></div>
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">Attocube</span><span class="p">()</span>
 </pre></div>
 
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
         &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
-  </body>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

@@ -1,54 +1,134 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>src.functions.track_NVs &mdash; PythonLab 2.0.1 documentation</title>
-    
-    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="PythonLab 2.0.1 documentation" href="../../../index.html" />
-    <link rel="up" title="Module code" href="../../index.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
-      </ul>
-    </div>  
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.functions.track_NVs &mdash; PyLabControl 1.0.1 documentation</title>
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="PyLabControl 1.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> PyLabControl
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../project.html">PythonLab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/code.html">Code</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">PyLabControl</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>src.functions.track_NVs</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <h1>Source code for src.functions.track_NVs</h1><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
+<span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="kn">as</span> <span class="nn">opt</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
@@ -59,7 +139,7 @@
 <span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Rectangle</span>
 <span class="kn">import</span> <span class="nn">scipy.spatial</span>
 
-<span class="c">#Baseline Values chosen for Nikon 100x, NA=.9 objective, may need to be adjusted for other objectives</span>
+<span class="c1">#Baseline Values chosen for Nikon 100x, NA=.9 objective, may need to be adjusted for other objectives</span>
 <span class="n">MIN_SEPARATION</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">GAUSSIAN_SIGMA</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">REF_VOLTAGE_RANGE</span> <span class="o">=</span> <span class="o">.</span><span class="mi">15</span>
@@ -74,14 +154,14 @@
 <span class="sd">    :param voltage_range: size of image in volts so filter can be scaled</span>
 <span class="sd">    :return: coordinates of NVs in pixels</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># scales Gaussian filter size based on current pixel to voltage scaling</span>
+    <span class="c1"># scales Gaussian filter size based on current pixel to voltage scaling</span>
     <span class="n">scaling</span> <span class="o">=</span> <span class="p">(</span><span class="n">REF_VOLTAGE_RANGE</span><span class="o">/</span><span class="n">voltage_range</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">numPts</span><span class="o">/</span><span class="n">REF_PIXEL_NUM</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;scaling:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">scaling</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;scaling:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">scaling</span><span class="p">))</span>
 
-    <span class="c"># convolves image with a gaussian filter to smooth peaks and prevent many local maxima</span>
-    <span class="n">image_gaussian</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">GAUSSIAN_SIGMA</span><span class="o">*</span><span class="n">scaling</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;reflect&#39;</span><span class="p">)</span>
+    <span class="c1"># convolves image with a gaussian filter to smooth peaks and prevent many local maxima</span>
+    <span class="n">image_gaussian</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">GAUSSIAN_SIGMA</span><span class="o">*</span><span class="n">scaling</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;reflect&#39;</span><span class="p">)</span>
 
-    <span class="c">#finds local maxima in smoothed images, corresponding to center of NVs</span>
+    <span class="c1">#finds local maxima in smoothed images, corresponding to center of NVs</span>
     <span class="n">coordinates</span> <span class="o">=</span> <span class="n">skimage</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">peak_local_max</span><span class="p">(</span><span class="n">image_gaussian</span><span class="p">,</span> <span class="n">MIN_SEPARATION</span><span class="o">*</span><span class="n">scaling</span><span class="p">,</span> <span class="n">exclude_border</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">threshold_rel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">threshold_abs</span><span class="o">=</span><span class="n">MIN_NV_CNTS</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
@@ -93,26 +173,26 @@
 <span class="sd">    :param new_image: new (drifted) image. Should be same size as baseline_image in pixels</span>
 <span class="sd">    :return: shift from baseline image to new image in pixels</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># subtracts mean to sharpen each image and sharpen correlation</span>
+    <span class="c1"># subtracts mean to sharpen each image and sharpen correlation</span>
     <span class="n">baseline_image_sub</span> <span class="o">=</span> <span class="n">baseline_image</span> <span class="o">-</span> <span class="n">baseline_image</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
     <span class="n">new_image_sub</span> <span class="o">=</span> <span class="n">new_image</span> <span class="o">-</span> <span class="n">new_image</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
-    <span class="c">#takes center part of baseline image</span>
+    <span class="c1">#takes center part of baseline image</span>
     <span class="n">x_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">baseline_image_sub</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">y_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">baseline_image_sub</span><span class="p">)</span>
     <span class="n">old_image</span> <span class="o">=</span> <span class="n">baseline_image_sub</span><span class="p">[(</span><span class="n">x_len</span><span class="o">/</span><span class="mi">4</span><span class="p">):(</span><span class="n">x_len</span><span class="o">*</span><span class="mi">3</span><span class="o">/</span><span class="mi">4</span><span class="p">),(</span><span class="n">y_len</span><span class="o">/</span><span class="mi">4</span><span class="p">):(</span><span class="n">y_len</span><span class="o">*</span><span class="mi">3</span><span class="o">/</span><span class="mi">4</span><span class="p">)]</span>
 
-    <span class="c"># correlate with new image. mode=&#39;valid&#39; ignores all correlation points where an image is out of bounds. if baseline</span>
-    <span class="c"># and new image are NxN, returns a (N/2)x(N/2) correlation</span>
-    <span class="n">corr</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">correlate2d</span> <span class="p">(</span><span class="n">new_image_sub</span><span class="p">,</span> <span class="n">old_image</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="s">&#39;fill&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;valid&#39;</span><span class="p">)</span>
-    <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">corr</span><span class="p">),</span> <span class="n">corr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="c"># find the match</span>
+    <span class="c1"># correlate with new image. mode=&#39;valid&#39; ignores all correlation points where an image is out of bounds. if baseline</span>
+    <span class="c1"># and new image are NxN, returns a (N/2)x(N/2) correlation</span>
+    <span class="n">corr</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">correlate2d</span> <span class="p">(</span><span class="n">new_image_sub</span><span class="p">,</span> <span class="n">old_image</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="s1">&#39;fill&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">)</span>
+    <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">corr</span><span class="p">),</span> <span class="n">corr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="c1"># find the match</span>
 
-    <span class="c"># finds shift by subtracting center of initial coordinates, x_shift = x + (x_len/4) - (x_len/2)</span>
+    <span class="c1"># finds shift by subtracting center of initial coordinates, x_shift = x + (x_len/4) - (x_len/2)</span>
     <span class="n">x_shift</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="p">(</span><span class="n">x_len</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span>
     <span class="n">y_shift</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_len</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span>
 
-    <span class="c">#return (x_shift, y_shift) #, corr, old_image --- test outputs</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">x_shift</span><span class="p">,</span> <span class="n">y_shift</span><span class="p">,</span> <span class="n">corr</span><span class="p">,</span> <span class="n">old_image</span><span class="p">)</span> <span class="c"># --- test outputs</span>
+    <span class="c1">#return (x_shift, y_shift) #, corr, old_image --- test outputs</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x_shift</span><span class="p">,</span> <span class="n">y_shift</span><span class="p">,</span> <span class="n">corr</span><span class="p">,</span> <span class="n">old_image</span><span class="p">)</span> <span class="c1"># --- test outputs</span>
 
 </div>
 <div class="viewcode-block" id="corr_NVs_no_subset"><a class="viewcode-back" href="../../../src/src.functions.track_NVs.html#src.functions.track_NVs.corr_NVs_no_subset">[docs]</a><span class="k">def</span> <span class="nf">corr_NVs_no_subset</span><span class="p">(</span><span class="n">baseline_image</span><span class="p">,</span> <span class="n">new_image</span><span class="p">):</span>
@@ -122,26 +202,26 @@
 <span class="sd">    :param new_image: new (drifted) image. Should be same size as baseline_image in pixels</span>
 <span class="sd">    :return: shift from baseline image to new image in pixels</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># subtracts mean to sharpen each image and sharpen correlation</span>
+    <span class="c1"># subtracts mean to sharpen each image and sharpen correlation</span>
     <span class="n">baseline_image_sub</span> <span class="o">=</span> <span class="n">baseline_image</span> <span class="o">-</span> <span class="n">baseline_image</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
     <span class="n">new_image_sub</span> <span class="o">=</span> <span class="n">new_image</span> <span class="o">-</span> <span class="n">new_image</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
-    <span class="c">#takes center part of baseline image</span>
+    <span class="c1">#takes center part of baseline image</span>
     <span class="n">x_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">baseline_image_sub</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">y_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">baseline_image_sub</span><span class="p">)</span>
     <span class="n">old_image</span> <span class="o">=</span> <span class="n">baseline_image_sub</span><span class="p">[(</span><span class="n">x_len</span><span class="o">/</span><span class="mi">4</span><span class="p">):(</span><span class="n">x_len</span><span class="o">*</span><span class="mi">3</span><span class="o">/</span><span class="mi">4</span><span class="p">),(</span><span class="n">y_len</span><span class="o">/</span><span class="mi">4</span><span class="p">):(</span><span class="n">y_len</span><span class="o">*</span><span class="mi">3</span><span class="o">/</span><span class="mi">4</span><span class="p">)]</span>
 
-    <span class="c"># correlate with new image. mode=&#39;valid&#39; ignores all correlation points where an image is out of bounds. if baseline</span>
-    <span class="c"># and new image are NxN, returns a (N/2)x(N/2) correlation</span>
+    <span class="c1"># correlate with new image. mode=&#39;valid&#39; ignores all correlation points where an image is out of bounds. if baseline</span>
+    <span class="c1"># and new image are NxN, returns a (N/2)x(N/2) correlation</span>
     <span class="n">corr</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">correlate2d</span><span class="p">(</span><span class="n">new_image_sub</span><span class="p">,</span> <span class="n">baseline_image_sub</span><span class="p">)</span>
     <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">corr</span><span class="p">),</span> <span class="n">corr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
-    <span class="c"># finds shift by subtracting center of initial coordinates, x_shift = x + (x_len/4) - (x_len/2)</span>
+    <span class="c1"># finds shift by subtracting center of initial coordinates, x_shift = x + (x_len/4) - (x_len/2)</span>
     <span class="n">x_shift</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="p">(</span><span class="n">x_len</span><span class="p">)</span>
     <span class="n">y_shift</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_len</span><span class="p">)</span>
 
-    <span class="c">#return (x_shift, y_shift) #, corr, old_image --- test outputs</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">x_shift</span><span class="p">,</span> <span class="n">y_shift</span><span class="p">,</span> <span class="n">corr</span><span class="p">,</span> <span class="n">old_image</span><span class="p">)</span> <span class="c"># --- test outputs</span>
+    <span class="c1">#return (x_shift, y_shift) #, corr, old_image --- test outputs</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x_shift</span><span class="p">,</span> <span class="n">y_shift</span><span class="p">,</span> <span class="n">corr</span><span class="p">,</span> <span class="n">old_image</span><span class="p">)</span> <span class="c1"># --- test outputs</span>
 
 </div>
 <div class="viewcode-block" id="update_roi"><a class="viewcode-back" href="../../../src/src.functions.track_NVs.html#src.functions.track_NVs.update_roi">[docs]</a><span class="k">def</span> <span class="nf">update_roi</span><span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="p">(</span><span class="n">x_shift</span><span class="p">,</span> <span class="n">y_shift</span><span class="p">)):</span>
@@ -151,12 +231,12 @@
 <span class="sd">    :param shift: tuple of x and y shift of images in pixels</span>
 <span class="sd">    :return: updated (shifted) region of interest</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># convert shift from pixels to volts</span>
-    <span class="n">x_shift_v</span> <span class="o">=</span> <span class="n">x_shift</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xPts&#39;</span><span class="p">]</span>
-    <span class="n">y_shift_v</span> <span class="o">=</span> <span class="n">y_shift</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yPts&#39;</span><span class="p">]</span>
+    <span class="c1"># convert shift from pixels to volts</span>
+    <span class="n">x_shift_v</span> <span class="o">=</span> <span class="n">x_shift</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;xPts&#39;</span><span class="p">]</span>
+    <span class="n">y_shift_v</span> <span class="o">=</span> <span class="n">y_shift</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;yPts&#39;</span><span class="p">]</span>
 
-    <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xo&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">x_shift_v</span>
-    <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yo&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">y_shift_v</span>
+    <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;xo&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">x_shift_v</span>
+    <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;yo&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">y_shift_v</span>
 
     <span class="k">return</span> <span class="n">roi</span>
 </div>
@@ -178,8 +258,8 @@
 <span class="sd">    :param shift: tuple of x and y shift of images in pixels</span>
 <span class="sd">    :return: shifted point(s) in volts</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">x_shift_v</span> <span class="o">=</span> <span class="n">x_shift</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xPts&#39;</span><span class="p">]</span>
-    <span class="n">y_shift_v</span> <span class="o">=</span> <span class="n">y_shift</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yPts&#39;</span><span class="p">]</span>
+    <span class="n">x_shift_v</span> <span class="o">=</span> <span class="n">x_shift</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;xPts&#39;</span><span class="p">]</span>
+    <span class="n">y_shift_v</span> <span class="o">=</span> <span class="n">y_shift</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;yPts&#39;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">points</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">x_shift_v</span>
@@ -193,96 +273,96 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="pixel_to_voltage"><a class="viewcode-back" href="../../../src/src.functions.track_NVs.html#src.functions.track_NVs.pixel_to_voltage">[docs]</a><span class="k">def</span> <span class="nf">pixel_to_voltage</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">roi</span><span class="p">):</span>
-    <span class="c"># convert shift from pixels to volts</span>
+    <span class="c1"># convert shift from pixels to volts</span>
     <span class="k">if</span> <span class="n">points</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xPts&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xo&#39;</span><span class="p">]</span>
-        <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yPts&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yo&#39;</span><span class="p">]</span>
+        <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;xPts&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;xo&#39;</span><span class="p">]</span>
+        <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;yPts&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;yo&#39;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xPts&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;xo&#39;</span><span class="p">]</span>
-        <span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yPts&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s">&#39;yo&#39;</span><span class="p">]</span>
+        <span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;dx&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;xPts&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;xo&#39;</span><span class="p">]</span>
+        <span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;dy&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;yPts&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;yo&#39;</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">points</span>
 </div>
 <div class="viewcode-block" id="locate_shifted_NVs"><a class="viewcode-back" href="../../../src/src.functions.track_NVs.html#src.functions.track_NVs.locate_shifted_NVs">[docs]</a><span class="k">def</span> <span class="nf">locate_shifted_NVs</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">shifted_coordinates</span><span class="p">,</span> <span class="n">new_roi</span><span class="p">):</span>
-    <span class="n">new_NVs</span> <span class="o">=</span> <span class="n">locate_NVs</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">new_roi</span><span class="p">[</span><span class="s">&#39;dx&#39;</span><span class="p">],</span> <span class="n">new_roi</span><span class="p">[</span><span class="s">&#39;xPts&#39;</span><span class="p">])</span>
+    <span class="n">new_NVs</span> <span class="o">=</span> <span class="n">locate_NVs</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">new_roi</span><span class="p">[</span><span class="s1">&#39;dx&#39;</span><span class="p">],</span> <span class="n">new_roi</span><span class="p">[</span><span class="s1">&#39;xPts&#39;</span><span class="p">])</span>
     <span class="n">new_NVs</span><span class="p">[:,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">new_NVs</span><span class="p">[:,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span>
     <span class="n">new_NVs</span> <span class="o">=</span> <span class="n">pixel_to_voltage</span><span class="p">(</span><span class="n">new_NVs</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">new_roi</span><span class="p">)</span>
     <span class="n">tree</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">KDTree</span><span class="p">(</span><span class="n">new_NVs</span><span class="p">)</span>
     <span class="n">corr_array</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">shifted_coordinates</span><span class="p">:</span>
         <span class="n">dist</span><span class="p">,</span><span class="n">i</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">distance_upper_bound</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_NVs</span><span class="p">):</span> <span class="c"># occurs when KDTree cannot find a nearest neighbor within distance_upper_bound</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_NVs</span><span class="p">):</span> <span class="c1"># occurs when KDTree cannot find a nearest neighbor within distance_upper_bound</span>
             <span class="n">corr_array</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">corr_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_NVs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
     <span class="n">corr_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">corr_array</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">corr_array</span>
 
-<span class="c">#image = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-43-58-NVBaselineTests.csv&quot;)</span>
-<span class="c">#image = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-27_16-53-09-NVBaseline.csv&quot;)</span>
-<span class="c">#image = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-51-59-NVBaselineTests.csv&quot;)</span>
-<span class="c">#image2 = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_19-11-24-NVBaselineTests.csv&quot;)</span>
-<span class="c">#image = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_17-33-14-NVBaselineTests.csv&quot;)</span>
-<span class="c">#image2 = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_17-41-10-NVBaselineTests.csv&quot;)</span>
-<span class="c">#image = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\20150709_Diamond_Ramp_Over_Mags_heat_Magnets_old\\2015-07-09_11-05-59_Marker_18_2.csv&quot;)</span>
+<span class="c1">#image = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-43-58-NVBaselineTests.csv&quot;)</span>
+<span class="c1">#image = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-27_16-53-09-NVBaseline.csv&quot;)</span>
+<span class="c1">#image = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_18-51-59-NVBaselineTests.csv&quot;)</span>
+<span class="c1">#image2 = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_19-11-24-NVBaselineTests.csv&quot;)</span>
+<span class="c1">#image = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_17-33-14-NVBaselineTests.csv&quot;)</span>
+<span class="c1">#image2 = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\150627_ESRTest\\2015-06-29_17-41-10-NVBaselineTests.csv&quot;)</span>
+<span class="c1">#image = pd.read_csv(&quot;Z:\\Lab\\Cantilever\\Measurements\\20150709_Diamond_Ramp_Over_Mags_heat_Magnets_old\\2015-07-09_11-05-59_Marker_18_2.csv&quot;)</span>
 
 
-<span class="c">#image_np = image.values</span>
-<span class="c">#image_np.astype(float)</span>
-<span class="c">#image2_np = image2.as_matrix()</span>
+<span class="c1">#image_np = image.values</span>
+<span class="c1">#image_np.astype(float)</span>
+<span class="c1">#image2_np = image2.as_matrix()</span>
 
-<span class="c">#image_np -= image_np.mean()</span>
-<span class="c">#image2_np -= image2_np.mean()</span>
+<span class="c1">#image_np -= image_np.mean()</span>
+<span class="c1">#image2_np -= image2_np.mean()</span>
 
-<span class="c">#(x_shift,y_shift), corr, orig = corr_NVs(image_np, image2_np)</span>
-<span class="c">#print(x_shift)</span>
-<span class="c">#print(y_shift)</span>
+<span class="c1">#(x_shift,y_shift), corr, orig = corr_NVs(image_np, image2_np)</span>
+<span class="c1">#print(x_shift)</span>
+<span class="c1">#print(y_shift)</span>
 
-<span class="c">#roi = {</span>
-<span class="c">#    &#39;dx&#39;: .05,</span>
-<span class="c">#    &#39;xPts&#39;: 120</span>
-<span class="c">#}</span>
+<span class="c1">#roi = {</span>
+<span class="c1">#    &#39;dx&#39;: .05,</span>
+<span class="c1">#    &#39;xPts&#39;: 120</span>
+<span class="c1">#}</span>
 
-<span class="c">#fig, ax = plt.subplots(1, 3, figsize=(8, 3))</span>
-<span class="c">#ax1, ax2, ax3 = ax.ravel()</span>
-<span class="c">#ax1.imshow(image_np, cmap=plt.cm.gray)</span>
-<span class="c">#coor = locate_NVs(image_np, .05, 120)</span>
-<span class="c">#ax1.autoscale(False)</span>
-<span class="c">#ax1.plot(coor[:, 1], coor[:, 0], &#39;r.&#39;)</span>
-<span class="c">#ax2.imshow(image2_np,cmap = plt.cm.gray)</span>
-<span class="c">#coor2 = locate_NVs(image2_np, .05, 120)</span>
-<span class="c">#ax2.autoscale(False)</span>
-<span class="c">#ax2.plot(coor2[:, 1], coor2[:, 0], &#39;r.&#39;)</span>
-<span class="c">#(x_shift,y_shift) = corr_NVs(image_np, image2_np)</span>
-<span class="c">#coor = shift_points(coor, (y_shift,x_shift))</span>
-<span class="c">#ax3.imshow(image2_np, cmap=plt.cm.gray)</span>
-<span class="c">#ax3.autoscale(False)</span>
-<span class="c">#ax3.plot(coor[:, 1], coor[:, 0], &#39;r.&#39;)</span>
-<span class="c">#ax3.plot(coor2[:, 1], coor2[:, 0], &#39;b.&#39;)</span>
-<span class="c">#print(coor)</span>
-<span class="c">#print(coor2)</span>
-<span class="c">#print(locate_shifted_NVs(image2_np, coor, roi))</span>
+<span class="c1">#fig, ax = plt.subplots(1, 3, figsize=(8, 3))</span>
+<span class="c1">#ax1, ax2, ax3 = ax.ravel()</span>
+<span class="c1">#ax1.imshow(image_np, cmap=plt.cm.gray)</span>
+<span class="c1">#coor = locate_NVs(image_np, .05, 120)</span>
+<span class="c1">#ax1.autoscale(False)</span>
+<span class="c1">#ax1.plot(coor[:, 1], coor[:, 0], &#39;r.&#39;)</span>
+<span class="c1">#ax2.imshow(image2_np,cmap = plt.cm.gray)</span>
+<span class="c1">#coor2 = locate_NVs(image2_np, .05, 120)</span>
+<span class="c1">#ax2.autoscale(False)</span>
+<span class="c1">#ax2.plot(coor2[:, 1], coor2[:, 0], &#39;r.&#39;)</span>
+<span class="c1">#(x_shift,y_shift) = corr_NVs(image_np, image2_np)</span>
+<span class="c1">#coor = shift_points(coor, (y_shift,x_shift))</span>
+<span class="c1">#ax3.imshow(image2_np, cmap=plt.cm.gray)</span>
+<span class="c1">#ax3.autoscale(False)</span>
+<span class="c1">#ax3.plot(coor[:, 1], coor[:, 0], &#39;r.&#39;)</span>
+<span class="c1">#ax3.plot(coor2[:, 1], coor2[:, 0], &#39;b.&#39;)</span>
+<span class="c1">#print(coor)</span>
+<span class="c1">#print(coor2)</span>
+<span class="c1">#print(locate_shifted_NVs(image2_np, coor, roi))</span>
 
 
 
-<span class="c">#fig, ax = plt.subplots(1, 4, figsize=(8, 4))</span>
-<span class="c">#ax1, ax2, ax3, ax4 = ax.ravel()</span>
-<span class="c">#ax1.imshow(image_np, cmap=plt.cm.gray)</span>
-<span class="c">#coor = locate_NVs(image_np, .05, 120)</span>
-<span class="c">#ax1.autoscale(False)</span>
-<span class="c">#ax1.plot(coor[:, 1], coor[:, 0], &#39;r.&#39;)</span>
-<span class="c">#ax2.imshow(corr, cmap=plt.cm.gray)</span>
-<span class="c">#ax3.imshow(image2_np,cmap = plt.cm.gray)</span>
-<span class="c">#ax3.add_patch(Rectangle((30+x_shift, 30+y_shift), 60, 60, edgecolor=&quot;red&quot;, fill = False))</span>
-<span class="c">#ax4.imshow(image2_np[(30+y_shift):(y_shift+90),(x_shift+30):(x_shift+90)], cmap=plt.cm.gray)</span>
-<span class="c">#coor2 = locate_NVs(image2_np[(30+y_shift):(y_shift+90),(x_shift+30):(x_shift+90)], .05)</span>
-<span class="c">#ax4.autoscale(False)</span>
-<span class="c">#ax4.plot(coor2[:, 1], coor2[:, 0], &#39;r.&#39;)</span>
+<span class="c1">#fig, ax = plt.subplots(1, 4, figsize=(8, 4))</span>
+<span class="c1">#ax1, ax2, ax3, ax4 = ax.ravel()</span>
+<span class="c1">#ax1.imshow(image_np, cmap=plt.cm.gray)</span>
+<span class="c1">#coor = locate_NVs(image_np, .05, 120)</span>
+<span class="c1">#ax1.autoscale(False)</span>
+<span class="c1">#ax1.plot(coor[:, 1], coor[:, 0], &#39;r.&#39;)</span>
+<span class="c1">#ax2.imshow(corr, cmap=plt.cm.gray)</span>
+<span class="c1">#ax3.imshow(image2_np,cmap = plt.cm.gray)</span>
+<span class="c1">#ax3.add_patch(Rectangle((30+x_shift, 30+y_shift), 60, 60, edgecolor=&quot;red&quot;, fill = False))</span>
+<span class="c1">#ax4.imshow(image2_np[(30+y_shift):(y_shift+90),(x_shift+30):(x_shift+90)], cmap=plt.cm.gray)</span>
+<span class="c1">#coor2 = locate_NVs(image2_np[(30+y_shift):(y_shift+90),(x_shift+30):(x_shift+90)], .05)</span>
+<span class="c1">#ax4.autoscale(False)</span>
+<span class="c1">#ax4.plot(coor2[:, 1], coor2[:, 0], &#39;r.&#39;)</span>
 
-<span class="c">#print(coor)</span>
-<span class="c">#shifted_coor = shift_points(coor, (x_shift, y_shift))</span>
-<span class="c">#print(shifted_coor)</span>
+<span class="c1">#print(coor)</span>
+<span class="c1">#shifted_coor = shift_points(coor, (x_shift, y_shift))</span>
+<span class="c1">#print(shifted_coor)</span>
 
-<span class="c">#plt.show()</span>
+<span class="c1">#plt.show()</span>
 
 
     <span class="sd">&#39;&#39;&#39;</span>
@@ -335,44 +415,63 @@
 <span class="sd">    &#39;&#39;&#39;</span></div>
 </pre></div>
 
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
         &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
-  </body>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>
