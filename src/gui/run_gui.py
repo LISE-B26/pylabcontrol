@@ -32,7 +32,7 @@ def run_gui(fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_con
     app = QtGui.QApplication(sys.argv)
     # fname = 'c:\\b26_tmp\\pythonlab_config_dummy.b26'
     # fname = 'c:\\b26_tmp\\pythonlab_config3a.b26'
-    fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_config3.b26'
+    fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_config4.b26'
 
     # fname = 'c:\\b26_tmp\\pythonlab_config_safsafaf1.b26'
 

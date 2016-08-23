@@ -97,7 +97,7 @@ Script.
 
     def _function(self):
         '''
-        Runs either a loop or a parameter sweep over the subscripts in the order defined by the setting 'script_order'
+        Runs either a loop or a parameter sweep over the subscripts in the order defined by the parameter_list 'script_order'
         '''
         def get_sweep_parameters():
             """
@@ -120,19 +120,49 @@ Script.
         _, sorted_script_names = zip(*sorted(zip(script_indices, script_names)))
 
         if self.iterator_type == self.TYPE_SWEEP_PARAMETER:
+
+
+            def get_script_and_settings_from_str(sweep_param):
+                """
+                Args:
+                    sweep_param: astring with the path to the sweep parameter
+                        e.g. script.param.subparam or script.subscript
+
+                Returns:
+
+                """
+                split_trace = sweep_param.split('.')
+                script_array = split_trace[0].split('->')
+                parameter_list = split_trace[1:]
+
+                return script_array, parameter_list
+
             param_values = get_sweep_parameters()
             for value in param_values:
 
-                split_trace = self.settings['sweep_param'].split('.')
-                script = split_trace[0]
-                setting = split_trace[1:]
+                script_list, parameter_list = get_script_and_settings_from_str(self.settings['sweep_param'])
 
-                script_settings = self.scripts[script].settings
-                curr_type = type(reduce(lambda x,y: x[y], setting, script_settings)) #traverse nested dict to get type of variable
-                update_dict = reduce(lambda y, x: {x: y}, reversed(setting), curr_type(value)) #creates nested dictionary from list
-                script_settings.update(update_dict)
+                print('ooooooo script', script_list)
+                print('ooooooo parameter_list', parameter_list)
+
+                script = self
+                while len(script_list)>0:
+                    print('ooooooo script', script.name, script.scripts.keys())
+                    script = script.scripts[script_list[0]]
+                    script_list = script_list[1:]
+
+                print('ooooooo script_settings', script.settings)
+                curr_type = type(reduce(lambda x,y: x[y], parameter_list, script.settings)) #traverse nested dict to get type of variable
+
+                print('ooooooo curr_type', curr_type)
+                update_dict = reduce(lambda y, x: {x: y}, reversed(parameter_list), curr_type(value)) #creates nested dictionary from list
+
+                print('ooooooo update_dict', update_dict)
+                script.settings.update(update_dict)
                 # todo: check if that is a good way to get the name of the parameter
-                parameter_name = update_dict.keys()[0]
+                # parameter_name = update_dict.keys()[0]
+                parameter_name = parameter_list[-1]
+                print('ooooooo parameter_name', parameter_name)
                 self.log('setting parameter {:s} to {:0.2e}'.format(self.settings['sweep_param'], value))
                 for script_name in sorted_script_names:
                     if self._abort:
@@ -347,7 +377,7 @@ Script.
 
                 '''
 
-                def get_parameter_from_dict(trace, dic, parameter_list):
+                def get_parameter_from_dict(trace, dic, parameter_list, valid_values = None):
                     """
                     appends keys in the dict to a list in the form trace.key.subkey.subsubkey...
                     Args:
@@ -355,14 +385,28 @@ Script.
                         dic: dictionary
                         parameter_list: list to which append the parameters
 
+                        valid_values: valid values of dictionary values if None dic should be a dictionary
+
                     Returns:
 
                     """
+                    if valid_values is None and isinstance(dic, Parameter):
+                        valid_values = dic.valid_values
+
                     for key, value in dic.iteritems():
+
+                        print('aaaa type', key, valid_values[key])
+
                         if isinstance(value, dict):  # for nested parameters ex {point: {'x': int, 'y': int}}
-                            parameter_list = get_parameter_from_dict(trace + '.' + key, value, parameter_list)
-                        else:  # once down to the form {key: value}
+                            parameter_list = get_parameter_from_dict(trace + '.' + key, value, parameter_list, dic.valid_values[key])
+                        elif (valid_values[key] in (float,int)) or\
+                                (isinstance(valid_values[key], list) and valid_values[key][0] in (float,int)):
                             parameter_list.append(trace + '.' + key)
+                        else:  # once down to the form {key: value}
+                            # in all other cases ignore parameter
+                            print('ignoring sweep parameter', key)
+
+
                     return parameter_list
 
                 for script_name in scripts.keys():
@@ -371,7 +415,8 @@ Script.
                     if script_trace == '':
                         script_trace = script_name
                     else:
-                        script_trace = script_trace + '.' + script_name
+                        # JJJ
+                        script_trace = script_trace + '->' + script_name
                     if issubclass(scripts[script_name], ScriptIterator):  # gets subscripts of ScriptIterator objects
                         populate_sweep_param(vars(scripts[script_name])['_SCRIPTS'], parameter_list=parameter_list,trace=script_trace)
                     else:
@@ -444,6 +489,9 @@ Script.
             # assigning the actual script settings depending on the interator type
             if iterator_type == ScriptIterator.TYPE_SWEEP_PARAMETER:
                 sweep_params = populate_sweep_param(sub_scripts, [])
+
+                print('xxxx sweep_params', sweep_params)
+
                 script_default_settings = [
                     Parameter('script_order', script_order),
                     Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
@@ -506,11 +554,10 @@ Script.
             #         print('CLASSNAME', vars(someclass)['_CLASS'])
             #         return vars(someclass)['_CLASS']
 
-
         script_default_settings, sub_scripts = set_up_dynamic_script(script_information)
-
+        print('ajdajsakjas')
         class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings)
-
+        print('----ajdajsakjas')
         # update the generic name (e.g. ScriptIterator) to a unique name  (e.g. ScriptIterator_01)
         script_information['class'] = class_name
 
@@ -523,7 +570,7 @@ Script.
             for elem in script_default_settings:
                 script_settings.update(elem)
             script_information['settings'] = script_settings
-
+        print('====ajdajsakjas')
         return script_information
 
 if __name__ == '__main__':
