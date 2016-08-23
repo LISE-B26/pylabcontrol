@@ -1,148 +1,189 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>src.core.scripts module &mdash; PythonLab 2.0.1 documentation</title>
-    
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '2.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="PythonLab 2.0.1 documentation" href="../index.html" />
-    <link rel="up" title="src.core package" href="src.core.html" />
-    <link rel="next" title="src.hardware_modules package" href="src.hardware_modules.html" />
-    <link rel="prev" title="src.core.parameter module" href="src.core.parameter.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="src.hardware_modules.html" title="src.hardware_modules package"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="src.core.parameter.html" title="src.core.parameter module"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="src.core.html" accesskey="U">src.core package</a> &raquo;</li> 
-      </ul>
-    </div>  
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.core.scripts module &mdash; PyLabControl 1.0.1 documentation</title>
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="PyLabControl 1.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="src.core package" href="src.core.html"/>
+        <link rel="next" title="src.instruments package" href="src.instruments.html"/>
+        <link rel="prev" title="src.core.parameter module" href="src.core.parameter.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PyLabControl
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../project.html">PythonLab</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="code.html">Code</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="code.html#core-package">Core Package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="src.core.html">src.core package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="src.core.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.core.html#module-src.core">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="code.html#instruments">Instruments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code.html#function-and-script-packages">Function and Script Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code.html#gui-packages">Gui Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code.html#other-packages">Other Packages</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">PyLabControl</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="code.html">Code</a> &raquo;</li>
+      
+          <li><a href="src.core.html">src.core package</a> &raquo;</li>
+      
+    <li>src.core.scripts module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/src/src.core.scripts.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="module-src.core.scripts">
 <span id="src-core-scripts-module"></span><h1>src.core.scripts module<a class="headerlink" href="#module-src.core.scripts" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="src.core.scripts.QtScript">
-<em class="property">class </em><code class="descclassname">src.core.scripts.</code><code class="descname">QtScript</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#QtScript"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.QtScript" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QThread</span></code>, <a class="reference internal" href="#src.core.scripts.Script" title="src.core.scripts.Script"><code class="xref py py-class docutils literal"><span class="pre">src.core.scripts.Script</span></code></a></p>
-<p>This class starts a script on its own thread</p>
-<dl class="method">
-<dt id="src.core.scripts.QtScript.__del__">
-<code class="descname">__del__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#QtScript.__del__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.QtScript.__del__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.core.scripts.QtScript.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#QtScript.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.QtScript.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>:param
-:return:</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.QtScript.__module__">
-<code class="descname">__module__</code><em class="property"> = 'src.core.scripts'</em><a class="headerlink" href="#src.core.scripts.QtScript.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.core.scripts.QtScript.run">
-<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#QtScript.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.QtScript.run" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.core.scripts.QtScript.stop">
-<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#QtScript.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.QtScript.stop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.QtScript.updateProgress">
-<code class="descname">updateProgress</code><a class="headerlink" href="#src.core.scripts.QtScript.updateProgress" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="src.core.scripts.QtScript_Dummy">
-<em class="property">class </em><code class="descclassname">src.core.scripts.</code><code class="descname">QtScript_Dummy</code><span class="sig-paren">(</span><em>name</em>, <em>settings=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#QtScript_Dummy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.QtScript_Dummy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.core.scripts.QtScript" title="src.core.scripts.QtScript"><code class="xref py py-class docutils literal"><span class="pre">src.core.scripts.QtScript</span></code></a></p>
-<dl class="method">
-<dt id="src.core.scripts.QtScript_Dummy.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>settings=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#QtScript_Dummy.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.QtScript_Dummy.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.QtScript_Dummy.__module__">
-<code class="descname">__module__</code><em class="property"> = 'src.core.scripts'</em><a class="headerlink" href="#src.core.scripts.QtScript_Dummy.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.core.scripts.QtScript_Dummy.run">
-<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#QtScript_Dummy.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.QtScript_Dummy.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>executes the script
-:return: boolean if execution of script finished succesfully</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.QtScript_Dummy.settings_default">
-<code class="descname">settings_default</code><a class="headerlink" href="#src.core.scripts.QtScript_Dummy.settings_default" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns the default settings of the script
-settings contain Parameters, Instruments and Scripts
-:return:</p>
-</dd></dl>
-
-</dd></dl>
-
+<p>This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+Copyright (C) &lt;2016&gt;  Arthur Safira, Jan Gieseler, Aaron Kabcenell</p>
+<p>PyLabControl is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>PyLabControl is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License
+along with PyLabControl.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
 <dl class="class">
 <dt id="src.core.scripts.Script">
-<em class="property">class </em><code class="descclassname">src.core.scripts.</code><code class="descname">Script</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<dl class="attribute">
-<dt id="src.core.scripts.Script.__dict__">
-<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.core.scripts', 'time_start': &lt;property object at 0x0000000004703188&gt;, 'name': &lt;property object at 0x00000000046F6F98&gt;, 'settings': &lt;property object at 0x0000000004703048&gt;, 'settings_default': &lt;property object at 0x00000000046F6F48&gt;, '__str__': &lt;function __str__ at 0x0000000004701588&gt;, 'stop': &lt;function stop at 0x0000000004701B38&gt;, 'time_end': &lt;property object at 0x0000000004703138&gt;, 'excecution_time': &lt;property object at 0x00000000047030E8&gt;, 'dict': &lt;property object at 0x0000000004703098&gt;, '__dict__': &lt;attribute '__dict__' of 'Script' objects&gt;, 'run': &lt;function run at 0x0000000004701AC8&gt;, 'update_settings': &lt;function update_settings at 0x00000000047017B8&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Script' objects&gt;, '__doc__': None, '__init__': &lt;function __init__ at 0x0000000004701518&gt;})</em><a class="headerlink" href="#src.core.scripts.Script.__dict__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<em class="property">class </em><code class="descclassname">src.core.scripts.</code><code class="descname">Script</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=None</em>, <em>instruments=None</em>, <em>scripts=None</em>, <em>log_function=None</em>, <em>data_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></code></p>
 <dl class="method">
 <dt id="src.core.scripts.Script.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>generic script class
-:param name: name of script
-:param threading: if script is excecuted on thread, default is False</p>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=None</em>, <em>instruments=None</em>, <em>scripts=None</em>, <em>log_function=None</em>, <em>data_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>executes scripts and stores script parameters and settings
+:param name: name of script, if not provided take name of function
+:type name: optional
+:param settings: a Parameter object that contains all the information needed in the script
+:type settings: optional
+:param instruments: instruments used in the script
+:type instruments: optional
+:param scripts: sub_scripts used in the script
+:type scripts: optional
+:param log_function: function reference that takes a string</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -153,20 +194,33 @@ settings contain Parameters, Instruments and Scripts
 <dl class="method">
 <dt id="src.core.scripts.Script.__str__">
 <code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.__str__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Script.__weakref__">
-<code class="descname">__weakref__</code><a class="headerlink" href="#src.core.scripts.Script.__weakref__" title="Permalink to this definition">¶</a></dt>
-<dd><p>list of weak references to the object (if defined)</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a description of the script in form of a string</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="src.core.scripts.Script.dict">
-<code class="descname">dict</code><a class="headerlink" href="#src.core.scripts.Script.dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns the configuration of the script as a dictionary
-that contains {&#8216;parameters&#8217;: parameters, &#8216;instrument_tests&#8217;:instrument_tests, &#8216;scripts&#8217;: scripts}
-:return: nested dictionary with entries name and value</p>
+<dt id="src.core.scripts.Script.data_path">
+<code class="descname">data_path</code><a class="headerlink" href="#src.core.scripts.Script.data_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.scripts.Script.duplicate">
+<code class="descname">duplicate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.duplicate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>create an copy of the script</p>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.scripts.Script.end_time">
+<code class="descname">end_time</code><a class="headerlink" href="#src.core.scripts.Script.end_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>time when script execution ended
+:return:</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -182,16 +236,315 @@ that contains {&#8216;parameters&#8217;: parameters, &#8216;instrument_tests&#82
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="src.core.scripts.Script.filename">
+<code class="descname">filename</code><span class="sig-paren">(</span><em>appendix=None</em>, <em>create_if_not_existing=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates a filename based
+:param appendix: appendix for file</p>
+<p>Returns: filename</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.scripts.Script.finished">
+<code class="descname">finished</code><a class="headerlink" href="#src.core.scripts.Script.finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.core.scripts.Script.get_axes_layout">
+<code class="descname">get_axes_layout</code><span class="sig-paren">(</span><em>figure_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.get_axes_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.get_axes_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the axes objects the script needs to plot its data
+the default creates a single axes object on each figure
+This can/should be overwritten in a child script if more axes objects are needed
+:param figure_list: a list of figure objects</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of axes objects</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">axes_list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.scripts.Script.get_axes_layout_validate">
+<code class="descname">get_axes_layout_validate</code><span class="sig-paren">(</span><em>figure_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.get_axes_layout_validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.get_axes_layout_validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates the axes layout for the validation plots
+:param figure_list: list of figures
+:return: list of axes objects</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.core.scripts.Script.get_script_information">
+<em class="property">static </em><code class="descname">get_script_information</code><span class="sig-paren">(</span><em>script_information</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.get_script_information"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.get_script_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>extracts all the relevant information from script_information and returns it as individual variables
+:param script_information: information of the script. This can be</p>
+<blockquote>
+<div><ul class="simple">
+<li>a dictionary</li>
+<li>a Script instance</li>
+<li>name of Script class</li>
+</ul>
+</div></blockquote>
+<p>Returns: module, script_class_name, script_settings, script_instruments, script_sub_scripts</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.scripts.Script.instruments">
+<code class="descname">instruments</code><a class="headerlink" href="#src.core.scripts.Script.instruments" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">instruments that the script uses as a dictionary</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.scripts.Script.instrumets">
+<code class="descname">instrumets</code><a class="headerlink" href="#src.core.scripts.Script.instrumets" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">instruments that the script uses as a dictionary</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.core.scripts.Script.load">
+<em class="property">static </em><code class="descname">load</code><span class="sig-paren">(</span><em>filename</em>, <em>instruments=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads an script instance using pickle
+:param filename: source filename
+:param instruments:</p>
+<blockquote>
+<div><p>optional - only needed if script requires instruments
+dictionary of form</p>
+<p>instruments = {
+name_of_instrument_1 : instance_of_instrument_1,
+name_of_instrument_2 : instance_of_instrument_2,
+...
+}</p>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">script_instance
+updated_instruments</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.core.scripts.Script.load_and_append">
+<em class="property">static </em><code class="descname">load_and_append</code><span class="sig-paren">(</span><em>script_dict</em>, <em>scripts=None</em>, <em>instruments=None</em>, <em>log_function=None</em>, <em>data_path=None</em>, <em>raise_errors=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.load_and_append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.load_and_append" title="Permalink to this definition">¶</a></dt>
+<dd><p>load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>script_dict</strong> &#8211; <p>dictionary of form</p>
+<p>script_dict = {
+name_of_script_1 :</p>
+<blockquote>
+<div>{&#8220;settings&#8221; : settings_dictionary, &#8220;class&#8221; : name_of_class}</div></blockquote>
+<dl class="docutils">
+<dt>name_of_instrument_2 :</dt>
+<dd>{&#8220;settings&#8221; : settings_dictionary, &#8220;class&#8221; : name_of_class}</dd>
+</dl>
+<p>...
+}</p>
+</li>
+<li><strong>or</strong> &#8211; script_dict = {
+name_of_script_1 : name_of_class,
+name_of_script_2 : name_of_class
+...
+}</li>
+<li><strong>name_of_class is either a class or the name of a class</strong> (<em>where</em>) &#8211; </li>
+<li><strong>scripts</strong> &#8211; <p>dictionary of form</p>
+<p>scripts = {
+name_of_script_1 : instance_of_script_1,
+name_of_script_2 : instance_of_script_2,
+...
+}</p>
+</li>
+<li><strong>instruments</strong> &#8211; <p>dictionary of form</p>
+<p>instruments = {
+name_of_instrument_1 : instance_of_instrument_1,
+name_of_instrument_2 : instance_of_instrument_2,
+...
+}</p>
+</li>
+<li><strong>log_function</strong> &#8211; function that takes a string</li>
+<li><strong>data_path</strong> &#8211; absolute path where data is saved, in case the path in the script is definded as a relative path</li>
+<li><strong>raise_errors</strong> &#8211; if True errors are raised</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dictionary of form
+script_dict = { name_of_script_1 : script_1_instance, name_of_script_2 : script_2_instance, ...}
+load_failed = {name_of_script_1: exception_1, name_of_script_2: exception_2, ....}
+updated_instruments = {name_of_instrument_1 : instance_of_instrument_1, ..}</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.core.scripts.Script.load_data">
+<em class="property">static </em><code class="descname">load_data</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads the data that has been save with Script.save.
+:param path: path to folder saved by Script.save or raw_data folder within</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a dictionary with the data of form
+data = {param_1_name: param_1_data, ...}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.core.scripts.Script.load_settings">
+<em class="property">static </em><code class="descname">load_settings</code><span class="sig-paren">(</span><em>path</em>, <em>setttings_only=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.load_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.load_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads the settings that has been save with Script.save_b26.
+:param path: path to folder saved by Script.save_b26
+:param setttings_only: if true returns only the settings if the .b26 file contains only a single script</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a dictionary with the settings</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.scripts.Script.log">
+<code class="descname">log</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>appends input string to log file and sends it to log function (self.log_function)
+Returns:</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="src.core.scripts.Script.name">
 <code class="descname">name</code><a class="headerlink" href="#src.core.scripts.Script.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>script name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.scripts.Script.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>figure_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>plots the data contained in self.data, which should be a dictionary or a deque of dictionaries
+for the latter use the last entry</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.scripts.Script.plot_validate">
+<code class="descname">plot_validate</code><span class="sig-paren">(</span><em>figure_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.plot_validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.plot_validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>plots the data contained in self.data, which should be a dictionary or a deque of dictionaries
+for the latter use the last entry</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.scripts.Script.remaining_time">
+<code class="descname">remaining_time</code><a class="headerlink" href="#src.core.scripts.Script.remaining_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>estimates the time remaining until script is finished</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.core.scripts.Script.run">
 <code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>executes the script
 :return: boolean if execution of script finished succesfully</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.scripts.Script.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves the instance of the script to a file using pickle
+:param filename: target filename</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.scripts.Script.save_b26">
+<code class="descname">save_b26</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.save_b26"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.save_b26" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves the script settings to a file: filename is filename is not provided, it is created from internal function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.scripts.Script.save_data">
+<code class="descname">save_data</code><span class="sig-paren">(</span><em>filename=None</em>, <em>data_tag=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.save_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.save_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves the script data to a file
+filename: target filename, if not provided, it is created from internal function
+data_tag: string, if provided save only the data that matches the tag, otherwise save all data
+Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.scripts.Script.save_image_to_disk">
+<code class="descname">save_image_to_disk</code><span class="sig-paren">(</span><em>filename_1=None</em>, <em>filename_2=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.save_image_to_disk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.save_image_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates an image using the scripts plot function and writes it to the disk
+for single plots (plot_type: &#8216;main&#8217;, &#8216;aux&#8217;)</p>
+<blockquote>
+<div><ul class="simple">
+<li>if no filname provided take default name</li>
+</ul>
+</div></blockquote>
+<dl class="docutils">
+<dt>for double plots (plot_type: &#8216;main&#8217;, &#8216;aux&#8217;)</dt>
+<dd><ul class="first last simple">
+<li>if no filnames provided take default name</li>
+<li>if only one filname provided save only the plot for which name is provided</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename_1</strong> &#8211; filname for figure 1</li>
+<li><strong>filename_2</strong> &#8211; filname for figure 1</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.core.scripts.Script.save_log">
+<code class="descname">save_log</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.save_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.save_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>save log to file
+Returns:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.scripts.Script.scripts">
+<code class="descname">scripts</code><a class="headerlink" href="#src.core.scripts.Script.scripts" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">sub_scripts that the script uses as a dictionary</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -209,319 +562,120 @@ that contains {&#8216;parameters&#8217;: parameters, &#8216;instrument_tests&#82
 </dd></dl>
 
 <dl class="attribute">
-<dt id="src.core.scripts.Script.settings_default">
-<code class="descname">settings_default</code><a class="headerlink" href="#src.core.scripts.Script.settings_default" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns the default settings of the script
-settings contain Parameters, Instruments and Scripts
-:return:</p>
+<dt id="src.core.scripts.Script.start_time">
+<code class="descname">start_time</code><a class="headerlink" href="#src.core.scripts.Script.start_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>time when script execution started</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="src.core.scripts.Script.started">
+<code class="descname">started</code><a class="headerlink" href="#src.core.scripts.Script.started" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="src.core.scripts.Script.stop">
 <code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.stop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Script.time_end">
-<code class="descname">time_end</code><a class="headerlink" href="#src.core.scripts.Script.time_end" title="Permalink to this definition">¶</a></dt>
-<dd><p>time when script execution started
-:return:</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Script.time_start">
-<code class="descname">time_start</code><a class="headerlink" href="#src.core.scripts.Script.time_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>time when script execution started
-:return:</p>
+<dd><p>stops itself and all the subscript</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.core.scripts.Script.update_settings">
-<code class="descname">update_settings</code><span class="sig-paren">(</span><em>settings_new</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.update_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.update_settings" title="Permalink to this definition">¶</a></dt>
-<dd><p>updates the settings if they exist
-:param settings_new:
-:return:</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="src.core.scripts.Script_Dummy">
-<em class="property">class </em><code class="descclassname">src.core.scripts.</code><code class="descname">Script_Dummy</code><span class="sig-paren">(</span><em>name</em>, <em>settings=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_Dummy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script_Dummy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.core.scripts.Script" title="src.core.scripts.Script"><code class="xref py py-class docutils literal"><span class="pre">src.core.scripts.Script</span></code></a></p>
-<dl class="method">
-<dt id="src.core.scripts.Script_Dummy.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>settings=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_Dummy.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script_Dummy.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Script_Dummy.__module__">
-<code class="descname">__module__</code><em class="property"> = 'src.core.scripts'</em><a class="headerlink" href="#src.core.scripts.Script_Dummy.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.core.scripts.Script_Dummy.run">
-<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_Dummy.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script_Dummy.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>executes the script
-:return: boolean if execution of script finished succesfully</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Script_Dummy.settings_default">
-<code class="descname">settings_default</code><a class="headerlink" href="#src.core.scripts.Script_Dummy.settings_default" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns the default settings of the script
-settings contain Parameters, Instruments and Scripts
-:return:</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="src.core.scripts.Script_new">
-<em class="property">class </em><code class="descclassname">src.core.scripts.</code><code class="descname">Script_new</code><span class="sig-paren">(</span><em>script_function</em>, <em>name=None</em>, <em>settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_new"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script_new" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<dl class="attribute">
-<dt id="src.core.scripts.Script_new.__dict__">
-<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'src.core.scripts', '_settings_default': &lt;property object at 0x00000000046F6D18&gt;, 'run': &lt;function run at 0x0000000004701438&gt;, 'name': &lt;property object at 0x00000000046F6DB8&gt;, 'settings': &lt;property object at 0x00000000046F6D68&gt;, '__str__': &lt;function __str__ at 0x000000000466EF98&gt;, 'stop': &lt;function stop at 0x00000000047014A8&gt;, 'update': &lt;function update at 0x0000000004701198&gt;, '__doc__': None, '_function': &lt;function _function at 0x000000000466EF28&gt;, 'excecution_time': &lt;property object at 0x00000000046F6E08&gt;, 'end_time': &lt;property object at 0x00000000046F6E58&gt;, '__dict__': &lt;attribute '__dict__' of 'Script_new' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Script_new' objects&gt;, 'start_time': &lt;property object at 0x00000000046F6EA8&gt;, '__init__': &lt;function __init__ at 0x000000000466EE48&gt;})</em><a class="headerlink" href="#src.core.scripts.Script_new.__dict__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.core.scripts.Script_new.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>script_function</em>, <em>name=None</em>, <em>settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_new.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script_new.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>executes scripts and stores script parameters and settings
-:param script_function: script that
-:type script_function: required
-:param name: name of script, if not provided take name of function
-:type name: optinal
-:param settings: a Parameter object that contains all the information needed in the script</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Script_new.__module__">
-<code class="descname">__module__</code><em class="property"> = 'src.core.scripts'</em><a class="headerlink" href="#src.core.scripts.Script_new.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.core.scripts.Script_new.__str__">
-<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_new.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script_new.__str__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Script_new.__weakref__">
-<code class="descname">__weakref__</code><a class="headerlink" href="#src.core.scripts.Script_new.__weakref__" title="Permalink to this definition">¶</a></dt>
-<dd><p>list of weak references to the object (if defined)</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Script_new.end_time">
-<code class="descname">end_time</code><a class="headerlink" href="#src.core.scripts.Script_new.end_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>time when script execution started
-:return:</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Script_new.excecution_time">
-<code class="descname">excecution_time</code><a class="headerlink" href="#src.core.scripts.Script_new.excecution_time" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">script excecition time as time_delta object to get time in seconds use .total_seconds()</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Script_new.name">
-<code class="descname">name</code><a class="headerlink" href="#src.core.scripts.Script_new.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.core.scripts.Script_new.run">
-<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_new.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script_new.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>executes the script
-:return: boolean if execution of script finished succesfully</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Script_new.settings">
-<code class="descname">settings</code><a class="headerlink" href="#src.core.scripts.Script_new.settings" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">returns the settings of the script</td>
-</tr>
-</tbody>
-</table>
-<p>settings contain Parameters, Instruments and Scripts</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Script_new.start_time">
-<code class="descname">start_time</code><a class="headerlink" href="#src.core.scripts.Script_new.start_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>time when script execution started
-:return:</p>
+<dt id="src.core.scripts.Script.to_dict">
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: itself as a dictionary</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.core.scripts.Script_new.stop">
-<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_new.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script_new.stop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.core.scripts.Script_new.update">
-<code class="descname">update</code><span class="sig-paren">(</span><em>settings_new</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script_new.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script_new.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>updates the settings if they exist
-:param settings_new:
-:return:</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="src.core.scripts.Sub_Script_Dummy">
-<em class="property">class </em><code class="descclassname">src.core.scripts.</code><code class="descname">Sub_Script_Dummy</code><span class="sig-paren">(</span><em>name</em>, <em>settings=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Sub_Script_Dummy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Sub_Script_Dummy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.core.scripts.Script" title="src.core.scripts.Script"><code class="xref py py-class docutils literal"><span class="pre">src.core.scripts.Script</span></code></a></p>
-<dl class="method">
-<dt id="src.core.scripts.Sub_Script_Dummy.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>settings=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Sub_Script_Dummy.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Sub_Script_Dummy.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.Sub_Script_Dummy.__module__">
-<code class="descname">__module__</code><em class="property"> = 'src.core.scripts'</em><a class="headerlink" href="#src.core.scripts.Sub_Script_Dummy.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.core.scripts.Sub_Script_Dummy.run">
-<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Sub_Script_Dummy.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Sub_Script_Dummy.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>executes the script
-:return: boolean if execution of script finished succesfully</p>
+<dt id="src.core.scripts.Script.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates the internal dictionary
+:param settings: parameters to be set</p>
+<p># mabe in the future:
+# Returns: boolean that is true if update successful</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="src.core.scripts.Sub_Script_Dummy.settings_default">
-<code class="descname">settings_default</code><a class="headerlink" href="#src.core.scripts.Sub_Script_Dummy.settings_default" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns the default settings of the script
-settings contain Parameters, Instruments and Scripts
-:return:</p>
-</dd></dl>
+<dt id="src.core.scripts.Script.updateProgress">
+<code class="descname">updateProgress</code><a class="headerlink" href="#src.core.scripts.Script.updateProgress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
-</dd></dl>
-
-<dl class="class">
-<dt id="src.core.scripts.ZI_Sweeper">
-<em class="property">class </em><code class="descclassname">src.core.scripts.</code><code class="descname">ZI_Sweeper</code><span class="sig-paren">(</span><em>zihf2</em>, <em>name=None</em>, <em>parameter_list=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#ZI_Sweeper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.ZI_Sweeper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.core.scripts.QtScript" title="src.core.scripts.QtScript"><code class="xref py py-class docutils literal"><span class="pre">src.core.scripts.QtScript</span></code></a></p>
 <dl class="method">
-<dt id="src.core.scripts.ZI_Sweeper.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>zihf2</em>, <em>name=None</em>, <em>parameter_list=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#ZI_Sweeper.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.ZI_Sweeper.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>zihf2</strong> &#8211; ZIHF2 instrument object</li>
-<li><strong>name</strong> &#8211; </li>
-<li><strong>parameter_list</strong> &#8211; </li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.ZI_Sweeper.__module__">
-<code class="descname">__module__</code><em class="property"> = 'src.core.scripts'</em><a class="headerlink" href="#src.core.scripts.ZI_Sweeper.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="src.core.scripts.ZI_Sweeper.parameters_default">
-<code class="descname">parameters_default</code><a class="headerlink" href="#src.core.scripts.ZI_Sweeper.parameters_default" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns the default parameter_list of the instrument
-:return:</p>
+<dt id="src.core.scripts.Script.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#Script.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.Script.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to validate of the script parameters are valid: this will most likely be removed in future versions
+:return: boolean</p>
 </dd></dl>
 
 </dd></dl>
-
-<dl class="function">
-<dt id="src.core.scripts.testing">
-<code class="descclassname">src.core.scripts.</code><code class="descname">testing</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/core/scripts.html#testing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.scripts.testing" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </div>
 
 
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="src.core.parameter.html"
-                        title="previous chapter">src.core.parameter module</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="src.hardware_modules.html"
-                        title="next chapter">src.hardware_modules package</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/src/src.core.scripts.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="src.instruments.html" class="btn btn-neutral float-right" title="src.instruments package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="src.core.parameter.html" class="btn btn-neutral" title="src.core.parameter module" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="src.hardware_modules.html" title="src.hardware_modules package"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="src.core.parameter.html" title="src.core.parameter module"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="code.html" >Code</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="src.core.html" >src.core package</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
         &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
-  </body>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

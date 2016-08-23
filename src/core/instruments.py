@@ -1,22 +1,21 @@
-"""
-    This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
-    Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
+    # This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+    # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
+    #
+    #
+    # PyLabControl is free software: you can redistribute it and/or modify
+    # it under the terms of the GNU General Public License as published by
+    # the Free Software Foundation, either version 3 of the License, or
+    # (at your option) any later version.
+    #
+    # PyLabControl is distributed in the hope that it will be useful,
+    # but WITHOUT ANY WARRANTY; without even the implied warranty of
+    # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    # GNU General Public License for more details.
+    #
+    # You should have received a copy of the GNU General Public License
+    # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
 
-    PyLabControl is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    PyLabControl is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
-
-"""
 from copy import deepcopy
 from PyLabControl.src.core.read_write_functions import save_b26_file, get_config_value
 import os, inspect
@@ -163,8 +162,8 @@ class Instrument(object):
     @property
     def name(self):
         """
-
-        Returns: instrument name
+        Returns:
+            instrument name
 
         """
         return self._name
@@ -181,8 +180,8 @@ class Instrument(object):
     @property
     def settings(self):
         """
-
-        Returns: instrument settings
+        Returns:
+            instrument settings
 
         """
         return self._settings

@@ -1,56 +1,155 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>src.core.parameter &mdash; PythonLab 2.0.1 documentation</title>
-    
-    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="PythonLab 2.0.1 documentation" href="../../../index.html" />
-    <link rel="up" title="Module code" href="../../index.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
-      </ul>
-    </div>  
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.core.parameter &mdash; PyLabControl 1.0.1 documentation</title>
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="PyLabControl 1.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> PyLabControl
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../project.html">PythonLab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/code.html">Code</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">PyLabControl</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>src.core.parameter</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <h1>Source code for src.core.parameter</h1><div class="highlight"><pre>
-<span class="k">class</span> <span class="nc">Parameter</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-<div class="viewcode-block" id="Parameter"><a class="viewcode-back" href="../../../src/src.core.parameter.html#src.core.Parameter">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">valid_values</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
-<div class="viewcode-block" id="Parameter.__init__"><a class="viewcode-back" href="../../../src/src.core.parameter.html#src.core.Parameter.__init__">[docs]</a>        <span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.</span>
+<span class="sd">    Copyright (C) &lt;2016&gt;  Arthur Safira, Jan Gieseler, Aaron Kabcenell</span>
+
+
+<span class="sd">    PyLabControl is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    PyLabControl is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with PyLabControl.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Parameter"><a class="viewcode-back" href="../../../src/src.core.parameter.html#src.core.parameter.Parameter">[docs]</a><span class="k">class</span> <span class="nc">Parameter</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameter.__init__"><a class="viewcode-back" href="../../../src/src.core.parameter.html#src.core.parameter.Parameter.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">valid_values</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">visible</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameter(name, value, valid_values, info)</span>
 <span class="sd">        Parameter(name, value, valid_values)</span>
@@ -66,7 +165,7 @@
 <span class="sd">            value: value of parameter can be any basic type or a list</span>
 <span class="sd">            valid_values: defines which values are accepted for value can be a type or a list if not provided =&gt; type(value)</span>
 <span class="sd">            info: description of parameter, if not provided =&gt; empty string</span>
-
+<span class="sd">            visible: boolean if true always show parameter if false hide it</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
 
@@ -78,129 +177,219 @@
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valid_values</span><span class="p">,</span> <span class="p">(</span><span class="nb">type</span><span class="p">,</span><span class="nb">list</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="n">info</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+                <span class="n">info</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
 
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">valid_values</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Parameter</span><span class="p">):</span>
-                <span class="c">#todo: check if folloing statement is correct: this should create a Parameter object and not a dict!</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_valid_values</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">valid_values</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()}}</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()}})</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_info</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()}}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_visible</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">visible</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()}}</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_valid_values</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">valid_values</span><span class="p">}</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_info</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">info</span><span class="p">}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_visible</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">visible</span><span class="p">}</span>
 
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">dict</span><span class="p">))</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_valid_values</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_info</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_visible</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">name</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-                    <span class="c"># convert to Parameter if value is a dict</span>
+                    <span class="c1"># convert to Parameter if value is a dict</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                         <span class="n">v</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_valid_values</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)})</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_visible</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">visible</span><span class="p">})</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Parameter</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
-                    <span class="n">c</span><span class="o">=</span> <span class="mi">0</span>
                     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-                        <span class="n">c</span><span class="o">+=</span><span class="mi">1</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_valid_values</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">valid_values</span><span class="p">[</span><span class="n">k</span><span class="p">]})</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">Parameter</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">}))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">k</span><span class="p">]})</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_visible</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">visible</span><span class="p">[</span><span class="n">k</span><span class="p">]})</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;unknown input: &#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;unknown input: &#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span></div>
-<div class="viewcode-block" id="Parameter.__setitem__"><a class="viewcode-back" href="../../../src/src.core.parameter.html#src.core.Parameter.__setitem__">[docs]</a>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span><span class="p">[</span><span class="n">key</span><span class="p">]),</span> <span class="s">&quot;{:s} is not in {:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="p">)</span>
+<div class="viewcode-block" id="Parameter.__setitem__"><a class="viewcode-back" href="../../../src/src.core.parameter.html#src.core.parameter.Parameter.__setitem__">[docs]</a>    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        overwrites the standard dictionary and checks if value is valid</span>
+<span class="sd">        Args:</span>
+<span class="sd">            key: dictionary key</span>
+<span class="sd">            value: dictionary value</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;{0} (of type {1}) is not in {2}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span><span class="p">[</span><span class="n">key</span><span class="p">]),</span> <span class="n">message</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">valid_values</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
                     <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span><span class="n">v</span><span class="p">})</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">Parameter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">Parameter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span></div>
-<div class="viewcode-block" id="Parameter.update"><a class="viewcode-back" href="../../../src/src.core.parameter.html#src.core.Parameter.update">[docs]</a>        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+<div class="viewcode-block" id="Parameter.update"><a class="viewcode-back" href="../../../src/src.core.parameter.html#src.core.parameter.Parameter.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        updates the values of the parameter, just as a regular dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">visible</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 
-    <span class="nd">@property</span></div>
+<span class="sd">        Returns: if parameter should be shown (False) or hidden (True) in the GUI</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_visible</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">valid_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: valid value of the paramerer (a type like int, float or a list)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_values</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns: a text describing the paramter</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">valid_values</span><span class="p">):</span>
-<div class="viewcode-block" id="Parameter.is_valid"><a class="viewcode-back" href="../../../src/src.core.parameter.html#src.core.Parameter.is_valid">[docs]</a>        <span class="n">valid</span> <span class="o">=</span> <span class="bp">False</span>
+<div class="viewcode-block" id="Parameter.is_valid"><a class="viewcode-back" href="../../../src/src.core.parameter.html#src.core.parameter.Parameter.is_valid">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">valid_values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        check is the value is valid</span>
+<span class="sd">        Args:</span>
+<span class="sd">            value: value to be tested</span>
+<span class="sd">            valid_values: allowed valid values (type or list of values)</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">valid</span> <span class="o">=</span> <span class="bp">False</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valid_values</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="n">valid_values</span><span class="p">:</span>
             <span class="n">valid</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valid_values</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="n">valid_values</span> <span class="o">==</span> <span class="nb">float</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
-            <span class="c">#special case to allow ints as float inputs</span>
+            <span class="c1">#special case to allow ints as float inputs</span>
             <span class="n">valid</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valid_values</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="c"># check that all values actually exist in valid_values</span>
-            <span class="c"># assert value.keys() &amp; valid_values.keys() == value.keys() # python 3 syntax</span>
-            <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">valid_values</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="c"># python 2</span>
+            <span class="c1"># check that all values actually exist in valid_values</span>
+            <span class="c1"># assert value.keys() &amp; valid_values.keys() == value.keys() # python 3 syntax</span>
+            <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">valid_values</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="c1"># python 2</span>
+            <span class="c1"># valid = True</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="n">valid</span> <span class="o">=</span> <span class="n">Parameter</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">valid_values</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">valid</span> <span class="o">==</span><span class="bp">False</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">valid_values</span> <span class="o">==</span> <span class="n">Parameter</span><span class="p">:</span>
             <span class="n">valid</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">for</span> <span class="n">k</span> <span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">valid_values</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
-                    <span class="n">valid</span> <span class="o">=</span> <span class="bp">True</span>
+
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valid_values</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">valid_values</span><span class="p">:</span>
             <span class="n">valid</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="k">return</span> <span class="n">valid</span>
-</pre></div></div></div>
 
+        <span class="k">return</span> <span class="n">valid</span></div></div>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">([</span>
+        <span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;filter wheel&#39;</span><span class="p">,</span> <span class="p">[</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;channel&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;channel to which motor is connected&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;settle_time&#39;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="s1">&#39;settling time&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;ND2.0&#39;</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">2700</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;position corresponding to position 1&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;ND1.0&#39;</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">1700</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;position corresponding to position 2&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;Red&#39;</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">750</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;position corresponding to position 3&#39;</span><span class="p">),</span>
+            <span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;current_position&#39;</span><span class="p">,</span> <span class="s1">&#39;ND1.0&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;ND1.0&#39;</span><span class="p">,</span> <span class="s1">&#39;ND2.0&#39;</span><span class="p">,</span> <span class="s1">&#39;Red&#39;</span><span class="p">],</span>
+                      <span class="s1">&#39;current position of filter wheel&#39;</span><span class="p">)</span>
+        <span class="p">])</span>
+    <span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;asdad&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;filter wheel&#39;</span><span class="p">],</span> <span class="nb">type</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;filter wheel&#39;</span><span class="p">]))</span>
+
+
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;======&#39;</span><span class="p">)</span>
+    <span class="c1"># print(p[&#39;filter wheel&#39;].valid_values)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">valid_values</span><span class="p">[</span><span class="s1">&#39;filter wheel&#39;</span><span class="p">])</span>
+    <span class="c1">#</span>
+    <span class="c1"># p = Parameter({&#39;a&#39;:1})</span>
+    <span class="c1"># print(p)</span>
+    <span class="c1"># p = Parameter(&#39;a&#39;, 1)</span>
+    <span class="c1"># print(p)</span>
+</pre></div>
+
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">PythonLab 2.0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
         &copy; Copyright 2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
-  </body>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>
