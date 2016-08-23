@@ -93,7 +93,6 @@ Script.
 
         return iterator_type
 
-
     def _function(self):
         '''
         Runs either a loop or a parameter sweep over the subscripts in the order defined by the parameter_list 'script_order'
@@ -125,43 +124,34 @@ Script.
                 """
                 Args:
                     sweep_param: astring with the path to the sweep parameter
-                        e.g. script.param.subparam or script.subscript
+                        e.g. script.param.subparam or script->subscript.parameter
 
                 Returns:
-
+                    script_list: a list with the scripts, e.g. [script] or [script, subscript]
+                    parameter_list: a list with the paraemeters, e.g. [param, subparam] or [parameter] for the cases above
                 """
                 split_trace = sweep_param.split('.')
-                script_array = split_trace[0].split('->')
+                script_list = split_trace[0].split('->')
                 parameter_list = split_trace[1:]
 
-                return script_array, parameter_list
+                return script_list, parameter_list
 
             param_values = get_sweep_parameters()
-            for value in param_values:
+            for i, value in enumerate(param_values):
+                self.iterator_progress = 1. * i / len(param_values)
 
                 script_list, parameter_list = get_script_and_settings_from_str(self.settings['sweep_param'])
-
-                print('ooooooo script', script_list)
-                print('ooooooo parameter_list', parameter_list)
-
                 script = self
                 while len(script_list)>0:
-                    print('ooooooo script', script.name, script.scripts.keys())
                     script = script.scripts[script_list[0]]
                     script_list = script_list[1:]
 
-                print('ooooooo script_settings', script.settings)
                 curr_type = type(reduce(lambda x,y: x[y], parameter_list, script.settings)) #traverse nested dict to get type of variable
 
-                print('ooooooo curr_type', curr_type)
                 update_dict = reduce(lambda y, x: {x: y}, reversed(parameter_list), curr_type(value)) #creates nested dictionary from list
 
-                print('ooooooo update_dict', update_dict)
                 script.settings.update(update_dict)
-                # todo: check if that is a good way to get the name of the parameter
-                # parameter_name = update_dict.keys()[0]
                 parameter_name = parameter_list[-1]
-                print('ooooooo parameter_name', parameter_name)
                 self.log('setting parameter {:s} to {:0.2e}'.format(self.settings['sweep_param'], value))
                 for script_name in sorted_script_names:
                     if self._abort:
@@ -176,6 +166,8 @@ Script.
 
         elif self.iterator_type == self.TYPE_LOOP:
             for i in range(0, self.settings['N']):
+                self.iterator_progress = 1.*i / self.settings['N']
+
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
@@ -194,9 +186,12 @@ Script.
                 set_point = self.scripts['set_laser'].settings['point']
 
             points = self.scripts['select_points'].data['nv_locations']
-            N_points = len(points)
+            points = len(points)
 
             for i, pt in enumerate(points):
+
+                self.iterator_progress = 1. * i / points
+
                 set_point.update({'x': pt[0], 'y': pt[1]})
                 self.log('found NV near x = {:0.3e}, y = {:0.3e}'.format(pt[0], pt[1]))
                 # scip first script since that is the select NV script!
@@ -231,12 +226,15 @@ Script.
             number_of_iterations = self.settings['N']
         elif self.iterator_type == self.TYPE_SWEEP_PARAMETER:
             sweep_range = self.settings['sweep_range']
-            if sweep_range['N/value_step'] == 'value_step':
+            if self.settings['stepping_mode'] == 'value_step':
                 number_of_iterations = len(np.linspace(sweep_range['min_value'], sweep_range['max_value'],
                                                        (sweep_range['max_value'] - sweep_range['min_value']) /
                                                        sweep_range['N/value_step'] + 1, endpoint=True).tolist())
-            else:
+            elif self.settings['stepping_mode'] == 'N':
                 number_of_iterations = sweep_range['N/value_step']
+            else:
+                raise KeyError('unknown key' + self.settings['stepping_mode'])
+
         elif self.iterator_type == self.TYPE_ITER_NVS:
             number_of_iterations = len(self.scripts['select_points'].data['nv_locations'])
             number_of_subscripts -= 1  # substract 2 because we don't iterate over select nv
@@ -248,6 +246,7 @@ Script.
 
         # get number of loops (completed + 1)
         loop_index = self.loop_index
+
 
         if number_of_subscripts > 1:
             # estimate the progress based on the duration the individual subscripts
