@@ -165,6 +165,7 @@ Script.
                 set_point = self.scripts['set_laser'].settings['point']
 
             points = self.scripts['select_points'].data['nv_locations']
+            N_points = len(points)
 
             for i, pt in enumerate(points):
                 set_point.update({'x': pt[0], 'y': pt[1]})
@@ -175,7 +176,7 @@ Script.
                         break
                     self.log('starting {:s}'.format(script_name))
                     tag = self.scripts[script_name].settings['tag']
-                    tmp = tag + '_pt_{' + ':0{:d}'.format(len(str(self.settings['N']))) + '}'
+                    tmp = tag + '_pt_{' + ':0{:d}'.format(len(str(N_points))) + '}'
                     self.scripts[script_name].settings['tag'] = tmp.format(i)
                     self.scripts[script_name].run()
                     self.scripts[script_name].settings['tag'] = tag
@@ -372,8 +373,7 @@ Script.
                     else:
                         script_trace = script_trace + '.' + script_name
                     if issubclass(scripts[script_name], ScriptIterator):  # gets subscripts of ScriptIterator objects
-                        populate_sweep_param(vars(scripts[script_name])['_SCRIPTS'], parameter_list=parameter_list,
-                                             trace=script_trace)
+                        populate_sweep_param(vars(scripts[script_name])['_SCRIPTS'], parameter_list=parameter_list,trace=script_trace)
                     else:
                         for setting in vars(scripts[script_name])['_DEFAULT_SETTINGS']:
                             parameter_list = get_parameter_from_dict(script_trace, setting, parameter_list)
@@ -394,8 +394,9 @@ Script.
                         raise NotImplementedError
                     elif script_sub_scripts[sub_script_name]['class'] == 'ScriptIterator':
                         subscript_class_name = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name])['class']
-                        import PyLabControl.src.scripts
-                        sub_scripts.update({sub_script_name: getattr(PyLabControl.src.scripts, subscript_class_name)})
+                        # import PyLabControl.src.scripts
+                        import PyLabControl.src.core.script_iterator
+                        sub_scripts.update({sub_script_name: getattr(PyLabControl.src.core.script_iterator, subscript_class_name)})
                     else:
                         # script_dict = {script_sub_scripts[sub_script_name]['class']}
                         module, _, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script_name])
