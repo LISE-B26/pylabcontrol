@@ -1024,12 +1024,10 @@ class Script(QObject):
                     print('loading script {:s} failed. Could not load instruments!'.format(script_name))
                     load_failed[script_name] = err
                     if raise_errors:
-                        print('xx', class_of_script, script_instruments, updated_instruments)
                         raise err
                     continue
                 #  ========= create the subscripts that are needed by the script =========
                 try:
-                    print('----- script_sub_scripts', script_sub_scripts)
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
                 except Exception as err:
                     print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
@@ -1052,14 +1050,12 @@ class Script(QObject):
                 class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
                 try:
-                    print('---ssssss-- script_settings', script_settings)
                     script_instance = eval(class_creation_string)
 
                     if script_doc:
                         script_instance.__doc__ = script_doc
 
                     updated_scripts.update({script_name: script_instance})
-                    print('---sssss2s-- class_creation_string', class_creation_string)
 
                 except Exception, err:
                     load_failed[script_name] = err

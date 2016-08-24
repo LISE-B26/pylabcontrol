@@ -20,6 +20,8 @@ from PyLabControl.src.core import Parameter, Script
 import numpy as np
 from PyQt4.QtCore import pyqtSlot
 import datetime
+import warnings
+import inspect
 
 class ScriptIterator(Script):
     '''
@@ -391,9 +393,6 @@ Script.
                         valid_values = dic.valid_values
 
                     for key, value in dic.iteritems():
-
-                        print('aaaa type', key, valid_values[key])
-
                         if isinstance(value, dict):  # for nested parameters ex {point: {'x': int, 'y': int}}
                             parameter_list = get_parameter_from_dict(trace + '.' + key, value, parameter_list, dic.valid_values[key])
                         elif (valid_values[key] in (float,int)) or\
@@ -412,18 +411,13 @@ Script.
                     if script_trace == '':
                         script_trace = script_name
                     else:
-                        # JJJ
                         script_trace = script_trace + '->' + script_name
                     if issubclass(scripts[script_name], ScriptIterator):  # gets subscripts of ScriptIterator objects
                         populate_sweep_param(vars(scripts[script_name])['_SCRIPTS'], parameter_list=parameter_list,trace=script_trace)
                     else:
-                        print('xxxxx', script_name, scripts[script_name])
-                        if '_DEFAULT_SETTINGS' in vars(scripts[script_name]):
-                            for setting in vars(scripts[script_name])['_DEFAULT_SETTINGS']:
-                                parameter_list = get_parameter_from_dict(script_trace, setting, parameter_list)
-                        else:
-                            # todo: issue #100: this happens for instance for Autofocus which inherits the default parameters from the superscript
-                            print('WARNING!!: class {:s} does not have _DEFAULT_SETTINGS. Parameter sweep over these parameters not possible'.format(script_name))
+                        # use inspect instead of vars to get _DEFAULT_SETTINGS also for classes that inherit _DEFAULT_SETTINGS from a superclass
+                        for setting in [elem[1] for elem in inspect.getmembers(scripts[script_name]) if elem[0] == '_DEFAULT_SETTINGS'][0]:
+                            parameter_list = get_parameter_from_dict(script_trace, setting, parameter_list)
 
                 return parameter_list
 
@@ -492,8 +486,6 @@ Script.
             if iterator_type == ScriptIterator.TYPE_SWEEP_PARAMETER:
                 sweep_params = populate_sweep_param(sub_scripts, [])
 
-                print('xxxx sweep_params', sweep_params)
-
                 script_default_settings = [
                     Parameter('script_order', script_order),
                     Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
@@ -557,9 +549,8 @@ Script.
             #         return vars(someclass)['_CLASS']
 
         script_default_settings, sub_scripts = set_up_dynamic_script(script_information)
-        print('ajdajsakjas')
         class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings)
-        print('----ajdajsakjas')
+
         # update the generic name (e.g. ScriptIterator) to a unique name  (e.g. ScriptIterator_01)
         script_information['class'] = class_name
 
@@ -572,7 +563,6 @@ Script.
             for elem in script_default_settings:
                 script_settings.update(elem)
             script_information['settings'] = script_settings
-        print('====ajdajsakjas')
         return script_information
 
 if __name__ == '__main__':
