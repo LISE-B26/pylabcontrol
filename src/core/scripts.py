@@ -61,7 +61,8 @@ class Script(QObject):
 
     RAW_DATA_DIR = 'rd' # dir name for rawdata, try to keep it short because otherwise we run into problems with deeply nested data
     SUBSCRIPT_DATA_DIR = 'sd' # dir name for subscript data, try to keep it short because otherwise we run into problems with deeply nested data
-
+    # RAW_DATA_DIR = 'raw_data' # dir name for rawdata
+    # SUBSCRIPT_DATA_DIR = 'data_subscripts' # dir name for subscript data
 
     def __init__(self, name=None, settings=None, instruments=None, scripts=None, log_function=None, data_path=None):
         """
@@ -457,18 +458,18 @@ class Script(QObject):
 
         :return: boolean
         """
-        validate = True
-        # check if filename is longer than 220, this leaves a buffer of 39 for dynamically created extentions
-        if len(self.filename()) > 220:
-            validate = False
-            self.log('Validation failed. Detected long filename in ', self.name)
-
-        for s in self.scripts:
-            if s.validate == False:
-                validate = False
-
-        return validate
-
+        # validate = True
+        # # check if filename is longer than 220, this leaves a buffer of 39 for dynamically created extentions
+        # if len(self.filename()) > 220:
+        #     validate = False
+        #     self.log('Validation failed. Detected long filename in ', self.name)
+        #
+        # for s in self.scripts:
+        #     if s.validate == False:
+        #         validate = False
+        #
+        # return validate
+        pass
 
 
 
@@ -499,6 +500,10 @@ class Script(QObject):
 
         if appendix is not None:
             filename = os.path.join(filename,  "{:s}_{:s}{:s}".format(self.start_time.strftime('%y%m%d-%H_%M_%S'),tag,appendix))
+
+        # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
+        if len(filename.split('\\\\?\\')) == 1:
+            filename = '\\\\?\\' + filename
 
         return filename
     def to_dict(self):
@@ -563,6 +568,10 @@ class Script(QObject):
 
         filename = os.path.join(os.path.join(os.path.dirname(filename),self.RAW_DATA_DIR), os.path.basename(filename))
 
+        # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
+        if len(filename.split('\\\\?\\')) == 1:
+            filename = '\\\\?\\' + filename
+
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
 
@@ -613,7 +622,6 @@ class Script(QObject):
             else:
                 df = pd.DataFrame(value)
             df.to_csv(filename, index=False)
-
     def save_log(self, filename = None):
         """
         save log to file
@@ -623,7 +631,9 @@ class Script(QObject):
 
         if filename is None:
             filename = self.filename('-info.txt')
-
+        # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
+        if len(filename.split('\\\\?\\')) == 1:
+            filename = '\\\\?\\' + filename
         with open(filename, 'w') as outfile:
             for item in self.log_data:
                 outfile.write("%s\n" % item)
@@ -633,9 +643,10 @@ class Script(QObject):
         """
         if filename is None:
             filename = self.filename('.b26')
-
+        # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
+        if len(filename.split('\\\\?\\')) == 1:
+            filename = '\\\\?\\' + filename
         save_b26_file(filename, scripts=self.to_dict(), overwrite=True)
-
     def save_image_to_disk(self, filename_1 = None, filename_2 = None):
         """
         creates an image using the scripts plot function and writes it to the disk
@@ -678,6 +689,12 @@ class Script(QObject):
             filename_1 = self.filename('-plt1.jpg')
             filename_2 = self.filename('-plt2.jpg')
 
+        # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
+        if len(filename_1.split('\\\\?\\')) == 1:
+            filename_1 = '\\\\?\\' + filename_1
+        if len(filename_2.split('\\\\?\\')) == 1:
+            filename_2 = '\\\\?\\' + filename_2
+
         if os.path.exists(os.path.dirname(filename_1)) is False:
             os.makedirs(os.path.dirname(filename_1))
         if os.path.exists(os.path.dirname(filename_2)) is False:
@@ -698,7 +715,6 @@ class Script(QObject):
             fig_1.savefig(filename_1)
         if filename_2 is not None and not axes_empty(fig_2.axes):
             fig_2.savefig(filename_2)
-
     def save(self, filename):
         """
         saves the instance of the script to a file using pickle
@@ -706,11 +722,13 @@ class Script(QObject):
             filename: target filename
 
         """
+
         if filename is None:
             filename = self.filename('.b26s')
+        if len(filename.split('\\\\?\\')) == 1:
+            filename = '\\\\?\\' + filename
         with open(filename, 'w') as outfile:
             outfile.write(cPickle.dumps(self.__dict__))
-
     @staticmethod
     def load(filename, instruments = None):
         """
@@ -767,9 +785,13 @@ class Script(QObject):
             print(path)
             raise AttributeError('Path given does not exist!')
 
+        # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
+        if len(path.split('\\\\?\\')) == 1:
+            filename = '\\\\?\\' + path
+
+
         # if raw_data folder exists, get a list of directories from within it; otherwise, get names of all .csv files in
         # current directory
-
         data = {}
         if self.RAW_DATA_DIR in os.listdir(path):
             data_files = os.listdir(os.path.join(path, self.RAW_DATA_DIR + '/'))
