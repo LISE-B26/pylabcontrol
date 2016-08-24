@@ -59,10 +59,8 @@ class Script(QObject):
         Parameter('save', False, bool,'check to automatically save data'),
     ]
 
-    RAW_DATA_DIR = 'rd' # dir name for rawdata, try to keep it short because otherwise we run into problems with deeply nested data
-    SUBSCRIPT_DATA_DIR = 'sd' # dir name for subscript data, try to keep it short because otherwise we run into problems with deeply nested data
-    # RAW_DATA_DIR = 'raw_data' # dir name for rawdata
-    # SUBSCRIPT_DATA_DIR = 'data_subscripts' # dir name for subscript data
+    RAW_DATA_DIR = 'raw_data' # dir name for rawdata
+    SUBSCRIPT_DATA_DIR = 'data_subscripts' # dir name for subscript data
 
     def __init__(self, name=None, settings=None, instruments=None, scripts=None, log_function=None, data_path=None):
         """
