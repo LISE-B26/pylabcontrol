@@ -59,6 +59,10 @@ class Script(QObject):
         Parameter('save', False, bool,'check to automatically save data'),
     ]
 
+    RAW_DATA_DIR = 'rd' # dir name for rawdata, try to keep it short because otherwise we run into problems with deeply nested data
+    SUBSCRIPT_DATA_DIR = 'sd' # dir name for subscript data, try to keep it short because otherwise we run into problems with deeply nested data
+
+
     def __init__(self, name=None, settings=None, instruments=None, scripts=None, log_function=None, data_path=None):
         """
         executes scripts and stores script parameters and settings
@@ -398,7 +402,7 @@ class Script(QObject):
         # update the datapath of the subscripts, connect their progress signal to the receive slot
         for subscript in self.scripts.values():
             print('==== connecting', subscript.name)
-            subscript.data_path = os.path.join(self.filename(create_if_not_existing=False), 'data_subscripts')
+            subscript.data_path = os.path.join(self.filename(create_if_not_existing=False), self.SUBSCRIPT_DATA_DIR)
             subscript.updateProgress.connect(self._receive_signal)
             subscript.started.connect(lambda: self._set_current_subscript(True))
             subscript.finished.connect(lambda: self._set_current_subscript(False))
@@ -448,10 +452,27 @@ class Script(QObject):
 
     def validate(self):
         """
-        function to validate of the script parameters are valid: this will most likely be removed in future versions
+        function to validate of the script parameters are valid:
+         - check if the filename is too long (pandas can't write files if the total filepath is longer than 259 characters)
+
         :return: boolean
         """
-        pass
+        validate = True
+        # check if filename is longer than 220, this leaves a buffer of 39 for dynamically created extentions
+        if len(self.filename()) > 220:
+            validate = False
+            self.log('Validation failed. Detected long filename in ', self.name)
+
+        for s in self.scripts:
+            if s.validate == False:
+                validate = False
+
+        return validate
+
+
+
+
+
 
     def filename(self, appendix=None, create_if_not_existing=False):
         """
@@ -469,7 +490,7 @@ class Script(QObject):
         else:
             path = self.settings['path']
 
-        tag = self.settings['tag']
+        tag = self.settings['tag']#.replace('.','-')
 
         filename = os.path.join(path, "{:s}_{:s}".format(self.start_time.strftime('%y%m%d-%H_%M_%S'),tag))
 
@@ -540,7 +561,7 @@ class Script(QObject):
         if filename is None:
             filename = self.filename('.csv')
 
-        filename = os.path.join(os.path.join(os.path.dirname(filename),'raw_data'), os.path.basename(filename))
+        filename = os.path.join(os.path.join(os.path.dirname(filename),self.RAW_DATA_DIR), os.path.basename(filename))
 
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
@@ -750,9 +771,9 @@ class Script(QObject):
         # current directory
 
         data = {}
-        if 'raw_data' in os.listdir(path):
-            data_files = os.listdir(os.path.join(path, 'raw_data/'))
-            path = os.path.join(path, 'raw_data/')
+        if self.RAW_DATA_DIR in os.listdir(path):
+            data_files = os.listdir(os.path.join(path, self.RAW_DATA_DIR + '/'))
+            path = os.path.join(path, self.RAW_DATA_DIR + '/')
 
         else:
             data_files = glob.glob(os.path.join(path, '*.csv'))

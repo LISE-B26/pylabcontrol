@@ -159,7 +159,6 @@ Script.
                     self.log('starting {:s}'.format(script_name))
 
                     tag = self.scripts[script_name].settings['tag']
-
                     self.scripts[script_name].settings['tag'] = '{:s}_{:s}_{:0.3e}'.format(tag, parameter_name, value)
                     self.scripts[script_name].run()
                     self.scripts[script_name].settings['tag'] = tag
@@ -418,8 +417,13 @@ Script.
                     if issubclass(scripts[script_name], ScriptIterator):  # gets subscripts of ScriptIterator objects
                         populate_sweep_param(vars(scripts[script_name])['_SCRIPTS'], parameter_list=parameter_list,trace=script_trace)
                     else:
-                        for setting in vars(scripts[script_name])['_DEFAULT_SETTINGS']:
-                            parameter_list = get_parameter_from_dict(script_trace, setting, parameter_list)
+                        print('xxxxx', script_name, scripts[script_name])
+                        if '_DEFAULT_SETTINGS' in vars(scripts[script_name]):
+                            for setting in vars(scripts[script_name])['_DEFAULT_SETTINGS']:
+                                parameter_list = get_parameter_from_dict(script_trace, setting, parameter_list)
+                        else:
+                            # todo: issue #100: this happens for instance for Autofocus which inherits the default parameters from the superscript
+                            print('WARNING!!: class {:s} does not have _DEFAULT_SETTINGS. Parameter sweep over these parameters not possible'.format(script_name))
 
                 return parameter_list
 
