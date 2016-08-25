@@ -166,19 +166,44 @@ Script.
                     self.scripts[script_name].settings['tag'] = tag
 
         elif self.iterator_type == self.TYPE_LOOP:
-            for i in range(0, self.settings['N']):
-                self.iterator_progress = 1.*i / self.settings['N']
+
+            N_points = self.settings['N']
+            self.data = {}
+
+            for i in range(0, N_points):
+                self.iterator_progress = 1.*i / N_points
 
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
-                    self.log('starting {:s} {:03d}/{:03d}'.format(script_name, i + 1, self.settings['N']))
+                    self.log('starting {:s} {:03d}/{:03d}'.format(script_name, i + 1, N_points))
 
                     tag = self.scripts[script_name].settings['tag']
-                    tmp = tag + '_{' + ':0{:d}'.format(len(str(self.settings['N']))) + '}'
+                    tmp = tag + '_{' + ':0{:d}'.format(len(str(N_points))) + '}'
                     self.scripts[script_name].settings['tag'] = tmp.format(i)
                     self.scripts[script_name].run()
                     self.scripts[script_name].settings['tag'] = tag
+
+                # from the last script we take the average of the data as the data of the iterator script
+                if i == 0:
+                    self.data.update(self.scripts[script_name].data)
+                else:
+                    for key in self.scripts[script_name].data.keys():
+                        if isinstance(self.data[key], list):
+                            self.data[key] += np.array(self.scripts[script_name].data[key])
+                        elif isinstance(self.data[key], dict):
+                            self.data[key] = {x: self.data[key].get(x, 0) + self.scripts[script_name].data[key].get(x, 0) for x in self.data[key].keys()}
+                        else:
+                            self.data[key] += self.scripts[script_name].data[key]
+            # normalize data because we just kept adding the values
+            for key in self.scripts[script_name].data.keys():
+                if isinstance(self.data[key], list):
+                    self.data[key] = np.array(self.data[key]) / N_points
+                elif isinstance(self.data[key], dict):
+                    self.data[key] = {k:v/N_points for k, v in self.data[key].iteritems()}
+                else:
+                    self.data[key] = self.data[key] / N_points
+
         elif self.iterator_type in (self.TYPE_ITER_NVS, self.TYPE_ITER_POINTS):
 
             if self.iterator_type == self.TYPE_ITER_NVS:
@@ -187,11 +212,11 @@ Script.
                 set_point = self.scripts['set_laser'].settings['point']
 
             points = self.scripts['select_points'].data['nv_locations']
-            points = len(points)
+            N_points = len(points)
 
             for i, pt in enumerate(points):
 
-                self.iterator_progress = 1. * i / points
+                self.iterator_progress = 1. * i / N_points
 
                 set_point.update({'x': pt[0], 'y': pt[1]})
                 self.log('found NV near x = {:0.3e}, y = {:0.3e}'.format(pt[0], pt[1]))
@@ -315,7 +340,7 @@ Script.
         loop_index = max(self._current_subscript_stage['subscript_exec_count'].values())
         return loop_index
 
-    def plot(self, figure_list):
+    def plot(self, figure_list, force_update=False):
         '''
         When each subscript is called, uses its standard plotting
 
@@ -323,10 +348,31 @@ Script.
             figure_list: list of figures passed from the guit
 
         '''
+
         #TODO: be smarter about how we plot ScriptIterator
         if self._current_subscript_stage is not None:
             if self._current_subscript_stage['current_subscript'] is not None:
                 self._current_subscript_stage['current_subscript'].plot(figure_list)
+
+        if (self.is_running is False or force_update) and not (self.data == {} or self.data is None):
+
+            self.data != {}
+            script_names = self.settings['script_order'].keys()
+            script_indices = [self.settings['script_order'][name] for name in script_names]
+            _, sorted_script_names = zip(*sorted(zip(script_indices, script_names)))
+
+            last_script = self.scripts[sorted_script_names[-1]]
+            axes_list = last_script.get_axes_layout(figure_list)
+
+            # catch error is _plot function doens't take optional data argument
+            try:
+                last_script._plot(axes_list, self.data)
+            except TypeError, err:
+                print(warnings.warn('can\'t plot average script data because script.plot function doens\'t take data as optional argument. Plotting last data set instead'))
+                print(err.message)
+                last_script.plot(figure_list)
+
+
 
     def to_dict(self):
         """

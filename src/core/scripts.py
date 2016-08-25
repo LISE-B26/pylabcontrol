@@ -707,7 +707,7 @@ class Script(QObject):
 
         self._plot_refresh = True
         print('printing....!')
-        self.plot([fig_1, fig_2])
+        self.plot([fig_1, fig_2], force_update = True)
 
         if filename_1 is not None and not axes_empty(fig_1.axes):
             fig_1.savefig(filename_1)
@@ -1200,10 +1200,13 @@ class Script(QObject):
         # but doesn't create a whole new image
         self._plot(axes_list)
 
-    def plot(self, figure_list):
+    def plot(self, figure_list, force_update=False):
         """
         plots the data contained in self.data, which should be a dictionary or a deque of dictionaries
         for the latter use the last entry
+        Args:
+            figure_list: list of figure objects that are passed to self.get_axes_layout to get axis objects for plotting
+            force_update: if True always force to call plot function rather than update, if False script decides whether to use update or plot
 
         """
         # if there is not data we do not plot anything
@@ -1211,7 +1214,7 @@ class Script(QObject):
             return
 
         # if plot function is called when script is not running we request a plot refresh
-        if self.is_running == False:
+        if not self.is_running or force_update:
             print(datetime.datetime.now().strftime("%B %d, %Y %H:%M:%S"), self.name, 'force refresh plot!!!')
             self._plot_refresh = True
 

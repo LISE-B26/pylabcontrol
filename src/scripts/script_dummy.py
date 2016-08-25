@@ -125,32 +125,34 @@ Example Script that has all different types of parameters (integer, str, fload, 
         self.data.update({'image data': img})
 
 
-    def _plot(self, axes_list):
+    def _plot(self, axes_list, data = None):
         """
         plots the data only the axes objects that are provided in axes_list
         Args:
             axes_list: a list of axes objects, this should be implemented in each subscript
-
+            data: data to be plotted if empty take self.data
         Returns: None
 
         """
 
         plot_type = self.settings['plot_style']
+        if data is None:
+            data = self.data
 
-        # self.log('PLOTTING {:s}'.format(plot_type))
-        if plot_type in ('main', 'two'):
-            if not self.data['random data'] is None:
-                axes_list[0].plot(self.data['random data'])
-                axes_list[0].hold(False)
-        if plot_type in ('aux', 'two', '2D'):
-            if not self.data['random data'] is None:
-                axes_list[1].plot(self.data['random data'])
-                axes_list[1].hold(False)
-        if plot_type == '2D':
-            if 'image data' in self.data and not self.data['image data'] is None:
-                fig = axes_list[0].get_figure()
-                implot = axes_list[0].imshow(self.data['image data'], cmap='pink', interpolation="nearest", extent=[-1,1,1,-1])
-                fig.colorbar(implot, label='kcounts/sec')
+        if data is not None and data is not {}:
+            if plot_type in ('main', 'two'):
+                if not data['random data'] is None:
+                    axes_list[0].plot(data['random data'])
+                    axes_list[0].hold(False)
+            if plot_type in ('aux', 'two', '2D'):
+                if not data['random data'] is None:
+                    axes_list[1].plot(data['random data'])
+                    axes_list[1].hold(False)
+            if plot_type == '2D':
+                if 'image data' in data and not data['image data'] is None:
+                    fig = axes_list[0].get_figure()
+                    implot = axes_list[0].imshow(data['image data'], cmap='pink', interpolation="nearest", extent=[-1,1,1,-1])
+                    fig.colorbar(implot, label='kcounts/sec')
 
     def _update(self, axes_list):
         """
