@@ -340,7 +340,7 @@ Script.
         loop_index = max(self._current_subscript_stage['subscript_exec_count'].values())
         return loop_index
 
-    def plot(self, figure_list, force_update=False):
+    def plot(self, figure_list):
         '''
         When each subscript is called, uses its standard plotting
 
@@ -354,14 +354,16 @@ Script.
             if self._current_subscript_stage['current_subscript'] is not None:
                 self._current_subscript_stage['current_subscript'].plot(figure_list)
 
-        if (self.is_running is False or force_update) and not (self.data == {} or self.data is None):
+        if (self.is_running is False) and not (self.data == {} or self.data is None):
 
-            self.data != {}
             script_names = self.settings['script_order'].keys()
             script_indices = [self.settings['script_order'][name] for name in script_names]
             _, sorted_script_names = zip(*sorted(zip(script_indices, script_names)))
 
             last_script = self.scripts[sorted_script_names[-1]]
+
+            last_script.force_update()  # since we use the last script plot function we force it to refresh
+
             axes_list = last_script.get_axes_layout(figure_list)
 
             # catch error is _plot function doens't take optional data argument
