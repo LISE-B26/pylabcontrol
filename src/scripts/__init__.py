@@ -17,3 +17,4 @@
 
 from script_dummy import ScriptMinimalDummy, ScriptDummy, DummyPlantWithControler
 from select_points import SelectPoints
+from script_wait import Wait

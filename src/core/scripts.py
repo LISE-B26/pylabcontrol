@@ -347,7 +347,7 @@ class Script(QObject):
 
         estimated_total_time = 100. / self.progress * elapsed_time
 
-        return datetime.timedelta(seconds = estimated_total_time - elapsed_time)
+        return datetime.timedelta(seconds = max(estimated_total_time - elapsed_time, 0))
 
     @property
     def start_time(self):
