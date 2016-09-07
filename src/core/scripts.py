@@ -1015,7 +1015,6 @@ class Script(QObject):
                 if module is None and inspect.isclass(script_info):
                     class_of_script = script_info
                 else:
-                    print('module', module)
                     class_of_script = getattr(module, script_class_name)
                 #  ========= create the instruments that are needed by the script =========
                 try:

@@ -47,6 +47,9 @@ class Instrument(object):
 
         self._is_connected = False  # internal flag that indicated if instrument is actually connected
 
+        if settings is not None:
+            self.update(settings)
+
 
     # apply settings to instrument should be carried out in derived class
 
@@ -284,7 +287,6 @@ class Instrument(object):
                     path_to_module, _ = module_name_from_path(instrument_filepath)
                     module = import_module(path_to_module)
                     class_of_instrument = getattr(module, instrument_class_name)
-
                     try:
                         if instrument_settings is None:
                             # this creates an instance of the class with default settings
