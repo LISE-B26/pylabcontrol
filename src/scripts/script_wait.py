@@ -77,8 +77,8 @@ There are two modes of operation:
 
             time.sleep(1)
 
-            self.progress = 100*(current_time- start_time).total_seconds() / (stop_time - start_time).total_seconds()
-            self.updateProgress.emit(self.progress)
+            self.progress = 100.*(current_time- start_time).total_seconds() / (stop_time - start_time).total_seconds()
+            self.updateProgress.emit(int(self.progress))
 
         if self.settings['wait_mode'] == 'absolute':
             self.last_execution = None

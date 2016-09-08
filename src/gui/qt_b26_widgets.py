@@ -135,7 +135,8 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 item = B26QTreeItem(self, key, self.value.scripts[key],  type(self.value.scripts[key]), '')
                 # item = B26QTreeItem(self, key, self.value.scripts[key], type(self.value.scripts[key]), '')
                 # item.setDisabled(True)
-
+            # self.info = 'script of class {:s}'.format(str(type(self.value)).split('.')[-1].split('\'>')[0])
+            self.info = self.value.__doc__
             # #todo: set the font to bold
             #
             # print(self.font(0))
