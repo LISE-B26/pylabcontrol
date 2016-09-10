@@ -791,9 +791,14 @@ class Script(QObject):
         # if raw_data folder exists, get a list of directories from within it; otherwise, get names of all .csv files in
         # current directory
         data = {}
-        if self.RAW_DATA_DIR in os.listdir(path):
-            data_files = os.listdir(os.path.join(path, self.RAW_DATA_DIR + '/'))
-            path = os.path.join(path, self.RAW_DATA_DIR + '/')
+        # if self.RAW_DATA_DIR in os.listdir(path): #8/26/16 AK: self not defined in static context
+        #     data_files = os.listdir(os.path.join(path, self.RAW_DATA_DIR + '/'))
+        #     path = os.path.join(path, self.RAW_DATA_DIR + '/')
+        #
+        # else:
+        if 'raw_data' in os.listdir(path):  #temporarily hardcoded
+            data_files = os.listdir(os.path.join(path, 'raw_data' + '/'))
+            path = os.path.join(path, 'raw_data' + '/')
 
         else:
             data_files = glob.glob(os.path.join(path, '*.csv'))

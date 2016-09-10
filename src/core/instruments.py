@@ -338,11 +338,3 @@ if __name__ == '__main__':
 
     for k, v in x.iteritems():
         print(k, issubclass(v['x'], Script), issubclass(v['x'], Instrument))
-
-    # print('xxxx',  x.keys())
-    # print('xxxx', x['ESR']['x'], type(x['ESR']['x']))
-    # a  = issubclass(x['ESR']['x'], Script)
-    # print(x['ESR']['x'], a)
-    # instr, fail = Instrument.load_and_append({'MaestroLightControl': {'class': 'MaestroLightControl', 'settings': {'port': 'COM5', 'block green': {'settle_time': 0.2, 'position_open': 7600, 'position_closed': 3800, 'open': True, 'channel': 0}}}})
-    # print(instr)
-    # print(fail)
