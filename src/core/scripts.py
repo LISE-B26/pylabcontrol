@@ -607,6 +607,8 @@ class Script(QObject):
                             df = pd.DataFrame.from_dict(value)
                         else:
                             # if not a dictionary
+                            print('KEY', key)
+                            print('VALUE', value)
                             df = pd.DataFrame(value)
 
                     df.to_csv(filename.replace('.csv', '-{:s}.csv'.format(key)), index=False)
@@ -683,9 +685,17 @@ class Script(QObject):
             return is_empty
 
         # create and save images
-        if (filename_1 is None) and (filename_2 is None):
+        # 20160914: bug when only one filename is given, split this into two sets
+        # if (filename_1 is None) and (filename_2 is None):
+        #     filename_1 = self.filename('-plt1.jpg')
+        #     filename_2 = self.filename('-plt2.jpg')
+
+        if (filename_1 is None):
             filename_1 = self.filename('-plt1.jpg')
+
+        if (filename_2 is None):
             filename_2 = self.filename('-plt2.jpg')
+
 
         # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
         if len(filename_1.split('\\\\?\\')) == 1:

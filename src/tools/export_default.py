@@ -217,7 +217,7 @@ if __name__ == '__main__':
 
     # source_folders = 'b26_toolkit'
     source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
-    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src'
+    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
     target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
     export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
 

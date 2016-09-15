@@ -273,6 +273,8 @@ class Instrument(object):
             instrument_settings = None
             module = None
 
+            print('INSTRUMNET_NAME', instrument_name)
+
             # check if instrument already exists
             if instrument_name in instruments.keys():
                 print('WARNING: instrument {:s} already exists. Did not load!'.format(instrument_name))
