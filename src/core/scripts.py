@@ -793,9 +793,9 @@ class Script(QObject):
             print(path)
             raise AttributeError('Path given does not exist!')
 
-        # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
+        # windows can't deal with long filenames (>260 chars) so we have to use the prefix '\\\\?\\'
         if len(path.split('\\\\?\\')) == 1:
-            filename = '\\\\?\\' + path
+            path = '\\\\?\\' + os.path.abspath(path)
 
 
         # if raw_data folder exists, get a list of directories from within it; otherwise, get names of all .csv files in
