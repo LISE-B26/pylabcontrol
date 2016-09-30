@@ -273,14 +273,14 @@ class Instrument(object):
             instrument_settings = None
             module = None
 
-            print('INSTRUMNET_NAME', instrument_name)
-
             # check if instrument already exists
             if instrument_name in instruments.keys():
                 print('WARNING: instrument {:s} already exists. Did not load!'.format(instrument_name))
                 loaded_failed[instrument_name] = instrument_name
             else:
                 instrument_instance = None
+                # print('XXXXX =>> instrument_class_name', instrument_class_name, type(instrument_class_name))
+
                 if isinstance(instrument_class_name, dict):
                     if 'settings' in instrument_class_name:
                         instrument_settings = instrument_class_name['settings']
@@ -301,8 +301,6 @@ class Instrument(object):
                         if raise_errors:
                             raise e
                         continue
-
-
                 elif isinstance(instrument_class_name, Instrument):
                     instrument_class_name = instrument_class_name.__class__
                     instrument_filepath = os.path.dirname(inspect.getfile(instrument_class_name))

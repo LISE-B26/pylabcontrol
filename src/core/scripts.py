@@ -957,7 +957,7 @@ class Script(QObject):
                               isinstance(instance, instrument_class) and name == instrument_name]
                 if len(instrument) == 0:
                     # create new instance of instrument
-                    instruments_updated, __ = Instrument.load_and_append({instrument_name: instrument_class}, instruments_updated)
+                    instruments_updated, __ = Instrument.load_and_append({instrument_name: instrument_class}, instruments_updated, raise_errors)
 
                 if script_instruments is not None and instrument_name in script_instruments:
                     instrument_settings_dict = script_instruments[instrument_name]['settings']
@@ -997,7 +997,7 @@ class Script(QObject):
             #
             # create instruments that script needs
             sub_scripts = {}
-            sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments)
+            sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments, raise_errors)
             try:
                 if sub_scripts_dict is not None:
                     for k, v in sub_scripts_dict.iteritems():
@@ -1040,6 +1040,7 @@ class Script(QObject):
                     if raise_errors:
                         raise err
                     continue
+                # print('XXX loaded instruments....')
                 #  ========= create the subscripts that are needed by the script =========
                 try:
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
@@ -1049,6 +1050,7 @@ class Script(QObject):
                     if raise_errors:
                         raise err
                     continue
+                # print('XXX loaded subscripts....')
 
                 class_creation_string = ''
                 if script_instruments:
@@ -1064,8 +1066,9 @@ class Script(QObject):
                 class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
                 try:
-                    script_instance = eval(class_creation_string)
 
+                    script_instance = eval(class_creation_string)
+                    # print('=====XXX ==!+ class_creation_string', class_creation_string)
                     if script_doc:
                         script_instance.__doc__ = script_doc
 
@@ -1074,6 +1077,7 @@ class Script(QObject):
                 except Exception, err:
                     load_failed[script_name] = err
                     if raise_errors:
+                        print('class_creation_string', class_creation_string, script_name, script_instruments)
                         raise err
                     continue
 

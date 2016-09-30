@@ -136,7 +136,6 @@ Returns:
             #TODO: check if this is portable
             elif name in self.elements_from_file:
                 class_name = self.elements_from_file[name]['class']
-                print('THIS',  self.elements_from_file[name])
                 if 'filepath' in self.elements_from_file[name]:
                     filepath = self.elements_from_file[name]['filepath']
                 if 'info' in self.elements_from_file[name]:
