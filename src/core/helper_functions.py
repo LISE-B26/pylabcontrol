@@ -19,7 +19,7 @@
 import os, inspect
 # from importlib import import_module
 # from PyLabControl.src.core import Instrument, Script
-
+import datetime
 
 def module_name_from_path(folder_name):
     """
@@ -55,6 +55,19 @@ def module_name_from_path(folder_name):
     return module, path
 
 
+
+def datetime_from_str(string):
+    """
+
+    Args:
+        string: string of the form YYMMDD-HH_MM_SS, e.g 160930-18_43_01
+
+    Returns: a datetime object
+
+    """
+
+
+    return datetime.datetime(year=2000+int(string[0:2]), month=int(string[2:4]), day=int(string[4:6]), hour=int(string[7:9]), minute=int(string[10:12]),second=int(string[13:15]))
 
 
 

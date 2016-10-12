@@ -94,6 +94,8 @@ class Instrument(object):
 
         """
 
+        print('xxxxx', key, self._PROBES())
+
         if key is None:
             # return the value all probe in dictionary form
             d = {}
@@ -128,13 +130,29 @@ class Instrument(object):
 
         Returns: value of input channel
         """
-        try:
-            return self.read_probes(name)
-        except:
-            # restores standard behavior for missing keys
-            if not str(name) in ['_initialized', '_settings']:
-                print('class ' + type(self).__name__ + ' has no attribute ' + str(name))
-            raise AttributeError('class ' + type(self).__name__ + ' has no attribute ' + str(name))
+        # try:
+        #     print('xxxxx', name, self._PROBES())
+        #     xx = self.read_probes(name)
+        #     print(xx)
+        #     return xx
+        #     # return self.read_probes(name)
+        # except:
+        #     # restores standard behavior for missing keys
+        #     if not str(name) in ['_initialized', '_settings']:
+        #         print('class ' + type(self).__name__ + ' has no attribute ' + str(name))
+        #     raise AttributeError('class ' + type(self).__name__ + ' has no attribute ' + str(name))
+
+        if not str(name) in ['_initialized', '_settings']:
+            # try:
+            print('xxxxx', name)
+            xx = self.read_probes(name)
+            print(xx)
+            return xx
+                # return self.read_probes(name)
+            # except:
+            #     # restores standard behavior for missing keys
+            #     print('class ' + type(self).__name__ + ' has no attribute ' + str(name))
+            #     raise AttributeError('class ' + type(self).__name__ + ' has no attribute ' + str(name))
 
 
     def __setattr__(self, key, value):
