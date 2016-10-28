@@ -158,6 +158,9 @@ Script.
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
+                    if not ((i + 1) % self.settings['script_execution_freq'][
+                        script_name] == 0):  # i+1 so first execution is mth loop, not first
+                        continue
                     self.log('starting {:s}'.format(script_name))
 
                     tag = self.scripts[script_name].settings['tag']
@@ -176,6 +179,8 @@ Script.
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
+                    if not ((i + 1) % self.settings['script_execution_freq'][script_name] == 0): #i+1 so first execution is mth loop, not first
+                        continue
                     self.log('starting {:s} {:03d}/{:03d}'.format(script_name, i + 1, N_points))
 
                     tag = self.scripts[script_name].settings['tag']
@@ -224,6 +229,9 @@ Script.
                 for script_name in sorted_script_names[1:]:
                     if self._abort:
                         break
+                    if not ((i + 1) % self.settings['script_execution_freq'][
+                        script_name] == 0):  # i+1 so first execution is mth loop, not first
+                        continue
                     self.log('starting {:s}'.format(script_name))
                     tag = self.scripts[script_name].settings['tag']
                     tmp = tag + '_pt_{' + ':0{:d}'.format(len(str(N_points))) + '}'
@@ -470,7 +478,8 @@ Script.
                 return parameter_list
 
             sub_scripts = {}  # dictonary of script classes that are to be subscripts of the dynamic class. Should be in the dictionary form {'class_name': <class_object>} (btw. class_object is not the instance)
-            script_order = []  # A list of parameters giving the order that the scripts in the ScriptIterator should beexecuted. Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
+            script_order = []  # A list of parameters giving the order that the scripts in the ScriptIterator should be executed. Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
+            script_execution_freq = [] # A list of parameters giving the frequency with which each script should be executed
             _, script_class_name, script_settings, _, script_sub_scripts, _ = Script.get_script_information(script_information)
 
             iterator_type = ScriptIterator.get_iterator_type(script_settings, script_sub_scripts)
@@ -529,6 +538,12 @@ Script.
             for sub_script_name in script_settings['script_order'].keys():
                 script_order.append(Parameter(sub_script_name, script_settings['script_order'][sub_script_name], int,
                                               'Order in queue for this script'))
+                if sub_script_name == 'select_points':
+                    script_execution_freq.append(Parameter(sub_script_name, 0, int,
+                                              'How often the script gets executed ex. 1 is every loop, 3 is every third loop, 0 is never'))
+                else:
+                    script_execution_freq.append(Parameter(sub_script_name, 1, int,
+                                                           'How often the script gets executed ex. 1 is every loop, 3 is every third loop, 0 is never'))
 
             # assigning the actual script settings depending on the interator type
             if iterator_type == ScriptIterator.TYPE_SWEEP_PARAMETER:
@@ -536,6 +551,7 @@ Script.
 
                 script_default_settings = [
                     Parameter('script_order', script_order),
+                    Parameter('script_execution_freq', script_execution_freq),
                     Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
                     Parameter('sweep_range',
                               [Parameter('min_value', 0, float, 'min parameter value'),
@@ -548,11 +564,13 @@ Script.
             elif iterator_type == ScriptIterator.TYPE_LOOP:
                 script_default_settings = [
                     Parameter('script_order', script_order),
+                    Parameter('script_execution_freq', script_execution_freq),
                     Parameter('N', 0, int, 'times the subscripts will be executed')
                 ]
             elif iterator_type in (ScriptIterator.TYPE_ITER_NVS, ScriptIterator.TYPE_ITER_POINTS):
                 script_default_settings = [
-                    Parameter('script_order', script_order)
+                    Parameter('script_order', script_order),
+                    Parameter('script_execution_freq', script_execution_freq)
                 ]
             else:
                 raise TypeError('unknown iterator type')
