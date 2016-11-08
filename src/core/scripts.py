@@ -607,8 +607,6 @@ class Script(QObject):
                             df = pd.DataFrame.from_dict(value)
                         else:
                             # if not a dictionary
-                            print('KEY', key)
-                            print('VALUE', value)
                             df = pd.DataFrame(value)
 
                     df.to_csv(filename.replace('.csv', '-{:s}.csv'.format(key)), index=False)
