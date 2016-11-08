@@ -657,7 +657,7 @@ if __name__ == '__main__':
     pass
 
     #TODO: update example code
-    #OLD SAMPLE CODE WITH OUTDATED API
+    #OLD SAMPLE CODE WITH OUTDATED API, should update
     # from src.scripts import ScriptMinimalDummy
     #
     # import src.scripts
