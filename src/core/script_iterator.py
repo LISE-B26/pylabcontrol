@@ -158,8 +158,8 @@ Script.
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
-                    if not ((i + 1) % self.settings['script_execution_freq'][
-                        script_name] == 0):  # i+1 so first execution is mth loop, not first
+                    if self.settings['script_execution_freq'][script_name] == 0 \
+                            or not ((i + 1) % self.settings['script_execution_freq'][script_name] == 0):  # i+1 so first execution is mth loop, not first
                         continue
                     self.log('starting {:s}'.format(script_name))
 
@@ -179,7 +179,8 @@ Script.
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
-                    if not ((i + 1) % self.settings['script_execution_freq'][script_name] == 0): #i+1 so first execution is mth loop, not first
+                    if self.settings['script_execution_freq'][script_name] == 0 \
+                            or not ((i + 1) % self.settings['script_execution_freq'][script_name] == 0):  # i+1 so first execution is mth loop, not first
                         continue
                     self.log('starting {:s} {:03d}/{:03d}'.format(script_name, i + 1, N_points))
 
