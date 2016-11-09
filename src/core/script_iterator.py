@@ -217,16 +217,26 @@ Script.
             elif self.iterator_type == self.TYPE_ITER_POINTS:
                 set_point = self.scripts['set_laser'].settings['point']
 
+            #shift found by correlation
+            [x_shift, y_shift] = [0,0]
+
+            self.scripts['correlate_iter'].settings['baseline_image'] = self.scripts['select_points'].settings['image_data']
+            self.scripts['correlate_iter'].settings['baseline_extent'] = self.scripts['select_points'].settings['extent']
+
             points = self.scripts['select_points'].data['nv_locations']
             N_points = len(points)
 
             for i, pt in enumerate(points):
 
+                # account for displacements found by correlation
+                pt[0] += x_shift
+                pt[1] += y_shift
+
                 self.iterator_progress = 1. * i / N_points
 
                 set_point.update({'x': pt[0], 'y': pt[1]})
-                self.log('NV #{:03d} found near x = {:0.3e}, y = {:0.3e}'.format(i, pt[0], pt[1]))
-                # scip first script since that is the select NV script!
+                self.log('found NV near x = {:0.3e}, y = {:0.3e}'.format(pt[0], pt[1]))
+                # skip first script since that is the select NV script!
                 for script_name in sorted_script_names[1:]:
                     if self._abort:
                         break
@@ -239,6 +249,10 @@ Script.
                     self.scripts[script_name].settings['tag'] = tmp.format(i)
                     self.scripts[script_name].run()
                     self.scripts[script_name].settings['tag'] = tag
+                    #after correlation script runs, update new shift value
+                    if script_name == 'correlate_iter':
+                        [x_shift, y_shift] = self.scripts['correlate_iter'].settings['shift']
+
         else:
             raise TypeError('wrong iterator type')
 
@@ -512,8 +526,12 @@ Script.
                     sub_scripts.update(
                         {'find_nv': getattr(module, 'FindNV')}
                     )
+                    module, _, _, _, _, _ = Script.get_script_information('Take_And_Correlate_Images')
+                    sub_scripts.update(
+                        {'correlate_iter': getattr(module, 'Take_And_Correlate_Images')}
+                    )
                     script_settings['script_order'].update(
-                        {'select_points': -2, 'find_nv': -1}
+                        {'select_points': -3, 'correlate_iter': -2, 'find_nv': -1}
                     )
                 elif iterator_type == ScriptIterator.TYPE_ITER_POINTS:
                     module, _, _, _, _, _ = Script.get_script_information('SelectPoints')
@@ -524,9 +542,12 @@ Script.
                     sub_scripts.update(
                         {'set_laser': getattr(module, 'SetLaser')}
                     )
-
+                    module, _, _, _, _, _ = Script.get_script_information('Take_And_Correlate_Images')
+                    sub_scripts.update(
+                        {'correlate_iter': getattr(module, 'Take_And_Correlate_Images')}
+                    )
                     script_settings['script_order'].update(
-                        {'select_points': -2, 'set_laser': -1}
+                        {'select_points': -3, 'correlate_iter': -2, 'set_laser': -1}
                     )
             elif isinstance(script_information, Script):
                 # if the script already exists, just update the script order parameter

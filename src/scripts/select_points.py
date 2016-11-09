@@ -47,7 +47,7 @@ Script to select points on an image. The selected points are saved and can be us
         Waits until stopped to keep script live. Gui must handle calling of Toggle_NV function on mouse click.
         """
 
-        self.data = {'nv_locations': [], 'image_data': None}
+        self.data = {'nv_locations': [], 'image_data': None, 'extent': None}
 
         self.progress = 50
         self.updateProgress.emit(self.progress)
