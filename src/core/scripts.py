@@ -714,7 +714,7 @@ class Script(QObject):
         canvas_2 = FigureCanvas(fig_2)
 
         self.force_update()
-        print('printing....!')
+        # print('printing....!')
         self.plot([fig_1, fig_2])
 
         if filename_1 is not None and not axes_empty(fig_1.axes):

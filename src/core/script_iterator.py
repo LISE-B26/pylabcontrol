@@ -158,8 +158,9 @@ Script.
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
+                    j = i if self.settings['run_all_first'] else (i+1)
                     if self.settings['script_execution_freq'][script_name] == 0 \
-                            or not ((i + 1) % self.settings['script_execution_freq'][script_name] == 0):  # i+1 so first execution is mth loop, not first
+                            or not (j % self.settings['script_execution_freq'][script_name] == 0):  # i+1 so first execution is mth loop, not first
                         continue
                     self.log('starting {:s}'.format(script_name))
 
@@ -179,8 +180,9 @@ Script.
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
+                    j = i if self.settings['run_all_first'] else (i+1)
                     if self.settings['script_execution_freq'][script_name] == 0 \
-                            or not ((i + 1) % self.settings['script_execution_freq'][script_name] == 0):  # i+1 so first execution is mth loop, not first
+                            or not (j % self.settings['script_execution_freq'][script_name] == 0):  # i+1 so first execution is mth loop, not first
                         continue
                     self.log('starting {:s} {:03d}/{:03d}'.format(script_name, i + 1, N_points))
 
@@ -219,9 +221,10 @@ Script.
 
             #shift found by correlation
             [x_shift, y_shift] = [0,0]
+            shifted_pt = [0,0]
 
-            self.scripts['correlate_iter'].settings['baseline_image'] = self.scripts['select_points'].settings['image_data']
-            self.scripts['correlate_iter'].settings['baseline_extent'] = self.scripts['select_points'].settings['extent']
+            self.scripts['correlate_iter'].data['baseline_image'] = self.scripts['select_points'].data['image_data']
+            self.scripts['correlate_iter'].data['image_extent'] = self.scripts['select_points'].data['extent']
 
             points = self.scripts['select_points'].data['nv_locations']
             N_points = len(points)
@@ -229,19 +232,22 @@ Script.
             for i, pt in enumerate(points):
 
                 # account for displacements found by correlation
-                pt[0] += x_shift
-                pt[1] += y_shift
+                shifted_pt[0] = pt[0] + x_shift
+                shifted_pt[1] = pt[1] + y_shift
+
+                print('NV num: {:d}, shifted_pt: {:.3e}, {:.3e}', i, shifted_pt[0], shifted_pt[1])
 
                 self.iterator_progress = 1. * i / N_points
 
-                set_point.update({'x': pt[0], 'y': pt[1]})
-                self.log('found NV near x = {:0.3e}, y = {:0.3e}'.format(pt[0], pt[1]))
+                set_point.update({'x': shifted_pt[0], 'y': shifted_pt[1]})
+                self.log('found NV near x = {:0.3e}, y = {:0.3e}'.format(shifted_pt[0], shifted_pt[1]))
                 # skip first script since that is the select NV script!
                 for script_name in sorted_script_names[1:]:
                     if self._abort:
                         break
-                    if not ((i + 1) % self.settings['script_execution_freq'][
-                        script_name] == 0):  # i+1 so first execution is mth loop, not first
+                    j = i if self.settings['run_all_first'] else (i+1)
+                    if self.settings['script_execution_freq'][script_name] == 0 \
+                            or not (j % self.settings['script_execution_freq'][script_name] == 0):
                         continue
                     self.log('starting {:s}'.format(script_name))
                     tag = self.scripts[script_name].settings['tag']
@@ -251,7 +257,13 @@ Script.
                     self.scripts[script_name].settings['tag'] = tag
                     #after correlation script runs, update new shift value
                     if script_name == 'correlate_iter':
-                        [x_shift, y_shift] = self.scripts['correlate_iter'].settings['shift']
+                        [x_shift, y_shift] = self.scripts['correlate_iter'].data['shift']
+                        shifted_pt[0] = pt[0] + x_shift
+                        shifted_pt[1] = pt[1] + y_shift
+                        set_point.update({'x': shifted_pt[0], 'y': shifted_pt[1]})
+
+                        print('NV num: {:d}, shifted_pt: {:.3e}, {:.3e}', i, shifted_pt[0], shifted_pt[1])
+
 
         else:
             raise TypeError('wrong iterator type')
@@ -349,7 +361,7 @@ Script.
             else:
                 progress_subscript = 1. * progress_subscript / number_of_subscripts
 
-
+        # print(' === script iterator progress estimation loop_index = {:d}/{:d}, progress_subscript = {:f}'.format(loop_index, number_of_iterations, progress_subscript))
         self.progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / number_of_iterations
 
         self.updateProgress.emit(int(self.progress))
@@ -581,18 +593,21 @@ Script.
                                Parameter('N/value_step', 0, float,
                                          'either number of steps or parameter value step, depending on mode')]),
                     Parameter('stepping_mode', 'N', ['N', 'value_step'],
-                              'Switch between number of steps and step amount')
+                              'Switch between number of steps and step amount'),
+                    Parameter('run_all_first', True, bool, 'Run all scripts with nonzero frequency in first pass')
                 ]
             elif iterator_type == ScriptIterator.TYPE_LOOP:
                 script_default_settings = [
                     Parameter('script_order', script_order),
                     Parameter('script_execution_freq', script_execution_freq),
-                    Parameter('N', 0, int, 'times the subscripts will be executed')
+                    Parameter('N', 0, int, 'times the subscripts will be executed'),
+                    Parameter('run_all_first', True, bool, 'Run all scripts with nonzero frequency in first pass')
                 ]
             elif iterator_type in (ScriptIterator.TYPE_ITER_NVS, ScriptIterator.TYPE_ITER_POINTS):
                 script_default_settings = [
                     Parameter('script_order', script_order),
-                    Parameter('script_execution_freq', script_execution_freq)
+                    Parameter('script_execution_freq', script_execution_freq),
+                    Parameter('run_all_first', True, bool, 'Run all scripts with nonzero frequency in first pass')
                 ]
             else:
                 raise TypeError('unknown iterator type')
