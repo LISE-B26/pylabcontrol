@@ -99,3 +99,10 @@ However, we do not officially support other platforms at this time.
 + **How can we send feedback?**
 
 Feel free to create an issue on the issue tracker if you find any bugs, or contact the authors directly.
+
+## Known issues
++ **Latest version of anaconda forces you to install pyqt5.6 This results in an error running "PyLabControl --gui" because PyLabControl utilizes pyqt4.**
+
+Fix: revert back to pyqt4 for things to work, with a command like: conda install -c anaconda pyqt=4.11.4
+
+
