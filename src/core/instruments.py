@@ -21,6 +21,7 @@ from PyLabControl.src.core.read_write_functions import save_b26_file, get_config
 import os, inspect
 from importlib import import_module
 from PyLabControl.src.core.helper_functions import module_name_from_path
+
 class Instrument(object):
     '''
     generic instrument class
