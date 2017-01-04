@@ -375,7 +375,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                                 value = instrument.read_probes(elem)
                             except AssertionError: #if not in probes, get from settings instead
                                 value = instrument.settings[elem]
-                            child.setText(1, str(value))
+                            child.value = value
                     else:
                         update(child)
 
@@ -386,6 +386,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         for index in range(self.tree_settings.topLevelItemCount()):
             instrument = self.tree_settings.topLevelItem(index)
             update(instrument)
+        QtGui.QApplication.processEvents()
 
         self.tree_settings.blockSignals(False)
 
@@ -1145,7 +1146,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         refresh trees with current settings
         Args:
             tree: a QtGui.QTreeWidget object or a QtGui.QTreeView object
-            items: dictionary or Parameter items with wich to populate the tree
+            items: dictionary or Parameter items with which to populate the tree
             show_all: boolean if true show all parameters, if false only selected ones
         """
 

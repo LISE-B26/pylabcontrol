@@ -170,10 +170,18 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         item value
         """
         return self._value
+
     @value.setter
     def value(self, value):
         if Parameter.is_valid(value, self.valid_values):
             self._value = value
+            # check if there is a special case for setting such as a checkbox or combobox
+            if hasattr(self, 'check'):
+                self.check.setChecked(value)
+            elif hasattr(self, 'combobox'):
+                self.combobox.setCurrentIndex(self.combobox.findText(unicode(self.value)))
+            else: #for standard values
+                self.setData(1,0,value)
         else:
             if value is not None:
                 raise TypeError("wrong type {:s}, expected {:s}".format(str(value), str(self.valid_values)))
