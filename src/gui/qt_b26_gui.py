@@ -354,6 +354,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if current_tab == 'Instruments':
                 self.refresh_instruments()
+
         else:
             self.log('updating probes / instruments disabled while script is running!')
 
@@ -369,15 +370,25 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     if child.childCount() == 0:
                         instrument, path_to_instrument = child.get_instrument()
                         path_to_instrument.reverse()
-                        value = instrument.settings
                         for elem in path_to_instrument:
-                            value = value[elem]
+                            try:
+                                value = instrument.read_probes(elem)
+                            except AssertionError: #if not in probes, get from settings instead
+                                value = instrument.settings[elem]
+                            child.setText(1, str(value))
                     else:
                         update(child)
+
+        #need to block signals during update so that tree.itemChanged doesn't fire and the gui doesn't try to
+        #reupdate the instruments to their current value
+        self.tree_settings.blockSignals(True)
 
         for index in range(self.tree_settings.topLevelItemCount()):
             instrument = self.tree_settings.topLevelItem(index)
             update(instrument)
+
+        self.tree_settings.blockSignals(False)
+
 
     def plot_clicked(self, mouse_event):
         """
@@ -846,6 +857,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         if treeWidget == self.tree_settings:
 
             item = treeWidget.currentItem()
+
+
 
             instrument, path_to_instrument = item.get_instrument()
 
