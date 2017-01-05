@@ -386,7 +386,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         for index in range(self.tree_settings.topLevelItemCount()):
             instrument = self.tree_settings.topLevelItem(index)
             update(instrument)
-        QtGui.QApplication.processEvents()
 
         self.tree_settings.blockSignals(False)
 
@@ -516,6 +515,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             """
 
             item = self.tree_scripts.currentItem()
+            self.expanded_items = []
+            for index in range(self.tree_scripts.topLevelItemCount()):
+                someitem = self.tree_scripts.topLevelItem(index)
+                if someitem.isExpanded():
+                    self.expanded_items.append(someitem.name)
             self.script_start_time = datetime.datetime.now()
 
 
@@ -967,6 +971,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.progressBar.setValue(100)
         self.btn_start_script.setEnabled(True)
         self.btn_skip_subscript.setEnabled(False)
+
+        self.refresh_tree(self.tree_scripts, self.scripts)
+        for item_name in self.expanded_items:
+            self.tree_scripts.expandItem(self.tree_scripts.findItems(item_name, QtCore.Qt.MatchFixedString)[0])
 
     def plot_script_validate(self, script):
         """

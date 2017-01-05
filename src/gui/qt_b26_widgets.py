@@ -49,7 +49,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
         """
 
-        super(B26QTreeItem, self ).__init__( parent )
+        super(B26QTreeItem, self ).__init__(parent)
 
         self.name = name
         self.valid_values = valid_values
