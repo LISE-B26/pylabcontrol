@@ -513,9 +513,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             """
             starts the selected script
             """
+            item = self.tree_scripts.currentItem()
 
             # BROKEN 20170109: repeatedly erases updates to gui
-            # item = self.tree_scripts.currentItem()
             # self.expanded_items = []
             # for index in range(self.tree_scripts.topLevelItemCount()):
             #     someitem = self.tree_scripts.topLevelItem(index)
@@ -566,7 +566,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
             else:
-                self.log('User stupidly tried to run a script without one selected.')
+                self.log('User tried to run a script without one selected.')
         def stop_button():
             """
             stops the current script
