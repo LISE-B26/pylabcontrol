@@ -35,6 +35,7 @@ import sys
 
 import datetime
 from collections import deque
+import operator
 
 
 
@@ -362,6 +363,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
         if self.tree_settings has been expanded, ask instruments for their actual values
         """
+        def list_access_nested_dict(dict, somelist):
+            """
+            Allows one to use a list to access a nested dictionary, for example:
+            listAccessNestedDict({'a': {'b': 1}}, ['a', 'b']) returns 1
+            Args:
+                dict:
+                somelist:
+
+            Returns:
+
+            """
+            return reduce(operator.getitem, somelist, dict)
+
         def update(item):
             if item.isExpanded():
                 for index in range(item.childCount()):
@@ -370,12 +384,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     if child.childCount() == 0:
                         instrument, path_to_instrument = child.get_instrument()
                         path_to_instrument.reverse()
-                        for elem in path_to_instrument:
-                            try:
-                                value = instrument.read_probes(elem)
-                            except AssertionError: #if not in probes, get from settings instead
-                                value = instrument.settings[elem]
-                            child.value = value
+                        try: #check if item is in probes
+                            value = instrument.read_probes(path_to_instrument[-1])
+                        except AssertionError: #if item not in probes, get value from settings instead
+                            value = list_access_nested_dict(instrument.settings, path_to_instrument)
+                        child.value = value
                     else:
                         update(child)
 
@@ -526,6 +539,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if item is not None:
                 # get script and update settings from tree
+                self.running_item = item
                 script, path_to_script, script_item = item.get_script()
 
                 print('update11!!', script_item, script)
@@ -972,6 +986,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.progressBar.setValue(100)
         self.btn_start_script.setEnabled(True)
         self.btn_skip_subscript.setEnabled(False)
+
+        path_to_running_item = []
+        cur_item = self.running_item
+        while not cur_item == self.tree_scripts:
+            path_to_running_item.append(cur_item.name)
+            cur_item = cur_item.parent()
 
         # BROKEN 20170109
         # self.refresh_tree(self.tree_scripts, self.scripts)
