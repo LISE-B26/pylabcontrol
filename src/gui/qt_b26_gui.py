@@ -902,12 +902,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 new_value = item.value
 
 
-                msg = "changed parameter {:s} to {:s} on {:s}".format(item.name,
+                msg = "changed parameter {:s} to {:s} in {:s}".format(item.name,
                                                                                 str(new_value),
                                                                                 script.name)
             else:
                 new_value = item.value
-                msg = "changed parameter {:s} to {:s} on {:s}".format(item.name,
+                msg = "changed parameter {:s} to {:s} in {:s}".format(item.name,
                                                                             str(new_value),
                                                                             script.name)
             self.log(msg)

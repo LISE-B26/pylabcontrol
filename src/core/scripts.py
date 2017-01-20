@@ -203,6 +203,7 @@ class Script(QObject):
 
         self.log_data.append(string)
         if self.log_function is None:
+            print('log sent to print out: ')
             print(string)
         else:
             self.log_function(string)
@@ -400,7 +401,6 @@ class Script(QObject):
 
         # update the datapath of the subscripts, connect their progress signal to the receive slot
         for subscript in self.scripts.values():
-            print('==== connecting', subscript.name)
             subscript.data_path = os.path.join(self.filename(create_if_not_existing=False), self.SUBSCRIPT_DATA_DIR)
             subscript.updateProgress.connect(self._receive_signal)
             subscript.started.connect(lambda: self._set_current_subscript(True))

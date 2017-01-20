@@ -64,7 +64,6 @@ Script to select points on an image. The selected points are saved and can be us
         Args:
             figure_list:
         '''
-        print('aaaa', self.data)
         # if there is not image data get it from the current plot
         if not self.data == {} and self.data['image_data'] is  None:
             axes = figure_list[0].axes[0]
