@@ -37,6 +37,8 @@ class Instrument(object):
     def __init__(self, name=None, settings=None):
 
         self._initialized = True
+        self._settings_initialized = False
+
         # make a deepcopy of the default settings
         # because _DEFAULT_SETTINGS is a class variable and thus shared among the instances
         self._settings = deepcopy(self._DEFAULT_SETTINGS)
@@ -50,6 +52,8 @@ class Instrument(object):
 
         if settings is not None:
             self.update(settings)
+
+        self._settings_initialized = True
 
 
     # apply settings to instrument should be carried out in derived class
@@ -144,16 +148,16 @@ class Instrument(object):
         #     raise AttributeError('class ' + type(self).__name__ + ' has no attribute ' + str(name))
 
         if not str(name) in ['_initialized', '_settings']:
-            # try:
-            print('xxxxx', name)
-            xx = self.read_probes(name)
-            print(xx)
-            return xx
+            try:
+                print('xxxxx', name)
+                xx = self.read_probes(name)
+                print(xx)
+                return xx
                 # return self.read_probes(name)
-            # except:
-            #     # restores standard behavior for missing keys
-            #     print('class ' + type(self).__name__ + ' has no attribute ' + str(name))
-            #     raise AttributeError('class ' + type(self).__name__ + ' has no attribute ' + str(name))
+            except:
+                # restores standard behavior for missing keys
+                print('class ' + type(self).__name__ + ' has no attribute ' + str(name))
+                raise AttributeError('class ' + type(self).__name__ + ' has no attribute ' + str(name))
 
 
     def __setattr__(self, key, value):
@@ -334,7 +338,7 @@ class Instrument(object):
                         instrument_instance = class_of_instrument(name=instrument_name)
                     else:
                         # this creates an instance of the class with custom settings
-                        instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
+                        instrument_instance = class_of_instrument(name=instrument_name,  settings=instrument_settings)
 
 
                 updated_instruments[instrument_name] = instrument_instance
