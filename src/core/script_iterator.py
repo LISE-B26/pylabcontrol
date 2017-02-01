@@ -197,6 +197,7 @@ Script.
                     self.data.update(self.scripts[script_name].data)
                 else:
                     for key in self.scripts[script_name].data.keys():
+                        print('sadada script_name', script_name, key)
                         if isinstance(self.data[key], list):
                             self.data[key] += np.array(self.scripts[script_name].data[key])
                         elif isinstance(self.data[key], dict):
