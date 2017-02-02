@@ -987,19 +987,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.btn_start_script.setEnabled(True)
         self.btn_skip_subscript.setEnabled(False)
 
-        path_to_running_item = []
-        cur_item = self.running_item
-
-
-        while not cur_item == self.tree_scripts:
-            path_to_running_item.append(cur_item.name)
-            cur_item = cur_item.parent()
-
-        # BROKEN 20170109
-        # self.refresh_tree(self.tree_scripts, self.scripts)
-        # for item_name in self.expanded_items:
-        #     self.tree_scripts.expandItem(self.tree_scripts.findItems(item_name, QtCore.Qt.MatchFixedString)[0])
-
     def plot_script_validate(self, script):
         """
         checks the plottype of the script and plots it accordingly
