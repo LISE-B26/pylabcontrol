@@ -989,6 +989,8 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         path_to_running_item = []
         cur_item = self.running_item
+
+
         while not cur_item == self.tree_scripts:
             path_to_running_item.append(cur_item.name)
             cur_item = cur_item.parent()
