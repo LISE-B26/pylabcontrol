@@ -194,6 +194,9 @@ class Script(QObject):
         # some generic function
         raise NotImplementedError
 
+    #todo: 170202JG (search for this to find related todos)
+    # make this a slot
+    # @pyqtSlot(bool)
     def log(self, string):
         """
         appends input string to log file and sends it to log function (self.log_function)
@@ -407,6 +410,10 @@ class Script(QObject):
             subscript.finished.connect(lambda: self._set_current_subscript(False))
             self._current_subscript_stage['subscript_exec_count'].update({subscript.name:0})
             self._current_subscript_stage['subscript_exec_duration'].update({subscript.name: datetime.timedelta(0)})
+
+                #todo: 170202JG (search for this to find related todos) need to test this:
+                # do we need to connect the log functions of the subscript to the mother script?, e.g
+                # subscript.log.connect(self.log)
 
 
         self.log('starting script {:s} at {:s} on {:s}'.format(self.name, self.start_time.strftime('%H:%M:%S'),self.start_time.strftime('%d/%m/%y')))
