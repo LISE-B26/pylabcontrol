@@ -198,6 +198,15 @@ Script.
                 else:
                     for key in self.scripts[script_name].data.keys():
                         print('sadada script_name', script_name, key)
+
+                        # can't add None values
+                        if self.scripts[script_name].data[key] is None:
+                            continue
+                        # if subscript data have differnet length, e.g. fitparameters can be differet, depending on if there is one or two peaks
+                        if len(self.data[key]) != len(self.scripts[script_name].data[key]):
+                            print('warning subscript data {:s} have differnt lenghts'.format(key))
+                            continue
+
                         if isinstance(self.data[key], list):
                             self.data[key] += np.array(self.scripts[script_name].data[key])
                         elif isinstance(self.data[key], dict):
