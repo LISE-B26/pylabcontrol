@@ -52,12 +52,31 @@ except (ImportError, IOError):
     # print('Warning: on-the-fly conversion of basic_application_window.ui file failed, loaded .py file instead.')
 
 
+class CustomEventFilter(QtCore.QObject):
+    def eventFilter(self, QObject, QEvent):
+        if (QEvent.type() == QtCore.QEvent.Wheel):
+            QEvent.ignore()
+            return True
+
+        return QtGui.QWidget.eventFilter(QObject, QEvent)
+
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     # application_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     # application_path = os.path.dirname(application_path) # go one level lower
     application_path = os.path.abspath(os.path.curdir)
+
+    #myFilter = CustomEventFilter()
+    #QMainWindow.installEventFilter(myFilter)
+
+    #self.installEventFilter(self)
+    #def eventFilter(self, QObject, QEvent):
+    #    if (QEvent.type() == QtCore.QEvent.Wheel):
+    #        QEvent.ignore()
+    #        return True
+    #
+    #    return QtGui.QWidget.eventFilter(QObject, QEvent)
 
     _DEFAULT_CONFIG = {
         # "tmp_folder": "../../b26_tmp",
@@ -1401,8 +1420,16 @@ class CustomEditorFactory(QtGui.QItemEditorFactory):
         if type == QtCore.QVariant.Double or type == QtCore.QVariant.Int:
             spin_box = QtGui.QLineEdit(QWidget)
             return spin_box
+
+        if type == QtCore.QVariant.List or type == QtCore.QVariant.StringList:
+            combo_box = QtGui.QComboBox(QWidget)
+            combo_box.setFocusPolicy(QtCore.Qt.StrongFocus)
+            return combo_box
+
         else:
             return super(CustomEditorFactory, self).createEditor(type, QWidget)
+
+
 
 
 

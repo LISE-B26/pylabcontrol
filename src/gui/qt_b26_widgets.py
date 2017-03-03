@@ -71,12 +71,13 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         self.setForeground(0, QtGui.QColor(255, 0, 0))
 
         if isinstance(self.valid_values, list):
-            self.combobox = QtGui.QComboBox()
+            self.combo_box = QtGui.QComboBox()
             for item in self.valid_values:
-                self.combobox.addItem(unicode(item))
-            self.combobox.setCurrentIndex(self.combobox.findText(unicode(self.value)))
-            self.treeWidget().setItemWidget( self, 1, self.combobox)
-            self.combobox.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combobox))
+                self.combo_box.addItem(unicode(item))
+            self.combo_box.setCurrentIndex(self.combo_box.findText(unicode(self.value)))
+            self.treeWidget().setItemWidget( self, 1, self.combo_box)
+            self.combo_box.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combo_box))
+            self.combo_box.setFocusPolicy(QtCore.Qt.StrongFocus)
             self._visible = False
 
         elif self.valid_values is bool:
@@ -111,12 +112,13 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             else:
                 self.valid_values = [self.value.name]
                 self.value = self.value.name
-                self.combobox = QtGui.QComboBox()
+                self.combo_box = QtGui.QComboBox()
                 for item in self.valid_values:
-                    self.combobox.addItem(unicode(item))
-                self.combobox.setCurrentIndex(self.combobox.findText(unicode(self.value)))
-                self.treeWidget().setItemWidget(self, 1, self.combobox)
-                self.combobox.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combobox))
+                    self.combo_box.addItem(unicode(item))
+                self.combo_box.setCurrentIndex(self.combo_box.findText(unicode(self.value)))
+                self.treeWidget().setItemWidget(self, 1, self.combo_box)
+                self.combo_box.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combo_box))
+                self.combo_box.setFocusPolicy(QtCore.Qt.StrongFocus)
                 # todo: change so that all the instruments of the same type can be selected in the gui
                 # B26QTreeItem(self, 'instance', self.value.name, self.value, 'instrument '.format(self.value.name),visible=self.visible)
 
@@ -178,8 +180,8 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             # check if there is a special case for setting such as a checkbox or combobox
             if hasattr(self, 'check'):
                 self.check.setChecked(value)
-            elif hasattr(self, 'combobox'):
-                self.combobox.setCurrentIndex(self.combobox.findText(unicode(self.value)))
+            elif hasattr(self, 'combo_box'):
+                self.combo_box.setCurrentIndex(self.combo_box.findText(unicode(self.value)))
             else: #for standard values
                 self.setData(1,0,value)
         else:
