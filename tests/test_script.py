@@ -19,8 +19,8 @@
 
 from unittest import TestCase
 
-from src.core import Script
-from src.scripts.script_dummy import ScriptDummySaveData
+from PyLabControl.src.core import Script
+from PyLabControl.src.scripts.script_dummy import ScriptDummySaveData
 
 class TestInstrument(TestCase):
 

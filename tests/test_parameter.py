@@ -19,7 +19,7 @@
 
 from unittest import TestCase
 from copy import deepcopy
-from src.core.instruments import Parameter
+from PyLabControl.src.core import Parameter
 from PyQt4 import QtCore
 class TestParameter(TestCase):
 
