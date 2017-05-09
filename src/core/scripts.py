@@ -975,7 +975,6 @@ class Script(QObject):
                 instrument_settings = deepcopy(instrument_instance._DEFAULT_SETTINGS)
                 #now update parameter object with new values
 
-
                 instrument_settings.update(instrument_settings_dict)
 
 

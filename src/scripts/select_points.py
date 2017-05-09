@@ -28,7 +28,9 @@ class SelectPoints(Script):
     """
 Script to select points on an image. The selected points are saved and can be used in a superscript to iterate over.
     """
-    _DEFAULT_SETTINGS = [Parameter('patch_size', 0.003)]
+    _DEFAULT_SETTINGS = [Parameter('patch_size', 0.003),
+                         Parameter('max_counts_plot', -1, int, 'Rescales colorbar with this as the maximum counts on replotting'),
+                         ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}
@@ -65,7 +67,7 @@ Script to select points on an image. The selected points are saved and can be us
             figure_list:
         '''
         # if there is not image data get it from the current plot
-        if not self.data == {} and self.data['image_data'] is  None:
+        if not self.data == {} and self.data['image_data'] is None:
             axes = figure_list[0].axes[0]
             if len(axes.images)>0:
                 self.data['image_data'] = np.array(axes.images[0].get_array())
@@ -91,7 +93,10 @@ Script to select points on an image. The selected points are saved and can be us
         axes = axes_list[0]
 
         if self.plot_settings:
-            axes.imshow(self.data['image_data'], cmap=self.plot_settings['cmap'], interpolation=self.plot_settings['interpol'], extent=self.data['extent'])
+            if self.settings['max_counts_plot'] < 0:
+                axes.imshow(self.data['image_data'], cmap=self.plot_settings['cmap'], interpolation=self.plot_settings['interpol'], extent=self.data['extent'])
+            else:
+                axes.imshow(self.data['image_data'], cmap=self.plot_settings['cmap'], interpolation=self.plot_settings['interpol'], extent=self.data['extent'], vmax = self.settings['max_counts_plot'])
             axes.set_xlabel(self.plot_settings['xlabel'])
             axes.set_ylabel(self.plot_settings['ylabel'])
             axes.set_title(self.plot_settings['title'])

@@ -178,7 +178,7 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
             -scripts (exports scripts)
             -instruments (exports instruments)
             -all (exports instruments, scripts and probes)
-        target_folder: target folder where .b26 files are created
+        target_folder: target folder whereb   .b26 files are created
     Returns:
 
     """

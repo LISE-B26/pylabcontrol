@@ -581,6 +581,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             else:
                 self.log('User tried to run a script without one selected.')
+
         def stop_button():
             """
             stops the current script
@@ -600,6 +601,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.current_script.skip_next()
             else:
                 self.log('User clicked skip, but there isn\'t a iterator script running...this is awkward.')
+
         def validate_button():
             """
             validates the selected script
@@ -613,6 +615,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 script.plot_validate([self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure])
                 self.matplotlibwidget_1.draw()
                 self.matplotlibwidget_2.draw()
+
         def store_script_data():
             """
             updates the internal self.data_sets with selected script and updates tree self.fill_dataset_tree

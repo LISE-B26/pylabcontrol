@@ -172,6 +172,9 @@ Script.
         elif self.iterator_type == self.TYPE_LOOP:
 
             N_points = self.settings['N']
+            if N_points == 0:
+                print('Loop set to run 0 times')
+                return
             self.data = {}
 
             for i in range(0, N_points):
@@ -546,7 +549,7 @@ Script.
                     )
                     module, _, _, _, _, _ = Script.get_script_information('FindNV')
                     sub_scripts.update(
-                        {'find_nv': getattr(module, 'FindNV')}
+                        {'find_nv': getattr(module, 'FindNV_cDAQ')}
                     )
                     module, _, _, _, _, _ = Script.get_script_information('Take_And_Correlate_Images')
                     sub_scripts.update(
