@@ -33,7 +33,7 @@ def run_gui(fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_con
     app = QtGui.QApplication(sys.argv)
     # fname = 'c:\\b26_tmp\\pythonlab_config_dummy.b26'
     # fname = 'c:\\b26_tmp\\pythonlab_config3a.b26'
-    fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_configt1.b26'
+    fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_config2.b26'
 
     # fname = 'c:\\b26_tmp\\pythonlab_config_safsafaf1.b26'
 
@@ -59,7 +59,7 @@ along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.")
         ex.raise_()
         sys.exit(app.exec_())
 
-    except ValueError, e:
+    except ValueError as e:
 
         if not e.message in['No config file was provided. abort loading gui...', '']:
             raise e
