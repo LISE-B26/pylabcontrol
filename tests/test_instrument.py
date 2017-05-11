@@ -18,7 +18,7 @@
 
 from unittest import TestCase
 
-from src.core import Instrument, Parameter
+from PyLabControl.src.core import Instrument, Parameter
 
 
 class TestInstrument(TestCase):

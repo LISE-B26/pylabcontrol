@@ -17,7 +17,7 @@
 # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from src.core import instantiate_instruments, Probe
+from PyLabControl.src.core import instantiate_instruments, Probe
 
 class TestProbe(TestCase):
 
