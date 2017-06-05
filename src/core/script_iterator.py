@@ -196,6 +196,10 @@ Script.
                 if i == 0:
                     self.data.update(self.scripts[script_name].data)
                 else:
+                    # JG (20170605: error occurs when the script is aborted)
+                    if self._abort:
+                        break
+
                     for key in self.scripts[script_name].data.keys():
                         print('sadada script_name', script_name, key)
 
@@ -213,14 +217,22 @@ Script.
                             self.data[key] = {x: self.data[key].get(x, 0) + self.scripts[script_name].data[key].get(x, 0) for x in self.data[key].keys()}
                         else:
                             self.data[key] += self.scripts[script_name].data[key]
-            # normalize data because we just kept adding the values
-            for key in self.scripts[script_name].data.keys():
-                if isinstance(self.data[key], list):
-                    self.data[key] = np.array(self.data[key]) / N_points
-                elif isinstance(self.data[key], dict):
-                    self.data[key] = {k:v/N_points for k, v in self.data[key].iteritems()}
-                else:
-                    self.data[key] = self.data[key] / N_points
+
+            # JG (20170605: error occurs when the script is aborted)
+            if not self._abort:
+
+                # normalize data because we just kept adding the values
+                for key in self.scripts[script_name].data.keys():
+                    if isinstance(self.data[key], list):
+                        self.data[key] = np.array(self.data[key]) / N_points
+                    elif isinstance(self.data[key], dict):
+                        self.data[key] = {k:v/N_points for k, v in self.data[key].iteritems()}
+                    elif isinstance(self.data[key], None):
+                        print('JG none type in data!! check code')
+                    elif isinstance(self.data[key], int):
+                        self.data[key] = float(self.data[key]) / N_points # if int we can not devide. Thus we convert explicitely to float
+                    else:
+                        self.data[key] = self.data[key] / N_points
 
         elif self.iterator_type in (self.TYPE_ITER_NVS, self.TYPE_ITER_POINTS):
 
@@ -525,6 +537,7 @@ Script.
 
                 for sub_script_name, sub_script_class in script_sub_scripts.iteritems():
                     if isinstance(sub_script_class, Script):
+                        print('JG: script name ', Script.name)
                         # script already exists
                         raise NotImplementedError
                     elif script_sub_scripts[sub_script_name]['class'] == 'ScriptIterator':

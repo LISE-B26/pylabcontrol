@@ -101,7 +101,7 @@ class Script(QObject):
         self.start_time = datetime.datetime.now()
         self.end_time = self.start_time - datetime.timedelta(seconds=1)
 
-        self._settings = deepcopy(Parameter(self._DEFAULT_SETTINGS+ Script._DEFAULT_SETTINGS))
+        self._settings = deepcopy(Parameter(self._DEFAULT_SETTINGS + Script._DEFAULT_SETTINGS))
         self._settings.update({'tag':self.name.lower()})
         if settings is not None:
             self.update(settings)
