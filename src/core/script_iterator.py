@@ -196,7 +196,6 @@ Script.
                 if i == 0:
                     self.data.update(self.scripts[script_name].data)
                 else:
-                    # JG (20170605: error occurs when the script is aborted)
                     if self._abort:
                         break
 
@@ -218,7 +217,6 @@ Script.
                         else:
                             self.data[key] += self.scripts[script_name].data[key]
 
-            # JG (20170605: error occurs when the script is aborted)
             if not self._abort:
 
                 # normalize data because we just kept adding the values
