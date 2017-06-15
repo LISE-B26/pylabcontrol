@@ -206,14 +206,20 @@ Script.
                         if self.scripts[script_name].data[key] is None:
                             continue
                         # if subscript data have differnet length, e.g. fitparameters can be differet, depending on if there is one or two peaks
-                        if len(self.data[key]) != len(self.scripts[script_name].data[key]):
-                            print('warning subscript data {:s} have differnt lenghts'.format(key))
-                            continue
+
+                        #ER 2017 throws error if two peaks are found....
+
+                      #  if len(self.data[key]) != len(self.scripts[script_name].data[key]):
+                      #      print('warning subscript data {:s} have differnt lenghts'.format(key))
+                      #     continue
 
                         if isinstance(self.data[key], list):
                             self.data[key] += np.array(self.scripts[script_name].data[key])
                         elif isinstance(self.data[key], dict):
                             self.data[key] = {x: self.data[key].get(x, 0) + self.scripts[script_name].data[key].get(x, 0) for x in self.data[key].keys()}
+                        elif self.data is None:
+                            # if no data was acquired ignore adding data. This might happen when a fit fails
+                            pass
                         else:
                             self.data[key] += self.scripts[script_name].data[key]
 
