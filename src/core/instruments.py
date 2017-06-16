@@ -99,7 +99,7 @@ class Instrument(object):
 
         """
 
-        print('xxxxx', key, self._PROBES())
+        print('xxxxx probes', key, self._PROBES())
 
         if key is None:
             # return the value all probe in dictionary form
@@ -149,7 +149,7 @@ class Instrument(object):
 
         if not str(name) in ['_initialized', '_settings']:
             try:
-                print('xxxxx', name)
+                print('xxxxx name', name)
                 xx = self.read_probes(name)
                 print(xx)
                 return xx
