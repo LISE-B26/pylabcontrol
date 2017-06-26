@@ -149,9 +149,9 @@ class Instrument(object):
 
         if not str(name) in ['_initialized', '_settings']:
             try:
-                print('xxxxx name', name)
+                # print('xxxxx name', name)
                 xx = self.read_probes(name)
-                print(xx)
+                # print(xx)
                 return xx
                 # return self.read_probes(name)
             except:
