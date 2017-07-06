@@ -113,6 +113,7 @@ class Parameter(dict):
         for d in args:
             for key, value in d.iteritems():
                 self.__setitem__(key, value)
+
     @property
     def visible(self):
         """
@@ -121,6 +122,7 @@ class Parameter(dict):
 
         """
         return self._visible
+
 
     @property
     def valid_values(self):
