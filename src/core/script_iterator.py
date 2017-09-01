@@ -218,7 +218,7 @@ Script.
                             else:
                                 self.data[key] += self.scripts[script_name].data[key]
 
-            if not self._abort:
+            if not self._abort and N_points >0:
 
                 # normalize data because we just kept adding the values
                 for key in self.scripts[script_name].data.keys():
