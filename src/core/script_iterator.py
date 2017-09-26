@@ -19,6 +19,7 @@
 from PyLabControl.src.core import Parameter, Script
 import numpy as np
 from PyQt4.QtCore import pyqtSlot
+from collections import deque
 import datetime
 import warnings
 import inspect
@@ -193,35 +194,39 @@ Script.
                     self.scripts[script_name].settings['tag'] = tag
 
                 # from the last script we take the average of the data as the data of the iterator script
+                if isinstance(self.scripts[script_name].data, dict):
+                    data = self.scripts[script_name].data
+                elif isinstance(self.scripts[script_name].data, deque):
+                    data = self.scripts[script_name].data[-1]
                 if i == 0:
-                    self.data.update(self.scripts[script_name].data)
+                    self.data.update(data)
                 else:
                     if self._abort:
                         break
 
-                    for key in self.scripts[script_name].data.keys():
+                    for key in data.keys():
                         print('sadada script_name', script_name, key)
 
                         # can't add None values
-                        if self.scripts[script_name].data[key] is None:
+                        if data[key] is None:
                             continue
                         else:
                             # if subscript data have differnet length, e.g. fitparameters can be differet, depending on if there is one or two peaks
-                            if len(self.data[key]) != len(self.scripts[script_name].data[key]):
+                            if len(self.data[key]) != len(data[key]):
                                 print('warning subscript data {:s} have differnt lenghts'.format(key))
                                 continue
 
                             if isinstance(self.data[key], list):
-                                self.data[key] += np.array(self.scripts[script_name].data[key])
+                                self.data[key] += np.array(data[key])
                             elif isinstance(self.data[key], dict):
-                                self.data[key] = {x: self.data[key].get(x, 0) + self.scripts[script_name].data[key].get(x, 0) for x in self.data[key].keys()}
+                                self.data[key] = {x: self.data[key].get(x, 0) + data[key].get(x, 0) for x in self.data[key].keys()}
                             else:
-                                self.data[key] += self.scripts[script_name].data[key]
+                                self.data[key] += data[key]
 
             if not self._abort and N_points >0:
 
                 # normalize data because we just kept adding the values
-                for key in self.scripts[script_name].data.keys():
+                for key in data.keys():
                     if isinstance(self.data[key], list):
                         self.data[key] = np.array(self.data[key]) / N_points
                     elif isinstance(self.data[key], dict):
