@@ -562,7 +562,8 @@ Script.
                     )
                     module, _, _, _, _, _ = Script.get_script_information('FindNV')
                     sub_scripts.update(
-                        {'find_nv': getattr(module, 'FindNV_cDAQ')}
+                  #      {'find_nv': getattr(module, 'FindNV_cDAQ')}
+                        {'find_nv': getattr(module, 'FindNV')}
                     )
                     module, _, _, _, _, _ = Script.get_script_information('Take_And_Correlate_Images')
                     sub_scripts.update(
