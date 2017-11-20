@@ -28,7 +28,12 @@ class SelectPoints(Script):
     """
 Script to select points on an image. The selected points are saved and can be used in a superscript to iterate over.
     """
-    _DEFAULT_SETTINGS = [Parameter('patch_size', 0.003)]
+    _DEFAULT_SETTINGS = [
+        Parameter('patch_size', 0.003),
+        Parameter('type', 'free', ['free', 'square', 'line']),
+        Parameter('Nx', 5, int, 'number of points along x (type: square) along line (type: line)'),
+        Parameter('Ny', 5, int, 'number of points along y (type: square)')
+    ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}
@@ -138,6 +143,7 @@ Script to select points on an image. The selected points are saved and can be us
         Poststate: updates selected list
 
         '''
+
         if not self.data['nv_locations']: #if self.data is empty so this is the first point
             self.data['nv_locations'].append(pt)
             self.data['image_data'] = None # clear image data
@@ -155,6 +161,23 @@ Script to select points on an image. The selected points are saved and can be us
             else:
                 self.data['nv_locations'].append(pt)
 
+        # if type is not free we calculate the total points of locations from the first selected points
+        if self.settings['type'] == 'square' and len(self.data['nv_locations'])>1:
+
+            Nx, Ny = self.settings['Nx'], self.settings['Ny']
+            pta = self.data['nv_locations'][0]
+            ptb = self.data['nv_locations'][1]
+            tmp  = np.array([[[pta[0] + 1.0*i*(ptb[0]-pta[0])/(Nx-1), pta[1] + 1.0*j*(ptb[1]-pta[1])/(Ny-1)] for i in range(Nx)] for j in range(Ny)])
+            self.data['nv_locations'] = np.reshape(tmp, (Nx * Ny, 2))
+            self.stop()
+
+
+        elif self.settings['type'] == 'line' and len(self.data['nv_locations'])>1:
+            N = self.settings['Nx']
+            pta = self.data['nv_locations'][0]
+            ptb = self.data['nv_locations'][1]
+            self.data['nv_locations']  = [np.array([pta[0] + 1.0*i*(ptb[0]-pta[0])/(N-1), pta[1] + 1.0*i*(ptb[1]-pta[1])/(N-1)]) for i in range(N)]
+            self.stop()
 
 if __name__ == '__main__':
 

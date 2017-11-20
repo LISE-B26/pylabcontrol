@@ -57,6 +57,8 @@ Script.
 
         self._current_subscript_stage = None
 
+        self._skippable = True
+
     @staticmethod
     def get_iterator_type(script_settings, subscripts={}):
         """
