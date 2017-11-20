@@ -22,10 +22,6 @@ from PyLabControl.src.core import Instrument, Script, ScriptIterator
 from importlib import import_module
 from PyLabControl.src.core.helper_functions import module_name_from_path
 
-
-
-
-
 def get_classes_in_folder( folder_name, class_type):
     """
     load all the instruments objects that are located in folder_name and
