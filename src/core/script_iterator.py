@@ -269,7 +269,7 @@ Script.
                 self.iterator_progress = 1. * i / N_points
 
                 set_point.update({'x': shifted_pt[0], 'y': shifted_pt[1]})
-                self.log('found NV near x = {:0.3e}, y = {:0.3e}'.format(shifted_pt[0], shifted_pt[1]))
+                self.log('found NV {:03d} near x = {:0.3e}, y = {:0.3e}'.format(i, shifted_pt[0], shifted_pt[1]))
                 # skip first script since that is the select NV script!
                 for script_name in sorted_script_names[1:]:
                     if self._abort:
