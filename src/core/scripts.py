@@ -728,6 +728,7 @@ class Script(QObject):
             fig_1.savefig(filename_1)
         if filename_2 is not None and not axes_empty(fig_2.axes):
             fig_2.savefig(filename_2)
+
     def save(self, filename):
         """
         saves the instance of the script to a file using pickle
@@ -742,6 +743,7 @@ class Script(QObject):
             filename = '\\\\?\\' + filename
         with open(filename, 'w') as outfile:
             outfile.write(cPickle.dumps(self.__dict__))
+
     @staticmethod
     def load(filename, instruments = None):
         """

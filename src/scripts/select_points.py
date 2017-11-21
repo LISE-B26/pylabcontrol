@@ -28,9 +28,12 @@ class SelectPoints(Script):
     """
 Script to select points on an image. The selected points are saved and can be used in a superscript to iterate over.
     """
-    _DEFAULT_SETTINGS = [Parameter('patch_size', 0.003),
-                         Parameter('max_counts_plot', -1, int, 'Rescales colorbar with this as the maximum counts on replotting'),
-                         ]
+    _DEFAULT_SETTINGS = [
+        Parameter('patch_size', 0.003),
+        Parameter('type', 'free', ['free', 'square', 'line']),
+        Parameter('Nx', 5, int, 'number of points along x (type: square) along line (type: line)'),
+        Parameter('Ny', 5, int, 'number of points along y (type: square)')
+    ]
 
     _INSTRUMENTS = {}
     _SCRIPTS = {}
@@ -67,7 +70,7 @@ Script to select points on an image. The selected points are saved and can be us
             figure_list:
         '''
         # if there is not image data get it from the current plot
-        if not self.data == {} and self.data['image_data'] is None:
+        if not self.data == {} and self.data['image_data'] is  None:
             axes = figure_list[0].axes[0]
             if len(axes.images)>0:
                 self.data['image_data'] = np.array(axes.images[0].get_array())
@@ -93,10 +96,7 @@ Script to select points on an image. The selected points are saved and can be us
         axes = axes_list[0]
 
         if self.plot_settings:
-            if self.settings['max_counts_plot'] < 0:
-                axes.imshow(self.data['image_data'], cmap=self.plot_settings['cmap'], interpolation=self.plot_settings['interpol'], extent=self.data['extent'])
-            else:
-                axes.imshow(self.data['image_data'], cmap=self.plot_settings['cmap'], interpolation=self.plot_settings['interpol'], extent=self.data['extent'], vmax = self.settings['max_counts_plot'])
+            axes.imshow(self.data['image_data'], cmap=self.plot_settings['cmap'], interpolation=self.plot_settings['interpol'], extent=self.data['extent'])
             axes.set_xlabel(self.plot_settings['xlabel'])
             axes.set_ylabel(self.plot_settings['ylabel'])
             axes.set_title(self.plot_settings['title'])
@@ -143,6 +143,7 @@ Script to select points on an image. The selected points are saved and can be us
         Poststate: updates selected list
 
         '''
+
         if not self.data['nv_locations']: #if self.data is empty so this is the first point
             self.data['nv_locations'].append(pt)
             self.data['image_data'] = None # clear image data
@@ -160,6 +161,23 @@ Script to select points on an image. The selected points are saved and can be us
             else:
                 self.data['nv_locations'].append(pt)
 
+        # if type is not free we calculate the total points of locations from the first selected points
+        if self.settings['type'] == 'square' and len(self.data['nv_locations'])>1:
+
+            Nx, Ny = self.settings['Nx'], self.settings['Ny']
+            pta = self.data['nv_locations'][0]
+            ptb = self.data['nv_locations'][1]
+            tmp  = np.array([[[pta[0] + 1.0*i*(ptb[0]-pta[0])/(Nx-1), pta[1] + 1.0*j*(ptb[1]-pta[1])/(Ny-1)] for i in range(Nx)] for j in range(Ny)])
+            self.data['nv_locations'] = np.reshape(tmp, (Nx * Ny, 2))
+            self.stop()
+
+
+        elif self.settings['type'] == 'line' and len(self.data['nv_locations'])>1:
+            N = self.settings['Nx']
+            pta = self.data['nv_locations'][0]
+            ptb = self.data['nv_locations'][1]
+            self.data['nv_locations']  = [np.array([pta[0] + 1.0*i*(ptb[0]-pta[0])/(N-1), pta[1] + 1.0*i*(ptb[1]-pta[1])/(N-1)]) for i in range(N)]
+            self.stop()
 
 if __name__ == '__main__':
 
