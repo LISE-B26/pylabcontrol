@@ -179,6 +179,57 @@ Example Script that has all different types of parameters (integer, str, fload, 
             # fall back to default behaviour
             Script._update(self, axes_list)
 
+class ScriptDummyWrapper(Script):
+    """
+Example Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.
+    """
+
+    _DEFAULT_SETTINGS = []
+
+    _INSTRUMENTS = {}
+    _SCRIPTS = {'ScriptDummy': ScriptDummy}
+
+    def __init__(self, instruments = None, scripts = None, name=None, settings=None, log_function = None, data_path = None):
+        """
+        Example of a script
+        Args:
+            name (optional): name of script, if empty same as class name
+            settings (optional): settings for this script, if empty same as default settings
+        """
+        super(ScriptDummyWrapper, self).__init__(self, name, settings, log_function= log_function, data_path = data_path)
+
+    def _function(self):
+        """
+        This is the actual function that will be executed. It uses only information that is provided in the settings property
+        will be overwritten in the __init__
+        """
+
+        self.scripts['ScriptDummy'].run()
+
+
+    def _plot(self, axes_list, data = None):
+        """
+        plots the data only the axes objects that are provided in axes_list
+        Args:
+            axes_list: a list of axes objects, this should be implemented in each subscript
+            data: data to be plotted if empty take self.data
+        Returns: None
+
+        """
+
+        self.scripts['ScriptDummy']._plot(axes_list)
+
+    def _update(self, axes_list):
+        """
+        updates the data in already existing plots. the axes objects are provided in axes_list
+        Args:
+            axes_list: a list of axes objects, this should be implemented in each subscript
+
+        Returns: None
+
+        """
+        self.scripts['ScriptDummy']._update(axes_list)
+
 
 class DummyPlantWithControler(Script):
     """
