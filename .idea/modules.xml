@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/PyLabControl.iml" filepath="$PROJECT_DIR$/.idea/PyLabControl.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../b26_toolkit/.idea/b26_toolkit.iml" filepath="$PROJECT_DIR$/../b26_toolkit/.idea/b26_toolkit.iml" />
     </modules>
   </component>
 </project>
