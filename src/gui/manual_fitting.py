@@ -47,6 +47,7 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
             self.matplotlibwidget.mpl_connect('button_press_event', self.plot_clicked)
             self.btn_open.clicked.connect(self.open_file_dialog)
             self.btn_run.clicked.connect(self.btn_clicked)
+            self.btn_goto.clicked.connect(self.btn_clicked)
 
         create_figures()
         setup_connections()
@@ -63,6 +64,8 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
             while not self.peak_vals == []:
                 self.peak_vals.pop(-1)
             self.queue.put('clear')
+        elif sender is self.btn_goto:
+            self.queue.put(int(self.input_next.text()))
 
     def plot_clicked(self, mouse_event):
         if type(self.peak_vals) is list:
@@ -81,15 +84,14 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
 
     class do_fit(QObject):
         finished = pyqtSignal()  # signals the end of the script
+        status = pyqtSignal(str) # sends messages to update the statusbar
 
-        def __init__(self, filepath, plotwidget, queue, peak_vals, statusbar, peak_locs):
+        def __init__(self, filepath, plotwidget, queue, peak_vals, peak_locs):
             QObject.__init__(self)
             self.filepath = filepath
             self.plotwidget = plotwidget
             self.queue = queue
             self.peak_vals = peak_vals
-            self.fits = []
-            self.statusbar = statusbar
             self.peak_locs = peak_locs
 
         def n_lorentzian(self, x, offset, *peak_params):
@@ -118,16 +120,20 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
             esr_folders = glob.glob(os.path.join(self.filepath, './data_subscripts/*esr*'))
 
             data_array = []
-            self.statusbar.showMessage('loading data')
+            self.status.emit('loading data')
             for esr_folder in esr_folders[:-1]:
                 data = Script.load_data(esr_folder)
                 data_array.append(data)
 
-            self.statusbar.showMessage('executing manual fitting')
+            self.fits = [[]] * len(data_array)
+
+            self.status.emit('executing manual fitting')
             index = 0
-            for data in data_array:
+            # for data in data_array:
+            while index < len(data_array):
+                data = data_array[index]
                 #this must be after the draw command, otherwise plot doesn't display for some reason
-                self.statusbar.showMessage('executing manual fitting NV #' + str(index))
+                self.status.emit('executing manual fitting NV #' + str(index))
                 self.plotwidget.axes.clear()
                 self.plotwidget.axes.plot(data['frequency'], data['data'])
                 self.plotwidget.draw()
@@ -141,10 +147,12 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                             while not self.peak_vals == []:
                                 self.peak_vals.pop(-1)
                             if len(self.single_fit) == 1:
-                                self.fits.append(self.single_fit)
+                                self.fits[index] = self.single_fit
                             else:
-                                self.fits.append([y for x in self.single_fit for y in x])
+                                self.fits[index] = [y for x in self.single_fit for y in x]
                             index += 1
+                            self.status.emit('saving')
+                            self.save()
                             break
                         elif value == 'clear':
                             self.plotwidget.axes.clear()
@@ -184,22 +192,26 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                             positions = zip(center_array, amplitude_array, widths_array)
                             self.single_fit = [[popt[0]], positions]
                             self.peak_locs.setText('Peak Positions: ' + str(center_array))
+                        elif type(value) is int:
+                            index = int(value)
+                            break
 
-            self.statusbar.showMessage('saving')
-            self.save()
             self.finished.emit()
-            self.statusbar.showMessage('saving finished')
+            self.status.emit('saving finished')
 
+    def update_status(self, str):
+        self.statusbar.showMessage(str)
 
     def start_fitting(self):
         self.queue = Queue.Queue()
         self.peak_vals = []
         self.fit_thread = QThread() #must be assigned as an instance variable, not local, as otherwise thread is garbage
                                     #collected immediately at the end of the function before it runs
-        self.fitobj = self.do_fit(str(self.data_filepath.text()), self.matplotlibwidget, self.queue, self.peak_vals, self.statusbar, self.peak_locs)
+        self.fitobj = self.do_fit(str(self.data_filepath.text()), self.matplotlibwidget, self.queue, self.peak_vals, self.peak_locs)
         self.fitobj.moveToThread(self.fit_thread)
         self.fit_thread.started.connect(self.fitobj.run)
         self.fitobj.finished.connect(self.fit_thread.quit)  # clean up. quit thread after script is finished
+        self.fitobj.status.connect(self.update_status)
         self.fit_thread.start()
 
     def open_file_dialog(self):
