@@ -332,8 +332,10 @@ Script.
             number_of_iterations = len(self.scripts['select_points'].data['nv_locations'])
             number_of_subscripts -= 1  # substract 2 because we don't iterate over select nv
         elif self.iterator_type == self.TYPE_ITER_POINTS:
+
             number_of_iterations = len(self.scripts['select_points'].data['nv_locations'])
-            number_of_subscripts -= 1  # substract 2 because we don't iterate over select nv
+            number_of_subscripts -= 1  # substract 1 because we don't iterate over select nv
+            print('JG 20171122 testing time prediction: number_of_subscripts', number_of_subscripts)
         else:
             raise TypeError('unknown iterator type')
 
@@ -354,8 +356,12 @@ Script.
             else:
                 current_subscript_exec_duration = 0.
 
-            current_subscript_elapsed_time = (datetime.datetime.now() - current_subscript.start_time).total_seconds()
+            print('JG 20171122 testing time prediction: current_subscript', current_subscript)
+            print('JG 20171122 testing time prediction: current_subscript_exec_duration', current_subscript_exec_duration)
 
+            current_subscript_elapsed_time = (datetime.datetime.now() - current_subscript.start_time).total_seconds()
+            print(
+            'JG 20171122 testing time prediction: current_subscript_elapsed_time', current_subscript_elapsed_time)
             # estimate the duration of the current subscript if the script hasn't been executed once fully and subscript_exec_duration is 0
             if current_subscript_exec_duration == 0.0:
                 remaining_time = current_subscript.remaining_time.total_seconds()
@@ -392,6 +398,10 @@ Script.
                 progress_subscript = 100. * sub_progress_time / loop_execution_time
             else:
                 progress_subscript = 1. * progress_subscript / number_of_subscripts
+
+        print('JG 20171122 testing time prediction: loop_index', loop_index)
+        print('JG 20171122 testing time prediction: progress_subscript', progress_subscript)
+        print('JG 20171122 testing time prediction: number_of_iterations', number_of_iterations)
 
         # print(' === script iterator progress estimation loop_index = {:d}/{:d}, progress_subscript = {:f}'.format(loop_index, number_of_iterations, progress_subscript))
         self.progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / number_of_iterations
@@ -453,7 +463,6 @@ Script.
         dictator[self.name]['class'] = 'ScriptIterator'
 
         return dictator
-
 
 
     @staticmethod
