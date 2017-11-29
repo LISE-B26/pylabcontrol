@@ -44,7 +44,7 @@ def get_config_value(name, path_to_file='config.txt'):
         name: name of varibale in config file
         path_to_file: path to config file
 
-    Returns: path to dll
+    Returns: path to dll if name exists in the file; otherwise, returns None
 
     """
 
@@ -59,14 +59,17 @@ def get_config_value(name, path_to_file='config.txt'):
         raise IOError('{:s}: config file is not valid'.format(path_to_file))
 
     f = open(path_to_file, 'r')
-    s = f.read()
+    string_of_file_contents = f.read()
 
     if name[-1] is not ':':
         name += ':'
 
-    config_value = [line.split(name)[1] for line in s.split('\n') if len(line.split(name)) > 1][0].strip()
-
-    return config_value
+    if name not in string_of_file_contents:
+        return None
+    else:
+        config_value = [line.split(name)[1] for line in string_of_file_contents.split('\n')
+                        if len(line.split(name)) > 1][0].strip()
+        return config_value
 
 def load_b26_file(file_name):
     """
