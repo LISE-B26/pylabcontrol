@@ -155,6 +155,8 @@ def export_default_scripts(target_folder, source_folder = None, raise_errors = F
         filename = os.path.join(target_folder, '{:s}.b26'.format(name))
         value.save_b26(filename)
 
+    print(loaded_scripts)
+
     print('\n================================================')
     print('================================================')
     print('saved {:d} scripts, {:d} failed'.format(len(loaded_scripts), len(failed)))
@@ -212,9 +214,11 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
 if __name__ == '__main__':
     # export scripts
     # source_folders = 'b26_toolkit'
-    source_folders = 'C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
+    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
-    target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
+    # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
+    target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
+
     export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
     #
     # export instruments
