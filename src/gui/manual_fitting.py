@@ -120,7 +120,17 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
         def save(self):
             save_path = os.path.join(self.filepath, 'data-manual.csv')
             df = pd.DataFrame(self.fits)
-            df.to_csv(save_path)
+            df.to_csv(save_path, index = False)
+
+        def load_fitdata(self):
+            load_path = os.path.join(self.filepath, 'data-manual.csv')
+            fits = {'nv_id': [], 'peak_id': [], 'offset': [], 'fit_center': [], 'fit_amplitude': [],
+                         'fit_width': [], 'manual_center': [], 'manual_height': []}
+            if os.path.exists(load_path):
+                dffits = pd.read_csv(load_path)
+                for key in list(dffits):
+                    fits[key] = dffits[key].tolist()
+            return fits
 
         def run(self):
             esr_folders = glob.glob(os.path.join(self.filepath, './data_subscripts/*esr*'))
@@ -131,7 +141,7 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                 data = Script.load_data(esr_folder)
                 data_array.append(data)
 
-            self.fits = [[]] * len(data_array)
+            self.fits = self.load_fitdata()
 
             self.status.emit('executing manual fitting')
             index = 0
@@ -142,6 +152,16 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                 self.status.emit('executing manual fitting NV #' + str(index))
                 self.plotwidget.axes.clear()
                 self.plotwidget.axes.plot(data['frequency'], data['data'])
+                if index in self.fits['nv_id']:
+                    fitdf = pd.DataFrame(self.fits)
+                    fitdf = fitdf.loc[(fitdf['nv_id'] == index)]
+                    offset = fitdf['offset'].as_matrix()[0]
+                    centers = fitdf['fit_center'].as_matrix()
+                    amplitudes = fitdf['fit_amplitude'].as_matrix()
+                    widths = fitdf['fit_width'].as_matrix()
+                    fit_params = np.concatenate((np.concatenate((widths, amplitudes)), centers))
+                    self.plotwidget.axes.plot(data['frequency'], self.n_lorentzian(data['frequency'], *np.concatenate(([offset], fit_params))))
+                    self.plotwidget.draw()
                 self.plotwidget.draw()
 
                 while(True):
@@ -150,12 +170,21 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                     else:
                         value = self.queue.get()
                         if value == 'next':
+                            # disabled for feedforward
                             while not self.peak_vals == []:
                                 self.peak_vals.pop(-1)
-                            if len(self.single_fit) == 1:
-                                self.fits[index] = self.single_fit
-                            else:
-                                self.fits[index] = [y for x in self.single_fit for y in x]
+                            if self.single_fit:
+                                to_delete = np.where(np.array(self.fits['nv_id']) == index)
+                                print('to_delete', to_delete)
+                                print(self.fits['nv_id'])
+                                print(index)
+                                for val in to_delete[0][::-1]:
+                                    for key in self.fits.keys():
+                                        del self.fits[key][val]
+                                for peak in self.single_fit:
+                                    for key in peak.keys():
+                                        self.fits[key].append(peak[key])
+
                             index += 1
                             self.status.emit('saving')
                             self.save()
@@ -172,7 +201,7 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                                 centers, heights = self.peak_vals[0]
                                 widths = 1e7
                             elif len(self.peak_vals) == 0:
-                                self.single_fit = [np.mean(data['data'])]
+                                self.single_fit = None
                                 self.peak_locs.setText('No Peak')
                                 self.plotwidget.axes.plot(data['frequency'],np.repeat(np.mean(data['data']), len(data['frequency'])))
                                 self.plotwidget.draw()
@@ -196,7 +225,11 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                             amplitude_array = params[len(params)/3: 2 * len(params) / 3]
                             center_array = params[2 * len(params) / 3:]
                             positions = zip(center_array, amplitude_array, widths_array)
-                            self.single_fit = [[popt[0]], positions]
+                            self.single_fit = []
+                            peak_index = 0
+                            for position in positions:
+                                self.single_fit.append({'nv_id': index, 'peak_id': peak_index, 'offset': popt[0], 'fit_center': position[0], 'fit_amplitude': position[1], 'fit_width': position[2], 'manual_center': self.peak_vals[peak_index][0], 'manual_height': self.peak_vals[peak_index][1]})
+                                peak_index += 1
                             self.peak_locs.setText('Peak Positions: ' + str(center_array))
                         elif value == 'prev':
                             index -= 1
@@ -209,7 +242,8 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                             break
 
             self.finished.emit()
-            self.status.emit('saving finished')
+            self.status.emit('dataset finished')
+
 
     def update_status(self, str):
         self.statusbar.showMessage(str)
