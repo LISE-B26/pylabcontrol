@@ -81,6 +81,20 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="btn_prev">
+            <property name="text">
+             <string>Previous</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_skip">
+            <property name="text">
+             <string>Skip</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>

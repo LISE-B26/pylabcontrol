@@ -18,8 +18,9 @@ import time
 import Queue
 import scipy.optimize
 import pandas as pd
+from scipy.interpolate import interp1d
 
-Ui_MainWindow, QMainWindow = loadUiType('manual_fitting_window.ui') # with this we don't have to convert the .ui file into a python file!
+Ui_MainWindow, QMainWindow = loadUiType('manual_fitting_window_ensemble.ui') # with this we don't have to convert the .ui file into a python file!
 
 class FittingWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -80,68 +81,63 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
             # can't use patches, as they use data coordinates for radius but this is a high aspect ratio plot so the
             # circle was extremely stretched
             axes.plot(mouse_event.xdata, mouse_event.ydata, 'ro', markersize = 5)
-
-            # axes.text(mouse_event.xdata, mouse_event.ydata, '{:d}'.format(len(self.peak_vals[-1])),
-            #                  horizontalalignment='center',
-            #                  verticalalignment='center',
-            #                  color='black'
-            #                  )
             self.matplotlibwidget.draw()
 
     class do_fit(QObject):
         finished = pyqtSignal()  # signals the end of the script
         status = pyqtSignal(str) # sends messages to update the statusbar
+        NUM_ESR_LINES = 6
 
-        def __init__(self, filepath, plotwidget, queue, peak_vals, peak_locs):
+        def __init__(self, filepath, plotwidget, queue, peak_vals, interps):
             QObject.__init__(self)
             self.filepath = filepath
             self.plotwidget = plotwidget
             self.queue = queue
             self.peak_vals = peak_vals
-            self.peak_locs = peak_locs
+            self.interps = interps
 
-        def n_lorentzian(self, x, offset, *peak_params):
-            value = 0
-            width_array = peak_params[:len(peak_params)/3]
-            amplitude_array = peak_params[len(peak_params)/3:2*len(peak_params)/3]
-            center_array = peak_params[2*len(peak_params)/3:]
-            for width, amplitude, center in zip(width_array, amplitude_array, center_array):
-                value += amplitude * np.square(0.5 * width) / (np.square(x - center) + np.square(0.5 * width))
-            value += offset
-            return value
-
-                # return np.sum((-1/ ((x - center_array[0]) ** 2 + (.5 * width) ** 2))) + offset
-            # return np.sum((-(np.array(amplitude_array) * (.5 * width) ** 2) / ((x - np.array(center_array)) ** 2 + (.5 * width) ** 2))) + offset
-
-        def fit_n_lorentzian(self, x, y, fit_start_params=None):
-            popt, _ = scipy.optimize.curve_fit(self.n_lorentzian, x, y, fit_start_params)
-            return popt
 
         def save(self):
-            save_path = os.path.join(self.filepath, 'data-manual.csv')
-            df = pd.DataFrame(self.fits)
+            def freqs(index):
+                return self.frequencies[0] + (self.frequencies[-1]-self.frequencies[0])/(len(self.frequencies)-1)*index
+            save_path = os.path.join(self.filepath, 'line_data.csv')
+            data = list()
+            for i in range(0, self.NUM_ESR_LINES):
+                data.append(list())
+            for i in range(0, self.NUM_ESR_LINES):
+                indices = self.interps[i](self.x_range)
+                data[i] = [freqs(indices[j]) for j in range(0,len(self.x_range))]
+
+            df = pd.DataFrame(data)
+            df = df.transpose()
             df.to_csv(save_path)
+            self.plotwidget.figure.savefig(self.filepath + './lines.jpg')
 
         def run(self):
-            esr_folders = glob.glob(os.path.join(self.filepath, './data_subscripts/*esr*'))
+            data_esr = []
+            for f in sorted(glob.glob(os.path.join(self.filepath, './data_subscripts/*'))[0:-1]):
+                data = Script.load_data(f)
+                data_esr.append(data['data'])
+            self.frequencies = data['frequency']
 
-            data_array = []
-            self.status.emit('loading data')
-            for esr_folder in esr_folders[:-1]:
-                data = Script.load_data(esr_folder)
-                data_array.append(data)
+            data_esr_norm = []
+            for d in data_esr:
+                data_esr_norm.append(d / np.mean(d))
 
-            self.fits = [[]] * len(data_array)
+            self.x_range = range(0, len(data_esr_norm))
 
             self.status.emit('executing manual fitting')
             index = 0
             # for data in data_array:
-            while index < len(data_array):
-                data = data_array[index]
+            while index < self.NUM_ESR_LINES:
                 #this must be after the draw command, otherwise plot doesn't display for some reason
                 self.status.emit('executing manual fitting NV #' + str(index))
                 self.plotwidget.axes.clear()
-                self.plotwidget.axes.plot(data['frequency'], data['data'])
+                self.plotwidget.axes.imshow(data_esr_norm, aspect = 'auto', origin = 'lower')
+                if self.interps:
+                    for f in self.interps:
+                        self.plotwidget.axes.plot(f(self.x_range), self.x_range)
+
                 self.plotwidget.draw()
 
                 while(True):
@@ -152,52 +148,26 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                         if value == 'next':
                             while not self.peak_vals == []:
                                 self.peak_vals.pop(-1)
-                            if len(self.single_fit) == 1:
-                                self.fits[index] = self.single_fit
-                            else:
-                                self.fits[index] = [y for x in self.single_fit for y in x]
+                            # if len(self.single_fit) == 1:
+                            #     self.fits[index] = self.single_fit
+                            # else:
+                            #     self.fits[index] = [y for x in self.single_fit for y in x]
                             index += 1
-                            self.status.emit('saving')
-                            self.save()
+                            self.interps.append(f)
                             break
                         elif value == 'clear':
                             self.plotwidget.axes.clear()
-                            self.plotwidget.axes.plot(data['frequency'], data['data'])
+                            self.plotwidget.axes.imshow(data_esr_norm, aspect='auto', origin = 'lower')
+                            if self.interps:
+                                for f in self.interps:
+                                    self.plotwidget.axes.plot(f(self.x_range), self.x_range)
                             self.plotwidget.draw()
                         elif value == 'fit':
-                            if len(self.peak_vals) > 1:
-                                centers, heights = zip(*self.peak_vals)
-                                widths = 1e7 * np.ones(len(heights))
-                            elif len(self.peak_vals) == 1:
-                                centers, heights = self.peak_vals[0]
-                                widths = 1e7
-                            elif len(self.peak_vals) == 0:
-                                self.single_fit = [np.mean(data['data'])]
-                                self.peak_locs.setText('No Peak')
-                                self.plotwidget.axes.plot(data['frequency'],np.repeat(np.mean(data['data']), len(data['frequency'])))
-                                self.plotwidget.draw()
-                                continue
-                            offset = np.mean(data['data'])
-                            amplitudes = offset-np.array(heights)
-                            if len(self.peak_vals) > 1:
-                                fit_start_params = [[offset], np.concatenate((widths, amplitudes, centers))]
-                                fit_start_params = [y for x in fit_start_params for y in x]
-                            elif len(self.peak_vals) == 1:
-                                fit_start_params = [offset, widths, amplitudes, centers]
-                            try:
-                                popt = self.fit_n_lorentzian(data['frequency'], data['data'], fit_start_params = fit_start_params)
-                            except RuntimeError:
-                                print('fit failed, optimal parameters not found')
-                                break
-                            self.plotwidget.axes.plot(data['frequency'], self.n_lorentzian(data['frequency'], *popt))
+                            y,x = zip(*self.peak_vals)
+                            f = interp1d(np.array(x),np.array(y),kind = 'cubic')
+                            x_range = range(0,len(data_esr_norm))
+                            self.plotwidget.axes.plot(f(x_range), x_range)
                             self.plotwidget.draw()
-                            params = popt[1:]
-                            widths_array = params[:len(params)/3]
-                            amplitude_array = params[len(params)/3: 2 * len(params) / 3]
-                            center_array = params[2 * len(params) / 3:]
-                            positions = zip(center_array, amplitude_array, widths_array)
-                            self.single_fit = [[popt[0]], positions]
-                            self.peak_locs.setText('Peak Positions: ' + str(center_array))
                         elif value == 'prev':
                             index -= 1
                             break
@@ -209,6 +179,13 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                             break
 
             self.finished.emit()
+            self.status.emit('saving')
+            self.plotwidget.axes.clear()
+            self.plotwidget.axes.imshow(data_esr_norm, aspect='auto', origin = 'lower')
+            if self.interps:
+                for f in self.interps:
+                    self.plotwidget.axes.plot(f(self.x_range), self.x_range)
+            self.save()
             self.status.emit('saving finished')
 
     def update_status(self, str):
@@ -217,9 +194,10 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
     def start_fitting(self):
         self.queue = Queue.Queue()
         self.peak_vals = []
+        self.interps = []
         self.fit_thread = QThread() #must be assigned as an instance variable, not local, as otherwise thread is garbage
                                     #collected immediately at the end of the function before it runs
-        self.fitobj = self.do_fit(str(self.data_filepath.text()), self.matplotlibwidget, self.queue, self.peak_vals, self.peak_locs)
+        self.fitobj = self.do_fit(str(self.data_filepath.text()), self.matplotlibwidget, self.queue, self.peak_vals, self.interps)
         self.fitobj.moveToThread(self.fit_thread)
         self.fit_thread.started.connect(self.fitobj.run)
         self.fitobj.finished.connect(self.fit_thread.quit)  # clean up. quit thread after script is finished
