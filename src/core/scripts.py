@@ -1043,6 +1043,7 @@ class Script(QObject):
                 except Exception as err:
                     print('loading script {:s} failed. Could not load instruments!'.format(script_name))
                     load_failed[script_name] = err
+                    raise
                     if raise_errors:
                         raise err
                     continue
@@ -1053,6 +1054,7 @@ class Script(QObject):
                 except Exception as err:
                     print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
                     load_failed[script_name] = err
+                    raise
                     if raise_errors:
                         raise err
                     continue
@@ -1082,6 +1084,7 @@ class Script(QObject):
 
                 except Exception, err:
                     load_failed[script_name] = err
+                    raise
                     if raise_errors:
                         print('class_creation_string', class_creation_string, script_name, script_instruments)
                         raise err
