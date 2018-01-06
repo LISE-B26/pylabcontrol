@@ -18,7 +18,7 @@ import time
 import Queue
 import scipy.optimize
 import pandas as pd
-from scipy.interpolate import interp1d
+from scipy.interpolate import UnivariateSpline
 
 Ui_MainWindow, QMainWindow = loadUiType('manual_fitting_window_ensemble.ui') # with this we don't have to convert the .ui file into a python file!
 
@@ -86,7 +86,7 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
     class do_fit(QObject):
         finished = pyqtSignal()  # signals the end of the script
         status = pyqtSignal(str) # sends messages to update the statusbar
-        NUM_ESR_LINES = 6
+        NUM_ESR_LINES = 8
 
         def __init__(self, filepath, plotwidget, queue, peak_vals, interps):
             QObject.__init__(self)
@@ -163,8 +163,9 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                                     self.plotwidget.axes.plot(f(self.x_range), self.x_range)
                             self.plotwidget.draw()
                         elif value == 'fit':
-                            y,x = zip(*self.peak_vals)
-                            f = interp1d(np.array(x),np.array(y),kind = 'cubic')
+                            peak_vals = sorted(self.peak_vals, key = lambda tup: tup[1])
+                            y,x = zip(*peak_vals)
+                            f = UnivariateSpline(np.array(x),np.array(y))
                             x_range = range(0,len(data_esr_norm))
                             self.plotwidget.axes.plot(f(x_range), x_range)
                             self.plotwidget.draw()
