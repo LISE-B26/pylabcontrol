@@ -115,7 +115,7 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
 
         def run(self):
             data_esr = []
-            for f in sorted(glob.glob(os.path.join(self.filepath, './data_subscripts/*'))[0:-1]):
+            for f in sorted(glob.glob(os.path.join(self.filepath, './data_subscripts/*'))):
                 data = Script.load_data(f)
                 data_esr.append(data['data'])
             self.frequencies = data['frequency']
