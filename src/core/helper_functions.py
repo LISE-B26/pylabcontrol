@@ -46,43 +46,58 @@ def module_name_from_path(folder_name, verbose=False):
     folder_name = os.path.normpath(folder_name)
 
     path = folder_name + '/'
+
+    package = get_python_package(path)
     # path = folder_name
     module = []
 
     if verbose:
         print('folder_name', folder_name)
 
-    os_sys_path = os.sys.path
-
-    if os.path.normpath(path) in os_sys_path:
-        if verbose:
-            print('warning: path in sys.path!')
-        os_sys_path.remove(os.path.normpath(path))
-
-
-    if verbose:
-        for elem in os_sys_path:
-
-            print('os.sys.path', elem)
-
-
+    # os_sys_path = os.sys.path
+    #
+    # if os.path.normpath(path) in os_sys_path:
+    #     if verbose:
+    #         print('warning: path in sys.path!')
+    #     os_sys_path.remove(os.path.normpath(path))
+    #
+    #
+    # if verbose:
+    #     for elem in os_sys_path:
+    #
+    #         print('os.sys.path', elem)
 
 
-    while not path=='':
+
+
+    while True:
+
         path = os.path.dirname(path)
+
+        module.append(os.path.basename(path))
+        if os.path.basename(path) == package:
+            path = os.path.dirname(path)
+            break
+
+        # failed to identify the module
+        if os.path.dirname(path) == path:
+            path, module = None, None
+            break
 
         if verbose:
             print('path', path, os.path.dirname(path))
 
-        if path == os.path.dirname(path):
-            if verbose:
-                print('break --  os.path.dirname(path)', os.path.dirname(path))
-            # path, module = None, None
-            break
-        module.append(os.path.basename(path))
+        # if path == os.path.dirname(path):
+        #     if verbose:
+        #         print('break --  os.path.dirname(path)', os.path.dirname(path))
+        #     # path, module = None, None
+        #     break
+        #
 
         if verbose:
             print('module', module)
+
+
     # OLD START
     # while path not in os_sys_path:
     #     path = os.path.dirname(path)
@@ -105,7 +120,7 @@ def module_name_from_path(folder_name, verbose=False):
         print('module', module)
 
 
-    module = module[:-1]
+    # module = module[:-1]
     # print('mod', module)
     # from the list construct the path like b26_toolkit.src.scripts and load it
     module.reverse()
@@ -201,6 +216,11 @@ if __name__ == '__main__':
     #
 
     # # test for scripts generated with export_default_scripts
+    # fp = '/Users/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'
+    #
+    # module, path = module_name_from_path(fp, verbose=False)
+
+
     # fp = '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'
     #
     # module, path = module_name_from_path(fp, verbose=True)
@@ -213,11 +233,15 @@ if __name__ == '__main__':
 
 
 
+
+
+
+
     import glob
     # test
-    fn= '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'
-    # fn = '/Users/rettentulla/'
-    print(get_python_package(fn))
+    # fn= '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'
+    # # fn = '/Users/rettentulla/'
+    # print(get_python_package(fn))
 
 
 

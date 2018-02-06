@@ -1324,5 +1324,7 @@ if __name__ == '__main__':
                                                           'save': False, 'plot_style': 'main'},
                                              'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}
 
-    Script.get_script_information(sinfo, verbose=True)
+    info = Script.get_script_information(sinfo, verbose=True)
+
+    print(info)
 

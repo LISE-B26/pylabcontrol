@@ -21,7 +21,7 @@ from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 
 from PyLabControl.src.core.read_write_functions import load_b26_file
-from PyLabControl.src.core.helper_functions import module_name_from_path
+from PyLabControl.src.core.helper_functions import get_python_package
 # from PyLabControl.src.core import Parameter, Script
 import inspect
 
@@ -275,14 +275,9 @@ Returns:
 
         # get the module of the current dialogue
 
-        module, path = module_name_from_path(inspect.getmodule(self).__file__, verbose=True)
-        print('----------')
-        print('module', module)
-        print('path', path)
-        #
-        # print('package', module.split('.')[0])
-        package = module.split('.')[0]
+        package = get_python_package(inspect.getmodule(self).__file__)
 
+        assert package is not None # check that we actually find a module
 
         # class_name = Script.set_up_dynamic_script(factory_scripts, new_script_parameter_list, self.cmb_looping_variable.currentText() == 'Parameter Sweep')
         new_script_dict = {name: {'class': 'ScriptIterator', 'package': package, 'scripts': new_script_dict,
@@ -321,27 +316,6 @@ if __name__ == '__main__':
     # m, p = module_name_from_path(fp, verbose=True)
     # print('sys.modules[base]', m)
     # print('path', p)
-
-
-
-
-
-
-
-
-
-    # test for getting the path of a module
-    fp = '/Users/rettentulla/PycharmProjects/PyLabControl/src/gui/'
-
-
-    module, path = module_name_from_path(fp, verbose=False)
-
-
-    print('----------')
-    print('module', module)
-    print('path', path)
-
-    print('package', module.split('.')[0])
 
 
 

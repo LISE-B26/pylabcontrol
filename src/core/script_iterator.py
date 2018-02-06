@@ -574,7 +574,7 @@ Script.
                             print('script_sub_scripts[sub_script_name]', script_sub_scripts[sub_script_name])
 
                         # script_dict = {script_sub_scripts[sub_script_name]['class']}
-                        module, _, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script_name])
+                        module, _, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script_name], verbose=True)
 
                         if verbose:
                             print('module', module)
@@ -739,8 +739,13 @@ if __name__ == '__main__':
 
     # test with b26 iterator
     script_info = {'b26iter':
-                       {'info': 'Enter docstring herecasc', 'settings': {'script_order': {'ScriptDummy': 0}, 'iterator_type': 'Loop'},
-                        'class': 'ScriptIterator', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ', 'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}}}}
+                       {'info': 'Enter docstring here',
+                        'scripts': {'ScriptDummy':
+                                {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
+                                 'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'},
+                                 'class': 'ScriptDummy',
+                                 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}},
+                        'class': 'ScriptIterator', 'settings': {'script_order': {'ScriptDummy': 0}, 'iterator_type': 'Loop'}, 'package': 'PyLabControl'}}
 
     si = ScriptIterator.create_dynamic_script_class(script_info['b26iter'], verbose=True)
 
