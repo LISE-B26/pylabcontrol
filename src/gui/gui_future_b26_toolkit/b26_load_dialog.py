@@ -29,23 +29,46 @@ This class builds on the Loaddialog and adds more options for script iterators
 
 
 
+
 if __name__ == '__main__':
-    from PyQt4 import QtGui
     import sys
+    from PyQt4 import QtGui
 
     app = QtGui.QApplication(sys.argv)
+    # ex = LoadDialog(elements_type = 'instruments', elements_old=instuments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
+    # ex = LoadDialog(elements_type='scripts', elements_old=instuments)
+    ex = LoadDialogB26(elements_type='scripts')
 
-    dialog = LoadDialogB26(elements_type="scripts")
+    ex.show()
+    ex.raise_()
 
-    app.setWindowIcon(QtGui.QIcon('magnet_and_nv.ico'))
+    print('asda')
+    if ex.exec_():
+        values = ex.getValues()
+        print(values)
 
-    dialog.show()
-    dialog.raise_()
     sys.exit(app.exec_())
 
-
-    if dialog.exec_():
-        xx = str(dialog.txt_probe_log_path.text())
-    scripts = dialog.getValues()
-
-    print('asdsadadas', xx)
+#
+# if __name__ == '__main__':
+#     from PyQt4 import QtGui
+#     import sys
+#
+#     app = QtGui.QApplication(sys.argv)
+#
+#     dialog = LoadDialogB26(elements_type="scripts")
+#
+#     app.setWindowIcon(QtGui.QIcon('magnet_and_nv.ico'))
+#
+#     dialog.show()
+#     dialog.raise_()
+#     sys.exit(app.exec_())
+#
+#
+#     print('-----', dialog.vars() )
+#
+#     if dialog.exec_():
+#         xx = str(dialog.txt_probe_log_path.text())
+#     scripts = dialog.getValues()
+#
+#     print('asdsadadas', xx)

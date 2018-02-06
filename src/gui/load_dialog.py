@@ -17,13 +17,12 @@
 # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
 # -*- coding: utf-8 -*-
+
 # Form implementation generated from reading ui file 'load_dialog.ui'
 #
 # Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
-
-
 
 from PyQt4 import QtCore, QtGui
 
@@ -114,6 +113,7 @@ class Ui_Dialog(object):
         self.label_3.setObjectName(_fromUtf8("label_3"))
         self.tree_script_sequence = QtGui.QTreeView(Dialog)
         self.tree_script_sequence.setGeometry(QtCore.QRect(10, 310, 261, 121))
+        self.tree_script_sequence.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         self.tree_script_sequence.setDragEnabled(True)
         self.tree_script_sequence.setDragDropMode(QtGui.QAbstractItemView.DragDrop)
         self.tree_script_sequence.setDefaultDropAction(QtCore.Qt.MoveAction)
@@ -124,9 +124,9 @@ class Ui_Dialog(object):
         self.cmb_looping_variable = QtGui.QComboBox(Dialog)
         self.cmb_looping_variable.setGeometry(QtCore.QRect(280, 350, 111, 22))
         self.cmb_looping_variable.setObjectName(_fromUtf8("cmb_looping_variable"))
-        self.textEdit = QtGui.QTextEdit(Dialog)
-        self.textEdit.setGeometry(QtCore.QRect(540, 300, 301, 131))
-        self.textEdit.setObjectName(_fromUtf8("textEdit"))
+        self.txt_info = QtGui.QTextEdit(Dialog)
+        self.txt_info.setGeometry(QtCore.QRect(540, 300, 301, 131))
+        self.txt_info.setObjectName(_fromUtf8("txt_info"))
         self.txt_script_sequence_name = QtGui.QLineEdit(Dialog)
         self.txt_script_sequence_name.setGeometry(QtCore.QRect(280, 320, 113, 20))
         self.txt_script_sequence_name.setObjectName(_fromUtf8("txt_script_sequence_name"))
@@ -146,7 +146,7 @@ class Ui_Dialog(object):
         self.txt_probe_log_path.setText(_translate("Dialog", "Z:\\Lab\\Cantilever\\Measurements", None))
         self.label_3.setText(_translate("Dialog", "Script Sequence", None))
         self.btn_script_sequence.setText(_translate("Dialog", "Add Script Sequence", None))
-        self.textEdit.setHtml(_translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        self.txt_info.setHtml(_translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"

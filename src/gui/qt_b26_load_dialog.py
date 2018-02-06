@@ -31,7 +31,7 @@ except (ImportError, IOError):
     from PyLabControl.src.gui.load_dialog import Ui_Dialog
     from PyQt4.QtGui import QMainWindow
     from PyQt4.QtGui import QDialog
-    # print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!')
+    print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!')
 
 
 
@@ -159,7 +159,6 @@ Returns:
                 self.lbl_info.setText(info)
                 self.tree_infile.clearSelection()
 
-
     def open_file_dialog(self):
         """
         opens a file dialog to get the path to a file and
@@ -273,6 +272,16 @@ Returns:
         for index, script in enumerate(new_script_list):
             new_script_parameter_dict.update({script: index})
         # QtGui.QTextEdit.toPlainText()
+
+
+
+        print('------- JG')
+        for k, v in vars(self).iteritems():
+            if 'txt' in k:
+                print('gggg', k, v)
+
+
+
         # class_name = Script.set_up_dynamic_script(factory_scripts, new_script_parameter_list, self.cmb_looping_variable.currentText() == 'Parameter Sweep')
         new_script_dict = {name: {'class': 'ScriptIterator', 'scripts': new_script_dict,
                                   'info': str(self.txt_info.toPlainText()),
