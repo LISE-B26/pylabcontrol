@@ -88,7 +88,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         "settings_file": os.path.join(application_path, "user_data/pythonlab_config")
     }
 
-    def __init__(self, filename = None):
+
+    startup_msg = '\n\n\
+    ======================================================\n\
+    =============== Starting B26 Python LAB  =============\n\
+    ======================================================\n\n'
+
+    def __init__(self, filename=None):
         """
         ControlMainWindow(intruments, scripts, probes)
             - intruments: depth 1 dictionary where keys are instrument names and keys are instrument classes
@@ -102,9 +108,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         """
 
-        print('\n\n======================================================')
-        print('=============== Starting B26 Python LAB  =============')
-        print('======================================================\n\n')
+        print(self.startup_msg)
         self.config_filename = None
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
@@ -534,6 +538,44 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.matplotlibwidget_1.figure.set_tight_layout(True)
         self.matplotlibwidget_2.figure.set_tight_layout(True)
 
+
+    def load_scripts(self):
+            """
+            opens file dialog to load scripts into gui
+            """
+
+
+            # update scripts so that current settings do not get lost
+            for index in range(self.tree_scripts.topLevelItemCount()):
+                script_item = self.tree_scripts.topLevelItem(index)
+                self.update_script_from_item(script_item)
+
+
+            dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts,
+                                filename=self.gui_settings['scripts_folder'])
+            if dialog.exec_():
+                self.gui_settings['scripts_folder'] = str(dialog.txt_probe_log_path.text())
+                scripts = dialog.getValues()
+                added_scripts = set(scripts.keys()) - set(self.scripts.keys())
+                removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
+
+                if 'data_folder' in self.gui_settings.keys() and os.path.exists(self.gui_settings['data_folder']):
+                    data_folder_name = self.gui_settings['data_folder']
+                else:
+                    data_folder_name = None
+
+                # create instances of new instruments/scripts
+                self.scripts, loaded_failed, self.instruments = Script.load_and_append(
+                    script_dict={name: scripts[name] for name in added_scripts},
+                    scripts=self.scripts,
+                    instruments=self.instruments,
+                    log_function=self.log,
+                    data_path=data_folder_name)
+                # delete instances of new instruments/scripts that have been deselected
+                for name in removed_scripts:
+                    del self.scripts[name]
+
+
     def btn_clicked(self):
         """
         slot to which connect buttons
@@ -714,41 +756,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.tree_probes.clear() # clear tree because the probe might have changed
                 self.read_probes.updateProgress.connect(self.update_probes)
                 self.tree_probes.expandAll()
-        def load_scripts():
-            """
-            opens file dialog to load scripts into gui
-            """
-
-
-            # update scripts so that current settings do not get lost
-            for index in range(self.tree_scripts.topLevelItemCount()):
-                script_item = self.tree_scripts.topLevelItem(index)
-                self.update_script_from_item(script_item)
-
-
-            dialog = LoadDialog(elements_type="scripts", elements_old=self.scripts,
-                                filename=self.gui_settings['scripts_folder'])
-            if dialog.exec_():
-                self.gui_settings['scripts_folder'] = str(dialog.txt_probe_log_path.text())
-                scripts = dialog.getValues()
-                added_scripts = set(scripts.keys()) - set(self.scripts.keys())
-                removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
-
-                if 'data_folder' in self.gui_settings.keys() and os.path.exists(self.gui_settings['data_folder']):
-                    data_folder_name = self.gui_settings['data_folder']
-                else:
-                    data_folder_name = None
-
-                # create instances of new instruments/scripts
-                self.scripts, loaded_failed, self.instruments = Script.load_and_append(
-                    script_dict={name: scripts[name] for name in added_scripts},
-                    scripts=self.scripts,
-                    instruments=self.instruments,
-                    log_function=self.log,
-                    data_path=data_folder_name)
-                # delete instances of new instruments/scripts that have been deselected
-                for name in removed_scripts:
-                    del self.scripts[name]
         def load_instruments():
             """
             opens file dialog to load instruments into gui
@@ -775,7 +782,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # delete instances of new instruments/scripts that have been deselected
                 for name in removed_instruments:
                     del self.instruments[name]
-
         def plot_data(sender):
             """
             plots the data of the selected script
@@ -849,7 +855,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if sender is self.btn_load_instruments:
                 load_instruments()
             elif sender is self.btn_load_scripts:
-                load_scripts()
+                self.load_scripts()
             elif sender is self.btn_load_probes:
                 load_probes()
             # refresh trees

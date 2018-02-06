@@ -94,7 +94,7 @@ Returns:
         self.tree_infile_model.itemChanged.connect(self.name_changed)
         self.tree_loaded_model.itemChanged.connect(self.name_changed)
 
-        self.cmb_looping_variable.addItems(['Loop', 'Parameter Sweep', 'Iter Points', 'Iter NVs'])
+        self.cmb_looping_variable.addItems(['Loop', 'Parameter Sweep'])
 
     def test(item):
         print(item)

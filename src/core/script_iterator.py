@@ -452,7 +452,6 @@ Script.
                 last_script.plot(figure_list)
 
 
-
     def to_dict(self):
         """
         Returns: itself as a dictionary
