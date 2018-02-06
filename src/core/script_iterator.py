@@ -465,7 +465,7 @@ Script.
 
 
     @staticmethod
-    def create_dynamic_script_class(script_information):
+    def create_dynamic_script_class(script_information, verbose=False):
         '''
         creates all the dynamic classes in the script and the class of the script itself
         and updates the script info with these new classes
@@ -479,7 +479,7 @@ Script.
         '''
 
 
-        def set_up_dynamic_script(script_information):
+        def set_up_dynamic_script(script_information, verbose=False):
             '''
 
             Args:
@@ -544,12 +544,17 @@ Script.
 
                 return parameter_list
 
+
+            if verbose:
+                print('script_information', script_information)
             sub_scripts = {}  # dictonary of script classes that are to be subscripts of the dynamic class. Should be in the dictionary form {'class_name': <class_object>} (btw. class_object is not the instance)
             script_order = []  # A list of parameters giving the order that the scripts in the ScriptIterator should be executed. Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
             script_execution_freq = [] # A list of parameters giving the frequency with which each script should be executed
             _, script_class_name, script_settings, _, script_sub_scripts, _ = Script.get_script_information(script_information)
 
             iterator_type = ScriptIterator.get_iterator_type(script_settings, script_sub_scripts)
+            if verbose:
+                print('iterator_type', iterator_type)
 
             if isinstance(script_information, dict):
 
@@ -564,8 +569,16 @@ Script.
                         import PyLabControl.src.core.script_iterator
                         sub_scripts.update({sub_script_name: getattr(PyLabControl.src.core.script_iterator, subscript_class_name)})
                     else:
+
+                        if verbose:
+                            print('script_sub_scripts[sub_script_name]', script_sub_scripts[sub_script_name])
+
                         # script_dict = {script_sub_scripts[sub_script_name]['class']}
                         module, _, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script_name])
+
+                        if verbose:
+                            print('module', module)
+
                         sub_scripts.update({sub_script_name: getattr(module, script_sub_scripts[sub_script_name]['class'])})
 
                 # for point iteration we add some default scripts
@@ -606,7 +619,6 @@ Script.
             elif isinstance(script_information, Script):
                 # if the script already exists, just update the script order parameter
                 sub_scripts.update({script_class_name: script_information})
-
             else:
                 raise TypeError('create_dynamic_script_class: unknown type of script_information')
 
@@ -656,7 +668,7 @@ Script.
 
             return script_default_settings, sub_scripts
 
-        def create_script_iterator_class(sub_scripts, script_settings):
+        def create_script_iterator_class(sub_scripts, script_settings, verbose=False):
             '''
             A 'factory' to create a ScriptIterator class at runtime with the given inputs.
 
@@ -670,15 +682,15 @@ Script.
             '''
             from PyLabControl.src.core import ScriptIterator
 
+            if verbose:
+                print('sub_scripts', sub_scripts)
+                print('script_settings', script_settings)
+
             class_name = 'class' + str(ScriptIterator._number_of_classes)
 
             dynamic_class = type(class_name, (ScriptIterator,),{'_SCRIPTS': sub_scripts, '_DEFAULT_SETTINGS': script_settings, '_INSTRUMENTS': {}})
             # Now we place the dynamic script into the scope of src.scripts as regular scripts.
             # This is equivalent to importing the module in src.scripts.__init__, but because the class doesn't exist until runtime it must be done here.
-            # old ===== start
-            # import PyLabControl.src.scripts
-            # setattr(PyLabControl.src.scripts, class_name, dynamic_class)
-            # old ===== end
             import PyLabControl.src.core.script_iterator
             setattr(PyLabControl.src.core.script_iterator, class_name, dynamic_class)
 
@@ -693,8 +705,8 @@ Script.
             #         print('CLASSNAME', vars(someclass)['_CLASS'])
             #         return vars(someclass)['_CLASS']
 
-        script_default_settings, sub_scripts = set_up_dynamic_script(script_information)
-        class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings)
+        script_default_settings, sub_scripts = set_up_dynamic_script(script_information, verbose)
+        class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings, verbose)
 
         # update the generic name (e.g. ScriptIterator) to a unique name  (e.g. ScriptIterator_01)
         script_information['class'] = class_name
@@ -711,7 +723,28 @@ Script.
         return script_information
 
 if __name__ == '__main__':
-    pass
+
+
+    # # test with standard iterator
+    # script_info = {'DefaultName':
+    #                    {'info': 'Enter docstring here', 'settings': {'script_order': {'ScriptDummy': 0}, 'iterator_type': 'Loop'},
+    #                     'class': 'ScriptIterator', 'scripts':
+    #                         {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
+    #                                          'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'},
+    #                                          'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}}}}
+    #
+    # si = ScriptIterator.create_dynamic_script_class(script_info['DefaultName'], verbose=True)
+    #
+    # print(si)
+
+    # test with b26 iterator
+    script_info = {'b26iter':
+                       {'info': 'Enter docstring herecasc', 'settings': {'script_order': {'ScriptDummy': 0}, 'iterator_type': 'Loop'},
+                        'class': 'ScriptIterator', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ', 'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}}}}
+
+    si = ScriptIterator.create_dynamic_script_class(script_info['b26iter'], verbose=True)
+
+    print(si)
 
     #TODO: update example code
     #OLD SAMPLE CODE WITH OUTDATED API

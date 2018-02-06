@@ -37,7 +37,8 @@ if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     # ex = LoadDialog(elements_type = 'instruments', elements_old=instuments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
     # ex = LoadDialog(elements_type='scripts', elements_old=instuments)
-    ex = LoadDialogB26(elements_type='scripts')
+    ex = LoadDialogB26(elements_type='scripts', filename='/Users/rettentulla/Projects/Python/user_data')
+
 
     ex.show()
     ex.raise_()
@@ -48,6 +49,8 @@ if __name__ == '__main__':
         print(values)
 
     sys.exit(app.exec_())
+
+
 
 #
 # if __name__ == '__main__':

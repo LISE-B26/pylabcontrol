@@ -30,6 +30,7 @@ import pandas as pd
 import glob
 import inspect
 import warnings
+import platform
 from PyQt4.QtCore import pyqtSignal, QObject, pyqtSlot
 
 
@@ -648,9 +649,11 @@ class Script(QObject):
         """
         if filename is None:
             filename = self.filename('.b26')
-        # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
-        if len(filename.split('\\\\?\\')) == 1:
-            filename = '\\\\?\\' + filename
+
+        if platform.system() == 'Windows':
+            # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
+            if len(filename.split('\\\\?\\')) == 1:
+                filename = '\\\\?\\' + filename
         save_b26_file(filename, scripts=self.to_dict(), overwrite=True)
     def save_image_to_disk(self, filename_1 = None, filename_2 = None):
         """
@@ -1091,7 +1094,7 @@ class Script(QObject):
         return updated_scripts, load_failed, updated_instruments
 
     @staticmethod
-    def get_script_information(script_information):
+    def get_script_information(script_information, verbose=False):
         """
         extracts all the relevant information from script_information and returns it as individual variables
         Args:
@@ -1115,6 +1118,8 @@ class Script(QObject):
                 script_settings = script_information['settings']
             if 'filepath' in script_information:
                 script_filepath = str(script_information['filepath'])
+                if verbose:
+                    print('script_filepath', script_filepath)
                 path_to_module, _ = module_name_from_path(script_filepath)
                 module = import_module(path_to_module)
             script_class_name = str(script_information['class'])
@@ -1311,3 +1316,13 @@ class Script(QObject):
 
 if __name__ == '__main__':
     pass
+
+
+    # test for get_script_information
+    sinfo = {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
+                                             'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '',
+                                                          'save': False, 'plot_style': 'main'},
+                                             'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}
+
+    Script.get_script_information(sinfo, verbose=True)
+

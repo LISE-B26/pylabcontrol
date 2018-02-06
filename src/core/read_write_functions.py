@@ -19,6 +19,7 @@
 import yaml, json
 import os, inspect
 from importlib import import_module
+import platform
 
 def import_sub_modules(module_type):
     """
@@ -135,12 +136,14 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
             else:
                 data_dict['probes'].update(probes)
 
+    print('writing ', filename)
 
     if data_dict != {}:
 
-        # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
-        if len(filename.split('\\\\?\\')) == 1:
-            filename = '\\\\?\\'+ filename
+        if platform == 'Windows':
+            # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
+            if len(filename.split('\\\\?\\')) == 1:
+                filename = '\\\\?\\'+ filename
         # create folder if it doesn't exist
         if os.path.exists(os.path.dirname(filename)) is False:
             print('creating', os.path.dirname(filename))
@@ -148,3 +151,4 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
 
         with open(filename, 'w') as outfile:
             tmp = json.dump(data_dict, outfile, indent=4)
+

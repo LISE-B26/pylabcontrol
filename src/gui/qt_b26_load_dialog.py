@@ -21,7 +21,9 @@ from PyQt4 import QtGui
 from PyQt4.uic import loadUiType
 
 from PyLabControl.src.core.read_write_functions import load_b26_file
-from PyLabControl.src.core import Parameter, Script
+from PyLabControl.src.core.helper_functions import module_name_from_path
+# from PyLabControl.src.core import Parameter, Script
+import inspect
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
@@ -96,8 +98,6 @@ Returns:
 
         self.cmb_looping_variable.addItems(['Loop', 'Parameter Sweep'])
 
-    def test(item):
-        print(item)
 
     def name_changed(self, changed_item):
         """
@@ -172,7 +172,6 @@ Returns:
             self.fill_tree(self.tree_infile, elements_from_file)
             # append new elements to internal dictionary
             self.elements_from_file.update(elements_from_file)
-
 
     def load_elements(self, filename):
         """
@@ -274,16 +273,19 @@ Returns:
         # QtGui.QTextEdit.toPlainText()
 
 
+        # get the module of the current dialogue
 
-        print('------- JG')
-        for k, v in vars(self).iteritems():
-            if 'txt' in k:
-                print('gggg', k, v)
-
+        module, path = module_name_from_path(inspect.getmodule(self).__file__, verbose=True)
+        print('----------')
+        print('module', module)
+        print('path', path)
+        #
+        # print('package', module.split('.')[0])
+        package = module.split('.')[0]
 
 
         # class_name = Script.set_up_dynamic_script(factory_scripts, new_script_parameter_list, self.cmb_looping_variable.currentText() == 'Parameter Sweep')
-        new_script_dict = {name: {'class': 'ScriptIterator', 'scripts': new_script_dict,
+        new_script_dict = {name: {'class': 'ScriptIterator', 'package': package, 'scripts': new_script_dict,
                                   'info': str(self.txt_info.toPlainText()),
                                   'settings': {'script_order': new_script_parameter_dict,
                                                'iterator_type': str(self.cmb_looping_variable.currentText())}}}
@@ -299,7 +301,7 @@ if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     # ex = LoadDialog(elements_type = 'instruments', elements_old=instuments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
     # ex = LoadDialog(elements_type='scripts', elements_old=instuments)
-    ex = LoadDialog(elements_type='scripts')
+    ex = LoadDialog(elements_type='scripts', filename='/Users/rettentulla/Projects/Python/user_data')
 
     ex.show()
     ex.raise_()
@@ -310,5 +312,36 @@ if __name__ == '__main__':
         print(values)
 
     sys.exit(app.exec_())
+
+    # from PyLabControl.src.core.helper_functions import module_name_from_path
+    #
+    # base = '__main__'
+    # fp = os.path.dirname(sys.modules[base].__file__)
+    #
+    # m, p = module_name_from_path(fp, verbose=True)
+    # print('sys.modules[base]', m)
+    # print('path', p)
+
+
+
+
+
+
+
+
+
+    # test for getting the path of a module
+    fp = '/Users/rettentulla/PycharmProjects/PyLabControl/src/gui/'
+
+
+    module, path = module_name_from_path(fp, verbose=False)
+
+
+    print('----------')
+    print('module', module)
+    print('path', path)
+
+    print('package', module.split('.')[0])
+
 
 

@@ -196,7 +196,7 @@ Example Script that has all different types of parameters (integer, str, fload, 
             name (optional): name of script, if empty same as class name
             settings (optional): settings for this script, if empty same as default settings
         """
-        super(ScriptDummyWrapper, self).__init__(self, name, settings, log_function= log_function, data_path = data_path)
+        super(ScriptDummyWrapper, self).__init__(self, name, settings, log_function= log_function, data_path=data_path)
 
     def _function(self):
         """
