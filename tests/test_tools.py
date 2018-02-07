@@ -19,8 +19,8 @@
 
 from unittest import TestCase
 
-import os, inspect
-from PyLabControl.src.core.helper_functions import module_name_from_path
+import os, inspect, shutil
+from PyLabControl.src.tools.export_default import export
 from PyLabControl.src.scripts.script_dummy import ScriptDummy
 
 
@@ -31,17 +31,15 @@ class TestHelperFunctions(TestCase):
     #     self.filename = inspect.getmodule(ScriptDummy).__file__
 
 
-    def test_module_name_from_path_1(self):
+    def test_export_script(self):
 
+        source_folders = os.path.dirname(inspect.getmodule(ScriptDummy).__file__)
 
-        package_name = 'PyLabControl'
+        tmp_folder = os.path.normpath('./tmp-testing-/')
+        os.makedirs(tmp_folder)
+        export(tmp_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
 
-        filename = inspect.getmodule(ScriptDummy).__file__
-        # check that file actually exists
-        assert os.path.isfile(filename)
+        print('adas')
 
-        module, path = module_name_from_path(filename, verbose=False)
+        shutil.rmtree(tmp_folder, ignore_errors=False, onerror=None)
 
-
-        assert module == 'PyLabControl.src.scripts.script_dummy'
-        assert path == os.path.normpath(filename.split(package_name)[0])

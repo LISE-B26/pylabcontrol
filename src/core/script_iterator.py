@@ -550,9 +550,13 @@ Script.
             sub_scripts = {}  # dictonary of script classes that are to be subscripts of the dynamic class. Should be in the dictionary form {'class_name': <class_object>} (btw. class_object is not the instance)
             script_order = []  # A list of parameters giving the order that the scripts in the ScriptIterator should be executed. Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
             script_execution_freq = [] # A list of parameters giving the frequency with which each script should be executed
-            _, script_class_name, script_settings, _, script_sub_scripts, _ = Script.get_script_information(script_information)
+            _, script_class_name, script_settings, _, script_sub_scripts, _, package = Script.get_script_information(script_information)
+            # module, script_class_name, script_settings, script_instruments, script_sub_scripts, package
 
-            iterator_type = ScriptIterator.get_iterator_type(script_settings, script_sub_scripts)
+
+            print('package', package)
+            iterator_type = getattr(package, 'get_iterator_type')( (script_settings, script_sub_scripts) )
+            # iterator_type = ScriptIterator.get_iterator_type(script_settings, script_sub_scripts)
             if verbose:
                 print('iterator_type', iterator_type)
 
@@ -724,54 +728,27 @@ Script.
 
 if __name__ == '__main__':
 
+    from PyLabControl.src.scripts.script_dummy import ScriptDummy
+    path_to_script_file = inspect.getmodule(ScriptDummy).__file__.replace('.pyc', '.py')
 
-    # # test with standard iterator
-    # script_info = {'DefaultName':
-    #                    {'info': 'Enter docstring here', 'settings': {'script_order': {'ScriptDummy': 0}, 'iterator_type': 'Loop'},
-    #                     'class': 'ScriptIterator', 'scripts':
-    #                         {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
-    #                                          'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'},
-    #                                          'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}}}}
-    #
-    # si = ScriptIterator.create_dynamic_script_class(script_info['DefaultName'], verbose=True)
-    #
-    # print(si)
+    iterator_type = 'Loop'# 'Iter Pts'
 
-    # test with b26 iterator
-    script_info = {'b26iter':
+    package = 'PyLabControl' #'b26_toolkit'
+
+    script_info = {'iter_script':
                        {'info': 'Enter docstring here',
                         'scripts': {'ScriptDummy':
-                                {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
-                                 'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'},
-                                 'class': 'ScriptDummy',
-                                 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}},
-                        'class': 'ScriptIterator', 'settings': {'script_order': {'ScriptDummy': 0}, 'iterator_type': 'Loop'}, 'package': 'PyLabControl'}}
+                            {
+                                'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
+                                'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1,
+                                             'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy',
+                                             'path': '', 'save': False, 'plot_style': 'main'},
+                                'class': 'ScriptDummy',
+                                'filepath': path_to_script_file}},
+                        'class': 'ScriptIterator',
+                        'settings': {'script_order': {'ScriptDummy': 0}, 'iterator_type': iterator_type},
+                        'package': package}}
 
-    si = ScriptIterator.create_dynamic_script_class(script_info['b26iter'], verbose=True)
+    si = ScriptIterator.create_dynamic_script_class(script_info['iter_script'], verbose=True)
 
     print(si)
-
-    #TODO: update example code
-    #OLD SAMPLE CODE WITH OUTDATED API
-    # from src.scripts import ScriptMinimalDummy
-    #
-    # import src.scripts
-    # smc = ScriptMinimalDummy()
-    # scripts = {'ScriptMinimalDummy': ScriptMinimalDummy}
-    # settings = [Parameter('repetitions', 0, int, 'times the subscript will be executed')]
-    # script_loop = ScriptIterator.script_sequence_factory('loop', scripts, settings)
-    # ScriptIterator.import_dynamic_script(src.scripts, 'loop', script_loop)
-    # # a = script_loop({'SMC': smc})
-    # # a._function()
-    #
-    # script, failed, instr = Script.load_and_append({'loop':
-    #                                                     {'class': 'loop',
-    #                                                      'settings': {'repetitions': 1},
-    #                                                      'scripts': {'ScriptMinimalDummy': {'class': 'ScriptMinimalDummy', 'settings': {'parameter': 3}}}
-    #                                                      }
-    #                                                 }
-    #                                                )
-    # print(script['loop'].settings)
-    # print(script)
-    # print(failed)
-    # print(instr)

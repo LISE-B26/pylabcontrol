@@ -20,12 +20,35 @@
 from unittest import TestCase
 
 from PyLabControl.src.core import ScriptIterator
-
+from PyLabControl.src.scripts.script_dummy import ScriptDummy
+import inspect
 
 class TestScriptIterator(TestCase):
 
     def test_loading_and_saving(self):
-        pass
+
+
+        path_to_script_file = inspect.getmodule(ScriptDummy).__file__.replace('.pyc', '.py')
+
+
+        script_info = {'iter_script':
+                           {'info': 'Enter docstring here',
+                            'scripts': {'ScriptDummy':
+                                            {
+                                                'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
+                                                'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1,
+                                                             'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy',
+                                                             'path': '', 'save': False, 'plot_style': 'main'},
+                                                'class': 'ScriptDummy',
+                                                'filepath': path_to_script_file}},
+                            'class': 'ScriptIterator',
+                            'settings': {'script_order': {'ScriptDummy': 0}, 'iterator_type': 'Loop'},
+                            'package': 'PyLabControl'}}
+
+        si = ScriptIterator.create_dynamic_script_class(script_info['iter_script'], verbose=True)
+
+        print(si)
+
 
 
 

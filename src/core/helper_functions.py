@@ -201,11 +201,102 @@ def datetime_from_str(string):
     return datetime.datetime(year=2000+int(string[0:2]), month=int(string[2:4]), day=int(string[4:6]), hour=int(string[7:9]), minute=int(string[10:12]),second=int(string[13:15]))
 
 
+def get_script_iterator(package):
+    """
 
+
+    Args:
+        package: name of package
+
+    Returns: the script_iterator of the package
+
+    """
+
+    packs = explore_package(package + '.src.core')
+    script_iterator = None
+
+    for p in packs:
+        for name, c in inspect.getmembers(importlib.import_module(p), inspect.isclass):
+            if issubclass(c, ScriptIterator):
+                script_iterator = p
+                break
+        if script_iterator is not None:
+            break
+
+    return script_iterator
+
+
+def explore_package(module_name):
+
+    packages = []
+    loader = pkgutil.get_loader(module_name)
+    for sub_module in pkgutil.walk_packages([loader.filename]):
+        _, sub_module_name, _ = sub_module
+        qname = module_name + "." + sub_module_name
+        packages.append(qname)
+        # print(qname)
+
+        packages = packages + explore_package(qname)
+
+    return packages
 
 if __name__ == '__main__':
 
 
+    from PyLabControl.src.core.script_iterator import ScriptIterator
+    import pkgutil, importlib
+    package = 'PyLabControl'
+    package = 'b26_toolkit'
+
+    script_iterator = get_script_iterator(package)
+    print('script_iterator', script_iterator)
+
+
+
+
+
+
+    # explore_package(package)
+    # import PyLabControl
+    # x = inspect.getmoduleinfo('PyLabControl')
+    # print(x)
+    #
+    # x = inspect.getmoduleinfo(PyLabControl)
+    #
+    # inspect.isclass(object)
+    # print(x)
+
+    # loader = pkgutil.get_loader(package)
+    # for sub_module in pkgutil.walk_packages([loader.filename]):
+    #     _, sub_module_name, _ = sub_module
+    #     qname = package + "." + sub_module_name
+    #     print(qname)
+
+
+    # for (module_loader, name, ispkg) in pkgutil.iter_modules([package]):
+    #     print(name)
+
+    # from PyLabControl.src.core.script_iterator import ScriptIterator
+    # for cls in ScriptIterator.__subclasses__():
+    #     print(cls)
+
+    # import sys
+    # import pkgutil
+    #
+    #
+    # assert pkgutil.find_loader(package) is not None # check that package exists
+    #
+    # print(pkgutil.find_loader(package))
+    #
+    #
+    # print(inspect.getmembers(getattr(package)))
+    # print(sys.modules[__name__])
+
+    # for name, obj in inspect.getmembers(foo):
+    #     if inspect.isclass(obj):
+    #         print obj
+
+    # print(get_script_iterator(package))
 
     # print('aaa')
     # for x in os.sys.path:
@@ -237,7 +328,6 @@ if __name__ == '__main__':
 
 
 
-    import glob
     # test
     # fn= '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'
     # # fn = '/Users/rettentulla/'

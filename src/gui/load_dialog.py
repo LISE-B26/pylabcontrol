@@ -1,4 +1,3 @@
-
 # This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #

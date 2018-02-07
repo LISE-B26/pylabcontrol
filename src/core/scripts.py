@@ -1130,7 +1130,18 @@ class Script(QObject):
                 script_sub_scripts = script_information['scripts']
             if 'info' in script_information:
                 script_info = script_information['info']
+            if 'package' in script_information:
+                package = script_information['package']
+            else:
+                package = 'PyLabControl'
+
         elif isinstance(script_information, str):
+
+            # JG 20180206
+            # Maybe this case should be removed, just get rid of the option to load with the name only without providing the package
+            # alternatively, check this case carefully for bugs
+
+            raise NotImplementedError
             script_class_name = script_information
 
             # todo: now all the possible module paths are hardcoded. In the future it would be nicer if modules are found dynamically
@@ -1151,12 +1162,12 @@ class Script(QObject):
             # to avoid this problem call from PyLabControl.src.core import Script (otherwise the path to Script is __main__.Script)
             script_class_name = script_information.__name__
 
+        # JG 20180206: looks like we don't do it like this anymore, commented out for now
+        # # if the module has a name of type classX where X is a number the module is script iterator
+        # if len(script_class_name.split('class')) ==2 and script_class_name.split('class')[1].isdigit():
+        #     module = import_module('PyLabControl.src.core.script_iterator')
 
-        # if the module has a name of type classX where X is a number the module is script iterator
-        if len(script_class_name.split('class')) ==2 and script_class_name.split('class')[1].isdigit():
-            module = import_module('PyLabControl.src.core.script_iterator')
-
-        return module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info
+        return module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package
 
 
     def duplicate(self):
