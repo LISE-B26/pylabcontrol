@@ -71,8 +71,8 @@ class TestScriptIterator(TestCase):
         package = 'PyLabControl' #
         iterator_type = 'Loop'  #
 
-        package = 'b26_toolkit'  #
-        iterator_type = 'Iter test'  #
+        # package = 'b26_toolkit'  #
+        # iterator_type = 'Iter test'  #
 
         script_info = {'iter_script':
                            {'info': 'Enter docstring here',

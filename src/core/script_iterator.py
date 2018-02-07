@@ -44,8 +44,7 @@ Script.
     _number_of_classes = 0 # keeps track of the number of dynamically created ScriptIterator classes that have been created
     _class_list = [] # list of current dynamically created ScriptIterator classes
 
-    TYPE_LOOP = 0
-    TYPE_SWEEP_PARAMETER = 1
+    ITER_TYPES = ['loop', 'sweep']
 
     def __init__(self, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
@@ -69,32 +68,22 @@ Script.
         Returns:
 
         """
-        print('JGG1', script_settings)
-        print('JGG', script_settings['iterator_type'])
+
         if 'iterator_type' in script_settings:
             # figure out the iterator type
             if script_settings['iterator_type'] == 'Loop':
-                iterator_type = ScriptIterator.TYPE_LOOP
+                iterator_type = 'loop'
             elif script_settings['iterator_type'] == 'Parameter Sweep':
-                iterator_type = ScriptIterator.TYPE_SWEEP_PARAMETER
-            elif script_settings['iterator_type'] == 'Iter NVs':
-                iterator_type = ScriptIterator.TYPE_ITER_NVS
-            elif script_settings['iterator_type'] == 'Iter Points':
-                iterator_type = ScriptIterator.TYPE_ITER_POINTS
+                iterator_type = 'sweep'
             else:
                 raise TypeError('unknown iterator type')
         else:
             # asign the correct iterator script type
             if 'sweep_param' in script_settings:
-                iterator_type = ScriptIterator.TYPE_SWEEP_PARAMETER
-            elif 'find_nv' in subscripts and 'select_points' in subscripts:
-                iterator_type = ScriptIterator.TYPE_ITER_NVS
-            elif 'set_laser' in subscripts and 'select_points' in subscripts:
-                iterator_type = ScriptIterator.TYPE_ITER_POINTS
+                iterator_type = 'sweep'
             elif 'N' in script_settings:
-                iterator_type = ScriptIterator.TYPE_LOOP
+                iterator_type = 'loop'
             else:
-                print(script_settings, subscripts)
                 raise TypeError('unknown iterator type')
 
         return iterator_type
@@ -123,7 +112,7 @@ Script.
         script_indices = [self.settings['script_order'][name] for name in script_names]
         _, sorted_script_names = zip(*sorted(zip(script_indices, script_names)))
 
-        if self.iterator_type == self.TYPE_SWEEP_PARAMETER:
+        if self.iterator_type == 'sweep':
 
 
             def get_script_and_settings_from_str(sweep_param):
@@ -173,7 +162,7 @@ Script.
                     self.scripts[script_name].run()
                     self.scripts[script_name].settings['tag'] = tag
 
-        elif self.iterator_type == self.TYPE_LOOP:
+        elif self.iterator_type == 'loop':
 
             N_points = self.settings['N']
             if N_points == 0:
@@ -316,9 +305,9 @@ Script.
         number_of_subscripts = len(self.scripts)
 
         # ==== get number of iterations and loop index ======================
-        if self.iterator_type == self.TYPE_LOOP:
+        if self.iterator_type == 'loop':
             number_of_iterations = self.settings['N']
-        elif self.iterator_type == self.TYPE_SWEEP_PARAMETER:
+        elif self.iterator_type == 'sweep':
             sweep_range = self.settings['sweep_range']
             if self.settings['stepping_mode'] == 'value_step':
                 number_of_iterations = len(np.linspace(sweep_range['min_value'], sweep_range['max_value'],
@@ -522,7 +511,7 @@ Script.
 
         """
 
-        if iterator_type == ScriptIterator.TYPE_LOOP:
+        if iterator_type == 'loop':
             script_default_settings = [
                 Parameter('script_order', script_order),
                 Parameter('script_execution_freq', script_execution_freq),
