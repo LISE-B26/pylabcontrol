@@ -1318,6 +1318,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.gui_settings = config
 
+        print('file_name', file_name)
         self.instruments, self.scripts, self.probes = load_settings(file_name)
 
 

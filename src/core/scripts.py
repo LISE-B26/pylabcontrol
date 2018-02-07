@@ -519,11 +519,19 @@ class Script(QObject):
 
         """
 
+        from PyLabControl.src.core.script_iterator import ScriptIterator
+
         dictator = {self.name: {
             'class' : self.__class__.__name__,
             'filepath': inspect.getfile(self.__class__),
             'info': self.__doc__
         }}
+
+        # todo JG: mayby change path so that it points to b26toolkit and not to PyLabcotnrols
+        # if isinstance(self, ScriptIterator):
+        #     dictator['filepath'] = inspect.getfile(self.__class__),
+
+
 
         if self.scripts != {}:
             dictator[self.name].update({'scripts': {} })
@@ -1027,6 +1035,7 @@ class Script(QObject):
 
         for script_name, script_info in script_dict.iteritems():
 
+
             # check if script already exists
             if script_name in scripts.keys():
                 print('WARNING: script {:s} already exists. Did not load!'.format(script_name))
@@ -1139,12 +1148,17 @@ class Script(QObject):
         script_info = None # this is the docstring that describes the script
 
         print('script_information', script_information)
-        # print('script_information.keys()', script_information.keys())
 
-        print('isinstance(script_information, dict)', isinstance(script_information, dict))
 
         if isinstance(script_information, dict):
+            if 'class' in script_information:
+                print('script_information[class]', script_information['class'])
+            # print('script_information.keys()', script_information.keys())
 
+            print('isinstance(script_information, dict)', isinstance(script_information, dict))
+
+            print('sdsdadasa')
+            print('script_information[class]', script_information['class'])
             if 'settings' in script_information:
                 script_settings = script_information['settings']
             if 'filepath' in script_information:

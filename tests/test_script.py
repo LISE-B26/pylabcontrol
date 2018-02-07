@@ -19,7 +19,7 @@
 
 from unittest import TestCase
 
-from PyLabControl.src.core import Script
+from PyLabControl.src.core import Script, Instrument
 from PyLabControl.src.scripts.script_dummy import ScriptDummy
 
 class TestInstrument(TestCase):
@@ -103,3 +103,22 @@ class TestInstrument(TestCase):
         print('scripts', scripts)
         print('loaded_failed',loaded_failed)
         print('instruments', instruments)
+
+    def test_load_and_append_from_file(self):
+
+        from PyLabControl.src.core.read_write_functions import load_b26_file
+        filename = '/Users/rettentulla/pythonlab_config_lev.b26'
+
+        in_data = load_b26_file(filename)
+
+        instruments = in_data['instruments'] if 'instruments' in in_data else {}
+        scripts = in_data['scripts'] if 'scripts' in in_data else {}
+        probes = in_data['probes'] if 'probes' in in_data else {}
+
+        instruments_loaded, failed = Instrument.load_and_append(instruments)
+        if len(failed) > 0:
+            print('WARNING! Following instruments could not be loaded: ', failed)
+
+        scripts_loaded, failed, instruments_loaded = Script.load_and_append(
+            script_dict=scripts,
+            instruments=instruments_loaded)
