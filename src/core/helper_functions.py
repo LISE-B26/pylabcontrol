@@ -208,20 +208,21 @@ def get_script_iterator(package):
     Args:
         package: name of package
 
-    Returns: the script_iterator of the package
+    Returns: the script_iterators of the package as a dictionary
 
     """
 
     packs = explore_package(package + '.src.core')
-    script_iterator = None
+    script_iterator = {}
 
     for p in packs:
         for name, c in inspect.getmembers(importlib.import_module(p), inspect.isclass):
             if issubclass(c, ScriptIterator):
-                script_iterator = p
-                break
-        if script_iterator is not None:
-            break
+                script_iterator.update({name: c})
+                # print(p, name, script_iterator)
+                # break
+        # if script_iterator is not None:
+            # break
 
     return script_iterator
 
@@ -249,6 +250,11 @@ if __name__ == '__main__':
     package = 'b26_toolkit'
 
     script_iterator = get_script_iterator(package)
+    # print('script_iterator', script_iterator)
+    #
+    # inspect.getmembers(importlib.import_module(p), inspect.isclass)
+    # script_iterator = importlib.import_module(script_iterator)
+
     print('script_iterator', script_iterator)
 
 
