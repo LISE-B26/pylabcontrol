@@ -879,7 +879,7 @@ class Script(QObject):
         return settings
 
     @staticmethod
-    def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None, raise_errors = False):
+    def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None, raise_errors = False, verbose=False):
         """
         load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
 
@@ -941,6 +941,12 @@ class Script(QObject):
         updated_scripts.update(scripts)
         updated_instruments = {}
         updated_instruments.update(instruments)
+
+
+        if verbose:
+            print('script_dict', script_dict)
+
+
 
         def get_instruments(class_of_script, script_instruments, instruments):
             """
@@ -1026,15 +1032,22 @@ class Script(QObject):
                 print('WARNING: script {:s} already exists. Did not load!'.format(script_name))
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
-                module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc = Script.get_script_information(script_info)
+                module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
                 #creates all dynamic scripts so they can be imported following the if statement
                 if script_class_name == 'ScriptIterator':
                     # creates all the dynamic classes in the script and the class of the script itself
                     # and updates the script info with these new classes
-                    from PyLabControl.src.core import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
+                    from PyLabControl.src.core.script_iterator import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
 
-                    script_info = ScriptIterator.create_dynamic_script_class(script_info)
-                    module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc = Script.get_script_information(script_info)
+                    script_info, _ = ScriptIterator.create_dynamic_script_class(script_info)
+
+                    # now get the info for the dynamically created class
+                    module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
+                verbose = True
+                if verbose:
+                    print('load_and_append.module', module)
+                    print('load_and_append.script_info', script_info)
+                    print('load_and_append.package', package)
 
                 if module is None and inspect.isclass(script_info):
                     class_of_script = script_info
@@ -1051,14 +1064,14 @@ class Script(QObject):
                     continue
                 # print('XXX loaded instruments....')
                 #  ========= create the subscripts that are needed by the script =========
-                try:
-                    sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
-                except Exception as err:
-                    print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
-                    load_failed[script_name] = err
-                    if raise_errors:
-                        raise err
-                    continue
+                # try:
+                sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
+                # except Exception as err:
+                #     print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
+                #     load_failed[script_name] = err
+                #     if raise_errors:
+                #         raise err
+                #     continue
                 # print('XXX loaded subscripts....')
 
                 class_creation_string = ''
@@ -1074,21 +1087,30 @@ class Script(QObject):
                     class_creation_string += ', data_path = data_path'
                 class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
-                try:
+                # try:
+                verbose = True
+                if verbose:
+                    print('class_creation_string', class_creation_string)
+                    print('class_of_script', class_of_script)
+                    print('scripts', sub_scripts)
 
-                    script_instance = eval(class_creation_string)
-                    # print('=====XXX ==!+ class_creation_string', class_creation_string)
-                    if script_doc:
-                        script_instance.__doc__ = script_doc
+                script_instance = eval(class_creation_string)
+                # print('=====XXX ==!+ class_creation_string', class_creation_string)
+                if script_doc:
+                    script_instance.__doc__ = script_doc
 
-                    updated_scripts.update({script_name: script_instance})
+                updated_scripts.update({script_name: script_instance})
 
-                except Exception, err:
-                    load_failed[script_name] = err
-                    if raise_errors:
-                        print('class_creation_string', class_creation_string, script_name, script_instruments)
-                        raise err
-                    continue
+                # raise NotImplementedError
+                # except Exception, err:
+                #     load_failed[script_name] = err
+                #     if raise_errors:
+                #         print('class_creation_string', class_creation_string, script_name, sub_scripts, script_instruments)
+                #         print('script_settings', script_settings)
+                #         print('class_of_script', class_of_script)
+                #         print('base', class_of_script.__bases__)
+                #         raise err
+                #     continue
 
 
         return updated_scripts, load_failed, updated_instruments
@@ -1107,12 +1129,19 @@ class Script(QObject):
             module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package
 
         """
+
+        # verbose = False
         script_settings = None
         script_instruments = None
         script_sub_scripts = None
         script_class_name = None
         module = None  # this is the module that contains the script were we look for scripts
         script_info = None # this is the docstring that describes the script
+
+        print('script_information', script_information)
+        # print('script_information.keys()', script_information.keys())
+
+        print('isinstance(script_information, dict)', isinstance(script_information, dict))
 
         if isinstance(script_information, dict):
 
@@ -1136,6 +1165,7 @@ class Script(QObject):
                 package = script_information['package']
             else:
                 package = 'PyLabControl'
+
 
         elif isinstance(script_information, str):
 
@@ -1165,10 +1195,15 @@ class Script(QObject):
             # to avoid this problem call from PyLabControl.src.core import Script (otherwise the path to Script is __main__.Script)
             script_class_name = script_information.__name__
 
-        # JG 20180206: looks like we don't do it like this anymore, commented out for now
-        # # if the module has a name of type classX where X is a number the module is script iterator
-        # if len(script_class_name.split('class')) ==2 and script_class_name.split('class')[1].isdigit():
-        #     module = import_module('PyLabControl.src.core.script_iterator')
+
+        assert isinstance(package, str)
+
+        # # if the module has a name of type dynamic_script_iteratorX where X is a number the module is script iterator
+
+        if len(script_class_name.split('dynamic_script_iterator')) ==2 and script_class_name.split('dynamic_script_iterator')[1].isdigit():
+            package = 'PyLabControl' # all the dynamic iterator scripts are defined in the name space of PyLabControl
+            module = import_module(package + '.src.core.script_iterator')
+
 
         return module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package
 

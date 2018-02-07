@@ -51,7 +51,7 @@ Script.
         Default script initialization
         """
         Script.__init__(self, name, scripts = scripts, settings = settings, log_function= log_function, data_path = data_path)
-
+        print('asdasdada------1111')
         self.iterator_type = self.get_iterator_type(self.settings, scripts)
 
         self._current_subscript_stage = None
@@ -76,6 +76,7 @@ Script.
             elif script_settings['iterator_type'] == 'Parameter Sweep':
                 iterator_type = 'sweep'
             else:
+                print('XXXXX', script_settings['iterator_type'])
                 raise TypeError('unknown iterator type')
         else:
             # asign the correct iterator script type
@@ -84,6 +85,7 @@ Script.
             elif 'N' in script_settings:
                 iterator_type = 'loop'
             else:
+                print(script_settings)
                 raise TypeError('unknown iterator type')
 
         return iterator_type
@@ -451,6 +453,11 @@ Script.
         # replace this with ScriptIterator to indicate that this class is of type ScriptIterator
         dictator[self.name]['class'] = 'ScriptIterator'
 
+
+        #todo JG: try to replace by following to keep track of real class
+        # dictator[self.name]['class'] = self.__module__.split('.')[0]
+
+
         return dictator
     @staticmethod
     def get_iterator_default_script(iterator_type):
@@ -542,7 +549,7 @@ Script.
         '''
 
 
-        def set_up_dynamic_script(script_information, script_iterators, verbose=True):
+        def set_up_dynamic_script(script_information, script_iterators, verbose=verbose):
             '''
 
             Args:
@@ -557,8 +564,6 @@ Script.
 
             '''
 
-            verbose = True
-
             if verbose:
                 print('script_information', script_information)
             sub_scripts = {}  # dictonary of script classes that are to be subscripts of the dynamic class. Should be in the dictionary form {'class_name': <class_object>} (btw. class_object is not the instance)
@@ -568,12 +573,9 @@ Script.
             # module, script_class_name, script_settings, script_instruments, script_sub_scripts, package
 
 
-            print('package  JG', package)
-
             if not package in script_iterators:
                 script_iterators.update(ScriptIterator.get_script_iterator(package))
 
-            print('script_iterators JG', script_iterators)
             assert package in script_iterators
 
             iterator_type = getattr(script_iterators[package], 'get_iterator_type')(script_settings, script_sub_scripts)
@@ -596,26 +598,34 @@ Script.
                         import PyLabControl.src.core.script_iterator
                         sub_scripts.update({sub_script_name: getattr(PyLabControl.src.core.script_iterator, subscript_class_name)})
                     else:
-                        print('JG: script name is else', sub_script_class)
                         if verbose:
-                            print('script_sub_scripts[sub_script_name]', script_sub_scripts[sub_script_name])
+                            print('script_sub_scripts[sub_script_name]', sub_script_class)
 
                         # script_dict = {script_sub_scripts[sub_script_name]['class']}
-                        module = Script.get_script_module(script_sub_scripts[sub_script_name], verbose=True)
+                        module = Script.get_script_module(sub_script_class, verbose=verbose)
 
                         if verbose:
                             print('module', module)
+                        new_subscript = getattr(module, script_sub_scripts[sub_script_name]['class'])
 
-                        sub_scripts.update({sub_script_name: getattr(module, script_sub_scripts[sub_script_name]['class'])})
+                        print('new_subscript', new_subscript)
+                        sub_scripts.update({sub_script_name: new_subscript})
 
-                # for some iterators have default script, e.g. point iteration has select points
+                print('gggggg', sub_scripts)
+
+                # for some iterators have default scripts, e.g. point iteration has select points
                 default_sub_scripts, default_script_settings = getattr(script_iterators[package], 'get_iterator_default_script')(iterator_type)
                 sub_scripts.update(default_sub_scripts)
-                script_settings.update(default_script_settings)
+                print('gggggg', sub_scripts)
 
-                if verbose:
-                    print('default_sub_scripts', default_sub_scripts)
-                    print('default_script_settings', default_script_settings)
+                print('oo', script_settings)
+                print('oo script_settings', script_settings)
+                script_settings.update(default_script_settings)
+                print('oo', script_settings)
+
+                # if verbose:
+                print('default_sub_scripts', default_sub_scripts)
+                print('default_script_settings', default_script_settings)
 
             elif isinstance(script_information, Script):
 
@@ -629,10 +639,14 @@ Script.
             script_order, script_execution_freq = getattr(script_iterators[package], 'get_script_order')(script_settings['script_order'])
 
             script_default_settings = getattr(script_iterators[package], 'get_default_settings')(sub_scripts, script_order, script_execution_freq, iterator_type)
+            if verbose:
+                print('()()()()()', script_default_settings)
+                print('()()()()()', sub_scripts)
+                print('()()()()()', script_iterators, package)
 
             return script_default_settings, sub_scripts, script_iterators, package
 
-        def create_script_iterator_class(sub_scripts, script_settings, script_iterator, verbose=False):
+        def create_script_iterator_class(sub_scripts, script_settings, script_iterator_base_class, verbose=verbose):
             '''
             A 'factory' to create a ScriptIterator class at runtime with the given inputs.
 
@@ -648,19 +662,28 @@ Script.
 
             # from PyLabControl.src.core import ScriptIterator
             #
+
+
             if verbose:
+                print('\n\n======== create_script_iterator_class ========\n')
                 print('sub_scripts', sub_scripts)
                 print('script_settings', script_settings)
-                print('script_iterator', script_iterator)
+                print('script_iterator_base_class', script_iterator_base_class)
 
-            class_name = 'dynamic_script_iterator' + str(script_iterator._number_of_classes)
+            class_name = 'dynamic_script_iterator' + str(script_iterator_base_class._number_of_classes)
 
             if verbose:
                 print('class_name', class_name)
 
-            dynamic_class = type(class_name, (ScriptIterator,),{'_SCRIPTS': sub_scripts, '_DEFAULT_SETTINGS': script_settings, '_INSTRUMENTS': {}})
+            dynamic_class = type(class_name, (script_iterator_base_class,), {'_SCRIPTS': sub_scripts, '_DEFAULT_SETTINGS': script_settings, '_INSTRUMENTS': {}})
+            # JG old with ScriptIterator hard coded the above should be good!
+            #  dynamic_class = type(class_name, (ScriptIterator,),
+            #                      {'_SCRIPTS': sub_scripts, '_DEFAULT_SETTINGS': script_settings, '_INSTRUMENTS': {}})
+
+
             if verbose:
                 print('dynamic_class', dynamic_class)
+                print('__bases__', dynamic_class.__bases__)
 
 
             # Now we place the dynamic script into the scope of src.scripts as regular scripts.
@@ -669,6 +692,9 @@ Script.
             import PyLabControl.src.core.script_iterator
             setattr(PyLabControl.src.core.script_iterator, class_name, dynamic_class)
             # OLD END
+
+            # importlib.import_module(package + '.src.core.script_iterator')
+            # setattr
             # import PyLabControl.src.core.scripts
             # setattr(PyLabControl.src.core.scripts, class_name, dynamic_class)
 
@@ -679,6 +705,9 @@ Script.
             if verbose:
                 print('ScriptIterator._class_list', ScriptIterator._class_list)
 
+            if verbose:
+                print('\n===== end create_script_iterator_class ========\n')
+
             return class_name, dynamic_class
 
             # todo: prevent multiple importation of the same script with different names
@@ -687,20 +716,23 @@ Script.
             #         print('CLASSNAME', vars(someclass)['_CLASS'])
             #         return vars(someclass)['_CLASS']
 
-        # get default setting, load subscripts, load the script_iterators and identify the package
-        script_default_settings, sub_scripts, script_iterators, package = set_up_dynamic_script(script_information, script_iterators)
 
-        print('JG sub_scripts', sub_scripts)
+        # if verbose:
+        print('       <======> JG script_information', script_information['class'])
+
+        # get default setting, load subscripts, load the script_iterators and identify the package
+        script_default_settings, sub_scripts, script_iterators, package = set_up_dynamic_script(script_information, script_iterators, verbose=False)
 
         # now actually create the classs
-        class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings, script_iterators[package], verbose)
+        class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings, script_iterators[package], verbose = True)
 
         # update the generic name (e.g. ScriptIterator) to a unique name  (e.g. ScriptIterator_01)
         script_information['class'] = class_name
 
         if 'iterator_type' in script_information['settings']:
 
-            print('WONDER IF WE EVER HAVE THIS CASE: iterator_type in script_information[setting]')
+            if verbose:
+                print('WONDER IF WE EVER HAVE THIS CASE: iterator_type in script_information[setting]')
             # if script_information['settings'] contains only the iterator type
             # update the script settings
             #       from  {'script_order': DICT_WITH_SUBSCRIPT_ORDER, 'iterator_type': ITERATOR_TYPE}
@@ -710,6 +742,15 @@ Script.
                 script_settings.update(elem)
             script_information['settings'] = script_settings
 
+        if verbose:
+            print('\n\n======== create_dynamic_script_class ========\n')
+
+            print('dynamic_class', dynamic_class)
+            print('sub_scripts', sub_scripts)
+            print('script_settings', script_settings)
+
+        if verbose:
+            print('\n======== end create_dynamic_script_class ========\n')
 
         return script_information, script_iterators
 
@@ -733,10 +774,10 @@ Script.
             for name, c in inspect.getmembers(importlib.import_module(p), inspect.isclass):
 
                 if verbose:
-                    print(p, name, c, ScriptIterator)
+                    print(p, name, c)
 
                 if issubclass(c, ScriptIterator):
-                    # update dictionary with 'Package name , e.g. PyLabControl of b26_toolkit': <ScriptIterator_class>
+                    # update dictionary with 'Package name , e.g. PyLabControl or b26_toolkit': <ScriptIterator_class>
                     script_iterator.update({c.__module__.split('.')[0]: c})
 
 

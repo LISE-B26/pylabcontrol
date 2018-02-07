@@ -20,12 +20,12 @@
 from unittest import TestCase
 
 from PyLabControl.src.core import Script
-from PyLabControl.src.scripts.script_dummy import ScriptDummySaveData
+from PyLabControl.src.scripts.script_dummy import ScriptDummy
 
 class TestInstrument(TestCase):
 
     def test_loading_and_saving(self):
-        from src.core.read_write_functions import load_b26_file
+        from PyLabControl.src.core.read_write_functions import load_b26_file
 
         filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XYX.b26"
 
@@ -71,3 +71,35 @@ class TestInstrument(TestCase):
         print(data['array-2D'], np.shape(data['array-2D']))
         script_save = ScriptDummySaveData(name=name, settings={'tag': name}, data=data)
         script_save.run()
+
+
+    def test_load_and_append(self):
+
+        # script_info = {'info': 'Enter docstring here',
+        #                'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
+        #                                                                            'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'},
+        #                                                                            'class': 'ScriptDummy',
+        #                                                                            'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}},
+        #                'class': 'dynamic_script_iterator0',
+        #                'settings': {'script_order': {'ScriptDummy': 0},'run_all_first': True, 'script_execution_freq': {'ScriptDummy': 1}},
+        #                'package': 'b26_toolkit'}
+        # module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
+        # print('module, script_class_name', module, script_class_name)
+        # print('script_settings', script_settings)
+        # print('script_instruments, script_sub_scripts, script_doc, package', script_instruments, script_sub_scripts, script_doc, package)
+
+        script_dict = {'DefaultName': {'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ', 'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}},
+                                       'class': 'ScriptIterator', 'settings': {'script_order': {'ScriptDummy': 0},
+                                                                               'iterator_type': 'Iter test'}, 'package': 'b26_toolkit'}}
+
+        scripts = {}
+        instruments = {}
+
+        scripts, loaded_failed, instruments = Script.load_and_append(
+            script_dict=script_dict,
+            scripts=scripts,
+            instruments=instruments, raise_errors = True)
+
+        print('scripts', scripts)
+        print('loaded_failed',loaded_failed)
+        print('instruments', instruments)

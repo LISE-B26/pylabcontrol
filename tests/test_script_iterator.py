@@ -95,7 +95,36 @@ class TestScriptIterator(TestCase):
 
 
     def test_XX(self):
-        from importlib import import_module
-        import_module('b26_toolkit.src.scripts')
 
+        from PyLabControl.src.core import Script
+        script_info = {'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {
+            'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
+            'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1},
+                         'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy',
+            'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}},
+         'class': 'ScriptIterator', 'settings': {'script_order': {'ScriptDummy': 0}, 'iterator_type': 'Loop'},
+         'package': 'b26_toolkit'}
+
+
+        script_info2 = {'info': 'Enter docstring here', 'scripts':
+            {'ScriptDummy': {
+            'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
+            'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1},
+                         'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'},
+                'class': 'ScriptDummy',
+                'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}
+            },
+            'class': 'dynamic_script_iterator0',
+            'settings': {'script_order': {'ScriptDummy': 0}, 'run_all_first': True,'script_execution_freq': {'ScriptDummy': 1}, 'N': 0},
+            'package': 'b26_toolkit'}
+
+        print('============================================================')
+        module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
+        print(module, package, script_class_name)
+        script_info3, _ = ScriptIterator.create_dynamic_script_class(script_info)
+        print('============================================================')
+        module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info2)
+        print(module, package, script_class_name)
+        module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info3)
+        print(module, package, script_class_name)
 
