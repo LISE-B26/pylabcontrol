@@ -49,7 +49,7 @@ except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
     from PyLabControl.src.gui.basic_application_window import Ui_MainWindow
     from PyQt4.QtGui import QMainWindow
-    print('Warning: on-the-fly conversion of basic_application_window.ui file failed, loaded .py file instead.')
+    print('Warning: on-the-fly conversion of basic_application_window.ui file failed, loaded .py file instead.\n')
 
 
 class CustomEventFilter(QtCore.QObject):

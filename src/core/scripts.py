@@ -1094,7 +1094,7 @@ class Script(QObject):
         return updated_scripts, load_failed, updated_instruments
 
     @staticmethod
-    def get_script_information(script_information, verbose=False):
+    def get_script_information(script_information, package='PyLabControl', verbose=False):
         """
         extracts all the relevant information from script_information and returns it as individual variables
         Args:
@@ -1102,7 +1102,9 @@ class Script(QObject):
                 - a dictionary
                 - a Script instance
                 - name of Script class
-        Returns: module, script_class_name, script_settings, script_instruments, script_sub_scripts
+            package (optional): name of the package to which the script belongs, i.e. PyLabControl or b26toolkit only used when script_information is a string
+        Returns:
+            module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package
 
         """
         script_settings = None
@@ -1141,21 +1143,22 @@ class Script(QObject):
             # Maybe this case should be removed, just get rid of the option to load with the name only without providing the package
             # alternatively, check this case carefully for bugs
 
-            raise NotImplementedError
+            # raise NotImplementedError
+
+            print('JG tmpppp script_information', script_information)
             script_class_name = script_information
 
             # todo: now all the possible module paths are hardcoded. In the future it would be nicer if modules are found dynamically
             # find the module
-            for module_path in ['PyLabControl.src.scripts', 'b26_toolkit.src.scripts']:
-                try:
-                    module = import_module(module_path)
-                    if hasattr(module, script_class_name):
-                        break
-                except ImportError:
-                    pass
+            module_path = package + '.src.scripts'
+            try:
+                module = import_module(module_path)
+            except ImportError:
+                pass
             # check if module was found!
             if module is None or not hasattr(module, script_class_name):
-                raise ImportError('Could not find the module that contains ' + script_class_name)
+                print('Could not find the module that contains ' + script_class_name + ' in module ' + module_path)
+                raise ImportError('Could not find the module that contains ' + script_class_name + ' in module ' + module_path)
 
         elif issubclass(script_information, Script):
             # watch out when testing this code from __main__, then classes might not be identified correctly because the path is different
@@ -1169,6 +1172,25 @@ class Script(QObject):
 
         return module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package
 
+    @staticmethod
+    def get_script_module(script_information, package='PyLabControl', verbose=False):
+        """
+        wrapper to get the module for a script
+
+        Args:
+            script_information: information of the script. This can be
+                - a dictionary
+                - a Script instance
+                - name of Script class
+            package (optional): name of the package to which the script belongs, i.e. PyLabControl or b26toolkit only used when script_information is a string
+        Returns:
+            module
+
+        """
+
+        module, _, _, _, _, _, _ = Script.get_script_information(script_information=script_information, package=package, verbose=verbose)
+
+        return module
 
     def duplicate(self):
         """
@@ -1329,13 +1351,15 @@ if __name__ == '__main__':
     pass
 
 
-    # test for get_script_information
-    sinfo = {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
-                                             'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '',
-                                                          'save': False, 'plot_style': 'main'},
-                                             'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}
+    # # test for get_script_information
+    # sinfo = {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
+    #                                          'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '',
+    #                                                       'save': False, 'plot_style': 'main'},
+    #                                          'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}
+    #
+    # info = Script.get_script_information(sinfo, verbose=True)
+    #
+    # print(info)
+    #
 
-    info = Script.get_script_information(sinfo, verbose=True)
-
-    print(info)
-
+    print()

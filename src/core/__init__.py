@@ -15,16 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from PyLabControl.src.core.instruments import Instrument
 from PyLabControl.src.core.parameter import Parameter
+from PyLabControl.src.core.instruments import Instrument
 from PyLabControl.src.core.probe import Probe
 from PyLabControl.src.core.scripts import Script
-from PyLabControl.src.core.script_iterator import ScriptIterator
-try:
-    from read_probes import ReadProbes
-except:
-    pass
-
-
-__all__ = ['Instrument', 'Parameter']
+# from PyLabControl.src.core.script_iterator import ScriptIterator
+# try:
+#     from read_probes import ReadProbes
+# except:
+#     pass
+#
+#
+# __all__ = ['Instrument', 'Parameter']

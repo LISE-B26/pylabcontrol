@@ -33,7 +33,7 @@ except (ImportError, IOError):
     from PyLabControl.src.gui.load_dialog import Ui_Dialog
     from PyQt4.QtGui import QMainWindow
     from PyQt4.QtGui import QDialog
-    print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!')
+    print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!\n')
 
 
 

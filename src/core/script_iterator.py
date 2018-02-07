@@ -23,6 +23,8 @@ from collections import deque
 import datetime
 import warnings
 import inspect
+import PyLabControl.src.core.helper_functions as hf
+import importlib
 
 class ScriptIterator(Script):
     '''
@@ -44,8 +46,6 @@ Script.
 
     TYPE_LOOP = 0
     TYPE_SWEEP_PARAMETER = 1
-    TYPE_ITER_NVS = 2
-    TYPE_ITER_POINTS = 3
 
     def __init__(self, scripts, name = None, settings = None, log_function = None, data_path = None):
         """
@@ -69,7 +69,8 @@ Script.
         Returns:
 
         """
-
+        print('JGG1', script_settings)
+        print('JGG', script_settings['iterator_type'])
         if 'iterator_type' in script_settings:
             # figure out the iterator type
             if script_settings['iterator_type'] == 'Loop':
@@ -462,88 +463,112 @@ Script.
         dictator[self.name]['class'] = 'ScriptIterator'
 
         return dictator
+    @staticmethod
+    def get_iterator_default_script(iterator_type):
+        """
+        This function might be overwritten by functions that inherit from ScriptIterator
+        Returns:
+            sub_scripts: a dictionary with the default scripts for the script_iterator
+            script_settings: a dictionary with the script_settingsfor the default scripts
 
+        """
+
+        sub_scripts = {}
+        script_settings = {}
+        return sub_scripts, script_settings
 
     @staticmethod
-    def create_dynamic_script_class(script_information, verbose=False):
+    def get_script_order(script_order):
+        """
+
+        Args:
+            script_order:
+                a dictionary giving the order that the scripts in the ScriptIterator should be executed.
+                Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
+
+        Returns:
+            script_order_parameter:
+                A list of parameters giving the order that the scripts in the ScriptIterator should be executed.
+            script_execution_freq:
+                A list of parameters giving the frequency with which each script should be executed
+
+        """
+        script_order_parameter = []
+        script_execution_freq = []
+        # update the script order
+        for sub_script_name in script_order.keys():
+            script_order_parameter.append(Parameter(sub_script_name, script_order[sub_script_name], int,
+                                          'Order in queue for this script'))
+
+            script_execution_freq.append(Parameter(sub_script_name, 1, int,
+                                                       'How often the script gets executed ex. 1 is every loop, 3 is every third loop, 0 is never'))
+
+        return script_order_parameter, script_execution_freq
+
+    @staticmethod
+    def get_default_settings(sub_scripts, script_order, script_execution_freq, iterator_type):
+        """
+        assigning the actual script settings depending on the iterator type
+
+        this might be overwritten by classes that inherit form ScriptIterator
+
+        Args:
+            sub_scripts: dictionary with the subscripts
+            script_order: execution order of subscripts
+            script_execution_freq: execution frequency of subscripts
+
+        Returns:
+            the default setting for the iterator
+
+        """
+
+        if iterator_type == ScriptIterator.TYPE_LOOP:
+            script_default_settings = [
+                Parameter('script_order', script_order),
+                Parameter('script_execution_freq', script_execution_freq),
+                Parameter('N', 0, int, 'times the subscripts will be executed'),
+                Parameter('run_all_first', True, bool, 'Run all scripts with nonzero frequency in first pass')
+            ]
+        else:
+            print('unknown iterator type ' + iterator_type)
+            raise TypeError('unknown iterator type ' + iterator_type)
+
+        return script_default_settings
+
+    @staticmethod
+    def create_dynamic_script_class(script_information, script_iterators={},verbose=False):
         '''
         creates all the dynamic classes in the script and the class of the script itself
         and updates the script info with these new classes
 
         Args:
             script_information: A dictionary describing the ScriptIterator, or an existing object
+            script_iterators: dictionary with the scriptiterators (optional)
 
-        Returns: script_information:  The updated dictionary describing the newly created ScriptIterator class
+        Returns:
+            script_information:  The updated dictionary describing the newly created ScriptIterator class
+            script_iterators: updated dictionary with the scriptiterators
         Poststate: Dynamically created classes inheriting from ScriptIterator are added to src.scripts
 
         '''
 
 
-        def set_up_dynamic_script(script_information, verbose=False):
+        def set_up_dynamic_script(script_information, script_iterators, verbose=True):
             '''
 
             Args:
                 script_information: information about the script as required by Script.get_script_information()
 
-            Returns: script_default_settings: the default settings of the dynamically created script as a list of parameters
+            Returns:
+                script_default_settings: the default settings of the dynamically created script as a list of parameters
+                sub_scripts
+
+                script_iterators: dictionary of the script_iterator classes of the form {'package_name': <script_iterator_classe>}
+                package: name of the package of the script_iterator
 
             '''
 
-            def populate_sweep_param(scripts, parameter_list, trace=''):
-                '''
-
-                Args:
-                    scripts: a dict of {'class name': <class object>} pairs
-
-                Returns: A list of all parameters of the input scripts
-
-                '''
-
-                def get_parameter_from_dict(trace, dic, parameter_list, valid_values = None):
-                    """
-                    appends keys in the dict to a list in the form trace.key.subkey.subsubkey...
-                    Args:
-                        trace: initial prefix (path through scripts and parameters to current location)
-                        dic: dictionary
-                        parameter_list: list to which append the parameters
-
-                        valid_values: valid values of dictionary values if None dic should be a dictionary
-
-                    Returns:
-
-                    """
-                    if valid_values is None and isinstance(dic, Parameter):
-                        valid_values = dic.valid_values
-
-                    for key, value in dic.iteritems():
-                        if isinstance(value, dict):  # for nested parameters ex {point: {'x': int, 'y': int}}
-                            parameter_list = get_parameter_from_dict(trace + '.' + key, value, parameter_list, dic.valid_values[key])
-                        elif (valid_values[key] in (float,int)) or\
-                                (isinstance(valid_values[key], list) and valid_values[key][0] in (float,int)):
-                            parameter_list.append(trace + '.' + key)
-                        else:  # once down to the form {key: value}
-                            # in all other cases ignore parameter
-                            print('ignoring sweep parameter', key)
-
-
-                    return parameter_list
-
-                for script_name in scripts.keys():
-                    from PyLabControl.src.core import ScriptIterator
-                    script_trace = trace
-                    if script_trace == '':
-                        script_trace = script_name
-                    else:
-                        script_trace = script_trace + '->' + script_name
-                    if issubclass(scripts[script_name], ScriptIterator):  # gets subscripts of ScriptIterator objects
-                        populate_sweep_param(vars(scripts[script_name])['_SCRIPTS'], parameter_list=parameter_list,trace=script_trace)
-                    else:
-                        # use inspect instead of vars to get _DEFAULT_SETTINGS also for classes that inherit _DEFAULT_SETTINGS from a superclass
-                        for setting in [elem[1] for elem in inspect.getmembers(scripts[script_name]) if elem[0] == '_DEFAULT_SETTINGS'][0]:
-                            parameter_list = get_parameter_from_dict(script_trace, setting, parameter_list)
-
-                return parameter_list
-
+            verbose = True
 
             if verbose:
                 print('script_information', script_information)
@@ -554,125 +579,71 @@ Script.
             # module, script_class_name, script_settings, script_instruments, script_sub_scripts, package
 
 
-            print('package', package)
-            iterator_type = getattr(package, 'get_iterator_type')( (script_settings, script_sub_scripts) )
-            # iterator_type = ScriptIterator.get_iterator_type(script_settings, script_sub_scripts)
+            print('package  JG', package)
+
+            if not package in script_iterators:
+                script_iterators.update(ScriptIterator.get_script_iterator(package))
+
+            print('script_iterators JG', script_iterators)
+            assert package in script_iterators
+
+            iterator_type = getattr(script_iterators[package], 'get_iterator_type')(script_settings, script_sub_scripts)
             if verbose:
-                print('iterator_type', iterator_type)
+                print('iterator_type  JG', iterator_type)
 
             if isinstance(script_information, dict):
 
                 for sub_script_name, sub_script_class in script_sub_scripts.iteritems():
                     if isinstance(sub_script_class, Script):
-                        print('JG: script name ', Script.name)
+                        print('JG: script name is script', Script.name)
                         # script already exists
                         raise NotImplementedError
                     elif script_sub_scripts[sub_script_name]['class'] == 'ScriptIterator':
-                        subscript_class_name = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name])['class']
+                        print('JG: script name is iterator', Script.name)
+                        # raise NotImplementedError # has to be dynamic maybe???
+                        script_information_subclass,  script_iterators = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name], script_iterators)
+                        subscript_class_name = script_information_subclass['class']
                         # import PyLabControl.src.scripts
                         import PyLabControl.src.core.script_iterator
                         sub_scripts.update({sub_script_name: getattr(PyLabControl.src.core.script_iterator, subscript_class_name)})
                     else:
-
+                        print('JG: script name is else', sub_script_class)
                         if verbose:
                             print('script_sub_scripts[sub_script_name]', script_sub_scripts[sub_script_name])
 
                         # script_dict = {script_sub_scripts[sub_script_name]['class']}
-                        module, _, _, _, _, _ = Script.get_script_information(script_sub_scripts[sub_script_name], verbose=True)
+                        module = Script.get_script_module(script_sub_scripts[sub_script_name], verbose=True)
 
                         if verbose:
                             print('module', module)
 
                         sub_scripts.update({sub_script_name: getattr(module, script_sub_scripts[sub_script_name]['class'])})
 
-                # for point iteration we add some default scripts
-                if iterator_type == ScriptIterator.TYPE_ITER_NVS:
+                # for some iterators have default script, e.g. point iteration has select points
+                default_sub_scripts, default_script_settings = getattr(script_iterators[package], 'get_iterator_default_script')(iterator_type)
+                sub_scripts.update(default_sub_scripts)
+                script_settings.update(default_script_settings)
 
-                    module, _, _, _, _, _ = Script.get_script_information('SelectPoints')
-                    sub_scripts.update(
-                        {'select_points': getattr(module, 'SelectPoints')}
-                    )
-                    module, _, _, _, _, _ = Script.get_script_information('FindNV')
-                    sub_scripts.update(
-                  #      {'find_nv': getattr(module, 'FindNV_cDAQ')}
-                        {'find_nv': getattr(module, 'FindNV')}
-                    )
-                    module, _, _, _, _, _ = Script.get_script_information('Take_And_Correlate_Images')
-                    sub_scripts.update(
-                        {'correlate_iter': getattr(module, 'Take_And_Correlate_Images')}
-                    )
-                    script_settings['script_order'].update(
-                        {'select_points': -3, 'correlate_iter': -2, 'find_nv': -1}
-                    )
-                elif iterator_type == ScriptIterator.TYPE_ITER_POINTS:
-                    module, _, _, _, _, _ = Script.get_script_information('SelectPoints')
-                    sub_scripts.update(
-                        {'select_points': getattr(module, 'SelectPoints')}
-                    )
-                    module, _, _, _, _, _ = Script.get_script_information('SetLaser')
-                    sub_scripts.update(
-                        {'set_laser': getattr(module, 'SetLaser')}
-                    )
-                    module, _, _, _, _, _ = Script.get_script_information('Take_And_Correlate_Images')
-                    sub_scripts.update(
-                        {'correlate_iter': getattr(module, 'Take_And_Correlate_Images')}
-                    )
-                    script_settings['script_order'].update(
-                        {'select_points': -3, 'correlate_iter': -2, 'set_laser': -1}
-                    )
+                if verbose:
+                    print('default_sub_scripts', default_sub_scripts)
+                    print('default_script_settings', default_script_settings)
+
             elif isinstance(script_information, Script):
+
+                print('old code - DOUBLE CHECK')
+                raise NotImplementedError
                 # if the script already exists, just update the script order parameter
                 sub_scripts.update({script_class_name: script_information})
             else:
                 raise TypeError('create_dynamic_script_class: unknown type of script_information')
 
-            # update the script order
-            for sub_script_name in script_settings['script_order'].keys():
-                script_order.append(Parameter(sub_script_name, script_settings['script_order'][sub_script_name], int,
-                                              'Order in queue for this script'))
-                if sub_script_name == 'select_points':
-                    script_execution_freq.append(Parameter(sub_script_name, 0, int,
-                                              'How often the script gets executed ex. 1 is every loop, 3 is every third loop, 0 is never'))
-                else:
-                    script_execution_freq.append(Parameter(sub_script_name, 1, int,
-                                                           'How often the script gets executed ex. 1 is every loop, 3 is every third loop, 0 is never'))
+            script_order, script_execution_freq = getattr(script_iterators[package], 'get_script_order')(script_settings['script_order'])
 
-            # assigning the actual script settings depending on the interator type
-            if iterator_type == ScriptIterator.TYPE_SWEEP_PARAMETER:
-                sweep_params = populate_sweep_param(sub_scripts, [])
+            script_default_settings = getattr(script_iterators[package], 'get_default_settings')(sub_scripts, script_order, script_execution_freq, iterator_type)
 
-                script_default_settings = [
-                    Parameter('script_order', script_order),
-                    Parameter('script_execution_freq', script_execution_freq),
-                    Parameter('sweep_param', sweep_params[0], sweep_params, 'variable over which to sweep'),
-                    Parameter('sweep_range',
-                              [Parameter('min_value', 0, float, 'min parameter value'),
-                               Parameter('max_value', 0, float, 'max parameter value'),
-                               Parameter('N/value_step', 0, float,
-                                         'either number of steps or parameter value step, depending on mode')]),
-                    Parameter('stepping_mode', 'N', ['N', 'value_step'],
-                              'Switch between number of steps and step amount'),
-                    Parameter('run_all_first', True, bool, 'Run all scripts with nonzero frequency in first pass')
-                ]
-            elif iterator_type == ScriptIterator.TYPE_LOOP:
-                script_default_settings = [
-                    Parameter('script_order', script_order),
-                    Parameter('script_execution_freq', script_execution_freq),
-                    Parameter('N', 0, int, 'times the subscripts will be executed'),
-                    Parameter('run_all_first', True, bool, 'Run all scripts with nonzero frequency in first pass')
-                ]
-            elif iterator_type in (ScriptIterator.TYPE_ITER_NVS, ScriptIterator.TYPE_ITER_POINTS):
-                script_default_settings = [
-                    Parameter('script_order', script_order),
-                    Parameter('script_execution_freq', script_execution_freq),
-                    Parameter('run_all_first', True, bool, 'Run all scripts with nonzero frequency in first pass')
-                ]
-            else:
-                raise TypeError('unknown iterator type')
+            return script_default_settings, sub_scripts, script_iterators, package
 
-            return script_default_settings, sub_scripts
-
-        def create_script_iterator_class(sub_scripts, script_settings, verbose=False):
+        def create_script_iterator_class(sub_scripts, script_settings, script_iterator, verbose=False):
             '''
             A 'factory' to create a ScriptIterator class at runtime with the given inputs.
 
@@ -684,22 +655,40 @@ Script.
             Returns: A newly created class inheriting from ScriptIterator, with the given subscripts and default settings
 
             '''
-            from PyLabControl.src.core import ScriptIterator
 
+
+            # from PyLabControl.src.core import ScriptIterator
+            #
             if verbose:
                 print('sub_scripts', sub_scripts)
                 print('script_settings', script_settings)
+                print('script_iterator', script_iterator)
 
-            class_name = 'class' + str(ScriptIterator._number_of_classes)
+            class_name = 'dynamic_script_iterator' + str(script_iterator._number_of_classes)
+
+            if verbose:
+                print('class_name', class_name)
 
             dynamic_class = type(class_name, (ScriptIterator,),{'_SCRIPTS': sub_scripts, '_DEFAULT_SETTINGS': script_settings, '_INSTRUMENTS': {}})
+            if verbose:
+                print('dynamic_class', dynamic_class)
+
+
             # Now we place the dynamic script into the scope of src.scripts as regular scripts.
             # This is equivalent to importing the module in src.scripts.__init__, but because the class doesn't exist until runtime it must be done here.
+            # OLD START
             import PyLabControl.src.core.script_iterator
             setattr(PyLabControl.src.core.script_iterator, class_name, dynamic_class)
+            # OLD END
+            # import PyLabControl.src.core.scripts
+            # setattr(PyLabControl.src.core.scripts, class_name, dynamic_class)
 
             ScriptIterator._class_list.append(dynamic_class)
             ScriptIterator._number_of_classes += 1
+
+
+            if verbose:
+                print('ScriptIterator._class_list', ScriptIterator._class_list)
 
             return class_name, dynamic_class
 
@@ -709,13 +698,20 @@ Script.
             #         print('CLASSNAME', vars(someclass)['_CLASS'])
             #         return vars(someclass)['_CLASS']
 
-        script_default_settings, sub_scripts = set_up_dynamic_script(script_information, verbose)
-        class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings, verbose)
+        # get default setting, load subscripts, load the script_iterators and identify the package
+        script_default_settings, sub_scripts, script_iterators, package = set_up_dynamic_script(script_information, script_iterators)
+
+        print('JG sub_scripts', sub_scripts)
+
+        # now actually create the classs
+        class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings, script_iterators[package], verbose)
 
         # update the generic name (e.g. ScriptIterator) to a unique name  (e.g. ScriptIterator_01)
         script_information['class'] = class_name
 
         if 'iterator_type' in script_information['settings']:
+
+            print('WONDER IF WE EVER HAVE THIS CASE: iterator_type in script_information[setting]')
             # if script_information['settings'] contains only the iterator type
             # update the script settings
             #       from  {'script_order': DICT_WITH_SUBSCRIPT_ORDER, 'iterator_type': ITERATOR_TYPE}
@@ -724,31 +720,85 @@ Script.
             for elem in script_default_settings:
                 script_settings.update(elem)
             script_information['settings'] = script_settings
-        return script_information
+
+
+        return script_information, script_iterators
+
+    @staticmethod
+    def get_script_iterator(package, verbose = False):
+        """
+
+
+        Args:
+            package: name of package
+
+        Returns: the script_iterators of the package as a dictionary
+
+        """
+
+        packs = hf.explore_package(package + '.src.core')
+        script_iterator = {}
+
+        for p in packs:
+
+            for name, c in inspect.getmembers(importlib.import_module(p), inspect.isclass):
+
+                if verbose:
+                    print(p, name, c, ScriptIterator)
+
+                if issubclass(c, ScriptIterator):
+                    # update dictionary with 'Package name , e.g. PyLabControl of b26_toolkit': <ScriptIterator_class>
+                    script_iterator.update({c.__module__.split('.')[0]: c})
+
+
+        return script_iterator
+
+
 
 if __name__ == '__main__':
 
-    from PyLabControl.src.scripts.script_dummy import ScriptDummy
-    path_to_script_file = inspect.getmodule(ScriptDummy).__file__.replace('.pyc', '.py')
 
-    iterator_type = 'Loop'# 'Iter Pts'
 
-    package = 'PyLabControl' #'b26_toolkit'
 
-    script_info = {'iter_script':
-                       {'info': 'Enter docstring here',
-                        'scripts': {'ScriptDummy':
-                            {
-                                'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
-                                'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1,
-                                             'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy',
-                                             'path': '', 'save': False, 'plot_style': 'main'},
-                                'class': 'ScriptDummy',
-                                'filepath': path_to_script_file}},
-                        'class': 'ScriptIterator',
-                        'settings': {'script_order': {'ScriptDummy': 0}, 'iterator_type': iterator_type},
-                        'package': package}}
+    # test get_script_iterator
+    package = 'PyLabControl'
+    # package = 'b26_toolkit'
 
-    si = ScriptIterator.create_dynamic_script_class(script_info['iter_script'], verbose=True)
+    script_iterator = ScriptIterator.get_script_iterator(package, verbose = True)
+    print('script_iterator', script_iterator)
+    #
+    # inspect.getmembers(importlib.import_module(p), inspect.isclass)
+    # script_iterator = importlib.import_module(script_iterator)
 
-    print(si)
+
+
+
+
+
+
+
+    #
+    # from PyLabControl.src.scripts.script_dummy import ScriptDummy
+    # path_to_script_file = inspect.getmodule(ScriptDummy).__file__.replace('.pyc', '.py')
+    #
+    # iterator_type = 'Loop'# 'Iter Pts'
+    #
+    # package = 'PyLabControl' #'b26_toolkit'
+    #
+    # script_info = {'iter_script':
+    #                    {'info': 'Enter docstring here',
+    #                     'scripts': {'ScriptDummy':
+    #                         {
+    #                             'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
+    #                             'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1,
+    #                                          'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy',
+    #                                          'path': '', 'save': False, 'plot_style': 'main'},
+    #                             'class': 'ScriptDummy',
+    #                             'filepath': path_to_script_file}},
+    #                     'class': 'ScriptIterator',
+    #                     'settings': {'script_order': {'ScriptDummy': 0}, 'iterator_type': iterator_type},
+    #                     'package': package}}
+    #
+    # si = ScriptIterator.create_dynamic_script_class(script_info['iter_script'], verbose=True)
+    #
+    # print(si)

@@ -20,6 +20,7 @@ import os, inspect
 # from importlib import import_module
 # from PyLabControl.src.core import Instrument, Script
 import datetime
+import pkgutil
 
 def module_name_from_path(folder_name, verbose=False):
     """
@@ -148,7 +149,7 @@ def is_python_package(path):
 def get_python_package(filename):
     """
 
-    retuns the name of the python package to which the file filename belongs. If file is not in a packege returns None
+    retuns the name of the python package to which the file filename belongs. If file is not in a package returns None
 
     Note that if the file is in a subpackage, the highest lying package gets returned
 
@@ -200,34 +201,16 @@ def datetime_from_str(string):
 
     return datetime.datetime(year=2000+int(string[0:2]), month=int(string[2:4]), day=int(string[4:6]), hour=int(string[7:9]), minute=int(string[10:12]),second=int(string[13:15]))
 
-
-def get_script_iterator(package):
+def explore_package(module_name):
     """
-
+    returns all the packeges in the module
 
     Args:
-        package: name of package
+        module_name: name of module
 
-    Returns: the script_iterators of the package as a dictionary
+    Returns:
 
     """
-
-    packs = explore_package(package + '.src.core')
-    script_iterator = {}
-
-    for p in packs:
-        for name, c in inspect.getmembers(importlib.import_module(p), inspect.isclass):
-            if issubclass(c, ScriptIterator):
-                script_iterator.update({name: c})
-                # print(p, name, script_iterator)
-                # break
-        # if script_iterator is not None:
-            # break
-
-    return script_iterator
-
-
-def explore_package(module_name):
 
     packages = []
     loader = pkgutil.get_loader(module_name)
@@ -235,7 +218,6 @@ def explore_package(module_name):
         _, sub_module_name, _ = sub_module
         qname = module_name + "." + sub_module_name
         packages.append(qname)
-        # print(qname)
 
         packages = packages + explore_package(qname)
 
@@ -243,19 +225,8 @@ def explore_package(module_name):
 
 if __name__ == '__main__':
 
+    pass
 
-    from PyLabControl.src.core.script_iterator import ScriptIterator
-    import pkgutil, importlib
-    package = 'PyLabControl'
-    package = 'b26_toolkit'
-
-    script_iterator = get_script_iterator(package)
-    # print('script_iterator', script_iterator)
-    #
-    # inspect.getmembers(importlib.import_module(p), inspect.isclass)
-    # script_iterator = importlib.import_module(script_iterator)
-
-    print('script_iterator', script_iterator)
 
 
 
