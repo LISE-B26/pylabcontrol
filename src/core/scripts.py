@@ -521,10 +521,6 @@ class Script(QObject):
 
         from PyLabControl.src.core.script_iterator import ScriptIterator
 
-        print('sdasdasdad', self.__class__.__name__)
-        print('sdasdasdad', self.__module__.split('.'))
-        print('a', 'script_iterator' in self.__module__.split('.'))
-        print('a', self.__module__.split('.')[-1])
 
         if 'script_iterator' in self.__module__.split('.'):
             # script iterator module is of the form
@@ -542,8 +538,6 @@ class Script(QObject):
             'info': self.__doc__,
             'package': package
         }}
-        print('asdasda filepath')
-        print('asdasda filepath', dictator[self.name]['filepath'])
 
         # todo JG: mayby change path so that it points to b26toolkit and not to PyLabcotnrols
         # if isinstance(self, ScriptIterator):
@@ -1035,12 +1029,8 @@ class Script(QObject):
 
             """
 
-            print('><<<<class_of_script======>>>', class_of_script)
-
             default_scripts = getattr(class_of_script, '_SCRIPTS')
             #
-
-            print('default_scripts', default_scripts)
             # create instruments that script needs
             sub_scripts = {}
             sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments, raise_errors)
@@ -1076,7 +1066,6 @@ class Script(QObject):
 
                     # now get the info for the dynamically created class
                     module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
-                verbose = True
                 if verbose:
                     print('load_and_append.module', module)
                     print('load_and_append.script_info', script_info)
@@ -1111,8 +1100,6 @@ class Script(QObject):
                     class_creation_string += ', data_path = data_path'
                 class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
-                # try:
-                verbose = True
                 if verbose:
                     print('class_creation_string', class_creation_string)
                     print('class_of_script', class_of_script)
@@ -1142,7 +1129,6 @@ class Script(QObject):
 
         """
 
-        verbose = True
         script_settings = None
         script_instruments = None
         script_sub_scripts = None

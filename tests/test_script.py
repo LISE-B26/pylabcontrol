@@ -40,39 +40,6 @@ class TestInstrument(TestCase):
         scripts, scripts_failed, instruments_2 = Script.load_and_append(data['scripts'], scripts, instruments)
 
 
-    def test_save_data(self):
-
-
-        import numpy as np
-
-        data = {'array-1': 2, 'array-2': 3, 'array-3': 'd'}
-        name = 'arrays_0D'
-        script_save = ScriptDummySaveData(name=name, settings={'tag': name}, data=data)
-        script_save.run()
-
-        data = {'array0': [0., 1., 2., 3.], 'array1': [4., 5., 6., 7.]}
-        name = '1D_arrays_same_length'
-        script_save = ScriptDummySaveData(name=name, settings={'tag': name}, data=data)
-        script_save.run()
-
-        data = {'array0': [0., 1., 2., 3.], 'array1': [4., 5., 6., 7., 8.]}
-        name = '1D_arrays_diff_length'
-        script_save = ScriptDummySaveData(name=name, settings={'tag': name}, data=data)
-        script_save.run()
-
-        data = {'array0': np.array([0., 1., 2., 3.]), 'array1': [4., 5., 6., 7., 8.]}
-        name = '1D_arrays_diff_length_np'
-        script_save = ScriptDummySaveData(name=name, settings={'tag': name}, data=data)
-        script_save.run()
-
-        data = {'array-0D': 2, 'array-1D': [4., 5., 6., 7., 8.], 'array-2D_np': np.array([[4., 5.], [5., 6.], [7., 8.]]),
-                'array-2D': [[14., 15.], [15., 16.], [17., 18.]]}
-        name = 'arrays_diff_dim'
-        print(data['array-2D'], np.shape(data['array-2D']))
-        script_save = ScriptDummySaveData(name=name, settings={'tag': name}, data=data)
-        script_save.run()
-
-
     def test_load_and_append(self):
 
         script_dict = {'DefaultName': {'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
@@ -167,13 +134,13 @@ class TestInstrument(TestCase):
 
         script_info = scripts.values()[0]
 
-        # module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
+        module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
 
-        # print('module', module.__name__.split('.')[0])
-        # print('script_class_name', script_class_name)
-        #
-        # print('package', script_info['package'])
-        # assert module.__name__.split('.')[0] == script_info['package']
+        print('module', module.__name__.split('.')[0])
+        print('script_class_name', script_class_name)
+
+        print('package', script_info['package'])
+        assert module.__name__.split('.')[0] == script_info['package']
 
 
 
