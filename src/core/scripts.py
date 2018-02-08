@@ -521,11 +521,29 @@ class Script(QObject):
 
         from PyLabControl.src.core.script_iterator import ScriptIterator
 
+        print('sdasdasdad', self.__class__.__name__)
+        print('sdasdasdad', self.__module__.split('.'))
+        print('a', 'script_iterator' in self.__module__.split('.'))
+        print('a', self.__module__.split('.')[-1])
+
+        if 'script_iterator' in self.__module__.split('.'):
+            # script iterator module is of the form
+            # 'PyLabControl.src.core.script_iterator.b26_toolkit.dynamic_script_iterator0'
+            # and the class name if of the form package.dynamic_script_iterator0
+            package = self.__class__.__name__.split('.')[0]
+        else:
+            # if it is not a script iterator the package is the highest level of the module
+            package = self.__module__.split('.')[0]
+
+
         dictator = {self.name: {
             'class' : self.__class__.__name__,
             'filepath': inspect.getfile(self.__class__),
-            'info': self.__doc__
+            'info': self.__doc__,
+            'package': package
         }}
+        print('asdasda filepath')
+        print('asdasda filepath', dictator[self.name]['filepath'])
 
         # todo JG: mayby change path so that it points to b26toolkit and not to PyLabcotnrols
         # if isinstance(self, ScriptIterator):
@@ -1016,8 +1034,13 @@ class Script(QObject):
             Returns:dictionary with the sub scripts that the script needs
 
             """
+
+            print('><<<<class_of_script======>>>', class_of_script)
+
             default_scripts = getattr(class_of_script, '_SCRIPTS')
             #
+
+            print('default_scripts', default_scripts)
             # create instruments that script needs
             sub_scripts = {}
             sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments, raise_errors)
@@ -1043,7 +1066,8 @@ class Script(QObject):
             else:
                 module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
                 #creates all dynamic scripts so they can be imported following the if statement
-                if script_class_name == 'ScriptIterator':
+                # if script_class_name == 'ScriptIterator':
+                if 'ScriptIterator' in script_class_name:
                     # creates all the dynamic classes in the script and the class of the script itself
                     # and updates the script info with these new classes
                     from PyLabControl.src.core.script_iterator import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
@@ -1071,17 +1095,8 @@ class Script(QObject):
                     if raise_errors:
                         raise err
                     continue
-                # print('XXX loaded instruments....')
-                #  ========= create the subscripts that are needed by the script =========
-                # try:
+
                 sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
-                # except Exception as err:
-                #     print('loading script {:s} failed. Could not load subscripts! {:s}'.format(script_name, script_sub_scripts))
-                #     load_failed[script_name] = err
-                #     if raise_errors:
-                #         raise err
-                #     continue
-                # print('XXX loaded subscripts....')
 
                 class_creation_string = ''
                 if script_instruments:
@@ -1104,22 +1119,10 @@ class Script(QObject):
                     print('scripts', sub_scripts)
 
                 script_instance = eval(class_creation_string)
-                # print('=====XXX ==!+ class_creation_string', class_creation_string)
                 if script_doc:
                     script_instance.__doc__ = script_doc
 
                 updated_scripts.update({script_name: script_instance})
-
-                # raise NotImplementedError
-                # except Exception, err:
-                #     load_failed[script_name] = err
-                #     if raise_errors:
-                #         print('class_creation_string', class_creation_string, script_name, sub_scripts, script_instruments)
-                #         print('script_settings', script_settings)
-                #         print('class_of_script', class_of_script)
-                #         print('base', class_of_script.__bases__)
-                #         raise err
-                #     continue
 
 
         return updated_scripts, load_failed, updated_instruments
@@ -1139,35 +1142,33 @@ class Script(QObject):
 
         """
 
-        # verbose = False
+        verbose = True
         script_settings = None
         script_instruments = None
         script_sub_scripts = None
         script_class_name = None
         module = None  # this is the module that contains the script were we look for scripts
         script_info = None # this is the docstring that describes the script
-
-        print('script_information', script_information)
+        module_path = package + '.src.scripts'
+        script_filepath = None
 
 
         if isinstance(script_information, dict):
-            if 'class' in script_information:
-                print('script_information[class]', script_information['class'])
-            # print('script_information.keys()', script_information.keys())
 
-            print('isinstance(script_information, dict)', isinstance(script_information, dict))
+            if 'package' in script_information:
+                package = script_information['package']
+            else:
+                package = 'PyLabControl'
 
-            print('sdsdadasa')
-            print('script_information[class]', script_information['class'])
             if 'settings' in script_information:
                 script_settings = script_information['settings']
             if 'filepath' in script_information:
                 script_filepath = str(script_information['filepath'])
-                if verbose:
-                    print('script_filepath', script_filepath)
-                path_to_module, _ = module_name_from_path(script_filepath)
-                module = import_module(path_to_module)
+                module_path, _ = module_name_from_path(script_filepath)
+
             script_class_name = str(script_information['class'])
+            if 'ScriptIterator' in script_class_name:
+                module_path = package + '.src.core.script_iterator'
 
             if 'instruments' in script_information:
                 script_instruments = script_information['instruments']
@@ -1175,48 +1176,66 @@ class Script(QObject):
                 script_sub_scripts = script_information['scripts']
             if 'info' in script_information:
                 script_info = script_information['info']
-            if 'package' in script_information:
-                package = script_information['package']
-            else:
-                package = 'PyLabControl'
-
-
         elif isinstance(script_information, str):
-
             # JG 20180206
             # Maybe this case should be removed, just get rid of the option to load with the name only without providing the package
             # alternatively, check this case carefully for bugs
-
             # raise NotImplementedError
-
-            print('JG tmpppp script_information', script_information)
             script_class_name = script_information
 
-            # todo: now all the possible module paths are hardcoded. In the future it would be nicer if modules are found dynamically
-            # find the module
-            module_path = package + '.src.scripts'
-            try:
-                module = import_module(module_path)
-            except ImportError:
-                pass
-            # check if module was found!
-            if module is None or not hasattr(module, script_class_name):
-                print('Could not find the module that contains ' + script_class_name + ' in module ' + module_path)
-                raise ImportError('Could not find the module that contains ' + script_class_name + ' in module ' + module_path)
 
         elif issubclass(script_information, Script):
             # watch out when testing this code from __main__, then classes might not be identified correctly because the path is different
             # to avoid this problem call from PyLabControl.src.core import Script (otherwise the path to Script is __main__.Script)
             script_class_name = script_information.__name__
 
-
         assert isinstance(package, str)
+
+
+        # if the script has not been created yet, i.e. script_class_name: ScriptIteratorB26 or ScriptIterator
+        if verbose:
+            print('script_filepath', script_filepath)
+            print('path_to_module', module_path)
+
+        if script_filepath is not None:
+            # scriptiterator loaded from file
+            if os.path.basename(script_filepath.split('.pyc')[0].split('.py')[0]) == 'script_iterator':
+                module_path = package + '.src.core.script_iterator'
+
+        # if the script has been created already, i.e. script_class_name: package.dynamic_script_iterator
+        # todo: now there is the prefix package
+        if len(script_class_name.split('dynamic_script_iterator')) == 2 and \
+                script_class_name.split('dynamic_script_iterator')[1].isdigit():
+            # package = 'PyLabControl' # all the dynamic iterator scripts are defined in the name space of PyLabControl
+            # all the dynamic iterator scripts are defined in the name space of package.src.core.script_iterator
+            # module = import_module(package + '.src.core.script_iterator')
+            module_path = package
+
+
+        # the package should be the highest level of the module path
+        assert module_path.split('.')[0] == package
+        # if not module_path.split('.')[0] == package:
+        #     module_path = package + '.src.scripts'
+
+
+        assert isinstance(module_path, str) # in that case we should have defined a moduel_path to load the module
+        assert module is None # we haven't load the module yet
+
+
+
+        try:
+            module = import_module(module_path)
+        except ImportError:
+            pass
+        # check if module was found!
+        if module is None or not hasattr(module, script_class_name):
+            print('Could not find the module that contains ' + script_class_name + ' in module ' + module_path)
+            raise ImportError('Could not find the module that contains ' + script_class_name + ' in module ' + module_path)
+
 
         # # if the module has a name of type dynamic_script_iteratorX where X is a number the module is script iterator
 
-        if len(script_class_name.split('dynamic_script_iterator')) ==2 and script_class_name.split('dynamic_script_iterator')[1].isdigit():
-            package = 'PyLabControl' # all the dynamic iterator scripts are defined in the name space of PyLabControl
-            module = import_module(package + '.src.core.script_iterator')
+
 
 
         return module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package

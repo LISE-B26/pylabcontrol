@@ -203,7 +203,7 @@ def datetime_from_str(string):
 
 def explore_package(module_name):
     """
-    returns all the packeges in the module
+    returns all the packages in the module
 
     Args:
         module_name: name of module

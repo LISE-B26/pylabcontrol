@@ -75,22 +75,14 @@ class TestInstrument(TestCase):
 
     def test_load_and_append(self):
 
-        # script_info = {'info': 'Enter docstring here',
-        #                'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
-        #                                                                            'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'},
-        #                                                                            'class': 'ScriptDummy',
-        #                                                                            'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}},
-        #                'class': 'dynamic_script_iterator0',
-        #                'settings': {'script_order': {'ScriptDummy': 0},'run_all_first': True, 'script_execution_freq': {'ScriptDummy': 1}},
-        #                'package': 'b26_toolkit'}
-        # module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
-        # print('module, script_class_name', module, script_class_name)
-        # print('script_settings', script_settings)
-        # print('script_instruments, script_sub_scripts, script_doc, package', script_instruments, script_sub_scripts, script_doc, package)
-
-        script_dict = {'DefaultName': {'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ', 'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}},
-                                       'class': 'ScriptIterator', 'settings': {'script_order': {'ScriptDummy': 0},
-                                                                               'iterator_type': 'Iter test'}, 'package': 'b26_toolkit'}}
+        script_dict = {'DefaultName': {'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
+                                                                                                   'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'},
+                                                                                                   'class': 'ScriptDummy',
+                                                                                                   'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}},
+                                       'class': 'ScriptIterator',
+                                       'settings': {'script_order': {'ScriptDummy': 0},
+                                        'iterator_type': 'Loop'},
+                                       'package': 'b26_toolkit'}}
 
         scripts = {}
         instruments = {}
@@ -103,11 +95,69 @@ class TestInstrument(TestCase):
         print('scripts', scripts)
         print('loaded_failed',loaded_failed)
         print('instruments', instruments)
+        print('----x')
+        print(scripts['DefaultName'].__class__.__name__)
+
+        print('----x')
+        print(scripts['DefaultName'].__class__.__name__.split('.')[0], script_dict['DefaultName']['package'])
+        assert scripts['DefaultName'].__class__.__name__.split('.')[0] == script_dict['DefaultName']['package']
+
+
+        print(type(scripts['DefaultName'].__module__))
+
+
+        module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(
+            script_dict['DefaultName'])
+
+
+        print(module)
+        print(script_class_name)
+
+    def test_get_module_1(self):
+
+        print(' ===== start test_get_module_1 =======')
+        script_info ={'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ', 'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}},
+                                       'class': 'ScriptIterator', 'settings': {'script_order': {'ScriptDummy': 0},
+                                                                               'iterator_type': 'Iter test'}, 'package': 'b26_toolkit'}
+
+
+
+        module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(
+            script_info)
+
+        print('script_class_name', script_class_name)
+        print('module', module)
+        print('package', package)
+        assert script_class_name == 'ScriptIterator'
+        assert module == None
+
+        print(' ===== end test_get_module_1 ========')
+
+    def test_get_module_2(self):
+        print(' ===== start test_get_module_2 =======')
+        script_info = {'info': 'Enter docstring here',
+         'settings': {'run_all_first': True, 'tag': 'defaultname', 'script_execution_freq': {'ScriptDummy': 1},
+                      'script_order': {'ScriptDummy': 0}, 'path': '', 'save': False, 'N': 0},
+         'class': 'ScriptIteratorB26', 'scripts': {'ScriptDummy': {
+            'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
+            'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1},
+                         'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy',
+            'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.pyc'}},
+         'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/core/script_iterator.pyc'}
+
+
+        module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(
+            script_info)
+
+        print('script_class_name', script_class_name)
+        print('module', module)
+        print('package', package)
+        print(' ===== end test_get_module_2 ========')
 
     def test_load_and_append_from_file(self):
 
         from PyLabControl.src.core.read_write_functions import load_b26_file
-        filename = '/Users/rettentulla/pythonlab_config_lev.b26'
+        filename = '/Users/rettentulla/pythonlab_config_lev7.b26'
 
         in_data = load_b26_file(filename)
 
@@ -115,10 +165,22 @@ class TestInstrument(TestCase):
         scripts = in_data['scripts'] if 'scripts' in in_data else {}
         probes = in_data['probes'] if 'probes' in in_data else {}
 
+        script_info = scripts.values()[0]
+
+        # module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
+
+        # print('module', module.__name__.split('.')[0])
+        # print('script_class_name', script_class_name)
+        #
+        # print('package', script_info['package'])
+        # assert module.__name__.split('.')[0] == script_info['package']
+
+
+
         instruments_loaded, failed = Instrument.load_and_append(instruments)
         if len(failed) > 0:
             print('WARNING! Following instruments could not be loaded: ', failed)
-
+        print('========================================================================\n\n')
         scripts_loaded, failed, instruments_loaded = Script.load_and_append(
             script_dict=scripts,
             instruments=instruments_loaded)

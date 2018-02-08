@@ -454,10 +454,6 @@ Script.
         dictator[self.name]['class'] = 'ScriptIterator'
 
 
-        #todo JG: try to replace by following to keep track of real class
-        # dictator[self.name]['class'] = self.__module__.split('.')[0]
-
-
         return dictator
     @staticmethod
     def get_iterator_default_script(iterator_type):
@@ -660,8 +656,11 @@ Script.
             '''
 
 
-            # from PyLabControl.src.core import ScriptIterator
-            #
+            # dynamically import the module, i.e. the namespace for the scriptiterator
+            script_iterator_module = __import__(script_iterator_base_class.__module__)
+
+
+
 
 
             if verbose:
@@ -670,11 +669,28 @@ Script.
                 print('script_settings', script_settings)
                 print('script_iterator_base_class', script_iterator_base_class)
 
-            class_name = 'dynamic_script_iterator' + str(script_iterator_base_class._number_of_classes)
+                print(script_iterator_base_class.__module__.split('.')[0])
+
+
+            class_name = script_iterator_base_class.__module__.split('.')[0] + '.dynamic_script_iterator' + str(script_iterator_base_class._number_of_classes)
+
+
+
+            print('script_iterator_module', script_iterator_module)
 
             if verbose:
                 print('class_name', class_name)
+                print('kkk class_name', class_name)
+                print('kkk script_iterator_base_class', script_iterator_base_class)
 
+
+
+            # If three parameters are passed to type(), it returns a new type object.
+            # Three parameters to the type() function are:
+            #
+            #     name - class name which becomes __name__ attribute
+            #     bases - a tuple that itemizes the base class, becomes __bases__ attribute
+            #     dict - a dictionary which is the namespace containing definitions for class body; becomes __dict__ attribute
             dynamic_class = type(class_name, (script_iterator_base_class,), {'_SCRIPTS': sub_scripts, '_DEFAULT_SETTINGS': script_settings, '_INSTRUMENTS': {}})
             # JG old with ScriptIterator hard coded the above should be good!
             #  dynamic_class = type(class_name, (ScriptIterator,),
@@ -685,25 +701,50 @@ Script.
                 print('dynamic_class', dynamic_class)
                 print('__bases__', dynamic_class.__bases__)
 
+                print('dynamic_class.__name__', dynamic_class.__name__)
+                print('dynamic_class.__bases__', dynamic_class.__bases__)
+                print('dynamic_class.__dict__', dynamic_class.__dict__)
+
+            print('asasasasa', script_iterator_module)
 
             # Now we place the dynamic script into the scope of src.scripts as regular scripts.
             # This is equivalent to importing the module in src.scripts.__init__, but because the class doesn't exist until runtime it must be done here.
             # OLD START
-            import PyLabControl.src.core.script_iterator
-            setattr(PyLabControl.src.core.script_iterator, class_name, dynamic_class)
+            # import PyLabControl.src.core.script_iterator
+            # setattr(PyLabControl.src.core.script_iterator, class_name, dynamic_class)
             # OLD END
 
-            # importlib.import_module(package + '.src.core.script_iterator')
-            # setattr
+            # eval_string = 'import {:s}'.format(script_iterator_base_class.__module__)
+
+            import b26_toolkit.src.core.script_iterator
+            # print(eval_string)
+            # eval(eval_string)
+            setattr(script_iterator_module, class_name, dynamic_class)
+            # eval_string = 'setattr({:s}, class_name, dynamic_class)'.format(script_iterator_module)
+            # print(eval_string)
+            # eval(eval_string)
             # import PyLabControl.src.core.scripts
             # setattr(PyLabControl.src.core.scripts, class_name, dynamic_class)
 
-            ScriptIterator._class_list.append(dynamic_class)
-            ScriptIterator._number_of_classes += 1
+
+            if verbose:
+                print('dynamic_class', dynamic_class)
+                print('__bases__', dynamic_class.__bases__)
+
+                print('dynamic_class.__name__', dynamic_class.__name__)
+                print('dynamic_class.__bases__', dynamic_class.__bases__)
+                print('dynamic_class.__dict__', dynamic_class.__dict__)
+
+            script_iterator_base_class._class_list.append(dynamic_class)
+            script_iterator_base_class._number_of_classes += 1
+
+            print('script_iterator_module======>>>', script_iterator_module)
+            print('script_iterator_module======>>>', vars(script_iterator_module).keys())
+
 
 
             if verbose:
-                print('ScriptIterator._class_list', ScriptIterator._class_list)
+                print('ScriptIterator._class_list', script_iterator_base_class._class_list)
 
             if verbose:
                 print('\n===== end create_script_iterator_class ========\n')
