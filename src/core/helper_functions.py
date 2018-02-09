@@ -70,7 +70,6 @@ def module_name_from_path(folder_name, verbose=False):
 
 
 
-
     while True:
 
         path = os.path.dirname(path)

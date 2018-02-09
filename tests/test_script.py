@@ -43,8 +43,7 @@ class TestInstrument(TestCase):
 
     def test_load_and_append(self):
 
-
-        filepath = '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'
+        filepath = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\script_dummy.py'
         script_dict = {'DefaultName': {'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
                                                                                                    'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'},
                                                                                                    'class': 'ScriptDummy',
@@ -84,7 +83,7 @@ class TestInstrument(TestCase):
         print(script_class_name)
 
     def test_get_module_1(self):
-        filepath = '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'
+        filepath = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\script_dummy.py'
         print(' ===== start test_get_module_1 =======')
         script_info ={'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ', 'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy',
                                                                                   'filepath': filepath}},
@@ -106,7 +105,8 @@ class TestInstrument(TestCase):
     def test_load_and_append_from_file(self):
 
         from PyLabControl.src.core.read_write_functions import load_b26_file
-        filename = '/Users/rettentulla/pythonlab_config_lev7.b26'
+        filename = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_config_lev_test.b26'
+
 
         in_data = load_b26_file(filename)
 

@@ -235,59 +235,6 @@ Script.
                     else:
                         self.data[key] = self.data[key] / N_points
 
-        elif self.iterator_type in (self.TYPE_ITER_NVS, self.TYPE_ITER_POINTS):
-
-            if self.iterator_type == self.TYPE_ITER_NVS:
-                set_point = self.scripts['find_nv'].settings['initial_point']
-            elif self.iterator_type == self.TYPE_ITER_POINTS:
-                set_point = self.scripts['set_laser'].settings['point']
-
-            #shift found by correlation
-            [x_shift, y_shift] = [0,0]
-            shifted_pt = [0,0]
-
-            self.scripts['correlate_iter'].data['baseline_image'] = self.scripts['select_points'].data['image_data']
-            self.scripts['correlate_iter'].data['image_extent'] = self.scripts['select_points'].data['extent']
-
-            points = self.scripts['select_points'].data['nv_locations']
-            N_points = len(points)
-
-            for i, pt in enumerate(points):
-
-                # account for displacements found by correlation
-                shifted_pt[0] = pt[0] + x_shift
-                shifted_pt[1] = pt[1] + y_shift
-
-                print('NV num: {:d}, shifted_pt: {:.3e}, {:.3e}', i, shifted_pt[0], shifted_pt[1])
-
-                self.iterator_progress = 1. * i / N_points
-
-                set_point.update({'x': shifted_pt[0], 'y': shifted_pt[1]})
-                self.log('found NV {:03d} near x = {:0.3e}, y = {:0.3e}'.format(i, shifted_pt[0], shifted_pt[1]))
-                # skip first script since that is the select NV script!
-                for script_name in sorted_script_names[1:]:
-                    if self._abort:
-                        break
-                    j = i if self.settings['run_all_first'] else (i+1)
-                    if self.settings['script_execution_freq'][script_name] == 0 \
-                            or not (j % self.settings['script_execution_freq'][script_name] == 0):
-                        continue
-                    self.log('starting {:s}'.format(script_name))
-                    tag = self.scripts[script_name].settings['tag']
-                    tmp = tag + '_pt_{' + ':0{:d}'.format(len(str(N_points))) + '}'
-                    self.scripts[script_name].settings['tag'] = tmp.format(i)
-                    self.scripts[script_name].run()
-                    self.scripts[script_name].settings['tag'] = tag
-                    #after correlation script runs, update new shift value
-                    if script_name == 'correlate_iter':
-                        [x_shift, y_shift] = self.scripts['correlate_iter'].data['shift']
-                        shifted_pt[0] = pt[0] + x_shift
-                        shifted_pt[1] = pt[1] + y_shift
-                        set_point.update({'x': shifted_pt[0], 'y': shifted_pt[1]})
-
-                        print('NV num: {:d}, shifted_pt: {:.3e}, {:.3e}', i, shifted_pt[0], shifted_pt[1])
-
-
         else:
             raise TypeError('wrong iterator type')
 

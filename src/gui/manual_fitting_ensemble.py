@@ -1,9 +1,6 @@
 from PyQt4 import QtGui, QtCore
 from PyQt4.uic import loadUiType
-from PyLabControl.src.core import Parameter, Instrument, Script, ReadProbes, Probe, ScriptIterator
-from PyLabControl.src.gui import B26QTreeItem, LoadDialog, LoadDialogProbes
-from PyLabControl.src.scripts.select_points import SelectPoints
-from PyLabControl.src.core.read_write_functions import load_b26_file
+from PyLabControl.src.core import Script
 
 import os.path
 import numpy as np
