@@ -579,8 +579,16 @@ Script.
             if isinstance(script_information, dict):
 
                 for sub_script_name, sub_script_class in script_sub_scripts.iteritems():
+                    print(sub_script_class)
                     if isinstance(sub_script_class, Script):
                         # script already exists
+
+                        # To implement: add a function to scripts that outputs a script_information dict corresponding
+                        # to the current settings. This can then be fed into Script.get_script_information and things
+                        # can proceed as below. We may also need to add an additional tracker to the dialogue window
+                        # to differentiate between the case of wanting a new script from scratch when there is an
+                        # identically named one already loaded, vs using that loaded script
+
                         raise NotImplementedError
                     elif script_sub_scripts[sub_script_name]['class'] == 'ScriptIterator':
                         # raise NotImplementedError # has to be dynamic maybe???
