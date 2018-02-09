@@ -24,6 +24,7 @@ from PyLabControl.src.scripts.script_dummy import ScriptDummy
 
 class TestInstrument(TestCase):
 
+
     def test_loading_and_saving(self):
         from PyLabControl.src.core.read_write_functions import load_b26_file
 
@@ -42,10 +43,12 @@ class TestInstrument(TestCase):
 
     def test_load_and_append(self):
 
+
+        filepath = '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'
         script_dict = {'DefaultName': {'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
                                                                                                    'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'},
                                                                                                    'class': 'ScriptDummy',
-                                                                                                   'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}},
+                                                                                                   'filepath': filepath}},
                                        'class': 'ScriptIterator',
                                        'settings': {'script_order': {'ScriptDummy': 0},
                                         'iterator_type': 'Loop'},
@@ -81,9 +84,10 @@ class TestInstrument(TestCase):
         print(script_class_name)
 
     def test_get_module_1(self):
-
+        filepath = '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'
         print(' ===== start test_get_module_1 =======')
-        script_info ={'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ', 'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}},
+        script_info ={'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ', 'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy',
+                                                                                  'filepath': filepath}},
                                        'class': 'ScriptIterator', 'settings': {'script_order': {'ScriptDummy': 0},
                                                                                'iterator_type': 'Iter test'}, 'package': 'b26_toolkit'}
 
@@ -96,30 +100,8 @@ class TestInstrument(TestCase):
         print('module', module)
         print('package', package)
         assert script_class_name == 'ScriptIterator'
-        assert module == None
 
         print(' ===== end test_get_module_1 ========')
-
-    def test_get_module_2(self):
-        print(' ===== start test_get_module_2 =======')
-        script_info = {'info': 'Enter docstring here',
-         'settings': {'run_all_first': True, 'tag': 'defaultname', 'script_execution_freq': {'ScriptDummy': 1},
-                      'script_order': {'ScriptDummy': 0}, 'path': '', 'save': False, 'N': 0},
-         'class': 'ScriptIteratorB26', 'scripts': {'ScriptDummy': {
-            'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
-            'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1},
-                         'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy',
-            'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.pyc'}},
-         'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/core/script_iterator.pyc'}
-
-
-        module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(
-            script_info)
-
-        print('script_class_name', script_class_name)
-        print('module', module)
-        print('package', package)
-        print(' ===== end test_get_module_2 ========')
 
     def test_load_and_append_from_file(self):
 
