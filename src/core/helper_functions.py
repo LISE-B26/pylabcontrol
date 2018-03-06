@@ -144,7 +144,6 @@ def is_python_package(path):
 
     return os.path.isfile(os.path.join(path, '__init__.py'))
 
-
 def get_python_package(filename):
     """
 

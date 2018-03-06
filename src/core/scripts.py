@@ -1041,6 +1041,11 @@ class Script(QObject):
                 pass
 
             if len(scripts_failed)>0:
+
+                print('BBBBB sub_scripts', sub_scripts)
+
+                print('BBBBB scripts_failed', scripts_failed)
+
                 raise ImportError('script {:s}: failed to load subscripts'.format(class_of_script))
             return sub_scripts, instruments_updated
 
@@ -1073,6 +1078,8 @@ class Script(QObject):
                     class_of_script = script_info
                 else:
                     class_of_script = getattr(module, script_class_name)
+
+
                 #  ========= create the instruments that are needed by the script =========
                 try:
                     script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
@@ -1082,9 +1089,17 @@ class Script(QObject):
                     if raise_errors:
                         raise err
                     continue
+                #  ========= create the subscripts that are needed by the script =========
+                try:
+                    sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
+                except Exception as err:
+                    print('loading script {:s} failed. Could not load subscripts!'.format(script_name))
+                    load_failed[script_name] = err
+                    if raise_errors:
+                        raise err
+                    continue
 
-                sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
-
+                #  ========= create the script if instruments and subscripts have been loaded succesfully =========
                 class_creation_string = ''
                 if script_instruments:
                     class_creation_string += ', instruments = script_instruments'
@@ -1098,12 +1113,21 @@ class Script(QObject):
                     class_creation_string += ', data_path = data_path'
                 class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
+                verbose = True
                 if verbose:
                     print('class_creation_string', class_creation_string)
                     print('class_of_script', class_of_script)
                     print('scripts', sub_scripts)
 
-                script_instance = eval(class_creation_string)
+                try:
+                    script_instance = eval(class_creation_string)
+                except Exception as err:
+                    print('loading script {:s} failed. Could not create instance of scripts!'.format(script_name))
+                    load_failed[script_name] = err
+                    if raise_errors:
+                        raise err
+                    continue
+
                 if script_doc:
                     script_instance.__doc__ = script_doc
 
@@ -1138,6 +1162,11 @@ class Script(QObject):
 
         print('script information: ', script_information)
         if isinstance(script_information, dict):
+            print('script information keys: ', script_information.keys())
+
+
+
+        if isinstance(script_information, dict):
 
             if 'package' in script_information:
                 package = script_information['package']
@@ -1149,6 +1178,7 @@ class Script(QObject):
             if 'filepath' in script_information:
                 script_filepath = str(script_information['filepath'])
                 module_path, _ = module_name_from_path(script_filepath)
+                package = module_path.split('.')[0]
 
             script_class_name = str(script_information['class'])
             if 'ScriptIterator' in script_class_name:
@@ -1172,6 +1202,13 @@ class Script(QObject):
             # watch out when testing this code from __main__, then classes might not be identified correctly because the path is different
             # to avoid this problem call from PyLabControl.src.core import Script (otherwise the path to Script is __main__.Script)
             script_class_name = script_information.__name__
+            package = script_information.__module__.split('.')[0]
+            module_path = script_information.__module__
+
+            print('AAAAAAAAAAA type', type(script_information))
+            print('sadsda', module_path)
+
+
 
         assert isinstance(package, str)
 
