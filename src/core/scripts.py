@@ -962,7 +962,6 @@ class Script(QObject):
         if verbose:
             print('script_dict', script_dict)
 
-        print('script_dict', script_dict)
         def get_instruments(class_of_script, script_instruments, instruments):
             """
 
@@ -1105,7 +1104,6 @@ class Script(QObject):
                     class_creation_string += ', data_path = data_path'
                 class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
-                verbose = True
                 if verbose:
                     print('class_creation_string', class_creation_string)
                     print('class_of_script', class_of_script)
@@ -1152,32 +1150,19 @@ class Script(QObject):
         module_path = package + '.src.scripts'
         script_filepath = None
 
-        print('script information: ', script_information)
-        if isinstance(script_information, dict):
-            print('script information keys: ', script_information.keys())
-
-
-
         if isinstance(script_information, dict):
 
             if 'settings' in script_information:
                 script_settings = script_information['settings']
             if 'filepath' in script_information:
                 script_filepath = str(script_information['filepath'])
-                print('JG script_filepath AA', script_filepath)
                 module_path, _ = module_name_from_path(script_filepath)
-                print('JG module_path AA', module_path)
                 package = module_path.split('.')[0]
-
-            print('JG sadsad package 1', package)
 
             if 'package' in script_information:
                 package = script_information['package']
             else:
                 package = 'PyLabControl'
-
-            print('JG sadsad package', package)
-
 
             script_class_name = str(script_information['class'])
             if 'ScriptIterator' in script_class_name:

@@ -303,7 +303,6 @@ class Instrument(object):
                 loaded_failed[instrument_name] = instrument_name
             else:
                 instrument_instance = None
-                # print('XXXXX =>> instrument_class_name', instrument_class_name, type(instrument_class_name))
 
                 if isinstance(instrument_class_name, dict):
                     if 'settings' in instrument_class_name:

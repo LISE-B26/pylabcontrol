@@ -33,13 +33,8 @@ def run_gui(fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_con
     app = QtGui.QApplication(sys.argv)
     # fname = 'c:\\b26_tmp\\pythonlab_config_dummy.b26'
     # fname = 'c:\\b26_tmp\\pythonlab_config3a.b26'
-    fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_config_lev.b26'
+    fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_only.b26'
 
-    fname = '/Users/rettentulla/pythonlab_config_lev.b26'
-
-    # fname = 'c:\\b26_tmp\\pythonlab_config_safsafaf1.b26'
-
-    # fname = "C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\pythonlab_config.b26"
     try:
         print("PyLabControl  Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell \n\n \
 PyLabControl is free software: you can redistribute it and/or modify \n \
