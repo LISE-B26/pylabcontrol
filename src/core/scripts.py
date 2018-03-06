@@ -162,9 +162,6 @@ class Script(QObject):
 
         current_subscript = self.sender()
 
-        if not isinstance(current_subscript, Script):
-            print('XXXXXXX who is this:', current_subscript)
-            return
 
         if active:
             for subscript_name in self._current_subscript_stage['subscript_exec_count'].keys():
@@ -743,7 +740,7 @@ class Script(QObject):
         canvas_2 = FigureCanvas(fig_2)
 
         self.force_update()
-        # print('printing....!')
+
         self.plot([fig_1, fig_2])
 
         if filename_1 is not None and not axes_empty(fig_1.axes):
@@ -1041,11 +1038,6 @@ class Script(QObject):
                 pass
 
             if len(scripts_failed)>0:
-
-                print('BBBBB sub_scripts', sub_scripts)
-
-                print('BBBBB scripts_failed', scripts_failed)
-
                 raise ImportError('script {:s}: failed to load subscripts'.format(class_of_script))
             return sub_scripts, instruments_updated
 
@@ -1212,11 +1204,6 @@ class Script(QObject):
             package = script_information.__module__.split('.')[0]
             module_path = script_information.__module__
 
-            print('AAAAAAAAAAA type', type(script_information))
-            print('sadsda', module_path)
-
-
-
         assert isinstance(package, str)
 
 
@@ -1241,13 +1228,11 @@ class Script(QObject):
             # module = import_module(package + '.src.core.script_iterator')
             module_path = package
 
-        print('module_path', module_path)
         # the package should be the highest level of the module path
         assert module_path.split('.')[0] == package
         assert isinstance(module_path, str)  # in that case we should have defined a module_path to load the module
         assert module is None  # we haven't loaded the module yet
 
-        print(script_class_name, module_path)
         try:
             module = import_module(module_path)
         except ImportError:
