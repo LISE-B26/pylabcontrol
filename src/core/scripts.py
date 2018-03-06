@@ -1168,17 +1168,24 @@ class Script(QObject):
 
         if isinstance(script_information, dict):
 
+            if 'settings' in script_information:
+                script_settings = script_information['settings']
+            if 'filepath' in script_information:
+                script_filepath = str(script_information['filepath'])
+                print('JG script_filepath AA', script_filepath)
+                module_path, _ = module_name_from_path(script_filepath)
+                print('JG module_path AA', module_path)
+                package = module_path.split('.')[0]
+
+            print('JG sadsad package 1', package)
+
             if 'package' in script_information:
                 package = script_information['package']
             else:
                 package = 'PyLabControl'
 
-            if 'settings' in script_information:
-                script_settings = script_information['settings']
-            if 'filepath' in script_information:
-                script_filepath = str(script_information['filepath'])
-                module_path, _ = module_name_from_path(script_filepath)
-                package = module_path.split('.')[0]
+            print('JG sadsad package', package)
+
 
             script_class_name = str(script_information['class'])
             if 'ScriptIterator' in script_class_name:
