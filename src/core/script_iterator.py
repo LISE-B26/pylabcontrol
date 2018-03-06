@@ -23,7 +23,8 @@ from collections import deque
 import datetime
 import warnings
 import inspect
-import PyLabControl.src.core.helper_functions as hf
+# import PyLabControl.src.core.helper_functions as hf
+from PyLabControl.src.core import helper_functions as hf
 import importlib
 
 class ScriptIterator(Script):
@@ -81,7 +82,7 @@ Script.
             # asign the correct iterator script type
             if 'sweep_param' in script_settings:
                 iterator_type = 'sweep'
-            elif 'N' in script_settings:
+            elif 'num_loops' in script_settings:
                 iterator_type = 'loop'
             else:
                 print(script_settings)
@@ -134,7 +135,7 @@ Script.
 
             param_values = get_sweep_parameters()
             for i, value in enumerate(param_values):
-                self.iterator_progress = 1. * i / len(param_values)
+                self.iterator_progress = float(i) / len(param_values)
 
                 script_list, parameter_list = get_script_and_settings_from_str(self.settings['sweep_param'])
                 script = self
@@ -148,46 +149,51 @@ Script.
 
                 script.settings.update(update_dict)
                 parameter_name = parameter_list[-1]
-                self.log('setting parameter {:s} to {:0.2e}'.format(self.settings['sweep_param'], value))
+                if np.abs(value) < 1000:
+                    self.log('setting parameter {:s} to {:.3g}'.format(self.settings['sweep_param'], value))
+                else:
+                    self.log('setting parameter {:s} to {:0.2e}'.format(self.settings['sweep_param'], value))
+
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
                     j = i if self.settings['run_all_first'] else (i+1)
-                    if self.settings['script_execution_freq'][script_name] == 0 \
-                            or not (j % self.settings['script_execution_freq'][script_name] == 0):  # i+1 so first execution is mth loop, not first
-                        continue
-                    self.log('starting {:s}'.format(script_name))
 
-                    tag = self.scripts[script_name].settings['tag']
-                    self.scripts[script_name].settings['tag'] = '{:s}_{:s}_{:0.3e}'.format(tag, parameter_name, value)
-                    self.scripts[script_name].run()
-                    self.scripts[script_name].settings['tag'] = tag
+                    curr_script_exec_freq = self.settings['script_execution_freq'][script_name]
+                    if curr_script_exec_freq != 0 and (j % curr_script_exec_freq == 0):
+                        # i+1 so first execution is mth loop, not first
+                        self.log('starting {:s}'.format(script_name))
+                        tag = self.scripts[script_name].settings['tag']
+                        self.scripts[script_name].settings['tag'] = '{:s}_{:s}_{:0.3e}'.format(tag, parameter_name, value)
+                        self.scripts[script_name].run()
+                        self.scripts[script_name].settings['tag'] = tag
 
         elif self.iterator_type == 'loop':
 
-            N_points = self.settings['N']
-            if N_points == 0:
-                print('Loop set to run 0 times')
+            num_loops = self.settings['num_loops']
+            if num_loops == 0:
+                self.log('Loop set to run 0 times')
                 return
-            self.data = {}
 
-            for i in range(0, N_points):
-                self.iterator_progress = 1.*i / N_points
+            self.data = {}
+            for i in range(num_loops):
+                self.iterator_progress = float(i) / num_loops
 
                 for script_name in sorted_script_names:
                     if self._abort:
                         break
                     j = i if self.settings['run_all_first'] else (i+1)
-                    if self.settings['script_execution_freq'][script_name] == 0 \
-                            or not (j % self.settings['script_execution_freq'][script_name] == 0):  # i+1 so first execution is mth loop, not first
-                        continue
-                    self.log('starting {:s} {:03d}/{:03d}'.format(script_name, i + 1, N_points))
 
-                    tag = self.scripts[script_name].settings['tag']
-                    tmp = tag + '_{' + ':0{:d}'.format(len(str(N_points))) + '}'
-                    self.scripts[script_name].settings['tag'] = tmp.format(i)
-                    self.scripts[script_name].run()
-                    self.scripts[script_name].settings['tag'] = tag
+                    curr_script_execution_freq = self.settings['script_execution_freq'][script_name]
+
+                    if curr_script_execution_freq != 0 and (j % curr_script_execution_freq == 0):
+                        # i+1 so first execution is mth loop, not first
+                        self.log('starting {:s} \t iteration {:d} of {:d}'.format(script_name, i + 1, num_loops))
+                        tag = self.scripts[script_name].settings['tag']
+                        tmp = tag + '_{' + ':0{:d}'.format(len(str(num_loops))) + '}'
+                        self.scripts[script_name].settings['tag'] = tmp.format(i)
+                        self.scripts[script_name].run()
+                        self.scripts[script_name].settings['tag'] = tag
 
                 # from the last script we take the average of the data as the data of the iterator script
                 if isinstance(self.scripts[script_name].data, dict):
@@ -201,15 +207,12 @@ Script.
                         break
 
                     for key in data.keys():
-                        print('sadada script_name', script_name, key)
 
                         # can't add None values
-                        if data[key] is None:
-                            continue
-                        else:
+                        if not data[key] is None:
                             # if subscript data have differnet length, e.g. fitparameters can be differet, depending on if there is one or two peaks
                             if len(self.data[key]) != len(data[key]):
-                                print('warning subscript data {:s} have differnt lenghts'.format(key))
+                                print('warning subscript data {:s} have different lengths'.format(key))
                                 continue
 
                             if isinstance(self.data[key], list):
@@ -219,21 +222,20 @@ Script.
                             else:
                                 self.data[key] += data[key]
 
-            if not self._abort and N_points >0:
-
+            if not self._abort and num_loops > 0:
                 # normalize data because we just kept adding the values
                 for key in data.keys():
                     if isinstance(self.data[key], list):
-                        self.data[key] = np.array(self.data[key]) / N_points
+                        self.data[key] = np.array(self.data[key]) / num_loops
                     elif isinstance(self.data[key], dict):
-                        self.data[key] = {k:v/N_points for k, v in self.data[key].iteritems()}
+                        self.data[key] = {k:v/num_loops for k, v in self.data[key].iteritems()}
                     elif self.data[key] is None:
-                        print('JG none type in data!! check code')
+                        self.log('None type in data! check code')
                         pass
                     elif isinstance(self.data[key], int):
-                        self.data[key] = float(self.data[key]) / N_points # if int we can not devide. Thus we convert explicitely to float
+                        self.data[key] = float(self.data[key]) / num_loops # if int we can not devide. Thus we convert explicitely to float
                     else:
-                        self.data[key] = self.data[key] / N_points
+                        self.data[key] = self.data[key] / num_loops
 
         else:
             raise TypeError('wrong iterator type')
@@ -250,30 +252,23 @@ Script.
         current_subscript = self._current_subscript_stage['current_subscript']
 
         # ==== get the number of subscripts =====
-        number_of_subscripts = len(self.scripts)
+        num_subscripts = len(self.scripts)
 
         # ==== get number of iterations and loop index ======================
         if self.iterator_type == 'loop':
-            number_of_iterations = self.settings['N']
+            num_iterations = self.settings['num_loops']
         elif self.iterator_type == 'sweep':
             sweep_range = self.settings['sweep_range']
             if self.settings['stepping_mode'] == 'value_step':
-                number_of_iterations = len(np.linspace(sweep_range['min_value'], sweep_range['max_value'],
-                                                       (sweep_range['max_value'] - sweep_range['min_value']) /
-                                                       sweep_range['N/value_step'] + 1, endpoint=True).tolist())
+                num_iterations = int((sweep_range['max_value'] - sweep_range['min_value']) / sweep_range['N/value_step']) + 1
+                # len(np.linspace(sweep_range['min_value'], sweep_range['max_value'],
+                #                                        (sweep_range['max_value'] - sweep_range['min_value']) /
+                #                                        sweep_range['N/value_step'] + 1, endpoint=True).tolist())
             elif self.settings['stepping_mode'] == 'N':
-                number_of_iterations = sweep_range['N/value_step']
+                num_iterations = sweep_range['N/value_step']
             else:
                 raise KeyError('unknown key' + self.settings['stepping_mode'])
 
-        elif self.iterator_type == self.TYPE_ITER_NVS:
-            number_of_iterations = len(self.scripts['select_points'].data['nv_locations'])
-            number_of_subscripts -= 1  # substract 2 because we don't iterate over select nv
-        elif self.iterator_type == self.TYPE_ITER_POINTS:
-
-            number_of_iterations = len(self.scripts['select_points'].data['nv_locations'])
-            number_of_subscripts -= 1  # substract 1 because we don't iterate over select nv
-            print('JG 20171122 testing time prediction: number_of_subscripts', number_of_subscripts)
         else:
             raise TypeError('unknown iterator type')
 
@@ -281,7 +276,7 @@ Script.
         loop_index = self.loop_index
 
 
-        if number_of_subscripts > 1:
+        if num_subscripts > 1:
             # estimate the progress based on the duration the individual subscripts
 
             loop_execution_time = 0.  # time for a single loop execution in s
@@ -292,14 +287,10 @@ Script.
                 current_subscript_exec_duration = self._current_subscript_stage['subscript_exec_duration'][
                     current_subscript.name].total_seconds()
             else:
-                current_subscript_exec_duration = 0.
+                current_subscript_exec_duration = 0.0
 
-            print('JG 20171122 testing time prediction: current_subscript', current_subscript)
-            print('JG 20171122 testing time prediction: current_subscript_exec_duration', current_subscript_exec_duration)
 
             current_subscript_elapsed_time = (datetime.datetime.now() - current_subscript.start_time).total_seconds()
-            print(
-            'JG 20171122 testing time prediction: current_subscript_elapsed_time', current_subscript_elapsed_time)
             # estimate the duration of the current subscript if the script hasn't been executed once fully and subscript_exec_duration is 0
             if current_subscript_exec_duration == 0.0:
                 remaining_time = current_subscript.remaining_time.total_seconds()
@@ -313,8 +304,8 @@ Script.
                 loop_execution_time += duration.total_seconds()
                 # add the times of the subscripts that have been executed in the current loop
                 # ignore the current subscript, because that will be taken care of later
-                if self._current_subscript_stage['subscript_exec_count'][
-                    subscript_name] == loop_index and subscript_name is not current_subscript.name:
+                if self._current_subscript_stage['subscript_exec_count'][subscript_name] == loop_index \
+                        and subscript_name is not current_subscript.name:
                     # this subscript has already been executed in this iteration
                     sub_progress_time += duration.total_seconds()
 
@@ -323,11 +314,11 @@ Script.
 
             # if there are scripts that have not been executed yet
             # assume that all the scripts that have not been executed yet take as long as the average of the other scripts
-            if remaining_scripts == number_of_subscripts:
+            if remaining_scripts == num_subscripts:
                 # none of the subscript has been finished. assume that all the scripts take as long as the first
-                loop_execution_time = number_of_subscripts * current_subscript_exec_duration
+                loop_execution_time = num_subscripts * current_subscript_exec_duration
             elif remaining_scripts > 1:
-                loop_execution_time = 1. * number_of_subscripts / (number_of_subscripts - remaining_scripts)
+                loop_execution_time = 1. * num_subscripts / (num_subscripts - remaining_scripts)
             elif remaining_scripts == 1:
                 # there is only one script left which is the current script
                 loop_execution_time += current_subscript_exec_duration
@@ -335,14 +326,10 @@ Script.
             if loop_execution_time > 0:
                 progress_subscript = 100. * sub_progress_time / loop_execution_time
             else:
-                progress_subscript = 1. * progress_subscript / number_of_subscripts
-
-        print('JG 20171122 testing time prediction: loop_index', loop_index)
-        print('JG 20171122 testing time prediction: progress_subscript', progress_subscript)
-        print('JG 20171122 testing time prediction: number_of_iterations', number_of_iterations)
+                progress_subscript = 1. * progress_subscript / num_subscripts
 
         # print(' === script iterator progress estimation loop_index = {:d}/{:d}, progress_subscript = {:f}'.format(loop_index, number_of_iterations, progress_subscript))
-        self.progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / number_of_iterations
+        self.progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / num_iterations
 
         self.updateProgress.emit(int(self.progress))
 
@@ -352,7 +339,7 @@ Script.
 
     @property
     def loop_index(self):
-        loop_index = max(self._current_subscript_stage['subscript_exec_count'].values())
+        loop_index = max(self   ._current_subscript_stage['subscript_exec_count'].values())
         return loop_index
 
     def plot(self, figure_list):
@@ -399,8 +386,8 @@ Script.
         # replace this with ScriptIterator to indicate that this class is of type ScriptIterator
         dictator[self.name]['class'] = 'ScriptIterator'
 
-
         return dictator
+
     @staticmethod
     def get_iterator_default_script(iterator_type):
         """
@@ -428,7 +415,8 @@ Script.
             script_order_parameter:
                 A list of parameters giving the order that the scripts in the ScriptIterator should be executed.
             script_execution_freq:
-                A list of parameters giving the frequency with which each script should be executed
+                A list of parameters giving the frequency with which each script should be executed,
+                e.g. 1 is every loop, 3 is every third loop, 0 is never
 
         """
         script_order_parameter = []
@@ -464,8 +452,20 @@ Script.
             script_default_settings = [
                 Parameter('script_order', script_order),
                 Parameter('script_execution_freq', script_execution_freq),
-                Parameter('N', 0, int, 'times the subscripts will be executed'),
+                Parameter('num_loops', 0, int, 'times the subscripts will be executed'),
                 Parameter('run_all_first', True, bool, 'Run all scripts with nonzero frequency in first pass')
+            ]
+
+        elif iterator_type == 'sweep':
+            script_default_settings = [
+                Parameter('script_order', script_order),
+                Parameter('script_execution_freq', script_execution_freq),
+                Parameter('sweep_param', 'None', str, 'the parameter that will be sweeped'),
+                Parameter('run_all_first', True, bool, 'Run all scripts with nonzero frequency in first pass'),
+                Parameter('sweep_range', [Parameter('min_value', 0.0),
+                                          Parameter('max_value', 10.0),
+                                          Parameter('N/value_step', 10.0)]),
+                Parameter('stepping_mode', 'N', ['value_step', 'N'])
             ]
         else:
             print('unknown iterator type ' + iterator_type)
@@ -579,7 +579,7 @@ Script.
             return script_default_settings, sub_scripts, script_iterators, package
 
         def create_script_iterator_class(sub_scripts, script_settings, script_iterator_base_class, verbose=verbose):
-            '''
+            """
             A 'factory' to create a ScriptIterator class at runtime with the given inputs.
 
             Args:
@@ -589,7 +589,7 @@ Script.
 
             Returns: A newly created class inheriting from ScriptIterator, with the given subscripts and default settings
 
-            '''
+            """
 
 
             # dynamically import the module, i.e. the namespace for the scriptiterator
@@ -650,7 +650,7 @@ Script.
             #         print('CLASSNAME', vars(someclass)['_CLASS'])
             #         return vars(someclass)['_CLASS']
 
-        # get default setting, load subscripts, load the script_iterators and identify the package
+         # get default setting, load subscripts, load the script_iterators and identify the package
         script_default_settings, sub_scripts, script_iterators, package = set_up_dynamic_script(script_information, script_iterators, verbose=verbose)
 
         # now actually create the classs

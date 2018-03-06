@@ -207,7 +207,6 @@ class Script(QObject):
 
         self.log_data.append(string)
         if self.log_function is None:
-            print('log sent to print out: ')
             print(string)
         else:
             self.log_function(string)
@@ -966,8 +965,7 @@ class Script(QObject):
         if verbose:
             print('script_dict', script_dict)
 
-
-
+        print('script_dict', script_dict)
         def get_instruments(class_of_script, script_instruments, instruments):
             """
 
@@ -1055,7 +1053,7 @@ class Script(QObject):
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
                 module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
-                #creates all dynamic scripts so they can be imported following the if statement
+                # creates all dynamic scripts so they can be imported following the if statement
                 # if script_class_name == 'ScriptIterator':
                 if 'ScriptIterator' in script_class_name:
                     # creates all the dynamic classes in the script and the class of the script itself
@@ -1123,22 +1121,22 @@ class Script(QObject):
                 - a dictionary
                 - a Script instance
                 - name of Script class
-            package (optional): name of the package to which the script belongs, i.e. PyLabControl or b26toolkit only used when script_information is a string
+            package (optional): name of the package to which the script belongs, i.e. PyLabControl or b26toolkit.
+                                Only used when script_information is a string
         Returns:
             module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package
-
         """
 
         script_settings = None
         script_instruments = None
         script_sub_scripts = None
         script_class_name = None
-        module = None  # this is the module that contains the script were we look for scripts
+        module = None  # this is the module that contains the script where we look for scripts
         script_info = None # this is the docstring that describes the script
         module_path = package + '.src.scripts'
         script_filepath = None
 
-
+        print('script information: ', script_information)
         if isinstance(script_information, dict):
 
             if 'package' in script_information:
@@ -1188,27 +1186,24 @@ class Script(QObject):
             if os.path.basename(script_filepath.split('.pyc')[0].split('.py')[0]) == 'script_iterator':
                 module_path = package + '.src.core.script_iterator'
 
+
         # if the script has been created already, i.e. script_class_name: package.dynamic_script_iterator
         # todo: now there is the prefix package
         if len(script_class_name.split('dynamic_script_iterator')) == 2 and \
                 script_class_name.split('dynamic_script_iterator')[1].isdigit():
+            print('got here!')
             # package = 'PyLabControl' # all the dynamic iterator scripts are defined in the name space of PyLabControl
             # all the dynamic iterator scripts are defined in the name space of package.src.core.script_iterator
             # module = import_module(package + '.src.core.script_iterator')
             module_path = package
 
-
+        print('module_path', module_path)
         # the package should be the highest level of the module path
         assert module_path.split('.')[0] == package
-        # if not module_path.split('.')[0] == package:
-        #     module_path = package + '.src.scripts'
+        assert isinstance(module_path, str)  # in that case we should have defined a module_path to load the module
+        assert module is None  # we haven't loaded the module yet
 
-
-        assert isinstance(module_path, str) # in that case we should have defined a moduel_path to load the module
-        assert module is None # we haven't load the module yet
-
-
-
+        print(script_class_name, module_path)
         try:
             module = import_module(module_path)
         except ImportError:
@@ -1218,12 +1213,7 @@ class Script(QObject):
             print('Could not find the module that contains ' + script_class_name + ' in module ' + module_path)
             raise ImportError('Could not find the module that contains ' + script_class_name + ' in module ' + module_path)
 
-
-        # # if the module has a name of type dynamic_script_iteratorX where X is a number the module is script iterator
-
-
-
-
+        # if the module has a name of type dynamic_script_iteratorX where X is a number the module is script iterator
         return module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package
 
     @staticmethod

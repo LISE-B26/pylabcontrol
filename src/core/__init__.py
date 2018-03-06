@@ -19,7 +19,7 @@ from PyLabControl.src.core.parameter import Parameter
 from PyLabControl.src.core.instruments import Instrument
 from PyLabControl.src.core.probe import Probe
 from PyLabControl.src.core.scripts import Script
-# from PyLabControl.src.core.script_iterator import ScriptIterator
+from PyLabControl.src.core.script_iterator import ScriptIterator
 # try:
 #     from read_probes import ReadProbes
 # except:

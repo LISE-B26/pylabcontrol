@@ -225,10 +225,8 @@ if __name__ == '__main__':
     # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
     target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
 
-    source_folders = '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/'
-    source_folders = '/Users/rettentulla/PycharmProjects/b26_toolkit/src/scripts/'
-
-    target_folder = '/Users/rettentulla/Projects/Python/user_data/scripts_auto_generated/'
+    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts'
+    target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
     #
     export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
     #
