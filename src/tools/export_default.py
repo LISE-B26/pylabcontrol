@@ -120,7 +120,7 @@ def export_default_instruments(target_folder, source_folder = None, raise_errors
         target_folder: target path for .b26 files
     """
 
-    instruments_to_load = get_classes_in_folder(source_folder, Instrument)
+    instruments_to_load = get_classes_in_folder(source_folder, Instrument, verbose = True)
 
     if verbose:
         print('attempt to load {:d} instruments: '.format(len(instruments_to_load)))
@@ -219,15 +219,15 @@ if __name__ == '__main__':
 
 
     # export scripts
-    source_folders = 'b26_toolkit'
-    source_folders = 'C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts'
-    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
-    # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
-    target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
-
+    # source_folders = 'b26_toolkit'
     source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts'
-    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts'
+    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
+    # # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
     target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
+
+    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments'
+    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts'
+    # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated'
     #
     export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
     #

@@ -1157,7 +1157,8 @@ class Script(QObject):
             if 'filepath' in script_information:
                 script_filepath = str(script_information['filepath'])
                 module_path, _ = module_name_from_path(script_filepath)
-                package = module_path.split('.')[0]
+                # in the case that we generate the script_information from a .py file the package is given by the name of the highest module
+                script_information['package'] = module_path.split('.')[0]
 
             if 'package' in script_information:
                 package = script_information['package']
@@ -1174,11 +1175,12 @@ class Script(QObject):
                 script_sub_scripts = script_information['scripts']
             if 'info' in script_information:
                 script_info = script_information['info']
+                
         elif isinstance(script_information, str):
             # JG 20180206
             # Maybe this case should be removed, just get rid of the option to load with the name only without providing the package
             # alternatively, check this case carefully for bugs
-            # raise NotImplementedError
+            raise NotImplementedError
             script_class_name = script_information
 
 
