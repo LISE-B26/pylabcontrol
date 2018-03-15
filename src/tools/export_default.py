@@ -1,4 +1,3 @@
-
 # This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
@@ -71,7 +70,6 @@ def get_classes_in_folder(folder_name, class_type, verbose=False):
         module, path = module_name_from_path(python_file)
 
         try:
-
             module = import_module(module)
 
             classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
@@ -214,13 +212,12 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
 
 
 if __name__ == '__main__':
-
-
-
+    # module = import_module('b26_toolkit.src.scripts.test_script')
+    # print('JJJJJJ')
 
     # export scripts
     # source_folders = 'b26_toolkit'
-    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts'
+    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
     # # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
     target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'

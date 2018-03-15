@@ -30,7 +30,7 @@ Script to select points on an image. The selected points are saved and can be us
     """
     _DEFAULT_SETTINGS = [
         Parameter('patch_size', 0.003),
-        Parameter('type', 'free', ['free', 'square', 'line']),
+        Parameter('type', 'free', ['free', 'square', 'line', 'ring']),
         Parameter('Nx', 5, int, 'number of points along x (type: square) along line (type: line)'),
         Parameter('Ny', 5, int, 'number of points along y (type: square)')
     ]
@@ -163,7 +163,7 @@ Script to select points on an image. The selected points are saved and can be us
 
         # if type is not free we calculate the total points of locations from the first selected points
         if self.settings['type'] == 'square' and len(self.data['nv_locations'])>1:
-
+            # here we create a rectangular grid, where pts a and be define the top left and bottom right corner of the rectangle
             Nx, Ny = self.settings['Nx'], self.settings['Ny']
             pta = self.data['nv_locations'][0]
             ptb = self.data['nv_locations'][1]
@@ -173,12 +173,31 @@ Script to select points on an image. The selected points are saved and can be us
 
 
         elif self.settings['type'] == 'line' and len(self.data['nv_locations'])>1:
+            # here we create a straight line between points a and b
             N = self.settings['Nx']
             pta = self.data['nv_locations'][0]
             ptb = self.data['nv_locations'][1]
             self.data['nv_locations']  = [np.array([pta[0] + 1.0*i*(ptb[0]-pta[0])/(N-1), pta[1] + 1.0*i*(ptb[1]-pta[1])/(N-1)]) for i in range(N)]
             self.stop()
 
+        elif self.settings['type'] == 'ring' and len(self.data['nv_locations'])>1:
+            # here we create a circular grid, where pts a and be define the center and the outermost ring
+            Nx, Ny = self.settings['Nx'], self.settings['Ny']
+
+            pta = self.data['nv_locations'][0] # center
+            ptb = self.data['nv_locations'][1] # outermost ring
+
+            # radius of outermost ring:
+            rmax = np.sqrt((pta[0] - ptb[0]) ** 2 + (pta[1] - ptb[1]) ** 2)
+
+            # create points on rings
+            tmp = []
+            for r in np.linspace(rmax, 0, Ny + 1)[0:-1]:
+                for theta in np.linspace(0, 2 * np.pi, Nx+1)[0:-1]:
+                    tmp += [[r * np.sin(theta)+pta[0], r * np.cos(theta)+pta[1]]]
+
+            self.data['nv_locations'] = np.array(tmp)
+            self.stop()
 if __name__ == '__main__':
 
 

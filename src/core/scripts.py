@@ -1177,10 +1177,6 @@ class Script(QObject):
                 script_info = script_information['info']
                 
         elif isinstance(script_information, str):
-            # JG 20180206
-            # Maybe this case should be removed, just get rid of the option to load with the name only without providing the package
-            # alternatively, check this case carefully for bugs
-            raise NotImplementedError
             script_class_name = script_information
 
 
