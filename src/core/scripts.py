@@ -1151,19 +1151,18 @@ class Script(QObject):
         script_filepath = None
 
         if isinstance(script_information, dict):
-
             if 'settings' in script_information:
                 script_settings = script_information['settings']
             if 'filepath' in script_information:
                 script_filepath = str(script_information['filepath'])
                 module_path, _ = module_name_from_path(script_filepath)
-                # in the case that we generate the script_information from a .py file the package is given by the name of the highest module
-                script_information['package'] = module_path.split('.')[0]
-
             if 'package' in script_information:
                 package = script_information['package']
             else:
-                package = 'PyLabControl'
+                assert 'filepath' in script_information  # there should be a filepath if we load form a b26 file
+                # in the case that we generate the script_information from a .py file the package is given by the name of the highest module
+                if 'filepath' in script_information:
+                    package = module_path.split('.')[0]
 
             script_class_name = str(script_information['class'])
             if 'ScriptIterator' in script_class_name:

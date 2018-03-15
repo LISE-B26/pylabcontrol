@@ -76,7 +76,6 @@ Script.
             elif script_settings['iterator_type'] == 'Parameter Sweep':
                 iterator_type = 'sweep'
             else:
-                print('XXXXX', script_settings['iterator_type'])
                 raise TypeError('unknown iterator type')
         else:
             # asign the correct iterator script type
@@ -247,7 +246,7 @@ Script.
         Args:
             progress_subscript: progress of subscript
         """
-
+        estimate = True
         # ==== get the current subscript and the time it takes to execute it =====
         current_subscript = self._current_subscript_stage['current_subscript']
 
@@ -270,67 +269,73 @@ Script.
                 raise KeyError('unknown key' + self.settings['stepping_mode'])
 
         else:
-            raise TypeError('unknown iterator type')
-
-        # get number of loops (completed + 1)
-        loop_index = self.loop_index
+            print('unknown iterator type in Iterator receive signal - can\'t estimate ramining time')
+            estimate = False
 
 
-        if num_subscripts > 1:
-            # estimate the progress based on the duration the individual subscripts
-
-            loop_execution_time = 0.  # time for a single loop execution in s
-            sub_progress_time = 0.  # progress of current loop iteration in s
-
-            # ==== get typical duration of current subscript ======================
-            if current_subscript is not None:
-                current_subscript_exec_duration = self._current_subscript_stage['subscript_exec_duration'][
-                    current_subscript.name].total_seconds()
-            else:
-                current_subscript_exec_duration = 0.0
+        if estimate:
+            # get number of loops (completed + 1)
+            loop_index = self.loop_index
 
 
-            current_subscript_elapsed_time = (datetime.datetime.now() - current_subscript.start_time).total_seconds()
-            # estimate the duration of the current subscript if the script hasn't been executed once fully and subscript_exec_duration is 0
-            if current_subscript_exec_duration == 0.0:
-                remaining_time = current_subscript.remaining_time.total_seconds()
-                current_subscript_exec_duration = remaining_time + current_subscript_elapsed_time
+            if num_subscripts > 1:
+                # estimate the progress based on the duration the individual subscripts
 
-            # ==== get typical duration of one loop iteration ======================
-            remaining_scripts = 0  # script that remain to be executed for the first time
-            for subscript_name, duration in self._current_subscript_stage['subscript_exec_duration'].iteritems():
-                if duration.total_seconds() == 0.0:
-                    remaining_scripts += 1
-                loop_execution_time += duration.total_seconds()
-                # add the times of the subscripts that have been executed in the current loop
-                # ignore the current subscript, because that will be taken care of later
-                if self._current_subscript_stage['subscript_exec_count'][subscript_name] == loop_index \
-                        and subscript_name is not current_subscript.name:
-                    # this subscript has already been executed in this iteration
-                    sub_progress_time += duration.total_seconds()
+                loop_execution_time = 0.  # time for a single loop execution in s
+                sub_progress_time = 0.  # progress of current loop iteration in s
 
-            # add the proportional duration of the current subscript given by the subscript progress
-            sub_progress_time += current_subscript_elapsed_time
+                # ==== get typical duration of current subscript ======================
+                if current_subscript is not None:
+                    current_subscript_exec_duration = self._current_subscript_stage['subscript_exec_duration'][
+                        current_subscript.name].total_seconds()
+                else:
+                    current_subscript_exec_duration = 0.0
 
-            # if there are scripts that have not been executed yet
-            # assume that all the scripts that have not been executed yet take as long as the average of the other scripts
-            if remaining_scripts == num_subscripts:
-                # none of the subscript has been finished. assume that all the scripts take as long as the first
-                loop_execution_time = num_subscripts * current_subscript_exec_duration
-            elif remaining_scripts > 1:
-                loop_execution_time = 1. * num_subscripts / (num_subscripts - remaining_scripts)
-            elif remaining_scripts == 1:
-                # there is only one script left which is the current script
-                loop_execution_time += current_subscript_exec_duration
 
-            if loop_execution_time > 0:
-                progress_subscript = 100. * sub_progress_time / loop_execution_time
-            else:
-                progress_subscript = 1. * progress_subscript / num_subscripts
+                current_subscript_elapsed_time = (datetime.datetime.now() - current_subscript.start_time).total_seconds()
+                # estimate the duration of the current subscript if the script hasn't been executed once fully and subscript_exec_duration is 0
+                if current_subscript_exec_duration == 0.0:
+                    remaining_time = current_subscript.remaining_time.total_seconds()
+                    current_subscript_exec_duration = remaining_time + current_subscript_elapsed_time
 
-        # print(' === script iterator progress estimation loop_index = {:d}/{:d}, progress_subscript = {:f}'.format(loop_index, number_of_iterations, progress_subscript))
-        self.progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / num_iterations
+                # ==== get typical duration of one loop iteration ======================
+                remaining_scripts = 0  # script that remain to be executed for the first time
+                for subscript_name, duration in self._current_subscript_stage['subscript_exec_duration'].iteritems():
+                    if duration.total_seconds() == 0.0:
+                        remaining_scripts += 1
+                    loop_execution_time += duration.total_seconds()
+                    # add the times of the subscripts that have been executed in the current loop
+                    # ignore the current subscript, because that will be taken care of later
+                    if self._current_subscript_stage['subscript_exec_count'][subscript_name] == loop_index \
+                            and subscript_name is not current_subscript.name:
+                        # this subscript has already been executed in this iteration
+                        sub_progress_time += duration.total_seconds()
 
+                # add the proportional duration of the current subscript given by the subscript progress
+                sub_progress_time += current_subscript_elapsed_time
+
+                # if there are scripts that have not been executed yet
+                # assume that all the scripts that have not been executed yet take as long as the average of the other scripts
+                if remaining_scripts == num_subscripts:
+                    # none of the subscript has been finished. assume that all the scripts take as long as the first
+                    loop_execution_time = num_subscripts * current_subscript_exec_duration
+                elif remaining_scripts > 1:
+                    loop_execution_time = 1. * num_subscripts / (num_subscripts - remaining_scripts)
+                elif remaining_scripts == 1:
+                    # there is only one script left which is the current script
+                    loop_execution_time += current_subscript_exec_duration
+
+                if loop_execution_time > 0:
+                    progress_subscript = 100. * sub_progress_time / loop_execution_time
+                else:
+                    progress_subscript = 1. * progress_subscript / num_subscripts
+
+            # print(' === script iterator progress estimation loop_index = {:d}/{:d}, progress_subscript = {:f}'.format(loop_index, number_of_iterations, progress_subscript))
+            self.progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / num_iterations
+
+        else:
+            # if can't estimate the remaining time set to half
+            self.progress = 50
         self.updateProgress.emit(int(self.progress))
 
     def skip_next(self):
@@ -448,7 +453,6 @@ Script.
             the default setting for the iterator
 
         """
-
         def populate_sweep_param(scripts, parameter_list, trace=''):
             '''
 
@@ -575,8 +579,6 @@ Script.
             script_order = []  # A list of parameters giving the order that the scripts in the ScriptIterator should be executed. Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
             script_execution_freq = [] # A list of parameters giving the frequency with which each script should be executed
             _, script_class_name, script_settings, _, script_sub_scripts, _, package = Script.get_script_information(script_information)
-            # module, script_class_name, script_settings, script_instruments, script_sub_scripts, package
-
 
             if not package in script_iterators:
                 script_iterators.update(ScriptIterator.get_script_iterator(package))
@@ -590,7 +592,6 @@ Script.
             if isinstance(script_information, dict):
 
                 for sub_script_name, sub_script_class in script_sub_scripts.iteritems():
-                    print(sub_script_class)
                     if isinstance(sub_script_class, Script):
                         # script already exists
 
@@ -620,11 +621,16 @@ Script.
                         new_subscript = getattr(module, script_sub_scripts[sub_script_name]['class'])
                         sub_scripts.update({sub_script_name: new_subscript})
 
-
                 # for some iterators have default scripts, e.g. point iteration has select points
                 default_sub_scripts, default_script_settings = getattr(script_iterators[package], 'get_iterator_default_script')(iterator_type)
+
+
                 sub_scripts.update(default_sub_scripts)
-                script_settings.update(default_script_settings)
+
+                for k, v in default_script_settings.iteritems():
+                    if k in script_settings:
+                        script_settings[k].update(v)
+
 
 
             elif isinstance(script_information, Script):
@@ -636,10 +642,10 @@ Script.
             else:
                 raise TypeError('create_dynamic_script_class: unknown type of script_information')
 
+
+
             script_order, script_execution_freq = getattr(script_iterators[package], 'get_script_order')(script_settings['script_order'])
-
             script_default_settings = getattr(script_iterators[package], 'get_default_settings')(sub_scripts, script_order, script_execution_freq, iterator_type)
-
             return script_default_settings, sub_scripts, script_iterators, package
 
         def create_script_iterator_class(sub_scripts, script_settings, script_iterator_base_class, verbose=verbose):
@@ -716,7 +722,7 @@ Script.
 
          # get default setting, load subscripts, load the script_iterators and identify the package
         script_default_settings, sub_scripts, script_iterators, package = set_up_dynamic_script(script_information, script_iterators, verbose=verbose)
-
+        print('ssssAAAssss script_default_settings', script_default_settings)
         # now actually create the classs
         class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings, script_iterators[package], verbose = verbose)
 
