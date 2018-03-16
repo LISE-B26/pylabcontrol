@@ -239,12 +239,11 @@ Script.
         else:
             raise TypeError('wrong iterator type')
 
-    @pyqtSlot(int)
-    def _receive_signal(self, progress_subscript):
+    def _estimate_progress(self):
         """
-        this function takes care of signals emitted by the subscripts
-        Args:
-            progress_subscript: progress of subscript
+        estimates the current progress that is then used in _receive_signal
+
+        :return: current progress in percent
         """
         estimate = True
         # ==== get the current subscript and the time it takes to execute it =====
@@ -331,11 +330,22 @@ Script.
                     progress_subscript = 1. * progress_subscript / num_subscripts
 
             # print(' === script iterator progress estimation loop_index = {:d}/{:d}, progress_subscript = {:f}'.format(loop_index, number_of_iterations, progress_subscript))
-            self.progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / num_iterations
+            progress = 100. * (loop_index - 1. + 0.01 * progress_subscript) / num_iterations
 
         else:
             # if can't estimate the remaining time set to half
-            self.progress = 50
+            progress = 50
+        return progress
+
+    @pyqtSlot(int)
+    def _receive_signal(self, progress_subscript):
+        """
+        this function takes care of signals emitted by the subscripts
+        Args:
+            progress_subscript: progress of subscript
+        """
+
+        self.progress = self._estimate_progress()
         self.updateProgress.emit(int(self.progress))
 
     def skip_next(self):
