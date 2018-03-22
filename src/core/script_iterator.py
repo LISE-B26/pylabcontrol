@@ -732,7 +732,7 @@ Script.
 
          # get default setting, load subscripts, load the script_iterators and identify the package
         script_default_settings, sub_scripts, script_iterators, package = set_up_dynamic_script(script_information, script_iterators, verbose=verbose)
-        print('ssssAAAssss script_default_settings', script_default_settings)
+
         # now actually create the classs
         class_name, dynamic_class = create_script_iterator_class(sub_scripts, script_default_settings, script_iterators[package], verbose = verbose)
 

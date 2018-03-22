@@ -895,7 +895,7 @@ class Script(QObject):
         return settings
 
     @staticmethod
-    def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None, raise_errors = False, verbose=False):
+    def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None, raise_errors = False, package = 'PyLabControl', verbose=False):
         """
         load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
 
@@ -1048,7 +1048,7 @@ class Script(QObject):
                 print('WARNING: script {:s} already exists. Did not load!'.format(script_name))
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
-                module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
+                module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info, package = package)
                 # creates all dynamic scripts so they can be imported following the if statement
                 # if script_class_name == 'ScriptIterator':
                 if 'ScriptIterator' in script_class_name:
@@ -1416,5 +1416,3 @@ if __name__ == '__main__':
     #
     # print(info)
     #
-
-    print()

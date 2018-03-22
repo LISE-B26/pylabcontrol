@@ -82,12 +82,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     _DEFAULT_CONFIG = {
         # "tmp_folder": "../../b26_tmp",
-        "data_folder": os.path.join(application_path, "user_data/data"),
-        "probes_folder": os.path.join(application_path, "user_data/probes_auto_generated"),
-        "instrument_folder": os.path.join(application_path, "user_data/instruments_auto_generated"),
-        "scripts_folder": os.path.join(application_path, "user_data/scripts_auto_generated"),
-        "probes_log_folder": os.path.join(application_path, "user_data/b26_tmp"),
-        "settings_file": os.path.join(application_path, "user_data/pythonlab_config")
+        "data_folder": os.path.join(application_path, "user_data", "data"),
+        "probes_folder": os.path.join(application_path, "user_data", "probes_auto_generated"),
+        "instrument_folder": os.path.join(application_path, "user_data", "instruments_auto_generated"),
+        "scripts_folder": os.path.join(application_path, "user_data", "scripts_auto_generated"),
+        "probes_log_folder": os.path.join(application_path, "user_data", "b26_tmp"),
+        "settings_file": os.path.join(application_path, "user_data", "pythonlab_config")
     }
 
 
