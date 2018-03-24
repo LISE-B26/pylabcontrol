@@ -24,13 +24,13 @@
 # except ValueError:
 #     pass
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from PyLabControl.src.core import Parameter, Instrument, Script
 
 
 # ======== B26QTreeItem ==========
-class B26QTreeItem(QtGui.QTreeWidgetItem):
+class B26QTreeItem(QtWidgets.QTreeWidgetItem):
     '''
     Custom QTreeWidgetItem with Widgets
     '''
@@ -63,7 +63,9 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         # font.setWeight(75)
         # print("SET FONT!!", self.name)
         # self.setFont(0, font)
-        self.setTextColor(1, QtGui.QColor(255,0,0))
+
+        # figure out how to set color
+        # self.setTextColor(1, QtWidgets.QColor(255,0,0))
 
 
         # self.setData(0, 0, unicode(self.name))
@@ -71,7 +73,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         self.setForeground(0, QtGui.QColor(255, 0, 0))
 
         if isinstance(self.valid_values, list):
-            self.combo_box = QtGui.QComboBox()
+            self.combo_box = QtWidgets.QComboBox()
             for item in self.valid_values:
                 self.combo_box.addItem(unicode(item))
             self.combo_box.setCurrentIndex(self.combo_box.findText(unicode(self.value)))
@@ -81,7 +83,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             self._visible = False
 
         elif self.valid_values is bool:
-            self.check = QtGui.QCheckBox()
+            self.check = QtWidgets.QCheckBox()
             self.check.setChecked(self.value)
             self.treeWidget().setItemWidget( self, 1, self.check )
             self.check.stateChanged.connect(lambda: self.setData(1, 2, self.check))
@@ -161,7 +163,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         # self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         # self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
         if self._visible is not None:
-            self.check_show = QtGui.QCheckBox()
+            self.check_show = QtWidgets.QCheckBox()
             self.check_show.setChecked(self.visible)
             self.treeWidget().setItemWidget( self, 2, self.check_show )
 
@@ -186,7 +188,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 self.setData(1,0,value)
         else:
             if value is not None:
-                raise TypeError("wrong type {:s}, expected {:s}".format(str(value), str(self.valid_values)))
+                raise TypeError("wrong type {:s}, expected {:s}".format(str(type(value)), str(self.valid_values)))
 
     @property
     def visible(self):
@@ -213,7 +215,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             self._visible = value
             self.check_show.setChecked(self._visible)
 
-    def setData(self, column, role, value):
+    def setData(self, column, row, value):
         """
         if value is valid sets the data to value
         Args:
@@ -222,27 +224,27 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             value: value to be set
         """
         assert isinstance(column, int)
-        assert isinstance(role, int)
+        assert isinstance(row, int)
 
         msg = None
 
         # make sure that the right row is selected, this is not always the case for checkboxes and
         # comboboxes because they are items on top of the tree structure
-        if isinstance(value, (QtGui.QComboBox, QtGui.QCheckBox)):
+        if isinstance(value, (QtWidgets.QComboBox, QtWidgets.QCheckBox)):
             self.treeWidget().setCurrentItem(self)
 
         # if role = 2 (editrole, value has been entered)
-        if role == 2 and column == 1:
+        if row == 2 and column == 1:
 
-            if isinstance(value, QtCore.QString):
+            if isinstance(value, str) or isinstance(value, unicode):
 
                 value = self.cast_type(value) # cast into same type as valid values
             elif isinstance(value, QtCore.QVariant):
 
                 value = self.cast_type(value.toString())  # cast into same type as valid values
-            elif isinstance(value, QtGui.QComboBox):
+            elif isinstance(value, QtWidgets.QComboBox):
                 value = self.cast_type(value.currentText())
-            elif isinstance(value, QtGui.QCheckBox):
+            elif isinstance(value, QtWidgets.QCheckBox):
                 value = int(value.checkState()) # this gives 2 (True) and 0 (False)
                 value = value == 2
 
@@ -260,7 +262,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             msg = 'value not valid, reset to {:s}'.format(str(value))
 
         if not isinstance(value, bool):
-            super(B26QTreeItem, self).setData(column, role, value)
+            super(B26QTreeItem, self).setData(column, row, value)
         else:
             self.emitDataChanged()
 

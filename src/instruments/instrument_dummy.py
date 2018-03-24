@@ -18,7 +18,7 @@
 
 
 from PyLabControl.src.core import Instrument, Parameter
-from PyQt4.QtCore import QThread
+from PyQt5.QtCore import QThread
 import random, time
 import numpy as np
 class DummyInstrument(Instrument):

@@ -17,8 +17,8 @@
 
 import os
 
-from PyQt4 import QtGui
-from PyQt4.uic import loadUiType
+from PyQt5 import QtGui
+from PyQt5.uic import loadUiType
 
 from PyLabControl.src.core.read_write_functions import load_b26_file
 from PyLabControl.src.core.helper_functions import get_python_package
@@ -31,8 +31,8 @@ try:
     Ui_Dialog, QDialog = loadUiType('load_dialog.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
     from PyLabControl.src.gui.load_dialog import Ui_Dialog
-    from PyQt4.QtGui import QMainWindow
-    from PyQt4.QtGui import QDialog
+    from PyQt5.QtWidgets import QMainWindow
+    from PyQt5.QtWidgets import QDialog
     print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!\n')
 
 

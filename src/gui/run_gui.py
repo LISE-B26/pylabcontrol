@@ -16,12 +16,11 @@
 # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# this is the gui for the measurment pc
+# this is the gui for the measurement pc
 
-import ctypes
 import sys
 
-from PyQt4 import QtGui
+from PyQt5 import QtGui, QtWidgets
 
 from PyLabControl.src.gui import qt_b26_gui
 
@@ -30,10 +29,11 @@ from PyLabControl.src.gui import qt_b26_gui
 #ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 def run_gui(fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_config.b26'):
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     # fname = 'c:\\b26_tmp\\pythonlab_config_dummy.b26'
     # fname = 'c:\\b26_tmp\\pythonlab_config3a.b26'
-    fname = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_only.b26'
+    fname = '/Users/ASafira/PycharmProjects/config_settings/Untitled.b26'
+    # 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_only.b26'
 
     try:
         print("PyLabControl  Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell \n\n \

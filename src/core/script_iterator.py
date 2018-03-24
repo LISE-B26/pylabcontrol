@@ -18,7 +18,7 @@
 
 from PyLabControl.src.core import Parameter, Script
 import numpy as np
-from PyQt4.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot
 from collections import deque
 import datetime
 import warnings

@@ -15,8 +15,8 @@
 # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.uic import loadUiType
+from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.uic import loadUiType
 from PyLabControl.src.core import Parameter, Instrument, Script, Probe
 from PyLabControl.src.core.script_iterator import ScriptIterator
 from PyLabControl.src.core.read_probes import ReadProbes
@@ -27,7 +27,7 @@ from PyLabControl.src.core.read_write_functions import load_b26_file
 import os.path
 import numpy as np
 import json as json
-from PyQt4.QtCore import QThread, pyqtSlot
+from PyQt5.QtCore import QThread, pyqtSlot
 
 from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as Canvas,
                                                 NavigationToolbar2QT as NavigationToolbar)
@@ -42,7 +42,6 @@ import operator
 
 
 
-
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
     # import external_modules.matplotlibwidget
@@ -50,7 +49,7 @@ try:
 except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
     from PyLabControl.src.gui.basic_application_window import Ui_MainWindow
-    from PyQt4.QtGui import QMainWindow
+    from PyQt5.QtWidgets import QMainWindow
     print('Warning: on-the-fly conversion of basic_application_window.ui file failed, loaded .py file instead.\n')
 
 
@@ -60,7 +59,7 @@ class CustomEventFilter(QtCore.QObject):
             QEvent.ignore()
             return True
 
-        return QtGui.QWidget.eventFilter(QObject, QEvent)
+        return QtWidgets.QWidget.eventFilter(QObject, QEvent)
 
 
 class ControlMainWindow(QMainWindow, Ui_MainWindow):
@@ -78,7 +77,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     #        QEvent.ignore()
     #        return True
     #
-    #    return QtGui.QWidget.eventFilter(QObject, QEvent)
+    #    return QtWidgets.QWidget.eventFilter(QObject, QEvent)
 
     _DEFAULT_CONFIG = {
         # "tmp_folder": "../../b26_tmp",
@@ -124,11 +123,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.list_history.setModel(self.history_model)
             self.list_history.show()
 
-            self.tree_scripts.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-            self.tree_probes.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-            self.tree_settings.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            self.tree_scripts.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+            self.tree_probes.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+            self.tree_settings.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
-            self.tree_gui_settings.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            self.tree_gui_settings.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
             self.tree_gui_settings.doubleClicked.connect(self.edit_tree_item)
 
             self.current_script = None
@@ -191,7 +190,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.tree_scripts.itemChanged.connect(lambda: self.update_parameters(self.tree_scripts))
             self.tree_scripts.itemClicked.connect(self.btn_clicked)
             # self.tree_scripts.installEventFilter(self)
-            # QtGui.QTreeWidget.installEventFilter(self)
+            # QtWidgets.QTreeWidget.installEventFilter(self)
 
 
             self.tabWidget.currentChanged.connect(lambda : self.switch_tab())
@@ -215,7 +214,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # create a "delegate" --- an editor that uses our new Editor Factory when creating editors,
         # and use that for tree_scripts
         # needed to avoid rounding of numbers
-        delegate = QtGui.QStyledItemDelegate()
+        delegate = QtWidgets.QStyledItemDelegate()
         new_factory = CustomEditorFactory()
         delegate.setItemEditorFactory(new_factory)
         self.tree_scripts.setItemDelegate(delegate)
@@ -238,7 +237,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # however, as a consequence if the user selects a file that already exists, such as a valid config file
             # the dialog asks if the file should be over-written (I guess that is ok, because this is what happens
             # when you close the gui)
-            filename = str(QtGui.QFileDialog.getSaveFileName(self, 'Unvalid Config File. Select Config.',
+            filename = str(QtWidgets.QFileDialog.getSaveFileName(self, 'Unvalid Config File. Select Config.',
                                                              dialog_dir,'b26 files (*.b26)'))
             if filename == '':
                 #todo: create all the settings outside of init and only then start loading the gui!
@@ -247,9 +246,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # keep the code for now:
 
             # === begin custom dialog ====
-            # dialog = QtGui.QFileDialog(self)
+            # dialog = QtWidgets.QFileDialog(self)
             # dialog.setNameFilter('b26 files (*.b26)')
-            # dialog.setFileMode(QtGui.QFileDialog.AnyFile)
+            # dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
             # dialog.setDirectory(dialog_dir)
             # dialog.setWindowTitle('Unvalid Config File. Select Config.')
             # dialog.setParent(self)
@@ -487,7 +486,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         msg = "{:s}\t {:s}".format(time, msg)
 
         self.history.append(msg)
-        self.history_model.insertRow(0,QtGui.QStandardItem(msg))
+        self.history_model.insertRow(0, QtGui.QStandardItem(msg))
 
     def create_figures(self):
         """
@@ -512,20 +511,20 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.matplotlibwidget_2.close()
         except AttributeError:
             pass
-        self.centralwidget = QtGui.QWidget(self)
-        self.centralwidget.setObjectName(QtCore.QString.fromUtf8("centralwidget"))
+        self.centralwidget = QtWidgets.QWidget(self)
+        self.centralwidget.setObjectName("centralwidget")
         self.matplotlibwidget_2 = MatplotlibWidget(self.plot_2)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.matplotlibwidget_2.sizePolicy().hasHeightForWidth())
         self.matplotlibwidget_2.setSizePolicy(sizePolicy)
         self.matplotlibwidget_2.setMinimumSize(QtCore.QSize(200, 200))
-        self.matplotlibwidget_2.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget_2"))
+        self.matplotlibwidget_2.setObjectName("matplotlibwidget_2")
         self.horizontalLayout_16.addWidget(self.matplotlibwidget_2)
         self.matplotlibwidget_1 = MatplotlibWidget(self.plot_1)
         self.matplotlibwidget_1.setMinimumSize(QtCore.QSize(200, 200))
-        self.matplotlibwidget_1.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget_1"))
+        self.matplotlibwidget_1.setObjectName("matplotlibwidget_1")
         self.horizontalLayout_15.addWidget(self.matplotlibwidget_1)
 
         self.matplotlibwidget_1.mpl_connect('button_press_event', self.plot_clicked)
@@ -835,21 +834,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.probe_to_plot = None
         elif sender is self.btn_save_gui:
             # get filename
-            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save gui settings to file', self.gui_settings['data_folder']) # filter = '.b26gui'
+            fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save gui settings to file', self.gui_settings['data_folder']) # filter = '.b26gui'
             self.save_config(fname)
         elif sender is self.btn_load_gui:
             # get filename
-            fname = QtGui.QFileDialog.getOpenFileName(self, 'Load gui settings from file',  self.gui_settings['data_folder'])
+            fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Load gui settings from file',  self.gui_settings['data_folder'])
             # self.load_settings(fname)
             self.load_config(fname)
         elif sender is self.btn_about:
-            msg = QtGui.QMessageBox()
-            msg.setIcon(QtGui.QMessageBox.Information)
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Information)
             msg.setText("Lukin Lab B26 Gui")
             msg.setInformativeText("Check out: https://github.com/LISE-B26/PythonLab")
             msg.setWindowTitle("About")
             # msg.setDetailedText("some stuff")
-            msg.setStandardButtons(QtGui.QMessageBox.Ok)
+            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
             # msg.buttonClicked.connect(msgbtn)
             retval = msg.exec_()
         # elif (sender is self.btn_load_instruments) or (sender is self.btn_load_scripts):
@@ -871,11 +870,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         """
 
-        assert isinstance(self.sender(), QtGui.QCheckBox), 'this function should be connected to a check box'
+        assert isinstance(self.sender(), QtWidgets.QCheckBox), 'this function should be connected to a check box'
 
         if self.sender().isChecked():
             self.tree_scripts.setColumnHidden(2, False)
-            iterator = QtGui.QTreeWidgetItemIterator(self.tree_scripts, QtGui.QTreeWidgetItemIterator.Hidden)
+            iterator = QtWidgets.QTreeWidgetItemIterator(self.tree_scripts, QtWidgets.QTreeWidgetItemIterator.Hidden)
             item = iterator.value()
             while item:
                 item.setHidden(False)
@@ -884,7 +883,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.tree_scripts.setColumnHidden(2, True)
 
-            iterator = QtGui.QTreeWidgetItemIterator(self.tree_scripts, QtGui.QTreeWidgetItemIterator.NotHidden)
+            iterator = QtWidgets.QTreeWidgetItemIterator(self.tree_scripts, QtWidgets.QTreeWidgetItemIterator.NotHidden)
             item = iterator.value()
             while item:
                 if not item.visible:
@@ -1094,7 +1093,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
         fills a QTreeWidget with nested parameters, in future replace QTreeWidget with QTreeView and call fill_treeview
         Args:
-            tree: QtGui.QTreeWidget
+            tree: QtWidgets.QTreeWidget
             parameters: dictionary or Parameter object
             show_all: boolean if true show all parameters, if false only selected ones
         Returns:
@@ -1107,16 +1106,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         for key, value in parameters.iteritems():
             if isinstance(value, Parameter):
                 item  = B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
-                # item.setForeground(0,QtGui.QColor(255, 0, 0))
+                # item.setForeground(0,QtWidgets.QColor(255, 0, 0))
             else:
                 item = B26QTreeItem(tree, key, value, type(value), '')
-                # item.setForeground(0,QtGui.QColor(255, 0, 0))
+                # item.setForeground(0,QtWidgets.QColor(255, 0, 0))
 
     def fill_treeview(self, tree, input_dict):
         """
         fills a treeview with nested parameters
         Args:
-            tree: QtGui.QTreeView
+            tree: QtWidgets.QTreeView
             parameters: dictionary or Parameter object
 
         Returns:
@@ -1125,7 +1124,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # tree.model().clear()
         tree.model().removeRows(0, tree.model().rowCount())
         def add_elemet(item, key, value):
-            child_name = QtGui.QStandardItem(key)
+            child_name = QtWidgets.QStandardItem(key)
             # child_name.setDragEnabled(False)
             # child_name.setSelectable(False)
             # child_name.setEditable(False)
@@ -1135,7 +1134,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     add_elemet(child_name, key_child, value_child)
                 item.appendRow(child_name)
             else:
-                child_value = QtGui.QStandardItem(unicode(value))
+                child_value = QtWidgets.QStandardItem(unicode(value))
                 # child_value.setDragEnabled(False)
                 # child_value.setSelectable(False)
                 # child_value.setEditable(False)
@@ -1145,7 +1144,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         for index, (key, value) in enumerate(input_dict.iteritems()):
 
             if isinstance(value, dict):
-                item = QtGui.QStandardItem(key)
+                item = QtWidgets.QStandardItem(key)
                 for sub_key, sub_value in value.iteritems():
                     add_elemet(item, sub_key, sub_value)
                 tree.model().appendRow(item)
@@ -1166,9 +1165,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             """
             opens a file dialog to get the path to a file and
             """
-            dialog = QtGui.QFileDialog()
-            dialog.setFileMode(QtGui.QFileDialog.Directory)
-            dialog.setOption(QtGui.QFileDialog.ShowDirsOnly, True)
+            dialog = QtWidgets.QFileDialog()
+            dialog.setFileMode(QtWidgets.QFileDialog.Directory)
+            dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly, True)
             path = dialog.getExistingDirectory(self, 'Select a folder:', path)
 
             return path
@@ -1194,7 +1193,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
         refresh trees with current settings
         Args:
-            tree: a QtGui.QTreeWidget object or a QtGui.QTreeView object
+            tree: a QtWidgets.QTreeWidget object or a QtWidgets.QTreeView object
             items: dictionary or Parameter items with which to populate the tree
             show_all: boolean if true show all parameters, if false only selected ones
         """
@@ -1222,9 +1221,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             name = script.settings['tag']
             type = script.name
 
-            item_time = QtGui.QStandardItem(unicode(time))
-            item_name = QtGui.QStandardItem(unicode(name))
-            item_type = QtGui.QStandardItem(unicode(type))
+            item_time = QtWidgets.QStandardItem(unicode(time))
+            item_name = QtWidgets.QStandardItem(unicode(name))
+            item_type = QtWidgets.QStandardItem(unicode(type))
 
             item_time.setSelectable(False)
             item_time.setEditable(False)
@@ -1427,14 +1426,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 # In order to set the precision when editing floats, we need to override the default Editor widget that
 # pops up over the text when you click. To do that, we create a custom Editor Factory so that the QTreeWidget
 # uses the custom spinbox when editing floats
-class CustomEditorFactory(QtGui.QItemEditorFactory):
+class CustomEditorFactory(QtWidgets.QItemEditorFactory):
     def createEditor(self, type, QWidget):
         if type == QtCore.QVariant.Double or type == QtCore.QVariant.Int:
-            spin_box = QtGui.QLineEdit(QWidget)
+            spin_box = QtWidgets.QLineEdit(QWidget)
             return spin_box
 
         if type == QtCore.QVariant.List or type == QtCore.QVariant.StringList:
-            combo_box = QtGui.QComboBox(QWidget)
+            combo_box = QtWidgets.QComboBox(QWidget)
             combo_box.setFocusPolicy(QtCore.Qt.StrongFocus)
             return combo_box
 
@@ -1447,7 +1446,7 @@ class CustomEditorFactory(QtGui.QItemEditorFactory):
 
 class MatplotlibWidget(Canvas):
     """
-    MatplotlibWidget inherits PyQt4.QtGui.QWidget
+    MatplotlibWidget inherits PyQt4.QtWidgets.QWidget
     and matplotlib.backend_bases.FigureCanvasBase
 
     Options: option_name (default_value)
@@ -1486,7 +1485,7 @@ class MatplotlibWidget(Canvas):
         self.canvas = self.figure.canvas
         self.setParent(parent)
 
-        Canvas.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        Canvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         Canvas.updateGeometry(self)
 
     def sizeHint(self):

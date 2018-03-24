@@ -17,7 +17,7 @@
 # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from PyQt4.QtCore import pyqtSignal, QThread
+from PyQt5.QtCore import pyqtSignal, QThread
 
 
 class ReadProbes(QThread):
