@@ -29,7 +29,7 @@ import numpy as np
 import json as json
 from PyQt5.QtCore import QThread, pyqtSlot
 
-from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as Canvas,
+from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as Canvas,
                                                 NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
@@ -1221,9 +1221,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             name = script.settings['tag']
             type = script.name
 
-            item_time = QtWidgets.QStandardItem(unicode(time))
-            item_name = QtWidgets.QStandardItem(unicode(name))
-            item_type = QtWidgets.QStandardItem(unicode(type))
+            item_time = QtGui.QStandardItem(unicode(time))
+            item_name = QtGui.QStandardItem(unicode(name))
+            item_type = QtGui.QStandardItem(unicode(type))
 
             item_time.setSelectable(False)
             item_time.setEditable(False)

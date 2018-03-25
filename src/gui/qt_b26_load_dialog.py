@@ -17,7 +17,7 @@
 
 import os
 
-from PyQt5 import QtGui
+from PyQt5 import QtGui, QtWidgets
 from PyQt5.uic import loadUiType
 
 from PyLabControl.src.core.read_write_functions import load_b26_file
@@ -163,8 +163,8 @@ Returns:
         """
         opens a file dialog to get the path to a file and
         """
-        dialog = QtGui.QFileDialog
-        filename = dialog.getOpenFileName(self, 'Select a file:', self.txt_probe_log_path.text())
+        dialog = QtWidgets.QFileDialog
+        filename, _ = dialog.getOpenFileName(self, 'Select a file:', self.txt_probe_log_path.text())
         if str(filename)!='':
             self.txt_probe_log_path.setText(filename)
             # load elements from file and display in tree
