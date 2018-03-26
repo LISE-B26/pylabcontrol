@@ -36,7 +36,6 @@ except (ImportError, IOError):
     print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!\n')
 
 
-
 class LoadDialog(QDialog, Ui_Dialog):
     """
 LoadDialog(intruments, scripts, probes)
@@ -47,7 +46,7 @@ ControlMainWindow(settings_file)
 Returns:
     """
 
-    def __init__(self, elements_type, elements_old = {}, filename = ''):
+    def __init__(self, elements_type, elements_old=None, filename=''):
         super(LoadDialog, self).__init__()
         self.setupUi(self)
 
@@ -74,7 +73,11 @@ Returns:
         # create the dictionaries that hold the data
         #   - elements_old: the old elements (scripts, instruments) that have been passed to the dialog
         #   - elements_from_file: the elements from the file that had been opened
-        self.elements_old = elements_old
+        if elements_old is None:
+            self.elements_old = {}
+        else:
+            self.elements_old = elements_old
+
         self.elements_selected = {}
         for element_name, element in self.elements_old.iteritems():
             self.elements_selected.update( {element_name: {'class': element.__class__.__name__ , 'settings':element.settings}})
@@ -113,7 +116,6 @@ Returns:
                 self.elements_from_file[name] = self.elements_from_file[self.selected_element_name]
                 del self.elements_from_file[self.selected_element_name]
                 self.selected_element_name = name
-
 
     def show_info(self):
         """
@@ -165,7 +167,7 @@ Returns:
         """
         dialog = QtWidgets.QFileDialog
         filename, _ = dialog.getOpenFileName(self, 'Select a file:', self.txt_probe_log_path.text())
-        if str(filename)!='':
+        if str(filename) != '':
             self.txt_probe_log_path.setText(filename)
             # load elements from file and display in tree
             elements_from_file = self.load_elements(filename)
@@ -194,7 +196,7 @@ Returns:
 
         """
 
-        def add_elemet(item, key, value):
+        def add_element(item, key, value):
             child_name = QtGui.QStandardItem(key)
             child_name.setDragEnabled(False)
             child_name.setSelectable(False)
@@ -202,28 +204,33 @@ Returns:
 
             if isinstance(value, dict):
                 for ket_child, value_child in value.iteritems():
-                    add_elemet(child_name, ket_child, value_child)
-                item.appendRow(child_name)
+                    add_element(child_name, ket_child, value_child)
+                child_value = QtGui.QStandardItem('')
             else:
-                child_value = QtGui.QStandardItem(unicode(value))
-                child_value.setDragEnabled(False)
-                child_value.setSelectable(False)
-                child_value.setEditable(False)
+                print(value, type(value))
+                child_value = QtGui.QStandardItem(str(value))
+                child_value.setData(value)
 
-                item.appendRow([child_name, child_value])
+            child_value.setDragEnabled(False)
+            child_value.setSelectable(False)
+            child_value.setEditable(False)
+            item.appendRow([child_name, child_value])
 
-        for index, (instrument, instrument_settings) in enumerate(input_dict.iteritems()):
-            item = QtGui.QStandardItem(instrument)
+        for index, (loaded_item, loaded_item_settings) in enumerate(input_dict.iteritems()):
+            # print(index, loaded_item, loaded_item_settings)
+            item = QtGui.QStandardItem(loaded_item)
 
-            for key, value in instrument_settings['settings'].iteritems():
-                add_elemet(item, key, value)
+            for key, value in loaded_item_settings['settings'].iteritems():
+                add_element(item, key, value)
 
-            tree.model().appendRow(item)
+            value = QtGui.QStandardItem('')
+            tree.model().appendRow([item, value])
+
             if tree == self.tree_loaded:
                 item.setEditable(False)
             tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
 
-    def getValues(self):
+    def get_values(self):
         """
         Returns: the selected instruments
         """
@@ -289,11 +296,10 @@ Returns:
         self.elements_from_file.update(new_script_dict)
 
 
-
 if __name__ == '__main__':
     import sys
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     # ex = LoadDialog(elements_type = 'instruments', elements_old=instuments, filename="Z:\Lab\Cantilever\Measurements\\__tmp\\test.b26")
     # ex = LoadDialog(elements_type='scripts', elements_old=instuments)
     ex = LoadDialog(elements_type='scripts', filename='/Users/rettentulla/Projects/Python/user_data')
@@ -303,7 +309,7 @@ if __name__ == '__main__':
 
     print('asda')
     if ex.exec_():
-        values = ex.getValues()
+        values = ex.get_values()
         print(values)
 
     sys.exit(app.exec_())
