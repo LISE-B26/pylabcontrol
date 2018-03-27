@@ -110,6 +110,7 @@ def export_default_probes(path, module_name = '', raise_errors = False):
                     probe.save(filename)
             except:
                 print('failed to create probe file for: {:s}'.format(obj.__name__))
+                print('failed to create probe file for: {:s}'.format(obj.__name__))
 
 def export_default_instruments(target_folder, source_folder = None, raise_errors = False, verbose=True):
     """
@@ -192,7 +193,6 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
             print(target_folder, ' is invalid target folder')
             target_folder = None
 
-    print('got here')
     if target_folder is not None:
         if source_folders is None:
             module_list = [os.path.dirname(os.path.dirname(inspect.getfile(inspect.currentframe())))]
@@ -203,7 +203,6 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
         else:
             raise TypeError('unknown type for source_folders')
 
-        print(module_list)
         for path_to_module in module_list:
             if class_type in ('all', 'scripts'):
                 export_default_scripts(target_folder, source_folder=path_to_module, raise_errors=raise_errors)
