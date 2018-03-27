@@ -238,7 +238,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # the dialog asks if the file should be over-written (I guess that is ok, because this is what happens
             # when you close the gui)
             filename = str(QtWidgets.QFileDialog.getSaveFileName(self, 'Unvalid Config File. Select Config.',
-                                                             dialog_dir,'b26 files (*.b26)'))
+                                                             dialog_dir,'b26 files (*.b26)')[0])
             if filename == '':
                 #todo: create all the settings outside of init and only then start loading the gui!
                 raise ValueError
@@ -255,9 +255,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # filename = str(dialog.open())
             # print(filename)
             # === end custom dialog ====
-
-            # if not filename:
-            #     raise ValueError('No config file was provided. abort loading gui...')
             self.instruments = {}
             self.scripts = {}
             self.probes = {}
@@ -286,8 +283,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.script_thread.quit()
         self.read_probes.quit()
         if self.config_filename:
+            print('sdfiasdhi', type(self.config_filename))
             fname = self.config_filename
-            print('save config to {:s}'.format(fname))
+            print('saving config to {:s}'.format(fname))
             self.save_config(fname)
 
         event.accept()

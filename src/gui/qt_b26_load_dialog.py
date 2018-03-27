@@ -207,7 +207,6 @@ Returns:
                     add_element(child_name, ket_child, value_child)
                 child_value = QtGui.QStandardItem('')
             else:
-                print(value, type(value))
                 child_value = QtGui.QStandardItem(str(value))
                 child_value.setData(value)
 
