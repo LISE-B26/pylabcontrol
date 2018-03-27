@@ -70,7 +70,7 @@ Example Script that has all different types of parameters (integer, str, fload, 
         Parameter('wait_time', 0.1, float),
         Parameter('point2',
                   [Parameter('x', 0.1, float, 'x-coordinate'),
-                  Parameter('y', 0.1, float, 'y-coordinate')
+                   Parameter('y', 0.1, float, 'y-coordinate')
                   ]),
         Parameter('plot_style', 'main', ['main', 'aux', '2D', 'two'])
     ]

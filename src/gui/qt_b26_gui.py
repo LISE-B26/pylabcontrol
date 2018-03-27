@@ -221,7 +221,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         setup_trees()
 
         connect_controls()
-        if os.path.exists(filename) == False:
+        if not os.path.exists(filename):
             dialog_dir = ''
 
             # set path to home path
@@ -286,7 +286,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.script_thread.quit()
         self.read_probes.quit()
         if self.config_filename:
-            fname =  self.config_filename
+            fname = self.config_filename
             print('save config to {:s}'.format(fname))
             self.save_config(fname)
 
@@ -444,7 +444,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         item = self.tree_scripts.currentItem()
 
         if item is not None:
-
             if item.is_point():
                 item_x = item.child(1)
                 if mouse_event.xdata is not None:
@@ -539,7 +538,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.matplotlibwidget_1.figure.set_tight_layout(True)
         self.matplotlibwidget_2.figure.set_tight_layout(True)
 
-
     def load_scripts(self):
             """
             opens file dialog to load scripts into gui
@@ -556,7 +554,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                                 filename=self.gui_settings['scripts_folder'])
             if dialog.exec_():
                 self.gui_settings['scripts_folder'] = str(dialog.txt_probe_log_path.text())
-                scripts = dialog.getValues()
+                scripts = dialog.get_values()
                 added_scripts = set(scripts.keys()) - set(self.scripts.keys())
                 removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
 
@@ -572,10 +570,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     instruments=self.instruments,
                     log_function=self.log,
                     data_path=data_folder_name)
+
                 # delete instances of new instruments/scripts that have been deselected
                 for name in removed_scripts:
                     del self.scripts[name]
-
 
     def btn_clicked(self):
         """
@@ -691,6 +689,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.data_sets.update({time_tag : script_copy})
 
                 self.fill_dataset_tree(self.tree_dataset, self.data_sets)
+
         def save_data():
             """"
             saves the selected script (where is contained in the script itself)
@@ -709,6 +708,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 script.save_image_to_disk()
                 script.save_b26()
                 script.save_log()
+
         def delete_data():
             """
             deletes the data from the dataset
@@ -723,6 +723,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 del self.data_sets[time_tag]
 
                 model.removeRows(row,1)
+
         def load_probes():
             """
             opens file dialog to load probes into gui
@@ -757,6 +758,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.tree_probes.clear() # clear tree because the probe might have changed
                 self.read_probes.updateProgress.connect(self.update_probes)
                 self.tree_probes.expandAll()
+
         def load_instruments():
             """
             opens file dialog to load instruments into gui
@@ -783,6 +785,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 # delete instances of new instruments/scripts that have been deselected
                 for name in removed_instruments:
                     del self.instruments[name]
+
         def plot_data(sender):
             """
             plots the data of the selected script
@@ -1087,8 +1090,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         # update datefolder path
         script.data_path = self.gui_settings['data_folder']
 
-
-
     def fill_treewidget(self, tree, parameters):
         """
         fills a QTreeWidget with nested parameters, in future replace QTreeWidget with QTreeView and call fill_treeview
@@ -1105,11 +1106,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         for key, value in parameters.iteritems():
             if isinstance(value, Parameter):
-                item  = B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
-                # item.setForeground(0,QtWidgets.QColor(255, 0, 0))
+                B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
             else:
-                item = B26QTreeItem(tree, key, value, type(value), '')
-                # item.setForeground(0,QtWidgets.QColor(255, 0, 0))
+                B26QTreeItem(tree, key, value, type(value), '')
 
     def fill_treeview(self, tree, input_dict):
         """
@@ -1121,7 +1120,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns:
 
         """
-        # tree.model().clear()
+
         tree.model().removeRows(0, tree.model().rowCount())
         def add_elemet(item, key, value):
             child_name = QtWidgets.QStandardItem(key)
@@ -1384,7 +1383,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         out_file_name = str(out_file_name)
         if not os.path.exists(os.path.dirname(out_file_name)):
             os.makedirs(os.path.dirname(out_file_name))
-
 
         # build a dictionary for the configuration of the hidden parameters
         dictator = {}
