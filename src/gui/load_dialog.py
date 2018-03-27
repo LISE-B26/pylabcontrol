@@ -88,7 +88,7 @@ class Ui_Dialog(object):
         self.tree_script_sequence.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         self.tree_script_sequence.setAcceptDrops(True)
         self.tree_script_sequence.setDragEnabled(True)
-        self.tree_script_sequence.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
+        self.tree_script_sequence.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
         self.tree_script_sequence.setDefaultDropAction(QtCore.Qt.MoveAction)
         self.tree_script_sequence.setObjectName("tree_script_sequence")
         self.btn_script_sequence = QtWidgets.QPushButton(Dialog)

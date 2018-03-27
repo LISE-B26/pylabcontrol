@@ -105,13 +105,10 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
                 self.treeWidget().setItemWidget(self, 1, self.combo_box)
                 self.combo_box.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combo_box))
                 self.combo_box.setFocusPolicy(QtCore.Qt.StrongFocus)
-                # todo: change so that all the instruments of the same type can be selected in the gui
-                # B26QTreeItem(self, 'instance', self.value.name, self.value, 'instrument '.format(self.value.name),visible=self.visible)
 
         elif isinstance(self.value, Script):
             for key, value in self.value.settings.iteritems():
                 B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key])
-                # B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key])
 
             for key, value in self.value.instruments.iteritems():
                 B26QTreeItem(self, key, self.value.instruments[key],  type(self.value.instruments[key]), '')
