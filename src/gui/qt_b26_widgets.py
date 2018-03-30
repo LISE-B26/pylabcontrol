@@ -24,21 +24,20 @@
 # except ValueError:
 #     pass
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from PyLabControl.src.core import Parameter, Instrument, Script
 
 
 # ======== B26QTreeItem ==========
-class B26QTreeItem(QtGui.QTreeWidgetItem):
-    '''
+class B26QTreeItem(QtWidgets.QTreeWidgetItem):
+    """
     Custom QTreeWidgetItem with Widgets
-    '''
+    """
 
-    def __init__(self, parent, name, value, valid_values, info, visible = None):
+    def __init__(self, parent, name, value, valid_values, info, visible=None):
         """
         Args:
-            parent:
             name:
             value:
             valid_values:
@@ -51,55 +50,43 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
         super(B26QTreeItem, self ).__init__(parent)
 
+        self.ui_type = None
         self.name = name
         self.valid_values = valid_values
-        self.value = value
+        self._value = value
         self.info = info
         self._visible = visible
-
-        # font = QtGui.QFont()
-        # font.setBold(True)
-        # font.setPointSize(20)
-        # font.setWeight(75)
-        # print("SET FONT!!", self.name)
-        # self.setFont(0, font)
-        self.setTextColor(1, QtGui.QColor(255,0,0))
-
-
-        # self.setData(0, 0, unicode(self.name))
         self.setData(0, 0, self.name)
-        self.setForeground(0, QtGui.QColor(255, 0, 0))
 
         if isinstance(self.valid_values, list):
-            self.combo_box = QtGui.QComboBox()
+            self.ui_type = 'combo_box'
+            self.combo_box = QtWidgets.QComboBox()
             for item in self.valid_values:
                 self.combo_box.addItem(unicode(item))
             self.combo_box.setCurrentIndex(self.combo_box.findText(unicode(self.value)))
-            self.treeWidget().setItemWidget( self, 1, self.combo_box)
+            self.treeWidget().setItemWidget(self, 1, self.combo_box)
             self.combo_box.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combo_box))
             self.combo_box.setFocusPolicy(QtCore.Qt.StrongFocus)
             self._visible = False
 
         elif self.valid_values is bool:
-            self.check = QtGui.QCheckBox()
-            self.check.setChecked(self.value)
-            self.treeWidget().setItemWidget( self, 1, self.check )
-            self.check.stateChanged.connect(lambda: self.setData(1, 2, self.check))
+            self.ui_type = 'checkbox'
+            self.checkbox = QtWidgets.QCheckBox()
+            self.checkbox.setChecked(self.value)
+            self.treeWidget().setItemWidget( self, 1, self.checkbox )
+            self.checkbox.stateChanged.connect(lambda: self.setData(1, 2, self.checkbox))
             self._visible = False
 
         elif isinstance(self.value, Parameter):
             for key, value in self.value.iteritems():
                 B26QTreeItem(self, key, value, self.value.valid_values[key], self.value.info[key])
-                # B26QTreeItem(self, key, value, self.value.valid_values[key], self.value.info[key])
+
         elif isinstance(self.value, dict):
             for key, value in self.value.iteritems():
-
                 if self.valid_values == dict:
                     B26QTreeItem(self, key, value, type(value), '')
-                    # B26QTreeItem(self, key, value, type(value), '')
                 else:
                     B26QTreeItem(self, key, value, self.valid_values[key], self.info[key])
-                    # B26QTreeItem(self, key, value, self.valid_values[key], self.info[key])
 
         elif isinstance(self.value, Instrument):
             index_top_level_item = self.treeWidget().indexOfTopLevelItem(self)
@@ -108,63 +95,40 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 # instrument is on top level, thus we are in the instrument tab
                 for key, value in self.value.settings.iteritems():
                     B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key])
-                    # B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key])
             else:
                 self.valid_values = [self.value.name]
                 self.value = self.value.name
-                self.combo_box = QtGui.QComboBox()
+                self.combo_box = QtWidgets.QComboBox()
                 for item in self.valid_values:
                     self.combo_box.addItem(unicode(item))
                 self.combo_box.setCurrentIndex(self.combo_box.findText(unicode(self.value)))
                 self.treeWidget().setItemWidget(self, 1, self.combo_box)
                 self.combo_box.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combo_box))
                 self.combo_box.setFocusPolicy(QtCore.Qt.StrongFocus)
-                # todo: change so that all the instruments of the same type can be selected in the gui
-                # B26QTreeItem(self, 'instance', self.value.name, self.value, 'instrument '.format(self.value.name),visible=self.visible)
-
 
         elif isinstance(self.value, Script):
             for key, value in self.value.settings.iteritems():
                 B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key])
-                # B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key])
 
             for key, value in self.value.instruments.iteritems():
-                item = B26QTreeItem(self, key, self.value.instruments[key],  type(self.value.instruments[key]), '')
-                # item = B26QTreeItem(self, key, self.value.instruments[key], type(self.value.instruments[key]), '')
-                # item.setDisabled(True)
+                B26QTreeItem(self, key, self.value.instruments[key],  type(self.value.instruments[key]), '')
 
             for key, value in self.value.scripts.iteritems():
-                item = B26QTreeItem(self, key, self.value.scripts[key],  type(self.value.scripts[key]), '')
-                # item = B26QTreeItem(self, key, self.value.scripts[key], type(self.value.scripts[key]), '')
-                # item.setDisabled(True)
-            # self.info = 'script of class {:s}'.format(str(type(self.value)).split('.')[-1].split('\'>')[0])
+                B26QTreeItem(self, key, self.value.scripts[key],  type(self.value.scripts[key]), '')
+
             self.info = self.value.__doc__
-            # #todo: set the font to bold
-            #
-            # print(self.font(0))
-            # font = QtGui.QFont()
-            # font.setBold(True)
-            # font.setPointSize(20)
-            # font.setWeight(75)
-            # print("SET FONT!!", self.name)
-            # self.setFont(0, font)
-            #
-            # self.setForeground(0, QtGui.QBrush(QtGui.QColor("#003366")))
 
         else:
             self.setData(1, 0, self.value)
-            # self.setFself.setTextColor(0, QtGui.QColor(255, 0, 0))lags(self.flags() | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsEditable)
-            self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
             self._visible = False
         self.setToolTip(1, unicode(self.info if isinstance(self.info, str) else ''))
 
-        # self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
-        # self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
         if self._visible is not None:
-            self.check_show = QtGui.QCheckBox()
+            self.check_show = QtWidgets.QCheckBox()
             self.check_show.setChecked(self.visible)
-            self.treeWidget().setItemWidget( self, 2, self.check_show )
+            self.treeWidget().setItemWidget(self, 2, self.check_show)
 
+        self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
 
     @property
     def value(self):
@@ -178,15 +142,15 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         if Parameter.is_valid(value, self.valid_values):
             self._value = value
             # check if there is a special case for setting such as a checkbox or combobox
-            if hasattr(self, 'check'):
-                self.check.setChecked(value)
-            elif hasattr(self, 'combo_box'):
+            if self.ui_type == 'checkbox':
+                self.checkbox.setChecked(value)
+            elif self.ui_type == 'combo_box':
                 self.combo_box.setCurrentIndex(self.combo_box.findText(unicode(self.value)))
-            else: #for standard values
-                self.setData(1,0,value)
+            else:  # for standard values
+                self.setData(1, 0, value)
         else:
             if value is not None:
-                raise TypeError("wrong type {:s}, expected {:s}".format(str(value), str(self.valid_values)))
+                raise TypeError("wrong type {:s}, expected {:s}".format(str(type(value)), str(self.valid_values)))
 
     @property
     def visible(self):
@@ -198,7 +162,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         if self._visible is not None:
             return self.check_show.isChecked()
 
-        elif isinstance(self.value, (Parameter, dict)):
+        elif isinstance(self._value, (Parameter, dict)):
             # check if any of the children is visible
             for i in range(self.childCount()):
                 if self.child(i).visible:
@@ -207,45 +171,43 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
             return False
         else:
             return True
+
     @visible.setter
     def visible(self, value):
         if self._visible is not None:
             self._visible = value
             self.check_show.setChecked(self._visible)
 
-    def setData(self, column, role, value):
+    def setData(self, column, row, value):
         """
         if value is valid sets the data to value
         Args:
-            column: column if item
-            role: role if item (see Qt doc)
+            column: column of item
+            row: row of item (see Qt doc)
             value: value to be set
         """
         assert isinstance(column, int)
-        assert isinstance(role, int)
-
-        msg = None
+        assert isinstance(row, int)
 
         # make sure that the right row is selected, this is not always the case for checkboxes and
-        # comboboxes because they are items on top of the tree structure
-        if isinstance(value, (QtGui.QComboBox, QtGui.QCheckBox)):
+        # combo boxes because they are items on top of the tree structure
+        if isinstance(value, (QtWidgets.QComboBox, QtWidgets.QCheckBox)):
             self.treeWidget().setCurrentItem(self)
 
-        # if role = 2 (editrole, value has been entered)
-        if role == 2 and column == 1:
+        # if row 2 (editrow, value has been entered)
+        if row == 2 and column == 1:
 
-            if isinstance(value, QtCore.QString):
-
+            if isinstance(value, str) or isinstance(value, unicode):
                 value = self.cast_type(value) # cast into same type as valid values
+
             elif isinstance(value, QtCore.QVariant):
-
                 value = self.cast_type(value.toString())  # cast into same type as valid values
-            elif isinstance(value, QtGui.QComboBox):
-                value = self.cast_type(value.currentText())
-            elif isinstance(value, QtGui.QCheckBox):
-                value = int(value.checkState()) # this gives 2 (True) and 0 (False)
-                value = value == 2
 
+            elif isinstance(value, QtWidgets.QComboBox):
+                value = self.cast_type(value.currentText())
+
+            elif isinstance(value, QtWidgets.QCheckBox):
+                value = bool(int(value.checkState()))  # checkState() gives 2 (True) and 0 (False)
 
             # save value in internal variable
             self.value = value
@@ -253,48 +215,51 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         elif column == 0:
             # labels should not be changed so we set it back
             value = self.name
-            msg = 'labels can not be changed, label {:s} reset'.format(str(value))
 
-        if value == None:
+        if value is None:
             value = self.value
-            msg = 'value not valid, reset to {:s}'.format(str(value))
 
+        # 180327(asafira) --- why do we need to do the following lines? Why not just always call super or always
+        # emitDataChanged()?
         if not isinstance(value, bool):
-            super(B26QTreeItem, self).setData(column, role, value)
+            super(B26QTreeItem, self).setData(column, row, value)
+
         else:
             self.emitDataChanged()
 
-
-    def cast_type(self, var, typ = None):
+    def cast_type(self, var, cast_type=None):
         """
         cast the value into the type typ
-        if typ is not provided it is set to self.valid_values
+        if type is not provided it is set to self.valid_values
         Args:
             var: variable to be cast
-            typ: target type
+            type: target type
 
         Returns: the variable var csat into type typ
 
         """
 
-        if typ is None:
-            typ = self.valid_values
+        if cast_type is None:
+            cast_type = self.valid_values
 
         try:
-            if typ == int:
-                var = int(var)
-            elif typ == float:
-                var = float(var)
-            elif typ == str:
-                var = str(var)
-            elif isinstance(typ, list):
+            if cast_type == int:
+                return int(var)
+            elif cast_type == float:
+                return float(var)
+            elif type == str:
+                return str(var)
+            elif isinstance(cast_type, list):
                 # get index of element that corresponds to Qstring value
-                index = [str(element) for element in typ].index(str(var))
-                var = typ[index]
+                if str(var) in [str(element) for element in cast_type]:
+                    return str(var)
+                else:
+                    raise ValueError('Tried to set value to one not in the list of valid values')
             else:
-                var = None
+                return None
         except ValueError:
-            var = None
+            return None
+
         return var
 
     def get_instrument(self):
@@ -303,13 +268,13 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         Returns: the instrument and the path to the instrument to which this item belongs
 
         """
-        parent = self.parent()
 
         if isinstance(self.value, Instrument):
             instrument = self.value
             path_to_instrument = []
         else:
             instrument = None
+            parent = self.parent()
             path_to_instrument = [self.name]
             while parent is not None:
                 if isinstance(parent.value, Instrument):
@@ -328,14 +293,15 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         Returns: the script and the path to the script to which this item belongs
 
         """
-        parent = self.parent()
 
         if isinstance(self.value, Script):
             script = self.value
             path_to_script = []
             script_item = self
+
         else:
             script = None
+            parent = self.parent()
             path_to_script = [self.name]
             while parent is not None:
                 if isinstance(parent.value, Script):
@@ -345,6 +311,7 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
                 else:
                     path_to_script.append(parent.name)
                     parent = parent.parent()
+
         return script, path_to_script, script_item
 
     def get_subscript(self, sub_script_name):
@@ -373,7 +340,6 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
         return subscript_item
 
-    # @staticmethod
     def is_point(self):
         """
         figures out if item is a point, that is if it has two subelements of type float
@@ -384,14 +350,11 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
 
         """
 
-        is_point = True
         if self.childCount() == 2:
-            for i in range(self.childCount()):
-                if self.child(i).valid_values != float:
-                    is_point = False
+                if self.child(0).valid_values == float and self.child(1).valid_values == float:
+                    return True
         else:
-            is_point = False
-        return is_point
+            return False
 
     def to_dict(self):
         """
@@ -399,14 +362,14 @@ class B26QTreeItem(QtGui.QTreeWidgetItem):
         Returns: the tree item as a dictionary
 
         """
-        if self.childCount()>0:
+        if self.childCount() > 0:
             value = {}
             for index in range(self.childCount()):
                 value.update(self.child(index).to_dict())
         else:
             value = self.value
 
-        return  {self.name: value}
+        return {self.name: value}
 
 
 

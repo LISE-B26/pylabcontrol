@@ -31,7 +31,7 @@ import glob
 import inspect
 import warnings
 import platform
-from PyQt4.QtCore import pyqtSignal, QObject, pyqtSlot
+from PyQt5.QtCore import pyqtSignal, QObject, pyqtSlot
 
 
 import numpy as np
@@ -709,16 +709,11 @@ class Script(QObject):
             return is_empty
 
         # create and save images
-        # 20160914: bug when only one filename is given, split this into two sets
-        # if (filename_1 is None) and (filename_2 is None):
-        #     filename_1 = self.filename('-plt1.jpg')
-        #     filename_2 = self.filename('-plt2.jpg')
-
         if (filename_1 is None):
-            filename_1 = self.filename('-plt1.jpg')
+            filename_1 = self.filename('-plt1.png')
 
         if (filename_2 is None):
-            filename_2 = self.filename('-plt2.jpg')
+            filename_2 = self.filename('-plt2.png')
 
 
         # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'

@@ -23,7 +23,7 @@ from PyLabControl.src.core.helper_functions import module_name_from_path
 
 import glob
 
-def get_classes_in_folder(folder_name, class_type, verbose=False):
+def get_classes_in_folder(folder_name, class_type, verbose=True):
     """
     load all the instruments or script objects that are located in folder_name and
     return a dictionary with the script class name and path_to_python_file
@@ -78,6 +78,7 @@ def get_classes_in_folder(folder_name, class_type, verbose=False):
         except ImportError, e:
             if verbose:
                 print('Could not import module', module)
+                print(e)
 
     return classes_dict
 
@@ -108,6 +109,7 @@ def export_default_probes(path, module_name = '', raise_errors = False):
                     filename = os.path.join(path, '{:s}.b26'.format(instrument.name))
                     probe.save(filename)
             except:
+                print('failed to create probe file for: {:s}'.format(obj.__name__))
                 print('failed to create probe file for: {:s}'.format(obj.__name__))
 
 def export_default_instruments(target_folder, source_folder = None, raise_errors = False, verbose=True):
@@ -217,15 +219,16 @@ if __name__ == '__main__':
 
     # export scripts
     # source_folders = 'b26_toolkit'
-    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
+    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
     # # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
-    target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
+    # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
 
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments'
-    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts'
-    # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated'
+    source_folders = 'C:\\Users\\NV Experiment\\PycharmProjects\\PyLabControl\\src\\scripts'
+    target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
     #
+
     export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
     #
     # # export instruments

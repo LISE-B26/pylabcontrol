@@ -22,8 +22,8 @@ Basic gui class designed with QT designer
 # sip.setapi('QVariant', 2)# set to version to so that the old_gui returns QString objects and not generic QVariants
 import os
 
-from PyQt4 import QtGui
-from PyQt4.uic import loadUiType
+from PyQt5 import QtGui
+from PyQt5.uic import loadUiType
 
 from PyLabControl.src.core.read_write_functions import load_b26_file
 
@@ -34,8 +34,8 @@ try:
 except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
     from PyLabControl.src.gui.load_dialog import Ui_Dialog
-    from PyQt4.QtGui import QMainWindow
-    from PyQt4.QtGui import QDialog
+    from PyQt5.QtWidgets import QMainWindow
+    from PyQt5.QtWidgets import QDialog
     # print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!')
 
 
