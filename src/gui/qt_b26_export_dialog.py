@@ -15,16 +15,12 @@
 # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import traceback
+import traceback, os
 
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.uic import loadUiType
 
-from PyLabControl.src.core.read_write_functions import load_b26_file
-from PyLabControl.src.core.helper_functions import get_python_package
-# from PyLabControl.src.core import Parameter, Script
-from PyLabControl.src.tools.export_default_v2 import find_scripts_in_python_files, python_file_to_b26
-import inspect
+from PyLabControl.src.tools.export_default_v2 import find_scripts_in_python_files, python_file_to_b26, find_instruments_in_python_files
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
@@ -57,6 +53,7 @@ Returns:
         self.error_array = {}
 
         self.list_script.selectionModel().selectionChanged.connect(self.display_info)
+        self.cmb_select_type.currentIndexChanged.connect(self.class_type_changed)
 
         #
         # # connect the buttons
@@ -66,47 +63,9 @@ Returns:
         self.btn_select_none.clicked.connect(self.select_none)
         self.btn_export.clicked.connect(self.export)
 
-    # def show_info(self):
-    #     """
-    #     displays the doc string of the selected element
-    #     """
-    #     sender = self.sender()
-    #     tree = sender.parent()
-    #     index = tree.selectedIndexes()
-    #     info = ''
-    #     if index != []:
-    #         index = index[0]
-    #         name = str(index.model().itemFromIndex(index).text())
-    #         self.selected_element_name = name
-    #
-    #
-    #
-    #         if name in self.elements_old:
-    #             info = self.elements_old[name].__doc__
-    #
-    #         #TODO: check if this is portable
-    #         elif name in self.elements_from_file:
-    #             class_name = self.elements_from_file[name]['class']
-    #             if 'filepath' in self.elements_from_file[name]:
-    #                 filepath = self.elements_from_file[name]['filepath']
-    #             if 'info' in self.elements_from_file[name]:
-    #                 info = self.elements_from_file[name]['info']
-    #             #
-    #             # path_to_src_scripts = filepath[:filepath.find('\\src\\scripts\\')]
-    #             # module_name = path_to_src_scripts[path_to_src_scripts.rfind('\\')+1:]
-    #             # module = __import__('{:s}.src.{:s}'.format(module_name, self.elements_type), fromlist=[class_name])
-    #             # info = getattr(module, class_name).__doc__
-    #
-    #         if info is None:
-    #             info = name
-    #
-    #         if tree == self.tree_infile:
-    #             self.lbl_info.setText(info)
-    #             self.tree_loaded.clearSelection()
-    #
-    #         elif tree == self.tree_loaded:
-    #             self.lbl_info.setText(info)
-    #             self.tree_infile.clearSelection()
+        self.source_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\scripts')))
+        self.target_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\..\\user_data\\scripts_auto_generated')))
+        self.reset_avaliable(self.source_path.text())
 
     def open_file_dialog(self):
         """
@@ -123,11 +82,21 @@ Returns:
             textbox.setText(folder)
             # load elements from file and display in tree
             if sender == self.btn_open_source:
-                self.avaliable_scripts = find_scripts_in_python_files(folder)
-                print(self.avaliable_scripts['SetLaser']['info'])
-                self.fill_list(self.list_script, self.avaliable_scripts.keys())
-                for key in self.avaliable_scripts.keys():
-                    self.error_array.update({key: ''})
+                self.reset_avaliable(folder)
+
+    def reset_avaliable(self, folder):
+        self.list_script_model.removeRows(0, self.list_script_model.rowCount())
+        if self.cmb_select_type.currentText() == 'Script':
+            self.avaliable = find_scripts_in_python_files(folder)
+        elif self.cmb_select_type.currentText() == 'Instrument':
+            self.avaliable = find_instruments_in_python_files(folder)
+        self.fill_list(self.list_script, self.avaliable.keys())
+        for key in self.avaliable.keys():
+            self.error_array.update({key: ''})
+
+    def class_type_changed(self):
+        if self.source_path.text():
+            self.reset_avaliable(self.source_path.text())
 
 
     def fill_list(self, list, input_list):
@@ -160,14 +129,14 @@ Returns:
             item = self.list_script.model().itemFromIndex(index)
             name = str(item.text())
             target_path = self.target_path.text()
-            print(self.avaliable_scripts)
             try:
-                python_file_to_b26({name: self.avaliable_scripts[name]}, target_path, raise_errors = True)
+                python_file_to_b26({name: self.avaliable[name]}, target_path, str(self.cmb_select_type.currentText()), raise_errors = True)
                 self.error_array.update({name: 'export successful!'})
                 item.setBackground(QtGui.QColor('green'))
             except Exception:
                 self.error_array.update({name: str(traceback.format_exc())})
                 item.setBackground(QtGui.QColor('red'))
+            QtWidgets.QApplication.processEvents()
         self.list_script.clearSelection()
 
     def display_info(self):
@@ -178,10 +147,10 @@ Returns:
             index = index[-1]
             name = str(index.model().itemFromIndex(index).text())
             self.text_error.setText(self.error_array[name])
-            if(self.avaliable_scripts[name]['info'] == None):
+            if(self.avaliable[name]['info'] == None):
                 self.text_info.setText('No information avaliable')
             else:
-                self.text_info.setText(self.avaliable_scripts[name]['info'])
+                self.text_info.setText(self.avaliable[name]['info'])
 
 
 if __name__ == '__main__':
