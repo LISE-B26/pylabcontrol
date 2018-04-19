@@ -504,8 +504,8 @@ class Script(QObject):
             filename = os.path.join(filename,  "{:s}_{:s}{:s}".format(self.start_time.strftime('%y%m%d-%H_%M_%S'),tag,appendix))
 
         # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
-        if len(filename.split('\\\\?\\')) == 1:
-            filename = '\\\\?\\' + filename
+        # if len(filename.split('\\\\?\\')) == 1:
+        #     filename = '\\\\?\\' + filename
 
         return filename
     def to_dict(self):
@@ -591,8 +591,8 @@ class Script(QObject):
         filename = os.path.join(os.path.join(os.path.dirname(filename),self.RAW_DATA_DIR), os.path.basename(filename))
 
         # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
-        if len(filename.split('\\\\?\\')) == 1:
-            filename = '\\\\?\\' + filename
+        # if len(filename.split('\\\\?\\')) == 1:
+        #     filename = '\\\\?\\' + filename
 
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
@@ -654,8 +654,8 @@ class Script(QObject):
         if filename is None:
             filename = self.filename('-info.txt')
         # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
-        if len(filename.split('\\\\?\\')) == 1:
-            filename = '\\\\?\\' + filename
+        # if len(filename.split('\\\\?\\')) == 1:
+        #     filename = '\\\\?\\' + filename
         with open(filename, 'w') as outfile:
             for item in self.log_data:
                 outfile.write("%s\n" % item)
@@ -666,10 +666,10 @@ class Script(QObject):
         if filename is None:
             filename = self.filename('.b26')
 
-        if platform.system() == 'Windows':
-            # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
-            if len(filename.split('\\\\?\\')) == 1:
-                filename = '\\\\?\\' + filename
+        # if platform.system() == 'Windows':
+        #     # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
+        #     if len(filename.split('\\\\?\\')) == 1:
+        #         filename = '\\\\?\\' + filename
         save_b26_file(filename, scripts=self.to_dict(), overwrite=True)
     def save_image_to_disk(self, filename_1 = None, filename_2 = None):
         """
@@ -717,10 +717,10 @@ class Script(QObject):
 
 
         # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
-        if len(filename_1.split('\\\\?\\')) == 1:
-            filename_1 = '\\\\?\\' + filename_1
-        if len(filename_2.split('\\\\?\\')) == 1:
-            filename_2 = '\\\\?\\' + filename_2
+        # if len(filename_1.split('\\\\?\\')) == 1:
+        #     filename_1 = '\\\\?\\' + filename_1
+        # if len(filename_2.split('\\\\?\\')) == 1:
+        #     filename_2 = '\\\\?\\' + filename_2
 
         if os.path.exists(os.path.dirname(filename_1)) is False:
             os.makedirs(os.path.dirname(filename_1))
@@ -753,8 +753,8 @@ class Script(QObject):
 
         if filename is None:
             filename = self.filename('.b26s')
-        if len(filename.split('\\\\?\\')) == 1:
-            filename = '\\\\?\\' + filename
+        # if len(filename.split('\\\\?\\')) == 1:
+        #     filename = '\\\\?\\' + filename
         with open(filename, 'w') as outfile:
             outfile.write(cPickle.dumps(self.__dict__))
 

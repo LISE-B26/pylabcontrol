@@ -457,7 +457,7 @@ class Ui_MainWindow(object):
         self.tree_scripts.topLevelItem(0).setText(0, _translate("MainWindow", "New Item", None))
         self.tree_scripts.topLevelItem(1).setText(0, _translate("MainWindow", "New Item", None))
         self.tree_scripts.topLevelItem(1).child(0).setText(0, _translate("MainWindow", "New Subitem", None))
-        self.tree_scripts.setSortingEnabled(__sortingEnabled)
+        self.tree_scripts.setSortingEnabled(True)
         self.btn_start_script.setText(_translate("MainWindow", "start", None))
         self.btn_stop_script.setText(_translate("MainWindow", "stop", None))
         self.btn_skip_subscript.setText(_translate("MainWindow", "skip", None))
