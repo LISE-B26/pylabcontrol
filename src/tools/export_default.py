@@ -75,9 +75,9 @@ def get_classes_in_folder(folder_name, class_type, verbose=True):
             classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
                                inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)
                              and not obj in (Instrument, Script, ScriptIterator)})
-        except ImportError, e:
+        except ImportError as e:
             if verbose:
-                print('Could not import module', module)
+                print(('Could not import module', module))
                 print(e)
 
     return classes_dict
@@ -103,14 +103,14 @@ def export_default_probes(path, module_name = '', raise_errors = False):
 
             try:
                 instrument = obj()
-                print('--- created ', obj.__name__, ' -- ')
-                for probe_name, probe_info in instrument._PROBES.iteritems():
+                print(('--- created ', obj.__name__, ' -- '))
+                for probe_name, probe_info in instrument._PROBES.items():
                     probe = Probe(instrument, probe_name, info = probe_info)
                     filename = os.path.join(path, '{:s}.b26'.format(instrument.name))
                     probe.save(filename)
             except:
-                print('failed to create probe file for: {:s}'.format(obj.__name__))
-                print('failed to create probe file for: {:s}'.format(obj.__name__))
+                print(('failed to create probe file for: {:s}'.format(obj.__name__)))
+                print(('failed to create probe file for: {:s}'.format(obj.__name__)))
 
 def export_default_instruments(target_folder, source_folder = None, raise_errors = False, verbose=True):
     """
@@ -123,9 +123,9 @@ def export_default_instruments(target_folder, source_folder = None, raise_errors
     instruments_to_load = get_classes_in_folder(source_folder, Instrument, verbose = True)
 
     if verbose:
-        print('attempt to load {:d} instruments: '.format(len(instruments_to_load)))
+        print(('attempt to load {:d} instruments: '.format(len(instruments_to_load))))
     loaded_instruments, failed = Instrument.load_and_append(instruments_to_load, raise_errors = raise_errors)
-    for name, value in loaded_instruments.iteritems():
+    for name, value in loaded_instruments.items():
         filename = os.path.join(target_folder, '{:s}.b26'.format(name))
 
         value.save_b26(filename)
@@ -133,10 +133,10 @@ def export_default_instruments(target_folder, source_folder = None, raise_errors
     if verbose:
         print('\n================================================')
         print('================================================')
-        print('saved {:d} instruments, {:d} failed'.format(len(loaded_instruments), len(failed)))
+        print(('saved {:d} instruments, {:d} failed'.format(len(loaded_instruments), len(failed))))
         if failed != {}:
-            for error_name, error in failed.iteritems():
-                print('failed to create instruments: ', error_name, error)
+            for error_name, error in failed.items():
+                print(('failed to create instruments: ', error_name, error))
 
 def export_default_scripts(target_folder, source_folder = None, raise_errors = False, verbose=True):
     """
@@ -150,21 +150,21 @@ def export_default_scripts(target_folder, source_folder = None, raise_errors = F
     scripts_to_load = get_classes_in_folder(source_folder, Script)
 
     if verbose:
-        print('attempt to load {:d} scripts: '.format(len(scripts_to_load)))
+        print(('attempt to load {:d} scripts: '.format(len(scripts_to_load))))
 
     loaded_scripts, failed, loaded_instruments = Script.load_and_append(scripts_to_load, raise_errors=raise_errors)
 
-    for name, value in loaded_scripts.iteritems():
+    for name, value in loaded_scripts.items():
         filename = os.path.join(target_folder, '{:s}.b26'.format(name))
         value.save_b26(filename)
 
     if verbose:
         print('\n================================================')
         print('================================================')
-        print('saved {:d} scripts, {:d} failed'.format(len(loaded_scripts), len(failed)))
+        print(('saved {:d} scripts, {:d} failed'.format(len(loaded_scripts), len(failed))))
         if failed != {}:
-            for error_name, error in failed.iteritems():
-                print('failed to create script: ', error_name, error)
+            for error_name, error in failed.items():
+                print(('failed to create script: ', error_name, error))
 
 
 def export(target_folder, source_folders = None, class_type ='all', raise_errors = False):
@@ -190,7 +190,7 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
         try:
             os.mkdir(target_folder)
         except:
-            print(target_folder, ' is invalid target folder')
+            print((target_folder, ' is invalid target folder'))
             target_folder = None
 
     if target_folder is not None:

@@ -37,6 +37,7 @@ import sys
 import datetime
 from collections import deque
 import operator
+from functools import reduce
 
 
 
@@ -108,7 +109,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         """
 
-        print(self.startup_msg)
+        print((self.startup_msg))
         self.config_filename = None
         super(ControlMainWindow, self).__init__()
         self.setupUi(self)
@@ -282,9 +283,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.script_thread.quit()
         self.read_probes.quit()
         if self.config_filename:
-            print('sdfiasdhi', type(self.config_filename))
+            print(('sdfiasdhi', type(self.config_filename)))
             fname = self.config_filename
-            print('saving config to {:s}'.format(fname))
+            print(('saving config to {:s}'.format(fname)))
             self.save_config(fname)
 
         event.accept()
@@ -315,7 +316,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 if not isinstance(item.value, Script):
                     print('ONLY SCRIPTS CAN BE DRAGGED')
                     return False
-                print('XXX ChildAdded', self.tree_scripts.selectedItems()[0].name)
+                print(('XXX ChildAdded', self.tree_scripts.selectedItems()[0].name))
 
 
 
@@ -326,7 +327,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 #     event.ignore()
                 #     print "ignore"
             if (event.type() == QtCore.QEvent.ChildRemoved):
-                print('XXX ChildRemoved', self.tree_scripts.selectedItems()[0].name)
+                print(('XXX ChildRemoved', self.tree_scripts.selectedItems()[0].name))
             if (event.type() == QtCore.QEvent.Drop):
                 print('XXX Drop')
                 # if event.mimeData().hasUrls():  # if file or link is dropped
@@ -350,7 +351,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if os.path.isfile(file_name) == False:
                 self.probe_file = open(file_name, 'a')
                 new_values = self.read_probes.probes_values
-                header = ','.join(list(np.array([['{:s} ({:s})'.format(p, instr) for p in p_dict.keys()] for instr, p_dict in new_values.iteritems()]).flatten()))
+                header = ','.join(list(np.array([['{:s} ({:s})'.format(p, instr) for p in list(p_dict.keys())] for instr, p_dict in new_values.items()]).flatten()))
                 self.probe_file.write('{:s}\n'.format(header))
         else:
             self.probe_file.close()
@@ -470,6 +471,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         Returns: the current time as a formated string
         """
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
+
     def log(self, msg):
         """
         log function
@@ -555,7 +557,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 added_scripts = set(scripts.keys()) - set(self.scripts.keys())
                 removed_scripts = set(self.scripts.keys()) - set(scripts.keys())
 
-                if 'data_folder' in self.gui_settings.keys() and os.path.exists(self.gui_settings['data_folder']):
+                if 'data_folder' in list(self.gui_settings.keys()) and os.path.exists(self.gui_settings['data_folder']):
                     data_folder_name = self.gui_settings['data_folder']
                 else:
                     data_folder_name = None
@@ -599,14 +601,14 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.running_item = item
                 script, path_to_script, script_item = item.get_script()
 
-                print('update11!!', script_item, script)
+                print(('update11!!', script_item, script))
                 self.update_script_from_item(script_item)
 
                 self.log('starting {:s}'.format(script.name))
 
                 # put script onto script thread
                 print('================================================')
-                print('===== starting {:s}'.format(script.name))
+                print(('===== starting {:s}'.format(script.name)))
                 print('================================================')
                 script_thread = self.script_thread
 
@@ -615,7 +617,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     script.moveToThread(script_thread)
 
                     # move also the subscript to the worker thread
-                    for subscript in script.scripts.values():
+                    for subscript in list(script.scripts.values()):
                         move_to_worker_thread(subscript)
 
                 move_to_worker_thread(script)
@@ -745,7 +747,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     probes={},
                     instruments=self.instruments)
                 if not loaded_failed:
-                    print('WARNING following probes could not be loaded', loaded_failed, len(loaded_failed))
+                    print(('WARNING following probes could not be loaded', loaded_failed, len(loaded_failed)))
 
 
                 # restart the readprobes thread
@@ -778,7 +780,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.instruments, loaded_failed = Instrument.load_and_append(
                     {name: instruments[name] for name in added_instruments}, self.instruments)
                 if len(loaded_failed)>0:
-                    print('WARNING following instrument could not be loaded', loaded_failed)
+                    print(('WARNING following instrument could not be loaded', loaded_failed))
                 # delete instances of new instruments/scripts that have been deselected
                 for name in removed_instruments:
                     del self.instruments[name]
@@ -1044,7 +1046,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 for child_id in range(topLvlItem.childCount()):
                     child = topLvlItem.child(child_id)
                     child.value = new_values[topLvlItem.name][child.name]
-                    child.setText(1, unicode(child.value))
+                    child.setText(1, str(child.value))
 
         if self.probe_to_plot is not None:
             self.probe_to_plot.plot(self.matplotlibwidget_1.axes)
@@ -1052,7 +1054,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
 
         if self.chk_probe_log.isChecked():
-            data = ','.join(list(np.array([[str(p) for p in p_dict.values()] for instr, p_dict in new_values.iteritems()]).flatten()))
+            data = ','.join(list(np.array([[str(p) for p in list(p_dict.values())] for instr, p_dict in new_values.items()]).flatten()))
             self.probe_file.write('{:s}\n'.format(data))
 
     def update_script_from_item(self, item):
@@ -1069,16 +1071,16 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         # build dictionary
         # get full information from script
-        dictator = script_item.to_dict().values()[0]  # there is only one item in the dictionary
+        dictator = list(script_item.to_dict().values())[0]  # there is only one item in the dictionary
 
-        for instrument in script.instruments.keys():
+        for instrument in list(script.instruments.keys()):
             # update instrument
             script.instruments[instrument]['settings'] = dictator[instrument]['settings']
             # remove instrument
             del dictator[instrument]
 
 
-        for sub_script_name in script.scripts.keys():
+        for sub_script_name in list(script.scripts.keys()):
             sub_script_item = script_item.get_subscript(sub_script_name)
             self.update_script_from_item(sub_script_item)
             del dictator[sub_script_name]
@@ -1101,7 +1103,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         tree.clear()
         assert isinstance(parameters, (dict, Parameter))
 
-        for key, value in parameters.iteritems():
+        for key, value in parameters.items():
             if isinstance(value, Parameter):
                 B26QTreeItem(tree, key, value, parameters.valid_values[key], parameters.info[key])
             else:
@@ -1126,22 +1128,22 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # child_name.setEditable(False)
 
             if isinstance(value, dict):
-                for key_child, value_child in value.iteritems():
+                for key_child, value_child in value.items():
                     add_elemet(child_name, key_child, value_child)
                 item.appendRow(child_name)
             else:
-                child_value = QtWidgets.QStandardItem(unicode(value))
+                child_value = QtWidgets.QStandardItem(str(value))
                 # child_value.setDragEnabled(False)
                 # child_value.setSelectable(False)
                 # child_value.setEditable(False)
 
                 item.appendRow([child_name, child_value])
 
-        for index, (key, value) in enumerate(input_dict.iteritems()):
+        for index, (key, value) in enumerate(input_dict.items()):
 
             if isinstance(value, dict):
                 item = QtWidgets.QStandardItem(key)
-                for sub_key, sub_value in value.iteritems():
+                for sub_key, sub_value in value.items():
                     add_elemet(item, sub_key, sub_value)
                 tree.model().appendRow(item)
             elif isinstance(value, str):
@@ -1213,13 +1215,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         """
 
         tree.model().removeRows(0, tree.model().rowCount())
-        for index, (time, script) in enumerate(data_sets.iteritems()):
+        for index, (time, script) in enumerate(data_sets.items()):
             name = script.settings['tag']
             type = script.name
 
-            item_time = QtGui.QStandardItem(unicode(time))
-            item_name = QtGui.QStandardItem(unicode(name))
-            item_type = QtGui.QStandardItem(unicode(type))
+            item_time = QtGui.QStandardItem(str(time))
+            item_name = QtGui.QStandardItem(str(name))
+            item_type = QtGui.QStandardItem(str(type))
 
             item_time.setSelectable(False)
             item_time.setEditable(False)
@@ -1262,7 +1264,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
                 instruments_loaded, failed = Instrument.load_and_append(instruments)
                 if len(failed) > 0:
-                    print('WARNING! Following instruments could not be loaded: ', failed)
+                    print(('WARNING! Following instruments could not be loaded: ', failed))
 
                 scripts_loaded, failed, instruments_loaded = Script.load_and_append(
                     script_dict=scripts,
@@ -1271,7 +1273,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     data_path=self.gui_settings['data_folder'])
 
                 if len(failed) > 0:
-                    print('WARNING! Following scripts could not be loaded: ', failed)
+                    print(('WARNING! Following scripts could not be loaded: ', failed))
 
                 probes_loaded, failed, instruments_loadeds = Probe.load_and_append(
                     probe_dict=probes,
@@ -1279,21 +1281,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     instruments=instruments_loaded)
             return instruments_loaded, scripts_loaded, probes_loaded
 
-        print('loading script/instrument/probes config from {:s}'.format(file_name))
+        print(('loading script/instrument/probes config from {:s}'.format(file_name)))
         try:
             config = load_b26_file(file_name)['gui_settings']
             if config['settings_file'] != file_name:
-                print(
+                print((
                 'WARNING path to settings file ({:s}) in config file is different from path of settings file ({:s})'.format(
-                    config['settings_file'], file_name))
+                    config['settings_file'], file_name)))
             config['settings_file'] = file_name
-            print('loading of {:s} successful'.format(file_name))
+            print(('loading of {:s} successful'.format(file_name)))
         except Exception:
-            print('WARNING path to settings file ({:s}) invalid use default settings'.format(file_name))
+            print(('WARNING path to settings file ({:s}) invalid use default settings'.format(file_name)))
             config = self._DEFAULT_CONFIG
 
 
-            for x in self._DEFAULT_CONFIG.keys():
+            for x in list(self._DEFAULT_CONFIG.keys()):
                 if x in config:
                     if not os.path.exists(config[x]):
                         try:
@@ -1301,11 +1303,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                         except Exception:
                             config[x] = self._DEFAULT_CONFIG[x]
                             os.makedirs(config[x])
-                            print('WARNING: failed validating or creating path: set to default path'.format(config[x]))
+                            print(('WARNING: failed validating or creating path: set to default path'.format(config[x])))
                 else:
                     config[x] = self._DEFAULT_CONFIG[x]
                     os.makedirs(config[x])
-                    print('WARNING: path {:s} not specified set to default {:s}'.format(x, config[x]))
+                    print(('WARNING: path {:s} not specified set to default {:s}'.format(x, config[x])))
 
         # check if file_name is a valid filename
         if os.path.exists(os.path.dirname(file_name)):
@@ -1313,7 +1315,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.gui_settings = config
 
-        print('file_name', file_name)
+        print(('file_name', file_name))
         self.instruments, self.scripts, self.probes = load_settings(file_name)
 
 
@@ -1347,7 +1349,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         if "scripts_hidden_parameters" in in_data:
             # consistency check
-            if len(in_data["scripts_hidden_parameters"].keys()) == self.tree_scripts.topLevelItemCount():
+            if len(list(in_data["scripts_hidden_parameters"].keys())) == self.tree_scripts.topLevelItemCount():
 
                 for index in range(self.tree_scripts.topLevelItemCount()):
                     item = self.tree_scripts.topLevelItem(index)
@@ -1396,13 +1398,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         dictator.update({'instruments': {}, 'scripts': {}, 'probes': {}})
 
-        for instrument in self.instruments.itervalues():
+        for instrument in self.instruments.values():
             dictator['instruments'].update(instrument.to_dict())
-        for script in self.scripts.itervalues():
+        for script in self.scripts.values():
             dictator['scripts'].update(script.to_dict())
 
-        for instrument, probe_dict in self.probes.iteritems():
-            dictator['probes'].update({instrument: ','.join(probe_dict.keys())})
+        for instrument, probe_dict in self.probes.items():
+            dictator['probes'].update({instrument: ','.join(list(probe_dict.keys()))})
 
         with open(out_file_name, 'w') as outfile:
             tmp = json.dump(dictator, outfile, indent=4)
@@ -1414,7 +1416,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             out_file_name: name of file
         """
 
-        for time_tag, script in self.data_sets.iteritems():
+        for time_tag, script in self.data_sets.items():
             script.save(os.path.join(out_file_name, '{:s}.b26s'.format(time_tag)))
 
 

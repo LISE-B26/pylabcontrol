@@ -61,18 +61,18 @@ class TestInstrument(TestCase):
             scripts=scripts,
             instruments=instruments, raise_errors = True)
 
-        print('scripts', scripts)
-        print('loaded_failed',loaded_failed)
-        print('instruments', instruments)
+        print(('scripts', scripts))
+        print(('loaded_failed',loaded_failed))
+        print(('instruments', instruments))
         print('----x')
-        print(scripts['DefaultName'].__class__.__name__)
+        print((scripts['DefaultName'].__class__.__name__))
 
         print('----x')
-        print(scripts['DefaultName'].__class__.__name__.split('.')[0], script_dict['DefaultName']['package'])
+        print((scripts['DefaultName'].__class__.__name__.split('.')[0], script_dict['DefaultName']['package']))
         assert scripts['DefaultName'].__class__.__name__.split('.')[0] == script_dict['DefaultName']['package']
 
 
-        print(type(scripts['DefaultName'].__module__))
+        print((type(scripts['DefaultName'].__module__)))
 
 
         module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(
@@ -95,9 +95,9 @@ class TestInstrument(TestCase):
         module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(
             script_info)
 
-        print('script_class_name', script_class_name)
-        print('module', module)
-        print('package', package)
+        print(('script_class_name', script_class_name))
+        print(('module', module))
+        print(('package', package))
         assert script_class_name == 'ScriptIterator'
 
         print(' ===== end test_get_module_1 ========')
@@ -105,7 +105,7 @@ class TestInstrument(TestCase):
     def test_load_and_append_from_file(self):
 
         from PyLabControl.src.core.read_write_functions import load_b26_file
-        filename = 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_config_lev_test.b26'
+        filename = 'C:\\Users\Experiment\PycharmProjects\\user_data\pythonlab_config_lev_test.b26'
 
 
         in_data = load_b26_file(filename)
@@ -114,21 +114,21 @@ class TestInstrument(TestCase):
         scripts = in_data['scripts'] if 'scripts' in in_data else {}
         probes = in_data['probes'] if 'probes' in in_data else {}
 
-        script_info = scripts.values()[0]
+        script_info = list(scripts.values())[0]
 
         module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
 
-        print('module', module.__name__.split('.')[0])
-        print('script_class_name', script_class_name)
+        print(('module', module.__name__.split('.')[0]))
+        print(('script_class_name', script_class_name))
 
-        print('package', script_info['package'])
+        print(('package', script_info['package']))
         assert module.__name__.split('.')[0] == script_info['package']
 
 
 
         instruments_loaded, failed = Instrument.load_and_append(instruments)
         if len(failed) > 0:
-            print('WARNING! Following instruments could not be loaded: ', failed)
+            print(('WARNING! Following instruments could not be loaded: ', failed))
         print('========================================================================\n\n')
         scripts_loaded, failed, instruments_loaded = Script.load_and_append(
             script_dict=scripts,

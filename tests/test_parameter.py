@@ -48,16 +48,16 @@ class TestParameter(TestCase):
 
 
         p0 = Parameter('param', 0, int, 'integer')
-        self.assertEquals(p0,{'param':0})
-        self.assertEquals(p0['param'],0)
+        self.assertEqual(p0,{'param':0})
+        self.assertEqual(p0['param'],0)
 
         p0 = Parameter({'param':  1})
-        self.assertEquals(p0,{'param':1})
+        self.assertEqual(p0,{'param':1})
 
         #update
 
         p0.update({'param':2})
-        self.assertEquals(p0,{'param':2})
+        self.assertEqual(p0,{'param':2})
 
         with self.assertRaises(KeyError):
             p0.update({'paramX':2})
@@ -85,30 +85,30 @@ class TestParameter(TestCase):
         p2 = Parameter('param2', 2)
         p0 = Parameter('param0', [p1, p2])
 
-        self.assertEquals(p0 , {'param0': {'param1':1, 'param2':2}})
+        self.assertEqual(p0 , {'param0': {'param1':1, 'param2':2}})
 
 
         #update
         p0['param0'] = {'param1':3}
-        self.assertEquals(p0 , {'param0': {'param1':3, 'param2':2}})
-        self.assertEquals(p0['param0'] , {'param1':3, 'param2':2})
-        self.assertEquals(p0['param0']['param1'] , 3)
+        self.assertEqual(p0 , {'param0': {'param1':3, 'param2':2}})
+        self.assertEqual(p0['param0'] , {'param1':3, 'param2':2})
+        self.assertEqual(p0['param0']['param1'] , 3)
 
         with self.assertRaises(KeyError):
             p0.update({'param1':4})
 
 
         p0['param0'].update(Parameter('param2', 7))
-        self.assertEquals(p0['param0'], {'param1':3, 'param2':7})
+        self.assertEqual(p0['param0'], {'param1':3, 'param2':7})
 
         p0['param0'].update({'param2': 8})
-        self.assertEquals(p0['param0'] , {'param1':3, 'param2':8})
+        self.assertEqual(p0['param0'] , {'param1':3, 'param2':8})
 
         p0['param0'] = {'param1':5, 'param2':6}
-        self.assertEquals(p0['param0'] , {'param1':5, 'param2':6})
+        self.assertEqual(p0['param0'] , {'param1':5, 'param2':6})
 
-        self.assertEquals(p0['param0']['param1'] ,5)
-        self.assertEquals(p0['param0']['param2'] ,6)
+        self.assertEqual(p0['param0']['param1'] ,5)
+        self.assertEqual(p0['param0']['param2'] ,6)
 
         # p0['param0'].update(Parameter('param2', 's'))
         #
@@ -119,7 +119,7 @@ class TestParameter(TestCase):
 
 
         with self.assertRaises(KeyError):
-            print(p0['param3'])
+            print((p0['param3']))
 
 
         p1 = Parameter('param1', 1)
@@ -253,8 +253,8 @@ class TestParameter(TestCase):
                        ])
         ])
 
-        print(parameters.info)
-        # print(parameters['test1'].info)
+        print((parameters.info))
+        print((parameters['test1'].info))
 
         self.assertEqual(parameters.info['test2'], {'test2_1': 'test parameter (str)', 'test2_2': 'test parameter (float)'})
         self.assertEqual(parameters.info['test1'], 'test parameter (int)')

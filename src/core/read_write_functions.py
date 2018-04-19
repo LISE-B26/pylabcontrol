@@ -56,8 +56,9 @@ def get_config_value(name, path_to_file='config.txt'):
     path_to_file = os.path.abspath(path_to_file)
 
     if not os.path.isfile(path_to_file):
-        print('path_to_file', path_to_file)
-        raise IOError('{:s}: config file is not valid'.format(path_to_file))
+        print(('path_to_file', path_to_file))
+        #raise IOError('{:s}: config file is not valid'.format(path_to_file))
+        return None
 
     f = open(path_to_file, 'r')
     string_of_file_contents = f.read()
@@ -90,7 +91,8 @@ def load_b26_file(file_name):
         data = yaml.safe_load(infile)
     return data
 
-def save_b26_file(filename, instruments = None, scripts = None, probes = None, overwrite = False):
+
+def save_b26_file(filename, instruments=None, scripts=None, probes=None, overwrite=False, verbose=False):
     """
     save instruments, scripts and probes as a json file
     Args:
@@ -122,10 +124,10 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
             data_dict['scripts'] = scripts
 
     if probes is not None:
-        probe_instruments = probes.keys()
+        probe_instruments = list(probes.keys())
         if 'probes' in data_dict:
             # all the instruments required for old and new probes
-            probe_instruments= set(probe_instruments + data_dict['probes'].keys())
+            probe_instruments= set(probe_instruments + list(data_dict['probes'].keys()))
         else:
             data_dict.update({'probes':{}})
 
@@ -136,7 +138,8 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
             else:
                 data_dict['probes'].update(probes)
 
-    print('writing ', filename)
+    if verbose:
+        print(('writing ', filename))
 
     if data_dict != {}:
 
@@ -145,10 +148,12 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
         #     if len(filename.split('\\\\?\\')) == 1:
         #         filename = '\\\\?\\'+ filename
         # create folder if it doesn't exist
-        print('filename', filename)
-        print('exists', os.path.exists(os.path.dirname(filename)))
+        if verbose:
+            print(('filename', filename))
+            print(('exists', os.path.exists(os.path.dirname(filename))))
+
         if os.path.exists(os.path.dirname(filename)) is False:
-            print('creating', os.path.dirname(filename))
+            # print(('creating', os.path.dirname(filename)))
             os.makedirs(os.path.dirname(filename))
 
         with open(filename, 'w') as outfile:

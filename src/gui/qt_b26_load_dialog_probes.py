@@ -73,10 +73,10 @@ Returns:
         # create the dictionaries that hold the data
         #   - elements_old: the old elements (scripts, instruments) that have been passed to the dialog
         #   - elements_from_file: the elements from the file that had been opened
-        print('adsada', probes_old)
+        print(('adsada', probes_old))
         self.elements_selected = {}
-        for instrument_name, p in probes_old.iteritems():
-            self.elements_selected.update( {instrument_name: ','.join(p.keys())})
+        for instrument_name, p in probes_old.items():
+            self.elements_selected.update( {instrument_name: ','.join(list(p.keys()))})
         if os.path.isfile(filename):
             self.elements_from_file = self.load_elements(filename)
         else:
@@ -125,7 +125,7 @@ Returns:
                 instrument_name = str(parent.text())
                 probe_names = [str(index.model().itemFromIndex(index).text())]
 
-            if not instrument_name in dict_target.keys():
+            if not instrument_name in list(dict_target.keys()):
                 dict_target.update({instrument_name: ','.join(probe_names)})
                 dict_source[instrument_name] = ','.join(set(dict_source[instrument_name].split(',')) - set(probe_names))
             else:
@@ -159,7 +159,7 @@ Returns:
             index = index[0]
             name = str(index.model().itemFromIndex(index).text())
 
-            if name in set(self.elements_from_file.keys() + self.elements_selected.keys()):
+            if name in set(list(self.elements_from_file.keys()) + list(self.elements_selected.keys())):
                 probe_name = None
                 instrument_name = name
             else:
@@ -172,7 +172,7 @@ Returns:
             if probe_name is None:
                 info = getattr(module, instrument_name).__doc__
             else:
-                if probe_name in getattr(module, instrument_name)._PROBES.keys():
+                if probe_name in list(getattr(module, instrument_name)._PROBES.keys()):
                     info = getattr(module, instrument_name)._PROBES[probe_name]
 
         if info is not None:
@@ -236,7 +236,7 @@ Returns:
 
         removeAll(tree)
 
-        for index, (instrument, probes) in enumerate(input_dict.iteritems()):
+        for index, (instrument, probes) in enumerate(input_dict.items()):
             add_probe(tree, instrument, probes)
             # tree.setFirstColumnSpanned(index, self.tree_infile.rootIndex(), True)
         tree.expandAll()
@@ -245,7 +245,7 @@ Returns:
         """
         Returns: the selected elements
         """
-        print('self.elements_selected', self.elements_selected)
+        print(('self.elements_selected', self.elements_selected))
         return self.elements_selected
 
 if __name__ == '__main__':
@@ -265,7 +265,7 @@ if __name__ == '__main__':
             probe_dict=probes,
             probes={},
             instruments={})
-        print(probes_obj, failed, instruments)
+        print((probes_obj, failed, instruments))
     sys.exit(app.exec_())
 
 

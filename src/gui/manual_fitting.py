@@ -11,11 +11,11 @@ import json as json
 from PyQt4.QtCore import QThread, pyqtSignal, QObject
 
 from matplotlib.backends.backend_qt4agg import (NavigationToolbar2QT as NavigationToolbar)
-from qt_b26_gui import MatplotlibWidget
+from .qt_b26_gui import MatplotlibWidget
 import sys
 import glob
 import time
-import Queue
+import queue
 import scipy.optimize
 import pandas as pd
 
@@ -264,7 +264,7 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                             else:
                                 input = self.peak_vals
                             if len(input) > 1:
-                                centers, heights = zip(*input)
+                                centers, heights = list(zip(*input))
                                 widths = 1e7 * np.ones(len(heights))
                             elif len(input) == 1:
                                 centers, heights = input[0]
@@ -295,7 +295,7 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                             widths_array = params[:len(params)/3]
                             amplitude_array = params[len(params)/3: 2 * len(params) / 3]
                             center_array = params[2 * len(params) / 3:]
-                            positions = zip(center_array, amplitude_array, widths_array)
+                            positions = list(zip(center_array, amplitude_array, widths_array))
                             self.single_fit = []
                             peak_index = 0
                             for position in positions:
@@ -327,7 +327,7 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
         """
         Launches the fitting routine on another thread
         """
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
         self.peak_vals = []
         self.fit_thread = QThread() #must be assigned as an instance variable, not local, as otherwise thread is garbage
                                     #collected immediately at the end of the function before it runs

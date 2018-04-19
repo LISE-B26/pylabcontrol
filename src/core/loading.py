@@ -37,7 +37,7 @@ def instantiate_probes(probes, instruments):
      """
 
     probe_instances = {}
-    for name, sub_dict in probes.iteritems():
+    for name, sub_dict in probes.items():
         assert isinstance(sub_dict, dict)
         assert "probe_name" in sub_dict
         assert "instrument_name" in sub_dict
@@ -50,7 +50,7 @@ def instantiate_probes(probes, instruments):
         else:
             probe_info = ''
 
-        assert instrument_name in instruments, "{:s} not in {:s}".format(instrument_name, instruments.keys())
+        assert instrument_name in instruments, "{:s} not in {:s}".format(instrument_name, list(instruments.keys()))
         assert probe_name in instruments[instrument_name]._PROBES
 
         probe_instances.update({name: Probe(instruments[instrument_name], probe_name, name, probe_info)})
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
     data = load_b26_file(filename)
 
-    print(data['scripts'])
+    print((data['scripts']))
     instruments = {}
     scripts = instantiate_scripts(data['scripts'], instruments)
     print(scripts)

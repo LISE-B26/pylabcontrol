@@ -57,7 +57,7 @@ class TestScriptIterator(TestCase):
         package = 'b26_toolkit'
 
         script_iterator = ScriptIterator.get_script_iterator(package, verbose=False)
-        print('script_iterator', script_iterator)
+        print(('script_iterator', script_iterator))
 
 
     def test_create_dynamic_script_class(self):
@@ -120,11 +120,11 @@ class TestScriptIterator(TestCase):
 
         print('============================================================')
         module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
-        print(module, package, script_class_name)
+        print((module, package, script_class_name))
         script_info3, _ = ScriptIterator.create_dynamic_script_class(script_info)
         print('============================================================')
         module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info2)
-        print(module, package, script_class_name)
+        print((module, package, script_class_name))
         module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info3)
-        print(module, package, script_class_name)
+        print((module, package, script_class_name))
 

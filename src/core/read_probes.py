@@ -59,8 +59,8 @@ class ReadProbes(QThread):
 
             self.probes_values = {
                 instrument_name:
-                    {probe_name: probe_instance.value for probe_name, probe_instance in probe.iteritems()}
-                for instrument_name, probe in self.probes.iteritems()
+                    {probe_name: probe_instance.value for probe_name, probe_instance in probe.items()}
+                for instrument_name, probe in self.probes.items()
                 }
 
             self.updateProgress.emit(1)
