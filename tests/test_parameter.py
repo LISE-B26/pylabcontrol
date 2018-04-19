@@ -20,7 +20,6 @@
 from unittest import TestCase
 from copy import deepcopy
 from PyLabControl.src.core import Parameter
-from PyQt4 import QtCore
 class TestParameter(TestCase):
 
 
@@ -255,7 +254,7 @@ class TestParameter(TestCase):
         ])
 
         print(parameters.info)
-        print(parameters['test1'].info)
+        # print(parameters['test1'].info)
 
         self.assertEqual(parameters.info['test2'], {'test2_1': 'test parameter (str)', 'test2_2': 'test parameter (float)'})
         self.assertEqual(parameters.info['test1'], 'test parameter (int)')

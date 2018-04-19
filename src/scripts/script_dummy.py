@@ -351,6 +351,45 @@ class DummyPlantWithControler(Script):
                 self.last_plot = datetime.datetime.now()
 
 
+# class ScriptNestedDummy(Script):
+#     """
+# Minimal Example Script that has only a single parameter (execution time)
+#     """
+#
+#     _DEFAULT_SETTINGS = [
+#         Parameter('1', 0.2, float, 'temp'),
+#         Parameter('a', [Parameter('b', [Parameter('c', [Parameter('d', 0.1, float, 'execution time of script (s)')])])])
+#         # Parameter('a', [Parameter('b', 0.1, float, 'execution time of script (s)')])
+#     ]
+#
+#     _INSTRUMENTS = {}
+#     _SCRIPTS = {}
+#
+#     def __init__(self, name=None, settings=None, log_function = None, data_path = None):
+#         """
+#         Example of a script
+#         Args:
+#             name (optional): name of script, if empty same as class name
+#             settings (optional): settings for this script, if empty same as default settings
+#         """
+#         Script.__init__(self, name, settings, log_function= log_function, data_path = data_path)
+#
+#
+#     def _function(self):
+#         """
+#         This is the actual function that will be executed. It uses only information that is provided in the settings property
+#         will be overwritten in the __init__
+#         """
+#         # import time
+#         # time.sleep(self.settings['execution_time'])
+#         print(self.settings)
+#         print(self._DEFAULT_SETTINGS[1])
+#         print(type(self._DEFAULT_SETTINGS[1]))
+#         print(self._DEFAULT_SETTINGS[1]['a'])
+#         print(type(self._DEFAULT_SETTINGS[1]['a']))
+
+
+
 
 
 
@@ -358,7 +397,38 @@ class DummyPlantWithControler(Script):
 
 
 if __name__ == '__main__':
-    d_instr = Plant()
-    d = DummyPlantWithControler(instruments = {'plant' : Plant(), 'controler': PIControler()})
+    # d_instr = Plant()
+    # d = DummyPlantWithControler(instruments = {'plant' : Plant(), 'controler': PIControler()})
 
-    print(d)
+    # print(d)
+
+    # script = {}
+    # instr = {}
+    # script, failed, instr = Script.load_and_append({'ScriptNestedDummy': 'ScriptNestedDummy'}, script, instr)
+    #
+    # print(script)
+    # print(failed)
+    # print(instr)
+    # d = Parameter('d', 0.1, float, 'execution time of script (s)')
+    # c = Parameter('c', d)
+    # print(type(c))
+    # print(type(c['c']))
+    # c = Parameter('c', [d])
+    # print(type(c))
+    # print(type(c['c']))
+    # c['c']['d'] = 'five'
+    # print(c)
+
+    # d = Parameter('d', 0.1, float, 'execution time of script (s)')
+    c = Parameter([Parameter('c', [Parameter('d', 0.1, float, 'execution time of script (s)')])])
+    print(type(c))
+    print(type(c['c']))
+
+    parameters = Parameter([
+        Parameter('test1', 0, int, 'test parameter (int)'),
+        Parameter('test2',
+                  [Parameter('test2_1', 'string', str, 'test parameter (str)'),
+                   Parameter('test2_2', 0.0, float, 'test parameter (float)')
+                   ])
+    ])
+    print(type(parameters['test2']))
