@@ -39,12 +39,6 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = False):
         }
     """
 
-    if class_type.lower() == 'instrument':
-        class_type = Instrument
-    elif class_type.lower() == 'script':
-        class_type = Script
-
-
     # if the module name was passed instead of a filename, figure out the path to the module
     if not os.path.isdir(folder_name):
         try:
@@ -60,8 +54,13 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = False):
     for subdir in subdirs:
         classes_dict.update(find_exportable_in_python_files(subdir, class_type))
 
+    if class_type.lower() == 'instrument':
+        class_type = Instrument
+    elif class_type.lower() == 'script':
+        class_type = Script
 
-    for python_file in [f for f in glob.glob(os.path.join(folder_name, "*.py"))if '__init__' not in f]:
+    for python_file in [f for f in glob.glob(os.path.join(folder_name, "*.py"))if '__init__' not in f and 'setup' not in f]:
+        print('file', python_file)
         module, path = module_name_from_path(python_file)
 
         try:
