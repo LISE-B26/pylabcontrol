@@ -140,11 +140,13 @@ def save_b26_file(filename, instruments = None, scripts = None, probes = None, o
 
     if data_dict != {}:
 
-        if platform == 'Windows':
-            # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
-            if len(filename.split('\\\\?\\')) == 1:
-                filename = '\\\\?\\'+ filename
+        # if platform == 'Windows':
+        #     # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
+        #     if len(filename.split('\\\\?\\')) == 1:
+        #         filename = '\\\\?\\'+ filename
         # create folder if it doesn't exist
+        print('filename', filename)
+        print('exists', os.path.exists(os.path.dirname(filename)))
         if os.path.exists(os.path.dirname(filename)) is False:
             print('creating', os.path.dirname(filename))
             os.makedirs(os.path.dirname(filename))

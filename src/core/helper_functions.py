@@ -223,10 +223,11 @@ def explore_package(module_name):
 
 if __name__ == '__main__':
 
-    pass
+    print(explore_package('b26_toolkit.src.core'))
 
 
-
+    # import b26_toolkit.src.core as whatevs
+    # print(whatevs.__file__)
 
 
 

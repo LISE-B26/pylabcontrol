@@ -50,12 +50,14 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
 
         super(B26QTreeItem, self ).__init__(parent)
 
+
         self.ui_type = None
         self.name = name
         self.valid_values = valid_values
         self._value = value
         self.info = info
         self._visible = visible
+
         self.setData(0, 0, self.name)
 
         if isinstance(self.valid_values, list):
@@ -178,24 +180,24 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
             self._visible = value
             self.check_show.setChecked(self._visible)
 
-    def setData(self, column, row, value):
+    def setData(self, column, role, value):
         """
         if value is valid sets the data to value
         Args:
             column: column of item
-            row: row of item (see Qt doc)
+            role: role of item (see Qt doc)
             value: value to be set
         """
         assert isinstance(column, int)
-        assert isinstance(row, int)
+        assert isinstance(role, int)
 
         # make sure that the right row is selected, this is not always the case for checkboxes and
         # combo boxes because they are items on top of the tree structure
         if isinstance(value, (QtWidgets.QComboBox, QtWidgets.QCheckBox)):
             self.treeWidget().setCurrentItem(self)
 
-        # if row 2 (editrow, value has been entered)
-        if row == 2 and column == 1:
+        # if row 2 (editrole, value has been entered)
+        if role == 2 and column == 1:
 
             if isinstance(value, str) or isinstance(value, unicode):
                 value = self.cast_type(value) # cast into same type as valid values
@@ -222,7 +224,7 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
         # 180327(asafira) --- why do we need to do the following lines? Why not just always call super or always
         # emitDataChanged()?
         if not isinstance(value, bool):
-            super(B26QTreeItem, self).setData(column, row, value)
+            super(B26QTreeItem, self).setData(column, role, value)
 
         else:
             self.emitDataChanged()

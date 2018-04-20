@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.uic import loadUiType
 from PyLabControl.src.core import Parameter, Instrument, Script, Probe
@@ -1435,10 +1434,6 @@ class CustomEditorFactory(QtWidgets.QItemEditorFactory):
 
         else:
             return super(CustomEditorFactory, self).createEditor(type, QWidget)
-
-
-
-
 
 class MatplotlibWidget(Canvas):
     """
