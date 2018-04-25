@@ -241,7 +241,7 @@ class Instrument(object):
         save_b26_file(filename, instruments = self.to_dict())
 
     @staticmethod
-    def load_and_append(instrument_dict, instruments = None, raise_errors = False):
+    def load_and_append(instrument_dict, instruments=None, raise_errors=False):
         """
         load instrument from instrument_dict and append to instruments
 
@@ -298,7 +298,8 @@ class Instrument(object):
             module = None
 
             # check if instrument already exists
-            if instrument_name in list(instruments.keys()):
+            if instrument_name in list(instruments.keys()) \
+                    and instrument_class_name == instruments[instrument_name].__name__:
                 print(('WARNING: instrument {:s} already exists. Did not load!'.format(instrument_name)))
                 loaded_failed[instrument_name] = instrument_name
             else:

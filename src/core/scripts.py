@@ -453,7 +453,7 @@ class Script(QObject):
         print(('--- stopping: ', self.name))
         self._abort = True
 
-    def validate(self):
+    def is_valid(self):
         """
         function to validate of the script parameters are valid:
          - check if the filename is too long (pandas can't write files if the total filepath is longer than 259 characters)
@@ -890,7 +890,8 @@ class Script(QObject):
         return settings
 
     @staticmethod
-    def load_and_append(script_dict, scripts=None, instruments=None, log_function=None, data_path=None, raise_errors=True, package='PyLabControl', verbose=False):
+    def load_and_append(script_dict, scripts=None, instruments=None, log_function=None, data_path=None,
+                        raise_errors=True, package='PyLabControl', verbose=False):
         """
         load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
 
@@ -953,7 +954,6 @@ class Script(QObject):
         updated_instruments = {}
         updated_instruments.update(instruments)
 
-
         if verbose:
             print(('script_dict', script_dict))
 
@@ -970,7 +970,6 @@ class Script(QObject):
 
             """
 
-
             default_instruments = getattr(class_of_script, '_INSTRUMENTS')
             instrument_dict = {}
             instruments_updated = {}
@@ -980,6 +979,7 @@ class Script(QObject):
                 # check if instruments needed by script already exist
                 instrument = [instance for name, instance in instruments_updated.items() if
                               isinstance(instance, instrument_class) and name == instrument_name]
+
                 if len(instrument) == 0:
                     # create new instance of instrument
                     instruments_updated, __ = Instrument.load_and_append({instrument_name: instrument_class}, instruments_updated, raise_errors)
@@ -1038,7 +1038,6 @@ class Script(QObject):
 
         for script_name, script_info in script_dict.items():
 
-
             # check if script already exists
             if script_name in list(scripts.keys()):
                 print(('WARNING: script {:s} already exists. Did not load!'.format(script_name)))
@@ -1066,7 +1065,6 @@ class Script(QObject):
                 else:
                     class_of_script = getattr(module, script_class_name)
 
-
                 #  ========= create the instruments that are needed by the script =========
                 try:
                     script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
@@ -1078,7 +1076,6 @@ class Script(QObject):
                     continue
                 #  ========= create the subscripts that are needed by the script =========
                 try:
-                    print()
                     sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts, log_function = log_function)
                 except Exception as err:
                     print(('loading script {:s} failed. Could not load subscripts!'.format(script_name)))
@@ -1087,7 +1084,7 @@ class Script(QObject):
                         raise err
                     continue
 
-                #  ========= create the script if instruments and subscripts have been loaded succesfully =========
+                #  ========= create the script if instruments and subscripts have been loaded successfully =========
                 class_creation_string = ''
                 if script_instruments:
                     class_creation_string += ', instruments = script_instruments'
@@ -1109,7 +1106,7 @@ class Script(QObject):
                 try:
                     script_instance = eval(class_creation_string)
                 except Exception as err:
-                    print(('loading script {:s} failed. Could not create instance of scripts!'.format(script_name)))
+                    print(('loading script {:s} failed. Could not create instance of script!'.format(script_name)))
                     load_failed[script_name] = err
                     if raise_errors:
                         raise err
@@ -1211,12 +1208,21 @@ class Script(QObject):
         assert isinstance(module_path, str)  # in that case we should have defined a module_path to load the module
         assert module is None  # we haven't loaded the module yet
 
-        try:
-            module = import_module(module_path)
-        except ImportError:
-            pass
+        # try:
+        #     print(module_path)
+        #     module = import_module(module_path)
+        #     print(module)
+        # except ImportError:
+        #     pass
+        module = import_module(module_path)
         # check if module was found!
         if module is None or not hasattr(module, script_class_name):
+            import sys
+            print('here is the pythonpath')
+            for path in sys.path:
+                print(path)
+            import time
+            time.sleep(1)
             print(('Could not find the module that contains ' + script_class_name + ' in module ' + module_path))
             raise ImportError('Could not find the module that contains ' + script_class_name + ' in module ' + module_path)
 
@@ -1335,7 +1341,6 @@ class Script(QObject):
 
         # if plot function is called when script is not running we request a plot refresh
         if not self.is_running:
-            print((datetime.datetime.now().strftime("%B %d, %Y %H:%M:%S"), self.name, 'force refresh plot!!!'))
             self._plot_refresh = True
 
         axes_list = self.get_axes_layout(figure_list)

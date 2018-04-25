@@ -70,7 +70,7 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = False):
             classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj), 'info': inspect.getdoc(obj)} for name, obj in
                                inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)
                              and not obj in (Instrument, Script, ScriptIterator)})
-        except ImportError, e:
+        except ImportError:
             if verbose:
                 print('Could not import module', module)
 
@@ -95,25 +95,17 @@ def python_file_to_b26(list_of_python_files, target_folder, class_type, raise_er
 if __name__ == '__main__':
     # module = import_module('b26_toolkit.src.scripts.test_script')
     # print('JJJJJJ')
-
     # export scripts
     # source_folders = 'b26_toolkit'
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
     # # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
     # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
-
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments'
-    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts'
-    # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated'
-    #
-    # export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
-    #
     # # export instruments
     # source_folders = 'C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments\\'
     # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\instruments_auto_generated\\'
     # export(target_folder, source_folders=source_folders, class_type='instruments', raise_errors=False)
-    #
     # instruments_to_load = get_classes_in_folder('C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments\\', Instrument)
     #
     # print(instruments_to_load.keys())

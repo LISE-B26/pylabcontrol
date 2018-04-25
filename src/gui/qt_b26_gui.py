@@ -283,10 +283,10 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.script_thread.quit()
         self.read_probes.quit()
         if self.config_filename:
-            print(('sdfiasdhi', type(self.config_filename)))
             fname = self.config_filename
-            print(('saving config to {:s}'.format(fname)))
+            print(('saving configuration of GUI to {:s}...'.format(fname)))
             self.save_config(fname)
+            print('Done!')
 
         event.accept()
 
@@ -670,7 +670,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if item is not None:
                 script, path_to_script, script_item = item.get_script()
                 self.update_script_from_item(script_item)
-                script.validate()
+                script.is_valid()
                 script.plot_validate([self.matplotlibwidget_1.figure, self.matplotlibwidget_2.figure])
                 self.matplotlibwidget_1.draw()
                 self.matplotlibwidget_2.draw()
@@ -1315,7 +1315,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
         self.gui_settings = config
 
-        print(('file_name', file_name))
         self.instruments, self.scripts, self.probes = load_settings(file_name)
 
 

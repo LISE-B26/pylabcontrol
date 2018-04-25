@@ -23,7 +23,7 @@ from PyLabControl.src.core.helper_functions import module_name_from_path
 
 import glob
 
-def get_classes_in_folder(folder_name, class_type, verbose=True):
+def get_classes_in_folder(folder_name, class_type, verbose=False):
     """
     load all the instruments or script objects that are located in folder_name and
     return a dictionary with the script class name and path_to_python_file
@@ -138,7 +138,7 @@ def export_default_instruments(target_folder, source_folder = None, raise_errors
             for error_name, error in failed.items():
                 print(('failed to create instruments: ', error_name, error))
 
-def export_default_scripts(target_folder, source_folder = None, raise_errors = False, verbose=True):
+def export_default_scripts(target_folder, source_folder = None, raise_errors = False, verbose=False):
     """
     tries to instantiate all the scripts that are imported in /scripts/__init__.py
     saves each script that could be instantiated into a .b26 file in the folder path
@@ -182,7 +182,7 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
     Returns:
 
     """
-    if not class_type in ('all', 'scripts', 'instruments', 'probes'):
+    if class_type not in ('all', 'scripts', 'instruments', 'probes'):
         print('unknown type to export')
         return
 
@@ -219,9 +219,9 @@ if __name__ == '__main__':
 
     # export scripts
     # source_folders = 'b26_toolkit'
-    source_folders = 'C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
+    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\python3versions\\b26_toolkit\\src\\scripts\\'
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
-    target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
+    target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\python3versions\\user_data\\scripts_auto_generated'
     # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
 
     # source_folders = 'C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments'

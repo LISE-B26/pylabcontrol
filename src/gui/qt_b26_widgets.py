@@ -102,7 +102,7 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
                 self.value = self.value.name
                 self.combo_box = QtWidgets.QComboBox()
                 for item in self.valid_values:
-                    self.combo_box.addItem(str(item))
+                    self.combo_box.addItem(item)
                 self.combo_box.setCurrentIndex(self.combo_box.findText(str(self.value)))
                 self.treeWidget().setItemWidget(self, 1, self.combo_box)
                 self.combo_box.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combo_box))
@@ -199,16 +199,16 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
         # if row 2 (editrole, value has been entered)
         if role == 2 and column == 1:
 
-            if isinstance(value, str) or isinstance(value, str):
+            if isinstance(value, str):
                 value = self.cast_type(value) # cast into same type as valid values
 
-            elif isinstance(value, QtCore.QVariant):
+            if isinstance(value, QtCore.QVariant):
                 value = self.cast_type(value.toString())  # cast into same type as valid values
 
-            elif isinstance(value, QtWidgets.QComboBox):
+            if isinstance(value, QtWidgets.QComboBox):
                 value = self.cast_type(value.currentText())
 
-            elif isinstance(value, QtWidgets.QCheckBox):
+            if isinstance(value, QtWidgets.QCheckBox):
                 value = bool(int(value.checkState()))  # checkState() gives 2 (True) and 0 (False)
 
             # save value in internal variable
@@ -252,11 +252,8 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
             elif type == str:
                 return str(var)
             elif isinstance(cast_type, list):
-                # get index of element that corresponds to Qstring value
-                if str(var) in [str(element) for element in cast_type]:
-                    return str(var)
-                else:
-                    raise ValueError('Tried to set value to one not in the list of valid values')
+                # cast var to be of the same type as those in the list
+                return type(cast_type[0])(var)
             else:
                 return None
         except ValueError:
@@ -266,9 +263,7 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
 
     def get_instrument(self):
         """
-
         Returns: the instrument and the path to the instrument to which this item belongs
-
         """
 
         if isinstance(self.value, Instrument):
@@ -286,7 +281,6 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
                     path_to_instrument.append(parent.name)
                     parent = parent.parent()
 
-        # path_to_instrument.reverse()
         return instrument, path_to_instrument
 
     def get_script(self):
