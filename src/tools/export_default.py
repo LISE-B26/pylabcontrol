@@ -214,61 +214,10 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
 
 
 if __name__ == '__main__':
-    # module = import_module('b26_toolkit.src.scripts.test_script')
-    # print('JJJJJJ')
 
-    # export scripts
-    # source_folders = 'b26_toolkit'
     source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\python3versions\\b26_toolkit\\src\\scripts\\'
-    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
     target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\python3versions\\user_data\\scripts_auto_generated'
-    # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
-
-    # source_folders = 'C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments'
-    # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\instruments_auto_generated\\'
-   #
-   # source_folders = 'C:\\Users\\NV Experiment\\PycharmProjects\\PyLabControl\\src\\scripts'
-   #  target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
-    #
-    # export(target_folder, source_folders=source_folders, class_type='instruments', raise_errors=False)
     export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
-    #
-    # # export instruments
-    # source_folders = 'C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments\\'
-    # export(target_folder, source_folders=source_folders, class_type='instruments', raise_errors=False)
-    #
-    # instruments_to_load = get_classes_in_folder('C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments\\', Instrument)
-    #
-    # print(instruments_to_load.keys())
-
-    # import pkgutil
-    #
-    # print('--------')
-    # for importer, modname, ispkg in pkgutil.walk_packages(path='b26_toolkit.src.scripts',
-    #                                                       # prefix=package.__name__ + '.',
-    #                                                       onerror=lambda x: None):
-    #     print(modname, importer)
-    #
-
-
-
-    # import glob
-    #
-    # from PyLabControl.src.core.helper_functions import module_name_from_path
-    #
-    #
-    # for f in glob.glob(os.path.join(source_folders, "*.py")):
-    #     module, path = module_name_from_path(f)
-    #     print(f, module, path)
-    #
-    # # source_folders = '/Users/rettentulla/PycharmProjects/b26_toolkit/src/'
-    # subdirs = [os.path.join(source_folders, x) for x in os.listdir(source_folders) if
-    #            os.path.isdir(os.path.join(source_folders, x)) and not x.startswith('.')]
-    #
-    # print('asa', source_folders)
-    #
-    # for subdir in subdirs:
-    #     print(subdir)
 
 
 
