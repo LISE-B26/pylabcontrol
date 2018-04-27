@@ -16,9 +16,7 @@
     # You should have received a copy of the GNU General Public License
     # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, inspect
-# from importlib import import_module
-# from PyLabControl.src.core import Instrument, Script
+import os
 import datetime
 import pkgutil
 
@@ -53,7 +51,7 @@ def module_name_from_path(folder_name, verbose=False):
     module = []
 
     if verbose:
-        print('folder_name', folder_name)
+        print(('folder_name', folder_name))
 
     # os_sys_path = os.sys.path
     #
@@ -85,7 +83,7 @@ def module_name_from_path(folder_name, verbose=False):
             break
 
         if verbose:
-            print('path', path, os.path.dirname(path))
+            print(('path', path, os.path.dirname(path)))
 
         # if path == os.path.dirname(path):
         #     if verbose:
@@ -95,7 +93,7 @@ def module_name_from_path(folder_name, verbose=False):
         #
 
         if verbose:
-            print('module', module)
+            print(('module', module))
 
 
     # OLD START
@@ -117,7 +115,7 @@ def module_name_from_path(folder_name, verbose=False):
     # OLD END
 
     if verbose:
-        print('module', module)
+        print(('module', module))
 
 
     # module = module[:-1]
@@ -199,6 +197,7 @@ def datetime_from_str(string):
 
     return datetime.datetime(year=2000+int(string[0:2]), month=int(string[2:4]), day=int(string[4:6]), hour=int(string[7:9]), minute=int(string[10:12]),second=int(string[13:15]))
 
+
 def explore_package(module_name):
     """
     returns all the packages in the module
@@ -212,22 +211,42 @@ def explore_package(module_name):
 
     packages = []
     loader = pkgutil.get_loader(module_name)
-    for sub_module in pkgutil.walk_packages([loader.filename]):
+    for sub_module in pkgutil.walk_packages([os.path.dirname(loader.get_filename())],
+                                            prefix=module_name + '.'):
         _, sub_module_name, _ = sub_module
-        qname = module_name + "." + sub_module_name
-        packages.append(qname)
-
-        packages = packages + explore_package(qname)
+        packages.append(sub_module_name)
 
     return packages
 
+
+    # packages = []
+    # for sub_module in pkgutil.iter_modules(module_name):
+    #     _, sub_module_name, _ = sub_module
+    #     print(sub_module_name)
+    #     break
+    #     qname = module_name + "." + sub_module_name
+    #     packages.append(qname)
+    #
+    #     packages = packages + explore_package(qname)
+    #
+    # return packages
+
 if __name__ == '__main__':
+    # print(pkgutil.get_loader('b26_toolkit.src.core').get_filename()[0:-12])
+    # packages = []
+    # for sub_module in pkgutil.walk_packages('b26_toolkit.src.core'):
+    #     _, sub_module_name, _ = sub_module
+    #     print(sub_module)
+    #     break
+    #     qname = module_name + "." + sub_module_name
+    #     packages.append(qname)
+    #
+    #     packages = packages + explore_package(qname)
 
     print(explore_package('b26_toolkit.src.core'))
 
 
-    # import b26_toolkit.src.core as whatevs
-    # print(whatevs.__file__)
+
 
 
 

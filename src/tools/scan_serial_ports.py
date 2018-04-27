@@ -38,6 +38,6 @@ def scan():
     return available
 
 if __name__ == '__main__':
-    print "Found ports:"
-    for n,s in scan(): print "(%d) %s" % (n,s)
+    print("Found ports:")
+    for n,s in scan(): print("(%d) %s" % (n,s))
     print('done')

@@ -29,8 +29,8 @@ class TestProbe(TestCase):
 
         p = Probe(instrument, 'value1', 'random')
 
-        print(instruments['inst_dummy'])
+        print((instruments['inst_dummy']))
 
-        print(p.name)
-        print(p.value)
-        print(p.value)
+        print((p.name))
+        print((p.value))
+        print((p.value))

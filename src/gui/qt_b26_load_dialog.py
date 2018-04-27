@@ -79,7 +79,7 @@ Returns:
             self.elements_old = elements_old
 
         self.elements_selected = {}
-        for element_name, element in self.elements_old.iteritems():
+        for element_name, element in self.elements_old.items():
             self.elements_selected.update( {element_name: {'class': element.__class__.__name__ , 'settings':element.settings}})
         if os.path.isfile(filename):
             self.elements_from_file = self.load_elements(filename)
@@ -203,7 +203,7 @@ Returns:
             child_name.setEditable(False)
 
             if isinstance(value, dict):
-                for ket_child, value_child in value.iteritems():
+                for ket_child, value_child in value.items():
                     add_element(child_name, ket_child, value_child)
                 child_value = QtGui.QStandardItem('')
             else:
@@ -215,11 +215,11 @@ Returns:
             child_value.setEditable(False)
             item.appendRow([child_name, child_value])
 
-        for index, (loaded_item, loaded_item_settings) in enumerate(input_dict.iteritems()):
+        for index, (loaded_item, loaded_item_settings) in enumerate(input_dict.items()):
             # print(index, loaded_item, loaded_item_settings)
             item = QtGui.QStandardItem(loaded_item)
 
-            for key, value in loaded_item_settings['settings'].iteritems():
+            for key, value in loaded_item_settings['settings'].items():
                 add_element(item, key, value)
 
             value = QtGui.QStandardItem('')

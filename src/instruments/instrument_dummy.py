@@ -60,7 +60,7 @@ class DummyInstrument(Instrument):
         '''
         Instrument.update(self, settings)
 
-        for key, value in settings.iteritems():
+        for key, value in settings.items():
             if key == 'test1':
                 self._internal_state = value
 
@@ -75,7 +75,7 @@ class DummyInstrument(Instrument):
         Returns: reads values from instrument
 
         """
-        assert key in self._PROBES.keys()
+        assert key in list(self._PROBES.keys())
 
         import random
         if key == 'value1':
@@ -169,7 +169,7 @@ class Plant(Instrument, QThread):
         Returns: reads values from instrument
 
         """
-        assert key in self._PROBES.keys()
+        assert key in list(self._PROBES.keys())
 
         if key == 'output':
             value = self._output
@@ -213,7 +213,7 @@ class PIControler(Instrument):
         if key is None:
             super(PIControler, self).read_probes()
         else:
-            assert key in self._PROBES.keys(), "key assertion failed %s" % str(key)
+            assert key in list(self._PROBES.keys()), "key assertion failed %s" % str(key)
 
         return None
 
@@ -235,17 +235,17 @@ class PIControler(Instrument):
         time_step = self.settings['time_step']
 
         error_new = set_point - current_value
-        print('PD- error:\t', error_new, Ki, Kp, time_step)
+        print(('PD- error:\t', error_new, Ki, Kp, time_step))
         #proportional action
         self.u_P = Kp * error_new * time_step
-        print('PD- self.u_P:\t', self.u_P, self.u_I)
+        print(('PD- self.u_P:\t', self.u_P, self.u_I))
 
         #integral action
         self.u_I += Kp * Ki * (error_new + self.error) / 2.0 * time_step
 
         self.error = error_new
 
-        print('PD- self.u_P:\t', self.u_P, self.u_I)
+        print(('PD- self.u_P:\t', self.u_P, self.u_I))
 
         # anti-windup
         if self.u_P + self.u_I > output_range['max']:
@@ -255,14 +255,14 @@ class PIControler(Instrument):
 
 
         output = self.u_P + self.u_I
-        print('PD- output:\t', output)
+        print(('PD- output:\t', output))
         return output
 
 if __name__ == '__main__':
 
     d = Plant()
-    print(d.settings)
+    print((d.settings))
     for i in range(15):
         time.sleep(0.1)
-        print(d.read_probes('output'))
+        print((d.read_probes('output')))
     print('done')

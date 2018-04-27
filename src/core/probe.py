@@ -177,7 +177,7 @@ class Probe(object):
         # =====  now we are sure that all the instruments that we need for the probes already exist
 
 
-        for instrument_name, probe_names in probe_dict.iteritems():
+        for instrument_name, probe_names in probe_dict.items():
             if not instrument_name in updated_probes:
                 updated_probes.update({instrument_name:{}})
 
@@ -205,7 +205,7 @@ if __name__ == '__main__':
         probe_dict=probe_dict,
         probes={},
         instruments=instruments)
-    print('fffff', probes_obj)
+    print(('fffff', probes_obj))
     # Probe.load_and_append(
     #     probe_dict={name: probes[name] for name in added_probes},
     #     probes=self.probes,

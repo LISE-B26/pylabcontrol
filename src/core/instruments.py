@@ -100,17 +100,17 @@ class Instrument(object):
 
         """
 
-        print('xxxxx probes', key, self._PROBES())
+        print(('xxxxx probes', key, self._PROBES()))
 
         if key is None:
             # return the value all probe in dictionary form
             d = {}
-            for k in self._PROBES.keys():
+            for k in list(self._PROBES.keys()):
                 d[k] = self.read_probes(k)
             return d
         else:
             # return the value of the requested key if the key corresponds to a valid probe
-            assert key in self._PROBES.keys()
+            assert key in list(self._PROBES.keys())
 
             value = None
 
@@ -157,7 +157,7 @@ class Instrument(object):
                 # return self.read_probes(name)
             except:
                 # restores standard behavior for missing keys
-                print('class ' + type(self).__name__ + ' has no attribute ' + str(name))
+                print(('class ' + type(self).__name__ + ' has no attribute ' + str(name)))
                 raise AttributeError('class ' + type(self).__name__ + ' has no attribute ' + str(name))
 
 
@@ -199,7 +199,7 @@ class Instrument(object):
         """
         check if value is a string and if so set name = value
         """
-        if isinstance(value, unicode):
+        if isinstance(value, str):
             value = str(value)
         assert isinstance(value, str), "{:s}".format(str(value))
         self._name = value
@@ -241,7 +241,7 @@ class Instrument(object):
         save_b26_file(filename, instruments = self.to_dict())
 
     @staticmethod
-    def load_and_append(instrument_dict, instruments = None, raise_errors = False):
+    def load_and_append(instrument_dict, instruments=None, raise_errors=False):
         """
         load instrument from instrument_dict and append to instruments
 
@@ -293,13 +293,14 @@ class Instrument(object):
 
 
 
-        for instrument_name, instrument_class_name in instrument_dict.iteritems():
+        for instrument_name, instrument_class_name in instrument_dict.items():
             instrument_settings = None
             module = None
 
             # check if instrument already exists
-            if instrument_name in instruments.keys():
-                print('WARNING: instrument {:s} already exists. Did not load!'.format(instrument_name))
+            if instrument_name in list(instruments.keys()) \
+                    and instrument_class_name == instruments[instrument_name].__name__:
+                print(('WARNING: instrument {:s} already exists. Did not load!'.format(instrument_name)))
                 loaded_failed[instrument_name] = instrument_name
             else:
                 instrument_instance = None
@@ -319,7 +320,7 @@ class Instrument(object):
                         else:
                             # this creates an instance of the class with custom settings
                             instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
-                    except Exception, e:
+                    except Exception as e:
                         loaded_failed[instrument_name] = e
                         if raise_errors:
                             raise e
@@ -359,5 +360,5 @@ if __name__ == '__main__':
     # folder_name = '/Users/rettentulla/Projects/Python/PyLabControl/src/'
     x = Instrument.get_instruments_in_path(folder_name)
 
-    for k, v in x.iteritems():
-        print(k, issubclass(v['x'], Script), issubclass(v['x'], Instrument))
+    for k, v in x.items():
+        print((k, issubclass(v['x'], Script), issubclass(v['x'], Instrument)))
