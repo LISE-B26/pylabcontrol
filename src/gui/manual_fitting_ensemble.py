@@ -1,6 +1,6 @@
 from PyQt4 import QtGui, QtCore
 from PyQt4.uic import loadUiType
-from PyLabControl.src.core import Script
+from pylabcontrol.src.core import Script
 
 import os.path
 import numpy as np

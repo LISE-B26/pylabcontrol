@@ -1,18 +1,18 @@
-# This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+# This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
-# PyLabControl is free software: you can redistribute it and/or modify
+# pylabcontrol is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# PyLabControl is distributed in the hope that it will be useful,
+# pylabcontrol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
 import os
@@ -20,9 +20,9 @@ import os
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.uic import loadUiType
 
-from PyLabControl.src.core.read_write_functions import load_b26_file
-from PyLabControl.src.core.helper_functions import get_python_package
-# from PyLabControl.src.core import Parameter, Script
+from pylabcontrol.src.core.read_write_functions import load_b26_file
+from pylabcontrol.src.core.helper_functions import get_python_package
+# from pylabcontrol.src.core import Parameter, Script
 import inspect
 
 # load the basic old_gui either from .ui file or from precompiled .py file
@@ -30,7 +30,7 @@ try:
     # import external_modules.matplotlibwidget
     Ui_Dialog, QDialog = loadUiType('load_dialog.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
-    from PyLabControl.src.gui.load_dialog import Ui_Dialog
+    from pylabcontrol.src.gui.load_dialog import Ui_Dialog
     from PyQt5.QtWidgets import QMainWindow
     from PyQt5.QtWidgets import QDialog
     print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!\n')
@@ -313,7 +313,7 @@ if __name__ == '__main__':
 
     sys.exit(app.exec_())
 
-    # from PyLabControl.src.core.helper_functions import module_name_from_path
+    # from pylabcontrol.src.core.helper_functions import module_name_from_path
     #
     # base = '__main__'
     # fp = os.path.dirname(sys.modules[base].__file__)

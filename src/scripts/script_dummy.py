@@ -1,32 +1,32 @@
 
-# This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+# This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
 #
-# PyLabControl is free software: you can redistribute it and/or modify
+# pylabcontrol is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# PyLabControl is distributed in the hope that it will be useful,
+# pylabcontrol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from PyLabControl.src.core import Parameter, Script
-from PyLabControl.src.instruments import DummyInstrument
+from pylabcontrol.src.core import Parameter, Script
+from pylabcontrol.src.instruments import DummyInstrument
 import numpy as np
 import datetime
 
-from PyLabControl.src.instruments import Plant, PIControler
+from pylabcontrol.src.instruments import Plant, PIControler
 import time
 from collections import deque
 from copy import deepcopy
-from PyLabControl.src.data_processing.signal_processing import power_spectral_density
+from pylabcontrol.src.data_processing.signal_processing import power_spectral_density
 
 class ScriptMinimalDummy(Script):
     """

@@ -1,25 +1,25 @@
-# This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+# This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
 #
-# PyLabControl is free software: you can redistribute it and/or modify
+# pylabcontrol is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# PyLabControl is distributed in the hope that it will be useful,
+# pylabcontrol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
 import inspect, os
-from PyLabControl.src.core import Instrument, Script, ScriptIterator
+from pylabcontrol.src.core import Instrument, Script, ScriptIterator
 from importlib import import_module
-from PyLabControl.src.core.helper_functions import module_name_from_path
+from pylabcontrol.src.core.helper_functions import module_name_from_path
 
 import glob
 
@@ -95,7 +95,7 @@ def export_default_probes(path, module_name = '', raise_errors = False):
 
 
     import b26_toolkit.src.instruments as instruments
-    from PyLabControl.src.core import Probe
+    from pylabcontrol.src.core import Probe
 
     for name, obj in inspect.getmembers(instruments):
 

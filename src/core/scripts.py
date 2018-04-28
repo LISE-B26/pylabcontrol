@@ -1,28 +1,28 @@
 
-# This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+# This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
 #
-# PyLabControl is free software: you can redistribute it and/or modify
+# pylabcontrol is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# PyLabControl is distributed in the hope that it will be useful,
+# pylabcontrol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
 from copy import deepcopy
 
-from PyLabControl.src.core.instruments import Instrument
-from PyLabControl.src.core.parameter import Parameter
-from PyLabControl.src.core.read_write_functions import save_b26_file, load_b26_file
-from PyLabControl.src.core.helper_functions import module_name_from_path
+from pylabcontrol.src.core.instruments import Instrument
+from pylabcontrol.src.core.parameter import Parameter
+from pylabcontrol.src.core.read_write_functions import save_b26_file, load_b26_file
+from pylabcontrol.src.core.helper_functions import module_name_from_path
 
 from collections import deque
 import os
@@ -515,12 +515,12 @@ class Script(QObject):
 
         """
 
-        from PyLabControl.src.core.script_iterator import ScriptIterator
+        from pylabcontrol.src.core.script_iterator import ScriptIterator
 
 
         if 'script_iterator' in self.__module__.split('.'):
             # script iterator module is of the form
-            # 'PyLabControl.src.core.script_iterator.b26_toolkit.dynamic_script_iterator0'
+            # 'pylabcontrol.src.core.script_iterator.b26_toolkit.dynamic_script_iterator0'
             # and the class name if of the form package.dynamic_script_iterator0
             package = self.__class__.__name__.split('.')[0]
         else:
@@ -891,7 +891,7 @@ class Script(QObject):
 
     @staticmethod
     def load_and_append(script_dict, scripts=None, instruments=None, log_function=None, data_path=None,
-                        raise_errors=True, package='PyLabControl', verbose=False):
+                        raise_errors=True, package='pylabcontrol', verbose=False):
         """
         load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
 
@@ -1049,7 +1049,7 @@ class Script(QObject):
                 if 'ScriptIterator' in script_class_name:
                     # creates all the dynamic classes in the script and the class of the script itself
                     # and updates the script info with these new classes
-                    from PyLabControl.src.core.script_iterator import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
+                    from pylabcontrol.src.core.script_iterator import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
 
                     script_info, _ = ScriptIterator.create_dynamic_script_class(script_info)
 
@@ -1121,7 +1121,7 @@ class Script(QObject):
         return updated_scripts, load_failed, updated_instruments
 
     @staticmethod
-    def get_script_information(script_information, package='PyLabControl', verbose=False):
+    def get_script_information(script_information, package='pylabcontrol', verbose=False):
         """
         extracts all the relevant information from script_information and returns it as individual variables
         Args:
@@ -1129,7 +1129,7 @@ class Script(QObject):
                 - a dictionary
                 - a Script instance
                 - name of Script class
-            package (optional): name of the package to which the script belongs, i.e. PyLabControl or b26toolkit.
+            package (optional): name of the package to which the script belongs, i.e. pylabcontrol or b26toolkit.
                                 Only used when script_information is a string
         Returns:
             module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package
@@ -1175,7 +1175,7 @@ class Script(QObject):
 
         elif issubclass(script_information, Script):
             # watch out when testing this code from __main__, then classes might not be identified correctly because the path is different
-            # to avoid this problem call from PyLabControl.src.core import Script (otherwise the path to Script is __main__.Script)
+            # to avoid this problem call from pylabcontrol.src.core import Script (otherwise the path to Script is __main__.Script)
             script_class_name = script_information.__name__
             package = script_information.__module__.split('.')[0]
             module_path = script_information.__module__
@@ -1198,7 +1198,7 @@ class Script(QObject):
         # todo: now there is the prefix package
         if len(script_class_name.split('dynamic_script_iterator')) == 2 and \
                 script_class_name.split('dynamic_script_iterator')[1].isdigit():
-            # package = 'PyLabControl' # all the dynamic iterator scripts are defined in the name space of PyLabControl
+            # package = 'pylabcontrol' # all the dynamic iterator scripts are defined in the name space of pylabcontrol
             # all the dynamic iterator scripts are defined in the name space of package.src.core.script_iterator
             # module = import_module(package + '.src.core.script_iterator')
             module_path = package
@@ -1230,7 +1230,7 @@ class Script(QObject):
         return module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package
 
     @staticmethod
-    def get_script_module(script_information, package='PyLabControl', verbose=False):
+    def get_script_module(script_information, package='pylabcontrol', verbose=False):
         """
         wrapper to get the module for a script
 
@@ -1239,7 +1239,7 @@ class Script(QObject):
                 - a dictionary
                 - a Script instance
                 - name of Script class
-            package (optional): name of the package to which the script belongs, i.e. PyLabControl or b26toolkit only used when script_information is a string
+            package (optional): name of the package to which the script belongs, i.e. pylabcontrol or b26toolkit only used when script_information is a string
         Returns:
             module
 
@@ -1411,7 +1411,7 @@ if __name__ == '__main__':
     # sinfo = {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
     #                                          'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '',
     #                                                       'save': False, 'plot_style': 'main'},
-    #                                          'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}
+    #                                          'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/pylabcontrol/src/scripts/script_dummy.py'}
     #
     # info = Script.get_script_information(sinfo, verbose=True)
     #

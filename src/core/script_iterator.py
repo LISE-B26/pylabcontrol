@@ -1,30 +1,30 @@
-    # This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+    # This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
     # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
     #
     #
-    # PyLabControl is free software: you can redistribute it and/or modify
+    # pylabcontrol is free software: you can redistribute it and/or modify
     # it under the terms of the GNU General Public License as published by
     # the Free Software Foundation, either version 3 of the License, or
     # (at your option) any later version.
     #
-    # PyLabControl is distributed in the hope that it will be useful,
+    # pylabcontrol is distributed in the hope that it will be useful,
     # but WITHOUT ANY WARRANTY; without even the implied warranty of
     # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     # GNU General Public License for more details.
     #
     # You should have received a copy of the GNU General Public License
-    # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+    # along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from PyLabControl.src.core import Parameter, Script
+from pylabcontrol.src.core import Parameter, Script
 import numpy as np
 from PyQt5.QtCore import pyqtSlot
 from collections import deque
 import datetime
 import warnings
 import inspect
-# import PyLabControl.src.core.helper_functions as hf
-from PyLabControl.src.core import helper_functions as hf
+# import pylabcontrol.src.core.helper_functions as hf
+from pylabcontrol.src.core import helper_functions as hf
 import importlib
 from functools import reduce
 
@@ -503,7 +503,7 @@ Script.
                 return parameter_list
 
             for script_name in list(scripts.keys()):
-                from PyLabControl.src.core import ScriptIterator
+                from pylabcontrol.src.core import ScriptIterator
                 script_trace = trace
                 if script_trace == '':
                     script_trace = script_name
@@ -618,9 +618,9 @@ Script.
                         # raise NotImplementedError # has to be dynamic maybe???
                         script_information_subclass,  script_iterators = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name], script_iterators)
                         subscript_class_name = script_information_subclass['class']
-                        # import PyLabControl.src.scripts
-                        import PyLabControl.src.core.script_iterator
-                        sub_scripts.update({sub_script_name: getattr(PyLabControl.src.core.script_iterator, subscript_class_name)})
+                        # import pylabcontrol.src.scripts
+                        import pylabcontrol.src.core.script_iterator
+                        sub_scripts.update({sub_script_name: getattr(pylabcontrol.src.core.script_iterator, subscript_class_name)})
                     else:
                         if verbose:
                             print(('script_sub_scripts[sub_script_name]', sub_script_class))
@@ -782,7 +782,7 @@ Script.
                     print(p, name, c)
 
                 if issubclass(c, ScriptIterator):
-                    # update dictionary with 'Package name , e.g. PyLabControl or b26_toolkit': <ScriptIterator_class>
+                    # update dictionary with 'Package name , e.g. pylabcontrol or b26_toolkit': <ScriptIterator_class>
                     script_iterator.update({c.__module__.split('.')[0]: c})
 
         return script_iterator
@@ -795,7 +795,7 @@ if __name__ == '__main__':
 
 
     # test get_script_iterator
-    package = 'PyLabControl'
+    package = 'pylabcontrol'
     # package = 'b26_toolkit'
 
     script_iterator = ScriptIterator.get_script_iterator(package, verbose = True)
@@ -812,12 +812,12 @@ if __name__ == '__main__':
 
 
     #
-    # from PyLabControl.src.scripts.script_dummy import ScriptDummy
+    # from pylabcontrol.src.scripts.script_dummy import ScriptDummy
     # path_to_script_file = inspect.getmodule(ScriptDummy).__file__.replace('.pyc', '.py')
     #
     # iterator_type = 'Loop'# 'Iter Pts'
     #
-    # package = 'PyLabControl' #'b26_toolkit'
+    # package = 'pylabcontrol' #'b26_toolkit'
     #
     # script_info = {'iter_script':
     #                    {'info': 'Enter docstring here',

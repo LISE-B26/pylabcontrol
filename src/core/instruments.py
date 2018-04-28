@@ -1,26 +1,26 @@
-    # This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+    # This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
     # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
     #
     #
-    # PyLabControl is free software: you can redistribute it and/or modify
+    # pylabcontrol is free software: you can redistribute it and/or modify
     # it under the terms of the GNU General Public License as published by
     # the Free Software Foundation, either version 3 of the License, or
     # (at your option) any later version.
     #
-    # PyLabControl is distributed in the hope that it will be useful,
+    # pylabcontrol is distributed in the hope that it will be useful,
     # but WITHOUT ANY WARRANTY; without even the implied warranty of
     # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     # GNU General Public License for more details.
     #
     # You should have received a copy of the GNU General Public License
-    # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+    # along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
 from copy import deepcopy
-from PyLabControl.src.core.read_write_functions import save_b26_file, get_config_value
+from pylabcontrol.src.core.read_write_functions import save_b26_file, get_config_value
 import os, inspect
 from importlib import import_module
-from PyLabControl.src.core.helper_functions import module_name_from_path
+from pylabcontrol.src.core.helper_functions import module_name_from_path
 
 
 class Instrument(object):
@@ -354,10 +354,10 @@ class Instrument(object):
 
 if __name__ == '__main__':
 
-    from PyLabControl.src.core import Script, Instrument
+    from pylabcontrol.src.core import Script, Instrument
     folder_name = 'b26_toolkit'
     folder_name = '/Users/rettentulla/Projects/Python/b26_toolkit/src/'
-    # folder_name = '/Users/rettentulla/Projects/Python/PyLabControl/src/'
+    # folder_name = '/Users/rettentulla/Projects/Python/pylabcontrol/src/'
     x = Instrument.get_instruments_in_path(folder_name)
 
     for k, v in x.items():

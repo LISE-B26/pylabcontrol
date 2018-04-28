@@ -1,32 +1,32 @@
 
-# This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+# This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
 #
-# PyLabControl is free software: you can redistribute it and/or modify
+# pylabcontrol is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# PyLabControl is distributed in the hope that it will be useful,
+# pylabcontrol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
 from unittest import TestCase
 
-from PyLabControl.src.core import Script, Instrument
-from PyLabControl.src.scripts.script_dummy import ScriptDummy
+from pylabcontrol.src.core import Script, Instrument
+from pylabcontrol.src.scripts.script_dummy import ScriptDummy
 
 class TestInstrument(TestCase):
 
 
     def test_loading_and_saving(self):
-        from PyLabControl.src.core.read_write_functions import load_b26_file
+        from pylabcontrol.src.core.read_write_functions import load_b26_file
 
         filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XYX.b26"
 
@@ -43,7 +43,7 @@ class TestInstrument(TestCase):
 
     def test_load_and_append(self):
 
-        filepath = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\script_dummy.py'
+        filepath = 'C:\\Users\\Experiment\\PycharmProjects\\pylabcontrol\\src\\scripts\\script_dummy.py'
         script_dict = {'DefaultName': {'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
                                                                                                    'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'},
                                                                                                    'class': 'ScriptDummy',
@@ -83,7 +83,7 @@ class TestInstrument(TestCase):
         print(script_class_name)
 
     def test_get_module_1(self):
-        filepath = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\script_dummy.py'
+        filepath = 'C:\\Users\\Experiment\\PycharmProjects\\pylabcontrol\\src\\scripts\\script_dummy.py'
         print(' ===== start test_get_module_1 =======')
         script_info ={'info': 'Enter docstring here', 'scripts': {'ScriptDummy': {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ', 'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy',
                                                                                   'filepath': filepath}},
@@ -104,7 +104,7 @@ class TestInstrument(TestCase):
 
     def test_load_and_append_from_file(self):
 
-        from PyLabControl.src.core.read_write_functions import load_b26_file
+        from pylabcontrol.src.core.read_write_functions import load_b26_file
         filename = 'C:\\Users\Experiment\PycharmProjects\\user_data\pythonlab_config_lev_test.b26'
 
 
