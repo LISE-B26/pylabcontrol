@@ -24,11 +24,7 @@ from PyQt5 import QtGui, QtWidgets
 
 from pylabcontrol.src.gui import qt_b26_gui
 
-#work around to change taskbar icon
-#myappid = 'lukinlab.b26.pythonlab' # arbitrary string
-#ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-
-def run_gui(fname = 'C:\\Users\Experiment\PycharmProjects\\user_data\pythonlab_config.b26'):
+def run_gui(fname = 'C:\\Users\Experiment\PycharmProjects\\user_data\\pythonlab_config.b26'):
     app = QtWidgets.QApplication(sys.argv)
     # fname = 'c:\\b26_tmp\\pythonlab_config_dummy.b26'
     # fname = 'c:\\b26_tmp\\pythonlab_config3a.b26'
@@ -60,6 +56,7 @@ along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.")
 
         if not e.message in['No config file was provided. abort loading gui...', '']:
             raise e
+
 
 if __name__ == '__main__':
     run_gui()

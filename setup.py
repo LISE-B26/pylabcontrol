@@ -5,11 +5,11 @@ def readme():
         return f.read()
 
 setup(
-    name='PyLabControl',
+    name='pylabcontrol',
     version='0.1.8',
-    package_dir={'PyLabControl': ''},
-    packages=['PyLabControl', 'PyLabControl.src', 'PyLabControl.src.core', 'PyLabControl.src.gui', 'PyLabControl.src.instruments',
-              'PyLabControl.src.data_processing','PyLabControl.src.scripts', 'PyLabControl.src.tools', 'PyLabControl.tests'],
+    package_dir={'pylabcontrol': ''},
+    packages=['pylabcontrol', 'pylabcontrol.src', 'pylabcontrol.src.core', 'pylabcontrol.src.gui', 'pylabcontrol.src.instruments',
+              'pylabcontrol.src.data_processing','pylabcontrol.src.scripts', 'pylabcontrol.src.tools', 'pylabcontrol.tests'],
     url='https://github.com/LISE-B26/PythonLab',
     license='GPL',
     author='Aaron Kabcenell, Jan Gieseler, and Arthur Safira',
@@ -34,7 +34,7 @@ setup(
     test_suite='nose.collector',
     tests_require=['nose'],
     entry_points={
-        'console_scripts': ['PyLabControl = PyLabControl.__main__:main']
-        # 'gui_scripts': ['PyLabControl_gui = PyLabControl.__main__:main']
+        'console_scripts': ['pylabcontrol = pylabcontrol.__main__:main']
+        # 'gui_scripts': ['PyLabControl_gui = pylabcontrol.__main__:main']
     }
 )

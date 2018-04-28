@@ -27,6 +27,7 @@ import os.path
 import numpy as np
 import json as json
 from PyQt5.QtCore import QThread, pyqtSlot
+import webbrowser
 
 from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as Canvas,
                                                 NavigationToolbar2QT as NavigationToolbar)
@@ -67,17 +68,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
     # application_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     # application_path = os.path.dirname(application_path) # go one level lower
     application_path = os.path.abspath(os.path.curdir)
-
-    #myFilter = CustomEventFilter()
-    #QMainWindow.installEventFilter(myFilter)
-
-    #self.installEventFilter(self)
-    #def eventFilter(self, QObject, QEvent):
-    #    if (QEvent.type() == QtCore.QEvent.Wheel):
-    #        QEvent.ignore()
-    #        return True
-    #
-    #    return QtWidgets.QWidget.eventFilter(QObject, QEvent)
 
     _DEFAULT_CONFIG = {
         # "tmp_folder": "../../b26_tmp",
@@ -150,11 +140,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # ===== LINK WIDGETS TO FUNCTIONS =============================
             # =============================================================
 
-            # link slider to old_functions
-            #
-            # self.sliderPosition.setValue(int(self.servo_polarization.get_position() * 100))
-            # self.sliderPosition.valueChanged.connect(lambda: self.set_position())
-
             # link buttons to old_functions
             self.btn_start_script.clicked.connect(self.btn_clicked)
             self.btn_stop_script.clicked.connect(self.btn_clicked)
@@ -172,6 +157,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.btn_load_gui.triggered.connect(self.btn_clicked)
             self.btn_about.triggered.connect(self.btn_clicked)
             self.btn_exit.triggered.connect(self.close)
+
+            self.actionSave.triggered.connect(self.btn_clicked)
+            self.actionGo_to_pylabcontrol_GitHub_page.triggered.connect(self.btn_clicked)
 
             self.btn_load_instruments.clicked.connect(self.btn_clicked)
             self.btn_load_scripts.clicked.connect(self.btn_clicked)
@@ -268,12 +256,13 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.read_probes = ReadProbes(self.probes)
         self.tabWidget.setCurrentIndex(0) # always show the script tab
 
-
         # == create a thread for the scripts ==
         self.script_thread = QThread()
         self._last_progress_update = None # used to keep track of status updates, to block updates when they occur to often
 
         self.chk_show_all.setChecked(True)
+        self.actionSave.setShortcut(QtGui.QKeySequence.Save)
+        self.list_history.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
     def closeEvent(self, event):
         """
@@ -284,9 +273,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         self.read_probes.quit()
         if self.config_filename:
             fname = self.config_filename
-            print(('saving configuration of GUI to {:s}...'.format(fname)))
             self.save_config(fname)
-            print('Done!')
 
         event.accept()
 
@@ -509,8 +496,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             self.matplotlibwidget_2.close()
         except AttributeError:
             pass
-        self.centralwidget = QtWidgets.QWidget(self)
-        self.centralwidget.setObjectName("centralwidget")
         self.matplotlibwidget_2 = MatplotlibWidget(self.plot_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -601,7 +586,6 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 self.running_item = item
                 script, path_to_script, script_item = item.get_script()
 
-                print(('update11!!', script_item, script))
                 self.update_script_from_item(script_item)
 
                 self.log('starting {:s}'.format(script.name))
@@ -803,6 +787,9 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                 if path_to_script == []:
                     self.plot_script(script)
 
+        def save():
+            self.save_config(self.config_filename)
+
         if sender is self.btn_start_script:
             start_button()
         elif sender is self.btn_stop_script:
@@ -837,17 +824,19 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         elif sender is self.btn_save_gui:
             # get filename
             fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save gui settings to file', self.gui_settings['data_folder']) # filter = '.b26gui'
-            self.save_config(fname)
+            self.save_config(fname[0])
         elif sender is self.btn_load_gui:
             # get filename
             fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Load gui settings from file',  self.gui_settings['data_folder'])
             # self.load_settings(fname)
-            self.load_config(fname)
+            self.load_config(fname[0])
         elif sender is self.btn_about:
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Information)
-            msg.setText("Lukin Lab B26 Gui")
-            msg.setInformativeText("Check out: https://github.com/LISE-B26/PythonLab")
+            msg.setText("pylabcontrol: Laboratory Equipment Control for Scientific Experiments")
+            msg.setInformativeText("This software was developed by Arthur Safira, Jan Gieseler, and Aaron Kabcenell at"
+                                   "Harvard University. It is licensed under the LPGL licence. For more information,"
+                                   "visit the GitHub page at github.com/LISE-B26/pylabcontrol .")
             msg.setWindowTitle("About")
             # msg.setDetailedText("some stuff")
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
@@ -864,6 +853,11 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             # refresh trees
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
+        elif sender is self.actionSave:
+            if self.config_filename:
+                self.save_config(self.config_filename)
+        elif sender is self.actionGo_to_pylabcontrol_GitHub_page:
+            webbrowser.open('https://github.com/LISE-B26/pylabcontrol')
 
     def _show_hide_parameter(self):
         """
