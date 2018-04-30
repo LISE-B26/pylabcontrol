@@ -6,24 +6,22 @@ def readme():
 
 setup(
     name='pylabcontrol',
-    version='0.1.8',
+    version='0.1.0',
     package_dir={'pylabcontrol': ''},
-    packages=['pylabcontrol', 'pylabcontrol.src', 'pylabcontrol.src.core', 'pylabcontrol.src.gui', 'pylabcontrol.src.instruments',
-              'pylabcontrol.src.data_processing','pylabcontrol.src.scripts', 'pylabcontrol.src.tools', 'pylabcontrol.tests'],
-    url='https://github.com/LISE-B26/PythonLab',
+    packages=['pylabcontrol'],
+    url='https://github.com/LISE-B26/pylabcontrol',
     license='GPL',
-    author='Aaron Kabcenell, Jan Gieseler, and Arthur Safira',
+    author='Arthur Safira, Jan Gieseler, and Aaron Kabcenell',
     author_email='',
     long_description=readme(),
-    description='Python laboratory control software',
+    description='Python Laboratory Control Software',
     keywords='laboratory control',
     classifiers=[
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.6',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Development Status :: 4 - Beta',
         'Environment :: Win32 (MS Windows)',
-        'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering :: Physics',
+        'Intended Audience :: Science/R]',
         ],
     install_requires=[
         'matplotlib',
@@ -34,7 +32,6 @@ setup(
     test_suite='nose.collector',
     tests_require=['nose'],
     entry_points={
-        'console_scripts': ['pylabcontrol = pylabcontrol.__main__:main']
-        # 'gui_scripts': ['PyLabControl_gui = pylabcontrol.__main__:main']
+        'console_scripts': ['launch_pylabcontrol = pylabcontrol.src.gui.run_gui:run_gui']
     }
 )

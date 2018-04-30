@@ -1,5 +1,5 @@
-from PyQt4 import QtGui, QtCore
-from PyQt4.uic import loadUiType
+from PyQt5 import QtGui, QtCore
+from PyQt5.uic import loadUiType
 from pylabcontrol.src.core import Parameter, Instrument, Script, ReadProbes, Probe, ScriptIterator
 from pylabcontrol.src.gui import B26QTreeItem, LoadDialog, LoadDialogProbes
 from pylabcontrol.src.scripts.select_points import SelectPoints
@@ -8,7 +8,7 @@ from pylabcontrol.src.core.read_write_functions import load_b26_file
 import os.path
 import numpy as np
 import json as json
-from PyQt4.QtCore import QThread, pyqtSignal, QObject
+from PyQt5.QtCore import QThread, pyqtSignal, QObject
 
 from matplotlib.backends.backend_qt4agg import (NavigationToolbar2QT as NavigationToolbar)
 from .qt_b26_gui import MatplotlibWidget

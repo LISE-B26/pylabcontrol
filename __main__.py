@@ -14,7 +14,7 @@ def main():
                                                            \t\t if empty export from pylabcontrol \n \
                                                            class_type:\t type of class to export as .b26 file (intrument, script, probe or all) \
                                                            ")
-    parser.add_argument("-g", "--gui", nargs='?', const = '', type = str, help="loads the default gui")
+    parser.add_argument("-g", "--gui", nargs='?', const='', type=str, help="loads the default gui")
     args = parser.parse_args()
 
     if args.export is not None:

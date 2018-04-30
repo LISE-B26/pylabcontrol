@@ -2,6 +2,7 @@
 pylabcontrol is a software environment to control scientific equipment for laboratory experiments. 
 
 It
++   provides a GUI for convenient experimental control and 
 +	interacts with any equipment that supports a python interface
 +	executes user-created scripts for complex experimental control sequences
 +	visualizes experimental data utilizing the standard python matplotlib library
@@ -9,16 +10,18 @@ It
 
 pylabcontrol is built on python 3.6.x, with extensive use of pyQT5 for the general user interface.
 It was built by Arthur Safira, Jan Gieseler, and Aaron Kabcenell in the Lukin Group at Harvard University. 
-It is distributed under the GPLv3 license. For more information, see LICENSE.txt .
-
-
+It is distributed under the [GPLv3 license](https://en.wikipedia.org/wiki/GNU_General_Public_License). For more information, see LICENSE.txt .
 
 ## Getting Started
-The software was developed and tested with python 2.7.x on 64-bit Windows 7. Prior to installation, install the latest 
-Anaconda distribution for python version 2.7.x, as it contains some extra dependencies this project utilizes.
-You can find the latest Anaconda distribution here: found here: https://www.continuum.io/downloads . 
+The software was developed and tested with python 3.6.x on 64-bit Windows 7. Prior to installation, install the latest 
+Anaconda distribution for python version 3.6.x, as it contains some extra dependencies this project utilizes.
+You can find the latest Anaconda distribution [here](https://www.continuum.io/downloads). 
 
 ### Installation
+There are two main ways to install pylabcontrol: via pip, the python package manager, or directly from the source via
+github. The former is easier, while the latter gives more explicit access to the source code.
+
+#### Via pip
 The simplest way to install pyLabControl is with the command-line utility pip. To install simply issue the command
 
 ```>>> pip install pylabcontrol```

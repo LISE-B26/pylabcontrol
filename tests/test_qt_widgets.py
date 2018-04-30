@@ -20,7 +20,7 @@
 # import sip
 from unittest import TestCase
 # sip.setapi('QVariant', 2)
-from PyQt4 import QtGui
+from PyQt5 import QtGui
 import sys
 from src.core import Parameter
 
