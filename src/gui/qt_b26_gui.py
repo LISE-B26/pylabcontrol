@@ -857,7 +857,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
             if self.config_filename:
                 self.save_config(self.config_filename)
         elif sender is self.actionGo_to_pylabcontrol_GitHub_page:
-            webbrowser.open('https://github.com/LISE-B26/pylabcontrol')
+            webbrowser.open('https://github.com/LISE-B26/pylabcontrol/issues/new')
 
     def _show_hide_parameter(self):
         """

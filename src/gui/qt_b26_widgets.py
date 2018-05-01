@@ -397,7 +397,6 @@ if __name__ == '__main__':
     # print(p.valid_values)
     #
 
-
     print('- ---------- NEW -----------------')
     # new
     from b26_toolkit.src.instruments import MaestroLightControl

@@ -780,7 +780,10 @@
   </action>
   <action name="actionGo_to_pylabcontrol_GitHub_page">
    <property name="text">
-    <string>Go to pylabcontrol GitHub page</string>
+    <string>Report issue on pylabcontrol GitHub</string>
+   </property>
+   <property name="shortcut">
+    <string/>
    </property>
   </action>
  </widget>

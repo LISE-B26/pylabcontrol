@@ -385,6 +385,7 @@ class Ui_MainWindow(object):
         self.actionExport = QtWidgets.QAction(MainWindow)
         self.actionExport.setObjectName("actionExport")
         self.actionGo_to_pylabcontrol_GitHub_page = QtWidgets.QAction(MainWindow)
+        self.actionGo_to_pylabcontrol_GitHub_page.setShortcut("")
         self.actionGo_to_pylabcontrol_GitHub_page.setObjectName("actionGo_to_pylabcontrol_GitHub_page")
         self.menuFile.addAction(self.actionExport)
         self.menuFile.addAction(self.actionSave)
@@ -448,5 +449,5 @@ class Ui_MainWindow(object):
         self.btn_test_2.setText(_translate("MainWindow", "test"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionExport.setText(_translate("MainWindow", "Convert script or instrument .py files to .b26 files"))
-        self.actionGo_to_pylabcontrol_GitHub_page.setText(_translate("MainWindow", "Go to pylabcontrol GitHub page"))
+        self.actionGo_to_pylabcontrol_GitHub_page.setText(_translate("MainWindow", "Report issue on pylabcontrol GitHub"))
 
