@@ -123,6 +123,7 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
         else:
             self.setData(1, 0, self.value)
             self._visible = False
+
         self.setToolTip(1, str(self.info if isinstance(self.info, str) else ''))
 
         if self._visible is not None:
@@ -249,7 +250,7 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
                 return int(var)
             elif cast_type == float:
                 return float(var)
-            elif type == str:
+            elif cast_type == str:
                 return str(var)
             elif isinstance(cast_type, list):
                 # cast var to be of the same type as those in the list
