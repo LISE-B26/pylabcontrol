@@ -8,7 +8,8 @@ setup(
     name='pylabcontrol',
     version='0.1.0',
     package_dir={'pylabcontrol': ''},
-    packages=['pylabcontrol'],
+    packages=['pylabcontrol', 'pylabcontrol.src.gui', 'pylabcontrol.src.core', 'pylabcontrol.src.instruments',
+              'pylabcontrol.src.scripts', 'pylabcontrol.src.tools', 'pylabcontrol.src.data_processing'],
     url='https://github.com/LISE-B26/pylabcontrol',
     license='GPL',
     author='Arthur Safira, Jan Gieseler, and Aaron Kabcenell',
@@ -27,11 +28,13 @@ setup(
         'matplotlib',
         'pandas',
         'numpy',
-        'scipy'
+        'scipy',
+        'pyyaml',
+        'PyQt5',
     ],
     test_suite='nose.collector',
     tests_require=['nose'],
     entry_points={
-        'console_scripts': ['launch_pylabcontrol = pylabcontrol.src.gui.run_gui:run_gui']
+        'console_scripts': ['pylabcontrol = pylabcontrol.src.gui.run_gui:run_gui']
     }
 )
