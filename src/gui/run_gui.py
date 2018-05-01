@@ -29,6 +29,10 @@ def run_gui(fname = 'C:\\Users\Experiment\PycharmProjects\\user_data\\pythonlab_
     # fname = 'c:\\b26_tmp\\pythonlab_config_dummy.b26'
     # fname = 'c:\\b26_tmp\\pythonlab_config3a.b26'
     fname = '/Users/ASafira/PycharmProjects/config_settings/Untitled.b26'
+
+    #todo: load pathinfo from pylabcontrol main directory
+    # get_config_value('SMC100_DLL_PATH',
+                     # os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.txt'))
     # 'C:\Users\Experiment\PycharmProjects\user_data\pythonlab_only.b26'
 
     try:
