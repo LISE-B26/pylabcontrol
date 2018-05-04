@@ -755,7 +755,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
             if dialog.exec_():
                 self.gui_settings['instrument_folder'] = str(dialog.txt_probe_log_path.text())
-                instruments = dialog.getValues()
+                instruments = dialog.get_values()
                 added_instruments = set(instruments.keys()) - set(self.instruments.keys())
                 removed_instruments = set(self.instruments.keys()) - set(instruments.keys())
                 # print('added_instruments', {name: instruments[name] for name in added_instruments})
