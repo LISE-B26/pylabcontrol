@@ -57,7 +57,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'PyLabControl'
+project = u'pylabcontrol'
 copyright = u'2016, Arthur Safira, Jan Gieseler, Aaron Kabcenell'
 author = u'Arthur Safira, Jan Gieseler, Aaron Kabcenell'
 

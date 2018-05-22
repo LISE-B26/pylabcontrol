@@ -1,24 +1,24 @@
 
-# This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+# This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
 #
-# PyLabControl is free software: you can redistribute it and/or modify
+# pylabcontrol is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# PyLabControl is distributed in the hope that it will be useful,
+# pylabcontrol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
 class Parameter(dict):
-    def __init__(self, name, value = None, valid_values = None, info = None, visible = False):
+    def __init__(self, name, value=None, valid_values=None, info=None, visible=False):
         """
 
         Parameter(name, value, valid_values, info)
@@ -53,10 +53,10 @@ class Parameter(dict):
             assert self.is_valid(value, valid_values)
 
             if isinstance(value, list) and isinstance(value[0], Parameter):
-                self._valid_values = {name: {k: v for d in value for k, v in d.valid_values.iteritems()}}
-                self.update({name: {k: v for d in value for k, v in d.iteritems()}})
-                self._info = {name: {k: v for d in value for k, v in d.info.iteritems()}}
-                self._visible = {name: {k: v for d in value for k, v in d.visible.iteritems()}}
+                self._valid_values = {name: {k: v for d in value for k, v in d.valid_values.items()}}
+                self.update({name: {k: v for d in value for k, v in d.items()}})
+                self._info = {name: {k: v for d in value for k, v in d.info.items()}}
+                self._visible = {name: {k: v for d in value for k, v in d.visible.items()}}
 
             else:
                 self._valid_values = {name: valid_values}
@@ -70,7 +70,7 @@ class Parameter(dict):
             self._info = {}
             self._visible = {}
             if isinstance(name, dict):
-                for k, v in name.iteritems():
+                for k, v in name.items():
                     # convert to Parameter if value is a dict
                     if isinstance(v, dict):
                         v = Parameter(v)
@@ -80,14 +80,13 @@ class Parameter(dict):
                     self._visible.update({k: visible})
             elif isinstance(name, list) and isinstance(name[0], Parameter):
                 for p in name:
-                    for k, v in p.iteritems():
+                    for k, v in p.items():
                         self._valid_values.update({k: p.valid_values[k]})
                         self.update({k: v})
                         self._info.update({k: p.info[k]})
                         self._visible.update({k: p.visible[k]})
             else:
                 raise TypeError('unknown input: ', name)
-
 
     def __setitem__(self, key, value):
         """
@@ -97,11 +96,13 @@ class Parameter(dict):
             value: dictionary value
 
         """
+
+        # print('AHHAHAH', self.valid_values)
         message = "{0} (of type {1}) is not in {2}".format(str(value), type(value), str(self.valid_values[key]))
         assert self.is_valid(value, self.valid_values[key]), message
 
         if isinstance(value, dict) and len(self)>0 and len(self) == len(self.valid_values):
-            for k, v in value.iteritems():
+            for k, v in value.items():
                     self[key].update({k:v})
         else:
             super(Parameter, self).__setitem__(key, value)
@@ -111,7 +112,7 @@ class Parameter(dict):
         updates the values of the parameter, just as a regular dictionary
         """
         for d in args:
-            for key, value in d.iteritems():
+            for (key, value) in d.items():
                 self.__setitem__(key, value)
 
     @property
@@ -164,7 +165,7 @@ class Parameter(dict):
             # assert value.keys() & valid_values.keys() == value.keys() # python 3 syntax
             assert set(value.keys()) & set(valid_values.keys()) == set(value.keys()) # python 2
             # valid = True
-            for k ,v in value.iteritems():
+            for k ,v in value.items():
                 valid = Parameter.is_valid(v, valid_values[k])
                 if valid ==False:
                     break
@@ -192,12 +193,12 @@ if __name__ == '__main__':
         ])
     ])
     print('asdad')
-    print(p['filter wheel'], type(p['filter wheel']))
+    print((p['filter wheel'], type(p['filter wheel'])))
 
 
     print('======')
     # print(p['filter wheel'].valid_values)
-    print(p.valid_values['filter wheel'])
+    print((p.valid_values['filter wheel']))
     #
     # p = Parameter({'a':1})
     # print(p)

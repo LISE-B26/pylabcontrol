@@ -1,25 +1,25 @@
-# This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+# This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
 #
-# PyLabControl is free software: you can redistribute it and/or modify
+# pylabcontrol is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# PyLabControl is distributed in the hope that it will be useful,
+# pylabcontrol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
 import inspect, os
-from PyLabControl.src.core import Instrument, Script, ScriptIterator
+from pylabcontrol.src.core import Instrument, Script, ScriptIterator
 from importlib import import_module
-from PyLabControl.src.core.helper_functions import module_name_from_path
+from pylabcontrol.src.core.helper_functions import module_name_from_path
 
 import glob
 
@@ -69,7 +69,7 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = False):
             classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj), 'info': inspect.getdoc(obj)} for name, obj in
                                inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)
                              and not obj in (Instrument, Script, ScriptIterator)})
-        except ImportError, e:
+        except ImportError:
             if verbose:
                 print('Could not import module', module)
 
@@ -94,25 +94,17 @@ def python_file_to_b26(list_of_python_files, target_folder, class_type, raise_er
 if __name__ == '__main__':
     # module = import_module('b26_toolkit.src.scripts.test_script')
     # print('JJJJJJ')
-
     # export scripts
     # source_folders = 'b26_toolkit'
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\scripts\\'
-    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts\\'
+    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\pylabcontrol\\src\\scripts\\'
     # # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
     # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
-
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments'
-    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\PyLabControl\\src\\scripts'
-    # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated'
-    #
-    # export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
-    #
     # # export instruments
     # source_folders = 'C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments\\'
     # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\instruments_auto_generated\\'
     # export(target_folder, source_folders=source_folders, class_type='instruments', raise_errors=False)
-    #
     # instruments_to_load = get_classes_in_folder('C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\src\\instruments\\', Instrument)
     #
     # print(instruments_to_load.keys())
@@ -130,7 +122,7 @@ if __name__ == '__main__':
 
     # import glob
     #
-    # from PyLabControl.src.core.helper_functions import module_name_from_path
+    # from pylabcontrol.src.core.helper_functions import module_name_from_path
     #
     #
     # for f in glob.glob(os.path.join(source_folders, "*.py")):

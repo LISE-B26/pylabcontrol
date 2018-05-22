@@ -1,18 +1,18 @@
-from PyQt4 import QtGui, QtCore
-from PyQt4.uic import loadUiType
-from PyLabControl.src.core import Script
+from PyQt5 import QtGui, QtCore
+from PyQt5.uic import loadUiType
+from pylabcontrol.src.core import Script
 
 import os.path
 import numpy as np
 import json as json
-from PyQt4.QtCore import QThread, pyqtSignal, QObject
+from PyQt5.QtCore import QThread, pyqtSignal, QObject
 
 from matplotlib.backends.backend_qt4agg import (NavigationToolbar2QT as NavigationToolbar)
-from qt_b26_gui import MatplotlibWidget
+from .qt_b26_gui import MatplotlibWidget
 import sys
 import glob
 import time
-import Queue
+import queue
 import scipy.optimize
 import pandas as pd
 from scipy.interpolate import UnivariateSpline
@@ -121,7 +121,7 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
             for d in data_esr:
                 data_esr_norm.append(d / np.mean(d))
 
-            self.x_range = range(0, len(data_esr_norm))
+            self.x_range = list(range(0, len(data_esr_norm)))
 
             self.status.emit('executing manual fitting')
             index = 0
@@ -161,9 +161,9 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
                             self.plotwidget.draw()
                         elif value == 'fit':
                             peak_vals = sorted(self.peak_vals, key = lambda tup: tup[1])
-                            y,x = zip(*peak_vals)
+                            y,x = list(zip(*peak_vals))
                             f = UnivariateSpline(np.array(x),np.array(y))
-                            x_range = range(0,len(data_esr_norm))
+                            x_range = list(range(0,len(data_esr_norm)))
                             self.plotwidget.axes.plot(f(x_range), x_range)
                             self.plotwidget.draw()
                         elif value == 'prev':
@@ -190,7 +190,7 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
         self.statusbar.showMessage(str)
 
     def start_fitting(self):
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
         self.peak_vals = []
         self.interps = []
         self.fit_thread = QThread() #must be assigned as an instance variable, not local, as otherwise thread is garbage

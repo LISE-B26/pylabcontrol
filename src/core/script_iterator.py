@@ -1,31 +1,32 @@
-    # This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+    # This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
     # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
     #
     #
-    # PyLabControl is free software: you can redistribute it and/or modify
+    # pylabcontrol is free software: you can redistribute it and/or modify
     # it under the terms of the GNU General Public License as published by
     # the Free Software Foundation, either version 3 of the License, or
     # (at your option) any later version.
     #
-    # PyLabControl is distributed in the hope that it will be useful,
+    # pylabcontrol is distributed in the hope that it will be useful,
     # but WITHOUT ANY WARRANTY; without even the implied warranty of
     # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     # GNU General Public License for more details.
     #
     # You should have received a copy of the GNU General Public License
-    # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+    # along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from PyLabControl.src.core import Parameter, Script
+from pylabcontrol.src.core import Parameter, Script
 import numpy as np
 from PyQt5.QtCore import pyqtSlot
 from collections import deque
 import datetime
 import warnings
 import inspect
-# import PyLabControl.src.core.helper_functions as hf
-from PyLabControl.src.core import helper_functions as hf
+# import pylabcontrol.src.core.helper_functions as hf
+from pylabcontrol.src.core import helper_functions as hf
 import importlib
+from functools import reduce
 
 class ScriptIterator(Script):
     '''
@@ -84,7 +85,6 @@ Script.
             elif 'num_loops' in script_settings:
                 iterator_type = 'loop'
             else:
-                print(script_settings)
                 raise TypeError('unknown iterator type')
 
         return iterator_type
@@ -109,9 +109,9 @@ Script.
                                                'N/value_step'] + 1, endpoint=True).tolist()
             return param_values
 
-        script_names = self.settings['script_order'].keys()
+        script_names = list(self.settings['script_order'].keys())
         script_indices = [self.settings['script_order'][name] for name in script_names]
-        _, sorted_script_names = zip(*sorted(zip(script_indices, script_names)))
+        _, sorted_script_names = list(zip(*sorted(zip(script_indices, script_names))))
 
         if self.iterator_type == 'sweep':
 
@@ -205,29 +205,29 @@ Script.
                     if self._abort:
                         break
 
-                    for key in data.keys():
+                    for key in list(data.keys()):
 
                         # can't add None values
                         if not data[key] is None:
                             # if subscript data have differnet length, e.g. fitparameters can be differet, depending on if there is one or two peaks
                             if len(self.data[key]) != len(data[key]):
-                                print('warning subscript data {:s} have different lengths'.format(key))
+                                print(('warning subscript data {:s} have different lengths'.format(key)))
                                 continue
 
                             if isinstance(self.data[key], list):
                                 self.data[key] += np.array(data[key])
                             elif isinstance(self.data[key], dict):
-                                self.data[key] = {x: self.data[key].get(x, 0) + data[key].get(x, 0) for x in self.data[key].keys()}
+                                self.data[key] = {x: self.data[key].get(x, 0) + data[key].get(x, 0) for x in list(self.data[key].keys())}
                             else:
                                 self.data[key] += data[key]
 
             if not self._abort and num_loops > 0:
                 # normalize data because we just kept adding the values
-                for key in data.keys():
+                for key in list(data.keys()):
                     if isinstance(self.data[key], list):
                         self.data[key] = np.array(self.data[key]) / num_loops
                     elif isinstance(self.data[key], dict):
-                        self.data[key] = {k:v/num_loops for k, v in self.data[key].iteritems()}
+                        self.data[key] = {k:v/num_loops for k, v in self.data[key].items()}
                     elif self.data[key] is None:
                         self.log('None type in data! check code')
                         pass
@@ -299,7 +299,7 @@ Script.
 
                 # ==== get typical duration of one loop iteration ======================
                 remaining_scripts = 0  # script that remain to be executed for the first time
-                for subscript_name, duration in self._current_subscript_stage['subscript_exec_duration'].iteritems():
+                for subscript_name, duration in self._current_subscript_stage['subscript_exec_duration'].items():
                     if duration.total_seconds() == 0.0:
                         remaining_scripts += 1
                     loop_execution_time += duration.total_seconds()
@@ -349,7 +349,7 @@ Script.
         self.updateProgress.emit(int(self.progress))
 
     def skip_next(self):
-        for script in self.scripts.itervalues():
+        for script in self.scripts.values():
             script.stop()
 
     @property
@@ -373,9 +373,9 @@ Script.
 
         if (self.is_running is False) and not (self.data == {} or self.data is None):
 
-            script_names = self.settings['script_order'].keys()
+            script_names = list(self.settings['script_order'].keys())
             script_indices = [self.settings['script_order'][name] for name in script_names]
-            _, sorted_script_names = zip(*sorted(zip(script_indices, script_names)))
+            _, sorted_script_names = list(zip(*sorted(zip(script_indices, script_names))))
 
             last_script = self.scripts[sorted_script_names[-1]]
 
@@ -386,9 +386,9 @@ Script.
             # catch error is _plot function doens't take optional data argument
             try:
                 last_script._plot(axes_list, self.data)
-            except TypeError, err:
-                print(warnings.warn('can\'t plot average script data because script.plot function doens\'t take data as optional argument. Plotting last data set instead'))
-                print(err.message)
+            except TypeError as err:
+                print((warnings.warn('can\'t plot average script data because script.plot function doens\'t take data as optional argument. Plotting last data set instead')))
+                print((err.message))
                 last_script.plot(figure_list)
 
 
@@ -438,7 +438,7 @@ Script.
         script_order_parameter = []
         script_execution_freq = []
         # update the script order
-        for sub_script_name in script_order.keys():
+        for sub_script_name in list(script_order.keys()):
             script_order_parameter.append(Parameter(sub_script_name, script_order[sub_script_name], int,
                                           'Order in queue for this script'))
 
@@ -489,7 +489,7 @@ Script.
                 if valid_values is None and isinstance(dic, Parameter):
                     valid_values = dic.valid_values
 
-                for key, value in dic.iteritems():
+                for key, value in dic.items():
                     if isinstance(value, dict):  # for nested parameters ex {point: {'x': int, 'y': int}}
                         parameter_list = get_parameter_from_dict(trace + '.' + key, value, parameter_list,
                                                                  dic.valid_values[key])
@@ -498,12 +498,12 @@ Script.
                         parameter_list.append(trace + '.' + key)
                     else:  # once down to the form {key: value}
                         # in all other cases ignore parameter
-                        print('ignoring sweep parameter', key)
+                        print(('ignoring sweep parameter', key))
 
                 return parameter_list
 
-            for script_name in scripts.keys():
-                from PyLabControl.src.core import ScriptIterator
+            for script_name in list(scripts.keys()):
+                from pylabcontrol.src.core import ScriptIterator
                 script_trace = trace
                 if script_trace == '':
                     script_trace = script_name
@@ -546,7 +546,7 @@ Script.
                 Parameter('run_all_first', True, bool, 'Run all scripts with nonzero frequency in first pass')
             ]
         else:
-            print('unknown iterator type ' + iterator_type)
+            print(('unknown iterator type ' + iterator_type))
             raise TypeError('unknown iterator type ' + iterator_type)
 
         return script_default_settings
@@ -584,24 +584,26 @@ Script.
             '''
 
             if verbose:
-                print('script_information', script_information)
+                print(('script_information', script_information))
             sub_scripts = {}  # dictonary of script classes that are to be subscripts of the dynamic class. Should be in the dictionary form {'class_name': <class_object>} (btw. class_object is not the instance)
             script_order = []  # A list of parameters giving the order that the scripts in the ScriptIterator should be executed. Must be in the form {'script_name': int}. Scripts are executed from lowest number to highest
             script_execution_freq = [] # A list of parameters giving the frequency with which each script should be executed
             _, script_class_name, script_settings, _, script_sub_scripts, _, package = Script.get_script_information(script_information)
 
-            if not package in script_iterators:
+            if package not in script_iterators:
+                print('hi')
                 script_iterators.update(ScriptIterator.get_script_iterator(package))
+                print(script_iterators)
 
             assert package in script_iterators
 
             iterator_type = getattr(script_iterators[package], 'get_iterator_type')(script_settings, script_sub_scripts)
             if verbose:
-                print('iterator_type  JG', iterator_type)
+                print(('iterator_type  JG', iterator_type))
 
             if isinstance(script_information, dict):
 
-                for sub_script_name, sub_script_class in script_sub_scripts.iteritems():
+                for sub_script_name, sub_script_class in script_sub_scripts.items():
                     if isinstance(sub_script_class, Script):
                         # script already exists
 
@@ -616,18 +618,18 @@ Script.
                         # raise NotImplementedError # has to be dynamic maybe???
                         script_information_subclass,  script_iterators = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name], script_iterators)
                         subscript_class_name = script_information_subclass['class']
-                        # import PyLabControl.src.scripts
-                        import PyLabControl.src.core.script_iterator
-                        sub_scripts.update({sub_script_name: getattr(PyLabControl.src.core.script_iterator, subscript_class_name)})
+                        # import pylabcontrol.src.scripts
+                        import pylabcontrol.src.core.script_iterator
+                        sub_scripts.update({sub_script_name: getattr(pylabcontrol.src.core.script_iterator, subscript_class_name)})
                     else:
                         if verbose:
-                            print('script_sub_scripts[sub_script_name]', sub_script_class)
+                            print(('script_sub_scripts[sub_script_name]', sub_script_class))
 
                         # script_dict = {script_sub_scripts[sub_script_name]['class']}
                         module = Script.get_script_module(sub_script_class, verbose=verbose)
 
                         if verbose:
-                            print('module', module)
+                            print(('module', module))
                         new_subscript = getattr(module, script_sub_scripts[sub_script_name]['class'])
                         sub_scripts.update({sub_script_name: new_subscript})
 
@@ -637,7 +639,7 @@ Script.
 
                 sub_scripts.update(default_sub_scripts)
 
-                for k, v in default_script_settings.iteritems():
+                for k, v in default_script_settings.items():
                     if k in script_settings:
                         script_settings[k].update(v)
 
@@ -678,18 +680,18 @@ Script.
 
             if verbose:
                 print('\n\n======== create_script_iterator_class ========\n')
-                print('sub_scripts', sub_scripts)
-                print('script_settings', script_settings)
-                print('script_iterator_base_class', script_iterator_base_class)
+                print(('sub_scripts', sub_scripts))
+                print(('script_settings', script_settings))
+                print(('script_iterator_base_class', script_iterator_base_class))
 
-                print(script_iterator_base_class.__module__.split('.')[0])
+                print((script_iterator_base_class.__module__.split('.')[0]))
 
 
             class_name = script_iterator_base_class.__module__.split('.')[0] + '.dynamic_script_iterator' + str(script_iterator_base_class._number_of_classes)
 
 
             if verbose:
-                print('class_name', class_name)
+                print(('class_name', class_name))
 
             # If three parameters are passed to type(), it returns a new type object.
             # Three parameters to the type() function are:
@@ -700,23 +702,23 @@ Script.
             dynamic_class = type(class_name, (script_iterator_base_class,), {'_SCRIPTS': sub_scripts, '_DEFAULT_SETTINGS': script_settings, '_INSTRUMENTS': {}})
 
             if verbose:
-                print('dynamic_class', dynamic_class)
-                print('__bases__', dynamic_class.__bases__)
+                print(('dynamic_class', dynamic_class))
+                print(('__bases__', dynamic_class.__bases__))
 
-                print('dynamic_class.__name__', dynamic_class.__name__)
-                print('dynamic_class.__bases__', dynamic_class.__bases__)
-                print('dynamic_class.__dict__', dynamic_class.__dict__)
+                print(('dynamic_class.__name__', dynamic_class.__name__))
+                print(('dynamic_class.__bases__', dynamic_class.__bases__))
+                print(('dynamic_class.__dict__', dynamic_class.__dict__))
 
             # Now we place the dynamic script into the scope of src.scripts as regular scripts.
             setattr(script_iterator_module, class_name, dynamic_class)
 
             if verbose:
-                print('dynamic_class', dynamic_class)
-                print('__bases__', dynamic_class.__bases__)
+                print(('dynamic_class', dynamic_class))
+                print(('__bases__', dynamic_class.__bases__))
 
-                print('dynamic_class.__name__', dynamic_class.__name__)
-                print('dynamic_class.__bases__', dynamic_class.__bases__)
-                print('dynamic_class.__dict__', dynamic_class.__dict__)
+                print(('dynamic_class.__name__', dynamic_class.__name__))
+                print(('dynamic_class.__bases__', dynamic_class.__bases__))
+                print(('dynamic_class.__dict__', dynamic_class.__dict__))
 
             script_iterator_base_class._class_list.append(dynamic_class)
             script_iterator_base_class._number_of_classes += 1
@@ -751,9 +753,9 @@ Script.
             if verbose:
                 print('\n\n======== create_dynamic_script_class ========\n')
 
-                print('dynamic_class', dynamic_class)
-                print('sub_scripts', sub_scripts)
-                print('script_settings', script_settings)
+                print(('dynamic_class', dynamic_class))
+                print(('sub_scripts', sub_scripts))
+                print(('script_settings', script_settings))
 
         if verbose:
             print('\n======== end create_dynamic_script_class ========\n')
@@ -761,31 +763,27 @@ Script.
         return script_information, script_iterators
 
     @staticmethod
-    def get_script_iterator(package, verbose = False):
+    def get_script_iterator(package_name, verbose = False):
         """
-
-
         Args:
-            package: name of package
+            package_name: name of package
 
         Returns: the script_iterators of the package as a dictionary
 
         """
 
-        packs = hf.explore_package(package + '.src.core')
+        packs = hf.explore_package(package_name + '.src.core')
+        print(packs)
         script_iterator = {}
 
         for p in packs:
-
             for name, c in inspect.getmembers(importlib.import_module(p), inspect.isclass):
-
                 if verbose:
                     print(p, name, c)
 
                 if issubclass(c, ScriptIterator):
-                    # update dictionary with 'Package name , e.g. PyLabControl or b26_toolkit': <ScriptIterator_class>
+                    # update dictionary with 'Package name , e.g. pylabcontrol or b26_toolkit': <ScriptIterator_class>
                     script_iterator.update({c.__module__.split('.')[0]: c})
-
 
         return script_iterator
 
@@ -797,11 +795,11 @@ if __name__ == '__main__':
 
 
     # test get_script_iterator
-    package = 'PyLabControl'
+    package = 'pylabcontrol'
     # package = 'b26_toolkit'
 
     script_iterator = ScriptIterator.get_script_iterator(package, verbose = True)
-    print('script_iterator', script_iterator)
+    print(('script_iterator', script_iterator))
     #
     # inspect.getmembers(importlib.import_module(p), inspect.isclass)
     # script_iterator = importlib.import_module(script_iterator)
@@ -814,12 +812,12 @@ if __name__ == '__main__':
 
 
     #
-    # from PyLabControl.src.scripts.script_dummy import ScriptDummy
+    # from pylabcontrol.src.scripts.script_dummy import ScriptDummy
     # path_to_script_file = inspect.getmodule(ScriptDummy).__file__.replace('.pyc', '.py')
     #
     # iterator_type = 'Loop'# 'Iter Pts'
     #
-    # package = 'PyLabControl' #'b26_toolkit'
+    # package = 'pylabcontrol' #'b26_toolkit'
     #
     # script_info = {'iter_script':
     #                    {'info': 'Enter docstring here',

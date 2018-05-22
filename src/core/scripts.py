@@ -1,28 +1,28 @@
 
-# This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+# This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
 #
-# PyLabControl is free software: you can redistribute it and/or modify
+# pylabcontrol is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# PyLabControl is distributed in the hope that it will be useful,
+# pylabcontrol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
 from copy import deepcopy
 
-from PyLabControl.src.core.instruments import Instrument
-from PyLabControl.src.core.parameter import Parameter
-from PyLabControl.src.core.read_write_functions import save_b26_file, load_b26_file
-from PyLabControl.src.core.helper_functions import module_name_from_path
+from pylabcontrol.src.core.instruments import Instrument
+from pylabcontrol.src.core.parameter import Parameter
+from pylabcontrol.src.core.read_write_functions import save_b26_file, load_b26_file
+from pylabcontrol.src.core.helper_functions import module_name_from_path
 
 from collections import deque
 import os
@@ -35,7 +35,7 @@ from PyQt5.QtCore import pyqtSignal, QObject, pyqtSlot
 
 
 import numpy as np
-from __builtin__ import len as builtin_len
+from builtins import len as builtin_len
 from matplotlib.backends.backend_pdf import FigureCanvasPdf as FigureCanvas # use this to avoid error that plotting should only be done on main thread
 from matplotlib.figure import Figure
 from importlib import import_module
@@ -43,7 +43,7 @@ from importlib import import_module
 
 # cPickle module implements the same algorithm as pickle, in C instead of Python.
 # It is many times faster than the Python implementation, but does not allow the user to subclass from Pickle.
-import cPickle
+import pickle
 
 class Script(QObject):
     #This is the signal that will be emitted during the processing.
@@ -91,7 +91,7 @@ class Script(QObject):
 
         self.data_path = data_path
 
-        self.instruments = {key: instruments[key] for key in self._INSTRUMENTS.keys()}
+        self.instruments = {key: instruments[key] for key in list(self._INSTRUMENTS.keys())}
 
         self._scripts = {}
         if scripts is None:
@@ -164,13 +164,13 @@ class Script(QObject):
 
 
         if active:
-            for subscript_name in self._current_subscript_stage['subscript_exec_count'].keys():
+            for subscript_name in list(self._current_subscript_stage['subscript_exec_count'].keys()):
                 if subscript_name == current_subscript.name:
                     self._current_subscript_stage['subscript_exec_count'][subscript_name] += 1
             self._current_subscript_stage['current_subscript'] = current_subscript
         else:
             self._current_subscript_stage['current_subscript'] = current_subscript
-            for subscript_name in self._current_subscript_stage['subscript_exec_count'].keys():
+            for subscript_name in list(self._current_subscript_stage['subscript_exec_count'].keys()):
                 # calculate the average duration to execute the subscript
                 if subscript_name == current_subscript.name:
                     duration = current_subscript.end_time - current_subscript.start_time
@@ -243,7 +243,7 @@ class Script(QObject):
         output_string = '{:s} (class type: {:s})\n'.format(self.name, self.__class__.__name__)
 
         output_string += 'settings:\n'
-        for key, value in self.settings.iteritems():
+        for key, value in self.settings.items():
             output_string += "{:s} : {:s}\n".format(key, str(value))
         return output_string
 
@@ -256,7 +256,7 @@ class Script(QObject):
 
     @name.setter
     def name(self, value):
-        if isinstance(value, unicode):
+        if isinstance(value, str):
             value = str(value)
 
         assert isinstance(value, str), str(value) + ' is not a string'
@@ -272,8 +272,8 @@ class Script(QObject):
     def instruments(self, instrument_dict):
         assert isinstance(instrument_dict, dict)
         # checks if all the keys in _INSTRUMENTS are contained in instrument_dict
-        assert set(self._INSTRUMENTS.keys()) <= set(instrument_dict.keys()), "{:s}: needs instruments {:s} but received {:s}".format(self.name, str( self._INSTRUMENTS.keys()), str(instrument_dict.keys()))
-        for key, value in self._INSTRUMENTS.iteritems():
+        assert set(self._INSTRUMENTS.keys()) <= set(instrument_dict.keys()), "{:s}: needs instruments {:s} but received {:s}".format(self.name, str( list(self._INSTRUMENTS.keys())), str(list(instrument_dict.keys())))
+        for key, value in self._INSTRUMENTS.items():
             self._instruments.update({key: instrument_dict[key]})
 
 
@@ -287,9 +287,9 @@ class Script(QObject):
     @scripts.setter
     def scripts(self, script_dict):
         assert isinstance(script_dict, dict)
-        assert set(script_dict.keys()) == set(self._SCRIPTS.keys()), "{:s}: set subscripts {:s}, received {:s}".format(self.name, str(script_dict.keys()), str( self._SCRIPTS.keys()))
+        assert set(script_dict.keys()) == set(self._SCRIPTS.keys()), "{:s}: set subscripts {:s}, received {:s}".format(self.name, str(list(script_dict.keys())), str( list(self._SCRIPTS.keys())))
 
-        for key, value in self._SCRIPTS.iteritems():
+        for key, value in self._SCRIPTS.items():
             assert isinstance(script_dict[key], self._SCRIPTS[key])
             self._scripts.update({key: script_dict[key]})
 
@@ -316,11 +316,11 @@ class Script(QObject):
             self._settings.update(settings)
 
         if 'instruments' in settings:
-            for instrument_name, instrument_setting in settings['instruments'].iteritems():
+            for instrument_name, instrument_setting in settings['instruments'].items():
                 self.instruments[instrument_name]['settings'].update(instrument_setting['settings'])
 
         if 'scripts' in settings:
-            for script_name, script_setting in settings['scripts'].iteritems():
+            for script_name, script_setting in settings['scripts'].items():
                 self.scripts[script_name].update(script_setting)
 
     @property
@@ -400,7 +400,7 @@ class Script(QObject):
         }
 
         # update the datapath of the subscripts, connect their progress signal to the receive slot
-        for subscript in self.scripts.values():
+        for subscript in list(self.scripts.values()):
             subscript.data_path = os.path.join(self.filename(create_if_not_existing=False), self.SUBSCRIPT_DATA_DIR)
             subscript.updateProgress.connect(self._receive_signal)
             subscript.started.connect(lambda: self._set_current_subscript(True))
@@ -435,7 +435,7 @@ class Script(QObject):
         success = not self._abort
 
         # disconnect subscripts
-        for subscript in self.scripts.values():
+        for subscript in list(self.scripts.values()):
             subscript.started.disconnect()
             subscript.updateProgress.disconnect()
             subscript.finished.disconnect()
@@ -448,12 +448,12 @@ class Script(QObject):
         """
         stops itself and all the subscript
         """
-        for subscript in self.scripts.values():
+        for subscript in list(self.scripts.values()):
             subscript.stop()
-        print('--- stopping: ', self.name)
+        print(('--- stopping: ', self.name))
         self._abort = True
 
-    def validate(self):
+    def is_valid(self):
         """
         function to validate of the script parameters are valid:
          - check if the filename is too long (pandas can't write files if the total filepath is longer than 259 characters)
@@ -515,12 +515,12 @@ class Script(QObject):
 
         """
 
-        from PyLabControl.src.core.script_iterator import ScriptIterator
+        from pylabcontrol.src.core.script_iterator import ScriptIterator
 
 
         if 'script_iterator' in self.__module__.split('.'):
             # script iterator module is of the form
-            # 'PyLabControl.src.core.script_iterator.b26_toolkit.dynamic_script_iterator0'
+            # 'pylabcontrol.src.core.script_iterator.b26_toolkit.dynamic_script_iterator0'
             # and the class name if of the form package.dynamic_script_iterator0
             package = self.__class__.__name__.split('.')[0]
         else:
@@ -543,7 +543,7 @@ class Script(QObject):
 
         if self.scripts != {}:
             dictator[self.name].update({'scripts': {} })
-            for subscript_name, subscript in self.scripts.iteritems():
+            for subscript_name, subscript in self.scripts.items():
                 dictator[self.name]['scripts'].update(subscript.to_dict() )
 
         if self.instruments != {}:
@@ -554,7 +554,7 @@ class Script(QObject):
 
             dictator[self.name].update({'instruments': {
                 instrument_name: {'class': instrument['instance'].__class__.__name__, 'settings':instrument['settings']}
-                for instrument_name, instrument in self.instruments.iteritems()
+                for instrument_name, instrument in self.instruments.items()
             }})
 
         dictator[self.name]['settings'] = self.settings
@@ -607,11 +607,11 @@ class Script(QObject):
 
 
         if data_tag is None:
-            if len(set([len(v) for v in data.values()])) == 1 and set(
-                    [len(np.shape(data.values()[i])) for i in range(len(data.values()))]) == set([0, 1]):
+            if len(set([len(v) for v in list(data.values())])) == 1 and set(
+                    [len(np.shape(list(data.values())[i])) for i in range(len(list(data.values())))]) == set([0, 1]):
                 # if all entries of the dictionary are the same length and single column we can write the data into a single file
 
-                if len(np.shape(data.values()[0]))==1:
+                if len(np.shape(list(data.values())[0]))==1:
                     df = pd.DataFrame(data)
                 else:
                     df = pd.DataFrame.from_records([data])
@@ -619,14 +619,14 @@ class Script(QObject):
 
             else:
                 # otherwise, we write each entry into a separate file
-                for key, value in data.iteritems():
+                for key, value in data.items():
                     if len(value) == 0:
                         df = pd.DataFrame([value])
                     else:
-                        if isinstance(value, dict) and isinstance(value.values()[0], (int, float)):
+                        if isinstance(value, dict) and isinstance(list(value.values())[0], (int, float)):
                             # if dictionary values are single numbers
-                            df = pd.DataFrame.from_dict({k: [v] for k, v in value.iteritems()})
-                        elif isinstance(value, dict) and isinstance(value.values()[0], (list, np.ndarray)):
+                            df = pd.DataFrame.from_dict({k: [v] for k, v in value.items()})
+                        elif isinstance(value, dict) and isinstance(list(value.values())[0], (list, np.ndarray)):
                             # if dictionary values are lists or arrays
                             df = pd.DataFrame.from_dict(value)
                         else:
@@ -637,7 +637,7 @@ class Script(QObject):
 
         else:
             # save only the data for which a key has been provided
-            assert data_tag in data.keys()
+            assert data_tag in list(data.keys())
             value = data[data_tag]
             if len(value) == 0:
                 df = pd.DataFrame([value])
@@ -756,7 +756,7 @@ class Script(QObject):
         # if len(filename.split('\\\\?\\')) == 1:
         #     filename = '\\\\?\\' + filename
         with open(filename, 'w') as outfile:
-            outfile.write(cPickle.dumps(self.__dict__))
+            outfile.write(pickle.dumps(self.__dict__))
 
     @staticmethod
     def load(filename, instruments = None):
@@ -780,7 +780,7 @@ class Script(QObject):
         with open(filename, 'r') as infile:
             dataPickle = infile.read()
 
-        script_as_dict = cPickle.loads(dataPickle)
+        script_as_dict = pickle.loads(dataPickle)
         script_class = script_as_dict['_script_class']
 
         script_instance, _, updated_instruments = Script.load_and_append({'script': script_class}, instruments = instruments)
@@ -877,20 +877,21 @@ class Script(QObject):
         search_str = os.path.abspath(path)+'/*'+tag +'.b26'
         fname = glob.glob(search_str)
         if len(fname)>1:
-            print('warning more than one .b26 file found, loading ', fname[0])
+            print(('warning more than one .b26 file found, loading ', fname[0]))
         elif len(fname) == 0:
-            print('no .b26 file found in folder {:s},  check path !'.format(search_str))
+            print(('no .b26 file found in folder {:s},  check path !'.format(search_str)))
             return
         fname = fname[0]
         settings = load_b26_file(fname)['scripts']
 
-        if len(settings.keys()) == 1 and setttings_only:
-            settings = settings[settings.keys()[0]]['settings']
+        if len(list(settings.keys())) == 1 and setttings_only:
+            settings = settings[list(settings.keys())[0]]['settings']
 
         return settings
 
     @staticmethod
-    def load_and_append(script_dict, scripts = None, instruments = None, log_function = None, data_path = None, raise_errors = False, package = 'PyLabControl', verbose=False):
+    def load_and_append(script_dict, scripts=None, instruments=None, log_function=None, data_path=None,
+                        raise_errors=True, package='pylabcontrol', verbose=False):
         """
         load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
 
@@ -953,9 +954,8 @@ class Script(QObject):
         updated_instruments = {}
         updated_instruments.update(instruments)
 
-
         if verbose:
-            print('script_dict', script_dict)
+            print(('script_dict', script_dict))
 
         def get_instruments(class_of_script, script_instruments, instruments):
             """
@@ -970,16 +970,16 @@ class Script(QObject):
 
             """
 
-
             default_instruments = getattr(class_of_script, '_INSTRUMENTS')
             instrument_dict = {}
             instruments_updated = {}
             instruments_updated.update(instruments)
             # check if instruments needed by script already exist, if not create an instance
-            for instrument_name, instrument_class in default_instruments.iteritems():
+            for instrument_name, instrument_class in default_instruments.items():
                 # check if instruments needed by script already exist
-                instrument = [instance for name, instance in instruments_updated.iteritems() if
+                instrument = [instance for name, instance in instruments_updated.items() if
                               isinstance(instance, instrument_class) and name == instrument_name]
+
                 if len(instrument) == 0:
                     # create new instance of instrument
                     instruments_updated, __ = Instrument.load_and_append({instrument_name: instrument_class}, instruments_updated, raise_errors)
@@ -993,18 +993,16 @@ class Script(QObject):
 
                 # make a deepcopy of _DEFAULT_SETTINGS to get a parameter object
                 instrument_settings = deepcopy(instrument_instance._DEFAULT_SETTINGS)
+
                 #now update parameter object with new values
-
                 instrument_settings.update(instrument_settings_dict)
-
-
 
                 instrument_dict.update({instrument_name: {"instance":instrument_instance, "settings":instrument_settings}})
 
 
             return instrument_dict, instruments_updated
 
-        def get_sub_scripts(class_of_script, instruments, sub_scripts_dict):
+        def get_sub_scripts(class_of_script, instruments, sub_scripts_dict, log_function = None):
             """
 
             creates the dictionary with the sub scripts needed by the script and updates the instrument dictionary if new instruments are required
@@ -1022,10 +1020,13 @@ class Script(QObject):
             #
             # create instruments that script needs
             sub_scripts = {}
-            sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts, instruments, raise_errors)
+            sub_scripts, scripts_failed, instruments_updated = Script.load_and_append(default_scripts, sub_scripts,
+                                                                                      instruments,
+                                                                                      log_function=log_function,
+                                                                                      raise_errors=raise_errors)
             try:
                 if sub_scripts_dict is not None:
-                    for k, v in sub_scripts_dict.iteritems():
+                    for k, v in sub_scripts_dict.items():
                         #update settings, updates instrument and settings
                         sub_scripts[k].update(v)
             except TypeError: #if actually an object, as with dynamic scripts
@@ -1035,57 +1036,55 @@ class Script(QObject):
                 raise ImportError('script {:s}: failed to load subscripts'.format(class_of_script))
             return sub_scripts, instruments_updated
 
-        for script_name, script_info in script_dict.iteritems():
-
+        for script_name, script_info in script_dict.items():
 
             # check if script already exists
-            if script_name in scripts.keys():
-                print('WARNING: script {:s} already exists. Did not load!'.format(script_name))
+            if script_name in list(scripts.keys()):
+                print(('WARNING: script {:s} already exists. Did not load!'.format(script_name)))
                 load_failed[script_name] = ValueError('script {:s} already exists. Did not load!'.format(script_name))
             else:
-                module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info, package = package)
+                module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info, package=package)
                 # creates all dynamic scripts so they can be imported following the if statement
                 # if script_class_name == 'ScriptIterator':
                 if 'ScriptIterator' in script_class_name:
                     # creates all the dynamic classes in the script and the class of the script itself
                     # and updates the script info with these new classes
-                    from PyLabControl.src.core.script_iterator import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
+                    from pylabcontrol.src.core.script_iterator import ScriptIterator #CAUTION: imports ScriptIterator, which inherits from script. Local scope should avoid circular imports.
 
                     script_info, _ = ScriptIterator.create_dynamic_script_class(script_info)
 
                     # now get the info for the dynamically created class
                     module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_doc, package = Script.get_script_information(script_info)
                 if verbose:
-                    print('load_and_append.module', module)
-                    print('load_and_append.script_info', script_info)
-                    print('load_and_append.package', package)
+                    print(('load_and_append.module', module))
+                    print(('load_and_append.script_info', script_info))
+                    print(('load_and_append.package', package))
 
                 if module is None and inspect.isclass(script_info):
                     class_of_script = script_info
                 else:
                     class_of_script = getattr(module, script_class_name)
 
-
                 #  ========= create the instruments that are needed by the script =========
                 try:
                     script_instruments, updated_instruments = get_instruments(class_of_script, script_instruments, updated_instruments)
                 except Exception as err:
-                    print('loading script {:s} failed. Could not load instruments!'.format(script_name))
+                    print(('loading script {:s} failed. Could not load instruments!'.format(script_name)))
                     load_failed[script_name] = err
                     if raise_errors:
                         raise err
                     continue
                 #  ========= create the subscripts that are needed by the script =========
                 try:
-                    sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts)
+                    sub_scripts, updated_instruments = get_sub_scripts(class_of_script, updated_instruments, script_sub_scripts, log_function = log_function)
                 except Exception as err:
-                    print('loading script {:s} failed. Could not load subscripts!'.format(script_name))
+                    print(('loading script {:s} failed. Could not load subscripts!'.format(script_name)))
                     load_failed[script_name] = err
                     if raise_errors:
                         raise err
                     continue
 
-                #  ========= create the script if instruments and subscripts have been loaded succesfully =========
+                #  ========= create the script if instruments and subscripts have been loaded successfully =========
                 class_creation_string = ''
                 if script_instruments:
                     class_creation_string += ', instruments = script_instruments'
@@ -1100,14 +1099,14 @@ class Script(QObject):
                 class_creation_string = 'class_of_script(name=script_name{:s})'.format(class_creation_string)
 
                 if verbose:
-                    print('class_creation_string', class_creation_string)
-                    print('class_of_script', class_of_script)
-                    print('scripts', sub_scripts)
+                    print(('class_creation_string', class_creation_string))
+                    print(('class_of_script', class_of_script))
+                    print(('scripts', sub_scripts))
 
                 try:
                     script_instance = eval(class_creation_string)
                 except Exception as err:
-                    print('loading script {:s} failed. Could not create instance of scripts!'.format(script_name))
+                    print(('loading script {:s} failed. Could not create instance of script!'.format(script_name)))
                     load_failed[script_name] = err
                     if raise_errors:
                         raise err
@@ -1122,7 +1121,7 @@ class Script(QObject):
         return updated_scripts, load_failed, updated_instruments
 
     @staticmethod
-    def get_script_information(script_information, package='PyLabControl', verbose=False):
+    def get_script_information(script_information, package='pylabcontrol', verbose=False):
         """
         extracts all the relevant information from script_information and returns it as individual variables
         Args:
@@ -1130,7 +1129,7 @@ class Script(QObject):
                 - a dictionary
                 - a Script instance
                 - name of Script class
-            package (optional): name of the package to which the script belongs, i.e. PyLabControl or b26toolkit.
+            package (optional): name of the package to which the script belongs, i.e. pylabcontrol or b26toolkit.
                                 Only used when script_information is a string
         Returns:
             module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package
@@ -1176,7 +1175,7 @@ class Script(QObject):
 
         elif issubclass(script_information, Script):
             # watch out when testing this code from __main__, then classes might not be identified correctly because the path is different
-            # to avoid this problem call from PyLabControl.src.core import Script (otherwise the path to Script is __main__.Script)
+            # to avoid this problem call from pylabcontrol.src.core import Script (otherwise the path to Script is __main__.Script)
             script_class_name = script_information.__name__
             package = script_information.__module__.split('.')[0]
             module_path = script_information.__module__
@@ -1186,8 +1185,8 @@ class Script(QObject):
 
         # if the script has not been created yet, i.e. script_class_name: ScriptIteratorB26 or ScriptIterator
         if verbose:
-            print('script_filepath', script_filepath)
-            print('path_to_module', module_path)
+            print(('script_filepath', script_filepath))
+            print(('path_to_module', module_path))
 
         if script_filepath is not None:
             # scriptiterator loaded from file
@@ -1199,8 +1198,7 @@ class Script(QObject):
         # todo: now there is the prefix package
         if len(script_class_name.split('dynamic_script_iterator')) == 2 and \
                 script_class_name.split('dynamic_script_iterator')[1].isdigit():
-            print('got here!')
-            # package = 'PyLabControl' # all the dynamic iterator scripts are defined in the name space of PyLabControl
+            # package = 'pylabcontrol' # all the dynamic iterator scripts are defined in the name space of pylabcontrol
             # all the dynamic iterator scripts are defined in the name space of package.src.core.script_iterator
             # module = import_module(package + '.src.core.script_iterator')
             module_path = package
@@ -1210,20 +1208,29 @@ class Script(QObject):
         assert isinstance(module_path, str)  # in that case we should have defined a module_path to load the module
         assert module is None  # we haven't loaded the module yet
 
-        try:
-            module = import_module(module_path)
-        except ImportError:
-            pass
+        # try:
+        #     print(module_path)
+        #     module = import_module(module_path)
+        #     print(module)
+        # except ImportError:
+        #     pass
+        module = import_module(module_path)
         # check if module was found!
         if module is None or not hasattr(module, script_class_name):
-            print('Could not find the module that contains ' + script_class_name + ' in module ' + module_path)
+            import sys
+            print('here is the pythonpath')
+            for path in sys.path:
+                print(path)
+            import time
+            time.sleep(1)
+            print(('Could not find the module that contains ' + script_class_name + ' in module ' + module_path))
             raise ImportError('Could not find the module that contains ' + script_class_name + ' in module ' + module_path)
 
         # if the module has a name of type dynamic_script_iteratorX where X is a number the module is script iterator
         return module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package
 
     @staticmethod
-    def get_script_module(script_information, package='PyLabControl', verbose=False):
+    def get_script_module(script_information, package='pylabcontrol', verbose=False):
         """
         wrapper to get the module for a script
 
@@ -1232,7 +1239,7 @@ class Script(QObject):
                 - a dictionary
                 - a Script instance
                 - name of Script class
-            package (optional): name of the package to which the script belongs, i.e. PyLabControl or b26toolkit only used when script_information is a string
+            package (optional): name of the package to which the script belongs, i.e. pylabcontrol or b26toolkit only used when script_information is a string
         Returns:
             module
 
@@ -1295,7 +1302,7 @@ class Script(QObject):
         """
         pass
         # not sure if to raise a not implemented error or just give a warning. For now just warning
-        print('INFO: {:s} called _plot even though it is not implemented'.format(self.name))
+        print(('INFO: {:s} called _plot even though it is not implemented'.format(self.name)))
 
     def _update_plot(self, axes_list):
         """
@@ -1334,7 +1341,6 @@ class Script(QObject):
 
         # if plot function is called when script is not running we request a plot refresh
         if not self.is_running:
-            print(datetime.datetime.now().strftime("%B %d, %Y %H:%M:%S"), self.name, 'force refresh plot!!!')
             self._plot_refresh = True
 
         axes_list = self.get_axes_layout(figure_list)
@@ -1405,7 +1411,7 @@ if __name__ == '__main__':
     # sinfo = {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
     #                                          'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '',
     #                                                       'save': False, 'plot_style': 'main'},
-    #                                          'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'}
+    #                                          'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/pylabcontrol/src/scripts/script_dummy.py'}
     #
     # info = Script.get_script_information(sinfo, verbose=True)
     #

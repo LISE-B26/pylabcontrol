@@ -1,23 +1,23 @@
 
-# This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+# This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
 #
-# PyLabControl is free software: you can redistribute it and/or modify
+# pylabcontrol is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# PyLabControl is distributed in the hope that it will be useful,
+# pylabcontrol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from PyLabControl.src.core.probe import Probe
+from pylabcontrol.src.core.probe import Probe
 
 def instantiate_probes(probes, instruments):
     """
@@ -37,7 +37,7 @@ def instantiate_probes(probes, instruments):
      """
 
     probe_instances = {}
-    for name, sub_dict in probes.iteritems():
+    for name, sub_dict in probes.items():
         assert isinstance(sub_dict, dict)
         assert "probe_name" in sub_dict
         assert "instrument_name" in sub_dict
@@ -50,7 +50,7 @@ def instantiate_probes(probes, instruments):
         else:
             probe_info = ''
 
-        assert instrument_name in instruments, "{:s} not in {:s}".format(instrument_name, instruments.keys())
+        assert instrument_name in instruments, "{:s} not in {:s}".format(instrument_name, list(instruments.keys()))
         assert probe_name in instruments[instrument_name]._PROBES
 
         probe_instances.update({name: Probe(instruments[instrument_name], probe_name, name, probe_info)})
@@ -63,18 +63,18 @@ def instantiate_probes(probes, instruments):
 if __name__ == '__main__':
 
 # ======= test  instantiate_scripts =====
-    from PyLabControl.src.core.read_write_functions import load_b26_file
+    from pylabcontrol.src.core.read_write_functions import load_b26_file
     filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
     data = load_b26_file(filename)
 
-    print(data['scripts'])
+    print((data['scripts']))
     instruments = {}
     scripts = instantiate_scripts(data['scripts'], instruments)
     print(scripts)
 
 
 # # ======= test  instantiate_instruments =====
-#     from PyLabControl.src.core.read_write_functions import load_b26_file
+#     from pylabcontrol.src.core.read_write_functions import load_b26_file
 #     filename = "Z:\Lab\Cantilever\Measurements\\__tmp\\XX.b26"
 #     data = load_b26_file(filename)
 #

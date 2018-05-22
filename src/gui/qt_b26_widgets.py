@@ -1,19 +1,19 @@
 
-# This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+# This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
-# PyLabControl is free software: you can redistribute it and/or modify
+# pylabcontrol is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# PyLabControl is distributed in the hope that it will be useful,
+# pylabcontrol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 #Qvariant only need for gui
 
@@ -26,7 +26,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from PyLabControl.src.core import Parameter, Instrument, Script
+from pylabcontrol.src.core import Parameter, Instrument, Script
 
 
 # ======== B26QTreeItem ==========
@@ -64,8 +64,8 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
             self.ui_type = 'combo_box'
             self.combo_box = QtWidgets.QComboBox()
             for item in self.valid_values:
-                self.combo_box.addItem(unicode(item))
-            self.combo_box.setCurrentIndex(self.combo_box.findText(unicode(self.value)))
+                self.combo_box.addItem(str(item))
+            self.combo_box.setCurrentIndex(self.combo_box.findText(str(self.value)))
             self.treeWidget().setItemWidget(self, 1, self.combo_box)
             self.combo_box.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combo_box))
             self.combo_box.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -80,11 +80,11 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
             self._visible = False
 
         elif isinstance(self.value, Parameter):
-            for key, value in self.value.iteritems():
+            for key, value in self.value.items():
                 B26QTreeItem(self, key, value, self.value.valid_values[key], self.value.info[key])
 
         elif isinstance(self.value, dict):
-            for key, value in self.value.iteritems():
+            for key, value in self.value.items():
                 if self.valid_values == dict:
                     B26QTreeItem(self, key, value, type(value), '')
                 else:
@@ -95,27 +95,27 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
             top_level_item = self.treeWidget().topLevelItem(index_top_level_item)
             if top_level_item == self:
                 # instrument is on top level, thus we are in the instrument tab
-                for key, value in self.value.settings.iteritems():
+                for key, value in self.value.settings.items():
                     B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key])
             else:
                 self.valid_values = [self.value.name]
                 self.value = self.value.name
                 self.combo_box = QtWidgets.QComboBox()
                 for item in self.valid_values:
-                    self.combo_box.addItem(unicode(item))
-                self.combo_box.setCurrentIndex(self.combo_box.findText(unicode(self.value)))
+                    self.combo_box.addItem(item)
+                self.combo_box.setCurrentIndex(self.combo_box.findText(str(self.value)))
                 self.treeWidget().setItemWidget(self, 1, self.combo_box)
                 self.combo_box.currentIndexChanged.connect(lambda: self.setData(1, 2, self.combo_box))
                 self.combo_box.setFocusPolicy(QtCore.Qt.StrongFocus)
 
         elif isinstance(self.value, Script):
-            for key, value in self.value.settings.iteritems():
+            for key, value in self.value.settings.items():
                 B26QTreeItem(self, key, value, self.value.settings.valid_values[key], self.value.settings.info[key])
 
-            for key, value in self.value.instruments.iteritems():
+            for key, value in self.value.instruments.items():
                 B26QTreeItem(self, key, self.value.instruments[key],  type(self.value.instruments[key]), '')
 
-            for key, value in self.value.scripts.iteritems():
+            for key, value in self.value.scripts.items():
                 B26QTreeItem(self, key, self.value.scripts[key],  type(self.value.scripts[key]), '')
 
             self.info = self.value.__doc__
@@ -123,7 +123,8 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
         else:
             self.setData(1, 0, self.value)
             self._visible = False
-        self.setToolTip(1, unicode(self.info if isinstance(self.info, str) else ''))
+
+        self.setToolTip(1, str(self.info if isinstance(self.info, str) else ''))
 
         if self._visible is not None:
             self.check_show = QtWidgets.QCheckBox()
@@ -147,7 +148,7 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
             if self.ui_type == 'checkbox':
                 self.checkbox.setChecked(value)
             elif self.ui_type == 'combo_box':
-                self.combo_box.setCurrentIndex(self.combo_box.findText(unicode(self.value)))
+                self.combo_box.setCurrentIndex(self.combo_box.findText(str(self.value)))
             else:  # for standard values
                 self.setData(1, 0, value)
         else:
@@ -199,16 +200,16 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
         # if row 2 (editrole, value has been entered)
         if role == 2 and column == 1:
 
-            if isinstance(value, str) or isinstance(value, unicode):
+            if isinstance(value, str):
                 value = self.cast_type(value) # cast into same type as valid values
 
-            elif isinstance(value, QtCore.QVariant):
+            if isinstance(value, QtCore.QVariant):
                 value = self.cast_type(value.toString())  # cast into same type as valid values
 
-            elif isinstance(value, QtWidgets.QComboBox):
+            if isinstance(value, QtWidgets.QComboBox):
                 value = self.cast_type(value.currentText())
 
-            elif isinstance(value, QtWidgets.QCheckBox):
+            if isinstance(value, QtWidgets.QCheckBox):
                 value = bool(int(value.checkState()))  # checkState() gives 2 (True) and 0 (False)
 
             # save value in internal variable
@@ -249,14 +250,11 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
                 return int(var)
             elif cast_type == float:
                 return float(var)
-            elif type == str:
+            elif cast_type == str:
                 return str(var)
             elif isinstance(cast_type, list):
-                # get index of element that corresponds to Qstring value
-                if str(var) in [str(element) for element in cast_type]:
-                    return str(var)
-                else:
-                    raise ValueError('Tried to set value to one not in the list of valid values')
+                # cast var to be of the same type as those in the list
+                return type(cast_type[0])(var)
             else:
                 return None
         except ValueError:
@@ -266,9 +264,7 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
 
     def get_instrument(self):
         """
-
         Returns: the instrument and the path to the instrument to which this item belongs
-
         """
 
         if isinstance(self.value, Instrument):
@@ -286,7 +282,6 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
                     path_to_instrument.append(parent.name)
                     parent = parent.parent()
 
-        # path_to_instrument.reverse()
         return instrument, path_to_instrument
 
     def get_script(self):
@@ -337,7 +332,7 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
 
             subscript_item = subscript_item[0]
         else:
-            raise ValueError, 'several elements with name ' + sub_script_name
+            raise ValueError('several elements with name ' + sub_script_name)
 
 
         return subscript_item
@@ -377,8 +372,8 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
 
 if __name__ == '__main__':
 
-    # from PyLabControl.src.core import Instrument
-    # from PyLabControl.src.core.read_write_functions import load_b26_file
+    # from pylabcontrol.src.core import Instrument
+    # from pylabcontrol.src.core.read_write_functions import load_b26_file
     #
     #
     # # from file
@@ -402,7 +397,6 @@ if __name__ == '__main__':
     # print(p.valid_values)
     #
 
-
     print('- ---------- NEW -----------------')
     # new
     from b26_toolkit.src.instruments import MaestroLightControl
@@ -411,12 +405,12 @@ if __name__ == '__main__':
 
     sett = instruments['MaestroLightControl'].settings
     print('======')
-    print(sett['filter wheel'], type(sett['filter wheel']))
-    print(sett.valid_values['filter wheel'])
+    print((sett['filter wheel'], type(sett['filter wheel'])))
+    print((sett.valid_values['filter wheel']))
 
     p = instruments['MaestroLightControl'].settings['filter wheel']
     print('======')
-    print(p, type(p))
+    print((p, type(p)))
     # print(p.valid_values)
 
 

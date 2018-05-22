@@ -1,23 +1,23 @@
 
-# This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+# This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
 #
-# PyLabControl is free software: you can redistribute it and/or modify
+# pylabcontrol is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# PyLabControl is distributed in the hope that it will be useful,
+# pylabcontrol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from PyLabControl.src.core import Instrument, Parameter
+from pylabcontrol.src.core import Instrument, Parameter
 from PyQt5.QtCore import QThread
 import random, time
 import numpy as np
@@ -60,7 +60,7 @@ class DummyInstrument(Instrument):
         '''
         Instrument.update(self, settings)
 
-        for key, value in settings.iteritems():
+        for key, value in settings.items():
             if key == 'test1':
                 self._internal_state = value
 
@@ -75,7 +75,7 @@ class DummyInstrument(Instrument):
         Returns: reads values from instrument
 
         """
-        assert key in self._PROBES.keys()
+        assert key in list(self._PROBES.keys())
 
         import random
         if key == 'value1':
@@ -169,7 +169,7 @@ class Plant(Instrument, QThread):
         Returns: reads values from instrument
 
         """
-        assert key in self._PROBES.keys()
+        assert key in list(self._PROBES.keys())
 
         if key == 'output':
             value = self._output
@@ -213,7 +213,7 @@ class PIControler(Instrument):
         if key is None:
             super(PIControler, self).read_probes()
         else:
-            assert key in self._PROBES.keys(), "key assertion failed %s" % str(key)
+            assert key in list(self._PROBES.keys()), "key assertion failed %s" % str(key)
 
         return None
 
@@ -235,17 +235,17 @@ class PIControler(Instrument):
         time_step = self.settings['time_step']
 
         error_new = set_point - current_value
-        print('PD- error:\t', error_new, Ki, Kp, time_step)
+        print(('PD- error:\t', error_new, Ki, Kp, time_step))
         #proportional action
         self.u_P = Kp * error_new * time_step
-        print('PD- self.u_P:\t', self.u_P, self.u_I)
+        print(('PD- self.u_P:\t', self.u_P, self.u_I))
 
         #integral action
         self.u_I += Kp * Ki * (error_new + self.error) / 2.0 * time_step
 
         self.error = error_new
 
-        print('PD- self.u_P:\t', self.u_P, self.u_I)
+        print(('PD- self.u_P:\t', self.u_P, self.u_I))
 
         # anti-windup
         if self.u_P + self.u_I > output_range['max']:
@@ -255,14 +255,14 @@ class PIControler(Instrument):
 
 
         output = self.u_P + self.u_I
-        print('PD- output:\t', output)
+        print(('PD- output:\t', output))
         return output
 
 if __name__ == '__main__':
 
     d = Plant()
-    print(d.settings)
+    print((d.settings))
     for i in range(15):
         time.sleep(0.1)
-        print(d.read_probes('output'))
+        print((d.read_probes('output')))
     print('done')

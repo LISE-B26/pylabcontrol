@@ -48,7 +48,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>3</number>
+           <number>0</number>
           </property>
           <property name="tabsClosable">
            <bool>false</bool>
@@ -83,7 +83,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>send to dataset</string>
+                   <string>send to Datasets</string>
                   </property>
                  </widget>
                 </item>
@@ -514,7 +514,7 @@
           </widget>
           <widget class="QWidget" name="tab_data">
            <attribute name="title">
-            <string>Dataset</string>
+            <string>Datasets</string>
            </attribute>
            <layout class="QHBoxLayout" name="horizontalLayout_13">
             <item>
@@ -717,47 +717,31 @@
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="acceptDrops">
+     <bool>true</bool>
+    </property>
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="btn_exit"/>
-   </widget>
-   <widget class="QMenu" name="menuSettings">
-    <property name="title">
-     <string>Settings</string>
-    </property>
-    <addaction name="btn_load_gui"/>
+    <addaction name="actionExport"/>
+    <addaction name="actionSave"/>
     <addaction name="btn_save_gui"/>
+    <addaction name="btn_load_gui"/>
+    <addaction name="separator"/>
+    <addaction name="btn_exit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
     <addaction name="btn_about"/>
-   </widget>
-   <widget class="QMenu" name="btn_test">
-    <property name="title">
-     <string>test_button</string>
-    </property>
-    <addaction name="btn_test_2"/>
+    <addaction name="actionGo_to_pylabcontrol_GitHub_page"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuSettings"/>
    <addaction name="menuHelp"/>
-   <addaction name="btn_test"/>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QToolBar" name="toolBar">
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="separator"/>
   </widget>
   <action name="btn_exit">
    <property name="text">
@@ -766,12 +750,12 @@
   </action>
   <action name="btn_load_gui">
    <property name="text">
-    <string>load</string>
+    <string>Load</string>
    </property>
   </action>
   <action name="btn_save_gui">
    <property name="text">
-    <string>save</string>
+    <string>Save as</string>
    </property>
   </action>
   <action name="btn_about">
@@ -782,6 +766,24 @@
   <action name="btn_test_2">
    <property name="text">
     <string>test</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Convert script or instrument .py files to .b26 files</string>
+   </property>
+  </action>
+  <action name="actionGo_to_pylabcontrol_GitHub_page">
+   <property name="text">
+    <string>Report issue on pylabcontrol GitHub</string>
+   </property>
+   <property name="shortcut">
+    <string/>
    </property>
   </action>
  </widget>

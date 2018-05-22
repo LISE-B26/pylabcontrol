@@ -1,24 +1,22 @@
 
-    # This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+    # This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
     # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
     #
     #
-    # PyLabControl is free software: you can redistribute it and/or modify
+    # pylabcontrol is free software: you can redistribute it and/or modify
     # it under the terms of the GNU General Public License as published by
     # the Free Software Foundation, either version 3 of the License, or
     # (at your option) any later version.
     #
-    # PyLabControl is distributed in the hope that it will be useful,
+    # pylabcontrol is distributed in the hope that it will be useful,
     # but WITHOUT ANY WARRANTY; without even the implied warranty of
     # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     # GNU General Public License for more details.
     #
     # You should have received a copy of the GNU General Public License
-    # along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+    # along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, inspect
-# from importlib import import_module
-# from PyLabControl.src.core import Instrument, Script
+import os
 import datetime
 import pkgutil
 
@@ -28,15 +26,15 @@ def module_name_from_path(folder_name, verbose=False):
 
     the module is idenitified by
         the path being in os.path, e.g. if /Users/Projects/Python/ is in os.path,
-        then folder_name = '/Users/PycharmProjects/PyLabControl/src/scripts/script_dummy.pyc'
-        returns '/Users/PycharmProjects/' as the path and PyLabControl.src.scripts.script_dummy as the module
+        then folder_name = '/Users/PycharmProjects/pylabcontrol/src/scripts/script_dummy.pyc'
+        returns '/Users/PycharmProjects/' as the path and pylabcontrol.src.scripts.script_dummy as the module
 
     Args:
         folder_name: path to a file of the form
-        '/Users/PycharmProjects/PyLabControl/src/scripts/script_dummy.pyc'
+        '/Users/PycharmProjects/pylabcontrol/src/scripts/script_dummy.pyc'
 
     Returns:
-        module: a string of the form, e.g. PyLabControl.src.scripts.script_dummy ...
+        module: a string of the form, e.g. pylabcontrol.src.scripts.script_dummy ...
         path: a string with the path to the module, e.g. /Users/PycharmProjects/
 
     """
@@ -53,7 +51,7 @@ def module_name_from_path(folder_name, verbose=False):
     module = []
 
     if verbose:
-        print('folder_name', folder_name)
+        print(('folder_name', folder_name))
 
     # os_sys_path = os.sys.path
     #
@@ -85,7 +83,7 @@ def module_name_from_path(folder_name, verbose=False):
             break
 
         if verbose:
-            print('path', path, os.path.dirname(path))
+            print(('path', path, os.path.dirname(path)))
 
         # if path == os.path.dirname(path):
         #     if verbose:
@@ -95,7 +93,7 @@ def module_name_from_path(folder_name, verbose=False):
         #
 
         if verbose:
-            print('module', module)
+            print(('module', module))
 
 
     # OLD START
@@ -117,7 +115,7 @@ def module_name_from_path(folder_name, verbose=False):
     # OLD END
 
     if verbose:
-        print('module', module)
+        print(('module', module))
 
 
     # module = module[:-1]
@@ -199,6 +197,7 @@ def datetime_from_str(string):
 
     return datetime.datetime(year=2000+int(string[0:2]), month=int(string[2:4]), day=int(string[4:6]), hour=int(string[7:9]), minute=int(string[10:12]),second=int(string[13:15]))
 
+
 def explore_package(module_name):
     """
     returns all the packages in the module
@@ -212,32 +211,52 @@ def explore_package(module_name):
 
     packages = []
     loader = pkgutil.get_loader(module_name)
-    for sub_module in pkgutil.walk_packages([loader.filename]):
+    for sub_module in pkgutil.walk_packages([os.path.dirname(loader.get_filename())],
+                                            prefix=module_name + '.'):
         _, sub_module_name, _ = sub_module
-        qname = module_name + "." + sub_module_name
-        packages.append(qname)
-
-        packages = packages + explore_package(qname)
+        packages.append(sub_module_name)
 
     return packages
 
+
+    # packages = []
+    # for sub_module in pkgutil.iter_modules(module_name):
+    #     _, sub_module_name, _ = sub_module
+    #     print(sub_module_name)
+    #     break
+    #     qname = module_name + "." + sub_module_name
+    #     packages.append(qname)
+    #
+    #     packages = packages + explore_package(qname)
+    #
+    # return packages
+
 if __name__ == '__main__':
+    # print(pkgutil.get_loader('b26_toolkit.src.core').get_filename()[0:-12])
+    # packages = []
+    # for sub_module in pkgutil.walk_packages('b26_toolkit.src.core'):
+    #     _, sub_module_name, _ = sub_module
+    #     print(sub_module)
+    #     break
+    #     qname = module_name + "." + sub_module_name
+    #     packages.append(qname)
+    #
+    #     packages = packages + explore_package(qname)
 
     print(explore_package('b26_toolkit.src.core'))
 
 
-    # import b26_toolkit.src.core as whatevs
-    # print(whatevs.__file__)
+
 
 
 
 
     # explore_package(package)
-    # import PyLabControl
-    # x = inspect.getmoduleinfo('PyLabControl')
+    # import pylabcontrol
+    # x = inspect.getmoduleinfo('pylabcontrol')
     # print(x)
     #
-    # x = inspect.getmoduleinfo(PyLabControl)
+    # x = inspect.getmoduleinfo(pylabcontrol)
     #
     # inspect.isclass(object)
     # print(x)
@@ -252,7 +271,7 @@ if __name__ == '__main__':
     # for (module_loader, name, ispkg) in pkgutil.iter_modules([package]):
     #     print(name)
 
-    # from PyLabControl.src.core.script_iterator import ScriptIterator
+    # from pylabcontrol.src.core.script_iterator import ScriptIterator
     # for cls in ScriptIterator.__subclasses__():
     #     print(cls)
 
@@ -278,17 +297,17 @@ if __name__ == '__main__':
     # for x in os.sys.path:
     #     print(x)
     #
-    # folder_name = 'C://Users//Experiment//PycharmProjects//PyLabControl//src//core'
+    # folder_name = 'C://Users//Experiment//PycharmProjects//pylabcontrol//src//core'
     # print(module_name_from_path(folder_name))
     #
 
     # # test for scripts generated with export_default_scripts
-    # fp = '/Users/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'
+    # fp = '/Users/PycharmProjects/pylabcontrol/src/scripts/script_dummy.py'
     #
     # module, path = module_name_from_path(fp, verbose=False)
 
 
-    # fp = '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'
+    # fp = '/Users/rettentulla/PycharmProjects/pylabcontrol/src/scripts/script_dummy.py'
     #
     # module, path = module_name_from_path(fp, verbose=True)
     #
@@ -305,13 +324,13 @@ if __name__ == '__main__':
 
 
     # test
-    # fn= '/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py'
+    # fn= '/Users/rettentulla/PycharmProjects/pylabcontrol/src/scripts/script_dummy.py'
     # # fn = '/Users/rettentulla/'
     # print(get_python_package(fn))
 
 
 
-    # path = os.path.dirname('/Users/rettentulla/PycharmProjects/PyLabControl/src/scripts/script_dummy.py')
+    # path = os.path.dirname('/Users/rettentulla/PycharmProjects/pylabcontrol/src/scripts/script_dummy.py')
     #
     # path_array = []
     # while True:
@@ -338,7 +357,7 @@ if __name__ == '__main__':
 
 
     # test for getting the path of a module
-    # fp = '/Users/rettentulla/PycharmProjects/PyLabControl/src/gui'
+    # fp = '/Users/rettentulla/PycharmProjects/pylabcontrol/src/gui'
     #
     #
     # module, path = module_name_from_path(fp, verbose=False)

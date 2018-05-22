@@ -1,25 +1,25 @@
 
-# This file is part of PyLabControl, software for laboratory equipment control for scientific experiments.
+# This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.
 # Copyright (C) <2016>  Arthur Safira, Jan Gieseler, Aaron Kabcenell
 #
 #
-# PyLabControl is free software: you can redistribute it and/or modify
+# pylabcontrol is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# PyLabControl is distributed in the hope that it will be useful,
+# pylabcontrol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyLabControl.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from PyLabControl.src.core.instruments import Instrument
+from pylabcontrol.src.core.instruments import Instrument
 from collections import deque
-from PyLabControl.src.core.read_write_functions import save_b26_file
+from pylabcontrol.src.core.read_write_functions import save_b26_file
 
 class Probe(object):
 
@@ -177,7 +177,7 @@ class Probe(object):
         # =====  now we are sure that all the instruments that we need for the probes already exist
 
 
-        for instrument_name, probe_names in probe_dict.iteritems():
+        for instrument_name, probe_names in probe_dict.items():
             if not instrument_name in updated_probes:
                 updated_probes.update({instrument_name:{}})
 
@@ -205,12 +205,12 @@ if __name__ == '__main__':
         probe_dict=probe_dict,
         probes={},
         instruments=instruments)
-    print('fffff', probes_obj)
+    print(('fffff', probes_obj))
     # Probe.load_and_append(
     #     probe_dict={name: probes[name] for name in added_probes},
     #     probes=self.probes,
     #     instruments=self.instruments)
-    # # from PyLabControl.src.core import instantiate_instruments
+    # # from pylabcontrol.src.core import instantiate_instruments
     # instruments = {'inst_dummy': 'DummyInstrument'}
     #
     # instrument = instantiate_instruments(instruments)['inst_dummy']
