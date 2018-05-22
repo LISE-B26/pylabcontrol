@@ -35,7 +35,7 @@ def power_spectral_density(x, time_step, frequency_range = None):
     N = len(x)
     p = 2 * np.abs(np.fft.rfft(x)) ** 2 / N * time_step
 
-    f = np.fft.rfftfreq(N, dt)
+    f = np.fft.rfftfreq(N, time_step)
 
     if not frequency_range is None:
         assert len(frequency_range) == 2
