@@ -20,9 +20,10 @@
 import numpy as np
 
 
-def power_spectral_density(x, time_step, freq_range = None):
+def power_spectral_density(x, time_step, frequency_range = None):
     """
-    returns the power spectral density of the time trace x which is sampled at intervals time_step
+    returns the *single sided* power spectral density of the time trace x which is sampled at intervals time_step
+    i.e. integral over the the PSD from f_min~0 to f_max is equal to variance over x
     Args:
         x (array):  timetrace
         time_step (float): sampling interval of x
@@ -31,15 +32,20 @@ def power_spectral_density(x, time_step, freq_range = None):
     Returns:
 
     """
-    P = np.abs(np.fft.rfft(x))**2 * time_step**2 /len(x)
-    F = np.fft.rfftfreq(len(x), time_step)
+    N = len(x)
+    p = 2 * np.abs(np.fft.rfft(x)) ** 2 / N * time_step
 
-    if freq_range is not None:
-        brange = np.all([F>=freq_range[0], F<=freq_range[1]], axis = 0)
-        P = P[brange]
-        F = F[brange]
+    f = np.fft.rfftfreq(N, dt)
 
-    return F, P
+    if not frequency_range is None:
+        assert len(frequency_range) == 2
+        assert frequency_range[1] > frequency_range[0]
+
+        bRange = np.all([(f > frequency_range[0]), (f < frequency_range[1])], axis=0)
+        f = f[bRange]
+        p = p[bRange]
+
+    return f, p
 
 if __name__ == '__main__':
     l = 100
