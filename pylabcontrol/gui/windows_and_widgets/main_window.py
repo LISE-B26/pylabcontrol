@@ -19,7 +19,7 @@ from PyQt5.uic import loadUiType
 from pylabcontrol.core import Parameter, Instrument, Script, Probe
 from pylabcontrol.core.script_iterator import ScriptIterator
 from pylabcontrol.core.read_probes import ReadProbes
-from pylabcontrol.gui.windows_and_widgets import B26QTreeItem, LoadDialog, LoadDialogProbes
+from pylabcontrol.gui.windows_and_widgets import B26QTreeItem, MatplotlibWidget, LoadDialog, LoadDialogProbes
 from pylabcontrol.scripts.select_points import SelectPoints
 from pylabcontrol.core.read_write_functions import load_b26_file
 
@@ -29,9 +29,7 @@ import json as json
 from PyQt5.QtCore import QThread, pyqtSlot
 import webbrowser
 
-from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as Canvas,
-                                                NavigationToolbar2QT as NavigationToolbar)
-from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
 import datetime
 from collections import deque
@@ -1427,62 +1425,3 @@ class CustomEditorFactory(QtWidgets.QItemEditorFactory):
 
         else:
             return super(CustomEditorFactory, self).createEditor(type, QWidget)
-
-
-class MatplotlibWidget(Canvas):
-    """
-    MatplotlibWidget inherits PyQt5.QtWidgets.QWidget
-    and matplotlib.backend_bases.FigureCanvasBase
-
-    Options: option_name (default_value)
-    -------
-    parent (None): parent widget
-    title (''): figure title
-    xlabel (''): X-axis label
-    ylabel (''): Y-axis label
-    xlim (None): X-axis limits ([min, max])
-    ylim (None): Y-axis limits ([min, max])
-    xscale ('linear'): X-axis scale
-    yscale ('linear'): Y-axis scale
-    width (4): width in inches
-    height (3): height in inches
-    dpi (100): resolution in dpi
-    hold (False): if False, figure will be cleared each time plot is called
-
-    Widget attributes:
-    -----------------
-    figure: instance of matplotlib.figure.Figure
-    axes: figure axes
-
-    Example:
-    -------
-    self.widget = MatplotlibWidget(self, yscale='log', hold=True)
-    from numpy import linspace
-    x = linspace(-10, 10)
-    self.widget.axes.plot(x, x**2)
-    self.wdiget.axes.plot(x, x**3)
-    """
-    def __init__(self, parent=None):
-        self.figure = Figure(dpi=100)
-        Canvas.__init__(self, self.figure)
-        self.axes = self.figure.add_subplot(111)
-
-        self.canvas = self.figure.canvas
-        self.setParent(parent)
-
-        Canvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        Canvas.updateGeometry(self)
-
-    def sizeHint(self):
-        """
-        gives qt a starting point for widget size during window resizing
-        """
-        w, h = self.get_width_height()
-        return QtCore.QSize(w, h)
-
-    def minimumSizeHint(self):
-        """
-        minimum widget size during window resizing
-        Returns: QSize object that specifies the size of widget
-        """
-        return QtCore.QSize(10, 10)
