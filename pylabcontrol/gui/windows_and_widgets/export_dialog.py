@@ -24,13 +24,13 @@ from pylabcontrol.tools.export_default_v2 import find_scripts_in_python_files, p
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
-    # import external_modules.matplotlibwidget
-    Ui_Dialog, QDialog = loadUiType('import_window.ui') # with this we don't have to convert the .ui file into a python file!
+    ui_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'ui_files', 'import_window.ui'))
+    Ui_Dialog, QDialog = loadUiType(ui_file_path) # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
     from pylabcontrol.gui.compiled_ui_files import Ui_Dialog
     from PyQt5.QtWidgets import QMainWindow
     from PyQt5.QtWidgets import QDialog
-    print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!\n')
+    print('Warning: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!\n')
 
 
 class ExportDialog(QDialog, Ui_Dialog):
