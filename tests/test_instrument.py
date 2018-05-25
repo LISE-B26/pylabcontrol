@@ -18,7 +18,7 @@
 
 from unittest import TestCase
 
-from pylabcontrol.src.core import Instrument, Parameter
+from pylabcontrol.core import Instrument, Parameter
 
 
 class TestInstrument(TestCase):

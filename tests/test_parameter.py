@@ -19,7 +19,7 @@
 
 from unittest import TestCase
 from copy import deepcopy
-from pylabcontrol.src.core import Parameter
+from pylabcontrol.core import Parameter
 class TestParameter(TestCase):
 
 

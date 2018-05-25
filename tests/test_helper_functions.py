@@ -20,8 +20,8 @@
 from unittest import TestCase
 
 import os, inspect
-from pylabcontrol.src.core.helper_functions import module_name_from_path
-from pylabcontrol.src.scripts.script_dummy import ScriptDummy
+from pylabcontrol.core.helper_functions import module_name_from_path
+from pylabcontrol.scripts.script_dummy import ScriptDummy
 
 
 
@@ -43,5 +43,5 @@ class TestHelperFunctions(TestCase):
         module, path = module_name_from_path(filename, verbose=False)
 
 
-        assert module == 'pylabcontrol.src.scripts.script_dummy'
+        assert module == 'pylabcontrol.scripts.script_dummy'
         assert path == os.path.normpath(filename.split(package_name)[0])

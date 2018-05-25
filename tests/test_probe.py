@@ -17,7 +17,7 @@
 # along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from pylabcontrol.src.core import instantiate_instruments, Probe
+from pylabcontrol.core import instantiate_instruments, Probe
 
 class TestProbe(TestCase):
 

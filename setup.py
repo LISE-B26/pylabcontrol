@@ -8,13 +8,14 @@ setup(
     name='pylabcontrol',
     version='0.1.0',
     package_dir={'pylabcontrol': ''},
-    packages=['pylabcontrol', 'pylabcontrol.src.gui', 'pylabcontrol.src.core', 'pylabcontrol.src.instruments',
-              'pylabcontrol.src.scripts', 'pylabcontrol.src.tools', 'pylabcontrol.src.data_processing'],
+    packages=['pylabcontrol', 'pylabcontrol.gui', 'pylabcontrol.core', 'pylabcontrol.instruments',
+              'pylabcontrol.scripts', 'pylabcontrol.tools', 'pylabcontrol.data_processing'],
     url='https://github.com/LISE-B26/pylabcontrol',
     license='GPL',
     author='Arthur Safira, Jan Gieseler, and Aaron Kabcenell',
     author_email='',
     long_description=readme(),
+    long_description_content_type='text/markdown',
     description='Python Laboratory Control Software',
     keywords='laboratory control',
     classifiers=[
@@ -35,6 +36,6 @@ setup(
     test_suite='nose.collector',
     tests_require=['nose'],
     entry_points={
-        'console_scripts': ['pylabcontrol = pylabcontrol.src.gui.run_gui:run_gui']
+        'console_scripts': ['pylabcontrol = pylabcontrol.gui.run_gui:run_gui']
     }
 )

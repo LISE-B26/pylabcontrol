@@ -1,6 +1,6 @@
 import argparse
-from pylabcontrol.src.tools.export_default import export
-from pylabcontrol.src.gui.run_gui import run_gui
+from pylabcontrol.tools.export_default import export
+from pylabcontrol.gui.run_gui import run_gui
 
 def main():
 

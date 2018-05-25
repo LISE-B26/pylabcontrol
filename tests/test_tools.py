@@ -20,8 +20,8 @@
 from unittest import TestCase
 
 import os, inspect, shutil
-from pylabcontrol.src.tools.export_default import export
-from pylabcontrol.src.scripts.script_dummy import ScriptDummy
+from pylabcontrol.tools.export_default import export
+from pylabcontrol.scripts.script_dummy import ScriptDummy
 
 
 
