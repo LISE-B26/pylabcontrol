@@ -21,6 +21,7 @@ import os, inspect
 from importlib import import_module
 import platform
 
+
 def import_sub_modules(module_type):
     """
     imports all the module_type from additional modules that contain module_type
@@ -37,6 +38,7 @@ def import_sub_modules(module_type):
     module_list = [import_module(module_name + '.pylabcontrol.' + module_type) for module_name in module_list]
 
     return module_list
+
 
 def get_config_value(name, path_to_file='config.txt'):
     """
@@ -72,6 +74,7 @@ def get_config_value(name, path_to_file='config.txt'):
         config_value = [line.split(name)[1] for line in string_of_file_contents.split('\n')
                         if len(line.split(name)) > 1][0].strip()
         return config_value
+
 
 def load_b26_file(file_name):
     """
