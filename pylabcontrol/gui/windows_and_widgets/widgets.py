@@ -370,49 +370,5 @@ class B26QTreeItem(QtWidgets.QTreeWidgetItem):
 
 
 
-if __name__ == '__main__':
-
-    # from pylabcontrol.core import Instrument
-    # from pylabcontrol.core.read_write_functions import load_b26_file
-    #
-    #
-    # # from file
-    # file = 'C:\\Users\\Experiment\\PycharmProjects\\PythonLab\\b26_files\\instruments\\MaestroLightControl.b26'
-    #
-    # input = load_b26_file(file)['instruments']
-    #
-    # instruments = {}
-    # instruments, failed = Instrument.load_and_append(input, instruments)
-    # print(instruments)
-    #
-    #
-    # sett = instruments['MaestroLightControl'].settings
-    # print('======')
-    # print(sett['filter wheel'], type(sett['filter wheel']))
-    # print(sett.valid_values['filter wheel'])
-    #
-    # p = instruments['MaestroLightControl'].settings['filter wheel']
-    # print('======')
-    # print(p, type(p))
-    # print(p.valid_values)
-    #
-
-
-    print('- ---------- NEW -----------------')
-    # new
-    from b26_toolkit.b26_toolkit.instruments import MaestroLightControl
-
-    instruments = {'MaestroLightControl':MaestroLightControl()}
-
-    sett = instruments['MaestroLightControl'].settings
-    print('======')
-    print((sett['filter wheel'], type(sett['filter wheel'])))
-    print((sett.valid_values['filter wheel']))
-
-    p = instruments['MaestroLightControl'].settings['filter wheel']
-    print('======')
-    print((p, type(p)))
-    # print(p.valid_values)
-
 
 

@@ -22,15 +22,14 @@ from PyQt5.uic import loadUiType
 
 from pylabcontrol.core.read_write_functions import load_b26_file
 from pylabcontrol.core.helper_functions import get_python_package
-# from pylabcontrol.core import Parameter, Script
 import inspect
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
-    # import external_modules.matplotlibwidget
-    Ui_Dialog, QDialog = loadUiType('load_dialog.ui') # with this we don't have to convert the .ui file into a python file!
+    ui_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'ui_files', 'load_dialog.ui'))
+    Ui_Dialog, QDialog = loadUiType(ui_file_path) # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
-    from pylabcontrol.gui.load_dialog import Ui_Dialog
+    from pylabcontrol.gui.compuled_ui_files import Ui_Dialog
     from PyQt5.QtWidgets import QMainWindow
     from PyQt5.QtWidgets import QDialog
     print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!\n')
@@ -41,7 +40,7 @@ class LoadDialog(QDialog, Ui_Dialog):
 LoadDialog(intruments, scripts, probes)
     - type: either script, instrument or probe
     - loaded_elements: dictionary that contains the loaded elements
-ControlMainWindow(settings_file)
+MainWindow(settings_file)
     - settings_file is the path to a json file that contains all the settings for the old_gui
 Returns:
     """
@@ -306,21 +305,10 @@ if __name__ == '__main__':
     ex.show()
     ex.raise_()
 
-    print('asda')
     if ex.exec_():
         values = ex.get_values()
         print(values)
 
     sys.exit(app.exec_())
-
-    # from pylabcontrol.core.helper_functions import module_name_from_path
-    #
-    # base = '__main__'
-    # fp = os.path.dirname(sys.modules[base].__file__)
-    #
-    # m, p = module_name_from_path(fp, verbose=True)
-    # print('sys.modules[base]', m)
-    # print('path', p)
-
 
 

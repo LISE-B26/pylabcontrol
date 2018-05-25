@@ -1,6 +1,6 @@
 import argparse
 from pylabcontrol.tools.export_default import export
-from pylabcontrol.gui.run_gui import run_gui
+from pylabcontrol.gui.launch_gui import launch_gui
 
 def main():
 
@@ -38,6 +38,6 @@ def main():
     elif args.gui is not None:
 
         fname = args.gui
-        run_gui(fname)
+        launch_gui(fname)
     else:
         parser.print_help()

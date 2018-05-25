@@ -19,7 +19,7 @@ from PyQt5.uic import loadUiType
 from pylabcontrol.core import Parameter, Instrument, Script, Probe
 from pylabcontrol.core.script_iterator import ScriptIterator
 from pylabcontrol.core.read_probes import ReadProbes
-from pylabcontrol.gui import B26QTreeItem, LoadDialog, LoadDialogProbes
+from pylabcontrol.gui.windows_and_widgets import B26QTreeItem, LoadDialog, LoadDialogProbes
 from pylabcontrol.scripts.select_points import SelectPoints
 from pylabcontrol.core.read_write_functions import load_b26_file
 
@@ -31,9 +31,7 @@ import webbrowser
 
 from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as Canvas,
                                                 NavigationToolbar2QT as NavigationToolbar)
-from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
-import sys
 
 import datetime
 from collections import deque
@@ -49,7 +47,7 @@ try:
     Ui_MainWindow, QMainWindow = loadUiType('basic_application_window.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
-    from pylabcontrol.gui.basic_application_window import Ui_MainWindow
+    from gui.compiled_ui_files.basic_application_window import Ui_MainWindow
     from PyQt5.QtWidgets import QMainWindow
     print('Warning: on-the-fly conversion of basic_application_window.ui file failed, loaded .py file instead.\n')
 
@@ -63,7 +61,7 @@ class CustomEventFilter(QtCore.QObject):
         return QtWidgets.QWidget.eventFilter(QObject, QEvent)
 
 
-class ControlMainWindow(QMainWindow, Ui_MainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
 
     # application_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     # application_path = os.path.dirname(application_path) # go one level lower
@@ -87,21 +85,21 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(self, filename=None):
         """
-        ControlMainWindow(intruments, scripts, probes)
+        MainWindow(intruments, scripts, probes)
             - intruments: depth 1 dictionary where keys are instrument names and keys are instrument classes
             - scripts: depth 1 dictionary where keys are script names and keys are script classes
             - probes: depth 1 dictionary where to be decided....?
 
-        ControlMainWindow(settings_file)
+        MainWindow(settings_file)
             - settings_file is the path to a json file that contains all the settings for the old_gui
 
         Returns:
 
         """
 
-        print((self.startup_msg))
+        print(self.startup_msg)
         self.config_filename = None
-        super(ControlMainWindow, self).__init__()
+        super(MainWindow, self).__init__()
         self.setupUi(self)
 
         def setup_trees():
@@ -209,7 +207,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
         setup_trees()
 
         connect_controls()
-        if not os.path.exists(filename):
+        if filename is None or not os.path.exists(filename):
             dialog_dir = ''
 
             # set path to home path
@@ -218,7 +216,7 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
                     dialog_dir = os.environ[x]
 
             # set to path of requested file
-            if os.path.exists(os.path.dirname(filename)):
+            if filename and os.path.exists(os.path.dirname(filename)):
                 dialog_dir = filename
 
             # we use the save dialog here so that we can also create a new file (the default config)
@@ -1430,9 +1428,10 @@ class CustomEditorFactory(QtWidgets.QItemEditorFactory):
         else:
             return super(CustomEditorFactory, self).createEditor(type, QWidget)
 
+
 class MatplotlibWidget(Canvas):
     """
-    MatplotlibWidget inherits PyQt4.QtWidgets.QWidget
+    MatplotlibWidget inherits PyQt5.QtWidgets.QWidget
     and matplotlib.backend_bases.FigureCanvasBase
 
     Options: option_name (default_value)

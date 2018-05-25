@@ -1,17 +1,13 @@
 from PyQt5 import QtGui, QtCore
 from PyQt5.uic import loadUiType
-from pylabcontrol.core import Parameter, Instrument, Script, ReadProbes, Probe, ScriptIterator
-from pylabcontrol.gui import B26QTreeItem, LoadDialog, LoadDialogProbes
-from pylabcontrol.scripts.select_points import SelectPoints
-from pylabcontrol.core.read_write_functions import load_b26_file
+from pylabcontrol.core import Script
 
 import os.path
 import numpy as np
-import json as json
 from PyQt5.QtCore import QThread, pyqtSignal, QObject
 
-from matplotlib.backends.backend_qt4agg import (NavigationToolbar2QT as NavigationToolbar)
-from .qt_b26_gui import MatplotlibWidget
+from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
+from pylabcontrol.gui.windows_and_widgets import MatplotlibWidget
 import sys
 import glob
 import time
@@ -20,6 +16,7 @@ import scipy.optimize
 import pandas as pd
 
 Ui_MainWindow, QMainWindow = loadUiType('manual_fitting_window.ui') # with this we don't have to convert the .ui file into a python file!
+
 
 class FittingWindow(QMainWindow, Ui_MainWindow):
     """
@@ -348,8 +345,9 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
             self.data_filepath.setText(filename)
 
 
-app = QtGui.QApplication(sys.argv)
-ex = FittingWindow()
-ex.show()
-ex.raise_()
-sys.exit(app.exec_())
+if __name__ == '__main__':
+    app = QtGui.QApplication(sys.argv)
+    ex = FittingWindow()
+    ex.show()
+    ex.raise_()
+    sys.exit(app.exec_())

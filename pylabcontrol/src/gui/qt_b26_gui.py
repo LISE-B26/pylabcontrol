@@ -87,12 +87,12 @@ class ControlMainWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(self, filename=None):
         """
-        ControlMainWindow(intruments, scripts, probes)
+        MainWindow(intruments, scripts, probes)
             - intruments: depth 1 dictionary where keys are instrument names and keys are instrument classes
             - scripts: depth 1 dictionary where keys are script names and keys are script classes
             - probes: depth 1 dictionary where to be decided....?
 
-        ControlMainWindow(settings_file)
+        MainWindow(settings_file)
             - settings_file is the path to a json file that contains all the settings for the old_gui
 
         Returns:
