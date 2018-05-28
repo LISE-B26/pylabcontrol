@@ -108,4 +108,7 @@ Feel free to create an issue on the issue tracker if you find any bugs, or conta
 
 Fix: revert back to pyqt4 for things to work, with a command like: conda install -c anaconda pyqt=4.11.4
 
+## Funding
+PyLabControl has been partially funded by the European Union (H2020-MSCA-IF-2014 under REA grant Agreement No. 655369)
+![Marie Skłodowska-Curie Action](/docs/images/MC.png?raw=true "Marie Skłodowska-Curie Action")
 
