@@ -40,12 +40,13 @@ from functools import reduce
 
 
 # load the basic old_gui either from .ui file or from precompiled .py file
+print(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
 try:
     ui_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'ui_files', 'basic_application_window.ui'))
     Ui_MainWindow, QMainWindow = loadUiType(ui_file_path) # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
     # load precompiled old_gui, to complite run pyqt_uic basic_application_window.ui -o basic_application_window.py
-    from gui.compiled_ui_files.basic_application_window import Ui_MainWindow
+    from pylabcontrol.gui.compiled_ui_files.basic_application_window import Ui_MainWindow
     from PyQt5.QtWidgets import QMainWindow
     print('Warning: on-the-fly conversion of basic_application_window.ui file failed, loaded .py file instead.\n')
 

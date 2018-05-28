@@ -29,7 +29,7 @@ try:
     ui_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'ui_files', 'load_dialog.ui'))
     Ui_Dialog, QDialog = loadUiType(ui_file_path) # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
-    from pylabcontrol.gui.compuled_ui_files import Ui_Dialog
+    from pylabcontrol.gui.compiled_ui_files import Ui_Dialog
     from PyQt5.QtWidgets import QMainWindow
     from PyQt5.QtWidgets import QDialog
     print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!\n')

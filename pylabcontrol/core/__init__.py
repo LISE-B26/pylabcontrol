@@ -20,10 +20,3 @@ from pylabcontrol.core.instruments import Instrument
 from pylabcontrol.core.probe import Probe
 from pylabcontrol.core.scripts import Script
 from pylabcontrol.core.script_iterator import ScriptIterator
-# try:
-#     from read_probes import ReadProbes
-# except:
-#     pass
-#
-#
-# __all__ = ['Instrument', 'Parameter']
