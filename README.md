@@ -8,7 +8,7 @@ It
 +	visualizes experimental data utilizing the standard python [matplotlib](https://matplotlib.org/) library
 +	streamlines data acquisition, storage, and retrieval 
 
-pylabcontrol is built on python 3.6, with extensive use of pyQT5 for the general user interface.
+pylabcontrol is built on python 3.6, with extensive use of [PyQt5](https://riverbankcomputing.com/software/pyqt/intro) for the general user interface.
 It was built by Arthur Safira, Jan Gieseler, and Aaron Kabcenell in the Lukin Group at Harvard University. 
 It is distributed under the [GPLv3 license](https://en.wikipedia.org/wiki/GNU_General_Public_License). For more information, see the LICENSE.txt file.
 
