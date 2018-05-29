@@ -103,7 +103,7 @@ Feel free to create an issue on the issue tracker if you find any bugs, or conta
 
 ## Funding
 pylabcontrol has been partially funded by the European Union (H2020-MSCA-IF-2014 under REA grant Agreement No. 655369)
-![Marie Skłodowska-Curie Action](/docs/images/MCAlogo.png?raw=true "Marie Skłodowska-Curie Action")
-![Marie Skłodowska-Curie Action](/docs/images/flag_yellow_.png?raw=true "Marie Skłodowska-Curie Action")
+![Marie Skłodowska-Curie Action](/docs/images/MCAlogo.png?raw=true "Marie Skłodowska-Curie Action" height="200")
+![Marie Skłodowska-Curie Action](/docs/images/flag_yellow_.png?raw=true "Marie Skłodowska-Curie Action" height="200")
 
 
