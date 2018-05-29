@@ -8,13 +8,13 @@ It
 +	visualizes experimental data utilizing the standard python [matplotlib](https://matplotlib.org/) library
 +	streamlines data acquisition, storage, and retrieval 
 
-pylabcontrol is built on python 3.6.x, with extensive use of pyQT5 for the general user interface.
+pylabcontrol is built on python 3.6, with extensive use of pyQT5 for the general user interface.
 It was built by Arthur Safira, Jan Gieseler, and Aaron Kabcenell in the Lukin Group at Harvard University. 
 It is distributed under the [GPLv3 license](https://en.wikipedia.org/wiki/GNU_General_Public_License). For more information, see the LICENSE.txt file.
 
 ## Getting Started
-The software was developed and tested with python 3.6.x on 64-bit Windows 7. Prior to installation, install the latest 
-Anaconda distribution for python version 3.6.x, as it contains some extra dependencies this project utilizes.
+The software was developed and tested with python 3.6 on 64-bit Windows 7. Prior to installation, install the latest 
+Anaconda distribution for python version 3.6, as it contains some extra dependencies this project utilizes.
 You can find the latest Anaconda distribution [here](https://www.continuum.io/downloads). 
 
 ### Installation
@@ -22,7 +22,7 @@ There are two main ways to install pylabcontrol: via pip, the python package man
 github. The former is easier, while the latter gives more explicit access to the source code.
 
 #### Via pip (Beginner)
-The simplest way to install pyLabControl is with the command-line utility pip. To install simply issue the command
+The simplest way to install pylabcontrol is with the command-line utility pip. To install simply issue the command
 
 ```>>> pip install pylabcontrol```
 
@@ -74,7 +74,7 @@ Navigate to the 'Scripts' tab in the top left of the GUI, and press "Import Scri
 ![Load dialog](/docs/images/load_dialog.png?raw=true "Load dialog")
 Find the .b26 file you created, and be sure to the click and drag the Dummy Script to the left pane. Press Ok, and the script should be shown in the GUI. 
 
-The script loading dialog allows also to create iterator scripts. You can find more about iterator scripts [here.](docs/iterator_scripts.md)
+The script loading dialog also allows you to create "iterator" scripts, i.e., basic loops over preexisting scripts. You can find more about iterator scripts [here.](docs/iterator_scripts.md)
 
 #### Importing Instruments
 No instruments will be in the GUI the first time it is launched; instruments will have to separately be loaded in. 
