@@ -3,14 +3,12 @@ from setuptools import setup, find_packages
 setup(
     name='pylabcontrol',
     version='0.1a0',
-    packages=['pylabcontrol', 'pylabcontrol.gui', 'pylabcontrol.core', 'pylabcontrol.tools', 'pylabcontrol.scripts',
-              'pylabcontrol.instruments', 'pylabcontrol.data_processing', 'pylabcontrol.gui.windows_and_widgets',
-              'pylabcontrol.gui.compiled_ui_files'],
+    packages=find_packages(),
     package_data={'pylabcontrol': ['gui/ui_files/*ui']},
     url='https://github.com/LISE-B26/pylabcontrol',
     license='GPL',
     author='Arthur Safira, Jan Gieseler, and Aaron Kabcenell',
-    author_email='',
+    author_email='asafira@fas.harvard.edu',
     description='Python Laboratory Control Software',
     keywords='laboratory experiment control',
     classifiers=[
