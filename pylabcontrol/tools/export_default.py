@@ -221,7 +221,7 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
 
 if __name__ == '__main__':
 
-    source_folders = 'C:\\Users\Experiment\\PycharmProjects\\b26_toolkit\\pylabcontrol\\scripts'
+    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\pylabcontrol\\pylabcontrol\\scripts'
     target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
     export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
 

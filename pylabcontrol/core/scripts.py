@@ -1149,7 +1149,7 @@ class Script(QObject):
                 script_settings = script_information['settings']
             if 'filepath' in script_information:
                 script_filepath = str(script_information['filepath'])
-                module_path, _ = module_name_from_path(script_filepath)
+                module_path, _ = module_name_from_path(script_filepath, verbose = True)
             if 'package' in script_information:
                 package = script_information['package']
             else:

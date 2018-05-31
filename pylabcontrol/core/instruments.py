@@ -306,7 +306,7 @@ class Instrument(object):
                         instrument_settings = instrument_class_name['settings']
                     instrument_filepath = str(instrument_class_name['filepath'])
                     instrument_class_name = str(instrument_class_name['class'])
-                    path_to_module, _ = module_name_from_path(instrument_filepath)
+                    path_to_module, _ = module_name_from_path(instrument_filepath, verbose = True)
                     module = import_module(path_to_module)
                     class_of_instrument = getattr(module, instrument_class_name)
                     try:

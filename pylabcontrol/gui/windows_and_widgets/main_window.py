@@ -56,19 +56,15 @@ class CustomEventFilter(QtCore.QObject):
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-
-    # application_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    # application_path = os.path.dirname(application_path) # go one level lower
-    application_path = os.path.abspath(os.path.curdir)
+    application_path = os.path.abspath(os.path.join(os.path.expanduser("~"), 'pylabcontrol', 'user_data'))
 
     _DEFAULT_CONFIG = {
-        # "tmp_folder": "../../b26_tmp",
-        "data_folder": os.path.join(application_path, "user_data", "data"),
-        "probes_folder": os.path.join(application_path, "user_data", "probes_auto_generated"),
-        "instrument_folder": os.path.join(application_path, "user_data", "instruments_auto_generated"),
-        "scripts_folder": os.path.join(application_path, "user_data", "scripts_auto_generated"),
-        "probes_log_folder": os.path.join(application_path, "user_data", "b26_tmp"),
-        "settings_file": os.path.join(application_path, "user_data", "pythonlab_config")
+        "data_folder": os.path.join(application_path, "data"),
+        "probes_folder": os.path.join(application_path,"probes_auto_generated"),
+        "instrument_folder": os.path.join(application_path, "instruments_auto_generated"),
+        "scripts_folder": os.path.join(application_path, "scripts_auto_generated"),
+        "probes_log_folder": os.path.join(application_path, "b26_tmp"),
+        "settings_file": os.path.join(application_path, "pythonlab_config")
     }
 
 
@@ -209,7 +205,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     config_data = json.load(f)
                 if 'last_save_path' in config_data.keys():
                     self.config_filename = config_data['last_save_path']
-                    self.log('Found previous save of GUI here: {0}'.format(self.config_filename))
+                    self.log('Checking for previous save of GUI here: {0}'.format(self.config_filename))
                 else:
                     self.log('Could not find previous save of GUI here: {0}'.format(self.config_filename))
                     self.log('Starting with blank GUI')
@@ -1269,7 +1265,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             config['settings_file'] = filepath
         except Exception:
             if filepath:
-                print(('WARNING path to settings file ({:s}) invalid use default settings'.format(filepath)))
+                self.log('The filepath was invalid --- could not load settings. Loading blank GUI.')
             config = self._DEFAULT_CONFIG
 
 
@@ -1387,9 +1383,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             json.dump(dictator, outfile, indent=4)
 
         save_config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'save_config.json'))
-        print(save_config_path)
         if os.path.isfile(save_config_path) and os.access(save_config_path, os.R_OK):
-            with open(filepath, 'w') as outfile:
+            with open(save_config_path, 'w') as outfile:
                 json.dump({'last_save_path': filepath}, outfile, indent=4)
         else:
             with io.open(save_config_path, 'w') as save_config_file:

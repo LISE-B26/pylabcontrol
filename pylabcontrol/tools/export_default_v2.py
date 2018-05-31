@@ -96,7 +96,7 @@ if __name__ == '__main__':
     # print('JJJJJJ')
     # export scripts
     # source_folders = 'b26_toolkit'
-    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\pylabcontrol\\scripts\\'
+    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\scripts\\'
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\pylabcontrol\\pylabcontrol\\scripts\\'
     # # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
     # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
