@@ -19,11 +19,11 @@ from PyQt5 import QtWidgets
 from pylabcontrol.gui.windows_and_widgets.main_window import MainWindow
 
 
-def launch_gui(filename=None):
+def launch_gui(filepath=None):
     app = QtWidgets.QApplication(sys.argv)
 
     try:
-        ex = MainWindow(filename)
+        ex = MainWindow(filepath)
         ex.show()
         ex.raise_()
         sys.exit(app.exec_())
