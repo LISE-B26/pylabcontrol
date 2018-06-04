@@ -1090,21 +1090,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
 
         tree.model().removeRows(0, tree.model().rowCount())
-        def add_elemet(item, key, value):
+
+        def add_element(item, key, value):
             child_name = QtWidgets.QStandardItem(key)
-            # child_name.setDragEnabled(False)
-            # child_name.setSelectable(False)
-            # child_name.setEditable(False)
 
             if isinstance(value, dict):
                 for key_child, value_child in value.items():
-                    add_elemet(child_name, key_child, value_child)
+                    add_element(child_name, key_child, value_child)
                 item.appendRow(child_name)
             else:
                 child_value = QtWidgets.QStandardItem(str(value))
-                # child_value.setDragEnabled(False)
-                # child_value.setSelectable(False)
-                # child_value.setEditable(False)
 
                 item.appendRow([child_name, child_value])
 
@@ -1113,7 +1108,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if isinstance(value, dict):
                 item = QtWidgets.QStandardItem(key)
                 for sub_key, sub_value in value.items():
-                    add_elemet(item, sub_key, sub_value)
+                    add_element(item, sub_key, sub_value)
                 tree.model().appendRow(item)
             elif isinstance(value, str):
                 item = QtGui.QStandardItem(key)

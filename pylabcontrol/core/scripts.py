@@ -1141,7 +1141,7 @@ class Script(QObject):
         script_class_name = None
         module = None  # this is the module that contains the script where we look for scripts
         script_info = None # this is the docstring that describes the script
-        module_path = package + '.pylabcontrol.scripts'
+        module_path = package + '.scripts'
         script_filepath = None
 
         if isinstance(script_information, dict):
@@ -1160,7 +1160,7 @@ class Script(QObject):
 
             script_class_name = str(script_information['class'])
             if 'ScriptIterator' in script_class_name:
-                module_path = package + '.pylabcontrol.core.script_iterator'
+                module_path = package + '.core.script_iterator'
 
             if 'instruments' in script_information:
                 script_instruments = script_information['instruments']
@@ -1191,7 +1191,7 @@ class Script(QObject):
         if script_filepath is not None:
             # scriptiterator loaded from file
             if os.path.basename(script_filepath.split('.pyc')[0].split('.py')[0]) == 'script_iterator':
-                module_path = package + '.pylabcontrol.core.script_iterator'
+                module_path = package + '.core.script_iterator'
 
 
         # if the script has been created already, i.e. script_class_name: package.dynamic_script_iterator
@@ -1204,9 +1204,9 @@ class Script(QObject):
             module_path = package
 
         # the package should be the highest level of the module path
-        assert module_path.split('.')[0] == package
-        assert isinstance(module_path, str)  # in that case we should have defined a module_path to load the module
-        assert module is None  # we haven't loaded the module yet
+        # assert module_path.split('.')[0] == package
+        # assert isinstance(module_path, str)  # in that case we should have defined a module_path to load the module
+        # assert module is None  # we haven't loaded the module yet
 
         # try:
         #     print(module_path)
@@ -1214,7 +1214,8 @@ class Script(QObject):
         #     print(module)
         # except ImportError:
         #     pass
-        module = import_module(module_path)
+        print('module', module_path)
+        module = import_module('b26_toolkit.' + module_path)
         # check if module was found!
         if module is None or not hasattr(module, script_class_name):
             import sys

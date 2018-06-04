@@ -39,7 +39,7 @@ def get_classes_in_folder(folder_name, class_type, verbose=False):
         }
 
     """
-
+    print('folder', folder_name)
     assert class_type == Instrument or class_type == Script or class_type.lower() in ['instrument', 'script']
 
     if isinstance(class_type, str):
@@ -65,12 +65,13 @@ def get_classes_in_folder(folder_name, class_type, verbose=False):
     for subdir in subdirs:
         classes_dict.update(get_classes_in_folder(subdir, class_type))
 
-
     for python_file in [f for f in glob.glob(os.path.join(folder_name, "*.py"))if '__init__' not in f]:
         module, path = module_name_from_path(python_file)
 
         try:
-            module = import_module(module)
+            print('importing', module)
+            module = import_module('b26_toolkit.' + module)
+            print(module)
 
             classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
                                inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)
@@ -221,10 +222,10 @@ def export(target_folder, source_folders = None, class_type ='all', raise_errors
 
 if __name__ == '__main__':
 
-    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\pylabcontrol\\pylabcontrol\\scripts'
-    target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'
-    export(target_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
-
+    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\pylabcontrol\\pylabcontrol\\scripts'
+    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\instruments'
+    target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\instruments_auto_generated'
+    export(target_folder, source_folders=source_folders, class_type='instruments', raise_errors=True)
 
 
 

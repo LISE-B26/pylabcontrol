@@ -772,7 +772,7 @@ Script.
 
         """
 
-        packs = hf.explore_package(package_name + '.pylabcontrol.core')
+        packs = hf.explore_package(package_name + '.core')
         print(packs)
         script_iterator = {}
 

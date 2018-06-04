@@ -63,8 +63,8 @@ Returns:
         self.btn_select_none.clicked.connect(self.select_none)
         self.btn_export.clicked.connect(self.export)
 
-        self.source_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\scripts')))
-        self.target_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\..\\user_data\\scripts_auto_generated')))
+        self.source_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\scripts')))
+        self.target_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\..\\..\\user_data\\scripts_auto_generated')))
         self.reset_avaliable(self.source_path.text())
 
     def open_file_dialog(self):

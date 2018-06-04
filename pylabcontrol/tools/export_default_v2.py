@@ -64,7 +64,10 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = False):
         module, path = module_name_from_path(python_file)
 
         try:
-            module = import_module(module)
+            print('importing', module)
+            module = import_module('b26_toolkit.' + module)
+            print(module)
+
 
             classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj), 'info': inspect.getdoc(obj)} for name, obj in
                                inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)
@@ -87,7 +90,9 @@ def python_file_to_b26(list_of_python_files, target_folder, class_type, raise_er
     elif class_type == 'Instrument':
         loaded, failed = Instrument.load_and_append(list_of_python_files, raise_errors=raise_errors)
 
-    for name, value in loaded.iteritems():
+    print('loaded', loaded)
+
+    for name, value in loaded.items():
         filename = os.path.join(target_folder, '{:s}.b26'.format(name))
         value.save_b26(filename)
 
