@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>570</width>
+    <width>792</width>
     <height>512</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <rect>
      <x>340</x>
      <y>30</y>
-     <width>211</width>
+     <width>441</width>
      <height>161</height>
     </rect>
    </property>
@@ -39,7 +39,7 @@
   <widget class="QPushButton" name="btn_export">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>710</x>
      <y>470</y>
      <width>75</width>
      <height>23</height>
@@ -49,20 +49,26 @@
     <string>Export</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="text_error">
+  <widget class="QTextBrowser" name="text_error">
    <property name="geometry">
     <rect>
      <x>340</x>
      <y>220</y>
-     <width>211</width>
+     <width>441</width>
      <height>161</height>
     </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>2</horstretch>
+     <verstretch>2</verstretch>
+    </sizepolicy>
    </property>
   </widget>
   <widget class="QPushButton" name="btn_open_source">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>710</x>
      <y>410</y>
      <width>75</width>
      <height>23</height>
@@ -75,9 +81,9 @@
   <widget class="QLineEdit" name="source_path">
    <property name="geometry">
     <rect>
-     <x>52</x>
+     <x>50</x>
      <y>410</y>
-     <width>401</width>
+     <width>651</width>
      <height>20</height>
     </rect>
    </property>
@@ -113,7 +119,7 @@
     <rect>
      <x>50</x>
      <y>440</y>
-     <width>401</width>
+     <width>651</width>
      <height>20</height>
     </rect>
    </property>
@@ -121,7 +127,7 @@
   <widget class="QPushButton" name="btn_open_target">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>710</x>
      <y>440</y>
      <width>75</width>
      <height>23</height>

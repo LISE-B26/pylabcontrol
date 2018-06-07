@@ -22,7 +22,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from pylabcontrol.core import Parameter, Instrument, Script, Probe
 from pylabcontrol.core.script_iterator import ScriptIterator
 from pylabcontrol.core.read_probes import ReadProbes
-from pylabcontrol.gui.windows_and_widgets import B26QTreeItem, MatplotlibWidget, LoadDialog, LoadDialogProbes
+from pylabcontrol.gui.windows_and_widgets import B26QTreeItem, MatplotlibWidget, LoadDialog, LoadDialogProbes, ExportDialog
 from pylabcontrol.scripts.select_points import SelectPoints
 from pylabcontrol.core.read_write_functions import load_b26_file
 
@@ -56,19 +56,15 @@ class CustomEventFilter(QtCore.QObject):
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-
-    # application_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    # application_path = os.path.dirname(application_path) # go one level lower
-    application_path = os.path.abspath(os.path.curdir)
+    application_path = os.path.abspath(os.path.join(os.path.expanduser("~"), 'pylabcontrol', 'user_data'))
 
     _DEFAULT_CONFIG = {
-        # "tmp_folder": "../../b26_tmp",
-        "data_folder": os.path.join(application_path, "user_data", "data"),
-        "probes_folder": os.path.join(application_path, "user_data", "probes_auto_generated"),
-        "instrument_folder": os.path.join(application_path, "user_data", "instruments_auto_generated"),
-        "scripts_folder": os.path.join(application_path, "user_data", "scripts_auto_generated"),
-        "probes_log_folder": os.path.join(application_path, "user_data", "b26_tmp"),
-        "settings_file": os.path.join(application_path, "user_data", "pythonlab_config")
+        "data_folder": os.path.join(application_path, "data"),
+        "probes_folder": os.path.join(application_path,"probes_auto_generated"),
+        "instrument_folder": os.path.join(application_path, "instruments_auto_generated"),
+        "scripts_folder": os.path.join(application_path, "scripts_auto_generated"),
+        "probes_log_folder": os.path.join(application_path, "b26_tmp"),
+        "settings_file": os.path.join(application_path, "pythonlab_config")
     }
 
 
@@ -151,6 +147,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.btn_exit.triggered.connect(self.close)
 
             self.actionSave.triggered.connect(self.btn_clicked)
+            self.actionExport.triggered.connect(self.btn_clicked)
             self.actionGo_to_pylabcontrol_GitHub_page.triggered.connect(self.btn_clicked)
 
             self.btn_load_instruments.clicked.connect(self.btn_clicked)
@@ -209,7 +206,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     config_data = json.load(f)
                 if 'last_save_path' in config_data.keys():
                     self.config_filename = config_data['last_save_path']
-                    self.log('Found previous save of GUI here: {0}'.format(self.config_filename))
+                    self.log('Checking for previous save of GUI here: {0}'.format(self.config_filename))
                 else:
                     self.log('Could not find previous save of GUI here: {0}'.format(self.config_filename))
                     self.log('Starting with blank GUI')
@@ -241,6 +238,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.chk_show_all.setChecked(True)
         self.actionSave.setShortcut(QtGui.QKeySequence.Save)
+        self.actionExport.setShortcut(self.tr('Ctrl+E'))
         self.list_history.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
     def closeEvent(self, event):
@@ -837,6 +835,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.save_config(self.config_filename)
         elif sender is self.actionGo_to_pylabcontrol_GitHub_page:
             webbrowser.open('https://github.com/LISE-B26/pylabcontrol')
+        elif sender is self.actionExport:
+            export_dialog = ExportDialog()
+            export_dialog.exec_()
 
     def _show_hide_parameter(self):
         """
@@ -1094,21 +1095,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
 
         tree.model().removeRows(0, tree.model().rowCount())
-        def add_elemet(item, key, value):
+
+        def add_element(item, key, value):
             child_name = QtWidgets.QStandardItem(key)
-            # child_name.setDragEnabled(False)
-            # child_name.setSelectable(False)
-            # child_name.setEditable(False)
 
             if isinstance(value, dict):
                 for key_child, value_child in value.items():
-                    add_elemet(child_name, key_child, value_child)
+                    add_element(child_name, key_child, value_child)
                 item.appendRow(child_name)
             else:
                 child_value = QtWidgets.QStandardItem(str(value))
-                # child_value.setDragEnabled(False)
-                # child_value.setSelectable(False)
-                # child_value.setEditable(False)
 
                 item.appendRow([child_name, child_value])
 
@@ -1117,7 +1113,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if isinstance(value, dict):
                 item = QtWidgets.QStandardItem(key)
                 for sub_key, sub_value in value.items():
-                    add_elemet(item, sub_key, sub_value)
+                    add_element(item, sub_key, sub_value)
                 tree.model().appendRow(item)
             elif isinstance(value, str):
                 item = QtGui.QStandardItem(key)
@@ -1269,7 +1265,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             config['settings_file'] = filepath
         except Exception:
             if filepath:
-                print(('WARNING path to settings file ({:s}) invalid use default settings'.format(filepath)))
+                self.log('The filepath was invalid --- could not load settings. Loading blank GUI.')
             config = self._DEFAULT_CONFIG
 
 
@@ -1387,9 +1383,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             json.dump(dictator, outfile, indent=4)
 
         save_config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'save_config.json'))
-        print(save_config_path)
         if os.path.isfile(save_config_path) and os.access(save_config_path, os.R_OK):
-            with open(filepath, 'w') as outfile:
+            with open(save_config_path, 'w') as outfile:
                 json.dump({'last_save_path': filepath}, outfile, indent=4)
         else:
             with io.open(save_config_path, 'w') as save_config_file:
