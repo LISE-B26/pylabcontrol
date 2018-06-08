@@ -23,7 +23,7 @@ from pylabcontrol.core.helper_functions import module_name_from_path
 
 import glob
 
-def find_exportable_in_python_files(folder_name, class_type, verbose = False):
+def find_exportable_in_python_files(folder_name, class_type, verbose = True):
     """
     load all the instruments or script objects that are located in folder_name and
     return a dictionary with the script class name and path_to_python_file
@@ -59,8 +59,9 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = False):
     elif class_type.lower() == 'script':
         class_type = Script
 
+    print('files', [f for f in glob.glob(os.path.join(folder_name, "*.py"))if '__init__' not in f and 'setup' not in f])
+
     for python_file in [f for f in glob.glob(os.path.join(folder_name, "*.py"))if '__init__' not in f and 'setup' not in f]:
-        print('file', python_file)
         module, path = module_name_from_path(python_file)
 
         try:
@@ -69,9 +70,13 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = False):
             classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj), 'info': inspect.getdoc(obj)} for name, obj in
                                inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)
                              and not obj in (Instrument, Script, ScriptIterator)})
-        except ImportError:
+
+        except (ImportError, ModuleNotFoundError) as e:
+            print(e)
             if verbose:
                 print('Could not import module', module)
+
+    print('classes_dict', classes_dict)
 
     return classes_dict
 
@@ -87,7 +92,9 @@ def python_file_to_b26(list_of_python_files, target_folder, class_type, raise_er
     elif class_type == 'Instrument':
         loaded, failed = Instrument.load_and_append(list_of_python_files, raise_errors=raise_errors)
 
-    for name, value in loaded.iteritems():
+    print('loaded', loaded)
+
+    for name, value in loaded.items():
         filename = os.path.join(target_folder, '{:s}.b26'.format(name))
         value.save_b26(filename)
 
@@ -96,7 +103,7 @@ if __name__ == '__main__':
     # print('JJJJJJ')
     # export scripts
     # source_folders = 'b26_toolkit'
-    # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\pylabcontrol\\scripts\\'
+    source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\scripts\\'
     # source_folders = 'C:\\Users\\Experiment\\PycharmProjects\\pylabcontrol\\pylabcontrol\\scripts\\'
     # # target_folder = 'C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\'
     # target_folder = 'C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated'

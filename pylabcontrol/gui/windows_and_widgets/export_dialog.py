@@ -159,6 +159,8 @@ Returns:
             for error in split_errors:
                 if error[-3:] == '.py':
                     error = error.replace("\\", "/") #format paths to be opened
+                    # sets up hyperlink error with filepath as displayed text in hyperlink
+                    # in future, can use anchorClicked signal to call python function when link clicked
                     self.text_error.insertHtml("<a href = \"" + error + "\">" + error + "</a>")
                 else:
                     error = error.replace("\n", "<br>") #format newlines for HTML

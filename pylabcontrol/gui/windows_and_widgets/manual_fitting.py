@@ -15,7 +15,14 @@ import queue
 import scipy.optimize
 import pandas as pd
 
-Ui_MainWindow, QMainWindow = loadUiType('manual_fitting_window.ui') # with this we don't have to convert the .ui file into a python file!
+try:
+    ui_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'ui_files', 'manual_fitting_window.ui'))
+    Ui_MainWindow, QMainWindow = loadUiType(ui_file_path) # with this we don't have to convert the .ui file into a python file!
+except (ImportError, IOError):
+    from PyQt5.QtWidgets import QMainWindow
+    from PyQt5.QtWidgets import QDialog
+    print('Warning: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!\n')
+
 
 
 class FittingWindow(QMainWindow, Ui_MainWindow):

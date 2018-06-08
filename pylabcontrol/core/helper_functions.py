@@ -117,6 +117,9 @@ def module_name_from_path(folder_name, verbose=False):
     if verbose:
         print(('module', module))
 
+    #occurs if module not found in this path
+    if(not module):
+        raise ModuleNotFoundError('The path in the .b26 file to this package is not valid')
 
     # module = module[:-1]
     # print('mod', module)
@@ -138,7 +141,6 @@ def is_python_package(path):
 
         True if path points to a python package
     """
-
 
     return os.path.isfile(os.path.join(path, '__init__.py'))
 
