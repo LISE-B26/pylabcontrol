@@ -21,6 +21,7 @@ from PyQt5 import QtGui, QtWidgets
 from PyQt5.uic import loadUiType
 
 from pylabcontrol.tools.export_default_v2 import find_scripts_in_python_files, python_file_to_b26, find_instruments_in_python_files
+from pylabcontrol.core.helper_functions import get_python_package, module_name_from_path
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
@@ -63,8 +64,12 @@ Returns:
         self.btn_select_none.clicked.connect(self.select_none)
         self.btn_export.clicked.connect(self.export)
 
-        self.source_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\scripts')))
-        self.target_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\..\\..\\user_data\\scripts_auto_generated')))
+        # package = get_python_package(os.getcwd())
+        package, path = module_name_from_path(os.getcwd())
+        # self.source_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\scripts')))
+        # self.target_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\..\\..\\user_data\\scripts_auto_generated')))
+        self.source_path.setText(os.path.normpath(os.path.join(path + '\\' + package.split('.')[0] + '\\scripts')))
+        self.target_path.setText(os.path.normpath(os.path.join(path + '\\' + package.split('.')[0] + '\\user_data\\scripts_auto_generated')))
         self.reset_avaliable(self.source_path.text())
 
     def open_file_dialog(self):
@@ -146,7 +151,22 @@ Returns:
         if index != []:
             index = index[-1]
             name = str(index.model().itemFromIndex(index).text())
-            self.text_error.setText(self.error_array[name])
+            # self.text_error.setText(self.error_array[name])
+            self.text_error.setText('')
+            self.text_error.setOpenExternalLinks(True)
+            split_errors = self.error_array[name].split("\"")
+            #displays error message with HTML link to file where error occured, which opens in default python editor
+            for error in split_errors:
+                if error[-3:] == '.py':
+                    error = error.replace("\\", "/") #format paths to be opened
+                    # sets up hyperlink error with filepath as displayed text in hyperlink
+                    # in future, can use anchorClicked signal to call python function when link clicked
+                    self.text_error.insertHtml("<a href = \"" + error + "\">" + error + "</a>")
+                else:
+                    error = error.replace("\n", "<br>") #format newlines for HTML
+                    # would like to use insertPlainText here, but this is broken and ends up being inserted as more
+                    # HTML linked to the previous insertHtml, so need to insert this as HTML instead
+                    self.text_error.insertHtml(error)
             if(self.avaliable[name]['info'] == None):
                 self.text_info.setText('No information avaliable')
             else:

@@ -620,6 +620,7 @@ Script.
                         subscript_class_name = script_information_subclass['class']
                         # import pylabcontrol.scripts
                         import pylabcontrol.core.script_iterator
+                        print('here', script_information_subclass)
                         sub_scripts.update({sub_script_name: getattr(pylabcontrol.core.script_iterator, subscript_class_name)})
                     else:
                         if verbose:

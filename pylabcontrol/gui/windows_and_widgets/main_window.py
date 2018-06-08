@@ -22,7 +22,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from pylabcontrol.core import Parameter, Instrument, Script, Probe
 from pylabcontrol.core.script_iterator import ScriptIterator
 from pylabcontrol.core.read_probes import ReadProbes
-from pylabcontrol.gui.windows_and_widgets import B26QTreeItem, MatplotlibWidget, LoadDialog, LoadDialogProbes
+from pylabcontrol.gui.windows_and_widgets import B26QTreeItem, MatplotlibWidget, LoadDialog, LoadDialogProbes, ExportDialog
 from pylabcontrol.scripts.select_points import SelectPoints
 from pylabcontrol.core.read_write_functions import load_b26_file
 
@@ -147,6 +147,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.btn_exit.triggered.connect(self.close)
 
             self.actionSave.triggered.connect(self.btn_clicked)
+            self.actionExport.triggered.connect(self.btn_clicked)
             self.actionGo_to_pylabcontrol_GitHub_page.triggered.connect(self.btn_clicked)
 
             self.btn_load_instruments.clicked.connect(self.btn_clicked)
@@ -237,6 +238,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.chk_show_all.setChecked(True)
         self.actionSave.setShortcut(QtGui.QKeySequence.Save)
+        self.actionExport.setShortcut(self.tr('Ctrl+E'))
         self.list_history.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
     def closeEvent(self, event):
@@ -833,6 +835,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.save_config(self.config_filename)
         elif sender is self.actionGo_to_pylabcontrol_GitHub_page:
             webbrowser.open('https://github.com/LISE-B26/pylabcontrol')
+        elif sender is self.actionExport:
+            export_dialog = ExportDialog()
+            export_dialog.exec_()
 
     def _show_hide_parameter(self):
         """
