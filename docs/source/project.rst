@@ -1,4 +1,4 @@
-PythonLab
+pylabcontrol
 *********
 
 Temp Description
