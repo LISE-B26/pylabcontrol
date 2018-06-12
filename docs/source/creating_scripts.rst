@@ -9,10 +9,11 @@ To create a script, one must create a class that inherits from Script (pylabcont
 1. _DEFAULT_SETTINGS: class variable containing the settings for the script. This must be of Parameter type.
 2. _INSTRUMENTS: a dictionary whose key-value pairs are instrument names (strings) and the class names of Instruments
 3. _SCRIPTS: a dictionary whose key-value pairs are script names (strings) and the class names of Scripts
-4. _function: this is where the main script logic goes.
-5. _plot(): This is where you write the code that dictates how the script will plot data during its execution.
-6. _update_plot() (optional): This is where you write the code that dictates how the script will update an existing plot
+4. _function: function that contains the main logic of the script.
+5. _plot(): function that dictates how the script will plot data during its execution.
+6. _update_plot() (optional): function that dictates how the script will update an existing plot
  during its execution.
+7. self.data: dictionary containing the data
 
 Examples
 ========
@@ -35,6 +36,8 @@ _function()
 _plot()
 =====
 
+self.data
+=========
 
 The Progress Bar
 ================
