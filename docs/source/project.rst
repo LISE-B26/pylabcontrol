@@ -9,7 +9,7 @@ Overview of pylabcontrol.
 
 Architecture Specification
 ==========================
-Links here
+pylabcontrol runs off of
 
 API Specification
 =================

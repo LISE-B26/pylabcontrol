@@ -21,7 +21,7 @@ from unittest import TestCase
 
 import os, inspect
 from pylabcontrol.core.helper_functions import module_name_from_path
-from pylabcontrol.scripts.script_dummy import ScriptDummy
+from pylabcontrol.scripts.example_scripts import ExampleScript
 
 
 
@@ -36,7 +36,7 @@ class TestHelperFunctions(TestCase):
 
         package_name = 'pylabcontrol'
 
-        filename = inspect.getmodule(ScriptDummy).__file__
+        filename = inspect.getmodule(ExampleScript).__file__
         # check that file actually exists
         assert os.path.isfile(filename)
 

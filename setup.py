@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pylabcontrol',
-    version='0.1a0',
+    version='0.1a1',
     packages=find_packages(),
     package_data={'pylabcontrol': ['gui/ui_files/*ui']},
     url='https://github.com/LISE-B26/pylabcontrol',

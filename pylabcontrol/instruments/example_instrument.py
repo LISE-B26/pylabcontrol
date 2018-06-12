@@ -21,7 +21,7 @@ from pylabcontrol.core import Instrument, Parameter
 from PyQt5.QtCore import QThread
 import random, time
 import numpy as np
-class DummyInstrument(Instrument):
+class ExampleInstrument(Instrument):
     '''
     Dummy instrument
     a implementation of a dummy instrument
@@ -44,7 +44,7 @@ class DummyInstrument(Instrument):
 
     def __init__(self, name =  None, settings = None):
         self._test_variable = 1
-        super(DummyInstrument, self).__init__(name, settings)
+        super(ExampleInstrument, self).__init__(name, settings)
         self._internal_state = None
         self._internal_state_deep = None
 

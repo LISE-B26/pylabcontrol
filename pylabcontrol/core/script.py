@@ -19,7 +19,7 @@
 import datetime
 from copy import deepcopy
 
-from pylabcontrol.core.instruments import Instrument
+from pylabcontrol.core.instrument import Instrument
 from pylabcontrol.core.parameter import Parameter
 from pylabcontrol.core.read_write_functions import save_b26_file, load_b26_file
 from pylabcontrol.core.helper_functions import module_name_from_path
@@ -1412,7 +1412,7 @@ if __name__ == '__main__':
     # sinfo = {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
     #                                          'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '',
     #                                                       'save': False, 'plot_style': 'main'},
-    #                                          'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.py'}
+    #                                          'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/example_scripts.py'}
     #
     # info = Script.get_script_information(sinfo, verbose=True)
     #
