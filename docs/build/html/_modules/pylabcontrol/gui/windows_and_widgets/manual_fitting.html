@@ -1,0 +1,445 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pylabcontrol.gui.windows_and_widgets.manual_fitting &#8212; pylabcontrol 0.1a3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1a3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pylabcontrol.gui.windows_and_widgets.manual_fitting</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">PyQt5</span> <span class="k">import</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtCore</span>
+<span class="kn">from</span> <span class="nn">PyQt5.uic</span> <span class="k">import</span> <span class="n">loadUiType</span>
+<span class="kn">from</span> <span class="nn">pylabcontrol.core</span> <span class="k">import</span> <span class="n">Script</span>
+
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="k">import</span> <span class="n">QThread</span><span class="p">,</span> <span class="n">pyqtSignal</span><span class="p">,</span> <span class="n">QObject</span>
+
+<span class="kn">from</span> <span class="nn">matplotlib.backends.backend_qt4agg</span> <span class="k">import</span> <span class="n">NavigationToolbar2QT</span> <span class="k">as</span> <span class="n">NavigationToolbar</span>
+<span class="kn">from</span> <span class="nn">pylabcontrol.gui.windows_and_widgets</span> <span class="k">import</span> <span class="n">MatplotlibWidget</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">queue</span>
+<span class="kn">import</span> <span class="nn">scipy.optimize</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">ui_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">,</span> <span class="s1">&#39;ui_files&#39;</span><span class="p">,</span> <span class="s1">&#39;manual_fitting_window.ui&#39;</span><span class="p">))</span>
+    <span class="n">Ui_MainWindow</span><span class="p">,</span> <span class="n">QMainWindow</span> <span class="o">=</span> <span class="n">loadUiType</span><span class="p">(</span><span class="n">ui_file_path</span><span class="p">)</span> <span class="c1"># with this we don&#39;t have to convert the .ui file into a python file!</span>
+<span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="k">import</span> <span class="n">QMainWindow</span>
+    <span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="k">import</span> <span class="n">QDialog</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="FittingWindow"><a class="viewcode-back" href="../../../../code_docs/pylabcontrol.gui.windows_and_widgets.html#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow">[docs]</a><span class="k">class</span> <span class="nc">FittingWindow</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">,</span> <span class="n">Ui_MainWindow</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class defining main gui window for doing manual fitting</span>
+
+<span class="sd">    QMainWindow: Qt object returned from loadUiType</span>
+<span class="sd">    UI_MainWindow: Ui reference returned from loadUiType</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">QMainWindow</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">create_figures</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Sets up figures in GUI</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">matplotlibwidget</span> <span class="o">=</span> <span class="n">MatplotlibWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">)</span>
+            <span class="n">sizePolicy</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">)</span>
+            <span class="n">sizePolicy</span><span class="o">.</span><span class="n">setHorizontalStretch</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">sizePolicy</span><span class="o">.</span><span class="n">setVerticalStretch</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">sizePolicy</span><span class="o">.</span><span class="n">setHeightForWidth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matplotlibwidget</span><span class="o">.</span><span class="n">sizePolicy</span><span class="p">()</span><span class="o">.</span><span class="n">hasHeightForWidth</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">matplotlibwidget</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">sizePolicy</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">matplotlibwidget</span><span class="o">.</span><span class="n">setMinimumSize</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QSize</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">matplotlibwidget</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QString</span><span class="o">.</span><span class="n">fromUtf8</span><span class="p">(</span><span class="s2">&quot;matplotlibwidget&quot;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">horizontalLayout_3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matplotlibwidget</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpl_toolbar</span> <span class="o">=</span> <span class="n">NavigationToolbar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matplotlibwidget</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">toolbar_space</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">horizontalLayout_2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpl_toolbar</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peak_vals</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">def</span> <span class="nf">setup_connections</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Sets up all connections between buttons and plots in the gui, and their corresponding backend functions</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btn_fit</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">btn_clicked</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btn_clear</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">btn_clicked</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btn_next</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">btn_clicked</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">matplotlibwidget</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s1">&#39;button_press_event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_clicked</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btn_open</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">open_file_dialog</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btn_run</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">btn_clicked</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btn_goto</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">btn_clicked</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btn_prev</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">btn_clicked</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btn_skip</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">btn_clicked</span><span class="p">)</span>
+
+        <span class="n">create_figures</span><span class="p">()</span>
+        <span class="n">setup_connections</span><span class="p">()</span>
+
+<div class="viewcode-block" id="FittingWindow.btn_clicked"><a class="viewcode-back" href="../../../../code_docs/pylabcontrol.gui.windows_and_widgets.html#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.btn_clicked">[docs]</a>    <span class="k">def</span> <span class="nf">btn_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds the appropriate value to the queue used for communication with the fitting routine thread when a given</span>
+<span class="sd">        button is clicked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sender</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sender</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">btn_run</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_fitting</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">sender</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">btn_next</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;next&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">sender</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">btn_fit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;fit&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">sender</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">btn_clear</span><span class="p">:</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_vals</span> <span class="o">==</span> <span class="p">[]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">peak_vals</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;clear&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">sender</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">btn_goto</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_next</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
+        <span class="k">elif</span> <span class="n">sender</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">btn_prev</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;prev&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">sender</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">btn_skip</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;skip&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FittingWindow.plot_clicked"><a class="viewcode-back" href="../../../../code_docs/pylabcontrol.gui.windows_and_widgets.html#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.plot_clicked">[docs]</a>    <span class="k">def</span> <span class="nf">plot_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouse_event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        When a click is registered on the plot, appends the click location to self.peak_vals and plots a red dot in the</span>
+<span class="sd">        click location</span>
+<span class="sd">        :param mouse_event: a mouse event object for the click</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">peak_vals</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peak_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">mouse_event</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">mouse_event</span><span class="o">.</span><span class="n">ydata</span><span class="p">])</span>
+            <span class="n">axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matplotlibwidget</span><span class="o">.</span><span class="n">axes</span>
+            <span class="c1"># can&#39;t use patches, as they use data coordinates for radius but this is a high aspect ratio plot so the</span>
+            <span class="c1"># circle was extremely stretched</span>
+            <span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mouse_event</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">mouse_event</span><span class="o">.</span><span class="n">ydata</span><span class="p">,</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span> <span class="n">markersize</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+
+            <span class="c1"># axes.text(mouse_event.xdata, mouse_event.ydata, &#39;{:d}&#39;.format(len(self.peak_vals[-1])),</span>
+            <span class="c1">#                  horizontalalignment=&#39;center&#39;,</span>
+            <span class="c1">#                  verticalalignment=&#39;center&#39;,</span>
+            <span class="c1">#                  color=&#39;black&#39;</span>
+            <span class="c1">#                  )</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">matplotlibwidget</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="FittingWindow.do_fit"><a class="viewcode-back" href="../../../../code_docs/pylabcontrol.gui.windows_and_widgets.html#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit">[docs]</a>    <span class="k">class</span> <span class="nc">do_fit</span><span class="p">(</span><span class="n">QObject</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class does all of the work of the manual fitting, including loading and saving data, processing input, and</span>
+<span class="sd">        displaying output to the plots. It is implemented as a separate class so that it can be easily moved to a second</span>
+<span class="sd">        thread. If it is on the same thread as the gui, you can&#39;t both run this code and still interact with the gui.</span>
+<span class="sd">        Thus, the second thread allows both to occur simultaneously.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">finished</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>  <span class="c1"># signals the end of the script</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="c1"># sends messages to update the statusbar</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">plotwidget</span><span class="p">,</span> <span class="n">queue</span><span class="p">,</span> <span class="n">peak_vals</span><span class="p">,</span> <span class="n">peak_locs</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Initializes the fit class</span>
+<span class="sd">            :param filepath: path to file containing the ESR data to fit</span>
+<span class="sd">            :param plotwidget: reference to plotwidget passed from gui</span>
+<span class="sd">            :param queue: thread-safe queue used for gui-class communication across threads</span>
+<span class="sd">            :param peak_vals: peak locations manually selected in gui</span>
+<span class="sd">            :param peak_locs: pointer to textbox that will contain locations of fit peaks</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">QObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span> <span class="o">=</span> <span class="n">plotwidget</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">queue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peak_vals</span> <span class="o">=</span> <span class="n">peak_vals</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peak_locs</span> <span class="o">=</span> <span class="n">peak_locs</span>
+
+<div class="viewcode-block" id="FittingWindow.do_fit.n_lorentzian"><a class="viewcode-back" href="../../../../code_docs/pylabcontrol.gui.windows_and_widgets.html#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.n_lorentzian">[docs]</a>        <span class="k">def</span> <span class="nf">n_lorentzian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="o">*</span><span class="n">peak_params</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Defines a lorentzian with n peaks</span>
+<span class="sd">            :param x: independent variable</span>
+<span class="sd">            :param offset: offset of lorentzians</span>
+<span class="sd">            :param peak_params: this is a flattened array of length 3n with the format [widths amplitudes centers], that</span>
+<span class="sd">                                is the first n values are the n peak widths, the next n are the n amplitudes, and the</span>
+<span class="sd">                                last n are the n centers</span>
+<span class="sd">            :return: the output of the lorentzian for each input value x</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">width_array</span> <span class="o">=</span> <span class="n">peak_params</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">peak_params</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">amplitude_array</span> <span class="o">=</span> <span class="n">peak_params</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">peak_params</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">peak_params</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">center_array</span> <span class="o">=</span> <span class="n">peak_params</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">peak_params</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">:]</span>
+            <span class="k">for</span> <span class="n">width</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">center</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">width_array</span><span class="p">,</span> <span class="n">amplitude_array</span><span class="p">,</span> <span class="n">center_array</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">+=</span> <span class="n">amplitude</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">width</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">center</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">width</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">+=</span> <span class="n">offset</span>
+            <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="FittingWindow.do_fit.fit_n_lorentzian"><a class="viewcode-back" href="../../../../code_docs/pylabcontrol.gui.windows_and_widgets.html#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.fit_n_lorentzian">[docs]</a>        <span class="k">def</span> <span class="nf">fit_n_lorentzian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fit_start_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            uses scipy.optimize.curve_fit to fit an n-peak lorentzian to the data, where the number of peaks is</span>
+<span class="sd">            determined by the number of peaks given as starting parameters for the fit</span>
+<span class="sd">            :param x:</span>
+<span class="sd">            :param y:</span>
+<span class="sd">            :param fit_start_params: this is a flattened array of length 3n + 1 with the format</span>
+<span class="sd">                                [offset widths amplitudes centers], that is the first value is hte offset, the next n</span>
+<span class="sd">                                values are the n peak widths, the next n are the n amplitudes, and the last n are the n</span>
+<span class="sd">                                centers</span>
+<span class="sd">            :return: optimized fit values, in the same format as fit_start_params</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">popt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">curve_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_lorentzian</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fit_start_params</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">popt</span></div>
+
+<div class="viewcode-block" id="FittingWindow.do_fit.save"><a class="viewcode-back" href="../../../../code_docs/pylabcontrol.gui.windows_and_widgets.html#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.save">[docs]</a>        <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Saves the fit data to the data filepath + &#39;data-manual.csv&#39;. The saving format has one line corresponding to</span>
+<span class="sd">            each peak, with the corresponding nv number, fit center, width, and amplitude, and manual center and</span>
+<span class="sd">            amplitude included</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;data-manual.csv&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fits</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FittingWindow.do_fit.load_fitdata"><a class="viewcode-back" href="../../../../code_docs/pylabcontrol.gui.windows_and_widgets.html#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.load_fitdata">[docs]</a>        <span class="k">def</span> <span class="nf">load_fitdata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Tries to load and return the previous results of save, or if this file has not been previously analyzed,</span>
+<span class="sd">            returns a DataFrame with the correct headers and no data</span>
+<span class="sd">            :return: the loaded (or new) pandas DataFrame</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">load_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;data-manual.csv&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">load_path</span><span class="p">):</span>
+                <span class="n">fits</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">load_path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fits</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;nv_id&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;peak_id&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;offset&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;fit_center&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;fit_amplitude&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;fit_width&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;manual_center&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;manual_height&#39;</span><span class="p">:</span> <span class="p">[]})</span>
+            <span class="k">return</span> <span class="n">fits</span></div>
+
+<div class="viewcode-block" id="FittingWindow.do_fit.run"><a class="viewcode-back" href="../../../../code_docs/pylabcontrol.gui.windows_and_widgets.html#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.run">[docs]</a>        <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Code to run fitting routine. Should be run in a separate thread from the gui.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">esr_folders</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;./data_subscripts/*esr*&#39;</span><span class="p">))</span>
+
+            <span class="n">data_array</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;loading data&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">esr_folder</span> <span class="ow">in</span> <span class="n">esr_folders</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">Script</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">esr_folder</span><span class="p">)</span>
+                <span class="n">data_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">fits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_fitdata</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;executing manual fitting&#39;</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_good</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initial_fit</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># for data in data_array:</span>
+            <span class="k">while</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_array</span><span class="p">):</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="c1">#this must be after the draw command, otherwise plot doesn&#39;t display for some reason</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;executing manual fitting NV #&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fits</span><span class="p">[</span><span class="s1">&#39;nv_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+                    <span class="n">fitdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fits</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">fits</span><span class="p">[</span><span class="s1">&#39;nv_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">index</span><span class="p">)]</span>
+                    <span class="n">offset</span> <span class="o">=</span> <span class="n">fitdf</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">centers</span> <span class="o">=</span> <span class="n">fitdf</span><span class="p">[</span><span class="s1">&#39;fit_center&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
+                    <span class="n">amplitudes</span> <span class="o">=</span> <span class="n">fitdf</span><span class="p">[</span><span class="s1">&#39;fit_amplitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
+                    <span class="n">widths</span> <span class="o">=</span> <span class="n">fitdf</span><span class="p">[</span><span class="s1">&#39;fit_width&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
+                    <span class="n">fit_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">widths</span><span class="p">,</span> <span class="n">amplitudes</span><span class="p">)),</span> <span class="n">centers</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_lorentzian</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">],</span> <span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="n">offset</span><span class="p">],</span> <span class="n">fit_params</span><span class="p">))))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_good</span> <span class="o">==</span> <span class="p">[]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">initial_fit</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;fit&#39;</span><span class="p">)</span>
+
+                <span class="k">while</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;next&#39;</span><span class="p">:</span>
+                            <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_vals</span> <span class="o">==</span> <span class="p">[]:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">last_good</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">peak_vals</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_fit</span><span class="p">:</span>
+                                <span class="n">to_delete</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fits</span><span class="p">[</span><span class="s1">&#39;nv_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">index</span><span class="p">)</span>
+                                <span class="c1"># print(self.fits[to_delete])</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">fits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fits</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fits</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">to_delete</span><span class="p">])</span>
+                                <span class="c1"># for val in to_delete[0][::-1]:</span>
+                                <span class="c1">#     for key in self.fits.keys():</span>
+                                <span class="c1">#         del self.fits[key][val]</span>
+                                <span class="k">for</span> <span class="n">peak</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_fit</span><span class="p">:</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">fits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">peak</span><span class="p">))</span>
+
+                            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;saving&#39;</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                            <span class="k">break</span>
+                        <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">last_good</span> <span class="o">=</span> <span class="p">[]</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+                        <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;fit&#39;</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_fit</span><span class="p">:</span>
+                                <span class="nb">input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_good</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="nb">input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_vals</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                                <span class="n">centers</span><span class="p">,</span> <span class="n">heights</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">input</span><span class="p">))</span>
+                                <span class="n">widths</span> <span class="o">=</span> <span class="mf">1e7</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">heights</span><span class="p">))</span>
+                            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                                <span class="n">centers</span><span class="p">,</span> <span class="n">heights</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                <span class="n">widths</span> <span class="o">=</span> <span class="mf">1e7</span>
+                            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">single_fit</span> <span class="o">=</span> <span class="kc">None</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">peak_locs</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;No Peak&#39;</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">])))</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+                                <span class="k">continue</span>
+                            <span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+                            <span class="n">amplitudes</span> <span class="o">=</span> <span class="n">offset</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">heights</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                                <span class="n">fit_start_params</span> <span class="o">=</span> <span class="p">[[</span><span class="n">offset</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">widths</span><span class="p">,</span> <span class="n">amplitudes</span><span class="p">,</span> <span class="n">centers</span><span class="p">))]</span>
+                                <span class="n">fit_start_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fit_start_params</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+                            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                                <span class="n">fit_start_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">offset</span><span class="p">,</span> <span class="n">widths</span><span class="p">,</span> <span class="n">amplitudes</span><span class="p">,</span> <span class="n">centers</span><span class="p">]</span>
+                            <span class="k">try</span><span class="p">:</span>
+                                <span class="n">popt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_n_lorentzian</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">fit_start_params</span> <span class="o">=</span> <span class="n">fit_start_params</span><span class="p">)</span>
+                            <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;fit failed, optimal parameters not found&#39;</span><span class="p">)</span>
+                                <span class="k">break</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_lorentzian</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">],</span> <span class="o">*</span><span class="n">popt</span><span class="p">))</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">plotwidget</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+                            <span class="n">params</span> <span class="o">=</span> <span class="n">popt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                            <span class="n">widths_array</span> <span class="o">=</span> <span class="n">params</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">]</span>
+                            <span class="n">amplitude_array</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">:</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span><span class="p">]</span>
+                            <span class="n">center_array</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span><span class="p">:]</span>
+                            <span class="n">positions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">center_array</span><span class="p">,</span> <span class="n">amplitude_array</span><span class="p">,</span> <span class="n">widths_array</span><span class="p">))</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">single_fit</span> <span class="o">=</span> <span class="p">[]</span>
+                            <span class="n">peak_index</span> <span class="o">=</span> <span class="mi">0</span>
+                            <span class="k">for</span> <span class="n">position</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">single_fit</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;nv_id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="s1">&#39;peak_id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">peak_index</span><span class="p">],</span> <span class="s1">&#39;offset&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">popt</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="s1">&#39;fit_center&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="s1">&#39;fit_amplitude&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;fit_width&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;manual_center&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">input</span><span class="p">[</span><span class="n">peak_index</span><span class="p">][</span><span class="mi">0</span><span class="p">]],</span> <span class="s1">&#39;manual_height&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">input</span><span class="p">[</span><span class="n">peak_index</span><span class="p">][</span><span class="mi">1</span><span class="p">]]})</span>
+                                <span class="n">peak_index</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">peak_locs</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Peak Positions: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">center_array</span><span class="p">))</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">initial_fit</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;prev&#39;</span><span class="p">:</span>
+                            <span class="n">index</span> <span class="o">-=</span> <span class="mi">1</span>
+                            <span class="k">break</span>
+                        <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;skip&#39;</span><span class="p">:</span>
+                            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="k">break</span>
+                        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+                            <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                            <span class="k">break</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">finished</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;dataset finished&#39;</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="FittingWindow.update_status"><a class="viewcode-back" href="../../../../code_docs/pylabcontrol.gui.windows_and_widgets.html#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.update_status">[docs]</a>    <span class="k">def</span> <span class="nf">update_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the gui statusbar with the given string</span>
+<span class="sd">        :param str: string to set the statusbar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusbar</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FittingWindow.start_fitting"><a class="viewcode-back" href="../../../../code_docs/pylabcontrol.gui.windows_and_widgets.html#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.start_fitting">[docs]</a>    <span class="k">def</span> <span class="nf">start_fitting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Launches the fitting routine on another thread</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peak_vals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_thread</span> <span class="o">=</span> <span class="n">QThread</span><span class="p">()</span> <span class="c1">#must be assigned as an instance variable, not local, as otherwise thread is garbage</span>
+                                    <span class="c1">#collected immediately at the end of the function before it runs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitobj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_fit</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_filepath</span><span class="o">.</span><span class="n">text</span><span class="p">()),</span> <span class="bp">self</span><span class="o">.</span><span class="n">matplotlibwidget</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_vals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_locs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitobj</span><span class="o">.</span><span class="n">moveToThread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_thread</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_thread</span><span class="o">.</span><span class="n">started</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fitobj</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitobj</span><span class="o">.</span><span class="n">finished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_thread</span><span class="o">.</span><span class="n">quit</span><span class="p">)</span>  <span class="c1"># clean up. quit thread after script is finished</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitobj</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_status</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="FittingWindow.open_file_dialog"><a class="viewcode-back" href="../../../../code_docs/pylabcontrol.gui.windows_and_widgets.html#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.open_file_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">open_file_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        opens a file dialog to get the path to a file and sets the data_filepath entry area to that fliepath</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFileDialog</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">getExistingDirectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select a file:&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_filepath</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_filepath</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">ex</span> <span class="o">=</span> <span class="n">FittingWindow</span><span class="p">()</span>
+    <span class="n">ex</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">ex</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

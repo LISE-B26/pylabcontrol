@@ -1,0 +1,810 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pylabcontrol.gui.windows_and_widgets package &#8212; pylabcontrol 0.1a3 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1a3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pylabcontrol.instruments package" href="pylabcontrol.instruments.html" />
+    <link rel="prev" title="pylabcontrol.gui.compiled_ui_files package" href="pylabcontrol.gui.compiled_ui_files.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pylabcontrol-gui-windows-and-widgets-package">
+<h1>pylabcontrol.gui.windows_and_widgets package<a class="headerlink" href="#pylabcontrol-gui-windows-and-widgets-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pylabcontrol.gui.windows_and_widgets.export_dialog">
+<span id="pylabcontrol-gui-windows-and-widgets-export-dialog-module"></span><h2>pylabcontrol.gui.windows_and_widgets.export_dialog module<a class="headerlink" href="#module-pylabcontrol.gui.windows_and_widgets.export_dialog" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog">
+<em class="property">class </em><code class="descclassname">pylabcontrol.gui.windows_and_widgets.export_dialog.</code><code class="descname">ExportDialog</code><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/export_dialog.html#ExportDialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtWidgets.QDialog</span></code>, <code class="xref py py-class docutils literal"><span class="pre">Ui_Dialog</span></code></p>
+<dl class="docutils">
+<dt>LoadDialog(intruments, scripts, probes)</dt>
+<dd><ul class="first last simple">
+<li>type: either script, instrument or probe</li>
+<li>loaded_elements: dictionary that contains the loaded elements</li>
+</ul>
+</dd>
+<dt>MainWindow(settings_file)</dt>
+<dd><ul class="first last simple">
+<li>settings_file is the path to a json file that contains all the settings for the old_gui</li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.class_type_changed">
+<code class="descname">class_type_changed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/export_dialog.html#ExportDialog.class_type_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.class_type_changed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.display_info">
+<code class="descname">display_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/export_dialog.html#ExportDialog.display_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.display_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.export">
+<code class="descname">export</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/export_dialog.html#ExportDialog.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.export" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.fill_list">
+<code class="descname">fill_list</code><span class="sig-paren">(</span><em>list</em>, <em>input_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/export_dialog.html#ExportDialog.fill_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.fill_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>fills a tree with nested parameters
+:param tree: QtGui.QTreeView
+:param parameters: dictionary or Parameter object</p>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.open_file_dialog">
+<code class="descname">open_file_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/export_dialog.html#ExportDialog.open_file_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.open_file_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>opens a file dialog to get the path to a file and</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.reset_avaliable">
+<code class="descname">reset_avaliable</code><span class="sig-paren">(</span><em>folder</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/export_dialog.html#ExportDialog.reset_avaliable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.reset_avaliable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.select_all">
+<code class="descname">select_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/export_dialog.html#ExportDialog.select_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.select_all" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.select_none">
+<code class="descname">select_none</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/export_dialog.html#ExportDialog.select_none"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.export_dialog.ExportDialog.select_none" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.gui.windows_and_widgets.load_dialog">
+<span id="pylabcontrol-gui-windows-and-widgets-load-dialog-module"></span><h2>pylabcontrol.gui.windows_and_widgets.load_dialog module<a class="headerlink" href="#module-pylabcontrol.gui.windows_and_widgets.load_dialog" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog">
+<em class="property">class </em><code class="descclassname">pylabcontrol.gui.windows_and_widgets.load_dialog.</code><code class="descname">LoadDialog</code><span class="sig-paren">(</span><em>intruments</em>, <em>scripts</em>, <em>probes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog.html#LoadDialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtWidgets.QDialog</span></code>, <code class="xref py py-class docutils literal"><span class="pre">Ui_Dialog</span></code></p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>type: either script, instrument or probe</dt>
+<dd><ul class="first last">
+<li>loaded_elements: dictionary that contains the loaded elements</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>MainWindow(settings_file)</dt>
+<dd><ul class="first last simple">
+<li>settings_file is the path to a json file that contains all the settings for the old_gui</li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.add_script_sequence">
+<code class="descname">add_script_sequence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog.html#LoadDialog.add_script_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.add_script_sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates a script sequence based on the script iterator type selected and the selected scripts and sends it to the tree
+self.tree_loaded</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.fill_tree">
+<code class="descname">fill_tree</code><span class="sig-paren">(</span><em>tree</em>, <em>input_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog.html#LoadDialog.fill_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.fill_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>fills a tree with nested parameters
+:param tree: QtGui.QTreeView
+:param parameters: dictionary or Parameter object</p>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.get_values">
+<code class="descname">get_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog.html#LoadDialog.get_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.get_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: the selected instruments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.load_elements">
+<code class="descname">load_elements</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog.html#LoadDialog.load_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.load_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads the elements from file filename</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.name_changed">
+<code class="descname">name_changed</code><span class="sig-paren">(</span><em>changed_item</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog.html#LoadDialog.name_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.name_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks if name has been changed and ignores the name change if the changed_item is an existing script
+:param changed_item:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.open_file_dialog">
+<code class="descname">open_file_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog.html#LoadDialog.open_file_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.open_file_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>opens a file dialog to get the path to a file and</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.show_info">
+<code class="descname">show_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog.html#LoadDialog.show_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog.LoadDialog.show_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>displays the doc string of the selected element</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.gui.windows_and_widgets.load_dialog_probes">
+<span id="pylabcontrol-gui-windows-and-widgets-load-dialog-probes-module"></span><h2>pylabcontrol.gui.windows_and_widgets.load_dialog_probes module<a class="headerlink" href="#module-pylabcontrol.gui.windows_and_widgets.load_dialog_probes" title="Permalink to this headline">¶</a></h2>
+<p>Basic gui class designed with QT designer</p>
+<dl class="class">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes">
+<em class="property">class </em><code class="descclassname">pylabcontrol.gui.windows_and_widgets.load_dialog_probes.</code><code class="descname">LoadDialogProbes</code><span class="sig-paren">(</span><em>probes_old={}</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog_probes.html#LoadDialogProbes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtWidgets.QDialog</span></code>, <a class="reference internal" href="pylabcontrol.gui.compiled_ui_files.html#pylabcontrol.gui.compiled_ui_files.load_dialog.Ui_Dialog" title="pylabcontrol.gui.compiled_ui_files.load_dialog.Ui_Dialog"><code class="xref py py-class docutils literal"><span class="pre">pylabcontrol.gui.compiled_ui_files.load_dialog.Ui_Dialog</span></code></a></p>
+<dl class="docutils">
+<dt>LoadDialog(intruments, scripts, probes)</dt>
+<dd><ul class="first last simple">
+<li>type: either script, instrument or probe</li>
+<li>loaded_elements: dictionary that contains the loaded elements</li>
+</ul>
+</dd>
+<dt>MainWindow(settings_file)</dt>
+<dd><ul class="first last simple">
+<li>settings_file is the path to a json file that contains all the settings for the old_gui</li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes.fill_tree">
+<code class="descname">fill_tree</code><span class="sig-paren">(</span><em>tree</em>, <em>input_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog_probes.html#LoadDialogProbes.fill_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes.fill_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>fills a tree with nested parameters
+:param tree: QtGui.QTreeView
+:param parameters: dictionary or Parameter object</p>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes.getValues">
+<code class="descname">getValues</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog_probes.html#LoadDialogProbes.getValues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes.getValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: the selected elements</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes.item_dragged_and_dropped">
+<code class="descname">item_dragged_and_dropped</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog_probes.html#LoadDialogProbes.item_dragged_and_dropped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes.item_dragged_and_dropped" title="Permalink to this definition">¶</a></dt>
+<dd><p>adds and removes probes from the trees when they are dragged and dropped</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes.load_elements">
+<code class="descname">load_elements</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog_probes.html#LoadDialogProbes.load_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes.load_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads the elements from file filename</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes.open_file_dialog">
+<code class="descname">open_file_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog_probes.html#LoadDialogProbes.open_file_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes.open_file_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>opens a file dialog to get the path to a file and</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes.show_info">
+<code class="descname">show_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/load_dialog_probes.html#LoadDialogProbes.show_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.load_dialog_probes.LoadDialogProbes.show_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>displays the doc string of the selected element</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.gui.windows_and_widgets.main_window">
+<span id="pylabcontrol-gui-windows-and-widgets-main-window-module"></span><h2>pylabcontrol.gui.windows_and_widgets.main_window module<a class="headerlink" href="#module-pylabcontrol.gui.windows_and_widgets.main_window" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.CustomEditorFactory">
+<em class="property">class </em><code class="descclassname">pylabcontrol.gui.windows_and_widgets.main_window.</code><code class="descname">CustomEditorFactory</code><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#CustomEditorFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.CustomEditorFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtWidgets.QItemEditorFactory</span></code></p>
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.CustomEditorFactory.createEditor">
+<code class="descname">createEditor</code><span class="sig-paren">(</span><em>type</em>, <em>QWidget</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#CustomEditorFactory.createEditor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.CustomEditorFactory.createEditor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.CustomEventFilter">
+<em class="property">class </em><code class="descclassname">pylabcontrol.gui.windows_and_widgets.main_window.</code><code class="descname">CustomEventFilter</code><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#CustomEventFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.CustomEventFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtCore.QObject</span></code></p>
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.CustomEventFilter.eventFilter">
+<code class="descname">eventFilter</code><span class="sig-paren">(</span><em>QObject</em>, <em>QEvent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#CustomEventFilter.eventFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.CustomEventFilter.eventFilter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow">
+<em class="property">class </em><code class="descclassname">pylabcontrol.gui.windows_and_widgets.main_window.</code><code class="descname">MainWindow</code><span class="sig-paren">(</span><em>filepath=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtWidgets.QMainWindow</span></code>, <code class="xref py py-class docutils literal"><span class="pre">Ui_MainWindow</span></code></p>
+<dl class="attribute">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.application_path">
+<code class="descname">application_path</code><em class="property"> = 'C:\\Users\\Experiment\\pylabcontrol\\user_data'</em><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.application_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.btn_clicked">
+<code class="descname">btn_clicked</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.btn_clicked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.btn_clicked" title="Permalink to this definition">¶</a></dt>
+<dd><p>slot to which connect buttons</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.closeEvent">
+<code class="descname">closeEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.closeEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>things to be done when gui closes, like save the settings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.create_figures">
+<code class="descname">create_figures</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.create_figures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.create_figures" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates the maplotlib figures]
+self.matplotlibwidget_1
+self.matplotlibwidget_2
+and toolbars
+self.mpl_toolbar_1
+self.mpl_toolbar_2
+Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.edit_tree_item">
+<code class="descname">edit_tree_item</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.edit_tree_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.edit_tree_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>if sender is self.tree_gui_settings this will open a filedialog and ask for a filepath
+this filepath will be updated in the field of self.tree_gui_settings that has been double clicked</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.eventFilter">
+<code class="descname">eventFilter</code><span class="sig-paren">(</span><em>object</em>, <em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.eventFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.eventFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>TEMPORARY / UNDER DEVELOPMENT</p>
+<p>THIS IS TO ALLOW COPYING OF PARAMETERS VIA DRAP AND DROP</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>object</strong> – </li>
+<li><strong>event</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.fill_dataset_tree">
+<code class="descname">fill_dataset_tree</code><span class="sig-paren">(</span><em>tree</em>, <em>data_sets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.fill_dataset_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.fill_dataset_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>fills the tree with data sets where datasets is a dictionary of the form
+:param tree:
+:param data_sets: a dataset</p>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.fill_treeview">
+<code class="descname">fill_treeview</code><span class="sig-paren">(</span><em>tree</em>, <em>input_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.fill_treeview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.fill_treeview" title="Permalink to this definition">¶</a></dt>
+<dd><p>fills a treeview with nested parameters
+:param tree: QtWidgets.QTreeView
+:param parameters: dictionary or Parameter object</p>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.fill_treewidget">
+<code class="descname">fill_treewidget</code><span class="sig-paren">(</span><em>tree</em>, <em>parameters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.fill_treewidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.fill_treewidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>fills a QTreeWidget with nested parameters, in future replace QTreeWidget with QTreeView and call fill_treeview
+:param tree: QtWidgets.QTreeWidget
+:param parameters: dictionary or Parameter object
+:param show_all: boolean if true show all parameters, if false only selected ones</p>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.get_time">
+<code class="descname">get_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.get_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.get_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: the current time as a formated string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.load_config">
+<code class="descname">load_config</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.load_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.load_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks if the file is a valid config file
+:param filepath:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.load_scripts">
+<code class="descname">load_scripts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.load_scripts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.load_scripts" title="Permalink to this definition">¶</a></dt>
+<dd><p>opens file dialog to load scripts into gui</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.log">
+<code class="descname">log</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>log function
+:param msg: the text message to be logged</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.plot_clicked">
+<code class="descname">plot_clicked</code><span class="sig-paren">(</span><em>mouse_event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.plot_clicked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.plot_clicked" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets activated when the user clicks on a plot
+:param mouse_event:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.plot_script">
+<code class="descname">plot_script</code><span class="sig-paren">(</span><em>script</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.plot_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.plot_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls the plot function of the script, and redraws both plots
+:param script: script to be plotted</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.plot_script_validate">
+<code class="descname">plot_script_validate</code><span class="sig-paren">(</span><em>script</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.plot_script_validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.plot_script_validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks the plottype of the script and plots it accordingly
+:param script: script to be plotted</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.refresh_instruments">
+<code class="descname">refresh_instruments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.refresh_instruments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.refresh_instruments" title="Permalink to this definition">¶</a></dt>
+<dd><p>if self.tree_settings has been expanded, ask instruments for their actual values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.refresh_tree">
+<code class="descname">refresh_tree</code><span class="sig-paren">(</span><em>tree</em>, <em>items</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.refresh_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.refresh_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>refresh trees with current settings
+:param tree: a QtWidgets.QTreeWidget object or a QtWidgets.QTreeView object
+:param items: dictionary or Parameter items with which to populate the tree
+:param show_all: boolean if true show all parameters, if false only selected ones</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.save_config">
+<code class="descname">save_config</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.save_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.save_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves gui configuration to out_file_name
+:param filepath: name of file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.save_dataset">
+<code class="descname">save_dataset</code><span class="sig-paren">(</span><em>out_file_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.save_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.save_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves current dataset to out_file_name
+:param out_file_name: name of file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.script_finished">
+<code class="descname">script_finished</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.script_finished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.script_finished" title="Permalink to this definition">¶</a></dt>
+<dd><p>waits for the script to emit the script_finshed signal</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.set_probe_file_name">
+<code class="descname">set_probe_file_name</code><span class="sig-paren">(</span><em>checked</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.set_probe_file_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.set_probe_file_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the filename to which the probe logging function will write
+:param checked: boolean (True: opens file) (False: closes file)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.startup_msg">
+<code class="descname">startup_msg</code><em class="property"> = '\n\n    ======================================================\n    =============== Starting B26 Python LAB  =============\n    ======================================================\n\n'</em><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.startup_msg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.switch_tab">
+<code class="descname">switch_tab</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.switch_tab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.switch_tab" title="Permalink to this definition">¶</a></dt>
+<dd><p>takes care of the action that happen when switching between tabs
+e.g. activates and deactives probes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.update_parameters">
+<code class="descname">update_parameters</code><span class="sig-paren">(</span><em>treeWidget</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.update_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.update_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates the internal dictionaries for scripts and instruments with values from the respective trees</p>
+<p>treeWidget: the tree from which to update</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.update_probes">
+<code class="descname">update_probes</code><span class="sig-paren">(</span><em>progress</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.update_probes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.update_probes" title="Permalink to this definition">¶</a></dt>
+<dd><p>update the probe tree</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.update_script_from_item">
+<code class="descname">update_script_from_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.update_script_from_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.update_script_from_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates the script based on the information provided in item</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>script</strong> – script to be updated</li>
+<li><strong>item</strong> – B26QTreeItem that contains the new settings of the script</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.update_status">
+<code class="descname">update_status</code><span class="sig-paren">(</span><em>progress</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/main_window.html#MainWindow.update_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.main_window.MainWindow.update_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>waits for a signal emitted from a thread and updates the gui
+:param progress:</p>
+<p>Returns:</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.gui.windows_and_widgets.manual_fitting">
+<span id="pylabcontrol-gui-windows-and-widgets-manual-fitting-module"></span><h2>pylabcontrol.gui.windows_and_widgets.manual_fitting module<a class="headerlink" href="#module-pylabcontrol.gui.windows_and_widgets.manual_fitting" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow">
+<em class="property">class </em><code class="descclassname">pylabcontrol.gui.windows_and_widgets.manual_fitting.</code><code class="descname">FittingWindow</code><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/manual_fitting.html#FittingWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtWidgets.QMainWindow</span></code>, <code class="xref py py-class docutils literal"><span class="pre">Ui_MainWindow</span></code></p>
+<p>Class defining main gui window for doing manual fitting</p>
+<p>QMainWindow: Qt object returned from loadUiType
+UI_MainWindow: Ui reference returned from loadUiType</p>
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.btn_clicked">
+<code class="descname">btn_clicked</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/manual_fitting.html#FittingWindow.btn_clicked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.btn_clicked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the appropriate value to the queue used for communication with the fitting routine thread when a given
+button is clicked.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit">
+<em class="property">class </em><code class="descname">do_fit</code><span class="sig-paren">(</span><em>filepath</em>, <em>plotwidget</em>, <em>queue</em>, <em>peak_vals</em>, <em>peak_locs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/manual_fitting.html#FittingWindow.do_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtCore.QObject</span></code></p>
+<p>This class does all of the work of the manual fitting, including loading and saving data, processing input, and
+displaying output to the plots. It is implemented as a separate class so that it can be easily moved to a second
+thread. If it is on the same thread as the gui, you can’t both run this code and still interact with the gui.
+Thus, the second thread allows both to occur simultaneously.</p>
+<dl class="attribute">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.finished">
+<code class="descname">finished</code><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.fit_n_lorentzian">
+<code class="descname">fit_n_lorentzian</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>fit_start_params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/manual_fitting.html#FittingWindow.do_fit.fit_n_lorentzian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.fit_n_lorentzian" title="Permalink to this definition">¶</a></dt>
+<dd><p>uses scipy.optimize.curve_fit to fit an n-peak lorentzian to the data, where the number of peaks is
+determined by the number of peaks given as starting parameters for the fit
+:param x:
+:param y:
+:param fit_start_params: this is a flattened array of length 3n + 1 with the format</p>
+<blockquote>
+<div>[offset widths amplitudes centers], that is the first value is hte offset, the next n
+values are the n peak widths, the next n are the n amplitudes, and the last n are the n
+centers</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">optimized fit values, in the same format as fit_start_params</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.load_fitdata">
+<code class="descname">load_fitdata</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/manual_fitting.html#FittingWindow.do_fit.load_fitdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.load_fitdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tries to load and return the previous results of save, or if this file has not been previously analyzed,
+returns a DataFrame with the correct headers and no data
+:return: the loaded (or new) pandas DataFrame</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.n_lorentzian">
+<code class="descname">n_lorentzian</code><span class="sig-paren">(</span><em>x</em>, <em>offset</em>, <em>*peak_params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/manual_fitting.html#FittingWindow.do_fit.n_lorentzian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.n_lorentzian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a lorentzian with n peaks
+:param x: independent variable
+:param offset: offset of lorentzians
+:param peak_params: this is a flattened array of length 3n with the format [widths amplitudes centers], that</p>
+<blockquote>
+<div>is the first n values are the n peak widths, the next n are the n amplitudes, and the
+last n are the n centers</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the output of the lorentzian for each input value x</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/manual_fitting.html#FittingWindow.do_fit.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Code to run fitting routine. Should be run in a separate thread from the gui.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.save">
+<code class="descname">save</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/manual_fitting.html#FittingWindow.do_fit.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the fit data to the data filepath + ‘data-manual.csv’. The saving format has one line corresponding to
+each peak, with the corresponding nv number, fit center, width, and amplitude, and manual center and
+amplitude included</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.status">
+<code class="descname">status</code><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.do_fit.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.open_file_dialog">
+<code class="descname">open_file_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/manual_fitting.html#FittingWindow.open_file_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.open_file_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>opens a file dialog to get the path to a file and sets the data_filepath entry area to that fliepath</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.plot_clicked">
+<code class="descname">plot_clicked</code><span class="sig-paren">(</span><em>mouse_event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/manual_fitting.html#FittingWindow.plot_clicked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.plot_clicked" title="Permalink to this definition">¶</a></dt>
+<dd><p>When a click is registered on the plot, appends the click location to self.peak_vals and plots a red dot in the
+click location
+:param mouse_event: a mouse event object for the click</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.start_fitting">
+<code class="descname">start_fitting</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/manual_fitting.html#FittingWindow.start_fitting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.start_fitting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launches the fitting routine on another thread</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.update_status">
+<code class="descname">update_status</code><span class="sig-paren">(</span><em>str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/manual_fitting.html#FittingWindow.update_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.manual_fitting.FittingWindow.update_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the gui statusbar with the given string
+:param str: string to set the statusbar</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pylabcontrol-gui-windows-and-widgets-manual-fitting-ensemble-module">
+<h2>pylabcontrol.gui.windows_and_widgets.manual_fitting_ensemble module<a class="headerlink" href="#pylabcontrol-gui-windows-and-widgets-manual-fitting-ensemble-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pylabcontrol.gui.windows_and_widgets.widgets">
+<span id="pylabcontrol-gui-windows-and-widgets-widgets-module"></span><h2>pylabcontrol.gui.windows_and_widgets.widgets module<a class="headerlink" href="#module-pylabcontrol.gui.windows_and_widgets.widgets" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem">
+<em class="property">class </em><code class="descclassname">pylabcontrol.gui.windows_and_widgets.widgets.</code><code class="descname">B26QTreeItem</code><span class="sig-paren">(</span><em>parent</em>, <em>name</em>, <em>value</em>, <em>valid_values</em>, <em>info</em>, <em>visible=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/widgets.html#B26QTreeItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtWidgets.QTreeWidgetItem</span></code></p>
+<p>Custom QTreeWidgetItem with Widgets</p>
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.cast_type">
+<code class="descname">cast_type</code><span class="sig-paren">(</span><em>var</em>, <em>cast_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/widgets.html#B26QTreeItem.cast_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.cast_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>cast the value into the type typ
+if type is not provided it is set to self.valid_values
+:param var: variable to be cast
+:param type: target type</p>
+<p>Returns: the variable var csat into type typ</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.get_instrument">
+<code class="descname">get_instrument</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/widgets.html#B26QTreeItem.get_instrument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.get_instrument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: the instrument and the path to the instrument to which this item belongs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.get_script">
+<code class="descname">get_script</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/widgets.html#B26QTreeItem.get_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.get_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: the script and the path to the script to which this item belongs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.get_subscript">
+<code class="descname">get_subscript</code><span class="sig-paren">(</span><em>sub_script_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/widgets.html#B26QTreeItem.get_subscript"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.get_subscript" title="Permalink to this definition">¶</a></dt>
+<dd><p>finds the item that contains the sub_script with name sub_script_name
+:param sub_script_name: name of subscript</p>
+<p>Returns: B26QTreeItem in QTreeWidget which is a script</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.is_point">
+<code class="descname">is_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/widgets.html#B26QTreeItem.is_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.is_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>figures out if item is a point, that is if it has two subelements of type float
+:param self:</p>
+<p>Returns: if item is a point (True) or not (False)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.setData">
+<code class="descname">setData</code><span class="sig-paren">(</span><em>column</em>, <em>role</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/widgets.html#B26QTreeItem.setData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.setData" title="Permalink to this definition">¶</a></dt>
+<dd><p>if value is valid sets the data to value
+:param column: column of item
+:param role: role of item (see Qt doc)
+:param value: value to be set</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.to_dict">
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/widgets.html#B26QTreeItem.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: the tree item as a dictionary</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.value">
+<code class="descname">value</code><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>item value</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.visible">
+<code class="descname">visible</code><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.B26QTreeItem.visible" title="Permalink to this definition">¶</a></dt>
+<dd><p><a href="#id1"><span class="problematic" id="id2">**</span></a>Returns* – boolean (True* – item is visible) (False: item is hidden)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.MatplotlibWidget">
+<em class="property">class </em><code class="descclassname">pylabcontrol.gui.windows_and_widgets.widgets.</code><code class="descname">MatplotlibWidget</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/widgets.html#MatplotlibWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.MatplotlibWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg</span></code></p>
+<p>MatplotlibWidget inherits PyQt5.QtWidgets.QWidget
+and matplotlib.backend_bases.FigureCanvasBase</p>
+<p>parent (None): parent widget
+title (‘’): figure title
+xlabel (‘’): X-axis label
+ylabel (‘’): Y-axis label
+xlim (None): X-axis limits ([min, max])
+ylim (None): Y-axis limits ([min, max])
+xscale (‘linear’): X-axis scale
+yscale (‘linear’): Y-axis scale
+width (4): width in inches
+height (3): height in inches
+dpi (100): resolution in dpi
+hold (False): if False, figure will be cleared each time plot is called</p>
+<p>figure: instance of matplotlib.figure.Figure
+axes: figure axes</p>
+<p>self.widget = MatplotlibWidget(self, yscale=’log’, hold=True)
+from numpy import linspace
+x = linspace(-10, 10)
+self.widget.axes.plot(x, x**2)
+self.wdiget.axes.plot(x, x**3)</p>
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.MatplotlibWidget.minimumSizeHint">
+<code class="descname">minimumSizeHint</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/widgets.html#MatplotlibWidget.minimumSizeHint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.MatplotlibWidget.minimumSizeHint" title="Permalink to this definition">¶</a></dt>
+<dd><p>minimum widget size during window resizing
+Returns: QSize object that specifies the size of widget</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.gui.windows_and_widgets.widgets.MatplotlibWidget.sizeHint">
+<code class="descname">sizeHint</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/gui/windows_and_widgets/widgets.html#MatplotlibWidget.sizeHint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.gui.windows_and_widgets.widgets.MatplotlibWidget.sizeHint" title="Permalink to this definition">¶</a></dt>
+<dd><p>gives qt a starting point for widget size during window resizing</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.gui.windows_and_widgets">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylabcontrol.gui.windows_and_widgets" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="pylabcontrol.html">pylabcontrol package</a><ul>
+  <li><a href="pylabcontrol.gui.html">pylabcontrol.gui package</a><ul>
+      <li>Previous: <a href="pylabcontrol.gui.compiled_ui_files.html" title="previous chapter">pylabcontrol.gui.compiled_ui_files package</a></li>
+      <li>Next: <a href="pylabcontrol.instruments.html" title="next chapter">pylabcontrol.instruments package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/code_docs/pylabcontrol.gui.windows_and_widgets.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

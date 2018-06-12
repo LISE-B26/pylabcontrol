@@ -1,0 +1,1216 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pylabcontrol.core package &#8212; pylabcontrol 0.1a3 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1a3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pylabcontrol.data_processing package" href="pylabcontrol.data_processing.html" />
+    <link rel="prev" title="pylabcontrol package" href="pylabcontrol.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pylabcontrol-core-package">
+<h1>pylabcontrol.core package<a class="headerlink" href="#pylabcontrol-core-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pylabcontrol.core.helper_functions">
+<span id="pylabcontrol-core-helper-functions-module"></span><h2>pylabcontrol.core.helper_functions module<a class="headerlink" href="#module-pylabcontrol.core.helper_functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pylabcontrol.core.helper_functions.datetime_from_str">
+<code class="descclassname">pylabcontrol.core.helper_functions.</code><code class="descname">datetime_from_str</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/helper_functions.html#datetime_from_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.helper_functions.datetime_from_str" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> – string of the form YYMMDD-HH_MM_SS, e.g 160930-18_43_01</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: a datetime object</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.core.helper_functions.explore_package">
+<code class="descclassname">pylabcontrol.core.helper_functions.</code><code class="descname">explore_package</code><span class="sig-paren">(</span><em>module_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/helper_functions.html#explore_package"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.helper_functions.explore_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns all the packages in the module</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_name</strong> – name of module</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.core.helper_functions.get_python_package">
+<code class="descclassname">pylabcontrol.core.helper_functions.</code><code class="descname">get_python_package</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/helper_functions.html#get_python_package"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.helper_functions.get_python_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>retuns the name of the python package to which the file filename belongs. If file is not in a package returns None</p>
+<p>Note that if the file is in a subpackage, the highest lying package gets returned</p>
+<dl class="docutils">
+<dt>Args:   filename of file for which we would like to find the package</dt>
+<dd>filename:</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the name of the python package</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.core.helper_functions.is_python_package">
+<code class="descclassname">pylabcontrol.core.helper_functions.</code><code class="descname">is_python_package</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/helper_functions.html#is_python_package"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.helper_functions.is_python_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks if folder is a python package or not, i.e. does the folder contain a file __init__.py</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if path points to a python package</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.core.helper_functions.module_name_from_path">
+<code class="descclassname">pylabcontrol.core.helper_functions.</code><code class="descname">module_name_from_path</code><span class="sig-paren">(</span><em>folder_name</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/helper_functions.html#module_name_from_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.helper_functions.module_name_from_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>takes in a path to a folder or file and return the module path and the path to the module</p>
+<dl class="docutils">
+<dt>the module is idenitified by</dt>
+<dd>the path being in os.path, e.g. if /Users/Projects/Python/ is in os.path,
+then folder_name = ‘/Users/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.pyc’
+returns ‘/Users/PycharmProjects/’ as the path and pylabcontrol.scripts.script_dummy as the module</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>folder_name</strong> – path to a file of the form</li>
+<li><strong>'/Users/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.pyc'</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a string of the form, e.g. pylabcontrol.scripts.script_dummy …
+path: a string with the path to the module, e.g. /Users/PycharmProjects/</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">module</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.core.instruments">
+<span id="pylabcontrol-core-instruments-module"></span><h2>pylabcontrol.core.instruments module<a class="headerlink" href="#module-pylabcontrol.core.instruments" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.core.instruments.Instrument">
+<em class="property">class </em><code class="descclassname">pylabcontrol.core.instruments.</code><code class="descname">Instrument</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/instruments.html#Instrument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.instruments.Instrument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>generic instrument class</p>
+<dl class="docutils">
+<dt>for subclass overwrite following old_functions / properties:</dt>
+<dd><ul class="first last simple">
+<li>_settings_default =&gt; parameter object, that is a list of parameters that can be set to configure the instrument</li>
+<li>update =&gt; function that sends parameter changes to the instrument</li>
+<li>values =&gt; dictionary that contains all the values that can be read from the instrument</li>
+<li>get_values =&gt; function that actually requests the values from the instrument</li>
+<li>is_connected =&gt; property that checks if instrument is actually connected</li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pylabcontrol.core.instruments.Instrument.is_connected">
+<code class="descname">is_connected</code><a class="headerlink" href="#pylabcontrol.core.instruments.Instrument.is_connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if instrument is active and connected and return True in that case
+:return: bool</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.instruments.Instrument.load_and_append">
+<em class="property">static </em><code class="descname">load_and_append</code><span class="sig-paren">(</span><em>instrument_dict</em>, <em>instruments=None</em>, <em>raise_errors=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/instruments.html#Instrument.load_and_append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.instruments.Instrument.load_and_append" title="Permalink to this definition">¶</a></dt>
+<dd><p>load instrument from instrument_dict and append to instruments</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>instrument_dict</strong> – <p>dictionary of form</p>
+<p>instrument_dict = {
+name_of_instrument_1 :</p>
+<blockquote>
+<div>{“settings” : settings_dictionary, “class” : name_of_class}</div></blockquote>
+<dl class="docutils">
+<dt>name_of_instrument_2 :</dt>
+<dd>{“settings” : settings_dictionary, “class” : name_of_class}</dd>
+</dl>
+<p>…
+}</p>
+</li>
+<li><strong>or</strong> – instrument_dict = {
+name_of_instrument_1 : name_of_class,
+name_of_instrument_2 : name_of_class
+…
+}</li>
+<li><strong>name_of_class is either a class</strong><strong> or </strong><strong>a dictionary of the form {class</strong> (<em>where</em>) – name_of__class, filepath: path_to_instr_file}</li>
+<li><strong>instruments</strong> – <p>dictionary of form</p>
+<p>instruments = {
+name_of_instrument_1 : instance_of_instrument_1,
+name_of_instrument_2 : instance_of_instrument_2,
+…
+}</p>
+</li>
+<li><strong>raise_errors</strong> – if true errors are raised, if False they are caught but not raised</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>dictionary updated_instruments that contains the old and the new instruments</p>
+<p>and list loaded_failed = [name_of_instrument_1, name_of_instrument_2, ….] that contains the instruments that were requested but could not be loaded</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.instruments.Instrument.name">
+<code class="descname">name</code><a class="headerlink" href="#pylabcontrol.core.instruments.Instrument.name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Returns</em> – instrument name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.instruments.Instrument.read_probes">
+<code class="descname">read_probes</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/instruments.html#Instrument.read_probes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.instruments.Instrument.read_probes" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>function is overloaded:</dt>
+<dd><ul class="first last simple">
+<li>read_probes()</li>
+<li>read_probes(key)</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – name of requested value</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">returns the values of all probes in dictionary form
+- if called with argument: returns the value the requested key</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><ul class="simple">
+<li>if called without argument</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.instruments.Instrument.save_b26">
+<code class="descname">save_b26</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/instruments.html#Instrument.save_b26"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.instruments.Instrument.save_b26" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves the instrument to path as a .b26 file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – path of file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.instruments.Instrument.settings">
+<code class="descname">settings</code><a class="headerlink" href="#pylabcontrol.core.instruments.Instrument.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Returns</em> – instrument settings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.instruments.Instrument.to_dict">
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/instruments.html#Instrument.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.instruments.Instrument.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: the instrument itself as a dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.instruments.Instrument.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/instruments.html#Instrument.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.instruments.Instrument.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates the internal dictionary and sends changed values to instrument
+:param settings: parameters to be set</p>
+<p># mabe in the future:
+# Returns: boolean that is true if update successful</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.core.loading">
+<span id="pylabcontrol-core-loading-module"></span><h2>pylabcontrol.core.loading module<a class="headerlink" href="#module-pylabcontrol.core.loading" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pylabcontrol.core.loading.instantiate_probes">
+<code class="descclassname">pylabcontrol.core.loading.</code><code class="descname">instantiate_probes</code><span class="sig-paren">(</span><em>probes</em>, <em>instruments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/loading.html#instantiate_probes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.loading.instantiate_probes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates instances of the probes inputed;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>probes</strong> – probes is a nested dictionary with
+(key, sub_dict ) = (name of the probe, {‘probe_name’: value_probe, ‘instrument_name’: value_inst}),
+where value_probe is a valid name of a probe in intrument with name value_inst</li>
+<li><strong>example script = {'detector signal'</strong> (<em>for</em>) – {‘probe_name’: “AI0”, ‘instrument_name’: “my_DAQ”}}</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a dictionary with (key,sub_dict) = (name of probe, reference to probe) for all of the probes
+passed to the function that were successfully imported and initialized. Otherwise, probes are omitted
+in the outputted list.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.core.parameter">
+<span id="pylabcontrol-core-parameter-module"></span><h2>pylabcontrol.core.parameter module<a class="headerlink" href="#module-pylabcontrol.core.parameter" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.core.parameter.Parameter">
+<em class="property">class </em><code class="descclassname">pylabcontrol.core.parameter.</code><code class="descname">Parameter</code><span class="sig-paren">(</span><em>name</em>, <em>value=None</em>, <em>valid_values=None</em>, <em>info=None</em>, <em>visible=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/parameter.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.parameter.Parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code></p>
+<dl class="attribute">
+<dt id="pylabcontrol.core.parameter.Parameter.info">
+<code class="descname">info</code><a class="headerlink" href="#pylabcontrol.core.parameter.Parameter.info" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Returns</em> – a text describing the paramter</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.parameter.Parameter.is_valid">
+<em class="property">static </em><code class="descname">is_valid</code><span class="sig-paren">(</span><em>value</em>, <em>valid_values</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/parameter.html#Parameter.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.parameter.Parameter.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>check is the value is valid
+:param value: value to be tested
+:param valid_values: allowed valid values (type or list of values)</p>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.parameter.Parameter.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/parameter.html#Parameter.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.parameter.Parameter.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates the values of the parameter, just as a regular dictionary</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.parameter.Parameter.valid_values">
+<code class="descname">valid_values</code><a class="headerlink" href="#pylabcontrol.core.parameter.Parameter.valid_values" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Returns</em> – valid value of the paramerer (a type like int, float or a list)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.parameter.Parameter.visible">
+<code class="descname">visible</code><a class="headerlink" href="#pylabcontrol.core.parameter.Parameter.visible" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Returns</em> – if parameter should be shown (False) or hidden (True) in the GUI</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.core.probe">
+<span id="pylabcontrol-core-probe-module"></span><h2>pylabcontrol.core.probe module<a class="headerlink" href="#module-pylabcontrol.core.probe" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.core.probe.Probe">
+<em class="property">class </em><code class="descclassname">pylabcontrol.core.probe.</code><code class="descname">Probe</code><span class="sig-paren">(</span><em>instrument</em>, <em>probe_name</em>, <em>name=None</em>, <em>info=None</em>, <em>buffer_length=100</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/probe.html#Probe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.probe.Probe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.probe.Probe.load_and_append">
+<em class="property">static </em><code class="descname">load_and_append</code><span class="sig-paren">(</span><em>probe_dict</em>, <em>probes</em>, <em>instruments={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/probe.html#Probe.load_and_append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.probe.Probe.load_and_append" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>load probes from probe_dict and append to probes, if additional instruments are required create them and add them to instruments</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">probe_dict: dictionary of form</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>probe_dict = {</dt>
+<dd>instrument1_name : probe1_of_instrument1, probe2_of_instrument1, …
+instrument2_name : probe1_of_instrument2, probe2_of_instrument2, …</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>where probe1_of_instrument1 is a valid name of a probe in instrument of class instrument1_name</p>
+<p># optional arguments (as key value pairs):
+#     probe_name
+#     instrument_name
+#     probe_info
+#     buffer_length
+#
+#
+# or
+#     probe_dict = {
+#     name_of_probe_1 : instrument_class_1
+#     name_of_probe_2 : instrument_class_2
+#     …
+#     }</p>
+<dl class="docutils">
+<dt>probes: dictionary of form</dt>
+<dd><dl class="first last docutils">
+<dt>probe_dict = {</dt>
+<dd><dl class="first last docutils">
+<dt>instrument1_name:</dt>
+<dd><dl class="first last docutils">
+<dt>{name_of_probe_1_of_instrument1 <span class="classifier-delimiter">:</span> <span class="classifier">probe_1_instance,</span></dt>
+<dd>name_of_probe_2_instrument1 : probe_2_instance
+}
+, …}</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>instruments: dictionary of form</p>
+<blockquote class="last">
+<div>instruments = {
+name_of_instrument_1 : instance_of_instrument_1,
+name_of_instrument_2 : instance_of_instrument_2,
+…
+}</div></blockquote>
+</dd>
+</dl>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">probe_1_instance, name_of_probe_2 : probe_2_instance, …}
+loaded_failed = {name_of_probe_1: exception_1, name_of_probe_2: exception_2, ….}
+updated_instruments</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">updated_probes = { name_of_probe_1</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.probe.Probe.name">
+<code class="descname">name</code><a class="headerlink" href="#pylabcontrol.core.probe.Probe.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.probe.Probe.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/probe.html#Probe.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.probe.Probe.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.probe.Probe.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/probe.html#Probe.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.probe.Probe.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>save the instrument to path as a .b26 file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – path of file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.probe.Probe.to_dict">
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/probe.html#Probe.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.probe.Probe.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: itself as a dictionary</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.probe.Probe.value">
+<code class="descname">value</code><a class="headerlink" href="#pylabcontrol.core.probe.Probe.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>reads the value from the instrument</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.core.read_probes">
+<span id="pylabcontrol-core-read-probes-module"></span><h2>pylabcontrol.core.read_probes module<a class="headerlink" href="#module-pylabcontrol.core.read_probes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.core.read_probes.ReadProbes">
+<em class="property">class </em><code class="descclassname">pylabcontrol.core.read_probes.</code><code class="descname">ReadProbes</code><span class="sig-paren">(</span><em>probes</em>, <em>refresh_interval=2.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/read_probes.html#ReadProbes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.read_probes.ReadProbes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtCore.QThread</span></code></p>
+<dl class="method">
+<dt id="pylabcontrol.core.read_probes.ReadProbes.quit">
+<code class="descname">quit</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/read_probes.html#ReadProbes.quit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.read_probes.ReadProbes.quit" title="Permalink to this definition">¶</a></dt>
+<dd><p>quit the  read_probe thread</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.read_probes.ReadProbes.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/read_probes.html#ReadProbes.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.read_probes.ReadProbes.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>this is the actual execution of the ReadProbes thread: continuously read values from the probes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.read_probes.ReadProbes.start">
+<code class="descname">start</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/read_probes.html#ReadProbes.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.read_probes.ReadProbes.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>start the read_probe thread</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.read_probes.ReadProbes.updateProgress">
+<code class="descname">updateProgress</code><a class="headerlink" href="#pylabcontrol.core.read_probes.ReadProbes.updateProgress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.core.read_write_functions">
+<span id="pylabcontrol-core-read-write-functions-module"></span><h2>pylabcontrol.core.read_write_functions module<a class="headerlink" href="#module-pylabcontrol.core.read_write_functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pylabcontrol.core.read_write_functions.get_config_value">
+<code class="descclassname">pylabcontrol.core.read_write_functions.</code><code class="descname">get_config_value</code><span class="sig-paren">(</span><em>name</em>, <em>path_to_file='config.txt'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/read_write_functions.html#get_config_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.read_write_functions.get_config_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the value for “name” from “path_to_file” config file
+:param name: name of varibale in config file
+:param path_to_file: path to config file</p>
+<p>Returns: path to dll if name exists in the file; otherwise, returns None</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.core.read_write_functions.import_sub_modules">
+<code class="descclassname">pylabcontrol.core.read_write_functions.</code><code class="descname">import_sub_modules</code><span class="sig-paren">(</span><em>module_type</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/read_write_functions.html#import_sub_modules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.read_write_functions.import_sub_modules" title="Permalink to this definition">¶</a></dt>
+<dd><p>imports all the module_type from additional modules that contain module_type
+This name of those modules is in the config file that is located in the main directory
+module_type: str that specifies the type of module to be loaded (scripts / instruments)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">module_list: a list with modules that contain module_type</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.core.read_write_functions.load_b26_file">
+<code class="descclassname">pylabcontrol.core.read_write_functions.</code><code class="descname">load_b26_file</code><span class="sig-paren">(</span><em>file_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/read_write_functions.html#load_b26_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.read_write_functions.load_b26_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads a .b26 file into a dictionary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_name</strong> – </td>
+</tr>
+</tbody>
+</table>
+<p>Returns: dictionary with keys instrument, scripts, probes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.core.read_write_functions.save_b26_file">
+<code class="descclassname">pylabcontrol.core.read_write_functions.</code><code class="descname">save_b26_file</code><span class="sig-paren">(</span><em>filename</em>, <em>instruments=None</em>, <em>scripts=None</em>, <em>probes=None</em>, <em>overwrite=False</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/read_write_functions.html#save_b26_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.read_write_functions.save_b26_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>save instruments, scripts and probes as a json file
+:param filename:
+:param instruments:
+:param scripts:
+:param probes: dictionary of the form {instrument_name : probe_1_of_intrument, probe_2_of_intrument, …}</p>
+<p>Returns:</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.core.script_iterator">
+<span id="pylabcontrol-core-script-iterator-module"></span><h2>pylabcontrol.core.script_iterator module<a class="headerlink" href="#module-pylabcontrol.core.script_iterator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.core.script_iterator.ScriptIterator">
+<em class="property">class </em><code class="descclassname">pylabcontrol.core.script_iterator.</code><code class="descname">ScriptIterator</code><span class="sig-paren">(</span><em>scripts</em>, <em>name=None</em>, <em>settings=None</em>, <em>log_function=None</em>, <em>data_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/script_iterator.html#ScriptIterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.script_iterator.ScriptIterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pylabcontrol.core.scripts.Script" title="pylabcontrol.core.scripts.Script"><code class="xref py py-class docutils literal"><span class="pre">pylabcontrol.core.scripts.Script</span></code></a></p>
+<p>This is a template class for scripts that iterate over a series of subscripts in either a loop /
+a parameter sweep / future: list of points.
+CAUTION: This class has some circular dependencies with Script that are avoided by only importing it in very local scope
+in Script (since this inherits from Script, it can’t be imported globally in Script). Use caution when making changes in
+Script.</p>
+<dl class="attribute">
+<dt id="pylabcontrol.core.script_iterator.ScriptIterator.ITER_TYPES">
+<code class="descname">ITER_TYPES</code><em class="property"> = ['loop', 'sweep']</em><a class="headerlink" href="#pylabcontrol.core.script_iterator.ScriptIterator.ITER_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.script_iterator.ScriptIterator.create_dynamic_script_class">
+<em class="property">static </em><code class="descname">create_dynamic_script_class</code><span class="sig-paren">(</span><em>script_information</em>, <em>script_iterators={}</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/script_iterator.html#ScriptIterator.create_dynamic_script_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.script_iterator.ScriptIterator.create_dynamic_script_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates all the dynamic classes in the script and the class of the script itself
+and updates the script info with these new classes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>script_information</strong> – A dictionary describing the ScriptIterator, or an existing object</li>
+<li><strong>script_iterators</strong> – dictionary with the scriptiterators (optional)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The updated dictionary describing the newly created ScriptIterator class
+script_iterators: updated dictionary with the scriptiterators</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">script_information</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Poststate: Dynamically created classes inheriting from ScriptIterator are added to pylabcontrol.scripts</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.script_iterator.ScriptIterator.get_default_settings">
+<em class="property">static </em><code class="descname">get_default_settings</code><span class="sig-paren">(</span><em>sub_scripts</em>, <em>script_order</em>, <em>script_execution_freq</em>, <em>iterator_type</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/script_iterator.html#ScriptIterator.get_default_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.script_iterator.ScriptIterator.get_default_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>assigning the actual script settings depending on the iterator type</p>
+<p>this might be overwritten by classes that inherit form ScriptIterator</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sub_scripts</strong> – dictionary with the subscripts</li>
+<li><strong>script_order</strong> – execution order of subscripts</li>
+<li><strong>script_execution_freq</strong> – execution frequency of subscripts</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the default setting for the iterator</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.script_iterator.ScriptIterator.get_iterator_default_script">
+<em class="property">static </em><code class="descname">get_iterator_default_script</code><span class="sig-paren">(</span><em>iterator_type</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/script_iterator.html#ScriptIterator.get_iterator_default_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.script_iterator.ScriptIterator.get_iterator_default_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function might be overwritten by functions that inherit from ScriptIterator
+:returns: a dictionary with the default scripts for the script_iterator</p>
+<blockquote>
+<div>script_settings: a dictionary with the script_settingsfor the default scripts</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">sub_scripts</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.script_iterator.ScriptIterator.get_iterator_type">
+<em class="property">static </em><code class="descname">get_iterator_type</code><span class="sig-paren">(</span><em>script_settings</em>, <em>subscripts={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/script_iterator.html#ScriptIterator.get_iterator_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.script_iterator.ScriptIterator.get_iterator_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>figures out the iterator type based on the script settings and (optionally) subscripts
+:param script_settings: iterator_type
+:param subscripts: subscripts</p>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.script_iterator.ScriptIterator.get_script_iterator">
+<em class="property">static </em><code class="descname">get_script_iterator</code><span class="sig-paren">(</span><em>package_name</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/script_iterator.html#ScriptIterator.get_script_iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.script_iterator.ScriptIterator.get_script_iterator" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>package_name</strong> – name of package</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: the script_iterators of the package as a dictionary</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.script_iterator.ScriptIterator.get_script_order">
+<em class="property">static </em><code class="descname">get_script_order</code><span class="sig-paren">(</span><em>script_order</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/script_iterator.html#ScriptIterator.get_script_order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.script_iterator.ScriptIterator.get_script_order" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>script_order</strong> – a dictionary giving the order that the scripts in the ScriptIterator should be executed.
+Must be in the form {‘script_name’: int}. Scripts are executed from lowest number to highest</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of parameters giving the order that the scripts in the ScriptIterator should be executed.
+script_execution_freq:<blockquote>
+<div>A list of parameters giving the frequency with which each script should be executed,
+e.g. 1 is every loop, 3 is every third loop, 0 is never</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">script_order_parameter</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.script_iterator.ScriptIterator.loop_index">
+<code class="descname">loop_index</code><a class="headerlink" href="#pylabcontrol.core.script_iterator.ScriptIterator.loop_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.script_iterator.ScriptIterator.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>figure_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/script_iterator.html#ScriptIterator.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.script_iterator.ScriptIterator.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>When each subscript is called, uses its standard plotting</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>figure_list</strong> – list of figures passed from the guit</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.script_iterator.ScriptIterator.skip_next">
+<code class="descname">skip_next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/script_iterator.html#ScriptIterator.skip_next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.script_iterator.ScriptIterator.skip_next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.script_iterator.ScriptIterator.to_dict">
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/script_iterator.html#ScriptIterator.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.script_iterator.ScriptIterator.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: itself as a dictionary</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.core.scripts">
+<span id="pylabcontrol-core-scripts-module"></span><h2>pylabcontrol.core.scripts module<a class="headerlink" href="#module-pylabcontrol.core.scripts" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.core.scripts.Script">
+<em class="property">class </em><code class="descclassname">pylabcontrol.core.scripts.</code><code class="descname">Script</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=None</em>, <em>instruments=None</em>, <em>scripts=None</em>, <em>log_function=None</em>, <em>data_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtCore.QObject</span></code></p>
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.RAW_DATA_DIR">
+<code class="descname">RAW_DATA_DIR</code><em class="property"> = 'raw_data'</em><a class="headerlink" href="#pylabcontrol.core.scripts.Script.RAW_DATA_DIR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.SUBSCRIPT_DATA_DIR">
+<code class="descname">SUBSCRIPT_DATA_DIR</code><em class="property"> = 'data_subscripts'</em><a class="headerlink" href="#pylabcontrol.core.scripts.Script.SUBSCRIPT_DATA_DIR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.data_path">
+<code class="descname">data_path</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.data_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.duplicate">
+<code class="descname">duplicate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.duplicate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>create an copy of the script</p>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.end_time">
+<code class="descname">end_time</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.end_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>time when script execution ended
+:return:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.excecution_time">
+<code class="descname">excecution_time</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.excecution_time" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>return</em> – script excecition time as time_delta object to get time in seconds use .total_seconds()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.filename">
+<code class="descname">filename</code><span class="sig-paren">(</span><em>appendix=None</em>, <em>create_if_not_existing=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates a filename based
+:param appendix: appendix for file</p>
+<p>Returns: filename</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.finished">
+<code class="descname">finished</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.force_update">
+<code class="descname">force_update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.force_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.force_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>forces the plot to refresh
+Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.get_axes_layout">
+<code class="descname">get_axes_layout</code><span class="sig-paren">(</span><em>figure_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.get_axes_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.get_axes_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the axes objects the script needs to plot its data
+the default creates a single axes object on each figure
+This can/should be overwritten in a child script if more axes objects are needed
+:param figure_list: a list of figure objects</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of axes objects</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">axes_list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.get_axes_layout_validate">
+<code class="descname">get_axes_layout_validate</code><span class="sig-paren">(</span><em>figure_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.get_axes_layout_validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.get_axes_layout_validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates the axes layout for the validation plots
+:param figure_list: list of figures
+:return: list of axes objects</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.scripts.Script.get_script_information">
+<em class="property">static </em><code class="descname">get_script_information</code><span class="sig-paren">(</span><em>script_information</em>, <em>package='pylabcontrol'</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.get_script_information"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.get_script_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>extracts all the relevant information from script_information and returns it as individual variables
+:param script_information: information of the script. This can be</p>
+<blockquote>
+<div><ul class="simple">
+<li>a dictionary</li>
+<li>a Script instance</li>
+<li>name of Script class</li>
+</ul>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>package</strong> (<em>optional</em>) – name of the package to which the script belongs, i.e. pylabcontrol or b26toolkit.
+Only used when script_information is a string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">module, script_class_name, script_settings, script_instruments, script_sub_scripts, script_info, package</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.scripts.Script.get_script_module">
+<em class="property">static </em><code class="descname">get_script_module</code><span class="sig-paren">(</span><em>script_information</em>, <em>package='pylabcontrol'</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.get_script_module"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.get_script_module" title="Permalink to this definition">¶</a></dt>
+<dd><p>wrapper to get the module for a script</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>script_information</strong> – information of the script. This can be
+- a dictionary
+- a Script instance
+- name of Script class</li>
+<li><strong>package</strong> (<em>optional</em>) – name of the package to which the script belongs, i.e. pylabcontrol or b26toolkit only used when script_information is a string</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">module</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.instruments">
+<code class="descname">instruments</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.instruments" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>return</em> – instruments that the script uses as a dictionary</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.instrumets">
+<code class="descname">instrumets</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.instrumets" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>return</em> – instruments that the script uses as a dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.is_valid">
+<code class="descname">is_valid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>function to validate of the script parameters are valid:</dt>
+<dd><ul class="first last simple">
+<li>check if the filename is too long (pandas can’t write files if the total filepath is longer than 259 characters)</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.scripts.Script.load">
+<em class="property">static </em><code class="descname">load</code><span class="sig-paren">(</span><em>filename</em>, <em>instruments=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads an script instance using pickle
+:param filename: source filename
+:param instruments: optional - only needed if script requires instruments</p>
+<blockquote>
+<div><p>dictionary of form</p>
+<p>instruments = {
+name_of_instrument_1 : instance_of_instrument_1,
+name_of_instrument_2 : instance_of_instrument_2,
+…
+}</p>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">script_instance
+updated_instruments</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.scripts.Script.load_and_append">
+<em class="property">static </em><code class="descname">load_and_append</code><span class="sig-paren">(</span><em>script_dict</em>, <em>scripts=None</em>, <em>instruments=None</em>, <em>log_function=None</em>, <em>data_path=None</em>, <em>raise_errors=True</em>, <em>package='pylabcontrol'</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.load_and_append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.load_and_append" title="Permalink to this definition">¶</a></dt>
+<dd><p>load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>script_dict</strong> – <p>dictionary of form</p>
+<p>script_dict = {
+name_of_script_1 :</p>
+<blockquote>
+<div>{“settings” : settings_dictionary, “class” : name_of_class}</div></blockquote>
+<dl class="docutils">
+<dt>name_of_instrument_2 :</dt>
+<dd>{“settings” : settings_dictionary, “class” : name_of_class}</dd>
+</dl>
+<p>…
+}</p>
+</li>
+<li><strong>or</strong> – script_dict = {
+name_of_script_1 : name_of_class,
+name_of_script_2 : name_of_class
+…
+}</li>
+<li><strong>name_of_class is either a class</strong><strong> or </strong><strong>the name of a class</strong> (<em>where</em>) – </li>
+<li><strong>scripts</strong> – <p>dictionary of form</p>
+<p>scripts = {
+name_of_script_1 : instance_of_script_1,
+name_of_script_2 : instance_of_script_2,
+…
+}</p>
+</li>
+<li><strong>instruments</strong> – <p>dictionary of form</p>
+<p>instruments = {
+name_of_instrument_1 : instance_of_instrument_1,
+name_of_instrument_2 : instance_of_instrument_2,
+…
+}</p>
+</li>
+<li><strong>log_function</strong> – function that takes a string</li>
+<li><strong>data_path</strong> – absolute path where data is saved, in case the path in the script is definded as a relative path</li>
+<li><strong>raise_errors</strong> – if True errors are raised</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dictionary of form
+script_dict = { name_of_script_1 : script_1_instance, name_of_script_2 : script_2_instance, …}
+load_failed = {name_of_script_1: exception_1, name_of_script_2: exception_2, ….}
+updated_instruments = {name_of_instrument_1 : instance_of_instrument_1, ..}</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.scripts.Script.load_data">
+<em class="property">static </em><code class="descname">load_data</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads the data that has been save with Script.save.
+:param path: path to folder saved by Script.save or raw_data folder within</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a dictionary with the data of form
+data = {param_1_name: param_1_data, …}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pylabcontrol.core.scripts.Script.load_settings">
+<em class="property">static </em><code class="descname">load_settings</code><span class="sig-paren">(</span><em>path</em>, <em>setttings_only=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.load_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.load_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads the settings that has been save with Script.save_b26.
+:param path: path to folder saved by Script.save_b26
+:param setttings_only: if true returns only the settings if the .b26 file contains only a single script</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a dictionary with the settings</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.log">
+<code class="descname">log</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>appends input string to log file and sends it to log function (self.log_function)
+Returns:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.name">
+<code class="descname">name</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>script name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>figure_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>plots the data contained in self.data, which should be a dictionary or a deque of dictionaries
+for the latter use the last entry
+:param figure_list: list of figure objects that are passed to self.get_axes_layout to get axis objects for plotting</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.plot_validate">
+<code class="descname">plot_validate</code><span class="sig-paren">(</span><em>figure_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.plot_validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.plot_validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>plots the data contained in self.data, which should be a dictionary or a deque of dictionaries
+for the latter use the last entry</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.remaining_time">
+<code class="descname">remaining_time</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.remaining_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>estimates the time remaining until script is finished</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>executes the script
+:return: boolean if execution of script finished succesfully</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves the instance of the script to a file using pickle
+:param filename: target filename</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.save_b26">
+<code class="descname">save_b26</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.save_b26"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.save_b26" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves the script settings to a file: filename is filename is not provided, it is created from internal function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.save_data">
+<code class="descname">save_data</code><span class="sig-paren">(</span><em>filename=None</em>, <em>data_tag=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.save_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.save_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves the script data to a file
+filename: target filename, if not provided, it is created from internal function
+data_tag: string, if provided save only the data that matches the tag, otherwise save all data
+Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.save_image_to_disk">
+<code class="descname">save_image_to_disk</code><span class="sig-paren">(</span><em>filename_1=None</em>, <em>filename_2=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.save_image_to_disk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.save_image_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates an image using the scripts plot function and writes it to the disk
+for single plots (plot_type: ‘main’, ‘aux’)</p>
+<blockquote>
+<div><ul class="simple">
+<li>if no filname provided take default name</li>
+</ul>
+</div></blockquote>
+<dl class="docutils">
+<dt>for double plots (plot_type: ‘main’, ‘aux’)</dt>
+<dd><ul class="first last simple">
+<li>if no filnames provided take default name</li>
+<li>if only one filname provided save only the plot for which name is provided</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename_1</strong> – filname for figure 1</li>
+<li><strong>filename_2</strong> – filname for figure 1</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.save_log">
+<code class="descname">save_log</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.save_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.save_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>save log to file
+Returns:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.scripts">
+<code class="descname">scripts</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.scripts" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>return</em> – sub_scripts that the script uses as a dictionary</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.settings">
+<code class="descname">settings</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>return</em> – returns the settings of the script
+settings contain Parameters, Instruments and Scripts</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.start_time">
+<code class="descname">start_time</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.start_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>time when script execution started</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.started">
+<code class="descname">started</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.started" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>stops itself and all the subscript</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.to_dict">
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: itself as a dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.core.scripts.Script.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/core/scripts.html#Script.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.core.scripts.Script.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates the internal dictionary
+:param settings: parameters to be set</p>
+<p># mabe in the future:
+# Returns: boolean that is true if update successful</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylabcontrol.core.scripts.Script.updateProgress">
+<code class="descname">updateProgress</code><a class="headerlink" href="#pylabcontrol.core.scripts.Script.updateProgress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.core">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylabcontrol.core" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="pylabcontrol.html">pylabcontrol package</a><ul>
+      <li>Previous: <a href="pylabcontrol.html" title="previous chapter">pylabcontrol package</a></li>
+      <li>Next: <a href="pylabcontrol.data_processing.html" title="next chapter">pylabcontrol.data_processing package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/code_docs/pylabcontrol.core.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,455 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pylabcontrol.core.helper_functions &#8212; pylabcontrol 0.1a3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1a3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pylabcontrol.core.helper_functions</h1><div class="highlight"><pre>
+<span></span>
+    <span class="c1"># This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.</span>
+    <span class="c1"># Copyright (C) &lt;2016&gt;  Arthur Safira, Jan Gieseler, Aaron Kabcenell</span>
+    <span class="c1">#</span>
+    <span class="c1">#</span>
+    <span class="c1"># pylabcontrol is free software: you can redistribute it and/or modify</span>
+    <span class="c1"># it under the terms of the GNU General Public License as published by</span>
+    <span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+    <span class="c1"># (at your option) any later version.</span>
+    <span class="c1">#</span>
+    <span class="c1"># pylabcontrol is distributed in the hope that it will be useful,</span>
+    <span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+    <span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+    <span class="c1"># GNU General Public License for more details.</span>
+    <span class="c1">#</span>
+    <span class="c1"># You should have received a copy of the GNU General Public License</span>
+    <span class="c1"># along with pylabcontrol.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">pkgutil</span>
+
+<div class="viewcode-block" id="module_name_from_path"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.helper_functions.module_name_from_path">[docs]</a><span class="k">def</span> <span class="nf">module_name_from_path</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    takes in a path to a folder or file and return the module path and the path to the module</span>
+
+<span class="sd">    the module is idenitified by</span>
+<span class="sd">        the path being in os.path, e.g. if /Users/Projects/Python/ is in os.path,</span>
+<span class="sd">        then folder_name = &#39;/Users/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.pyc&#39;</span>
+<span class="sd">        returns &#39;/Users/PycharmProjects/&#39; as the path and pylabcontrol.scripts.script_dummy as the module</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        folder_name: path to a file of the form</span>
+<span class="sd">        &#39;/Users/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.pyc&#39;</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        module: a string of the form, e.g. pylabcontrol.scripts.script_dummy ...</span>
+<span class="sd">        path: a string with the path to the module, e.g. /Users/PycharmProjects/</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># strip off endings</span>
+    <span class="n">folder_name</span> <span class="o">=</span> <span class="n">folder_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.pyc&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">folder_name</span> <span class="o">=</span> <span class="n">folder_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.py&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">folder_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">folder_name</span><span class="p">)</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">folder_name</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
+
+    <span class="n">package</span> <span class="o">=</span> <span class="n">get_python_package</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="c1"># path = folder_name</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;folder_name&#39;</span><span class="p">,</span> <span class="n">folder_name</span><span class="p">))</span>
+
+    <span class="c1"># os_sys_path = os.sys.path</span>
+    <span class="c1">#</span>
+    <span class="c1"># if os.path.normpath(path) in os_sys_path:</span>
+    <span class="c1">#     if verbose:</span>
+    <span class="c1">#         print(&#39;warning: path in sys.path!&#39;)</span>
+    <span class="c1">#     os_sys_path.remove(os.path.normpath(path))</span>
+    <span class="c1">#</span>
+    <span class="c1">#</span>
+    <span class="c1"># if verbose:</span>
+    <span class="c1">#     for elem in os_sys_path:</span>
+    <span class="c1">#</span>
+    <span class="c1">#         print(&#39;os.sys.path&#39;, elem)</span>
+
+
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="n">module</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">==</span> <span class="n">package</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">break</span>
+
+        <span class="c1"># failed to identify the module</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">==</span> <span class="n">path</span><span class="p">:</span>
+            <span class="n">path</span><span class="p">,</span> <span class="n">module</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
+
+        <span class="c1"># if path == os.path.dirname(path):</span>
+        <span class="c1">#     if verbose:</span>
+        <span class="c1">#         print(&#39;break --  os.path.dirname(path)&#39;, os.path.dirname(path))</span>
+        <span class="c1">#     # path, module = None, None</span>
+        <span class="c1">#     break</span>
+        <span class="c1">#</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;module&#39;</span><span class="p">,</span> <span class="n">module</span><span class="p">))</span>
+
+
+    <span class="c1"># OLD START</span>
+    <span class="c1"># while path not in os_sys_path:</span>
+    <span class="c1">#     path = os.path.dirname(path)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     if verbose:</span>
+    <span class="c1">#         print(&#39;path&#39;, path, os.path.dirname(path))</span>
+    <span class="c1">#</span>
+    <span class="c1">#     if path == os.path.dirname(path):</span>
+    <span class="c1">#         if verbose:</span>
+    <span class="c1">#             print(&#39;break --  os.path.dirname(path)&#39;, os.path.dirname(path))</span>
+    <span class="c1">#         # path, module = None, None</span>
+    <span class="c1">#         break</span>
+    <span class="c1">#     module.append(os.path.basename(path))</span>
+    <span class="c1">#</span>
+    <span class="c1">#     if verbose:</span>
+    <span class="c1">#         print(&#39;module&#39;, module)</span>
+    <span class="c1"># OLD END</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;module&#39;</span><span class="p">,</span> <span class="n">module</span><span class="p">))</span>
+
+    <span class="c1">#occurs if module not found in this path</span>
+    <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">module</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">ModuleNotFoundError</span><span class="p">(</span><span class="s1">&#39;The path in the .b26 file to this package is not valid&#39;</span><span class="p">)</span>
+
+    <span class="c1"># module = module[:-1]</span>
+    <span class="c1"># print(&#39;mod&#39;, module)</span>
+    <span class="c1"># from the list construct the path like b26_toolkit.pylabcontrol.scripts and load it</span>
+    <span class="n">module</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">module</span><span class="p">,</span> <span class="n">path</span></div>
+
+<div class="viewcode-block" id="is_python_package"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.helper_functions.is_python_package">[docs]</a><span class="k">def</span> <span class="nf">is_python_package</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    checks if folder is a python package or not, i.e. does the folder contain a file __init__.py</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        path:</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        True if path points to a python package</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;__init__.py&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="get_python_package"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.helper_functions.get_python_package">[docs]</a><span class="k">def</span> <span class="nf">get_python_package</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    retuns the name of the python package to which the file filename belongs. If file is not in a package returns None</span>
+
+<span class="sd">    Note that if the file is in a subpackage, the highest lying package gets returned</span>
+
+<span class="sd">    Args:   filename of file for which we would like to find the package</span>
+<span class="sd">        filename:</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        the name of the python package</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">package_found</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="c1"># turn path to file into an array</span>
+    <span class="n">path_array</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">break</span>
+        <span class="n">path_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+    <span class="c1"># now successively build up the path and check if its a package</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path_array</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_python_package</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">package_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">package_found</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="datetime_from_str"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.helper_functions.datetime_from_str">[docs]</a><span class="k">def</span> <span class="nf">datetime_from_str</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        string: string of the form YYMMDD-HH_MM_SS, e.g 160930-18_43_01</span>
+
+<span class="sd">    Returns: a datetime object</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2000</span><span class="o">+</span><span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]),</span> <span class="n">month</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">]),</span> <span class="n">day</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]),</span> <span class="n">hour</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">9</span><span class="p">]),</span> <span class="n">minute</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">12</span><span class="p">]),</span><span class="n">second</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="mi">13</span><span class="p">:</span><span class="mi">15</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="explore_package"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.helper_functions.explore_package">[docs]</a><span class="k">def</span> <span class="nf">explore_package</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns all the packages in the module</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        module_name: name of module</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">packages</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">loader</span> <span class="o">=</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">get_loader</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">sub_module</span> <span class="ow">in</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">walk_packages</span><span class="p">([</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">get_filename</span><span class="p">())],</span>
+                                            <span class="n">prefix</span><span class="o">=</span><span class="n">module_name</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">sub_module_name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sub_module</span>
+        <span class="n">packages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub_module_name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">packages</span></div>
+
+
+    <span class="c1"># packages = []</span>
+    <span class="c1"># for sub_module in pkgutil.iter_modules(module_name):</span>
+    <span class="c1">#     _, sub_module_name, _ = sub_module</span>
+    <span class="c1">#     print(sub_module_name)</span>
+    <span class="c1">#     break</span>
+    <span class="c1">#     qname = module_name + &quot;.&quot; + sub_module_name</span>
+    <span class="c1">#     packages.append(qname)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     packages = packages + explore_package(qname)</span>
+    <span class="c1">#</span>
+    <span class="c1"># return packages</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># print(pkgutil.get_loader(&#39;b26_toolkit.pylabcontrol.core&#39;).get_filename()[0:-12])</span>
+    <span class="c1"># packages = []</span>
+    <span class="c1"># for sub_module in pkgutil.walk_packages(&#39;b26_toolkit.pylabcontrol.core&#39;):</span>
+    <span class="c1">#     _, sub_module_name, _ = sub_module</span>
+    <span class="c1">#     print(sub_module)</span>
+    <span class="c1">#     break</span>
+    <span class="c1">#     qname = module_name + &quot;.&quot; + sub_module_name</span>
+    <span class="c1">#     packages.append(qname)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     packages = packages + explore_package(qname)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">explore_package</span><span class="p">(</span><span class="s1">&#39;b26_toolkit.pylabcontrol.core&#39;</span><span class="p">))</span>
+
+
+
+
+
+
+
+    <span class="c1"># explore_package(package)</span>
+    <span class="c1"># import pylabcontrol</span>
+    <span class="c1"># x = inspect.getmoduleinfo(&#39;pylabcontrol&#39;)</span>
+    <span class="c1"># print(x)</span>
+    <span class="c1">#</span>
+    <span class="c1"># x = inspect.getmoduleinfo(pylabcontrol)</span>
+    <span class="c1">#</span>
+    <span class="c1"># inspect.isclass(object)</span>
+    <span class="c1"># print(x)</span>
+
+    <span class="c1"># loader = pkgutil.get_loader(package)</span>
+    <span class="c1"># for sub_module in pkgutil.walk_packages([loader.filename]):</span>
+    <span class="c1">#     _, sub_module_name, _ = sub_module</span>
+    <span class="c1">#     qname = package + &quot;.&quot; + sub_module_name</span>
+    <span class="c1">#     print(qname)</span>
+
+
+    <span class="c1"># for (module_loader, name, ispkg) in pkgutil.iter_modules([package]):</span>
+    <span class="c1">#     print(name)</span>
+
+    <span class="c1"># from pylabcontrol.core.script_iterator import ScriptIterator</span>
+    <span class="c1"># for cls in ScriptIterator.__subclasses__():</span>
+    <span class="c1">#     print(cls)</span>
+
+    <span class="c1"># import sys</span>
+    <span class="c1"># import pkgutil</span>
+    <span class="c1">#</span>
+    <span class="c1">#</span>
+    <span class="c1"># assert pkgutil.find_loader(package) is not None # check that package exists</span>
+    <span class="c1">#</span>
+    <span class="c1"># print(pkgutil.find_loader(package))</span>
+    <span class="c1">#</span>
+    <span class="c1">#</span>
+    <span class="c1"># print(inspect.getmembers(getattr(package)))</span>
+    <span class="c1"># print(sys.modules[__name__])</span>
+
+    <span class="c1"># for name, obj in inspect.getmembers(foo):</span>
+    <span class="c1">#     if inspect.isclass(obj):</span>
+    <span class="c1">#         print obj</span>
+
+    <span class="c1"># print(get_script_iterator(package))</span>
+
+    <span class="c1"># print(&#39;aaa&#39;)</span>
+    <span class="c1"># for x in os.sys.path:</span>
+    <span class="c1">#     print(x)</span>
+    <span class="c1">#</span>
+    <span class="c1"># folder_name = &#39;C://Users//Experiment//PycharmProjects//pylabcontrol//pylabcontrol//core&#39;</span>
+    <span class="c1"># print(module_name_from_path(folder_name))</span>
+    <span class="c1">#</span>
+
+    <span class="c1"># # test for scripts generated with export_default_scripts</span>
+    <span class="c1"># fp = &#39;/Users/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.py&#39;</span>
+    <span class="c1">#</span>
+    <span class="c1"># module, path = module_name_from_path(fp, verbose=False)</span>
+
+
+    <span class="c1"># fp = &#39;/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.py&#39;</span>
+    <span class="c1">#</span>
+    <span class="c1"># module, path = module_name_from_path(fp, verbose=True)</span>
+    <span class="c1">#</span>
+    <span class="c1"># print(&#39;----------&#39;)</span>
+    <span class="c1"># print(&#39;module&#39;, module)</span>
+    <span class="c1"># print(&#39;path&#39;, path)</span>
+    <span class="c1">#</span>
+    <span class="c1"># print(&#39; os.sys.path&#39;,  os.sys.path)</span>
+
+
+
+
+
+
+
+    <span class="c1"># test</span>
+    <span class="c1"># fn= &#39;/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.py&#39;</span>
+    <span class="c1"># # fn = &#39;/Users/rettentulla/&#39;</span>
+    <span class="c1"># print(get_python_package(fn))</span>
+
+
+
+    <span class="c1"># path = os.path.dirname(&#39;/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.py&#39;)</span>
+    <span class="c1">#</span>
+    <span class="c1"># path_array = []</span>
+    <span class="c1"># while True:</span>
+    <span class="c1">#     path = os.path.dirname(path)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     if path == os.path.dirname(path):</span>
+    <span class="c1">#         break</span>
+    <span class="c1">#</span>
+    <span class="c1">#     path_array.append(os.path.basename(path))</span>
+    <span class="c1">#     print(os.path.dirname(path))</span>
+    <span class="c1">#</span>
+    <span class="c1"># path = os.path.normpath(&#39;/&#39;)</span>
+    <span class="c1"># for p in path_array[::-1]:</span>
+    <span class="c1">#     path = os.path.join(path, p)</span>
+    <span class="c1">#     print(path, is_python_package(path))</span>
+        <span class="c1">#</span>
+        <span class="c1"># print(&#39;&gt;&gt;&gt;&gt;&gt;&#39;, os.path.join(path, &#39;__init__.py&#39;))</span>
+        <span class="c1"># print(&#39;&gt;&gt;&gt;&gt;&gt;&#39;, glob.glob(os.path.join(path, &#39;__init__.py&#39;)))</span>
+
+    <span class="c1"># print(&#39;---&#39;, path_array[::-1])</span>
+
+
+
+
+
+    <span class="c1"># test for getting the path of a module</span>
+    <span class="c1"># fp = &#39;/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/gui&#39;</span>
+    <span class="c1">#</span>
+    <span class="c1">#</span>
+    <span class="c1"># module, path = module_name_from_path(fp, verbose=False)</span>
+    <span class="c1">#</span>
+    <span class="c1"># print(&#39;----------&#39;)</span>
+    <span class="c1"># print(&#39;module&#39;, module)</span>
+    <span class="c1"># print(&#39;path&#39;, path)</span>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

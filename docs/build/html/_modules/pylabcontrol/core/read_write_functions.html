@@ -1,0 +1,249 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pylabcontrol.core.read_write_functions &#8212; pylabcontrol 0.1a3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1a3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pylabcontrol.core.read_write_functions</h1><div class="highlight"><pre>
+<span></span>
+    <span class="c1"># This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.</span>
+    <span class="c1"># Copyright (C) &lt;2016&gt;  Arthur Safira, Jan Gieseler, Aaron Kabcenell</span>
+    <span class="c1">#</span>
+    <span class="c1">#</span>
+    <span class="c1"># pylabcontrol is free software: you can redistribute it and/or modify</span>
+    <span class="c1"># it under the terms of the GNU General Public License as published by</span>
+    <span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+    <span class="c1"># (at your option) any later version.</span>
+    <span class="c1">#</span>
+    <span class="c1"># pylabcontrol is distributed in the hope that it will be useful,</span>
+    <span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+    <span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+    <span class="c1"># GNU General Public License for more details.</span>
+    <span class="c1">#</span>
+    <span class="c1"># You should have received a copy of the GNU General Public License</span>
+    <span class="c1"># along with pylabcontrol.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span><span class="o">,</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="k">import</span> <span class="n">import_module</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+
+
+<div class="viewcode-block" id="import_sub_modules"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.read_write_functions.import_sub_modules">[docs]</a><span class="k">def</span> <span class="nf">import_sub_modules</span><span class="p">(</span><span class="n">module_type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    imports all the module_type from additional modules that contain module_type</span>
+<span class="sd">    This name of those modules is in the config file that is located in the main directory</span>
+<span class="sd">    module_type: str that specifies the type of module to be loaded (scripts / instruments)</span>
+
+<span class="sd">    :return: module_list: a list with modules that contain module_type</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">module_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;scripts&#39;</span><span class="p">,</span> <span class="s1">&#39;instruments&#39;</span><span class="p">)</span>
+
+    <span class="n">path_to_config</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">import_sub_modules</span><span class="p">)))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;/config.txt&#39;</span>
+    <span class="n">module_list</span> <span class="o">=</span> <span class="n">get_config_value</span><span class="p">(</span><span class="s1">&#39;SCRIPT_MODULES&#39;</span><span class="p">,</span> <span class="n">path_to_config</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+    <span class="n">module_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span> <span class="o">+</span> <span class="s1">&#39;.pylabcontrol.&#39;</span> <span class="o">+</span> <span class="n">module_type</span><span class="p">)</span> <span class="k">for</span> <span class="n">module_name</span> <span class="ow">in</span> <span class="n">module_list</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">module_list</span></div>
+
+
+<div class="viewcode-block" id="get_config_value"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.read_write_functions.get_config_value">[docs]</a><span class="k">def</span> <span class="nf">get_config_value</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path_to_file</span><span class="o">=</span><span class="s1">&#39;config.txt&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    gets the value for &quot;name&quot; from &quot;path_to_file&quot; config file</span>
+<span class="sd">    Args:</span>
+<span class="sd">        name: name of varibale in config file</span>
+<span class="sd">        path_to_file: path to config file</span>
+
+<span class="sd">    Returns: path to dll if name exists in the file; otherwise, returns None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># if the function is called from gui then the file has to be located with respect to the gui folder</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path_to_file</span><span class="p">):</span>
+        <span class="n">path_to_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;../instruments/&#39;</span><span class="p">,</span> <span class="n">path_to_file</span><span class="p">)</span>
+
+    <span class="n">path_to_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path_to_file</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path_to_file</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;path_to_file&#39;</span><span class="p">,</span> <span class="n">path_to_file</span><span class="p">))</span>
+        <span class="c1">#raise IOError(&#39;{:s}: config file is not valid&#39;.format(path_to_file))</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_to_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">string_of_file_contents</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s1">&#39;:&#39;</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;:&#39;</span>
+
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">string_of_file_contents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">config_value</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">name</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">string_of_file_contents</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">config_value</span></div>
+
+
+<div class="viewcode-block" id="load_b26_file"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.read_write_functions.load_b26_file">[docs]</a><span class="k">def</span> <span class="nf">load_b26_file</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    loads a .b26 file into a dictionary</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file_name:</span>
+
+<span class="sd">    Returns: dictionary with keys instrument, scripts, probes</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># file_name = &quot;Z:\Lab\Cantilever\Measurements\\tmp_\\a&quot;</span>
+
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="save_b26_file"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.read_write_functions.save_b26_file">[docs]</a><span class="k">def</span> <span class="nf">save_b26_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">instruments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scripts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">probes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    save instruments, scripts and probes as a json file</span>
+<span class="sd">    Args:</span>
+<span class="sd">        filename:</span>
+<span class="sd">        instruments:</span>
+<span class="sd">        scripts:</span>
+<span class="sd">        probes: dictionary of the form {instrument_name : probe_1_of_intrument, probe_2_of_intrument, ...}</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># if overwrite is false load existing data and append to new instruments</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="ow">and</span> <span class="n">overwrite</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">data_dict</span> <span class="o">=</span> <span class="n">load_b26_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">instruments</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;instruments&#39;</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">:</span>
+            <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;instruments&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">instruments</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;instruments&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instruments</span>
+
+    <span class="k">if</span> <span class="n">scripts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;scripts&#39;</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">:</span>
+            <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;scripts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">scripts</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;scripts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scripts</span>
+
+    <span class="k">if</span> <span class="n">probes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">probe_instruments</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">probes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">if</span> <span class="s1">&#39;probes&#39;</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">:</span>
+            <span class="c1"># all the instruments required for old and new probes</span>
+            <span class="n">probe_instruments</span><span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">probe_instruments</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;probes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;probes&#39;</span><span class="p">:{}})</span>
+
+        <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="n">probe_instruments</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;probes&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="n">probes</span><span class="p">:</span>
+                <span class="c1"># update the data_dict</span>
+                <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;probes&#39;</span><span class="p">][</span><span class="n">instrument</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;probes&#39;</span><span class="p">][</span><span class="n">instrument</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">probes</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;probes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">probes</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;writing &#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">data_dict</span> <span class="o">!=</span> <span class="p">{}:</span>
+
+        <span class="c1"># if platform == &#39;Windows&#39;:</span>
+        <span class="c1">#     # windows can&#39;t deal with long filenames so we have to use the prefix &#39;\\\\?\\&#39;</span>
+        <span class="c1">#     if len(filename.split(&#39;\\\\?\\&#39;)) == 1:</span>
+        <span class="c1">#         filename = &#39;\\\\?\\&#39;+ filename</span>
+        <span class="c1"># create folder if it doesn&#39;t exist</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;filename&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;exists&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">))))</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="c1"># print((&#39;creating&#39;, os.path.dirname(filename)))</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,222 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pylabcontrol.tools package &#8212; pylabcontrol 0.1a3 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1a3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pylabcontrol-tools-package">
+<h1>pylabcontrol.tools package<a class="headerlink" href="#pylabcontrol-tools-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pylabcontrol.tools.export_default">
+<span id="pylabcontrol-tools-export-default-module"></span><h2>pylabcontrol.tools.export_default module<a class="headerlink" href="#module-pylabcontrol.tools.export_default" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pylabcontrol.tools.export_default.export">
+<code class="descclassname">pylabcontrol.tools.export_default.</code><code class="descname">export</code><span class="sig-paren">(</span><em>target_folder</em>, <em>source_folders=None</em>, <em>class_type='all'</em>, <em>raise_errors=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/tools/export_default.html#export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.tools.export_default.export" title="Permalink to this definition">¶</a></dt>
+<dd><p>exports the existing scripts/instruments (future: probes) into folder as .b26 files
+:param target_folder: target location of created .b26 script files
+:param source_folder: singel path or list of paths that contains the location of python script files can also be just the name of a module
+:param class_type: string, one of the 4 following options</p>
+<blockquote>
+<div>-probes (exports probes) –not implemented yet–
+-scripts (exports scripts)
+-instruments (exports instruments)
+-all (exports instruments, scripts and probes)</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>target_folder</strong> – target folder whereb   .b26 files are created</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.tools.export_default.export_default_instruments">
+<code class="descclassname">pylabcontrol.tools.export_default.</code><code class="descname">export_default_instruments</code><span class="sig-paren">(</span><em>target_folder</em>, <em>source_folder=None</em>, <em>raise_errors=False</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/tools/export_default.html#export_default_instruments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.tools.export_default.export_default_instruments" title="Permalink to this definition">¶</a></dt>
+<dd><p>tries to instantiate all the instruments that are imported in /instruments/__init__.py
+and saves instruments that could be instantiate into a .b2 file in the folder path
+:param target_folder: target path for .b26 files</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.tools.export_default.export_default_probes">
+<code class="descclassname">pylabcontrol.tools.export_default.</code><code class="descname">export_default_probes</code><span class="sig-paren">(</span><em>path</em>, <em>module_name=''</em>, <em>raise_errors=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/tools/export_default.html#export_default_probes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.tools.export_default.export_default_probes" title="Permalink to this definition">¶</a></dt>
+<dd><p>NOT IMPLEMENTED YET
+tries to instantiate all the instruments that are imported in /instruments/__init__.py
+and the probes of each instrument that could be instantiated into a .b26 file in the folder path
+:param path: target path for .b26 files</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.tools.export_default.export_default_scripts">
+<code class="descclassname">pylabcontrol.tools.export_default.</code><code class="descname">export_default_scripts</code><span class="sig-paren">(</span><em>target_folder</em>, <em>source_folder=None</em>, <em>raise_errors=False</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/tools/export_default.html#export_default_scripts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.tools.export_default.export_default_scripts" title="Permalink to this definition">¶</a></dt>
+<dd><p>tries to instantiate all the scripts that are imported in /scripts/__init__.py
+saves each script that could be instantiated into a .b26 file in the folder path
+:param target_folder: target path for .b26 files
+:param source_folder: location of python script files</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.tools.export_default.get_classes_in_folder">
+<code class="descclassname">pylabcontrol.tools.export_default.</code><code class="descname">get_classes_in_folder</code><span class="sig-paren">(</span><em>folder_name</em>, <em>class_type</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/tools/export_default.html#get_classes_in_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.tools.export_default.get_classes_in_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>load all the instruments or script objects that are located in folder_name and
+return a dictionary with the script class name and path_to_python_file
+:param folder_name: folder in which to search for class objects / or name of module
+:type folder_name: string
+:param class_type: class type for which to look for
+:type class_type: string or class</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{
+‘class’: class_of_instruments,
+‘filepath’: path_to_python_file
+}</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">a dictionary with the class name and path_to_python_file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.tools.export_default_v2">
+<span id="pylabcontrol-tools-export-default-v2-module"></span><h2>pylabcontrol.tools.export_default_v2 module<a class="headerlink" href="#module-pylabcontrol.tools.export_default_v2" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pylabcontrol.tools.export_default_v2.find_exportable_in_python_files">
+<code class="descclassname">pylabcontrol.tools.export_default_v2.</code><code class="descname">find_exportable_in_python_files</code><span class="sig-paren">(</span><em>folder_name</em>, <em>class_type</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/tools/export_default_v2.html#find_exportable_in_python_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.tools.export_default_v2.find_exportable_in_python_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>load all the instruments or script objects that are located in folder_name and
+return a dictionary with the script class name and path_to_python_file
+:param folder_name: folder in which to search for class objects / or name of module
+:type folder_name: string
+:param class_type: class type for which to look for
+:type class_type: string or class</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{
+‘class’: class_of_instruments,
+‘filepath’: path_to_python_file
+}</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">a dictionary with the class name and path_to_python_file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.tools.export_default_v2.find_instruments_in_python_files">
+<code class="descclassname">pylabcontrol.tools.export_default_v2.</code><code class="descname">find_instruments_in_python_files</code><span class="sig-paren">(</span><em>folder_name</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/tools/export_default_v2.html#find_instruments_in_python_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.tools.export_default_v2.find_instruments_in_python_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.tools.export_default_v2.find_scripts_in_python_files">
+<code class="descclassname">pylabcontrol.tools.export_default_v2.</code><code class="descname">find_scripts_in_python_files</code><span class="sig-paren">(</span><em>folder_name</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/tools/export_default_v2.html#find_scripts_in_python_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.tools.export_default_v2.find_scripts_in_python_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pylabcontrol.tools.export_default_v2.python_file_to_b26">
+<code class="descclassname">pylabcontrol.tools.export_default_v2.</code><code class="descname">python_file_to_b26</code><span class="sig-paren">(</span><em>list_of_python_files</em>, <em>target_folder</em>, <em>class_type</em>, <em>raise_errors=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/tools/export_default_v2.html#python_file_to_b26"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.tools.export_default_v2.python_file_to_b26" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.tools.scan_serial_ports">
+<span id="pylabcontrol-tools-scan-serial-ports-module"></span><h2>pylabcontrol.tools.scan_serial_ports module<a class="headerlink" href="#module-pylabcontrol.tools.scan_serial_ports" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pylabcontrol.tools.scan_serial_ports.scan">
+<code class="descclassname">pylabcontrol.tools.scan_serial_ports.</code><code class="descname">scan</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/tools/scan_serial_ports.html#scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.tools.scan_serial_ports.scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>scan for available ports. return a list of tuples (num, name)
+Returns:</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.tools">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylabcontrol.tools" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/code_docs/pylabcontrol.tools.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

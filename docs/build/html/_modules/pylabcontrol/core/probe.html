@@ -1,0 +1,312 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pylabcontrol.core.probe &#8212; pylabcontrol 0.1a3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1a3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pylabcontrol.core.probe</h1><div class="highlight"><pre>
+<span></span>
+<span class="c1"># This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.</span>
+<span class="c1"># Copyright (C) &lt;2016&gt;  Arthur Safira, Jan Gieseler, Aaron Kabcenell</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># pylabcontrol is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># pylabcontrol is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with pylabcontrol.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="kn">from</span> <span class="nn">pylabcontrol.core.instruments</span> <span class="k">import</span> <span class="n">Instrument</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">deque</span>
+<span class="kn">from</span> <span class="nn">pylabcontrol.core.read_write_functions</span> <span class="k">import</span> <span class="n">save_b26_file</span>
+
+<div class="viewcode-block" id="Probe"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.probe.Probe">[docs]</a><span class="k">class</span> <span class="nc">Probe</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">probe_name</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">buffer_length</span> <span class="o">=</span> <span class="mi">100</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        creates a probe...</span>
+<span class="sd">        Args:</span>
+<span class="sd">            name (optinal):  name of probe, if not provided take name of function</span>
+<span class="sd">            settings (optinal): a Parameter object that contains all the information needed in the script</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">Instrument</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">probe_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">probe_name</span> <span class="ow">in</span> <span class="n">instrument</span><span class="o">.</span><span class="n">_PROBES</span>
+
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">probe_name</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">info</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument</span> <span class="o">=</span> <span class="n">instrument</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">probe_name</span> <span class="o">=</span> <span class="n">probe_name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span> <span class="o">=</span> <span class="n">buffer_length</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        reads the value from the instrument</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instrument</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">probe_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">output_string</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:s}</span><span class="s1"> (class type: </span><span class="si">{:s}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_string</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="Probe.plot"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.probe.Probe.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">):</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">)</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">hold</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Probe.to_dict"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.probe.Probe.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns: itself as a dictionary</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># dictator = {self.name: {&#39;probe_name&#39;: self.probe_name, &#39;instrument_name&#39;: self.instrument.name}}</span>
+        <span class="n">dictator</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">instrument</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">probe_name</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">dictator</span></div>
+
+<div class="viewcode-block" id="Probe.save"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.probe.Probe.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        save the instrument to path as a .b26 file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: path of file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_b26_file</span><span class="p">(</span> <span class="n">filename</span><span class="p">,</span> <span class="n">probes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Probe.load_and_append"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.core.html#pylabcontrol.core.probe.Probe.load_and_append">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_and_append</span><span class="p">(</span><span class="n">probe_dict</span><span class="p">,</span> <span class="n">probes</span><span class="p">,</span> <span class="n">instruments</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        load probes from probe_dict and append to probes, if additional instruments are required create them and add them to instruments</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            probe_dict: dictionary of form</span>
+
+<span class="sd">                probe_dict = {</span>
+<span class="sd">                    instrument1_name : probe1_of_instrument1, probe2_of_instrument1, ...</span>
+<span class="sd">                    instrument2_name : probe1_of_instrument2, probe2_of_instrument2, ...</span>
+<span class="sd">                }</span>
+
+<span class="sd">            where probe1_of_instrument1 is a valid name of a probe in instrument of class instrument1_name</span>
+
+<span class="sd">            # optional arguments (as key value pairs):</span>
+<span class="sd">            #     probe_name</span>
+<span class="sd">            #     instrument_name</span>
+<span class="sd">            #     probe_info</span>
+<span class="sd">            #     buffer_length</span>
+<span class="sd">            #</span>
+<span class="sd">            #</span>
+<span class="sd">            # or</span>
+<span class="sd">            #     probe_dict = {</span>
+<span class="sd">            #     name_of_probe_1 : instrument_class_1</span>
+<span class="sd">            #     name_of_probe_2 : instrument_class_2</span>
+<span class="sd">            #     ...</span>
+<span class="sd">            #     }</span>
+
+
+<span class="sd">            probes: dictionary of form</span>
+<span class="sd">                probe_dict = {</span>
+<span class="sd">                    instrument1_name:</span>
+<span class="sd">                        {name_of_probe_1_of_instrument1 : probe_1_instance,</span>
+<span class="sd">                         name_of_probe_2_instrument1 : probe_2_instance</span>
+<span class="sd">                         }</span>
+<span class="sd">                         , ...}</span>
+
+<span class="sd">            instruments: dictionary of form</span>
+
+<span class="sd">                instruments = {</span>
+<span class="sd">                name_of_instrument_1 : instance_of_instrument_1,</span>
+<span class="sd">                name_of_instrument_2 : instance_of_instrument_2,</span>
+<span class="sd">                ...</span>
+<span class="sd">                }</span>
+<span class="sd">    Returns:</span>
+<span class="sd">                updated_probes = { name_of_probe_1 : probe_1_instance, name_of_probe_2 : probe_2_instance, ...}</span>
+<span class="sd">                loaded_failed = {name_of_probe_1: exception_1, name_of_probe_2: exception_2, ....}</span>
+<span class="sd">                updated_instruments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="n">loaded_failed</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">updated_probes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">updated_probes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">probes</span><span class="p">)</span>
+        <span class="n">updated_instruments</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">updated_instruments</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">instruments</span><span class="p">)</span>
+
+        <span class="c1"># =====  load new instruments =======</span>
+        <span class="n">new_instruments</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">probe_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">-</span><span class="nb">set</span><span class="p">(</span><span class="n">probes</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="n">new_instruments</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="n">updated_instruments</span><span class="p">,</span> <span class="n">failed</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">load_and_append</span><span class="p">({</span><span class="n">instrument_name</span><span class="p">:</span> <span class="n">instrument_name</span> <span class="k">for</span> <span class="n">instrument_name</span> <span class="ow">in</span> <span class="n">new_instruments</span><span class="p">},</span> <span class="n">instruments</span><span class="p">)</span>
+
+
+            <span class="k">if</span> <span class="n">failed</span> <span class="o">!=</span> <span class="p">[]:</span>
+                <span class="c1"># if loading an instrument fails all the probes that depend on that instrument also fail</span>
+                <span class="c1"># ignore the failed instrument that did exist already because they failed because they did exist</span>
+                <span class="k">for</span> <span class="n">failed_instrument</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">instruments</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                    <span class="k">for</span> <span class="n">probe_name</span> <span class="ow">in</span> <span class="n">probe_dict</span><span class="p">[</span><span class="n">failed_instrument</span><span class="p">]:</span>
+                        <span class="n">loaded_failed</span><span class="p">[</span><span class="n">probe_name</span><span class="p">]</span> <span class="o">=</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;failed to load instrument </span><span class="si">{:s}</span><span class="s1"> already exists. Did not load!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">failed_instrument</span><span class="p">))</span>
+                    <span class="k">del</span> <span class="n">probe_dict</span><span class="p">[</span><span class="n">failed_instrument</span><span class="p">]</span>
+
+        <span class="c1"># =====  now we are sure that all the instruments that we need for the probes already exist</span>
+
+
+        <span class="k">for</span> <span class="n">instrument_name</span><span class="p">,</span> <span class="n">probe_names</span> <span class="ow">in</span> <span class="n">probe_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">instrument_name</span> <span class="ow">in</span> <span class="n">updated_probes</span><span class="p">:</span>
+                <span class="n">updated_probes</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">instrument_name</span><span class="p">:{}})</span>
+
+            <span class="k">for</span> <span class="n">probe_name</span> <span class="ow">in</span> <span class="n">probe_names</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">probe_name</span> <span class="ow">in</span> <span class="n">updated_probes</span><span class="p">[</span><span class="n">instrument_name</span><span class="p">]:</span>
+                    <span class="n">loaded_failed</span><span class="p">[</span><span class="n">probe_name</span><span class="p">]</span> <span class="o">=</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;failed to load probe </span><span class="si">{:s}</span><span class="s1"> already exists. Did not load!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">probe_name</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">probe_instance</span> <span class="o">=</span> <span class="n">Probe</span><span class="p">(</span><span class="n">updated_instruments</span><span class="p">[</span><span class="n">instrument_name</span><span class="p">],</span> <span class="n">probe_name</span><span class="p">)</span>
+                    <span class="n">updated_probes</span><span class="p">[</span><span class="n">instrument_name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">probe_name</span><span class="p">:</span> <span class="n">probe_instance</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">updated_probes</span><span class="p">,</span> <span class="n">loaded_failed</span><span class="p">,</span> <span class="n">updated_instruments</span></div></div>
+
+
+
+
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">probe_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;DummyInstrument&#39;</span><span class="p">:</span> <span class="s1">&#39;internal,value1&#39;</span><span class="p">}</span>
+    <span class="n">instruments</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">load_and_append</span><span class="p">({</span><span class="s1">&#39;DummyInstrument&#39;</span><span class="p">:</span> <span class="s1">&#39;DummyInstrument&#39;</span><span class="p">})</span>
+
+    <span class="n">probes_obj</span><span class="p">,</span> <span class="n">failed</span><span class="p">,</span> <span class="n">instruments</span> <span class="o">=</span> <span class="n">Probe</span><span class="o">.</span><span class="n">load_and_append</span><span class="p">(</span>
+        <span class="n">probe_dict</span><span class="o">=</span><span class="n">probe_dict</span><span class="p">,</span>
+        <span class="n">probes</span><span class="o">=</span><span class="p">{},</span>
+        <span class="n">instruments</span><span class="o">=</span><span class="n">instruments</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;fffff&#39;</span><span class="p">,</span> <span class="n">probes_obj</span><span class="p">))</span>
+    <span class="c1"># Probe.load_and_append(</span>
+    <span class="c1">#     probe_dict={name: probes[name] for name in added_probes},</span>
+    <span class="c1">#     probes=self.probes,</span>
+    <span class="c1">#     instruments=self.instruments)</span>
+    <span class="c1"># # from pylabcontrol.core import instantiate_instruments</span>
+    <span class="c1"># instruments = {&#39;inst_dummy&#39;: &#39;DummyInstrument&#39;}</span>
+    <span class="c1">#</span>
+    <span class="c1"># instrument = instantiate_instruments(instruments)[&#39;inst_dummy&#39;]</span>
+    <span class="c1">#</span>
+    <span class="c1"># p = Probe(instrument, &#39;value1&#39;, &#39;random&#39;)</span>
+    <span class="c1">#</span>
+    <span class="c1"># print(instruments[&#39;inst_dummy&#39;])</span>
+    <span class="c1">#</span>
+    <span class="c1"># print(p.name)</span>
+    <span class="c1"># print(p.value)</span>
+    <span class="c1"># print(p.value)</span>
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

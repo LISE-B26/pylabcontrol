@@ -1,0 +1,202 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pylabcontrol.instruments package &#8212; pylabcontrol 0.1a3 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1a3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pylabcontrol.scripts package" href="pylabcontrol.scripts.html" />
+    <link rel="prev" title="pylabcontrol.gui.windows_and_widgets package" href="pylabcontrol.gui.windows_and_widgets.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pylabcontrol-instruments-package">
+<h1>pylabcontrol.instruments package<a class="headerlink" href="#pylabcontrol-instruments-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pylabcontrol.instruments.instrument_dummy">
+<span id="pylabcontrol-instruments-instrument-dummy-module"></span><h2>pylabcontrol.instruments.instrument_dummy module<a class="headerlink" href="#module-pylabcontrol.instruments.instrument_dummy" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.instruments.instrument_dummy.DummyInstrument">
+<em class="property">class </em><code class="descclassname">pylabcontrol.instruments.instrument_dummy.</code><code class="descname">DummyInstrument</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#DummyInstrument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.DummyInstrument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pylabcontrol.core.html#pylabcontrol.core.instruments.Instrument" title="pylabcontrol.core.instruments.Instrument"><code class="xref py py-class docutils literal"><span class="pre">pylabcontrol.core.instruments.Instrument</span></code></a></p>
+<p>Dummy instrument
+a implementation of a dummy instrument</p>
+<dl class="attribute">
+<dt id="pylabcontrol.instruments.instrument_dummy.DummyInstrument.is_connected">
+<code class="descname">is_connected</code><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.DummyInstrument.is_connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if instrument is active and connected and return True in that case
+:return: bool</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.instruments.instrument_dummy.DummyInstrument.read_probes">
+<code class="descname">read_probes</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#DummyInstrument.read_probes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.DummyInstrument.read_probes" title="Permalink to this definition">¶</a></dt>
+<dd><p>requestes value from the instrument and returns it
+:param key: name of requested value</p>
+<p>Returns: reads values from instrument</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.instruments.instrument_dummy.DummyInstrument.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#DummyInstrument.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.DummyInstrument.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates the internal dictionary and sends changed values to instrument
+:param settings: parameters to be set</p>
+<p># mabe in the future:
+# Returns: boolean that is true if update successful</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pylabcontrol.instruments.instrument_dummy.PIControler">
+<em class="property">class </em><code class="descclassname">pylabcontrol.instruments.instrument_dummy.</code><code class="descname">PIControler</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#PIControler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.PIControler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pylabcontrol.core.html#pylabcontrol.core.instruments.Instrument" title="pylabcontrol.core.instruments.Instrument"><code class="xref py py-class docutils literal"><span class="pre">pylabcontrol.core.instruments.Instrument</span></code></a></p>
+<p>Discrete PI control</p>
+<dl class="method">
+<dt id="pylabcontrol.instruments.instrument_dummy.PIControler.controler_output">
+<code class="descname">controler_output</code><span class="sig-paren">(</span><em>current_value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#PIControler.controler_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.PIControler.controler_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate PI output value for given reference input and feedback</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.instruments.instrument_dummy.PIControler.read_probes">
+<code class="descname">read_probes</code><span class="sig-paren">(</span><em>key=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#PIControler.read_probes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.PIControler.read_probes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.instruments.instrument_dummy.PIControler.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#PIControler.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.PIControler.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.instruments.instrument_dummy.PIControler.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#PIControler.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.PIControler.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pylabcontrol.instruments.instrument_dummy.Plant">
+<em class="property">class </em><code class="descclassname">pylabcontrol.instruments.instrument_dummy.</code><code class="descname">Plant</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#Plant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.Plant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pylabcontrol.core.html#pylabcontrol.core.instruments.Instrument" title="pylabcontrol.core.instruments.Instrument"><code class="xref py py-class docutils literal"><span class="pre">pylabcontrol.core.instruments.Instrument</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtCore.QThread</span></code></p>
+<dl class="attribute">
+<dt id="pylabcontrol.instruments.instrument_dummy.Plant.is_connected">
+<code class="descname">is_connected</code><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.Plant.is_connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if instrument is active and connected and return True in that case
+:return: bool</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.instruments.instrument_dummy.Plant.quit">
+<code class="descname">quit</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#Plant.quit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.Plant.quit" title="Permalink to this definition">¶</a></dt>
+<dd><p>quit the  instrument thread</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.instruments.instrument_dummy.Plant.read_probes">
+<code class="descname">read_probes</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#Plant.read_probes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.Plant.read_probes" title="Permalink to this definition">¶</a></dt>
+<dd><p>requestes value from the instrument and returns it
+:param key: name of requested value</p>
+<p>Returns: reads values from instrument</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.instruments.instrument_dummy.Plant.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#Plant.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.Plant.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>this is the actual execution of the instrument thread: continuously read values from the probes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.instruments.instrument_dummy.Plant.start">
+<code class="descname">start</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/instruments/instrument_dummy.html#Plant.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.instruments.instrument_dummy.Plant.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>start the instrument thread</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.instruments">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylabcontrol.instruments" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="pylabcontrol.html">pylabcontrol package</a><ul>
+      <li>Previous: <a href="pylabcontrol.gui.windows_and_widgets.html" title="previous chapter">pylabcontrol.gui.windows_and_widgets package</a></li>
+      <li>Next: <a href="pylabcontrol.scripts.html" title="next chapter">pylabcontrol.scripts package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/code_docs/pylabcontrol.instruments.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

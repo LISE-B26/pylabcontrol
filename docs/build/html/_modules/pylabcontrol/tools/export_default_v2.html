@@ -1,0 +1,229 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pylabcontrol.tools.export_default_v2 &#8212; pylabcontrol 0.1a3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1a3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pylabcontrol.tools.export_default_v2</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of pylabcontrol, software for laboratory equipment control for scientific experiments.</span>
+<span class="c1"># Copyright (C) &lt;2016&gt;  Arthur Safira, Jan Gieseler, Aaron Kabcenell</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># pylabcontrol is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># pylabcontrol is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with pylabcontrol.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="kn">import</span> <span class="nn">inspect</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pylabcontrol.core</span> <span class="k">import</span> <span class="n">Instrument</span><span class="p">,</span> <span class="n">Script</span><span class="p">,</span> <span class="n">ScriptIterator</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="k">import</span> <span class="n">import_module</span>
+<span class="kn">from</span> <span class="nn">pylabcontrol.core.helper_functions</span> <span class="k">import</span> <span class="n">module_name_from_path</span>
+
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<div class="viewcode-block" id="find_exportable_in_python_files"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.tools.html#pylabcontrol.tools.export_default_v2.find_exportable_in_python_files">[docs]</a><span class="k">def</span> <span class="nf">find_exportable_in_python_files</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="n">class_type</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    load all the instruments or script objects that are located in folder_name and</span>
+<span class="sd">    return a dictionary with the script class name and path_to_python_file</span>
+<span class="sd">    Args:</span>
+<span class="sd">        folder_name (string): folder in which to search for class objects / or name of module</span>
+<span class="sd">        class_type (string or class): class type for which to look for</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        a dictionary with the class name and path_to_python_file:</span>
+<span class="sd">        {</span>
+<span class="sd">        &#39;class&#39;: class_of_instruments,</span>
+<span class="sd">        &#39;filepath&#39;: path_to_python_file</span>
+<span class="sd">        }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># if the module name was passed instead of a filename, figure out the path to the module</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">folder_name</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">folder_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">import_module</span><span class="p">(</span><span class="n">folder_name</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s1">&#39;could not find module &#39;</span> <span class="o">+</span> <span class="n">folder_name</span><span class="p">)</span>
+
+    <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder_name</span><span class="p">)</span> <span class="k">if</span>
+               <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)]</span>
+
+    <span class="n">classes_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># if there are subdirs in the folder recursively check all the subfolders for scripts</span>
+    <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">subdirs</span><span class="p">:</span>
+        <span class="n">classes_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">find_exportable_in_python_files</span><span class="p">(</span><span class="n">subdir</span><span class="p">,</span> <span class="n">class_type</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">class_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;instrument&#39;</span><span class="p">:</span>
+        <span class="n">class_type</span> <span class="o">=</span> <span class="n">Instrument</span>
+    <span class="k">elif</span> <span class="n">class_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;script&#39;</span><span class="p">:</span>
+        <span class="n">class_type</span> <span class="o">=</span> <span class="n">Script</span>
+
+    <span class="k">for</span> <span class="n">python_file</span> <span class="ow">in</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="s2">&quot;*.py&quot;</span><span class="p">))</span><span class="k">if</span> <span class="s1">&#39;__init__&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span> <span class="ow">and</span> <span class="s1">&#39;setup&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]:</span>
+        <span class="n">module</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">module_name_from_path</span><span class="p">(</span><span class="n">python_file</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+
+
+            <span class="n">classes_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;filepath&#39;</span><span class="p">:</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="s1">&#39;info&#39;</span><span class="p">:</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getdoc</span><span class="p">(</span><span class="n">obj</span><span class="p">)}</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span>
+                               <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">module</span><span class="p">)</span> <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">class_type</span><span class="p">)</span>
+                             <span class="ow">and</span> <span class="ow">not</span> <span class="n">obj</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Instrument</span><span class="p">,</span> <span class="n">Script</span><span class="p">,</span> <span class="n">ScriptIterator</span><span class="p">)})</span>
+
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="n">ModuleNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not import module&#39;</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">classes_dict</span></div>
+
+<div class="viewcode-block" id="find_scripts_in_python_files"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.tools.html#pylabcontrol.tools.export_default_v2.find_scripts_in_python_files">[docs]</a><span class="k">def</span> <span class="nf">find_scripts_in_python_files</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">find_exportable_in_python_files</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="s1">&#39;Script&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="find_instruments_in_python_files"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.tools.html#pylabcontrol.tools.export_default_v2.find_instruments_in_python_files">[docs]</a><span class="k">def</span> <span class="nf">find_instruments_in_python_files</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">find_exportable_in_python_files</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="s1">&#39;Instrument&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="python_file_to_b26"><a class="viewcode-back" href="../../../code_docs/pylabcontrol.tools.html#pylabcontrol.tools.export_default_v2.python_file_to_b26">[docs]</a><span class="k">def</span> <span class="nf">python_file_to_b26</span><span class="p">(</span><span class="n">list_of_python_files</span><span class="p">,</span> <span class="n">target_folder</span><span class="p">,</span> <span class="n">class_type</span><span class="p">,</span> <span class="n">raise_errors</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">class_type</span> <span class="o">==</span> <span class="s1">&#39;Script&#39;</span><span class="p">:</span>
+        <span class="n">loaded</span><span class="p">,</span> <span class="n">failed</span><span class="p">,</span> <span class="n">loaded_instruments</span> <span class="o">=</span> <span class="n">Script</span><span class="o">.</span><span class="n">load_and_append</span><span class="p">(</span><span class="n">list_of_python_files</span><span class="p">,</span> <span class="n">raise_errors</span><span class="o">=</span><span class="n">raise_errors</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">class_type</span> <span class="o">==</span> <span class="s1">&#39;Instrument&#39;</span><span class="p">:</span>
+        <span class="n">loaded</span><span class="p">,</span> <span class="n">failed</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">load_and_append</span><span class="p">(</span><span class="n">list_of_python_files</span><span class="p">,</span> <span class="n">raise_errors</span><span class="o">=</span><span class="n">raise_errors</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">loaded</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_folder</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{:s}</span><span class="s1">.b26&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">value</span><span class="o">.</span><span class="n">save_b26</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># module = import_module(&#39;b26_toolkit.pylabcontrol.scripts.test_script&#39;)</span>
+    <span class="c1"># print(&#39;JJJJJJ&#39;)</span>
+    <span class="c1"># export scripts</span>
+    <span class="c1"># source_folders = &#39;b26_toolkit&#39;</span>
+    <span class="n">source_folders</span> <span class="o">=</span> <span class="s1">&#39;C:</span><span class="se">\\</span><span class="s1">Users</span><span class="se">\\</span><span class="s1">Experiment</span><span class="se">\\</span><span class="s1">PycharmProjects</span><span class="se">\\</span><span class="s1">b26_toolkit</span><span class="se">\\</span><span class="s1">b26_toolkit</span><span class="se">\\</span><span class="s1">scripts</span><span class="se">\\</span><span class="s1">&#39;</span>
+    <span class="c1"># source_folders = &#39;C:\\Users\\Experiment\\PycharmProjects\\pylabcontrol\\pylabcontrol\\scripts\\&#39;</span>
+    <span class="c1"># # target_folder = &#39;C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\scripts_auto_generated\\&#39;</span>
+    <span class="c1"># target_folder = &#39;C:\\Users\\Experiment\\PycharmProjects\\user_data\\scripts_auto_generated&#39;</span>
+    <span class="c1"># source_folders = &#39;C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\pylabcontrol\\instruments&#39;</span>
+    <span class="c1"># # export instruments</span>
+    <span class="c1"># source_folders = &#39;C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\pylabcontrol\\instruments\\&#39;</span>
+    <span class="c1"># target_folder = &#39;C:\\Users\\NV Experiment\\PycharmProjects\\user_data\\instruments_auto_generated\\&#39;</span>
+    <span class="c1"># export(target_folder, source_folders=source_folders, class_type=&#39;instruments&#39;, raise_errors=False)</span>
+    <span class="c1"># instruments_to_load = get_classes_in_folder(&#39;C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\pylabcontrol\\instruments\\&#39;, Instrument)</span>
+    <span class="c1">#</span>
+    <span class="c1"># print(instruments_to_load.keys())</span>
+
+    <span class="c1"># import pkgutil</span>
+    <span class="c1">#</span>
+    <span class="c1"># print(&#39;--------&#39;)</span>
+    <span class="c1"># for importer, modname, ispkg in pkgutil.walk_packages(path=&#39;b26_toolkit.pylabcontrol.scripts&#39;,</span>
+    <span class="c1">#                                                       # prefix=package.__name__ + &#39;.&#39;,</span>
+    <span class="c1">#                                                       onerror=lambda x: None):</span>
+    <span class="c1">#     print(modname, importer)</span>
+    <span class="c1">#</span>
+
+
+
+    <span class="c1"># import glob</span>
+    <span class="c1">#</span>
+    <span class="c1"># from pylabcontrol.core.helper_functions import module_name_from_path</span>
+    <span class="c1">#</span>
+    <span class="c1">#</span>
+    <span class="c1"># for f in glob.glob(os.path.join(source_folders, &quot;*.py&quot;)):</span>
+    <span class="c1">#     module, path = module_name_from_path(f)</span>
+    <span class="c1">#     print(f, module, path)</span>
+    <span class="c1">#</span>
+    <span class="c1"># # source_folders = &#39;/Users/rettentulla/PycharmProjects/b26_toolkit/pylabcontrol/&#39;</span>
+    <span class="c1"># subdirs = [os.path.join(source_folders, x) for x in os.listdir(source_folders) if</span>
+    <span class="c1">#            os.path.isdir(os.path.join(source_folders, x)) and not x.startswith(&#39;.&#39;)]</span>
+    <span class="c1">#</span>
+    <span class="c1"># print(&#39;asa&#39;, source_folders)</span>
+    <span class="c1">#</span>
+    <span class="c1"># for subdir in subdirs:</span>
+    <span class="c1">#     print(subdir)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">find_scripts_in_python_files</span><span class="p">(</span><span class="n">source_folders</span><span class="p">))</span>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

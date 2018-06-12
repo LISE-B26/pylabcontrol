@@ -1,0 +1,172 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pylabcontrol.scripts package &#8212; pylabcontrol 0.1a3 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1a3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="pylabcontrol.instruments package" href="pylabcontrol.instruments.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pylabcontrol-scripts-package">
+<h1>pylabcontrol.scripts package<a class="headerlink" href="#pylabcontrol-scripts-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pylabcontrol.scripts.script_dummy">
+<span id="pylabcontrol-scripts-script-dummy-module"></span><h2>pylabcontrol.scripts.script_dummy module<a class="headerlink" href="#module-pylabcontrol.scripts.script_dummy" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.scripts.script_dummy.DummyPlantWithControler">
+<em class="property">class </em><code class="descclassname">pylabcontrol.scripts.script_dummy.</code><code class="descname">DummyPlantWithControler</code><span class="sig-paren">(</span><em>instruments</em>, <em>scripts=None</em>, <em>name=None</em>, <em>settings=None</em>, <em>log_function=None</em>, <em>data_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/scripts/script_dummy.html#DummyPlantWithControler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.scripts.script_dummy.DummyPlantWithControler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pylabcontrol.core.html#pylabcontrol.core.scripts.Script" title="pylabcontrol.core.scripts.Script"><code class="xref py py-class docutils literal"><span class="pre">pylabcontrol.core.scripts.Script</span></code></a></p>
+<p>script to bring the detector response to zero
+two channels are set to a fixed voltage while the signal of the third channel is varied until the detector response is zero</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pylabcontrol.scripts.script_dummy.ScriptDummy">
+<em class="property">class </em><code class="descclassname">pylabcontrol.scripts.script_dummy.</code><code class="descname">ScriptDummy</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=None</em>, <em>log_function=None</em>, <em>data_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/scripts/script_dummy.html#ScriptDummy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.scripts.script_dummy.ScriptDummy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pylabcontrol.core.html#pylabcontrol.core.scripts.Script" title="pylabcontrol.core.scripts.Script"><code class="xref py py-class docutils literal"><span class="pre">pylabcontrol.core.scripts.Script</span></code></a></p>
+<p>Example Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pylabcontrol.scripts.script_dummy.ScriptDummyWrapper">
+<em class="property">class </em><code class="descclassname">pylabcontrol.scripts.script_dummy.</code><code class="descname">ScriptDummyWrapper</code><span class="sig-paren">(</span><em>instruments=None</em>, <em>scripts=None</em>, <em>name=None</em>, <em>settings=None</em>, <em>log_function=None</em>, <em>data_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/scripts/script_dummy.html#ScriptDummyWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.scripts.script_dummy.ScriptDummyWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pylabcontrol.core.html#pylabcontrol.core.scripts.Script" title="pylabcontrol.core.scripts.Script"><code class="xref py py-class docutils literal"><span class="pre">pylabcontrol.core.scripts.Script</span></code></a></p>
+<p>Example Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pylabcontrol.scripts.script_dummy.ScriptMinimalDummy">
+<em class="property">class </em><code class="descclassname">pylabcontrol.scripts.script_dummy.</code><code class="descname">ScriptMinimalDummy</code><span class="sig-paren">(</span><em>name=None</em>, <em>settings=None</em>, <em>log_function=None</em>, <em>data_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/scripts/script_dummy.html#ScriptMinimalDummy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.scripts.script_dummy.ScriptMinimalDummy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pylabcontrol.core.html#pylabcontrol.core.scripts.Script" title="pylabcontrol.core.scripts.Script"><code class="xref py py-class docutils literal"><span class="pre">pylabcontrol.core.scripts.Script</span></code></a></p>
+<p>Minimal Example Script that has only a single parameter (execution time)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.scripts.script_wait">
+<span id="pylabcontrol-scripts-script-wait-module"></span><h2>pylabcontrol.scripts.script_wait module<a class="headerlink" href="#module-pylabcontrol.scripts.script_wait" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.scripts.script_wait.Wait">
+<em class="property">class </em><code class="descclassname">pylabcontrol.scripts.script_wait.</code><code class="descname">Wait</code><span class="sig-paren">(</span><em>instruments=None</em>, <em>scripts=None</em>, <em>name=None</em>, <em>settings=None</em>, <em>log_function=None</em>, <em>data_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/scripts/script_wait.html#Wait"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.scripts.script_wait.Wait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pylabcontrol.core.html#pylabcontrol.core.scripts.Script" title="pylabcontrol.core.scripts.Script"><code class="xref py py-class docutils literal"><span class="pre">pylabcontrol.core.scripts.Script</span></code></a></p>
+<p>Script that waits. This is useful to execute scripts in a loop at given intervals.
+There are two modes of operation:</p>
+<blockquote>
+<div>wait_mode = absolute: the script waits the time defined in wait_time
+wait_mode = loop_interval: the script waits as long such that the loop time equals the time defined in wait_time</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.scripts.select_points">
+<span id="pylabcontrol-scripts-select-points-module"></span><h2>pylabcontrol.scripts.select_points module<a class="headerlink" href="#module-pylabcontrol.scripts.select_points" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylabcontrol.scripts.select_points.SelectPoints">
+<em class="property">class </em><code class="descclassname">pylabcontrol.scripts.select_points.</code><code class="descname">SelectPoints</code><span class="sig-paren">(</span><em>instruments=None</em>, <em>scripts=None</em>, <em>name=None</em>, <em>settings=None</em>, <em>log_function=None</em>, <em>data_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/scripts/select_points.html#SelectPoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.scripts.select_points.SelectPoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pylabcontrol.core.html#pylabcontrol.core.scripts.Script" title="pylabcontrol.core.scripts.Script"><code class="xref py py-class docutils literal"><span class="pre">pylabcontrol.core.scripts.Script</span></code></a></p>
+<p>Script to select points on an image. The selected points are saved and can be used in a superscript to iterate over.</p>
+<dl class="method">
+<dt id="pylabcontrol.scripts.select_points.SelectPoints.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>figure_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/scripts/select_points.html#SelectPoints.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.scripts.select_points.SelectPoints.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a dot on top of each selected NV, with a corresponding number denoting the order in which the NVs are
+listed.
+Precondition: must have an existing image in figure_list[0] to plot over
+:param figure_list:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylabcontrol.scripts.select_points.SelectPoints.toggle_NV">
+<code class="descname">toggle_NV</code><span class="sig-paren">(</span><em>pt</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pylabcontrol/scripts/select_points.html#SelectPoints.toggle_NV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylabcontrol.scripts.select_points.SelectPoints.toggle_NV" title="Permalink to this definition">¶</a></dt>
+<dd><p>If there is not currently a selected NV within self.settings[patch_size] of pt, adds it to the selected list. If
+there is, removes that point from the selected list.
+:param pt: the point to add or remove from the selected list</p>
+<p>Poststate: updates selected list</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylabcontrol.scripts">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylabcontrol.scripts" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="pylabcontrol.html">pylabcontrol package</a><ul>
+      <li>Previous: <a href="pylabcontrol.instruments.html" title="previous chapter">pylabcontrol.instruments package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/code_docs/pylabcontrol.scripts.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
