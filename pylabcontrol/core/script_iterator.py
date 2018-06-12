@@ -591,9 +591,7 @@ Script.
             _, script_class_name, script_settings, _, script_sub_scripts, _, package = Script.get_script_information(script_information)
 
             if package not in script_iterators:
-                print('hi')
                 script_iterators.update(ScriptIterator.get_script_iterator(package))
-                print(script_iterators)
 
             assert package in script_iterators
 
@@ -677,6 +675,8 @@ Script.
 
             # dynamically import the module, i.e. the namespace for the scriptiterator
             script_iterator_module = __import__(script_iterator_base_class.__module__)
+            print('script_iterator_module', script_iterator_module)
+            print('base_class', script_iterator_base_class)
 
 
             if verbose:
@@ -712,6 +712,9 @@ Script.
 
             # Now we place the dynamic script into the scope of pylabcontrol.scripts as regular scripts.
             setattr(script_iterator_module, class_name, dynamic_class)
+            print('module', script_iterator_module)
+            print('class_name', class_name)
+            print('dynamic class', dynamic_class)
 
             if verbose:
                 print(('dynamic_class', dynamic_class))
