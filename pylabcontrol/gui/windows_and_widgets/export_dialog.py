@@ -65,6 +65,7 @@ Returns:
         self.btn_export.clicked.connect(self.export)
 
         # package = get_python_package(os.getcwd())
+        print('CWD', os.getcwd())
         package, path = module_name_from_path(os.getcwd())
         # self.source_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\scripts')))
         # self.target_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\..\\..\\user_data\\scripts_auto_generated')))

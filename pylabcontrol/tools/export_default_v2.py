@@ -59,15 +59,11 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = True):
     elif class_type.lower() == 'script':
         class_type = Script
 
-    print('files', [f for f in glob.glob(os.path.join(folder_name, "*.py"))if '__init__' not in f and 'setup' not in f])
-
     for python_file in [f for f in glob.glob(os.path.join(folder_name, "*.py"))if '__init__' not in f and 'setup' not in f]:
         module, path = module_name_from_path(python_file)
 
         try:
-            print('importing', module)
-            module = import_module('b26_toolkit.' + module)
-            print(module)
+            module = import_module(module)
 
 
             classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj), 'info': inspect.getdoc(obj)} for name, obj in
@@ -78,8 +74,6 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = True):
             print(e)
             if verbose:
                 print('Could not import module', module)
-
-    print('classes_dict', classes_dict)
 
     return classes_dict
 
@@ -94,8 +88,6 @@ def python_file_to_b26(list_of_python_files, target_folder, class_type, raise_er
         loaded, failed, loaded_instruments = Script.load_and_append(list_of_python_files, raise_errors=raise_errors)
     elif class_type == 'Instrument':
         loaded, failed = Instrument.load_and_append(list_of_python_files, raise_errors=raise_errors)
-
-    print('loaded', loaded)
 
     for name, value in loaded.items():
         filename = os.path.join(target_folder, '{:s}.b26'.format(name))

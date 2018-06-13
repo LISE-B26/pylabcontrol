@@ -1215,7 +1215,7 @@ class Script(QObject):
         # except ImportError:
         #     pass
         print('module', module_path)
-        module = import_module('b26_toolkit.' + module_path)
+        module = import_module(module_path)
         # check if module was found!
         if module is None or not hasattr(module, script_class_name):
             import sys
