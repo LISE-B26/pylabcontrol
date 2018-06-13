@@ -1,5 +1,5 @@
-Tutorial: Creating an Instrument
-*********
+Creating an Instrument
+*********************************
 
 This guide goes through the steps of creating an instrument with pylabcontrol
 
@@ -9,18 +9,30 @@ To create an instrument, you need to create a class for that instrument that inh
 Furthermore, you need to implement the following functions and class variables:
 
 - _DEFAULT_SETTINGS (class variable): this variable contains the default settings for the instrument.
+
 - update() (function): this function updates the instrument parameters.
 
-More details about each will be discussed below
+- _PROBES (class variable): this variable should be left empty.
+
+- read_probes() (function): this function should just 'pass', i.e.,
+
+    .. code:: python
+
+        def read_probes():
+            pass
+
+The latter two necessary variable and function are for future updates.
+
+More details about each will be discussed below.
 
 Examples
 ========
 There are two main places you can go for examples: First, take a look at
-`the ExampleInstrument class <https://github.com/LISE-B26/pylabcontrol/blob/master/pylabcontrol/instruments/instrument_dummy.py>`.
+`the ExampleInstrument class <https://github.com/LISE-B26/pylabcontrol/blob/master/pylabcontrol/instruments/instrument_dummy.py>`_.
 The ExampleInstrument class contains a dummy instrument that can be imported into the GUI.
 
 Second, a lot of instruments were created for use in the Lukin Lab, the code for which is located
-`here <https://github.com/LISE-B26/b26_toolkit/tree/master/b26_toolkit/instruments>`. Examples there include
+`here <https://github.com/LISE-B26/b26_toolkit/tree/master/b26_toolkit/instruments>`_. Examples there include
 instruments that communicate with GPIB, serial, NI daq_mx, and custom dll's.
 
 

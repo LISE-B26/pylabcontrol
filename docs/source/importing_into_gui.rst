@@ -1,4 +1,4 @@
-Tutorial: Importing an Instrument or Script into the GUI
+Importing an Instrument or Script into the GUI
 *********
 
 This guides you through the steps of importing an instrument or script into the GUI
@@ -8,7 +8,7 @@ Prerequisites
 It is assumed that you have a .py file containing a class inheriting from Instrument or Script. You must be able to
 create an instance of this class on the computer you are planning to use the GUI on. Also, .py file must be in a folder
 that contains a __init__.py file. For a more thorough understanding of __init__.py files, see
-'this StackOverflow thread <https://stackoverflow.com/questions/448271/what-is-init-py-for>'. Otherwise, it is very
+`this StackOverflow thread <https://stackoverflow.com/questions/448271/what-is-init-py-for>`_. Otherwise, it is very
 likely you want a blank text file named __init__.py in the same directory as your .py code.
 
 Overview
@@ -25,4 +25,6 @@ Importing Scripts of Instruments
 5. Select the .b26 file from the right directory on the computer, and drag the resulting instrument or script from the
 right panel to the left panel.
 6. Press "ok". The resulting Script or Instrument should be imported into the GUI
+
+Note that when you import a Script, all of the requisite instruments and subscripts will also be uploaded.
 

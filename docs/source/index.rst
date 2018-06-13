@@ -11,11 +11,12 @@ Welcome to pylabcontrol's documentation!
    :caption: Contents:
 
    project
-   includeme
+   readme
    general_usage
    creating_instruments
    creating_scripts
    importing_into_gui
+   faq
    code_docs/pylabcontrol
 
 Indices and tables

@@ -1,4 +1,4 @@
-pylabcontrol
+pylabcontrol API
 ============
 
 .. toctree::

@@ -1,5 +1,5 @@
-Using the pylabcontrol ecosystem for your experiments
-*********
+Using pylabcontrol for Experiments
+**********************************
 
 Typical Workflow Overview
 ================
@@ -14,10 +14,12 @@ When a script is saved, the following are saved:
 
 - The data stored in the script --- i.e., the contents of self.data for the Script.
 
+- A picture of the final plots after the script finished executing.
+
 - The script settings. A .b26 file is saved that contains the information about the script, as well as the settings of
 the script when it was run.
 
-- A picture of the final plots after the script finished executing.
+- The log during the script's execution.
 
 It is saved either in the location listed in the path variable of the script, or if that is empty, the path listed in
 the "GUI Settings" tab.
