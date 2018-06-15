@@ -616,10 +616,10 @@ Script.
                         # raise NotImplementedError # has to be dynamic maybe???
                         script_information_subclass,  script_iterators = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name], script_iterators)
                         subscript_class_name = script_information_subclass['class']
-                        # import pylabcontrol.scripts
-                        import pylabcontrol.core.script_iterator
+                        import pylabcontrol
+                        # import pylabcontrol.core.script_iterator
                         print('here', script_information_subclass)
-                        sub_scripts.update({sub_script_name: getattr(pylabcontrol.core.script_iterator, subscript_class_name)})
+                        sub_scripts.update({sub_script_name: getattr(pylabcontrol, subscript_class_name)})
                     else:
                         if verbose:
                             print(('script_sub_scripts[sub_script_name]', sub_script_class))
@@ -674,7 +674,8 @@ Script.
 
 
             # dynamically import the module, i.e. the namespace for the scriptiterator
-            script_iterator_module = __import__(script_iterator_base_class.__module__)
+            # script_iterator_module = __import__(script_iterator_base_class.__module__)
+            script_iterator_module = __import__('pylabcontrol')
             print('script_iterator_module', script_iterator_module)
             print('base_class', script_iterator_base_class)
 
@@ -688,8 +689,8 @@ Script.
                 print((script_iterator_base_class.__module__.split('.')[0]))
 
 
-            class_name = script_iterator_base_class.__module__.split('.')[0] + '.dynamic_script_iterator' + str(script_iterator_base_class._number_of_classes)
-
+            # class_name = script_iterator_base_class.__module__.split('.')[0] + '.dynamic_script_iterator' + str(script_iterator_base_class._number_of_classes)
+            class_name = 'dynamic_script_iterator' + str(script_iterator_base_class._number_of_classes)
 
             if verbose:
                 print(('class_name', class_name))
