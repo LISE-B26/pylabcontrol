@@ -711,7 +711,7 @@ Script.
                 print(('dynamic_class.__bases__', dynamic_class.__bases__))
                 print(('dynamic_class.__dict__', dynamic_class.__dict__))
 
-            # Now we place the dynamic script into the scope of pylabcontrol.scripts as regular scripts.
+            # Now we place the dynamic script into the scope of pylabcontrol.
             setattr(script_iterator_module, class_name, dynamic_class)
             print('module', script_iterator_module)
             print('class_name', class_name)
