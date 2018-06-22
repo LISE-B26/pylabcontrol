@@ -560,6 +560,7 @@ class Script(QObject):
         dictator[self.name]['settings'] = self.settings
 
         return dictator
+
     def save_data(self, filename = None, data_tag = None):
         """
         saves the script data to a file
@@ -671,6 +672,7 @@ class Script(QObject):
         #     if len(filename.split('\\\\?\\')) == 1:
         #         filename = '\\\\?\\' + filename
         save_b26_file(filename, scripts=self.to_dict(), overwrite=True)
+
     def save_image_to_disk(self, filename_1 = None, filename_2 = None):
         """
         creates an image using the scripts plot function and writes it to the disk
@@ -891,7 +893,7 @@ class Script(QObject):
 
     @staticmethod
     def load_and_append(script_dict, scripts=None, instruments=None, log_function=None, data_path=None,
-                        raise_errors=True, package='pylabcontrol', verbose=False):
+                        raise_errors=True, package='pylabcontrol', verbose=True):
         """
         load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
 
@@ -1215,7 +1217,7 @@ class Script(QObject):
         # except ImportError:
         #     pass
         print('module', module_path)
-        module = import_module('b26_toolkit.' + module_path)
+        module = import_module(module_path)
         # check if module was found!
         if module is None or not hasattr(module, script_class_name):
             import sys

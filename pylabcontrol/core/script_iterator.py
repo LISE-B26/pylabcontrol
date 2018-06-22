@@ -246,6 +246,7 @@ Script.
         :return: current progress in percent
         """
         estimate = True
+        progress_subscript = 0
         # ==== get the current subscript and the time it takes to execute it =====
         current_subscript = self._current_subscript_stage['current_subscript']
 
@@ -388,7 +389,7 @@ Script.
                 last_script._plot(axes_list, self.data)
             except TypeError as err:
                 print((warnings.warn('can\'t plot average script data because script.plot function doens\'t take data as optional argument. Plotting last data set instead')))
-                print((err.message))
+                print((str(err)))
                 last_script.plot(figure_list)
 
 
@@ -616,15 +617,16 @@ Script.
                         # raise NotImplementedError # has to be dynamic maybe???
                         script_information_subclass,  script_iterators = ScriptIterator.create_dynamic_script_class(script_sub_scripts[sub_script_name], script_iterators)
                         subscript_class_name = script_information_subclass['class']
-                        import pylabcontrol
-                        # import pylabcontrol.core.script_iterator
-                        print('here', script_information_subclass)
-                        sub_scripts.update({sub_script_name: getattr(pylabcontrol, subscript_class_name)})
+                        #previously in python 2 had used: import pylabcontrol.core.script_iterator
+                        #however, this shouldn't have worked, as this was already imported as part of pylabcontrol, so nothing
+                        #happens and the old version without the dynamic script is used. Here, we force import the new
+                        #version of the module which now contains the script_iterator and everything works as expected
+                        script_iterator_module = __import__('pylabcontrol.core.script_iterator')
+                        sub_scripts.update({sub_script_name: getattr(script_iterator_module, subscript_class_name)})
                     else:
                         if verbose:
                             print(('script_sub_scripts[sub_script_name]', sub_script_class))
 
-                        # script_dict = {script_sub_scripts[sub_script_name]['class']}
                         module = Script.get_script_module(sub_script_class, verbose=verbose)
 
                         if verbose:
@@ -674,8 +676,8 @@ Script.
 
 
             # dynamically import the module, i.e. the namespace for the scriptiterator
-            # script_iterator_module = __import__(script_iterator_base_class.__module__)
-            script_iterator_module = __import__('pylabcontrol')
+            script_iterator_module = __import__(script_iterator_base_class.__module__)
+            # script_iterator_module = __import__('pylabcontrol')
             print('script_iterator_module', script_iterator_module)
             print('base_class', script_iterator_base_class)
 
@@ -689,8 +691,7 @@ Script.
                 print((script_iterator_base_class.__module__.split('.')[0]))
 
 
-            # class_name = script_iterator_base_class.__module__.split('.')[0] + '.dynamic_script_iterator' + str(script_iterator_base_class._number_of_classes)
-            class_name = 'dynamic_script_iterator' + str(script_iterator_base_class._number_of_classes)
+            class_name = script_iterator_base_class.__module__.split('.')[0] + '.dynamic_script_iterator' + str(script_iterator_base_class._number_of_classes)
 
             if verbose:
                 print(('class_name', class_name))
@@ -713,9 +714,6 @@ Script.
 
             # Now we place the dynamic script into the scope of pylabcontrol.
             setattr(script_iterator_module, class_name, dynamic_class)
-            print('module', script_iterator_module)
-            print('class_name', class_name)
-            print('dynamic class', dynamic_class)
 
             if verbose:
                 print(('dynamic_class', dynamic_class))
