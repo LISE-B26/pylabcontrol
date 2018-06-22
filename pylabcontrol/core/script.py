@@ -18,6 +18,7 @@
 
 import datetime
 from copy import deepcopy
+import traceback
 
 from pylabcontrol.core.instrument import Instrument
 from pylabcontrol.core.parameter import Parameter
@@ -893,7 +894,7 @@ class Script(QObject):
 
     @staticmethod
     def load_and_append(script_dict, scripts=None, instruments=None, log_function=None, data_path=None,
-                        raise_errors=True, package='pylabcontrol', verbose=True):
+                        raise_errors=True, package='pylabcontrol', verbose=False):
         """
         load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
 
@@ -1108,7 +1109,9 @@ class Script(QObject):
                 try:
                     script_instance = eval(class_creation_string)
                 except Exception as err:
-                    print(('loading script {:s} failed. Could not create instance of script!'.format(script_name)))
+                    print('loading ' + script_name + ' failed:')
+                    print(traceback.format_exc())
+                    # print(('loading script {:s} failed. Could not create instance of script!'.format(script_name)))
                     load_failed[script_name] = err
                     if raise_errors:
                         raise err
@@ -1216,7 +1219,7 @@ class Script(QObject):
         #     print(module)
         # except ImportError:
         #     pass
-        print('module', module_path)
+        # print('module', module_path)
         module = import_module(module_path)
         # check if module was found!
         if module is None or not hasattr(module, script_class_name):

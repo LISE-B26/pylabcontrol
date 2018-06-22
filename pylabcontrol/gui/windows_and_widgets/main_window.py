@@ -525,7 +525,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     scripts=self.scripts,
                     instruments=self.instruments,
                     log_function=self.log,
-                    data_path=data_folder_name)
+                    data_path=data_folder_name,
+                    raise_errors=False)
 
                 # delete instances of new instruments/scripts that have been deselected
                 for name in removed_scripts:
