@@ -677,10 +677,6 @@ Script.
 
             # dynamically import the module, i.e. the namespace for the scriptiterator
             script_iterator_module = __import__(script_iterator_base_class.__module__)
-            # script_iterator_module = __import__('pylabcontrol')
-            print('script_iterator_module', script_iterator_module)
-            print('base_class', script_iterator_base_class)
-
 
             if verbose:
                 print('\n\n======== create_script_iterator_class ========\n')

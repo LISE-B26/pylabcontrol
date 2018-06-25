@@ -66,7 +66,7 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = True):
 
         try:
             print('importing', module)
-            module = import_module('b26_toolkit.' + module)
+            module = import_module(module)
             print(module)
 
 

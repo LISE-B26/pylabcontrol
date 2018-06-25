@@ -509,6 +509,16 @@ class Script(QObject):
         #     filename = '\\\\?\\' + filename
 
         return filename
+
+    @staticmethod
+    def check_filename(filename):
+        if os.name == 'nt':
+            if builtin_len(filename) >= 256 and not filename[0:4] == '\\\\?\\':
+                filename = '\\\\?\\' + filename
+                # when using this long filename prefix, we must use only \ slashes as windows handles these differently
+                filename = filename.replace('/', '\\')
+        return filename
+
     def to_dict(self):
         """
 
@@ -594,7 +604,7 @@ class Script(QObject):
 
         # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
         # if len(filename.split('\\\\?\\')) == 1:
-        #     filename = '\\\\?\\' + filename
+        filename = self.check_filename(filename)
 
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
@@ -646,28 +656,31 @@ class Script(QObject):
             else:
                 df = pd.DataFrame(value)
             df.to_csv(filename, index=False)
+
     def save_log(self, filename = None):
         """
         save log to file
         Returns:
 
         """
-
         if filename is None:
             filename = self.filename('-info.txt')
+        filename = self.check_filename(filename)
+        # filename = self.check_filename(filename)
         # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
         # if len(filename.split('\\\\?\\')) == 1:
         #     filename = '\\\\?\\' + filename
         with open(filename, 'w') as outfile:
             for item in self.log_data:
                 outfile.write("%s\n" % item)
+
     def save_b26(self, filename=None):
         """
         saves the script settings to a file: filename is filename is not provided, it is created from internal function
         """
         if filename is None:
             filename = self.filename('.b26')
-
+        filename = self.check_filename(filename)
         # if platform.system() == 'Windows':
         #     # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
         #     if len(filename.split('\\\\?\\')) == 1:
@@ -725,6 +738,9 @@ class Script(QObject):
         # if len(filename_2.split('\\\\?\\')) == 1:
         #     filename_2 = '\\\\?\\' + filename_2
 
+        filename_1 = self.check_filename(filename_1)
+        filename_2 = self.check_filename(filename_2)
+
         if os.path.exists(os.path.dirname(filename_1)) is False:
             os.makedirs(os.path.dirname(filename_1))
         if os.path.exists(os.path.dirname(filename_2)) is False:
@@ -758,6 +774,7 @@ class Script(QObject):
             filename = self.filename('.b26s')
         # if len(filename.split('\\\\?\\')) == 1:
         #     filename = '\\\\?\\' + filename
+        filename = self.check_filename(filename)
         with open(filename, 'w') as outfile:
             outfile.write(pickle.dumps(self.__dict__))
 
@@ -780,6 +797,7 @@ class Script(QObject):
             script_instance
             updated_instruments
         """
+        filename = Script.check_filename(filename)
         with open(filename, 'r') as infile:
             dataPickle = infile.read()
 
@@ -820,6 +838,7 @@ class Script(QObject):
         # windows can't deal with long filenames (>260 chars) so we have to use the prefix '\\\\?\\'
         # if len(path.split('\\\\?\\')) == 1:
         #     path = '\\\\?\\' + os.path.abspath(path)
+        path = Script.check_filename(path)
 
 
         # if raw_data folder exists, get a list of directories from within it; otherwise, get names of all .csv files in
@@ -885,6 +904,7 @@ class Script(QObject):
             print(('no .b26 file found in folder {:s},  check path !'.format(search_str)))
             return
         fname = fname[0]
+        fname = Script.check_filename(fname)
         settings = load_b26_file(fname)['scripts']
 
         if len(list(settings.keys())) == 1 and setttings_only:

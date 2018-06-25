@@ -69,8 +69,7 @@ def get_classes_in_folder(folder_name, class_type, verbose=False):
         module, path = module_name_from_path(python_file)
 
         try:
-            print('importing', module)
-            module = import_module('b26_toolkit.' + module)
+            module = import_module(module)
             print(module)
 
             classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj)} for name, obj in
