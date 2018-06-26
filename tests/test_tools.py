@@ -20,7 +20,7 @@
 from unittest import TestCase
 
 import os, inspect, shutil
-from pylabcontrol.tools.export_default import export
+# from pylabcontrol.tools.export_default import export
 from pylabcontrol.scripts.example_scripts import ExampleScript
 
 
@@ -37,7 +37,7 @@ class TestHelperFunctions(TestCase):
 
         tmp_folder = os.path.normpath('./tmp-testing-/')
         os.makedirs(tmp_folder)
-        export(tmp_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
+        # export(tmp_folder, source_folders=source_folders, class_type='scripts', raise_errors=False)
 
         print('adas')
 

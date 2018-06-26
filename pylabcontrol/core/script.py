@@ -27,6 +27,7 @@ from pylabcontrol.core.helper_functions import module_name_from_path
 
 from collections import deque
 import os
+import sys
 import pandas as pd
 import glob
 import inspect
@@ -1168,13 +1169,14 @@ class Script(QObject):
         script_info = None # this is the docstring that describes the script
         module_path = package + '.scripts'
         script_filepath = None
+        module_file = None
 
         if isinstance(script_information, dict):
             if 'settings' in script_information:
                 script_settings = script_information['settings']
             if 'filepath' in script_information:
                 script_filepath = str(script_information['filepath'])
-                module_path, _ = module_name_from_path(script_filepath, verbose = True)
+                module_path, module_file = module_name_from_path(script_filepath, verbose = True)
             if 'package' in script_information:
                 package = script_information['package']
             else:
@@ -1186,7 +1188,6 @@ class Script(QObject):
             script_class_name = str(script_information['class'])
             if 'ScriptIterator' in script_class_name:
                 module_path = package + '.core.script_iterator'
-
             if 'instruments' in script_information:
                 script_instruments = script_information['instruments']
             if 'scripts' in script_information:
@@ -1218,7 +1219,6 @@ class Script(QObject):
             if os.path.basename(script_filepath.split('.pyc')[0].split('.py')[0]) == 'script_iterator':
                 module_path = package + '.core.script_iterator'
 
-
         # if the script has been created already, i.e. script_class_name: package.dynamic_script_iterator
         # todo: now there is the prefix package
         if len(script_class_name.split('dynamic_script_iterator')) == 2 and \
@@ -1240,10 +1240,15 @@ class Script(QObject):
         # except ImportError:
         #     pass
         # print('module', module_path)
+
+        #appends path to this module to the python path if it is not present so it can be used
+        if module_file and not(module_file in sys.path):
+            sys.path.append(module_file)
+
         module = import_module(module_path)
         # check if module was found!
         if module is None or not hasattr(module, script_class_name):
-            import sys
+            # import sys
             print('here is the pythonpath')
             for path in sys.path:
                 print(path)
