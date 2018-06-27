@@ -407,12 +407,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if item is not None:
             if item.is_point():
-                item_x = item.child(1)
+               # item_x = item.child(1)
+                item_x = item.child(0)
                 if mouse_event.xdata is not None:
                     self.tree_scripts.setCurrentItem(item_x)
                     item_x.value = float(mouse_event.xdata)
                     item_x.setText(1, '{:0.3f}'.format(float(mouse_event.xdata)))
-                item_y = item.child(0)
+               # item_y = item.child(0)
+                item_y = item.child(1)
                 if mouse_event.ydata is not None:
                     self.tree_scripts.setCurrentItem(item_y)
                     item_y.value = float(mouse_event.ydata)
