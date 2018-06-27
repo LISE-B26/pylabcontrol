@@ -1,0 +1,229 @@
+{
+    "scripts": {
+        "AutoFocusDaqSMC": {
+            "class": "AutoFocusDaqSMC",
+            "filepath": "C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\scripts\\autofocus.py",
+            "info": "Autofocus: Takes images at different piezo voltages and uses a heuristic to figure out the point at which the objective\n            is focused.\n    ",
+            "package": "b26_toolkit",
+            "scripts": {
+                "take_image": {
+                    "class": "GalvoScan",
+                    "filepath": "C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\scripts\\galvo_scan\\galvo_scan.py",
+                    "info": null,
+                    "package": "b26_toolkit",
+                    "instruments": {
+                        "NI6259": {
+                            "class": "NI6259",
+                            "settings": {
+                                "device": "Dev1",
+                                "override_buffer_size": -1,
+                                "ao_read_offset": 0.005,
+                                "analog_output": {
+                                    "ao0": {
+                                        "channel": 0,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    },
+                                    "ao1": {
+                                        "channel": 1,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    },
+                                    "ao2": {
+                                        "channel": 2,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    },
+                                    "ao3": {
+                                        "channel": 3,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    }
+                                },
+                                "analog_input": {
+                                    "ai0": {
+                                        "channel": 0,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    },
+                                    "ai1": {
+                                        "channel": 1,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    },
+                                    "ai2": {
+                                        "channel": 2,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    },
+                                    "ai3": {
+                                        "channel": 3,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    },
+                                    "ai4": {
+                                        "channel": 4,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    }
+                                },
+                                "digital_input": {
+                                    "ctr0": {
+                                        "input_channel": 0,
+                                        "counter_PFI_channel": 8,
+                                        "gate_PFI_channel": 14,
+                                        "clock_PFI_channel": 13,
+                                        "clock_counter_channel": 1,
+                                        "sample_rate": 1000.0
+                                    },
+                                    "ctr1": {
+                                        "input_channel": 1,
+                                        "counter_PFI_channel": 3,
+                                        "gate_PFI_channel": 14,
+                                        "clock_PFI_channel": 12,
+                                        "clock_counter_channel": 0,
+                                        "sample_rate": 1000.0
+                                    }
+                                },
+                                "digital_output": {
+                                    "do0": {
+                                        "channel": 0,
+                                        "sample_rate": 1000.0
+                                    },
+                                    "do8": {
+                                        "channel": 8,
+                                        "sample_rate": 1000.0
+                                    }
+                                }
+                            }
+                        },
+                        "NI9263": {
+                            "class": "NI9263",
+                            "settings": {
+                                "device": "cDAQ1Mod1",
+                                "override_buffer_size": -1,
+                                "ao_read_offset": 0.005,
+                                "analog_output": {
+                                    "ao0": {
+                                        "channel": 0,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    },
+                                    "ao1": {
+                                        "channel": 1,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    },
+                                    "ao2": {
+                                        "channel": 2,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    },
+                                    "ao3": {
+                                        "channel": 3,
+                                        "sample_rate": 1000.0,
+                                        "min_voltage": -10.0,
+                                        "max_voltage": 10.0
+                                    }
+                                }
+                            }
+                        },
+                        "NI9402": {
+                            "class": "NI9402",
+                            "settings": {
+                                "device": "cDAQ1",
+                                "module": "Mod2",
+                                "override_buffer_size": -1,
+                                "ao_read_offset": 0.005,
+                                "digital_input": {
+                                    "ctr0": {
+                                        "input_channel": 0,
+                                        "counter_PFI_channel": 0,
+                                        "gate_PFI_channel": 3,
+                                        "clock_PFI_channel": 1,
+                                        "clock_counter_channel": 2,
+                                        "sample_rate": 1000.0
+                                    },
+                                    "ctr2": {
+                                        "input_channel": 2,
+                                        "counter_PFI_channel": 1,
+                                        "gate_PFI_channel": 0,
+                                        "clock_PFI_channel": 2,
+                                        "clock_counter_channel": 3,
+                                        "sample_rate": 1000.0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "settings": {
+                        "point_a": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "point_b": {
+                            "x": 1.0,
+                            "y": 1.0
+                        },
+                        "RoI_mode": "center",
+                        "num_points": {
+                            "x": 126,
+                            "y": 126
+                        },
+                        "time_per_pt": 0.002,
+                        "settle_time": 0.0002,
+                        "max_counts_plot": -1,
+                        "DAQ_channels": {
+                            "x_ao_channel": "ao0",
+                            "y_ao_channel": "ao1",
+                            "counter_channel": "ctr0"
+                        },
+                        "ending_behavior": "return_to_start",
+                        "daq_type": "cDAQ",
+                        "path": "",
+                        "tag": "take_image",
+                        "save": false
+                    }
+                }
+            },
+            "instruments": {
+                "z_driver": {
+                    "class": "SMC100",
+                    "settings": {
+                        "port": "COM3",
+                        "position": 25000.0,
+                        "velocity": 1000,
+                        "height_lower_limit": 9
+                    }
+                }
+            },
+            "settings": {
+                "save_images": false,
+                "z_axis_center_position": 50,
+                "scan_width": 5,
+                "num_sweep_points": 10,
+                "focusing_optimizer": "standard_deviation",
+                "wait_time": 0.1,
+                "use_current_z_axis_position": false,
+                "center_on_current_location": false,
+                "galvo_return_to_initial": false,
+                "reverse_scan": false,
+                "path": "",
+                "tag": "autofocusdaqsmc",
+                "save": false
+            }
+        }
+    }
+}

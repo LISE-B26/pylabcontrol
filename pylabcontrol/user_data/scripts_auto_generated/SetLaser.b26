@@ -1,0 +1,154 @@
+{
+    "scripts": {
+        "SetLaser": {
+            "class": "SetLaser",
+            "filepath": "C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\scripts\\set_laser.py",
+            "info": "This script points the laser to a point\n    ",
+            "package": "b26_toolkit",
+            "instruments": {
+                "NI6259": {
+                    "class": "NI6259",
+                    "settings": {
+                        "device": "Dev1",
+                        "override_buffer_size": -1,
+                        "ao_read_offset": 0.005,
+                        "analog_output": {
+                            "ao0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao1": {
+                                "channel": 1,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao2": {
+                                "channel": 2,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao3": {
+                                "channel": 3,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            }
+                        },
+                        "analog_input": {
+                            "ai0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai1": {
+                                "channel": 1,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai2": {
+                                "channel": 2,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai3": {
+                                "channel": 3,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai4": {
+                                "channel": 4,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            }
+                        },
+                        "digital_input": {
+                            "ctr0": {
+                                "input_channel": 0,
+                                "counter_PFI_channel": 8,
+                                "gate_PFI_channel": 14,
+                                "clock_PFI_channel": 13,
+                                "clock_counter_channel": 1,
+                                "sample_rate": 1000.0
+                            },
+                            "ctr1": {
+                                "input_channel": 1,
+                                "counter_PFI_channel": 3,
+                                "gate_PFI_channel": 14,
+                                "clock_PFI_channel": 12,
+                                "clock_counter_channel": 0,
+                                "sample_rate": 1000.0
+                            }
+                        },
+                        "digital_output": {
+                            "do0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0
+                            },
+                            "do8": {
+                                "channel": 8,
+                                "sample_rate": 1000.0
+                            }
+                        }
+                    }
+                },
+                "NI9263": {
+                    "class": "NI9263",
+                    "settings": {
+                        "device": "cDAQ1Mod1",
+                        "override_buffer_size": -1,
+                        "ao_read_offset": 0.005,
+                        "analog_output": {
+                            "ao0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao1": {
+                                "channel": 1,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao2": {
+                                "channel": 2,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao3": {
+                                "channel": 3,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            }
+                        }
+                    }
+                }
+            },
+            "settings": {
+                "point": {
+                    "x": -0.4,
+                    "y": -0.4
+                },
+                "DAQ_channels": {
+                    "x_ao_channel": "ao0",
+                    "y_ao_channel": "ao1"
+                },
+                "daq_type": "cDAQ",
+                "path": "",
+                "tag": "setlaser",
+                "save": false
+            }
+        }
+    }
+}
