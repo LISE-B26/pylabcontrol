@@ -20,18 +20,17 @@ import traceback, os
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.uic import loadUiType
 
-from pylabcontrol.tools.export_default import find_scripts_in_python_files, python_file_to_b26, find_instruments_in_python_files
-from pylabcontrol.core.helper_functions import get_python_package, module_name_from_path
+from pylabcontrol.tools.export_default_v2 import find_scripts_in_python_files, python_file_to_b26, find_instruments_in_python_files
 
 # load the basic old_gui either from .ui file or from precompiled .py file
 try:
-    ui_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'ui_files', 'import_window.ui'))
-    Ui_Dialog, QDialog = loadUiType(ui_file_path) # with this we don't have to convert the .ui file into a python file!
+    # import external_modules.matplotlibwidget
+    Ui_Dialog, QDialog = loadUiType('import_window.ui') # with this we don't have to convert the .ui file into a python file!
 except (ImportError, IOError):
-    from pylabcontrol.gui.compiled_ui_files import Ui_Dialog
+    from pylabcontrol.gui.compiled_ui_files.load_dialog import Ui_Dialog
     from PyQt5.QtWidgets import QMainWindow
     from PyQt5.QtWidgets import QDialog
-    print('Warning: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!\n')
+    print('Warning!: on the fly conversion of load_dialog.ui file failed, loaded .py file instead!!\n')
 
 
 class ExportDialog(QDialog, Ui_Dialog):
@@ -64,11 +63,8 @@ Returns:
         self.btn_select_none.clicked.connect(self.select_none)
         self.btn_export.clicked.connect(self.export)
 
-        # package = get_python_package(os.getcwd())
-        print('CWD', os.getcwd())
-        package, path = module_name_from_path(os.getcwd())
-        self.source_path.setText(os.path.normpath(os.path.join(path + '\\' + package.split('.')[0] + '\\scripts')))
-        self.target_path.setText(os.path.normpath(os.path.join(path + '\\' + package.split('.')[0] + '\\user_data\\scripts_auto_generated')))
+        self.source_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\scripts')))
+        self.target_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\..\\user_data\\scripts_auto_generated')))
         self.reset_avaliable(self.source_path.text())
 
     def open_file_dialog(self):
@@ -150,22 +146,7 @@ Returns:
         if index != []:
             index = index[-1]
             name = str(index.model().itemFromIndex(index).text())
-            # self.text_error.setText(self.error_array[name])
-            self.text_error.setText('')
-            self.text_error.setOpenExternalLinks(True)
-            split_errors = self.error_array[name].split("\"")
-            #displays error message with HTML link to file where error occured, which opens in default python editor
-            for error in split_errors:
-                if error[-3:] == '.py':
-                    error = error.replace("\\", "/") #format paths to be opened
-                    # sets up hyperlink error with filepath as displayed text in hyperlink
-                    # in future, can use anchorClicked signal to call python function when link clicked
-                    self.text_error.insertHtml("<a href = \"" + error + "\">" + error + "</a>")
-                else:
-                    error = error.replace("\n", "<br>") #format newlines for HTML
-                    # would like to use insertPlainText here, but this is broken and ends up being inserted as more
-                    # HTML linked to the previous insertHtml, so need to insert this as HTML instead
-                    self.text_error.insertHtml(error)
+            self.text_error.setText(self.error_array[name])
             if(self.avaliable[name]['info'] == None):
                 self.text_info.setText('No information avaliable')
             else:
@@ -183,6 +164,7 @@ if __name__ == '__main__':
     ex.show()
     ex.raise_()
 
+    print('asda')
     if ex.exec_():
         values = ex.get_values()
         print(values)

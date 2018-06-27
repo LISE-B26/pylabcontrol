@@ -1,0 +1,3 @@
+[console_scripts]
+pylabcontrol = pylabcontrol.gui.launch_gui:launch_gui
+
