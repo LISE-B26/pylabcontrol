@@ -15,4 +15,4 @@
 # You should have received a copy of the GNU General Public License
 # along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
-from .instrument_dummy import DummyInstrument, Plant, PIControler
+from .example_instrument import ExampleInstrument, Plant, PIControler

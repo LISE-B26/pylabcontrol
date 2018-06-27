@@ -15,6 +15,6 @@
 # along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .script_dummy import ScriptMinimalDummy, ScriptDummy, DummyPlantWithControler, ScriptDummyWrapper
+from .example_scripts import ExampleMinimalScript, ExampleScript, ExampleScriptWrapper
 from .select_points import SelectPoints
 from .script_wait import Wait

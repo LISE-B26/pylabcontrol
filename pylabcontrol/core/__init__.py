@@ -16,7 +16,7 @@
 # along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 from pylabcontrol.core.parameter import Parameter
-from pylabcontrol.core.instruments import Instrument
+from pylabcontrol.core.instrument import Instrument
 from pylabcontrol.core.probe import Probe
-from pylabcontrol.core.scripts import Script
+from pylabcontrol.core.script import Script
 from pylabcontrol.core.script_iterator import ScriptIterator

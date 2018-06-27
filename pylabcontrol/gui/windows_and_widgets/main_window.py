@@ -56,7 +56,7 @@ class CustomEventFilter(QtCore.QObject):
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    application_path = os.path.abspath(os.path.join(os.path.expanduser("~"), 'pylabcontrol', 'user_data'))
+    application_path = os.path.abspath(os.path.join(os.path.expanduser("~"), 'pylabcontrol_default_save_location'))
 
     _DEFAULT_CONFIG = {
         "data_folder": os.path.join(application_path, "data"),
@@ -64,7 +64,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         "instrument_folder": os.path.join(application_path, "instruments_auto_generated"),
         "scripts_folder": os.path.join(application_path, "scripts_auto_generated"),
         "probes_log_folder": os.path.join(application_path, "b26_tmp"),
-        "settings_file": os.path.join(application_path, "pythonlab_config")
+        "gui_settings": os.path.join(application_path, "pythonlab_config")
     }
 
 
@@ -88,7 +88,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
 
         print(self.startup_msg)
-        self.config_filename = None
+        self.config_filepath = None
         super(MainWindow, self).__init__()
         self.setupUi(self)
 
@@ -205,28 +205,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 with open(path_to_config) as f:
                     config_data = json.load(f)
                 if 'last_save_path' in config_data.keys():
-                    self.config_filename = config_data['last_save_path']
-                    self.log('Checking for previous save of GUI here: {0}'.format(self.config_filename))
-                else:
-                    self.log('Could not find previous save of GUI here: {0}'.format(self.config_filename))
-                    self.log('Starting with blank GUI')
-                    self.config_filename = ''
+                    self.config_filepath = config_data['last_save_path']
+                    self.log('Checking for previous save of GUI here: {0}'.format(self.config_filepath))
             else:
-                self.config_filename = ''
+                self.log('Starting with blank GUI; configuration files will be saved here: {0}'.format(self._DEFAULT_CONFIG["gui_settings"]))
 
         elif os.path.isfile(filepath) and os.access(filepath, os.R_OK):
-            self.config_filename = filepath
+            self.config_filepath = filepath
 
         elif not os.path.isfile(filepath):
             self.log('Could not find file given to open --- starting with a blank GUI')
-            self.config_filename = ''
 
         self.instruments = {}
         self.scripts = {}
         self.probes = {}
         self.gui_settings = {'scripts_folder': '', 'data_folder': ''}
 
-        self.load_config(self.config_filename)
+        self.load_config(self.config_filepath)
 
         self.data_sets = {}  # todo: load datasets from tmp folder
         self.read_probes = ReadProbes(self.probes)
@@ -241,17 +236,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionExport.setShortcut(self.tr('Ctrl+E'))
         self.list_history.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
+        if self.config_filepath is None:
+            self.config_filepath = os.path.join(self._DEFAULT_CONFIG["gui_settings"], 'gui.b26')
+
     def closeEvent(self, event):
         """
         things to be done when gui closes, like save the settings
         """
 
+        self.save_config(self.config_filepath)
         self.script_thread.quit()
         self.read_probes.quit()
-        if self.config_filename:
-            fname = self.config_filename
-            self.save_config(fname)
-
         event.accept()
 
         print('\n\n======================================================')
@@ -532,7 +527,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     scripts=self.scripts,
                     instruments=self.instruments,
                     log_function=self.log,
-                    data_path=data_folder_name)
+                    data_path=data_folder_name,
+                    raise_errors=False)
 
                 # delete instances of new instruments/scripts that have been deselected
                 for name in removed_scripts:
@@ -767,8 +763,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.plot_script(script)
 
         def save():
-            self.save_config(self.config_filename)
-
+            self.save_config(self.config_filepath)
         if sender is self.btn_start_script:
             start_button()
         elif sender is self.btn_stop_script:
@@ -802,8 +797,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.probe_to_plot = None
         elif sender is self.btn_save_gui:
             # get filename
-            fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save gui settings to file', self.gui_settings['data_folder']) # filter = '.b26gui'
-            self.save_config(fname[0])
+            filepath, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Save gui settings to file', self.config_filepath, filter = '.b26')
+
+            #in case the user cancels during the prompt, check that the filepath is not an empty string
+            if filepath:
+                filename, file_extension = os.path.splitext(filepath)
+                if file_extension != '.b26':
+                    filepath = filename + ".b26"
+                self.save_config(filepath)
         elif sender is self.btn_load_gui:
             # get filename
             fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Load gui settings from file',  self.gui_settings['data_folder'])
@@ -833,8 +834,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
         elif sender is self.actionSave:
-            if self.config_filename:
-                self.save_config(self.config_filename)
+            self.save_config(self.config_filepath)
         elif sender is self.actionGo_to_pylabcontrol_GitHub_page:
             webbrowser.open('https://github.com/LISE-B26/pylabcontrol')
         elif sender is self.actionExport:
@@ -1201,7 +1201,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             tree.model().appendRow([item_time, item_name, item_type])
 
-    def load_config(self, filepath):
+    def load_config(self, filepath=None):
         """
         checks if the file is a valid config file
         Args:
@@ -1211,7 +1211,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # load config or default if invalid
 
-        def load_settings(file_name):
+        def load_settings(filepath):
             """
             loads a old_gui settings file (a json dictionary)
             - path_to_file: path to file that contains the dictionary
@@ -1226,8 +1226,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             probes_loaded = {}
             scripts_loaded = {}
 
-            if os.path.isfile(file_name):
-                in_data = load_b26_file(file_name)
+            if filepath and os.path.isfile(filepath):
+                in_data = load_b26_file(filepath)
 
                 instruments = in_data['instruments'] if 'instruments' in in_data else {}
                 scripts = in_data['scripts'] if 'scripts' in in_data else {}
@@ -1252,7 +1252,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         probes=probes_loaded,
                         instruments=instruments_loaded)
 
-                    self.log('Successfully loaded scripts and instruments from previous save.')
+                    self.log('Successfully loaded from previous save.')
                 except ImportError:
                     self.log('Could not load instruments or scripts from file.')
                     self.log('Opening with blank GUI.')
@@ -1262,7 +1262,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             config = load_b26_file(filepath)['gui_settings']
             if config['settings_file'] != filepath:
                 print((
-                'WARNING path to sett-ings file ({:s}) in config file is different from path of settings file ({:s})'.format(
+                'WARNING path to settings file ({:s}) in config file is different from path of settings file ({:s})'.format(
                     config['settings_file'], filepath)))
             config['settings_file'] = filepath
         except Exception:
@@ -1286,8 +1286,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     print(('WARNING: path {:s} not specified set to default {:s}'.format(x, config[x])))
 
         # check if file_name is a valid filename
-        if os.path.exists(os.path.dirname(filepath)):
-            config['settings_file'] = filepath
+        if filepath is not None and os.path.exists(os.path.dirname(filepath)):
+            config['gui_settings'] = filepath
 
         self.gui_settings = config
 
@@ -1392,7 +1392,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             with io.open(save_config_path, 'w') as save_config_file:
                 save_config_file.write(json.dumps({'last_save_path': filepath}))
 
-        self.log('Saved GUI configuration')
+        self.log('Saved GUI configuration (location: {0}'.format(filepath))
 
 
     def save_dataset(self, out_file_name):

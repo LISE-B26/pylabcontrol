@@ -17,7 +17,7 @@
 # along with pylabcontrol.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pylabcontrol.core.instruments import Instrument
+from pylabcontrol.core.instrument import Instrument
 from collections import deque
 from pylabcontrol.core.read_write_functions import save_b26_file
 

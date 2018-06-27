@@ -20,7 +20,7 @@ import traceback, os
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.uic import loadUiType
 
-from pylabcontrol.tools.export_default_v2 import find_scripts_in_python_files, python_file_to_b26, find_instruments_in_python_files
+from pylabcontrol.tools.export_default import find_scripts_in_python_files, python_file_to_b26, find_instruments_in_python_files
 from pylabcontrol.core.helper_functions import get_python_package, module_name_from_path
 
 # load the basic old_gui either from .ui file or from precompiled .py file

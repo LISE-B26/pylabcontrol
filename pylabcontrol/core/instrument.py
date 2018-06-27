@@ -21,6 +21,7 @@ from pylabcontrol.core.read_write_functions import save_b26_file
 import os, inspect
 from importlib import import_module
 from pylabcontrol.core.helper_functions import module_name_from_path
+import traceback
 
 
 class Instrument(object):
@@ -306,7 +307,7 @@ class Instrument(object):
                         instrument_settings = instrument_class_name['settings']
                     instrument_filepath = str(instrument_class_name['filepath'])
                     instrument_class_name = str(instrument_class_name['class'])
-                    path_to_module, _ = module_name_from_path(instrument_filepath, verbose = True)
+                    path_to_module, _ = module_name_from_path(instrument_filepath, verbose = False)
                     module = import_module(path_to_module)
                     class_of_instrument = getattr(module, instrument_class_name)
                     try:
@@ -318,6 +319,8 @@ class Instrument(object):
                             instrument_instance = class_of_instrument(name=instrument_name, settings=instrument_settings)
                     except Exception as e:
                         loaded_failed[instrument_name] = e
+                        print('loading ' + instrument_name + ' failed:')
+                        print(traceback.format_exc())
                         if raise_errors:
                             raise e
                         continue
@@ -330,12 +333,21 @@ class Instrument(object):
                     raise NotImplementedError
                 elif issubclass(instrument_class_name, Instrument):
                     class_of_instrument = instrument_class_name
-                    if instrument_settings is None:
-                        # this creates an instance of the class with default settings
-                        instrument_instance = class_of_instrument(name=instrument_name)
-                    else:
-                        # this creates an instance of the class with custom settings
-                        instrument_instance = class_of_instrument(name=instrument_name,  settings=instrument_settings)
+                    try:
+                        if instrument_settings is None:
+                            # this creates an instance of the class with default settings
+                            instrument_instance = class_of_instrument(name=instrument_name)
+                        else:
+                            # this creates an instance of the class with custom settings
+                            instrument_instance = class_of_instrument(name=instrument_name,  settings=instrument_settings)
+                    except Exception as e:
+                        loaded_failed[instrument_name] = e
+                        # print(instrument_name, ': ', str(e))
+                        print('loading ' + instrument_name + ' failed:')
+                        print(traceback.format_exc())
+                        if raise_errors:
+                            raise e
+                        continue
 
 
                 updated_instruments[instrument_name] = instrument_instance

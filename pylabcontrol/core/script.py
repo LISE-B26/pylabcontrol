@@ -18,14 +18,16 @@
 
 import datetime
 from copy import deepcopy
+import traceback
 
-from pylabcontrol.core.instruments import Instrument
+from pylabcontrol.core.instrument import Instrument
 from pylabcontrol.core.parameter import Parameter
 from pylabcontrol.core.read_write_functions import save_b26_file, load_b26_file
 from pylabcontrol.core.helper_functions import module_name_from_path
 
 from collections import deque
 import os
+import sys
 import pandas as pd
 import glob
 import inspect
@@ -508,6 +510,16 @@ class Script(QObject):
         #     filename = '\\\\?\\' + filename
 
         return filename
+
+    @staticmethod
+    def check_filename(filename):
+        if os.name == 'nt':
+            if builtin_len(filename) >= 256 and not filename[0:4] == '\\\\?\\':
+                filename = '\\\\?\\' + filename
+                # when using this long filename prefix, we must use only \ slashes as windows handles these differently
+                filename = filename.replace('/', '\\')
+        return filename
+
     def to_dict(self):
         """
 
@@ -560,6 +572,7 @@ class Script(QObject):
         dictator[self.name]['settings'] = self.settings
 
         return dictator
+
     def save_data(self, filename = None, data_tag = None):
         """
         saves the script data to a file
@@ -592,7 +605,7 @@ class Script(QObject):
 
         # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
         # if len(filename.split('\\\\?\\')) == 1:
-        #     filename = '\\\\?\\' + filename
+        filename = self.check_filename(filename)
 
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
@@ -644,33 +657,37 @@ class Script(QObject):
             else:
                 df = pd.DataFrame(value)
             df.to_csv(filename, index=False)
+
     def save_log(self, filename = None):
         """
         save log to file
         Returns:
 
         """
-
         if filename is None:
             filename = self.filename('-info.txt')
+        filename = self.check_filename(filename)
+        # filename = self.check_filename(filename)
         # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
         # if len(filename.split('\\\\?\\')) == 1:
         #     filename = '\\\\?\\' + filename
         with open(filename, 'w') as outfile:
             for item in self.log_data:
                 outfile.write("%s\n" % item)
+
     def save_b26(self, filename=None):
         """
         saves the script settings to a file: filename is filename is not provided, it is created from internal function
         """
         if filename is None:
             filename = self.filename('.b26')
-
+        filename = self.check_filename(filename)
         # if platform.system() == 'Windows':
         #     # windows can't deal with long filenames so we have to use the prefix '\\\\?\\'
         #     if len(filename.split('\\\\?\\')) == 1:
         #         filename = '\\\\?\\' + filename
         save_b26_file(filename, scripts=self.to_dict(), overwrite=True)
+
     def save_image_to_disk(self, filename_1 = None, filename_2 = None):
         """
         creates an image using the scripts plot function and writes it to the disk
@@ -722,6 +739,9 @@ class Script(QObject):
         # if len(filename_2.split('\\\\?\\')) == 1:
         #     filename_2 = '\\\\?\\' + filename_2
 
+        filename_1 = self.check_filename(filename_1)
+        filename_2 = self.check_filename(filename_2)
+
         if os.path.exists(os.path.dirname(filename_1)) is False:
             os.makedirs(os.path.dirname(filename_1))
         if os.path.exists(os.path.dirname(filename_2)) is False:
@@ -755,6 +775,7 @@ class Script(QObject):
             filename = self.filename('.b26s')
         # if len(filename.split('\\\\?\\')) == 1:
         #     filename = '\\\\?\\' + filename
+        filename = self.check_filename(filename)
         with open(filename, 'w') as outfile:
             outfile.write(pickle.dumps(self.__dict__))
 
@@ -777,6 +798,7 @@ class Script(QObject):
             script_instance
             updated_instruments
         """
+        filename = Script.check_filename(filename)
         with open(filename, 'r') as infile:
             dataPickle = infile.read()
 
@@ -817,6 +839,7 @@ class Script(QObject):
         # windows can't deal with long filenames (>260 chars) so we have to use the prefix '\\\\?\\'
         # if len(path.split('\\\\?\\')) == 1:
         #     path = '\\\\?\\' + os.path.abspath(path)
+        path = Script.check_filename(path)
 
 
         # if raw_data folder exists, get a list of directories from within it; otherwise, get names of all .csv files in
@@ -882,6 +905,7 @@ class Script(QObject):
             print(('no .b26 file found in folder {:s},  check path !'.format(search_str)))
             return
         fname = fname[0]
+        fname = Script.check_filename(fname)
         settings = load_b26_file(fname)['scripts']
 
         if len(list(settings.keys())) == 1 and setttings_only:
@@ -1106,7 +1130,9 @@ class Script(QObject):
                 try:
                     script_instance = eval(class_creation_string)
                 except Exception as err:
-                    print(('loading script {:s} failed. Could not create instance of script!'.format(script_name)))
+                    print('loading ' + script_name + ' failed:')
+                    print(traceback.format_exc())
+                    # print(('loading script {:s} failed. Could not create instance of script!'.format(script_name)))
                     load_failed[script_name] = err
                     if raise_errors:
                         raise err
@@ -1143,13 +1169,14 @@ class Script(QObject):
         script_info = None # this is the docstring that describes the script
         module_path = package + '.scripts'
         script_filepath = None
+        module_file = None
 
         if isinstance(script_information, dict):
             if 'settings' in script_information:
                 script_settings = script_information['settings']
             if 'filepath' in script_information:
                 script_filepath = str(script_information['filepath'])
-                module_path, _ = module_name_from_path(script_filepath, verbose = True)
+                module_path, module_file = module_name_from_path(script_filepath, verbose = True)
             if 'package' in script_information:
                 package = script_information['package']
             else:
@@ -1161,7 +1188,6 @@ class Script(QObject):
             script_class_name = str(script_information['class'])
             if 'ScriptIterator' in script_class_name:
                 module_path = package + '.core.script_iterator'
-
             if 'instruments' in script_information:
                 script_instruments = script_information['instruments']
             if 'scripts' in script_information:
@@ -1193,7 +1219,6 @@ class Script(QObject):
             if os.path.basename(script_filepath.split('.pyc')[0].split('.py')[0]) == 'script_iterator':
                 module_path = package + '.core.script_iterator'
 
-
         # if the script has been created already, i.e. script_class_name: package.dynamic_script_iterator
         # todo: now there is the prefix package
         if len(script_class_name.split('dynamic_script_iterator')) == 2 and \
@@ -1214,11 +1239,16 @@ class Script(QObject):
         #     print(module)
         # except ImportError:
         #     pass
-        print('module', module_path)
+        # print('module', module_path)
+
+        #appends path to this module to the python path if it is not present so it can be used
+        if module_file and not(module_file in sys.path):
+            sys.path.append(module_file)
+
         module = import_module(module_path)
         # check if module was found!
         if module is None or not hasattr(module, script_class_name):
-            import sys
+            # import sys
             print('here is the pythonpath')
             for path in sys.path:
                 print(path)
@@ -1412,7 +1442,7 @@ if __name__ == '__main__':
     # sinfo = {'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
     #                                          'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1}, 'tag': 'scriptdummy', 'path': '',
     #                                                       'save': False, 'plot_style': 'main'},
-    #                                          'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.py'}
+    #                                          'class': 'ScriptDummy', 'filepath': '/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/example_scripts.py'}
     #
     # info = Script.get_script_information(sinfo, verbose=True)
     #

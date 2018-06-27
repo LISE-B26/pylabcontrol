@@ -304,12 +304,12 @@ if __name__ == '__main__':
     #
 
     # # test for scripts generated with export_default_scripts
-    # fp = '/Users/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.py'
+    # fp = '/Users/PycharmProjects/pylabcontrol/pylabcontrol/scripts/example_scripts.py'
     #
     # module, path = module_name_from_path(fp, verbose=False)
 
 
-    # fp = '/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.py'
+    # fp = '/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/example_scripts.py'
     #
     # module, path = module_name_from_path(fp, verbose=True)
     #
@@ -326,13 +326,13 @@ if __name__ == '__main__':
 
 
     # test
-    # fn= '/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.py'
+    # fn= '/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/example_scripts.py'
     # # fn = '/Users/rettentulla/'
     # print(get_python_package(fn))
 
 
 
-    # path = os.path.dirname('/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.py')
+    # path = os.path.dirname('/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/example_scripts.py')
     #
     # path_array = []
     # while True:

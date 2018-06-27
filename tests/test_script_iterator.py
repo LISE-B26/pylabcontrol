@@ -20,7 +20,7 @@
 from unittest import TestCase
 
 from pylabcontrol.core.script_iterator import ScriptIterator
-from pylabcontrol.scripts.script_dummy import ScriptDummy
+from pylabcontrol.scripts.example_scripts import ExampleScript
 import inspect
 
 class TestScriptIterator(TestCase):
@@ -28,7 +28,7 @@ class TestScriptIterator(TestCase):
     def test_loading_and_saving(self):
 
 
-        path_to_script_file = inspect.getmodule(ScriptDummy).__file__.replace('.pyc', '.py')
+        path_to_script_file = inspect.getmodule(ExampleScript).__file__.replace('.pyc', '.py')
 
 
         script_info = {'iter_script':
@@ -63,8 +63,8 @@ class TestScriptIterator(TestCase):
     def test_create_dynamic_script_class(self):
 
 
-        from pylabcontrol.scripts.script_dummy import ScriptDummy
-        path_to_script_file = inspect.getmodule(ScriptDummy).__file__.replace('.pyc', '.py')
+        from pylabcontrol.scripts.example_scripts import ExampleScript
+        path_to_script_file = inspect.getmodule(ExampleScript).__file__.replace('.pyc', '.py')
 
 
 
@@ -101,7 +101,7 @@ class TestScriptIterator(TestCase):
             'info': '\nExample Script that has all different types of parameters (integer, str, fload, point, list of parameters). Plots 1D and 2D data.\n    ',
             'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1},
                          'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'}, 'class': 'ScriptDummy',
-            'filepath': '/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.py'}},
+            'filepath': '/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/example_scripts.py'}},
          'class': 'ScriptIterator', 'settings': {'script_order': {'ScriptDummy': 0}, 'iterator_type': 'Loop'},
          'package': 'b26_toolkit'}
 
@@ -112,7 +112,7 @@ class TestScriptIterator(TestCase):
             'settings': {'count': 3, 'name': 'this is a counter', 'wait_time': 0.1, 'point2': {'y': 0.1, 'x': 0.1},
                          'tag': 'scriptdummy', 'path': '', 'save': False, 'plot_style': 'main'},
                 'class': 'ScriptDummy',
-                'filepath': '/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/script_dummy.py'}
+                'filepath': '/Users/rettentulla/PycharmProjects/pylabcontrol/pylabcontrol/scripts/example_scripts.py'}
             },
             'class': 'dynamic_script_iterator0',
             'settings': {'script_order': {'ScriptDummy': 0}, 'run_all_first': True,'script_execution_freq': {'ScriptDummy': 1}, 'N': 0},
