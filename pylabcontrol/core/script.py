@@ -1242,7 +1242,7 @@ class Script(QObject):
         # print('module', module_path)
 
         #appends path to this module to the python path if it is not present so it can be used
-        if module_file and not(module_file in sys.path):
+        if module_file and (module_file not in sys.path):
             sys.path.append(module_file)
 
         module = import_module(module_path)

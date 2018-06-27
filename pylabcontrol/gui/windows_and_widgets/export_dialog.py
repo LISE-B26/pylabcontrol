@@ -66,8 +66,6 @@ Returns:
 
         # package = get_python_package(os.getcwd())
         package, path = module_name_from_path(os.getcwd())
-        # self.source_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\scripts')))
-        # self.target_path.setText(os.path.normpath(os.path.join(os.getcwd(), '..\\..\\..\\..\\user_data\\scripts_auto_generated')))
         self.source_path.setText(os.path.normpath(os.path.join(path + '\\' + package.split('.')[0] + '\\scripts')))
         self.target_path.setText(os.path.normpath(os.path.join(path + '\\' + package.split('.')[0] + '\\user_data\\scripts_auto_generated')))
         self.reset_avaliable(self.source_path.text())

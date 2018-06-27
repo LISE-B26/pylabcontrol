@@ -67,12 +67,11 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = True):
         module, path = module_name_from_path(python_file)
 
         #appends path to this module to the python path if it is not present so it can be used
-        if not(path in sys.path):
+        if path not in sys.path:
             sys.path.append(path)
 
         try:
             module = import_module(module)
-
 
             classes_dict.update({name: {'class': name, 'filepath': inspect.getfile(obj), 'info': inspect.getdoc(obj)} for name, obj in
                                inspect.getmembers(module) if inspect.isclass(obj) and issubclass(obj, class_type)

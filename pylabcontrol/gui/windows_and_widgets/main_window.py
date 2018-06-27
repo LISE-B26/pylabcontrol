@@ -220,6 +220,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.scripts = {}
         self.probes = {}
         self.gui_settings = {'scripts_folder': '', 'data_folder': ''}
+        self.gui_settings_hidden = {'scripts_source_folder': ''}
 
         self.load_config(self.config_filepath)
 
@@ -837,7 +838,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             webbrowser.open('https://github.com/LISE-B26/pylabcontrol')
         elif sender is self.actionExport:
             export_dialog = ExportDialog()
+            export_dialog.target_path.setText(self.gui_settings['scripts_folder'])
+            if self.gui_settings_hidden['scripts_source_folder']:
+                export_dialog.source_path.setText(self.gui_settings_hidden['scripts_source_folder'])
+            #exec_() blocks while export dialog is used, subsequent code will run on dialog closing
             export_dialog.exec_()
+            self.gui_settings.update({'scripts_folder': export_dialog.target_path.text()})
+            self.fill_treeview(self.tree_gui_settings, self.gui_settings)
+            self.gui_settings_hidden.update({'scripts_source_folder': export_dialog.source_path.text()})
 
     def _show_hide_parameter(self):
         """
@@ -1257,37 +1265,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return instruments_loaded, scripts_loaded, probes_loaded
 
         try:
-            config = load_b26_file(filepath)['gui_settings']
-            if config['settings_file'] != filepath:
+            config = load_b26_file(filepath)
+            config_settings = config['gui_settings']
+            if config_settings['gui_settings'] != filepath:
                 print((
                 'WARNING path to settings file ({:s}) in config file is different from path of settings file ({:s})'.format(
-                    config['settings_file'], filepath)))
-            config['settings_file'] = filepath
-        except Exception:
+                    config_settings['gui_settings'], filepath)))
+            config_settings['gui_settings'] = filepath
+        except Exception as e:
+            raise e
             if filepath:
                 self.log('The filepath was invalid --- could not load settings. Loading blank GUI.')
-            config = self._DEFAULT_CONFIG
+            config_settings = self._DEFAULT_CONFIG
 
 
             for x in self._DEFAULT_CONFIG.keys():
-                if x in config:
-                    if not os.path.exists(config[x]):
+                if x in config_settings:
+                    if not os.path.exists(config_settings[x]):
                         try:
-                            os.makedirs(config[x])
+                            os.makedirs(config_settings[x])
                         except Exception:
-                            config[x] = self._DEFAULT_CONFIG[x]
-                            os.makedirs(config[x])
-                            print(('WARNING: failed validating or creating path: set to default path'.format(config[x])))
+                            config_settings[x] = self._DEFAULT_CONFIG[x]
+                            os.makedirs(config_settings[x])
+                            print(('WARNING: failed validating or creating path: set to default path'.format(config_settings[x])))
                 else:
-                    config[x] = self._DEFAULT_CONFIG[x]
-                    os.makedirs(config[x])
-                    print(('WARNING: path {:s} not specified set to default {:s}'.format(x, config[x])))
+                    config_settings[x] = self._DEFAULT_CONFIG[x]
+                    os.makedirs(config_settings[x])
+                    print(('WARNING: path {:s} not specified set to default {:s}'.format(x, config_settings[x])))
 
         # check if file_name is a valid filename
         if filepath is not None and os.path.exists(os.path.dirname(filepath)):
-            config['gui_settings'] = filepath
+            config_settings['gui_settings'] = filepath
 
-        self.gui_settings = config
+        self.gui_settings = config_settings
+
+        self.gui_settings_hidden = config['gui_settings_hidden']
 
         self.instruments, self.scripts, self.probes = load_settings(filepath)
 
@@ -1362,7 +1374,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             script_item = self.tree_scripts.topLevelItem(index)
             dictator.update(get_hidden_parameter(script_item))
 
-        dictator = {"gui_settings": self.gui_settings, "scripts_hidden_parameters":dictator}
+        dictator = {"gui_settings": self.gui_settings, "gui_settings_hidden": self.gui_settings_hidden, "scripts_hidden_parameters":dictator}
 
         # update the internal dictionaries from the trees in the gui
         for index in range(self.tree_scripts.topLevelItemCount()):
