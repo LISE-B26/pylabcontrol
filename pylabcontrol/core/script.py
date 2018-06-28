@@ -515,9 +515,9 @@ class Script(QObject):
     def check_filename(filename):
         if os.name == 'nt':
             if builtin_len(filename) >= 256 and not filename[0:4] == '\\\\?\\':
-                filename = '\\\\?\\' + filename
                 # when using this long filename prefix, we must use only \ slashes as windows handles these differently
-                filename = filename.replace('/', '\\')
+                filename = os.path.normpath(filename)
+                filename = '\\\\?\\' + filename
         return filename
 
     def to_dict(self):
@@ -1176,7 +1176,7 @@ class Script(QObject):
                 script_settings = script_information['settings']
             if 'filepath' in script_information:
                 script_filepath = str(script_information['filepath'])
-                module_path, module_file = module_name_from_path(script_filepath, verbose = True)
+                module_path, module_file = module_name_from_path(script_filepath, verbose = False)
             if 'package' in script_information:
                 package = script_information['package']
             else:
