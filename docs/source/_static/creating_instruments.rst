@@ -4,7 +4,7 @@ Creating an Instrument
 This guide goes through the steps of creating an instrument with pylabcontrol
 
 Overview
-========
+===========
 To create an instrument, you need to create a class for that instrument that inherits from pylabcontrol.core.Instrument.
 Furthermore, you need to implement the following functions and class variables:
 
@@ -26,7 +26,7 @@ The latter two necessary variable and function are for future updates.
 More details about each will be discussed below.
 
 Examples
-========
+==========
 There are two main places you can go for examples: First, take a look at
 `the ExampleInstrument class <https://github.com/LISE-B26/pylabcontrol/blob/master/pylabcontrol/instruments/instrument_dummy.py>`_.
 The ExampleInstrument class contains a dummy instrument that can be imported into the GUI.
@@ -37,7 +37,7 @@ instruments that communicate with GPIB, serial, NI daq_mx, and custom dll's.
 
 
 Parameters
-==========
+=============
 In pylabcontrol, instrument settings are saved as a custom Parameter datatype (pylabcontrol.core.Parameter); see the full
 documentation here. Note that Parameters can be nested, e.g.,
 ::
@@ -57,7 +57,7 @@ THe update() function takes a dictionary input and updates each parameter with n
 by the value.
 
 Testing
-=======
+=========
 When testing the instruments, it is recommended instruments are first tested separately from the GUI (e.g., by creating
 and manipulating an instance of the instrument class you created in your python file's __main__.), and then later
 the instrument can be imported into the GUI.
