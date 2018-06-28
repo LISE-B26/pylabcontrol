@@ -202,6 +202,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if filepath is None:
             path_to_config = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'save_config.json'))
             if os.path.isfile(path_to_config) and os.access(path_to_config, os.R_OK):
+                print('path_to_config', path_to_config)
                 with open(path_to_config) as f:
                     config_data = json.load(f)
                 if 'last_save_path' in config_data.keys():
@@ -798,18 +799,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.probe_to_plot = None
         elif sender is self.btn_save_gui:
             # get filename
-            filepath, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Save gui settings to file', self.config_filepath, filter = '.b26')
+            filepath, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Save gui settings to file', self.config_filepath, filter = '*.b26')
 
             #in case the user cancels during the prompt, check that the filepath is not an empty string
             if filepath:
                 filename, file_extension = os.path.splitext(filepath)
                 if file_extension != '.b26':
                     filepath = filename + ".b26"
+                self.gui_settings['gui_settings'] = filepath
+                self.refresh_tree(self.tree_gui_settings, self.gui_settings)
                 self.save_config(filepath)
+                self.config_filepath = filepath
         elif sender is self.btn_load_gui:
             # get filename
-            fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Load gui settings from file',  self.gui_settings['data_folder'])
-            # self.load_settings(fname)
+            fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Load gui settings from file',  self.gui_settings['data_folder'], filter = '*.b26')
             self.load_config(fname[0])
         elif sender is self.btn_about:
             msg = QtWidgets.QMessageBox()
@@ -835,6 +838,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
         elif sender is self.actionSave:
+            self.config_filepath = self.gui_settings['gui_settings']
             self.save_config(self.config_filepath)
         elif sender is self.actionGo_to_pylabcontrol_GitHub_page:
             webbrowser.open('https://github.com/LISE-B26/pylabcontrol')
@@ -1138,7 +1142,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         this filepath will be updated in the field of self.tree_gui_settings that has been double clicked
         """
 
-        def open_path_dialog(path):
+        def open_path_dialog_folder(path):
             """
             opens a file dialog to get the path to a file and
             """
@@ -1158,12 +1162,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             if index.column() == 1:
                 path = model.itemFromIndex(index).text()
-                path = str(open_path_dialog(path))
-
                 key = str(model.itemFromIndex(model.index(index.row(), 0)).text())
+                if(key == 'gui_settings'):
+                    path, _ = QtWidgets.QFileDialog.getSaveFileName(self, caption = 'Select a file:', directory = path, filter = '*.b26')
+                    name, extension = os.path.splitext(path)
+                    if extension != '.b26':
+                        path = name + ".b26"
+                else:
+                    path = str(open_path_dialog_folder(path))
 
                 if path != "":
-                    self.gui_settings.update({key : str(path)})
+                    self.gui_settings.update({key : str(os.path.normpath(path))})
                     self.fill_treeview(tree, self.gui_settings)
 
     def refresh_tree(self, tree, items):
@@ -1266,6 +1275,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.log('Opening with blank GUI.')
             return instruments_loaded, scripts_loaded, probes_loaded
 
+        config = None
+
         try:
             config = load_b26_file(filepath)
             config_settings = config['gui_settings']
@@ -1275,7 +1286,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     config_settings['gui_settings'], filepath)))
             config_settings['gui_settings'] = filepath
         except Exception as e:
-            raise e
             if filepath:
                 self.log('The filepath was invalid --- could not load settings. Loading blank GUI.')
             config_settings = self._DEFAULT_CONFIG
@@ -1301,7 +1311,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.gui_settings = config_settings
 
-        self.gui_settings_hidden = config['gui_settings_hidden']
+        if(config):
+            self.gui_settings_hidden = config['gui_settings_hidden']
+        else:
+            self.gui_settings_hidden['script_source_folder'] = ''
 
         self.instruments, self.scripts, self.probes = load_settings(filepath)
 
