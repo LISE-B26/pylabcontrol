@@ -1,0 +1,281 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Creating an Instrument &mdash; pylabcontrol 0.1a3 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pylabcontrol 0.1a3 documentation" href="index.html"/>
+        <link rel="next" title="Creating a Script" href="creating_scripts.html"/>
+        <link rel="prev" title="Using pylabcontrol for Experiments" href="general_usage.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pylabcontrol
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="project.html">pylabcontrol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general_usage.html">Using pylabcontrol for Experiments</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Creating an Instrument</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#default-settings">_DEFAULT_SETTINGS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#update">update()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="creating_scripts.html">Creating a Script</a></li>
+<li class="toctree-l1"><a class="reference internal" href="importing_into_gui.html">Importing an Instrument or Script into the GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequenty Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_docs/pylabcontrol.html">pylabcontrol package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">pylabcontrol</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Creating an Instrument</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/creating_instruments.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="creating-an-instrument">
+<h1>Creating an Instrument<a class="headerlink" href="#creating-an-instrument" title="Permalink to this headline">¶</a></h1>
+<p>This guide goes through the steps of creating an instrument with pylabcontrol</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>To create an instrument, you need to create a class for that instrument that inherits from pylabcontrol.core.Instrument.
+Furthermore, you need to implement the following functions and class variables:</p>
+<ul>
+<li><p class="first">_DEFAULT_SETTINGS (class variable): this variable contains the default settings for the instrument.</p>
+</li>
+<li><p class="first">update() (function): this function updates the instrument parameters.</p>
+</li>
+<li><p class="first">_PROBES (class variable): this variable should be left empty.</p>
+</li>
+<li><p class="first">read_probes() (function): this function should just ‘pass’, i.e.,</p>
+<blockquote>
+<div><div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read_probes</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+<p>The latter two necessary variable and function are for future updates.</p>
+<p>More details about each will be discussed below.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>There are two main places you can go for examples: First, take a look at
+<a class="reference external" href="https://github.com/LISE-B26/pylabcontrol/blob/master/pylabcontrol/instruments/instrument_dummy.py">the ExampleInstrument class</a>.
+The ExampleInstrument class contains a dummy instrument that can be imported into the GUI.</p>
+<p>Second, a lot of instruments were created for use in the Lukin Lab, the code for which is located
+<a class="reference external" href="https://github.com/LISE-B26/b26_toolkit/tree/master/b26_toolkit/instruments">here</a>. Examples there include
+instruments that communicate with GPIB, serial, NI daq_mx, and custom dll’s.</p>
+</div>
+<div class="section" id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<p>In pylabcontrol, instrument settings are saved as a custom Parameter datatype (pylabcontrol.core.Parameter); see the full
+documentation here. Note that Parameters can be nested, e.g.,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;voltage_outputs&#39;</span><span class="p">,</span>
+                            <span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;channel_1&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="s1">&#39;channel 1 voltage [V]&#39;</span><span class="p">),</span>
+                            <span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;channel_2&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="s1">&#39;channel 2 voltage [V]&#39;</span><span class="p">)</span>
+          <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="default-settings">
+<h2>_DEFAULT_SETTINGS<a class="headerlink" href="#default-settings" title="Permalink to this headline">¶</a></h2>
+<p>_DEFAULT_SETTINGS is a class variable that is of type Parameter. It contains the default parameters for an instrument.</p>
+</div>
+<div class="section" id="update">
+<h2>update()<a class="headerlink" href="#update" title="Permalink to this headline">¶</a></h2>
+<p>THe update() function takes a dictionary input and updates each parameter with name given by the key to the value given
+by the value.</p>
+</div>
+<div class="section" id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<p>When testing the instruments, it is recommended instruments are first tested separately from the GUI (e.g., by creating
+and manipulating an instance of the instrument class you created in your python file’s __main__.), and then later
+the instrument can be imported into the GUI.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="creating_scripts.html" class="btn btn-neutral float-right" title="Creating a Script" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="general_usage.html" class="btn btn-neutral" title="Using pylabcontrol for Experiments" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1a3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

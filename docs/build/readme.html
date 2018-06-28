@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>README &mdash; pylabcontrol 0.1a3 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pylabcontrol 0.1a3 documentation" href="index.html"/>
+        <link rel="next" title="Using pylabcontrol for Experiments" href="general_usage.html"/>
+        <link rel="prev" title="Welcome to pylabcontrol’s documentation!" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pylabcontrol
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general_usage.html">Using pylabcontrol for Experiments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creating_instruments.html">Creating an Instrument</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creating_scripts.html">Creating a Script</a></li>
+<li class="toctree-l1"><a class="reference internal" href="importing_into_gui.html">Importing an Instrument or Script into the GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequenty Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_docs/pylabcontrol.html">pylabcontrol package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">pylabcontrol</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>README</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/readme.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="readme">
+<h1>README<a class="headerlink" href="#readme" title="Permalink to this headline">¶</a></h1>
+<p># pylabcontrol
+pylabcontrol is a software environment to control scientific equipment for laboratory experiments.</p>
+<p>It
++   provides a GUI for convenient experimental control
++       interacts with any equipment that supports a python interface
++       executes user-created scripts for complex experimental control sequences
++       visualizes experimental data utilizing the standard python [matplotlib](<a class="reference external" href="https://matplotlib.org/">https://matplotlib.org/</a>) library
++       streamlines data acquisition, storage, and retrieval</p>
+<p>pylabcontrol is built on python 3.6, with extensive use of [PyQt5](<a class="reference external" href="https://riverbankcomputing.com/software/pyqt/intro">https://riverbankcomputing.com/software/pyqt/intro</a>) for the general user interface.
+It was built by Arthur Safira, Jan Gieseler, and Aaron Kabcenell in the Lukin Group at Harvard University.
+It is distributed under the [GPLv3 license](<a class="reference external" href="https://en.wikipedia.org/wiki/GNU_General_Public_License">https://en.wikipedia.org/wiki/GNU_General_Public_License</a>).</p>
+<p>## Getting Started
+The software was developed and tested with python 3.6 on 64-bit Windows 7. Prior to installation, install the latest
+Anaconda distribution for python version 3.6, as it contains some extra dependencies this project utilizes.
+You can find the latest Anaconda distribution [here](<a class="reference external" href="https://www.continuum.io/downloads">https://www.continuum.io/downloads</a>).</p>
+<p>### Installation
+There are two main ways to install pylabcontrol: via pip, the python package manager, or directly from the source via
+github. The former is easier, while the latter gives more explicit access to the source code.</p>
+<p>#### Via pip (Beginner)
+The simplest way to install pylabcontrol is with the command-line utility pip. To install simply issue the command</p>
+<p><code class="docutils literal notranslate"><span class="pre">`&gt;&gt;&gt;</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pylabcontrol`</span></code></p>
+<p>in the windows command-line interface. To run the gui, open commandline and run</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span> <span class="pre">&gt;&gt;&gt;</span> <span class="pre">pylabcontrol`</span></code></p>
+<p>Before the gui runs, you will be prompted to select a path to save gui configuration files.</p>
+<p>#### Via git (Intermediate/Advanced)
+If you are interested in hosting the source code more directly, you can clone from our git page:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`&gt;&gt;&gt;</span> <span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/LISE-B26/pylabcontrol.git`</span></code></p>
+<p>You should have the resulting directory on your local filesystem. If you are using PyCharm for development,
+it is recommended that you
++ confirm you are using the right python environment (Anaconda’s latest python 3.x),
++ have set pylabcontrol/pylabcontrol to be the sources root, and
++ have configured pycharm to include the sources root in the pythonpath before execution of the code.</p>
+<p>To launch the gui, simply run the file pylabcontrolpylabcontrolguilaunch_gui.py . Before the gui runs, you will be prompted to select a path to save gui configuration files.</p>
+<p>### Getting to know the GUI: Basics
+The loaded gui should look like the one below (except that there will be no scripts and the plots will be blank):</p>
+<p>![pylabcontrol GUI](/docs/images/main_window.png?raw=true “pylabcontrol GUI”)</p>
+<p>#### Brief GUI walkthrough
+The GUI is made up of three main areas, labelled in the above screenshot.
++ <strong>The top left</strong> portion of the GUI has four tabs that contain the loaded scripts and instruments, probes to monitor values from some of the loaded instruments, and a dataset manager.
+These will be discussed in more detail below, after scripts and instruments are imported into the GUI.
++ <strong>The bottom left</strong> portion of the GUI comprises the log and GUI configuration details. The log gives text updates during the execution of scripts and when instruments
+are toggled. The GUI configuration tab has filepaths for saving data, as well as GUI configuration information.
++ <strong>The entire right half</strong> of the GUI is for data visualization, and is composed of a major and minor plotting area.
+These are used to visualize data, both during scripts and after their execution.</p>
+<p>To see these in action, we need to import an instrument and/or script.</p>
+<p>#### Creating script and instrument files
+At this point, the GUI should have properly launched, and it’s time to start interacting with instruments.</p>
+<p>TBA</p>
+<p>#### Importing Scripts
+No scripts will be in the GUI the first time it is launched; scripts will have to separately be loaded in.  A few
+dummy scripts are provided to better understand the interaction model with the GUI.</p>
+<p>Navigate to the ‘Scripts’ tab in the top left of the GUI, and press “Import Scripts”. The following dialog should show:
+![Load dialog](/docs/images/load_dialog.png?raw=true “Load dialog”)
+Find the .b26 file you created, and be sure to the click and drag the Dummy Script to the left pane. Press Ok, and the script should be shown in the GUI.</p>
+<p>The script loading dialog also allows you to create “iterator” scripts, i.e., basic loops over preexisting scripts. You can find more about iterator scripts [here.](docs/iterator_scripts.md)</p>
+<p>#### Importing Instruments
+No instruments will be in the GUI the first time it is launched; instruments will have to separately be loaded in.</p>
+<p>Navigate to the ‘Instruments’ tab in the top left of the GUI, and press “Import Instruments”. Find the .b26 file you created,
+and be sure to the click and drag the Dummy Instrument to the left pane. Press Ok, and the instrument should be shown in the GUI.</p>
+<p>#### .b26 files
+Settings and configurations are saved in json files with .b26 extension.
+Since these files can become quite large for complex scripts, we recommend a json viewer to look at them (e.g. <a class="reference external" href="https://jsonviewer.codeplex.com/">https://jsonviewer.codeplex.com/</a>).</p>
+<p>#### b26_toolkit
+This software was created to streamline experiments done in the Lukin Lab;
+the instruments and scripts utilized there can be imported into pylabcontrol by installing b26_toolkit.
+More information can be found here: <a class="reference external" href="https://github.com/LISE-B26/b26_toolkit">https://github.com/LISE-B26/b26_toolkit</a> .</p>
+<p>## FAQ
++ <strong>Does this work with other operating systems?</strong></p>
+<p>While only extensively tested on 64-bit Windows 7, we expect the GUI to work on other versions of windows, LINUX, and Mac OSX.
+However, we do not officially support other platforms.</p>
+<ul class="simple">
+<li><strong>How can we send feedback?</strong></li>
+</ul>
+<p>Feel free to create an issue on the issue tracker if you find any bugs, or contact the authors directly.</p>
+<p>## Funding
+pylabcontrol has been partially funded by the European Union (H2020-MSCA-IF-2014 under REA grant Agreement No. 655369)</p>
+<p>![Marie Skłodowska-Curie Action](/docs/images/MC_EU_logo_small.png?raw=true “Marie Skłodowska-Curie Action”)</p>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="general_usage.html" class="btn btn-neutral float-right" title="Using pylabcontrol for Experiments" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to pylabcontrol’s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1a3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

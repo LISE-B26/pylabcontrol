@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Importing an Instrument or Script into the GUI &mdash; pylabcontrol 0.1a3 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pylabcontrol 0.1a3 documentation" href="index.html"/>
+        <link rel="next" title="Frequenty Asked Questions" href="faq.html"/>
+        <link rel="prev" title="Creating a Script" href="creating_scripts.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pylabcontrol
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="project.html">pylabcontrol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general_usage.html">Using pylabcontrol for Experiments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creating_instruments.html">Creating an Instrument</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creating_scripts.html">Creating a Script</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Importing an Instrument or Script into the GUI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#importing-scripts-of-instruments">Importing Scripts of Instruments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequenty Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_docs/pylabcontrol.html">pylabcontrol package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">pylabcontrol</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Importing an Instrument or Script into the GUI</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/importing_into_gui.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="importing-an-instrument-or-script-into-the-gui">
+<h1>Importing an Instrument or Script into the GUI<a class="headerlink" href="#importing-an-instrument-or-script-into-the-gui" title="Permalink to this headline">¶</a></h1>
+<p>This guides you through the steps of importing an instrument or script into the GUI</p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>It is assumed that you have a .py file containing a class inheriting from Instrument or Script. You must be able to
+create an instance of this class on the computer you are planning to use the GUI on. Also, .py file must be in a folder
+that contains a __init__.py file. For a more thorough understanding of __init__.py files, see
+<a class="reference external" href="https://stackoverflow.com/questions/448271/what-is-init-py-for">this StackOverflow thread</a>. Otherwise, it is very
+likely you want a blank text file named __init__.py in the same directory as your .py code.</p>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>To be able to import an instrument or script into the GUI, you must first create a .b26 file from the .py file.
+Afterwards, you can import the .b26 file into the GUI. This is all done within the pylabcontrol GUI.</p>
+</div>
+<div class="section" id="importing-scripts-of-instruments">
+<h2>Importing Scripts of Instruments<a class="headerlink" href="#importing-scripts-of-instruments" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>Run the GUI.</li>
+<li>Go to File-&gt;convert instrument or script .py file to .b26 file</li>
+<li>Make sure you select the correct source folder.</li>
+<li>Go to the Instrument or Script tab, and select the Import Instrument or Import Script button.</li>
+</ol>
+<p>5. Select the .b26 file from the right directory on the computer, and drag the resulting instrument or script from the
+right panel to the left panel.
+6. Press “ok”. The resulting Script or Instrument should be imported into the GUI</p>
+<p>Note that when you import a Script, all of the requisite instruments and subscripts will also be uploaded.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="faq.html" class="btn btn-neutral float-right" title="Frequenty Asked Questions" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="creating_scripts.html" class="btn btn-neutral" title="Creating a Script" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1a3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
