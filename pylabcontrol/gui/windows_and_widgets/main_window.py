@@ -246,7 +246,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         things to be done when gui closes, like save the settings
         """
 
-        self.save_config(self.config_filepath)
+        self.save_config(self.gui_settings['gui_settings'])
         self.script_thread.quit()
         self.read_probes.quit()
         event.accept()
@@ -765,7 +765,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.plot_script(script)
 
         def save():
-            self.save_config(self.config_filepath)
+            self.save_config(self.gui_settings['gui_settings'])
         if sender is self.btn_start_script:
             start_button()
         elif sender is self.btn_stop_script:
@@ -806,10 +806,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 filename, file_extension = os.path.splitext(filepath)
                 if file_extension != '.b26':
                     filepath = filename + ".b26"
+                filepath = os.path.normpath(filepath)
+                self.save_config(filepath)
                 self.gui_settings['gui_settings'] = filepath
                 self.refresh_tree(self.tree_gui_settings, self.gui_settings)
-                self.save_config(filepath)
-                self.config_filepath = filepath
         elif sender is self.btn_load_gui:
             # get filename
             fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Load gui settings from file',  self.gui_settings['data_folder'], filter = '*.b26')
@@ -838,8 +838,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
         elif sender is self.actionSave:
-            self.config_filepath = self.gui_settings['gui_settings']
-            self.save_config(self.config_filepath)
+            self.save_config(self.gui_settings['gui_settings'])
         elif sender is self.actionGo_to_pylabcontrol_GitHub_page:
             webbrowser.open('https://github.com/LISE-B26/pylabcontrol')
         elif sender is self.actionExport:
@@ -1165,9 +1164,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 key = str(model.itemFromIndex(model.index(index.row(), 0)).text())
                 if(key == 'gui_settings'):
                     path, _ = QtWidgets.QFileDialog.getSaveFileName(self, caption = 'Select a file:', directory = path, filter = '*.b26')
-                    name, extension = os.path.splitext(path)
-                    if extension != '.b26':
-                        path = name + ".b26"
+                    if path:
+                        name, extension = os.path.splitext(path)
+                        if extension != '.b26':
+                            path = name + ".b26"
                 else:
                     path = str(open_path_dialog_folder(path))
 

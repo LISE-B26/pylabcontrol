@@ -59,10 +59,6 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = True):
     elif class_type.lower() == 'script':
         class_type = Script
 
-    print('files', [f for f in glob.glob(os.path.join(folder_name, "*.py"))if '__init__' not in f and 'setup' not in f])
-
-
-
     for python_file in [f for f in glob.glob(os.path.join(folder_name, "*.py"))if '__init__' not in f and 'setup' not in f]:
         module, path = module_name_from_path(python_file)
 
@@ -81,8 +77,6 @@ def find_exportable_in_python_files(folder_name, class_type, verbose = True):
             print(e)
             if verbose:
                 print('Could not import module', module)
-
-    print('classes_dict', classes_dict)
 
     return classes_dict
 
