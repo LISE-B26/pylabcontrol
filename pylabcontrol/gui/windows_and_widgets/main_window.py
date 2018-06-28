@@ -846,6 +846,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             export_dialog.target_path.setText(self.gui_settings['scripts_folder'])
             if self.gui_settings_hidden['scripts_source_folder']:
                 export_dialog.source_path.setText(self.gui_settings_hidden['scripts_source_folder'])
+            export_dialog.reset_avaliable(export_dialog.source_path.text())
             #exec_() blocks while export dialog is used, subsequent code will run on dialog closing
             export_dialog.exec_()
             self.gui_settings.update({'scripts_folder': export_dialog.target_path.text()})
