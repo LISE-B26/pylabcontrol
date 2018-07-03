@@ -20,6 +20,7 @@
 import numpy as np
 import scipy.spatial
 import time
+import matplotlib
 from matplotlib import patches
 
 from pylabcontrol.core import Script, Parameter
@@ -44,7 +45,8 @@ Script to select points on an image. The selected points are saved and can be us
         """
         Script.__init__(self, name, settings = settings, instruments = instruments, scripts = scripts, log_function= log_function, data_path = data_path)
 
-        self.patches = []
+        self.text = []
+        self.patch_collection = None
         self.plot_settings = {}
 
     def _function(self):
@@ -104,34 +106,40 @@ Script to select points on an image. The selected points are saved and can be us
         self._update(axes_list)
 
     def _update(self, axes_list):
+        #note: may be able to use blit to make things faster
 
         axes = axes_list[0]
 
         patch_size = self.settings['patch_size']
 
-        #first clear all old patches (circles and numbers), then redraw all
-        if not self.patches == []:
-            try: #catch case where plot has been cleared, so old patches no longer exist. Then skip clearing step.
-                for patch in self.patches:
-                    patch.remove()
+        # first clear all old patches (circles and numbers), then redraw all
+        if self.patch_collection:
+            try:
+                self.patch_collection.remove()
+                for text in self.text:
+                    text.remove()
             except ValueError:
                 pass
 
-        self.patches = []
+        patch_list = []
 
         for index, pt in enumerate(self.data['nv_locations']):
-            # axes.plot(pt, fc='b')
-
             circ = patches.Circle((pt[0], pt[1]), patch_size, fc='b')
-            axes.add_patch(circ)
-            self.patches.append(circ)
+            patch_list.append(circ)
 
-            text = axes.text(pt[0], pt[1], '{:d}'.format(index),
-                    horizontalalignment='center',
-                    verticalalignment='center',
-                    color='white'
-                    )
-            self.patches.append(text)
+            #cap number of drawn numbers at 400 since drawing text is extremely slow and they're all so close together
+            #as to be unreadable anyways
+            if len(self.data['nv_locations']) <= 400:
+                text = axes.text(pt[0], pt[1], '{:d}'.format(index),
+                        horizontalalignment='center',
+                        verticalalignment='center',
+                        color='white'
+                        )
+                self.text.append(text)
+
+        #patch collection used here instead of adding individual patches for speed
+        self.patch_collection = matplotlib.collections.PatchCollection(patch_list)
+        axes.add_collection(self.patch_collection)
 
     def toggle_NV(self, pt):
         '''
