@@ -64,7 +64,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         "instrument_folder": os.path.join(application_path, "instruments_auto_generated"),
         "scripts_folder": os.path.join(application_path, "scripts_auto_generated"),
         "probes_log_folder": os.path.join(application_path, "b26_tmp"),
-        "gui_settings": os.path.join(application_path, "pythonlab_config")
+        "gui_settings": os.path.join(application_path, "pylabcontrol_config.b26")
     }
 
 
@@ -1367,7 +1367,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Args:
             filepath: name of file
         """
-
         def get_hidden_parameter(item):
 
             num_sub_elements = item.childCount()
