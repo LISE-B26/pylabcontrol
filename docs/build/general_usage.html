@@ -1,0 +1,248 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Using pylabcontrol for Experiments &mdash; pylabcontrol 0.1a3 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pylabcontrol 0.1a3 documentation" href="index.html"/>
+        <link rel="next" title="Creating an Instrument" href="creating_instruments.html"/>
+        <link rel="prev" title="README" href="readme.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pylabcontrol
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="project.html">pylabcontrol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">README</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using pylabcontrol for Experiments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#typical-workflow-overview">Typical Workflow Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-saved-after-script-execution">What is Saved after Script execution.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-datasets-tab">Using the Datasets Tab</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="creating_instruments.html">Creating an Instrument</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creating_scripts.html">Creating a Script</a></li>
+<li class="toctree-l1"><a class="reference internal" href="importing_into_gui.html">Importing an Instrument or Script into the GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequenty Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_docs/pylabcontrol.html">pylabcontrol package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">pylabcontrol</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Using pylabcontrol for Experiments</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/general_usage.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="using-pylabcontrol-for-experiments">
+<h1>Using pylabcontrol for Experiments<a class="headerlink" href="#using-pylabcontrol-for-experiments" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="typical-workflow-overview">
+<h2>Typical Workflow Overview<a class="headerlink" href="#typical-workflow-overview" title="Permalink to this headline">¶</a></h2>
+<p>In a typical workflow, a user simply runs the gui, imports a script, sets the parameters of their choosing (in the Script tab),
+and presses “Run Script”. The script data is saved either to the path indicated in as a script parameter in the GUI,
+or if one isn’t set, it is saved to the location indicated in the “GUI Settings” tab. Later, a user can import the data
+in a separate analysis by using the Script.load_data() function.</p>
+</div>
+<div class="section" id="what-is-saved-after-script-execution">
+<h2>What is Saved after Script execution.<a class="headerlink" href="#what-is-saved-after-script-execution" title="Permalink to this headline">¶</a></h2>
+<p>When a script is saved, the following are saved:</p>
+<ul class="simple">
+<li>The data stored in the script — i.e., the contents of self.data for the Script.</li>
+<li>A picture of the final plots after the script finished executing.</li>
+<li>The script settings. A .b26 file is saved that contains the information about the script, as well as the settings of</li>
+</ul>
+<p>the script when it was run.</p>
+<ul class="simple">
+<li>The log during the script’s execution.</li>
+</ul>
+<p>It is saved either in the location listed in the path variable of the script, or if that is empty, the path listed in
+the “GUI Settings” tab.</p>
+</div>
+<div class="section" id="using-the-datasets-tab">
+<h2>Using the Datasets Tab<a class="headerlink" href="#using-the-datasets-tab" title="Permalink to this headline">¶</a></h2>
+<p>Often a script is run but you might be interested in referring back to it at a later — either choosing to save its current data later,
+or wanting to look at its data visualization at a later time. To do so, simply highlight the script in the Scripts tab
+and press “Send to Datasets”. The script with its current data will be listed in the Datasets tab, and upon clicking on it,
+the data will be displayed in the GUI plotting area. The data can also be saved from this tab, using the “save selected” button.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="creating_instruments.html" class="btn btn-neutral float-right" title="Creating an Instrument" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="readme.html" class="btn btn-neutral" title="README" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1a3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

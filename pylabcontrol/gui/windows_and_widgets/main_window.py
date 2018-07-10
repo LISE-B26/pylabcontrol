@@ -64,7 +64,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         "instrument_folder": os.path.join(application_path, "instruments_auto_generated"),
         "scripts_folder": os.path.join(application_path, "scripts_auto_generated"),
         "probes_log_folder": os.path.join(application_path, "b26_tmp"),
-        "gui_settings": os.path.join(application_path, "pythonlab_config")
+        "gui_settings": os.path.join(application_path, "pylabcontrol_config.b26")
     }
 
 
@@ -202,6 +202,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if filepath is None:
             path_to_config = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'save_config.json'))
             if os.path.isfile(path_to_config) and os.access(path_to_config, os.R_OK):
+                print('path_to_config', path_to_config)
                 with open(path_to_config) as f:
                     config_data = json.load(f)
                 if 'last_save_path' in config_data.keys():
@@ -220,6 +221,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.scripts = {}
         self.probes = {}
         self.gui_settings = {'scripts_folder': '', 'data_folder': ''}
+        self.gui_settings_hidden = {'scripts_source_folder': ''}
 
         self.load_config(self.config_filepath)
 
@@ -244,7 +246,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         things to be done when gui closes, like save the settings
         """
 
-        self.save_config(self.config_filepath)
+        self.save_config(self.gui_settings['gui_settings'])
         self.script_thread.quit()
         self.read_probes.quit()
         event.accept()
@@ -402,12 +404,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if item is not None:
             if item.is_point():
-                item_x = item.child(1)
+               # item_x = item.child(1)
+                item_x = item.child(0)
                 if mouse_event.xdata is not None:
                     self.tree_scripts.setCurrentItem(item_x)
                     item_x.value = float(mouse_event.xdata)
                     item_x.setText(1, '{:0.3f}'.format(float(mouse_event.xdata)))
-                item_y = item.child(0)
+               # item_y = item.child(0)
+                item_y = item.child(1)
                 if mouse_event.ydata is not None:
                     self.tree_scripts.setCurrentItem(item_y)
                     item_y.value = float(mouse_event.ydata)
@@ -761,7 +765,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.plot_script(script)
 
         def save():
-            self.save_config(self.config_filepath)
+            self.save_config(self.gui_settings['gui_settings'])
         if sender is self.btn_start_script:
             start_button()
         elif sender is self.btn_stop_script:
@@ -795,18 +799,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.probe_to_plot = None
         elif sender is self.btn_save_gui:
             # get filename
-            filepath, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Save gui settings to file', self.config_filepath, filter = '.b26')
+            filepath, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Save gui settings to file', self.config_filepath, filter = '*.b26')
 
             #in case the user cancels during the prompt, check that the filepath is not an empty string
             if filepath:
                 filename, file_extension = os.path.splitext(filepath)
                 if file_extension != '.b26':
                     filepath = filename + ".b26"
+                filepath = os.path.normpath(filepath)
                 self.save_config(filepath)
+                self.gui_settings['gui_settings'] = filepath
+                self.refresh_tree(self.tree_gui_settings, self.gui_settings)
         elif sender is self.btn_load_gui:
             # get filename
-            fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Load gui settings from file',  self.gui_settings['data_folder'])
-            # self.load_settings(fname)
+            fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Load gui settings from file',  self.gui_settings['data_folder'], filter = '*.b26')
             self.load_config(fname[0])
         elif sender is self.btn_about:
             msg = QtWidgets.QMessageBox()
@@ -832,12 +838,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.refresh_tree(self.tree_scripts, self.scripts)
             self.refresh_tree(self.tree_settings, self.instruments)
         elif sender is self.actionSave:
-            self.save_config(self.config_filepath)
+            self.save_config(self.gui_settings['gui_settings'])
         elif sender is self.actionGo_to_pylabcontrol_GitHub_page:
             webbrowser.open('https://github.com/LISE-B26/pylabcontrol')
         elif sender is self.actionExport:
             export_dialog = ExportDialog()
+            export_dialog.target_path.setText(self.gui_settings['scripts_folder'])
+            if self.gui_settings_hidden['scripts_source_folder']:
+                export_dialog.source_path.setText(self.gui_settings_hidden['scripts_source_folder'])
+            export_dialog.reset_avaliable(export_dialog.source_path.text())
+            #exec_() blocks while export dialog is used, subsequent code will run on dialog closing
             export_dialog.exec_()
+            self.gui_settings.update({'scripts_folder': export_dialog.target_path.text()})
+            self.fill_treeview(self.tree_gui_settings, self.gui_settings)
+            self.gui_settings_hidden.update({'scripts_source_folder': export_dialog.source_path.text()})
 
     def _show_hide_parameter(self):
         """
@@ -1128,7 +1142,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         this filepath will be updated in the field of self.tree_gui_settings that has been double clicked
         """
 
-        def open_path_dialog(path):
+        def open_path_dialog_folder(path):
             """
             opens a file dialog to get the path to a file and
             """
@@ -1148,12 +1162,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             if index.column() == 1:
                 path = model.itemFromIndex(index).text()
-                path = str(open_path_dialog(path))
-
                 key = str(model.itemFromIndex(model.index(index.row(), 0)).text())
+                if(key == 'gui_settings'):
+                    path, _ = QtWidgets.QFileDialog.getSaveFileName(self, caption = 'Select a file:', directory = path, filter = '*.b26')
+                    if path:
+                        name, extension = os.path.splitext(path)
+                        if extension != '.b26':
+                            path = name + ".b26"
+                else:
+                    path = str(open_path_dialog_folder(path))
 
                 if path != "":
-                    self.gui_settings.update({key : str(path)})
+                    self.gui_settings.update({key : str(os.path.normpath(path))})
                     self.fill_treeview(tree, self.gui_settings)
 
     def refresh_tree(self, tree, items):
@@ -1256,38 +1276,46 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.log('Opening with blank GUI.')
             return instruments_loaded, scripts_loaded, probes_loaded
 
+        config = None
+
         try:
-            config = load_b26_file(filepath)['gui_settings']
-            if config['settings_file'] != filepath:
+            config = load_b26_file(filepath)
+            config_settings = config['gui_settings']
+            if config_settings['gui_settings'] != filepath:
                 print((
                 'WARNING path to settings file ({:s}) in config file is different from path of settings file ({:s})'.format(
-                    config['settings_file'], filepath)))
-            config['settings_file'] = filepath
-        except Exception:
+                    config_settings['gui_settings'], filepath)))
+            config_settings['gui_settings'] = filepath
+        except Exception as e:
             if filepath:
                 self.log('The filepath was invalid --- could not load settings. Loading blank GUI.')
-            config = self._DEFAULT_CONFIG
+            config_settings = self._DEFAULT_CONFIG
 
 
             for x in self._DEFAULT_CONFIG.keys():
-                if x in config:
-                    if not os.path.exists(config[x]):
+                if x in config_settings:
+                    if not os.path.exists(config_settings[x]):
                         try:
-                            os.makedirs(config[x])
+                            os.makedirs(config_settings[x])
                         except Exception:
-                            config[x] = self._DEFAULT_CONFIG[x]
-                            os.makedirs(config[x])
-                            print(('WARNING: failed validating or creating path: set to default path'.format(config[x])))
+                            config_settings[x] = self._DEFAULT_CONFIG[x]
+                            os.makedirs(config_settings[x])
+                            print(('WARNING: failed validating or creating path: set to default path'.format(config_settings[x])))
                 else:
-                    config[x] = self._DEFAULT_CONFIG[x]
-                    os.makedirs(config[x])
-                    print(('WARNING: path {:s} not specified set to default {:s}'.format(x, config[x])))
+                    config_settings[x] = self._DEFAULT_CONFIG[x]
+                    os.makedirs(config_settings[x])
+                    print(('WARNING: path {:s} not specified set to default {:s}'.format(x, config_settings[x])))
 
         # check if file_name is a valid filename
         if filepath is not None and os.path.exists(os.path.dirname(filepath)):
-            config['gui_settings'] = filepath
+            config_settings['gui_settings'] = filepath
 
-        self.gui_settings = config
+        self.gui_settings = config_settings
+
+        if(config):
+            self.gui_settings_hidden = config['gui_settings_hidden']
+        else:
+            self.gui_settings_hidden['script_source_folder'] = ''
 
         self.instruments, self.scripts, self.probes = load_settings(filepath)
 
@@ -1339,7 +1367,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Args:
             filepath: name of file
         """
-
         def get_hidden_parameter(item):
 
             num_sub_elements = item.childCount()
@@ -1362,7 +1389,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             script_item = self.tree_scripts.topLevelItem(index)
             dictator.update(get_hidden_parameter(script_item))
 
-        dictator = {"gui_settings": self.gui_settings, "scripts_hidden_parameters":dictator}
+        dictator = {"gui_settings": self.gui_settings, "gui_settings_hidden": self.gui_settings_hidden, "scripts_hidden_parameters":dictator}
 
         # update the internal dictionaries from the trees in the gui
         for index in range(self.tree_scripts.topLevelItemCount()):

@@ -1,0 +1,236 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Frequenty Asked Questions &mdash; pylabcontrol 0.1a3 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pylabcontrol 0.1a3 documentation" href="index.html"/>
+        <link rel="next" title="pylabcontrol package" href="code_docs/pylabcontrol.html"/>
+        <link rel="prev" title="Importing an Instrument or Script into the GUI" href="importing_into_gui.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pylabcontrol
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="project.html">pylabcontrol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general_usage.html">Using pylabcontrol for Experiments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creating_instruments.html">Creating an Instrument</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creating_scripts.html">Creating a Script</a></li>
+<li class="toctree-l1"><a class="reference internal" href="importing_into_gui.html">Importing an Instrument or Script into the GUI</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Frequenty Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_docs/pylabcontrol.html">pylabcontrol package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">pylabcontrol</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Frequenty Asked Questions</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/faq.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="frequenty-asked-questions">
+<h1>Frequenty Asked Questions<a class="headerlink" href="#frequenty-asked-questions" title="Permalink to this headline">¶</a></h1>
+<p>Q1. <strong>I have found an issue or annoyance in the software. How can I let the developers know of the issue?</strong></p>
+<blockquote>
+<div>A: Feel free to leave any feedback on <a class="reference external" href="https://github.com/LISE-B26/pylabcontrol/issues">the issues tracker</a>.</div></blockquote>
+<p>Q2. <strong>Why are there separate plot() and update_plot() functions for Scripts?</strong></p>
+<blockquote>
+<div>A: matplotlib, the plotting library used in pylabcontrol, was not designed for plotting data quickly.
+In many situations, the GUI might plot script updates more quickly than matplotlib can keep up.
+To get around this issue, many developers have come up with tricks to make matplotlib plot faster; these tricks
+normally involve manually updating only the minimal things. For more information, see many of the <a class="reference external" href="https://github.com/LISE-B26/b26_toolkit/tree/master/b26_toolkit/scripts">scripts in
+b26_toolkit</a>
+as well as many blog posts online, <a class="reference external" href="http://bastibe.de/2013-05-30-speeding-up-matplotlib.html">like this one</a>.</div></blockquote>
+<p>Q3. <strong>Why is update() being called several times during an instrument’s execution?</strong></p>
+<blockquote>
+<div><p>A: In the current version of the software, one can update instruments by writing</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">instrument_instance</span><span class="o">.</span><span class="n">parameter1</span> <span class="o">=</span> <span class="n">value</span>
+</pre></div>
+</div>
+<p>despite the fact that all of the instrument settings are located in the instance variable self.settings().
+To achieve this, we tweaked our Instrument class to always check to see if an instance variable is supposed to
+be an instrument parameter by passing it into update and checking if an error occurs. Thus, update() is actually
+called every time an instance variable is set.</p>
+</div></blockquote>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="code_docs/pylabcontrol.html" class="btn btn-neutral float-right" title="pylabcontrol package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="importing_into_gui.html" class="btn btn-neutral" title="Importing an Instrument or Script into the GUI" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1a3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

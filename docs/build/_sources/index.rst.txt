@@ -10,13 +10,13 @@ Welcome to pylabcontrol's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   project
-   readme
-   general_usage
-   creating_instruments
-   creating_scripts
-   importing_into_gui
-   faq
+   _static/project
+   _static/readme
+   _static/general_usage
+   _static/creating_instruments
+   _static/creating_scripts
+   _static/importing_into_gui
+   _static/faq
    code_docs/pylabcontrol
 
 Indices and tables

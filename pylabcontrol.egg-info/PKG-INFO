@@ -1,0 +1,15 @@
+Metadata-Version: 1.1
+Name: pylabcontrol
+Version: 0.1a0
+Summary: Python Laboratory Control Software
+Home-page: https://github.com/LISE-B26/pylabcontrol
+Author: Arthur Safira, Jan Gieseler, and Aaron Kabcenell
+Author-email: UNKNOWN
+License: GPL
+Description: UNKNOWN
+Keywords: laboratory experiment control
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3.6
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Win32 (MS Windows)

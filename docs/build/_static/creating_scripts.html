@@ -1,0 +1,328 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Creating a Script &mdash; pylabcontrol 0.1a3 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pylabcontrol 0.1a3 documentation" href="../index.html"/>
+        <link rel="next" title="Importing an Instrument or Script into the GUI" href="importing_into_gui.html"/>
+        <link rel="prev" title="Creating an Instrument" href="creating_instruments.html"/> 
+
+  
+  <script src="js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pylabcontrol
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="project.html">pylabcontrol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general_usage.html">Using pylabcontrol for Experiments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creating_instruments.html">Creating an Instrument</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Creating a Script</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#default-settings">_DEFAULT_SETTINGS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instruments-and-scripts">_INSTRUMENTS and _SCRIPTS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#self-data">self.data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#function">_function()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-progress-bar">The Progress Bar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logging">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plot">_plot()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#update-plot">_update_plot()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="importing_into_gui.html">Importing an Instrument or Script into the GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequenty Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_docs/pylabcontrol.html">pylabcontrol package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">pylabcontrol</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>Creating a Script</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_static/creating_scripts.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="creating-a-script">
+<h1>Creating a Script<a class="headerlink" href="#creating-a-script" title="Permalink to this headline">¶</a></h1>
+<p>This guide goes through the steps of creating an instrument with pylabcontrol</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>To create a script, one must create a class that inherits from Script (pylabcontrol.core.Script), and implements the following:</p>
+<ol class="arabic simple">
+<li>_DEFAULT_SETTINGS: class variable containing the settings for the script. This must be of Parameter type.</li>
+<li>_INSTRUMENTS: a dictionary whose key-value pairs are instrument names (strings) and the class names of Instruments</li>
+<li>_SCRIPTS: a dictionary whose key-value pairs are script names (strings) and the class names of Scripts</li>
+<li>_function(): function that contains the main logic of the script.</li>
+<li>_plot(): function that dictates how the script will plot data during its execution.</li>
+<li>_update_plot() (optional): function that dictates how the script will update an existing plot during its execution.</li>
+<li>self.data: dictionary containing the data</li>
+</ol>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>There are two main places you can go for examples: First, take a look at
+<a class="reference external" href="https://github.com/LISE-B26/pylabcontrol/tree/master/pylabcontrol/scripts">the barebones script examples in the github repository</a>.
+Second, there are several scripts written for the experiments done in the Lukin Lab,
+located on <a class="reference external" href="https://github.com/LISE-B26/b26_toolkit/tree/master/b26_toolkit/scripts">the b26_toolkit github page</a>.</p>
+</div>
+<div class="section" id="default-settings">
+<h2>_DEFAULT_SETTINGS<a class="headerlink" href="#default-settings" title="Permalink to this headline">¶</a></h2>
+<p>The _DEFAULT_SETTINGS class variable is a Parameter that contains all of the parameters for the current script. It plays
+the same role as _DEFAULT_SETTINGS plays for instruments.</p>
+</div>
+<div class="section" id="instruments-and-scripts">
+<h2>_INSTRUMENTS and _SCRIPTS<a class="headerlink" href="#instruments-and-scripts" title="Permalink to this headline">¶</a></h2>
+<p>THe _INSTRUMENTS and _SCRIPTS class variables contain dictionaries with key-value pairs ‘name’:ClassName. They contain
+the instruments (of type Instrument) and (sub)scripts (or type Script) that will be used when running the script.
+Note that the classes must be imported in the Script file.</p>
+</div>
+<div class="section" id="self-data">
+<h2>self.data<a class="headerlink" href="#self-data" title="Permalink to this headline">¶</a></h2>
+<p>Every class inheriting from Script has an instance variable self.data that contains key-value pairs of data. The key is
+a string description of the data, and the value is the data. The data can either be a single number, a 1D list of
+numbers, or a 2D list of numbers. No other data types are currently supported.</p>
+</div>
+<div class="section" id="function">
+<h2>_function()<a class="headerlink" href="#function" title="Permalink to this headline">¶</a></h2>
+<p>This function is called upon</p>
+<p>During the execution of _function(), you should be updating self.data.</p>
+</div>
+<div class="section" id="the-progress-bar">
+<h2>The Progress Bar<a class="headerlink" href="#the-progress-bar" title="Permalink to this headline">¶</a></h2>
+<p>The progress bar in the pylabcontrol gui will only update if it is explicitly updated in your _function. To update
+the progress bar in _function(), call</p>
+<blockquote>
+<div><div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_function</span><span class="p">():</span>
+    <span class="c1"># ...</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">updateProgress</span><span class="p">(</span><span class="n">current_progress</span><span class="p">)</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>within _function(). current_progress must be an integer between 0 and 100 inclusive.</p>
+<p>Time estimates are inferred based on the elapsed time and the current progress.</p>
+</div>
+<div class="section" id="logging">
+<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
+<p>Often, it is useful to have scripts output text updates during its execution; Scripts can send messages to the log in
+the GUI during execution. To utilize this feature in your code, simply pass a string to the self.log() function, like
+so:</p>
+<blockquote>
+<div><div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_function</span><span class="p">():</span>
+    <span class="c1"># ...</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s1">&#39;Subroutine was successful&#39;</span><span class="p">)</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>and at that point in the execution, ‘Subroutine was successful’ will be displayed in the GUI’s log.</p>
+<p>The start and end time of the scripts is always outputted to the log.</p>
+</div>
+<div class="section" id="plot">
+<h2>_plot()<a class="headerlink" href="#plot" title="Permalink to this headline">¶</a></h2>
+<p>This function is called each time updateProgress() is called in _function(), and determines how to visualize the current
+point in the script. Usually, this means plotting the data located in self.data to one (or both) of the two axes objects.</p>
+<p>Note that _plot() will be passed in a length-2 list of axes objects from the GUI. For more information on axes objects,
+see <a class="reference external" href="https://matplotlib.org/api/axes_api.html">here</a>.</p>
+</div>
+<div class="section" id="update-plot">
+<h2>_update_plot()<a class="headerlink" href="#update-plot" title="Permalink to this headline">¶</a></h2>
+<p>If this function is defined, it will be called after the script has called _plot(). This function is optional, and
+provides a method for optimizing matplotlib’s refresh rate for visualizations. For more information, see the
+FAQ.</p>
+</div>
+<div class="section" id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<p>If you wish to test your script before running it in the GUI, you are welcome to create an instance of the script and
+then run</p>
+<blockquote>
+<div><div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">script_instance</span> <span class="o">=</span> <span class="n">MyScript</span><span class="p">()</span>
+    <span class="n">script_instance</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The run() function will call _function(). Although this is an option, it is recommended you directly rest your
+script with the GUI, since plotting is most easily tested this way.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="importing_into_gui.html" class="btn btn-neutral float-right" title="Importing an Instrument or Script into the GUI" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="creating_instruments.html" class="btn btn-neutral" title="Creating an Instrument" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Arthur Safira, Jan Gieseler, Aaron Kabcenell.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1a3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="jquery.js"></script>
+      <script type="text/javascript" src="underscore.js"></script>
+      <script type="text/javascript" src="doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

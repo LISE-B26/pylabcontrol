@@ -1,0 +1,205 @@
+{
+    "scripts": {
+        "ESR": {
+            "class": "ESR",
+            "filepath": "C:\\Users\\Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\scripts\\esr.py",
+            "info": "This class runs ESR on an NV center, outputing microwaves using a MicrowaveGenerator and reading in NV counts using\na DAQ.",
+            "package": "b26_toolkit",
+            "instruments": {
+                "microwave_generator": {
+                    "class": "MicrowaveGenerator",
+                    "settings": {
+                        "connection_type": "RS232",
+                        "port": 5,
+                        "GPIB_num": 0,
+                        "enable_output": false,
+                        "frequency": 3000000000.0,
+                        "amplitude": -60,
+                        "phase": 0,
+                        "enable_modulation": true,
+                        "modulation_type": "FM",
+                        "modulation_function": "External",
+                        "pulse_modulation_function": "External",
+                        "dev_width": 32000000.0
+                    }
+                },
+                "NI6259": {
+                    "class": "NI6259",
+                    "settings": {
+                        "device": "Dev1",
+                        "override_buffer_size": -1,
+                        "ao_read_offset": 0.005,
+                        "analog_output": {
+                            "ao0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao1": {
+                                "channel": 1,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao2": {
+                                "channel": 2,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao3": {
+                                "channel": 3,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            }
+                        },
+                        "analog_input": {
+                            "ai0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai1": {
+                                "channel": 1,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai2": {
+                                "channel": 2,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai3": {
+                                "channel": 3,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai4": {
+                                "channel": 4,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            }
+                        },
+                        "digital_input": {
+                            "ctr0": {
+                                "input_channel": 0,
+                                "counter_PFI_channel": 8,
+                                "gate_PFI_channel": 14,
+                                "clock_PFI_channel": 13,
+                                "clock_counter_channel": 1,
+                                "sample_rate": 1000.0
+                            },
+                            "ctr1": {
+                                "input_channel": 1,
+                                "counter_PFI_channel": 3,
+                                "gate_PFI_channel": 14,
+                                "clock_PFI_channel": 12,
+                                "clock_counter_channel": 0,
+                                "sample_rate": 1000.0
+                            }
+                        },
+                        "digital_output": {
+                            "do0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0
+                            },
+                            "do8": {
+                                "channel": 8,
+                                "sample_rate": 1000.0
+                            }
+                        }
+                    }
+                },
+                "NI9263": {
+                    "class": "NI9263",
+                    "settings": {
+                        "device": "cDAQ1Mod1",
+                        "override_buffer_size": -1,
+                        "ao_read_offset": 0.005,
+                        "analog_output": {
+                            "ao0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao1": {
+                                "channel": 1,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao2": {
+                                "channel": 2,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao3": {
+                                "channel": 3,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            }
+                        }
+                    }
+                },
+                "NI9402": {
+                    "class": "NI9402",
+                    "settings": {
+                        "device": "cDAQ1Mod2",
+                        "override_buffer_size": -1,
+                        "ao_read_offset": 0.005,
+                        "digital_input": {
+                            "ctr0": {
+                                "input_channel": 0,
+                                "counter_PFI_channel": 0,
+                                "gate_PFI_channel": 3,
+                                "clock_PFI_channel": 1,
+                                "clock_counter_channel": 2,
+                                "sample_rate": 1000.0
+                            },
+                            "ctr2": {
+                                "input_channel": 2,
+                                "counter_PFI_channel": 1,
+                                "gate_PFI_channel": 0,
+                                "clock_PFI_channel": 2,
+                                "clock_counter_channel": 3,
+                                "sample_rate": 1000.0
+                            }
+                        }
+                    }
+                }
+            },
+            "settings": {
+                "power_out": -45.0,
+                "esr_avg": 50,
+                "freq_start": 2820000000.0,
+                "freq_stop": 2920000000.0,
+                "range_type": "start_stop",
+                "freq_points": 100,
+                "integration_time": 0.01,
+                "settle_time": 0.0002,
+                "mw_generator_switching_time": 0.01,
+                "turn_off_after": false,
+                "take_ref": true,
+                "save_full_esr": true,
+                "daq_type": "PCI",
+                "fit_constants": {
+                    "minimum_counts": 0.5,
+                    "contrast_factor": 1.5
+                },
+                "path": "",
+                "tag": "esr",
+                "save": false
+            }
+        }
+    }
+}
