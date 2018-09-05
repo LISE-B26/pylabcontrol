@@ -62,9 +62,7 @@ These are used to visualize data, both during scripts and after their execution.
 To see these in action, we need to import an instrument and/or script.
 
 #### Creating script and instrument files
-At this point, the GUI should have properly launched, and it's time to start interacting with instruments.
-
-TBA
+For a tutorial on how to create your own instruments and scripts, visit the[documentation page](https://lise-b26.github.io/pylabcontrol/build/index.html).
 
 #### Importing Scripts
 No scripts will be in the GUI the first time it is launched; scripts will have to separately be loaded in.  A few 
