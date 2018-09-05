@@ -100,7 +100,7 @@ However, we do not officially support other platforms.
 Feel free to create an issue on the issue tracker if you find any bugs, or contact the authors directly.
 
 ## Funding
-pylabcontrol has been partially funded by the European Union (H2020-MSCA-IF-2014 under REA grant Agreement No. 655369)
+pylabcontrol has been partially funded by the European Union (H2020-MSCA-IF-2014 under REA grant Agreement No. 655369), and by the Department of Defense (DoD) through teh National Defense Science and Engineering Graduate Fellowship (NDSEG) Program.
 
 ![Marie Skłodowska-Curie Action](/docs/images/MC_EU_logo_small.png?raw=true "Marie Skłodowska-Curie Action")
 
