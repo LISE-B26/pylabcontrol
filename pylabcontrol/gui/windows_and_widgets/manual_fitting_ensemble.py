@@ -1,4 +1,4 @@
-from PyQt5 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.uic import loadUiType
 from pylabcontrol.core import Script
 
@@ -30,13 +30,13 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
 
         def create_figures():
             self.matplotlibwidget = MatplotlibWidget(self.plot)
-            sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+            sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             sizePolicy.setHorizontalStretch(0)
             sizePolicy.setVerticalStretch(0)
             sizePolicy.setHeightForWidth(self.matplotlibwidget.sizePolicy().hasHeightForWidth())
             self.matplotlibwidget.setSizePolicy(sizePolicy)
             self.matplotlibwidget.setMinimumSize(QtCore.QSize(200, 200))
-            self.matplotlibwidget.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget"))
+            # self.matplotlibwidget.setObjectName(QtCore.QString.fromUtf8("matplotlibwidget"))
             self.horizontalLayout_3.addWidget(self.matplotlibwidget)
             self.mpl_toolbar = NavigationToolbar(self.matplotlibwidget.canvas, self.toolbar_space)
             self.horizontalLayout_2.addWidget(self.mpl_toolbar)
@@ -210,14 +210,14 @@ class FittingWindow(QMainWindow, Ui_MainWindow):
         """
         opens a file dialog to get the path to a file and
         """
-        dialog = QtGui.QFileDialog
+        dialog = QtWidgets.QFileDialog
         filename = dialog.getExistingDirectory(self, 'Select a file:', self.data_filepath.text())
         if str(filename)!='':
             self.data_filepath.setText(filename)
 
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     ex = FittingWindow()
     ex.show()
     ex.raise_()
