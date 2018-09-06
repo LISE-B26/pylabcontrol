@@ -61,10 +61,10 @@ class ExportDialog(QDialog, Ui_Dialog):
         self.btn_export.clicked.connect(self.export)
 
         # package = get_python_package(os.getcwd())
-        package, path = module_name_from_path(os.getcwd())
-        self.source_path.setText(os.path.normpath(os.path.join(path + '\\' + package.split('.')[0] + '\\scripts')))
-        self.target_path.setText(os.path.normpath(os.path.join(path + '\\' + package.split('.')[0] + '\\user_data\\scripts_auto_generated')))
-        self.reset_avaliable(self.source_path.text())
+        # package, path = module_name_from_path(os.getcwd())
+        # self.source_path.setText(os.path.normpath(os.path.join(path + '\\' + package.split('.')[0] + '\\scripts')))
+        # self.target_path.setText(os.path.normpath(os.path.join(path + '\\' + package.split('.')[0] + '\\user_data\\scripts_auto_generated')))
+        # self.reset_avaliable(self.source_path.text())
 
     def open_file_dialog(self):
         """
@@ -88,14 +88,19 @@ class ExportDialog(QDialog, Ui_Dialog):
         Resets the dialog box by finding all avaliable scripts that can be imported in the input folder
         :param folder: folder in which to find scripts
         """
-        self.list_script_model.removeRows(0, self.list_script_model.rowCount())
-        if self.cmb_select_type.currentText() == 'Script':
-            self.avaliable = find_scripts_in_python_files(folder)
-        elif self.cmb_select_type.currentText() == 'Instrument':
-            self.avaliable = find_instruments_in_python_files(folder)
-        self.fill_list(self.list_script, self.avaliable.keys())
-        for key in self.avaliable.keys():
-            self.error_array.update({key: ''})
+        try:
+            self.list_script_model.removeRows(0, self.list_script_model.rowCount())
+            if self.cmb_select_type.currentText() == 'Script':
+                self.avaliable = find_scripts_in_python_files(folder)
+            elif self.cmb_select_type.currentText() == 'Instrument':
+                self.avaliable = find_instruments_in_python_files(folder)
+            self.fill_list(self.list_script, self.avaliable.keys())
+            for key in self.avaliable.keys():
+                self.error_array.update({key: ''})
+        except Exception:
+            msg = QtWidgets.QMessageBox()
+            msg.setText("Unable to parse all of the files in this folder to find possible scripts and instruments. There are non-python files or python files that are unreadable. Please select a folder that contains only pylabcontrol style python files.")
+            msg.exec_()
 
     def class_type_changed(self):
         """
@@ -137,6 +142,11 @@ class ExportDialog(QDialog, Ui_Dialog):
         Exports the selected instruments or scripts to .b26 files. If successful, script is highlighted in green. If
         failed, script is highlighted in red and error is printed to the error box.
         """
+        if not self.source_path.text() or not self.target_path.text():
+            msg = QtWidgets.QMessageBox()
+            msg.setText("Please set a target path for this export.")
+            msg.exec_()
+            return
         selected_index = self.list_script.selectedIndexes()
         for index in selected_index:
             item = self.list_script.model().itemFromIndex(index)
@@ -163,22 +173,22 @@ class ExportDialog(QDialog, Ui_Dialog):
         if index != []:
             index = index[-1]
             name = str(index.model().itemFromIndex(index).text())
-            # self.text_error.setText(self.error_array[name])
-            self.text_error.setText('')
-            self.text_error.setOpenExternalLinks(True)
-            split_errors = self.error_array[name].split("\"")
-            #displays error message with HTML link to file where error occured, which opens in default python editor
-            for error in split_errors:
-                if error[-3:] == '.py':
-                    error = error.replace("\\", "/") #format paths to be opened
-                    # sets up hyperlink error with filepath as displayed text in hyperlink
-                    # in future, can use anchorClicked signal to call python function when link clicked
-                    self.text_error.insertHtml("<a href = \"" + error + "\">" + error + "</a>")
-                else:
-                    error = error.replace("\n", "<br>") #format newlines for HTML
-                    # would like to use insertPlainText here, but this is broken and ends up being inserted as more
-                    # HTML linked to the previous insertHtml, so need to insert this as HTML instead
-                    self.text_error.insertHtml(error)
+            self.text_error.setText(self.error_array[name])
+            # self.text_error.setText('')
+            # self.text_error.setOpenExternalLinks(True)
+            # split_errors = self.error_array[name].split("\"")
+            # #displays error message with HTML link to file where error occured, which opens in default python editor
+            # for error in split_errors:
+            #     if error[-3:] == '.py':
+            #         error = error.replace("\\", "/") #format paths to be opened
+            #         # sets up hyperlink error with filepath as displayed text in hyperlink
+            #         # in future, can use anchorClicked signal to call python function when link clicked
+            #         self.text_error.insertHtml("<a href = \"" + error + "\">" + error + "</a>")
+            #     else:
+            #         error = error.replace("\n", "<br>") #format newlines for HTML
+            #         # would like to use insertPlainText here, but this is broken and ends up being inserted as more
+            #         # HTML linked to the previous insertHtml, so need to insert this as HTML instead
+            #         self.text_error.insertHtml(error)
             if(self.avaliable[name]['info'] == None):
                 self.text_info.setText('No information avaliable')
             else:
