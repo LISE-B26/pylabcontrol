@@ -1,0 +1,195 @@
+{
+    "scripts": {
+        "GalvoScan": {
+            "class": "GalvoScan",
+            "filepath": "C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\scripts\\galvo_scan\\galvo_scan.py",
+            "info": "GalvoScan uses the apd, daq, and galvo to sweep across voltages while counting photons at each voltage,\nresulting in an image in the current field of view of the objective.",
+            "package": "b26_toolkit",
+            "instruments": {
+                "NI6259": {
+                    "class": "NI6259",
+                    "settings": {
+                        "device": "Dev1",
+                        "override_buffer_size": -1,
+                        "ao_read_offset": 0.005,
+                        "analog_output": {
+                            "ao0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao1": {
+                                "channel": 1,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao2": {
+                                "channel": 2,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao3": {
+                                "channel": 3,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            }
+                        },
+                        "analog_input": {
+                            "ai0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai1": {
+                                "channel": 1,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai2": {
+                                "channel": 2,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai3": {
+                                "channel": 3,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai4": {
+                                "channel": 4,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            }
+                        },
+                        "digital_input": {
+                            "ctr0": {
+                                "input_channel": 0,
+                                "counter_PFI_channel": 8,
+                                "gate_PFI_channel": 14,
+                                "clock_PFI_channel": 13,
+                                "clock_counter_channel": 1,
+                                "sample_rate": 1000.0
+                            },
+                            "ctr1": {
+                                "input_channel": 1,
+                                "counter_PFI_channel": 3,
+                                "gate_PFI_channel": 14,
+                                "clock_PFI_channel": 12,
+                                "clock_counter_channel": 0,
+                                "sample_rate": 1000.0
+                            }
+                        },
+                        "digital_output": {
+                            "do0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0
+                            },
+                            "do8": {
+                                "channel": 8,
+                                "sample_rate": 1000.0
+                            }
+                        }
+                    }
+                },
+                "NI9263": {
+                    "class": "NI9263",
+                    "settings": {
+                        "device": "cDAQ1Mod1",
+                        "override_buffer_size": -1,
+                        "ao_read_offset": 0.005,
+                        "analog_output": {
+                            "ao0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao1": {
+                                "channel": 1,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao2": {
+                                "channel": 2,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao3": {
+                                "channel": 3,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            }
+                        }
+                    }
+                },
+                "NI9402": {
+                    "class": "NI9402",
+                    "settings": {
+                        "device": "cDAQ1",
+                        "module": "Mod2",
+                        "override_buffer_size": -1,
+                        "ao_read_offset": 0.005,
+                        "digital_input": {
+                            "ctr0": {
+                                "input_channel": 0,
+                                "counter_PFI_channel": 0,
+                                "gate_PFI_channel": 3,
+                                "clock_PFI_channel": 1,
+                                "clock_counter_channel": 2,
+                                "sample_rate": 1000.0
+                            },
+                            "ctr2": {
+                                "input_channel": 2,
+                                "counter_PFI_channel": 1,
+                                "gate_PFI_channel": 0,
+                                "clock_PFI_channel": 2,
+                                "clock_counter_channel": 3,
+                                "sample_rate": 1000.0
+                            }
+                        }
+                    }
+                }
+            },
+            "settings": {
+                "point_a": {
+                    "x": 0,
+                    "y": 0
+                },
+                "point_b": {
+                    "x": 1.0,
+                    "y": 1.0
+                },
+                "RoI_mode": "center",
+                "num_points": {
+                    "x": 126,
+                    "y": 126
+                },
+                "time_per_pt": 0.002,
+                "settle_time": 0.0002,
+                "max_counts_plot": -1,
+                "DAQ_channels": {
+                    "x_ao_channel": "ao0",
+                    "y_ao_channel": "ao1",
+                    "counter_channel": "ctr0"
+                },
+                "ending_behavior": "return_to_start",
+                "daq_type": "cDAQ",
+                "path": "",
+                "tag": "galvoscan",
+                "save": false
+            }
+        }
+    }
+}

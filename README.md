@@ -62,9 +62,7 @@ These are used to visualize data, both during scripts and after their execution.
 To see these in action, we need to import an instrument and/or script.
 
 #### Creating script and instrument files
-At this point, the GUI should have properly launched, and it's time to start interacting with instruments.
-
-TBA
+For a tutorial on how to create your own instruments and scripts, visit the [documentation page](https://lise-b26.github.io/pylabcontrol/build/index.html).
 
 #### Importing Scripts
 No scripts will be in the GUI the first time it is launched; scripts will have to separately be loaded in.  A few 
@@ -102,7 +100,7 @@ However, we do not officially support other platforms.
 Feel free to create an issue on the issue tracker if you find any bugs, or contact the authors directly.
 
 ## Funding
-pylabcontrol has been partially funded by the European Union (H2020-MSCA-IF-2014 under REA grant Agreement No. 655369)
+pylabcontrol has been partially funded by the European Union (H2020-MSCA-IF-2014 under REA grant Agreement No. 655369), and by the Department of Defense (DoD) through teh National Defense Science and Engineering Graduate Fellowship (NDSEG) Program.
 
 ![Marie Skłodowska-Curie Action](/docs/images/MC_EU_logo_small.png?raw=true "Marie Skłodowska-Curie Action")
 

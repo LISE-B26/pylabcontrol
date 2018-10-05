@@ -1,0 +1,59 @@
+{
+    "scripts": {
+        "SetLaser_cDAQ": {
+            "class": "SetLaser_cDAQ",
+            "filepath": "C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\scripts\\set_laser.py",
+            "info": "This script points the laser to a point\n    ",
+            "package": "b26_toolkit",
+            "instruments": {
+                "daq_out": {
+                    "class": "NI9263",
+                    "settings": {
+                        "device": "cDAQ1Mod1",
+                        "override_buffer_size": -1,
+                        "ao_read_offset": 0.005,
+                        "analog_output": {
+                            "ao0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao1": {
+                                "channel": 1,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao2": {
+                                "channel": 2,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao3": {
+                                "channel": 3,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            }
+                        }
+                    }
+                }
+            },
+            "settings": {
+                "point": {
+                    "x": -0.4,
+                    "y": -0.4
+                },
+                "DAQ_channels": {
+                    "x_ao_channel": "ao0",
+                    "y_ao_channel": "ao3"
+                },
+                "path": "",
+                "tag": "setlaser_cdaq",
+                "save": false
+            }
+        }
+    }
+}

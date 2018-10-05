@@ -1,0 +1,42 @@
+{
+    "scripts": {
+        "AttoStep": {
+            "class": "AttoStep",
+            "filepath": "C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\scripts\\atto_scan.py",
+            "info": "QObject(parent: QObject = None)",
+            "package": "b26_toolkit",
+            "instruments": {
+                "attocube": {
+                    "class": "Attocube",
+                    "settings": {
+                        "x": {
+                            "on": false,
+                            "pos": 0.0,
+                            "voltage": 30,
+                            "freq": 1000
+                        },
+                        "y": {
+                            "on": false,
+                            "pos": 0,
+                            "voltage": 30,
+                            "freq": 1000
+                        },
+                        "z": {
+                            "on": false,
+                            "pos": 0,
+                            "voltage": 30,
+                            "freq": 1000
+                        }
+                    }
+                }
+            },
+            "settings": {
+                "axis": "z",
+                "direction": "Up",
+                "path": "",
+                "tag": "attostep",
+                "save": false
+            }
+        }
+    }
+}

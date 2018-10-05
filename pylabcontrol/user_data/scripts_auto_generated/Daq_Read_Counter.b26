@@ -1,0 +1,113 @@
+{
+    "scripts": {
+        "Daq_Read_Counter": {
+            "class": "Daq_Read_Counter",
+            "filepath": "C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\scripts\\daq_read_counter.py",
+            "info": "This script reads the Counter input from the DAQ and plots it.\n    ",
+            "package": "b26_toolkit",
+            "instruments": {
+                "daq": {
+                    "class": "NI6259",
+                    "settings": {
+                        "device": "Dev1",
+                        "override_buffer_size": -1,
+                        "ao_read_offset": 0.005,
+                        "analog_output": {
+                            "ao0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao1": {
+                                "channel": 1,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao2": {
+                                "channel": 2,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ao3": {
+                                "channel": 3,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            }
+                        },
+                        "analog_input": {
+                            "ai0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai1": {
+                                "channel": 1,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai2": {
+                                "channel": 2,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai3": {
+                                "channel": 3,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            },
+                            "ai4": {
+                                "channel": 4,
+                                "sample_rate": 1000.0,
+                                "min_voltage": -10.0,
+                                "max_voltage": 10.0
+                            }
+                        },
+                        "digital_input": {
+                            "ctr0": {
+                                "input_channel": 0,
+                                "counter_PFI_channel": 8,
+                                "gate_PFI_channel": 14,
+                                "clock_PFI_channel": 13,
+                                "clock_counter_channel": 1,
+                                "sample_rate": 1000.0
+                            },
+                            "ctr1": {
+                                "input_channel": 1,
+                                "counter_PFI_channel": 3,
+                                "gate_PFI_channel": 14,
+                                "clock_PFI_channel": 12,
+                                "clock_counter_channel": 0,
+                                "sample_rate": 1000.0
+                            }
+                        },
+                        "digital_output": {
+                            "do0": {
+                                "channel": 0,
+                                "sample_rate": 1000.0
+                            },
+                            "do8": {
+                                "channel": 8,
+                                "sample_rate": 1000.0
+                            }
+                        }
+                    }
+                }
+            },
+            "settings": {
+                "integration_time": 0.25,
+                "counter_channel": "ctr0",
+                "path": "",
+                "tag": "daq_read_counter",
+                "save": false
+            }
+        }
+    }
+}

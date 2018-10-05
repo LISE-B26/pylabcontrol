@@ -34,4 +34,15 @@ def launch_gui(filepath=None):
 
 
 if __name__ == '__main__':
-    launch_gui()
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Lauch Pylabcontrol GUI')
+    parser.add_argument("filepath", help="filepath to gui config file", nargs='?', default=None, action="store")
+    # print(parser)
+    args = parser.parse_args()
+    if args.filepath is None:
+        print('launch new')
+        launch_gui()
+    else:
+        print('launch gui with ', args.filepath)
+        launch_gui(args.filepath)

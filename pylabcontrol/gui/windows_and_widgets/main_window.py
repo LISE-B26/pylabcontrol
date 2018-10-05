@@ -846,7 +846,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             export_dialog.target_path.setText(self.gui_settings['scripts_folder'])
             if self.gui_settings_hidden['scripts_source_folder']:
                 export_dialog.source_path.setText(self.gui_settings_hidden['scripts_source_folder'])
-            export_dialog.reset_avaliable(export_dialog.source_path.text())
+            if export_dialog.source_path.text():
+                export_dialog.reset_avaliable(export_dialog.source_path.text())
             #exec_() blocks while export dialog is used, subsequent code will run on dialog closing
             export_dialog.exec_()
             self.gui_settings.update({'scripts_folder': export_dialog.target_path.text()})
@@ -1379,45 +1380,50 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     dictator[item.name].update(get_hidden_parameter(item.child(child_id)))
             return dictator
 
-        filepath = str(filepath)
-        if not os.path.exists(os.path.dirname(filepath)):
-            os.makedirs(os.path.dirname(filepath))
+        try:
+            filepath = str(filepath)
+            if not os.path.exists(os.path.dirname(filepath)):
+                os.makedirs(os.path.dirname(filepath))
 
-        # build a dictionary for the configuration of the hidden parameters
-        dictator = {}
-        for index in range(self.tree_scripts.topLevelItemCount()):
-            script_item = self.tree_scripts.topLevelItem(index)
-            dictator.update(get_hidden_parameter(script_item))
+            # build a dictionary for the configuration of the hidden parameters
+            dictator = {}
+            for index in range(self.tree_scripts.topLevelItemCount()):
+                script_item = self.tree_scripts.topLevelItem(index)
+                dictator.update(get_hidden_parameter(script_item))
 
-        dictator = {"gui_settings": self.gui_settings, "gui_settings_hidden": self.gui_settings_hidden, "scripts_hidden_parameters":dictator}
+            dictator = {"gui_settings": self.gui_settings, "gui_settings_hidden": self.gui_settings_hidden, "scripts_hidden_parameters":dictator}
 
-        # update the internal dictionaries from the trees in the gui
-        for index in range(self.tree_scripts.topLevelItemCount()):
-            script_item = self.tree_scripts.topLevelItem(index)
-            self.update_script_from_item(script_item)
+            # update the internal dictionaries from the trees in the gui
+            for index in range(self.tree_scripts.topLevelItemCount()):
+                script_item = self.tree_scripts.topLevelItem(index)
+                self.update_script_from_item(script_item)
 
-        dictator.update({'instruments': {}, 'scripts': {}, 'probes': {}})
+            dictator.update({'instruments': {}, 'scripts': {}, 'probes': {}})
 
-        for instrument in self.instruments.values():
-            dictator['instruments'].update(instrument.to_dict())
-        for script in self.scripts.values():
-            dictator['scripts'].update(script.to_dict())
+            for instrument in self.instruments.values():
+                dictator['instruments'].update(instrument.to_dict())
+            for script in self.scripts.values():
+                dictator['scripts'].update(script.to_dict())
 
-        for instrument, probe_dict in self.probes.items():
-            dictator['probes'].update({instrument: ','.join(list(probe_dict.keys()))})
+            for instrument, probe_dict in self.probes.items():
+                dictator['probes'].update({instrument: ','.join(list(probe_dict.keys()))})
 
-        with open(filepath, 'w') as outfile:
-            json.dump(dictator, outfile, indent=4)
+            with open(filepath, 'w') as outfile:
+                json.dump(dictator, outfile, indent=4)
 
-        save_config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'save_config.json'))
-        if os.path.isfile(save_config_path) and os.access(save_config_path, os.R_OK):
-            with open(save_config_path, 'w') as outfile:
-                json.dump({'last_save_path': filepath}, outfile, indent=4)
-        else:
-            with io.open(save_config_path, 'w') as save_config_file:
-                save_config_file.write(json.dumps({'last_save_path': filepath}))
+            save_config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'save_config.json'))
+            if os.path.isfile(save_config_path) and os.access(save_config_path, os.R_OK):
+                with open(save_config_path, 'w') as outfile:
+                    json.dump({'last_save_path': filepath}, outfile, indent=4)
+            else:
+                with io.open(save_config_path, 'w') as save_config_file:
+                    save_config_file.write(json.dumps({'last_save_path': filepath}))
 
-        self.log('Saved GUI configuration (location: {0}'.format(filepath))
+            self.log('Saved GUI configuration (location: {0}'.format(filepath))
+        except Exception:
+            msg = QtWidgets.QMessageBox()
+            msg.setText("Saving failed. Please use 'save as' to define a valid path for the gui.")
+            msg.exec_()
 
 
     def save_dataset(self, out_file_name):

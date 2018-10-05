@@ -1,0 +1,60 @@
+{
+    "scripts": {
+        "AutoFocusCameraSMC": {
+            "class": "AutoFocusCameraSMC",
+            "filepath": "C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\scripts\\autofocus.py",
+            "info": "Perform an autofocus, moving the objective with the SMC motor and taking a camera picture at every height",
+            "package": "b26_toolkit",
+            "scripts": {
+                "take_image": {
+                    "class": "TakeImage",
+                    "filepath": "C:\\Users\\NV Experiment\\PycharmProjects\\b26_toolkit\\b26_toolkit\\scripts\\take_image_camera.py",
+                    "info": "\n    This wraps the ueye_camera get_frame method in a Script. This can be used to take images from the gui, or used like\n    GalvoScan in Autofocus or similar Scripts.\n    ",
+                    "package": "b26_toolkit",
+                    "instruments": {
+                        "Camera": {
+                            "class": "UEyeCamera",
+                            "settings": {
+                                "width": 800,
+                                "height": 600
+                            }
+                        }
+                    },
+                    "settings": {
+                        "width": 800,
+                        "height": 600,
+                        "path": "",
+                        "tag": "take_image",
+                        "save": false
+                    }
+                }
+            },
+            "instruments": {
+                "z_driver": {
+                    "class": "SMC100",
+                    "settings": {
+                        "port": "COM8",
+                        "position": 25000.0,
+                        "velocity": 1000,
+                        "height_lower_limit": 9
+                    }
+                }
+            },
+            "settings": {
+                "save_images": false,
+                "z_axis_center_position": 50,
+                "scan_width": 5,
+                "num_sweep_points": 10,
+                "focusing_optimizer": "standard_deviation",
+                "wait_time": 0.1,
+                "use_current_z_axis_position": false,
+                "center_on_current_location": false,
+                "galvo_return_to_initial": false,
+                "reverse_scan": false,
+                "path": "",
+                "tag": "autofocuscamerasmc",
+                "save": false
+            }
+        }
+    }
+}
