@@ -915,7 +915,7 @@ class Script(QObject):
 
     @staticmethod
     def load_and_append(script_dict, scripts=None, instruments=None, log_function=None, data_path=None,
-                        raise_errors=True, package='pylabcontrol', verbose=False):
+                        raise_errors=False, package='pylabcontrol', verbose=False):
         """
         load script from script_dict and append to scripts, if additional instruments are required create them and add them to instruments
 

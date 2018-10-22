@@ -1312,7 +1312,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             config_settings['gui_settings'] = filepath
 
         self.gui_settings = config_settings
-
         if(config):
             self.gui_settings_hidden = config['gui_settings_hidden']
         else:
