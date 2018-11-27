@@ -573,11 +573,12 @@ class Script(QObject):
 
         return dictator
 
-    def save_data(self, filename = None, data_tag = None):
+    def save_data(self, filename = None, data_tag = None, verbose=False):
         """
         saves the script data to a file
         filename: target filename, if not provided, it is created from internal function
         data_tag: string, if provided save only the data that matches the tag, otherwise save all data
+        verbose: if true print additional info to std out
         Returns:
 
         """
@@ -620,6 +621,9 @@ class Script(QObject):
 
 
         if data_tag is None:
+            if verbose:
+                print('data_tag is None')
+
             if len(set([len(v) for v in list(data.values())])) == 1 and set(
                     [len(np.shape(list(data.values())[i])) for i in range(len(list(data.values())))]) == set([0, 1]):
                 # if all entries of the dictionary are the same length and single column we can write the data into a single file
@@ -628,11 +632,19 @@ class Script(QObject):
                     df = pd.DataFrame(data)
                 else:
                     df = pd.DataFrame.from_records([data])
-                df.to_csv(filename, index=False)
+
+                if len(df) == 0 or df.empty:
+                    print('warning! Data seems to be empty. Not saved', df)
+                else:
+                    df.to_csv(filename, index=False)
 
             else:
                 # otherwise, we write each entry into a separate file
                 for key, value in data.items():
+
+                    if verbose:
+                        print('current data', key)
+
                     if len(value) == 0:
                         df = pd.DataFrame([value])
                     else:
@@ -646,17 +658,30 @@ class Script(QObject):
                             # if not a dictionary
                             df = pd.DataFrame(value)
 
-                    df.to_csv(filename.replace('.csv', '-{:s}.csv'.format(key)), index=False)
+                    if len(df) == 0 or df.empty:
+                        print('warning! Data ({:s}) seems to be empty. Not saved'.format(key), df)
+                    else:
+                        df.to_csv(filename.replace('.csv', '-{:s}.csv'.format(key)), index=False)
 
         else:
+
             # save only the data for which a key has been provided
             assert data_tag in list(data.keys())
+
+            if verbose:
+                print('data_tag', data_tag)
+
             value = data[data_tag]
             if len(value) == 0:
                 df = pd.DataFrame([value])
             else:
                 df = pd.DataFrame(value)
-            df.to_csv(filename, index=False)
+
+            if len(df) == 0 or df.empty:
+                print('warning! Data seems to be empty. Not saved', df)
+            else:
+                df.to_csv(filename, index=False)
+
 
     def save_log(self, filename = None):
         """
