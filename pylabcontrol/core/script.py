@@ -820,11 +820,13 @@ class Script(QObject):
         return script_instance, updated_instruments
 
     @staticmethod
-    def load_data(path):
+    def load_data(path, verbose = False, raise_errors = False):
         """
         loads the data that has been save with Script.save.
         Args:
             path: path to folder saved by Script.save or raw_data folder within
+            verbose: if true print additional information
+            raise_errors: if true raise errors if false just print to std out
         Returns:
             a dictionary with the data of form
             data = {param_1_name: param_1_data, ...}
@@ -833,13 +835,19 @@ class Script(QObject):
 
         # check that path exists
         if not os.path.exists(path):
-            print(path)
-            raise AttributeError('Path given does not exist!')
+            if raise_errors:
+                raise AttributeError('Path given does not exist!')
+            else:
+                print('Path given does not exist!')
+                return
 
         # windows can't deal with long filenames (>260 chars) so we have to use the prefix '\\\\?\\'
         # if len(path.split('\\\\?\\')) == 1:
         #     path = '\\\\?\\' + os.path.abspath(path)
         path = Script.check_filename(path)
+
+        if verbose:
+            print('script path', path)
 
 
         # if raw_data folder exists, get a list of directories from within it; otherwise, get names of all .csv files in
@@ -851,30 +859,50 @@ class Script(QObject):
         #
         # else:
         if 'raw_data' in os.listdir(path):  #temporarily hardcoded
+
+            if verbose:
+                print('raw_data subfolder found')
             data_files = os.listdir(os.path.join(path, 'raw_data' + '/'))
             path = os.path.join(path, 'raw_data' + '/')
 
         else:
             data_files = glob.glob(os.path.join(path, '*.csv'))
 
+        if verbose:
+            print('data_files found', data_files)
+
         # If no data files were found, raise error
         if not data_files:
-            raise AttributeError('Could not find data files in {:s}'.format(path))
+
+            if raise_errors:
+                raise AttributeError('Could not find data files in {:s}'.format(path))
+            else:
+                print('Could not find data files in {:s}'.format(path))
+                return
 
         # import data from each csv
         for data_file in data_files:
             # get data name, read the data from the csv, and save it to dictionary
             data_name = data_file.split('-')[-1][0:-4] # JG: why do we strip of the date?
-            imported_data_df = pd.read_csv(os.path.join(path, data_file))
 
-            # check if there are real headers, if the headers are digits than we ignore them because then they are just indecies
-            # real headers are strings (however, the digits are also of type str! that why we use the isdigit method)
-            column_headers = list(imported_data_df.columns.values)
-            if sum([int(x.isdigit()) for x in column_headers]) != len(column_headers):
-                data[data_name] = {h: imported_data_df[h].as_matrix() for h in column_headers}
-            else:
-                # note, np.squeeze removes extraneous length-1 dimensions from the returned 'matrix' from the dataframe
-                data[data_name] = np.squeeze(imported_data_df.as_matrix())
+            try:
+                imported_data_df = pd.read_csv(os.path.join(path, data_file))
+
+                # check if there are real headers, if the headers are digits than we ignore them because then they are just indecies
+                # real headers are strings (however, the digits are also of type str! that why we use the isdigit method)
+                column_headers = list(imported_data_df.columns.values)
+                if sum([int(x.isdigit()) for x in column_headers]) != len(column_headers):
+                    data[data_name] = {h: imported_data_df[h].as_matrix() for h in column_headers}
+                else:
+                    # note, np.squeeze removes extraneous length-1 dimensions from the returned 'matrix' from the dataframe
+                    data[data_name] = np.squeeze(imported_data_df.as_matrix())
+            except pd.errors.EmptyDataError as err:
+
+                if raise_errors:
+                    raise err('data file ' + data_file + ' is empty: did not load!')
+                else:
+                    print('data file ' + data_file + ' is empty: did not load!')
+
 
         return data
 

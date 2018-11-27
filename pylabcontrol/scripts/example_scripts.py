@@ -57,6 +57,8 @@ Minimal Example Script that has only a single parameter (execution time)
         will be overwritten in the __init__
         """
         import time
+
+        self.data = {'empty_data':[]}
         time.sleep(self.settings['execution_time'])
 
 
