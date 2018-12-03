@@ -28,6 +28,9 @@ from pylabcontrol.core import helper_functions as hf
 import importlib
 from functools import reduce
 
+
+import random
+
 class ScriptIterator(Script):
     '''
 This is a template class for scripts that iterate over a series of subscripts in either a loop /
@@ -133,6 +136,12 @@ Script.
                 return script_list, parameter_list
 
             param_values = get_sweep_parameters()
+
+            print('JG parametes before', param_values)
+            if self.settings['sweep_range']['randomize'] == True:
+                random.shuffle(param_values)
+            print('JG parametes after', param_values)
+
             for i, value in enumerate(param_values):
                 self.iterator_progress = float(i) / len(param_values)
 
@@ -541,7 +550,8 @@ Script.
                           [Parameter('min_value', 0, float, 'min parameter value'),
                            Parameter('max_value', 0, float, 'max parameter value'),
                            Parameter('N/value_step', 0, float,
-                                     'either number of steps or parameter value step, depending on mode')]),
+                                     'either number of steps or parameter value step, depending on mode'),
+                          Parameter('randomize', False, bool, 'randomize the sweep parameters')]),
                 Parameter('stepping_mode', 'N', ['N', 'value_step'],
                           'Switch between number of steps and step amount'),
                 Parameter('run_all_first', True, bool, 'Run all scripts with nonzero frequency in first pass')

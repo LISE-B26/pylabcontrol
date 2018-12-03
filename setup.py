@@ -2,13 +2,13 @@ from setuptools import setup, find_packages
 
 setup(
     name='pylabcontrol',
-    version='0.1a1',
+    version='0.1a9',
     packages=find_packages(),
     package_data={'pylabcontrol': ['gui/ui_files/*ui']},
     url='https://github.com/LISE-B26/pylabcontrol',
     license='GPL',
     author='Arthur Safira, Jan Gieseler, and Aaron Kabcenell',
-    author_email='asafira@fas.harvard.edu',
+    author_email='b26lab@hotmail.com',
     description='Python Laboratory Control Software',
     keywords='laboratory experiment control',
     classifiers=[
