@@ -917,10 +917,10 @@ class Script(QObject):
                 # real headers are strings (however, the digits are also of type str! that why we use the isdigit method)
                 column_headers = list(imported_data_df.columns.values)
                 if sum([int(x.isdigit()) for x in column_headers]) != len(column_headers):
-                    data[data_name] = {h: imported_data_df[h].as_matrix() for h in column_headers}
+                    data[data_name] = {h: imported_data_df[h].values for h in column_headers}
                 else:
                     # note, np.squeeze removes extraneous length-1 dimensions from the returned 'matrix' from the dataframe
-                    data[data_name] = np.squeeze(imported_data_df.as_matrix())
+                    data[data_name] = np.squeeze(imported_data_df.values)
             except pd.errors.EmptyDataError as err:
 
                 if raise_errors:
