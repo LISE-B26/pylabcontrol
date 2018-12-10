@@ -499,7 +499,7 @@ class Script(QObject):
 
         filename = os.path.join(path, "{:s}_{:s}".format(self.start_time.strftime('%y%m%d-%H_%M_%S'),tag))
 
-        if os.path.exists(filename) == False and create_if_not_existing:
+        if os.path.exists(filename)==False and create_if_not_existing:
             os.makedirs(filename)
 
         if appendix is not None:
@@ -843,6 +843,18 @@ class Script(QObject):
         script_instance._instruments = instruments
 
         return script_instance, updated_instruments
+
+    @staticmethod
+    def load_time(filename):
+        """
+        Args:
+            filename: source filename
+        Returns:
+            time when script started as datetime object
+
+        """
+        return datetime.datetime.strptime(filename[0:15], '%y%m%d-%H_%M_%S')
+
 
     @staticmethod
     def load_data(path, verbose = False, raise_errors = False):
