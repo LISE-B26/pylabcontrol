@@ -853,11 +853,11 @@ class Script(QObject):
             time when script started as datetime object
 
         """
-        return datetime.datetime.strptime(filename[0:15], '%y%m%d-%H_%M_%S')
+        return datetime.datetime.strptime(os.path.basename(filename)[0:15], '%y%m%d-%H_%M_%S')
 
 
     @staticmethod
-    def load_data(path, verbose = False, raise_errors = False):
+    def load_data(path, verbose=False, raise_errors = False):
         """
         loads the data that has been save with Script.save.
         Args:
