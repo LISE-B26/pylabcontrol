@@ -4,7 +4,7 @@ from pylabcontrol import __version__ as current_version
 # NOTES for updating this file:
 # 1) for version update in the pylabcotnrol.__init__
 # 2) update the following comment_on_changes
-comment_on_changes = 'Added the arc option to select_points (used in script_iterator). Also added more error msg when saving of gui config fails.'
+comment_on_changes = 'select points arc now allows to set the direction of the arc'
 
 setup(
     name='pylabcontrol',
