@@ -1383,6 +1383,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             filepath = str(filepath)
             if not os.path.exists(os.path.dirname(filepath)):
                 os.makedirs(os.path.dirname(filepath))
+                self.log('ceated dir ' + os.path.dirname(filepath))
 
             # build a dictionary for the configuration of the hidden parameters
             dictator = {}
@@ -1409,6 +1410,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             with open(filepath, 'w') as outfile:
                 json.dump(dictator, outfile, indent=4)
+            self.log('Saved GUI configuration (location: {0}'.format(filepath))
 
             save_config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'save_config.json'))
             if os.path.isfile(save_config_path) and os.access(save_config_path, os.R_OK):
@@ -1417,11 +1419,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             else:
                 with io.open(save_config_path, 'w') as save_config_file:
                     save_config_file.write(json.dumps({'last_save_path': filepath}))
+            self.log('Saved save_config.json')
 
-            self.log('Saved GUI configuration (location: {0}'.format(filepath))
+
         except Exception:
             msg = QtWidgets.QMessageBox()
-            msg.setText("Saving failed. Please use 'save as' to define a valid path for the gui.")
+            msg.setText("Saving to {:s} failed."
+                        "Please use 'save as' to define a valid path for the gui.".format(filepath))
             msg.exec_()
 
 

@@ -7,7 +7,7 @@ import numpy as np
 from PyQt5.QtCore import QThread, pyqtSignal, QObject
 
 from matplotlib.backends.backend_qt4agg import (NavigationToolbar2QT as NavigationToolbar)
-from gui.windows_and_widgets.main_window import MatplotlibWidget
+from pylabcontrol.gui.windows_and_widgets.main_window import MatplotlibWidget
 import sys
 import glob
 import time
