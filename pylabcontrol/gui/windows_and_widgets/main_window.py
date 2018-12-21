@@ -1379,6 +1379,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     dictator[item.name].update(get_hidden_parameter(item.child(child_id)))
             return dictator
 
+
+
+
+        print('JG tmp filepath', filepath)
         try:
             filepath = str(filepath)
             if not os.path.exists(os.path.dirname(filepath)):
@@ -1410,8 +1414,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             with open(filepath, 'w') as outfile:
                 json.dump(dictator, outfile, indent=4)
-            self.log('Saved GUI configuration (location: {0}'.format(filepath))
+            self.log('Saved GUI configuration (location: {:s})'.format(filepath))
 
+        except Exception:
+            msg = QtWidgets.QMessageBox()
+            msg.setText("Saving to {:s} failed."
+                        "Please use 'save as' to define a valid path for the gui.".format(filepath))
+            msg.exec_()
+        try:
             save_config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'save_config.json'))
             if os.path.isfile(save_config_path) and os.access(save_config_path, os.R_OK):
                 with open(save_config_path, 'w') as outfile:
@@ -1420,13 +1430,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 with io.open(save_config_path, 'w') as save_config_file:
                     save_config_file.write(json.dumps({'last_save_path': filepath}))
             self.log('Saved save_config.json')
-
-
         except Exception:
             msg = QtWidgets.QMessageBox()
-            msg.setText("Saving to {:s} failed."
-                        "Please use 'save as' to define a valid path for the gui.".format(filepath))
+            msg.setText("Saving save_config.json failed (:s). Check if use has write access to this folder.".format(save_config_path))
             msg.exec_()
+
+
 
 
     def save_dataset(self, out_file_name):

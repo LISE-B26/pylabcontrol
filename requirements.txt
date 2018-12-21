@@ -1,1 +1,7 @@
-numpy==1.14.0
+numpy
+matplotlib
+pandas
+numpy
+scipy
+pyyaml
+PyQt5
