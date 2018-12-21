@@ -169,42 +169,51 @@ Script to select points on an image. The selected points are saved and can be us
                     tmp += [[r * np.sin(theta)+pta[0], r * np.cos(theta)+pta[1]]]
             self.data['nv_locations'] = np.array(tmp)
             self.stop()
+
         elif self.settings['type'] == 'arc' and len(self.data['nv_locations']) > 2:
             # here we create a circular grid, where pts a and be define the center and the outermost ring
             Nx, Ny = self.settings['Nx'], self.settings['Ny']
-            pta = self.data['nv_locations'][0]  # center
-            ptb = self.data['nv_locations'][1]  # arc point one (radius)
-            ptc = self.data['nv_locations'][2]  # arc point two (angle)
-            print('points: ', pta, ptb, ptc)
+            pt_center = self.data['nv_locations'][0]  # center
+            pt_start = self.data['nv_locations'][1]  # arc point one (radius)
+            pt_dir = self.data['nv_locations'][2]  # arc point two (direction)
+            pt_end = self.data['nv_locations'][3]  # arc point three (angle)
+
             # radius of outermost ring:
-            rmax = np.sqrt((pta[0] - ptb[0]) ** 2 + (pta[1] - ptb[1]) ** 2)
-            angle_0 = np.arctan((ptb[1]-pta[1])/(ptb[0]-pta[0]))
-            #arctan always returns between -pi/2 and pi/2, so adjust to allow full range of angles
-            if((ptb[0] - pta[0]) < 0):
-                angle_0 += np.pi
-            angle_1 = np.arctan((ptc[1]-pta[1])/(ptc[0]-pta[0]))
-            #arctan always returns between -pi/2 and pi/2, so adjust to allow full range of angles
-            if((ptc[0] - pta[0]) < 0):
-                angle_1 += np.pi
-            #we want to return the shorter arc between the two points, so if the above yields the the longer arc, adjust the angles
-            if(np.abs(angle_1 - angle_0) > np.pi):
-                if(angle_0 < 0 or angle_1 > angle_0):
-                    angle_0 += 2*np.pi
-                elif(angle_1 < 0 or angle_0 > angle_1):
-                    angle_1 += 2*np.pi
+            rmax = np.sqrt((pt_center[0] - pt_start[0]) ** 2 + (pt_center[1] - pt_start[1]) ** 2)
+            angle_start = np.arctan((pt_start[1] - pt_center[1]) / (pt_start[0] - pt_center[0]))
+            # arctan always returns between -pi/2 and pi/2, so adjust to allow full range of angles
+            if ((pt_start[0] - pt_center[0]) < 0):
+                angle_start += np.pi
+
+            angle_end = np.arctan((pt_end[1] - pt_center[1]) / (pt_end[0] - pt_center[0]))
+            # arctan always returns between -pi/2 and pi/2, so adjust to allow full range of angles
+            if ((pt_end[0] - pt_center[0]) < 0):
+                angle_end += np.pi
+
+            if pt_dir[0] < pt_start[0]:
+                # counter-clockwise: invert the order of the angles
+                angle_start, angle_end = angle_end, angle_start
+
+            if angle_start > angle_end:
+                # make sure that start is the smaller
+                # (e.g. angle_start= 180 deg and angle_end =10, we want to got from 180 to 370 deg)
+                angle_end += 2 * np.pi
+
             # create points on arcs
-            tmp = []
+            nv_pts = []
             for r in np.linspace(rmax, 0, Ny + 1)[0:-1]:
-                for theta in np.linspace(angle_0, angle_1, Nx, endpoint = True):
-                    tmp += [[r * np.cos(theta) + pta[0], r * np.sin(theta) + pta[1]]]
+                for theta in np.linspace(angle_start, angle_end, Nx, endpoint=True):
+                    nv_pts += [[r * np.cos(theta) + pt_center[0], r * np.sin(theta) + pt_center[1]]]
+
+            # randomize
             if self.settings['randomize']:
-                coarray = list(zip(tmp, np.linspace(angle_0, angle_1, Nx, endpoint = True)))
-                random.shuffle(coarray) #shuffles in place
-                tmp, angles = zip(*coarray)
+                coarray = list(zip(nv_pts, np.linspace(angle_start, angle_end, Nx, endpoint=True)))
+                random.shuffle(coarray)  # shuffles in place
+                nv_pts, angles = zip(*coarray)
             else:
-                angles = np.linspace(angle_0, angle_1, Nx, endpoint = True)
-            self.data['nv_locations'] = np.array(tmp)
-            self.data['arc_data'] = [pta, ptb, ptc]
+                angles = np.linspace(angle_start, angle_end, Nx, endpoint=True)
+            self.data['nv_locations'] = np.array(nv_pts)
+            self.data['arc_data'] = [pt_center, pt_start, pt_end]
             self.data['angles'] = np.array(angles) * 180 / np.pi
             self.stop()
 
