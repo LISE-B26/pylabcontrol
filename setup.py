@@ -4,7 +4,7 @@ from pylabcontrol import __version__ as current_version
 # NOTES for updating this file:
 # 1) for version update in the pylabcotnrol.__init__
 # 2) update the following comment_on_changes
-comment_on_changes = 'select points arc now allows to set the direction of the arc'
+comment_on_changes = 'corrected error in the calculation of the power spectral density'
 
 setup(
     name='pylabcontrol',

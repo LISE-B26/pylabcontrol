@@ -22,7 +22,7 @@ import numpy as np
 
 def power_spectral_density(x, time_step, freq_range = None):
     """
-    returns the power spectral density of the time trace x which is sampled at intervals time_step
+    returns the *single sided* power spectral density of the time trace x which is sampled at intervals time_step
     Args:
         x (array):  timetrace
         time_step (float): sampling interval of x
@@ -31,11 +31,12 @@ def power_spectral_density(x, time_step, freq_range = None):
     Returns:
 
     """
-    P = np.abs(np.fft.rfft(x))**2 * time_step**2 /len(x)
+    N = len(x)
+    P = 2 * np.abs(np.fft.rfft(x))**2 / N * time_step
     F = np.fft.rfftfreq(len(x), time_step)
 
     if freq_range is not None:
-        brange = np.all([F>=freq_range[0], F<=freq_range[1]], axis = 0)
+        brange = np.all([F >= freq_range[0], F <= freq_range[1]], axis=0)
         P = P[brange]
         F = F[brange]
 

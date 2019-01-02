@@ -170,7 +170,7 @@ Script to select points on an image. The selected points are saved and can be us
             self.data['nv_locations'] = np.array(tmp)
             self.stop()
 
-        elif self.settings['type'] == 'arc' and len(self.data['nv_locations']) > 2:
+        elif self.settings['type'] == 'arc' and len(self.data['nv_locations']) > 3:
             # here we create a circular grid, where pts a and be define the center and the outermost ring
             Nx, Ny = self.settings['Nx'], self.settings['Ny']
             pt_center = self.data['nv_locations'][0]  # center
