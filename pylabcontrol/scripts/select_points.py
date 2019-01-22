@@ -133,12 +133,18 @@ Script to select points on an image. The selected points are saved and can be us
             tree = scipy.spatial.KDTree(self.data['nv_locations'])
             #does a search with k=1, that is a search for the nearest neighbor, within distance_upper_bound
             d, i = tree.query(pt,k = 1, distance_upper_bound = self.settings['patch_size'])
+
             # removes NV if previously selected
             if d is not np.inf:
                 self.data['nv_locations'].pop(i)
             # adds NV if not previously selected
             else:
                 self.data['nv_locations'].append(pt)
+
+            # randomize
+            if self.settings['randomize']:
+                self.log('warning! randomize not avalable when manually selecting points')
+
         # if type is not free we calculate the total points of locations from the first selected points
         if self.settings['type'] == 'square' and len(self.data['nv_locations'])>1:
             # here we create a rectangular grid, where pts a and be define the top left and bottom right corner of the rectangle
@@ -146,28 +152,57 @@ Script to select points on an image. The selected points are saved and can be us
             pta = self.data['nv_locations'][0]
             ptb = self.data['nv_locations'][1]
             tmp  = np.array([[[pta[0] + 1.0*i*(ptb[0]-pta[0])/(Nx-1), pta[1] + 1.0*j*(ptb[1]-pta[1])/(Ny-1)] for i in range(Nx)] for j in range(Ny)])
-            self.data['nv_locations'] = np.reshape(tmp, (Nx * Ny, 2))
+            nv_pts = np.reshape(tmp, (Nx * Ny, 2))
+
+            # randomize
+            if self.settings['randomize']:
+                random.shuffle(nv_pts)  # shuffles in place
+
+            self.data['nv_locations'] = nv_pts
+
             self.stop()
         elif self.settings['type'] == 'line' and len(self.data['nv_locations'])>1:
             # here we create a straight line between points a and b
             N = self.settings['Nx']
             pta = self.data['nv_locations'][0]
             ptb = self.data['nv_locations'][1]
-            self.data['nv_locations']  = [np.array([pta[0] + 1.0*i*(ptb[0]-pta[0])/(N-1), pta[1] + 1.0*i*(ptb[1]-pta[1])/(N-1)]) for i in range(N)]
+            nv_pts = [np.array([pta[0] + 1.0*i*(ptb[0]-pta[0])/(N-1), pta[1] + 1.0*i*(ptb[1]-pta[1])/(N-1)]) for i in range(N)]
+
+
+            # randomize
+            if self.settings['randomize']:
+                random.shuffle(nv_pts)  # shuffles in place
+
+            self.data['nv_locations'] = nv_pts
+
             self.stop()
         elif self.settings['type'] == 'ring' and len(self.data['nv_locations'])>1:
             # here we create a circular grid, where pts a and be define the center and the outermost ring
             Nx, Ny = self.settings['Nx'], self.settings['Ny']
-            pta = self.data['nv_locations'][0] # center
-            ptb = self.data['nv_locations'][1] # outermost ring
+            pt_center = self.data['nv_locations'][0] # center
+            pt_outer = self.data['nv_locations'][1] # outermost ring
             # radius of outermost ring:
-            rmax = np.sqrt((pta[0] - ptb[0]) ** 2 + (pta[1] - ptb[1]) ** 2)
+            rmax = np.sqrt((pt_center[0] - pt_outer[0]) ** 2 + (pt_center[1] - pt_outer[1]) ** 2)
+
+            # angles
+            angles = np.linspace(0, 2 * np.pi, Nx+1)[0:-1]
             # create points on rings
-            tmp = []
+            nv_pts = []
             for r in np.linspace(rmax, 0, Ny + 1)[0:-1]:
-                for theta in np.linspace(0, 2 * np.pi, Nx+1)[0:-1]:
-                    tmp += [[r * np.sin(theta)+pta[0], r * np.cos(theta)+pta[1]]]
-            self.data['nv_locations'] = np.array(tmp)
+                for theta in angles:
+                    nv_pts += [[r * np.sin(theta)+pt_center[0], r * np.cos(theta)+pt_center[1]]]
+
+
+
+            # randomize
+            if self.settings['randomize']:
+                coarray = list(zip(nv_pts, angles))
+                random.shuffle(coarray)  # shuffles in place
+                nv_pts, angles = zip(*coarray)
+
+            self.data['nv_locations'] = np.array(nv_pts)
+            self.data['angles'] = np.array(angles)* 180 / np.pi
+            self.data['ring_data'] = [pt_center, pt_outer]
             self.stop()
 
         elif self.settings['type'] == 'arc' and len(self.data['nv_locations']) > 3:
