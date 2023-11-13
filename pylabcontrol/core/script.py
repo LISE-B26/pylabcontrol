@@ -60,6 +60,7 @@ class Script(QObject):
         Parameter('path', '', str, 'path to folder where data is saved'),
         Parameter('tag', 'default_tag'),
         Parameter('save', False, bool,'check to automatically save data'),
+        Parameter('verbose', True, bool, 'check to log info')
     ]
 
     RAW_DATA_DIR = 'raw_data' # dir name for rawdata
@@ -205,10 +206,11 @@ class Script(QObject):
         """
 
         self.log_data.append(string)
-        if self.log_function is None:
-            print(string)
-        else:
-            self.log_function(string)
+        if self.settings['verbose']:
+            if self.log_function is None:
+                print(string)
+            else:
+                self.log_function(string)
 
     # @property
     # def _DEFAULT_SETTINGS(self):

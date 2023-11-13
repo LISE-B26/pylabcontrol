@@ -94,8 +94,10 @@ class ExportDialog(QDialog, Ui_Dialog):
                 self.avaliable = find_scripts_in_python_files(folder)
             elif self.cmb_select_type.currentText() == 'Instrument':
                 self.avaliable = find_instruments_in_python_files(folder)
-            self.fill_list(self.list_script, self.avaliable.keys())
-            for key in self.avaliable.keys():
+
+            sorted_keys = sorted(self.avaliable.keys())
+            self.fill_list(self.list_script, sorted_keys)
+            for key in sorted_keys:
                 self.error_array.update({key: ''})
         except Exception:
             msg = QtWidgets.QMessageBox()
