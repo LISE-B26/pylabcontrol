@@ -82,7 +82,7 @@ and be sure to the click and drag the Dummy Instrument to the left pane. Press O
 
 #### .b26 files
 Settings and configurations are saved in json files with .b26 extension.
-Since these files can become quite large for complex scripts, we recommend a json viewer to look at them (e.g. https://jsonviewer.codeplex.com/).
+Since these files can become quite large for complex scripts, we recommend a JSON viewer to look at them (e.g. https://jsonviewertool.com/).
 
 #### b26_toolkit
 This software was created to streamline experiments done in the Lukin Lab; 
